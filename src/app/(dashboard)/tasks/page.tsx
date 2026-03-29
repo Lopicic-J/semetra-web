@@ -7,8 +7,8 @@ import { formatDate } from "@/lib/utils";
 import { Plus, CheckSquare, X, Pencil, Trash2, Check } from "lucide-react";
 import type { Task, TaskStatus, TaskPriority } from "@/types/database";
 
-const STATUS_LABELS: Record<TaskStatus, string> = { todo: "Offen", in_progress: "In Arbeit", done: "Erledigt" };
-const PRIORITY_LABELS: Record<TaskPriority, string> = { low: "Niedrig", medium: "Mittel", high: "Hoch" };
+const STATUS_LABELS: Record<string, string> = { todo: "Offen", in_progress: "In Arbeit", done: "Erledigt" };
+const PRIORITY_LABELS: Record<string, string> = { low: "Niedrig", medium: "Mittel", high: "Hoch" };
 
 export default function TasksPage() {
   const { tasks, loading, refetch } = useTasks();
