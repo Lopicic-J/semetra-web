@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { stripe, STRIPE_PRO_PRICE_ID } from "@/lib/stripe";
+import { stripe, STRIPE_PRO_PRICE_ID, isValidProPrice } from "@/lib/stripe";
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,6 +9,21 @@ export async function POST(req: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: "Nicht eingeloggt." }, { status: 401 });
+    }
+
+    // Accept optional price_id from body, fall back to default (monthly)
+    let priceId = STRIPE_PRO_PRICE_ID;
+    try {
+      const body = await req.json();
+      if (body.price_id && isValidProPrice(body.price_id)) {
+        priceId = body.price_id;
+      }
+    } catch {
+      // No body or invalid JSON — use default
+    }
+
+    if (!priceId) {
+      return NextResponse.json({ error: "Kein gültiger Preis konfiguriert." }, { status: 500 });
     }
 
     // Get or create Stripe customer
@@ -44,7 +59,7 @@ export async function POST(req: NextRequest) {
       payment_method_types: ["card"],
       line_items: [
         {
-          price: STRIPE_PRO_PRICE_ID,
+          price: priceId,
           quantity: 1,
         },
       ],
