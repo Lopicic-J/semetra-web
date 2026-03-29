@@ -1,136 +1,98 @@
-export type ModuleStatus = "planned" | "active" | "completed" | "paused";
-export type ModuleType   = "pflicht" | "wahl" | "vertiefung";
-export type TaskStatus   = "Open" | "In Progress" | "Done";
-export type TaskPriority = "Low" | "Medium" | "High" | "Critical";
-export type EventKind    = "study_block" | "custom";
-export type Recurrence   = "none" | "daily" | "weekly";
-export type GradeMode    = "points" | "direct";
-export type DataType     = "objective" | "content_section" | "assessment";
+// ── Database types matching the Supabase schema (001_initial.sql) ─────────────
+
+export type TaskStatus   = "todo" | "in_progress" | "done";
+export type TaskPriority = "low" | "medium" | "high";
 
 export interface Module {
-  id: number;
+  id: string;
   user_id: string;
   name: string;
-  code: string;
-  semester: string;
-  ects: number;
-  lecturer: string;
-  link: string;
-  status: ModuleStatus;
-  exam_date: string;
-  weighting: number;
-  github_link: string;
-  sharepoint_link: string;
-  literature_links: string;
-  notes_link: string;
-  module_type: ModuleType;
-  in_plan: boolean;
-  target_grade: number | null;
+  professor: string | null;
+  ects: number | null;
+  semester: string | null;
+  day: string | null;
+  time_start: string | null;
+  time_end: string | null;
+  room: string | null;
+  color: string;
+  notes: string | null;
   created_at: string;
 }
 
 export interface Task {
-  id: number;
+  id: string;
   user_id: string;
-  module_id: number;
+  module_id: string | null;
   title: string;
-  priority: TaskPriority;
-  status: TaskStatus;
-  due_date: string;
-  notes: string;
+  description: string | null;
+  due_date: string | null;
+  priority: string;
+  status: string;
   created_at: string;
   updated_at: string;
   module?: Module;
 }
 
 export interface CalendarEvent {
-  id: number;
+  id: string;
   user_id: string;
-  module_id: number | null;
   title: string;
-  kind: EventKind;
-  start_date: string;
-  end_date: string;
-  start_time: string;
-  end_time: string;
-  recurrence: Recurrence;
-  recurrence_until: string;
-  notes: string;
-  module?: Module;
+  start_dt: string;
+  end_dt: string | null;
+  location: string | null;
+  description: string | null;
+  color: string;
+  event_type: string;
+  created_at: string;
 }
 
 export interface TimeLog {
-  id: number;
+  id: string;
   user_id: string;
-  module_id: number;
-  start_ts: number;
-  end_ts: number;
-  seconds: number;
-  kind: "study" | "pomodoro";
-  note: string;
+  module_id: string | null;
+  duration_seconds: number;
+  started_at: string;
+  note: string | null;
   created_at: string;
   module?: Module;
 }
 
 export interface Topic {
-  id: number;
+  id: string;
   user_id: string;
-  module_id: number;
+  module_id: string | null;
+  parent_id: string | null;
   title: string;
-  knowledge_level: number;
-  notes: string;
-  task_id: number | null;
-  last_reviewed: string;
-  sr_easiness: number;
-  sr_interval: number;
-  sr_repetitions: number;
-  sr_next_review: string;
+  description: string | null;
+  status: string;
   created_at: string;
-  updated_at: string;
-  module?: Module;
 }
 
 export interface Grade {
-  id: number;
+  id: string;
   user_id: string;
-  module_id: number;
+  module_id: string | null;
   title: string;
   grade: number;
-  max_grade: number;
   weight: number;
-  grade_mode: GradeMode;
-  date: string;
-  notes: string;
+  date: string | null;
+  exam_type: string | null;
+  notes: string | null;
   created_at: string;
-  module?: Module;
-}
-
-export interface ScrapedData {
-  id: number;
-  user_id: string;
-  module_id: number;
-  data_type: DataType;
-  title: string;
-  body: string;
-  weight: number;
-  sort_order: number;
-  checked: boolean;
   module?: Module;
 }
 
 export interface StundenplanEntry {
-  id: number;
+  id: string;
   user_id: string;
-  day_of_week: number;
-  time_from: string;
-  time_to: string;
-  subject: string;
-  room: string;
-  lecturer: string;
+  module_id: string | null;
+  title: string;
+  day: string;
+  time_start: string;
+  time_end: string;
+  room: string | null;
   color: string;
-  module_id: number | null;
-  notes: string;
-  module?: Module;
+  created_at: string;
 }
 
 export interface AppSetting {
