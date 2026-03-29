@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
-import { Plus, X, Trash2, Pencil, Brain, ChevronDown, ChevronRight } from "lucide-react";
+import { Plus, X, Trash2, Pencil, Brain, ChevronDown, ChevronRight, RotateCcw, Zap, Check } from "lucide-react";
 import type { Topic } from "@/types/database";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -18,6 +18,38 @@ const STATUS_LABELS: Record<string, string> = {
   needs_review: "Wiederholen",
 };
 
+const KNOWLEDGE_LEVELS = [
+  { level: 0, label: "Unbekannt", color: "bg-gray-300" },
+  { level: 1, label: "Gesehen", color: "bg-red-400" },
+  { level: 2, label: "Grundlagen", color: "bg-orange-400" },
+  { level: 3, label: "Verstanden", color: "bg-yellow-400" },
+  { level: 4, label: "Beherrscht", color: "bg-green-500" },
+];
+
+// SM-2 Algorithm
+function sm2(quality: number, easiness: number, interval: number, repetitions: number) {
+  let newEasiness = easiness + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
+  if (newEasiness < 1.3) newEasiness = 1.3;
+
+  let newInterval: number;
+  let newReps: number;
+
+  if (quality < 3) {
+    newReps = 0;
+    newInterval = 1;
+  } else {
+    newReps = repetitions + 1;
+    if (newReps === 1) newInterval = 1;
+    else if (newReps === 2) newInterval = 6;
+    else newInterval = Math.round(interval * newEasiness);
+  }
+
+  const nextReview = new Date();
+  nextReview.setDate(nextReview.getDate() + newInterval);
+
+  return { easiness: newEasiness, interval: newInterval, repetitions: newReps, nextReview };
+}
+
 export default function KnowledgePage() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,6 +58,7 @@ export default function KnowledgePage() {
   const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
   const [parentForNew, setParentForNew] = useState<string | null>(null);
   const [filterModule, setFilterModule] = useState<string>("all");
+  const [showReview, setShowReview] = useState(false);
   const { modules } = useModules();
   const supabase = createClient();
 
@@ -38,6 +71,12 @@ export default function KnowledgePage() {
 
   useEffect(() => { fetchTopics(); }, [fetchTopics]);
 
+  // Due topics for SR
+  const dueTopics = topics.filter(t => {
+    if (!t.sr_next_review) return t.knowledge_level < 4;
+    return new Date(t.sr_next_review) <= new Date();
+  });
+
   async function handleDelete(id: string) {
     if (!confirm("Thema löschen?")) return;
     await supabase.from("topics").delete().eq("id", id);
@@ -49,6 +88,14 @@ export default function KnowledgePage() {
     const idx = cycle.indexOf(topic.status ?? "not_started");
     const next = cycle[(idx + 1) % cycle.length];
     await supabase.from("topics").update({ status: next }).eq("id", topic.id);
+    fetchTopics();
+  }
+
+  async function setKnowledgeLevel(topic: Topic, level: number) {
+    await supabase.from("topics").update({
+      knowledge_level: level,
+      last_reviewed: new Date().toISOString(),
+    }).eq("id", topic.id);
     fetchTopics();
   }
 
@@ -66,17 +113,64 @@ export default function KnowledgePage() {
     });
   }
 
+  // Knowledge level distribution
+  const levelDist = KNOWLEDGE_LEVELS.map(kl => ({
+    ...kl,
+    count: topics.filter(t => (t.knowledge_level ?? 0) === kl.level).length,
+  }));
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Lernziele</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{topics.filter(t => t.status === "understood").length}/{topics.length} verstanden</p>
+          <h1 className="text-2xl font-bold text-gray-900">Lernziele & Wissen</h1>
+          <p className="text-gray-500 text-sm mt-0.5">
+            {topics.filter(t => t.status === "understood").length}/{topics.length} verstanden
+            {dueTopics.length > 0 && (
+              <span className="text-amber-600 font-medium ml-2">· {dueTopics.length} Review{dueTopics.length !== 1 ? "s" : ""} fällig</span>
+            )}
+          </p>
         </div>
-        <button onClick={() => { setParentForNew(null); setEditingTopic(null); setShowForm(true); }} className="btn-primary gap-2">
-          <Plus size={16} /> Thema
-        </button>
+        <div className="flex gap-2">
+          {dueTopics.length > 0 && (
+            <button onClick={() => setShowReview(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium transition-colors">
+              <RotateCcw size={16} /> Review starten ({dueTopics.length})
+            </button>
+          )}
+          <button onClick={() => { setParentForNew(null); setEditingTopic(null); setShowForm(true); }} className="btn-primary gap-2">
+            <Plus size={16} /> Thema
+          </button>
+        </div>
       </div>
+
+      {/* Knowledge level bar */}
+      {topics.length > 0 && (
+        <div className="card mb-5">
+          <div className="flex justify-between text-sm mb-3">
+            <span className="font-medium text-gray-700">Wissensstand</span>
+            <span className="text-gray-500">{Math.round((topics.filter(t => (t.knowledge_level ?? 0) >= 3).length / topics.length) * 100)}% gut oder besser</span>
+          </div>
+          {/* Stacked bar */}
+          <div className="h-3 bg-gray-100 rounded-full overflow-hidden flex">
+            {levelDist.map(ld => (
+              ld.count > 0 && (
+                <div key={ld.level} className={`h-full ${ld.color} transition-all`}
+                  style={{ width: `${(ld.count / topics.length) * 100}%` }}
+                  title={`${ld.label}: ${ld.count}`}
+                />
+              )
+            ))}
+          </div>
+          <div className="flex gap-4 mt-3 text-xs text-gray-500 flex-wrap">
+            {levelDist.map(ld => (
+              <span key={ld.level} className="flex items-center gap-1">
+                <span className={`w-2 h-2 rounded-full ${ld.color}`} />
+                {ld.count} {ld.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Filter */}
       <div className="flex gap-2 mb-5 flex-wrap">
@@ -136,6 +230,7 @@ export default function KnowledgePage() {
               onEdit={t => { setEditingTopic(t); setShowForm(true); }}
               onDelete={handleDelete}
               onAddChild={id => { setParentForNew(id); setEditingTopic(null); setShowForm(true); }}
+              onSetLevel={setKnowledgeLevel}
               depth={0}
             />
           ))}
@@ -151,11 +246,18 @@ export default function KnowledgePage() {
           onSaved={() => { setShowForm(false); fetchTopics(); }}
         />
       )}
+
+      {showReview && (
+        <SRReviewModal
+          topics={dueTopics}
+          onClose={() => { setShowReview(false); fetchTopics(); }}
+        />
+      )}
     </div>
   );
 }
 
-function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onToggleStatus, onEdit, onDelete, onAddChild, depth }: {
+function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onToggleStatus, onEdit, onDelete, onAddChild, onSetLevel, depth }: {
   topic: Topic;
   children: Topic[];
   allTopics: Topic[];
@@ -165,10 +267,12 @@ function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onTog
   onEdit: (t: Topic) => void;
   onDelete: (id: string) => void;
   onAddChild: (id: string) => void;
+  onSetLevel: (t: Topic, level: number) => void;
   depth: number;
 }) {
   const isExpanded = expanded.has(topic.id);
   const hasChildren = children.length > 0;
+  const kl = topic.knowledge_level ?? 0;
 
   return (
     <div>
@@ -184,7 +288,26 @@ function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onTog
 
         <span className="flex-1 text-sm text-gray-800 font-medium">{topic.title}</span>
 
-        {topic.description && <span className="text-xs text-gray-400 truncate max-w-[200px] hidden sm:block">{topic.description}</span>}
+        {/* Knowledge level indicator */}
+        <div className="flex gap-0.5 shrink-0">
+          {KNOWLEDGE_LEVELS.map(l => (
+            <button key={l.level} onClick={() => onSetLevel(topic, l.level)}
+              className={`w-3 h-3 rounded-sm transition-all ${kl >= l.level ? l.color : "bg-gray-200"} hover:scale-125`}
+              title={l.label}
+            />
+          ))}
+        </div>
+
+        {topic.description && <span className="text-xs text-gray-400 truncate max-w-[150px] hidden sm:block">{topic.description}</span>}
+
+        {/* SR info */}
+        {topic.sr_next_review && (
+          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+            new Date(topic.sr_next_review) <= new Date() ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-500"
+          }`}>
+            {new Date(topic.sr_next_review) <= new Date() ? "Fällig" : new Date(topic.sr_next_review).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" })}
+          </span>
+        )}
 
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button onClick={() => onAddChild(topic.id)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-violet-500" title="Unterthema">
@@ -211,6 +334,7 @@ function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onTog
           onEdit={onEdit}
           onDelete={onDelete}
           onAddChild={onAddChild}
+          onSetLevel={onSetLevel}
           depth={depth + 1}
         />
       ))}
@@ -218,6 +342,137 @@ function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onTog
   );
 }
 
+/* ── SR Review Modal ──────────────────────────────────────────────────────── */
+function SRReviewModal({ topics, onClose }: { topics: Topic[]; onClose: () => void }) {
+  const supabase = createClient();
+  const [idx, setIdx] = useState(0);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [done, setDone] = useState(false);
+  const [stats, setStats] = useState({ good: 0, again: 0 });
+
+  const current = topics[idx];
+
+  async function rate(quality: number) {
+    if (!current) return;
+    const result = sm2(
+      quality,
+      current.sr_easiness ?? 2.5,
+      current.sr_interval ?? 1,
+      current.sr_repetitions ?? 0
+    );
+
+    await supabase.from("topics").update({
+      sr_easiness: result.easiness,
+      sr_interval: result.interval,
+      sr_repetitions: result.repetitions,
+      sr_next_review: result.nextReview.toISOString(),
+      last_reviewed: new Date().toISOString(),
+      knowledge_level: Math.min(4, Math.max(current.knowledge_level ?? 0, quality >= 3 ? (current.knowledge_level ?? 0) + 1 : Math.max(0, (current.knowledge_level ?? 0) - 1))),
+    }).eq("id", current.id);
+
+    setStats(s => quality >= 3 ? { ...s, good: s.good + 1 } : { ...s, again: s.again + 1 });
+
+    if (idx + 1 >= topics.length) {
+      setDone(true);
+    } else {
+      setIdx(i => i + 1);
+      setShowAnswer(false);
+    }
+  }
+
+  if (done) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md text-center p-8">
+          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+            <Check size={32} className="text-green-600" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Review abgeschlossen!</h2>
+          <p className="text-gray-500 mb-4">
+            {stats.good + stats.again} Themen wiederholt
+          </p>
+          <div className="flex justify-center gap-6 mb-6">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-green-600">{stats.good}</p>
+              <p className="text-xs text-gray-500">Gewusst</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-red-500">{stats.again}</p>
+              <p className="text-xs text-gray-500">Wiederholen</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="btn-primary w-full justify-center">Fertig</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!current) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
+        {/* Header */}
+        <div className="flex items-center justify-between p-5 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <Brain size={18} className="text-violet-600" />
+            <span className="font-semibold text-gray-900">Spaced Repetition Review</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-gray-400">{idx + 1} / {topics.length}</span>
+            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100"><X size={16} /></button>
+          </div>
+        </div>
+
+        {/* Progress */}
+        <div className="h-1 bg-gray-100">
+          <div className="h-full bg-violet-500 transition-all" style={{ width: `${((idx) / topics.length) * 100}%` }} />
+        </div>
+
+        {/* Card */}
+        <div className="p-8 text-center min-h-[200px] flex flex-col items-center justify-center">
+          <h3 className="text-xl font-bold text-gray-900 mb-2">{current.title}</h3>
+          {current.description && !showAnswer && (
+            <p className="text-gray-400 text-sm">Kannst du dieses Thema erklären?</p>
+          )}
+          {showAnswer && current.description && (
+            <p className="text-gray-600 mt-3 text-sm bg-gray-50 rounded-xl p-4">{current.description}</p>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="p-5 border-t border-gray-100">
+          {!showAnswer ? (
+            <button onClick={() => setShowAnswer(true)}
+              className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors">
+              Antwort zeigen
+            </button>
+          ) : (
+            <div>
+              <p className="text-xs text-gray-500 text-center mb-3">Wie gut wusstest du es?</p>
+              <div className="grid grid-cols-4 gap-2">
+                <button onClick={() => rate(1)} className="py-2.5 rounded-xl bg-red-100 hover:bg-red-200 text-red-700 text-sm font-medium transition-colors">
+                  Nochmal
+                </button>
+                <button onClick={() => rate(3)} className="py-2.5 rounded-xl bg-orange-100 hover:bg-orange-200 text-orange-700 text-sm font-medium transition-colors">
+                  Schwer
+                </button>
+                <button onClick={() => rate(4)} className="py-2.5 rounded-xl bg-green-100 hover:bg-green-200 text-green-700 text-sm font-medium transition-colors">
+                  Gut
+                </button>
+                <button onClick={() => rate(5)} className="py-2.5 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-700 text-sm font-medium transition-colors">
+                  Leicht
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Topic Create/Edit Modal ──────────────────────────────────────────────── */
 function TopicModal({ initial, parentId, modules, onClose, onSaved }: {
   initial: Topic | null;
   parentId: string | null;
@@ -231,10 +486,11 @@ function TopicModal({ initial, parentId, modules, onClose, onSaved }: {
     description: initial?.description ?? "",
     module_id: initial?.module_id ?? "",
     status: initial?.status ?? "not_started",
+    knowledge_level: initial?.knowledge_level ?? 0,
   });
   const [saving, setSaving] = useState(false);
 
-  function set(k: string, v: string) { setForm(f => ({ ...f, [k]: v })); }
+  function set(k: string, v: string | number) { setForm(f => ({ ...f, [k]: v })); }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -244,6 +500,7 @@ function TopicModal({ initial, parentId, modules, onClose, onSaved }: {
       description: form.description || null,
       module_id: form.module_id || null,
       status: form.status,
+      knowledge_level: form.knowledge_level,
       parent_id: initial?.parent_id ?? parentId ?? null,
     };
     if (initial) {
@@ -284,6 +541,20 @@ function TopicModal({ initial, parentId, modules, onClose, onSaved }: {
               <select className="input" value={form.status} onChange={e => set("status", e.target.value)}>
                 {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Wissensstand</label>
+            <div className="flex gap-2">
+              {KNOWLEDGE_LEVELS.map(kl => (
+                <button key={kl.level} type="button"
+                  onClick={() => set("knowledge_level", kl.level)}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    form.knowledge_level >= kl.level ? `${kl.color} text-white` : "bg-gray-100 text-gray-500"
+                  }`}>
+                  {kl.label}
+                </button>
+              ))}
             </div>
           </div>
           <div className="flex gap-3 pt-2">
