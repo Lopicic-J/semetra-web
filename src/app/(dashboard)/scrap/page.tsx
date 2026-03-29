@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useProfile } from "@/lib/hooks/useProfile";
+import { ProGate } from "@/components/ui/ProGate";
 import {
   Download, Loader2, CheckCircle, AlertCircle, BookOpen,
   Clock, Calendar, Globe, ChevronDown, ChevronUp
@@ -26,6 +28,23 @@ type ScrapResult = {
 
 export default function ScrapPage() {
   const supabase = createClient();
+  const { isPro, loading: profileLoading } = useProfile();
+
+  if (profileLoading) return <div className="p-6"><div className="h-8 w-48 bg-gray-100 rounded animate-pulse" /></div>;
+
+  if (!isPro) {
+    return (
+      <div className="p-6 max-w-3xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <Download className="text-violet-600" size={26} />
+            Scrap — FFHS Portal Import
+          </h1>
+        </div>
+        <ProGate feature="scrap" isPro={false} />
+      </div>
+    );
+  }
 
   const [moodleUrl, setMoodleUrl] = useState("https://moodle.ffhs.ch");
   const [username, setUsername] = useState("");

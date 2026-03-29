@@ -1,12 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Settings, User, Bell, Palette, Shield, LogOut } from "lucide-react";
+import { Settings, User, Bell, Palette, Shield, LogOut, Zap, CreditCard, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useProfile } from "@/lib/hooks/useProfile";
+import Link from "next/link";
 
 export default function SettingsPage() {
   const supabase = createClient();
   const router = useRouter();
+  const { profile, isPro } = useProfile();
   const [user, setUser] = useState<{ email?: string; created_at?: string } | null>(null);
   const [activeTab, setActiveTab] = useState("account");
 
@@ -22,10 +25,11 @@ export default function SettingsPage() {
   }
 
   const tabs = [
-    { id: "account", label: "Konto", icon: User },
-    { id: "appearance", label: "Darstellung", icon: Palette },
-    { id: "notifications", label: "Benachrichtigungen", icon: Bell },
-    { id: "privacy", label: "Datenschutz", icon: Shield },
+    { id: "account",       label: "Konto",              icon: User },
+    { id: "plan",          label: "Abo & Lizenz",        icon: CreditCard },
+    { id: "appearance",    label: "Darstellung",         icon: Palette },
+    { id: "notifications", label: "Benachrichtigungen",  icon: Bell },
+    { id: "privacy",       label: "Datenschutz",         icon: Shield },
   ];
 
   return (
@@ -54,18 +58,11 @@ export default function SettingsPage() {
 
         {/* Content */}
         <div className="flex-1">
-          {activeTab === "account" && (
-            <AccountTab user={user} />
-          )}
-          {activeTab === "appearance" && (
-            <AppearanceTab />
-          )}
-          {activeTab === "notifications" && (
-            <NotificationsTab />
-          )}
-          {activeTab === "privacy" && (
-            <PrivacyTab />
-          )}
+          {activeTab === "account"       && <AccountTab user={user} />}
+          {activeTab === "plan"          && <PlanTab isPro={isPro} profile={profile} />}
+          {activeTab === "appearance"    && <AppearanceTab />}
+          {activeTab === "notifications" && <NotificationsTab />}
+          {activeTab === "privacy"       && <PrivacyTab />}
         </div>
       </div>
     </div>
@@ -136,6 +133,81 @@ function AccountTab({ user }: { user: { email?: string; created_at?: string } | 
         <button className="px-4 py-2 rounded-xl border border-red-200 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors">
           Konto löschen
         </button>
+      </div>
+    </div>
+  );
+}
+
+function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscription_status?: string | null; plan_expires_at?: string | null } | null }) {
+  const [loading, setLoading] = useState(false);
+
+  async function handlePortal() {
+    setLoading(true);
+    const res = await fetch("/api/stripe/portal", { method: "POST" });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+    setLoading(false);
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className={`card border-2 ${isPro ? "border-violet-500" : "border-gray-200"}`}>
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h2 className="font-semibold text-gray-900">Dein aktueller Plan</h2>
+            <p className="text-xs text-gray-400 mt-0.5">Gültig für Web und Desktop</p>
+          </div>
+          <span className={`px-3 py-1 rounded-full text-xs font-bold ${isPro ? "bg-violet-100 text-violet-700" : "bg-gray-100 text-gray-500"}`}>
+            {isPro ? "PRO" : "FREE"}
+          </span>
+        </div>
+
+        {isPro ? (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <CheckCircle size={15} className="text-green-500" />
+              Abo aktiv · {profile?.stripe_subscription_status === "trialing" ? "Testphase" : "bezahlt"}
+            </div>
+            {profile?.plan_expires_at && (
+              <div className="text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded-xl">
+                Abo läuft ab am {new Date(profile.plan_expires_at).toLocaleDateString("de-CH")}
+              </div>
+            )}
+            <button
+              onClick={handlePortal}
+              disabled={loading}
+              className="btn-secondary gap-2 mt-3"
+            >
+              <CreditCard size={14} />
+              {loading ? "Öffne Stripe…" : "Abo verwalten / kündigen"}
+            </button>
+          </div>
+        ) : (
+          <div>
+            <p className="text-sm text-gray-500 mb-4">
+              Du nutzt Semetra Free. Upgrade auf Pro um alle Features freizuschalten.
+            </p>
+            <Link href="/upgrade" className="btn-primary gap-2 inline-flex">
+              <Zap size={14} />
+              Jetzt upgraden — CHF 9.90/Mt.
+            </Link>
+          </div>
+        )}
+      </div>
+
+      <div className="card">
+        <h2 className="font-semibold text-gray-900 mb-3">Desktop ↔ Web Sync</h2>
+        <p className="text-sm text-gray-600 mb-2">
+          Melde dich in der Desktop-App mit denselben Zugangsdaten an (E-Mail + Passwort). Deine Daten werden automatisch synchronisiert — über Supabase, in Echtzeit.
+        </p>
+        <div className="bg-gray-50 rounded-xl p-3 text-xs text-gray-500 font-mono">
+          Supabase URL: {process.env.NEXT_PUBLIC_SUPABASE_URL ?? "—"}
+        </div>
+        {!isPro && (
+          <p className="text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded-xl mt-3">
+            ⚡ Desktop-Sync erfordert Semetra Pro.
+          </p>
+        )}
       </div>
     </div>
   );

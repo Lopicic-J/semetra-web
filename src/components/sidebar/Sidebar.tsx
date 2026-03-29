@@ -8,56 +8,59 @@ import {
   Award, Download, Info
 } from "lucide-react";
 import { clsx } from "clsx";
+import { useProfile } from "@/lib/hooks/useProfile";
+import { ProBadge } from "@/components/ui/ProGate";
 
 const NAV_GROUPS = [
   {
     label: "",
     items: [
-      { href: "/dashboard",    icon: LayoutDashboard, label: "Dashboard" },
-      { href: "/modules",      icon: BookOpen,        label: "Module" },
-      { href: "/tasks",        icon: CheckSquare,     label: "Aufgaben" },
+      { href: "/dashboard",    icon: LayoutDashboard, label: "Dashboard",       pro: false },
+      { href: "/modules",      icon: BookOpen,        label: "Module",          pro: false },
+      { href: "/tasks",        icon: CheckSquare,     label: "Aufgaben",        pro: false },
     ],
   },
   {
     label: "PLANUNG",
     items: [
-      { href: "/calendar",     icon: Calendar,        label: "Kalender" },
-      { href: "/stundenplan",  icon: Clock4,          label: "Stundenplan" },
-      { href: "/exams",        icon: GraduationCap,   label: "Prüfungen" },
+      { href: "/calendar",     icon: Calendar,        label: "Kalender",        pro: false },
+      { href: "/stundenplan",  icon: Clock4,          label: "Stundenplan",     pro: false },
+      { href: "/exams",        icon: GraduationCap,   label: "Prüfungen",       pro: false },
     ],
   },
   {
     label: "WISSEN",
     items: [
-      { href: "/knowledge",    icon: Brain,           label: "Lernziele" },
-      { href: "/timer",        icon: Timer,           label: "Timer" },
+      { href: "/knowledge",    icon: Brain,           label: "Lernziele",       pro: false },
+      { href: "/timer",        icon: Timer,           label: "Timer",           pro: false },
     ],
   },
   {
     label: "ANALYSE",
     items: [
-      { href: "/grades",       icon: BarChart2,       label: "Noten" },
-      { href: "/credits",      icon: Award,           label: "Credits & ECTS" },
+      { href: "/grades",       icon: BarChart2,       label: "Noten",           pro: false },
+      { href: "/credits",      icon: Award,           label: "Credits & ECTS",  pro: false },
     ],
   },
   {
     label: "FFHS",
     items: [
-      { href: "/studiengaenge", icon: GraduationCap,  label: "Studiengänge" },
-      { href: "/scrap",          icon: Download,       label: "Portal Import" },
+      { href: "/studiengaenge", icon: GraduationCap,  label: "Studiengänge",   pro: false },
+      { href: "/scrap",          icon: Download,       label: "Portal Import",  pro: true  },
     ],
   },
 ];
 
 const BOTTOM_ITEMS = [
-  { href: "/settings", icon: Settings, label: "Einstellungen" },
-  { href: "/about",    icon: Info,     label: "Über Semetra" },
+  { href: "/settings", icon: Settings, label: "Einstellungen", pro: false },
+  { href: "/about",    icon: Info,     label: "Über Semetra",  pro: false },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router   = useRouter();
   const supabase = createClient();
+  const { isPro } = useProfile();
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -65,18 +68,28 @@ export default function Sidebar() {
     router.refresh();
   }
 
-  function NavItem({ href, icon: Icon, label }: { href: string; icon: React.ElementType; label: string }) {
+  function NavItem({ href, icon: Icon, label, pro }: {
+    href: string;
+    icon: React.ElementType;
+    label: string;
+    pro: boolean;
+  }) {
     const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+    const locked = pro && !isPro;
+
     return (
       <Link href={href}
         className={clsx(
           "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
           active
             ? "bg-violet-600 text-white shadow-sm"
-            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+            : locked
+              ? "text-gray-400 hover:bg-gray-50"
+              : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
         )}>
         <Icon size={18} className="shrink-0" />
-        <span>{label}</span>
+        <span className="flex-1">{label}</span>
+        {locked && !active && <ProBadge />}
       </Link>
     );
   }
@@ -90,7 +103,12 @@ export default function Sidebar() {
           <p className="font-bold text-gray-900 text-sm leading-tight">Semetra</p>
           <p className="text-[10px] text-gray-400 leading-tight">FH Edition</p>
         </div>
-        <span className="ml-auto badge badge-violet text-[10px]">Free</span>
+        <span className={clsx(
+          "ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full",
+          isPro ? "bg-violet-600 text-white" : "bg-gray-100 text-gray-500"
+        )}>
+          {isPro ? "PRO" : "Free"}
+        </span>
       </div>
 
       {/* Quick add */}
@@ -126,17 +144,27 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* Pro badge */}
-      <div className="mt-3 p-3 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white">
-        <div className="flex items-center gap-2 mb-1">
-          <Zap size={14} />
-          <span className="text-xs font-semibold">Semetra Pro</span>
+      {/* Upgrade / Pro badge */}
+      {isPro ? (
+        <div className="mt-3 p-3 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white">
+          <div className="flex items-center gap-2">
+            <Zap size={14} />
+            <span className="text-xs font-semibold">Semetra Pro aktiv</span>
+          </div>
+          <p className="text-[11px] text-violet-200 mt-1">Alle Features freigeschaltet ✓</p>
         </div>
-        <p className="text-[11px] text-violet-200 mb-2">KI-Coach, Cloud-Sync & mehr</p>
-        <button className="w-full py-1.5 rounded-lg bg-white text-violet-700 text-xs font-semibold hover:bg-violet-50 transition-colors">
-          Upgrade
-        </button>
-      </div>
+      ) : (
+        <Link href="/upgrade" className="mt-3 p-3 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white block hover:opacity-90 transition-opacity">
+          <div className="flex items-center gap-2 mb-1">
+            <Zap size={14} />
+            <span className="text-xs font-semibold">Semetra Pro</span>
+          </div>
+          <p className="text-[11px] text-violet-200 mb-2">KI-Coach, Scrap & mehr</p>
+          <div className="w-full py-1.5 rounded-lg bg-white text-violet-700 text-xs font-semibold text-center hover:bg-violet-50 transition-colors">
+            Upgrade — CHF 9.90/Mt.
+          </div>
+        </Link>
+      )}
     </aside>
   );
 }
