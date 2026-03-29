@@ -1,12 +1,16 @@
-// ── Database types matching the Supabase schema (001_initial.sql) ─────────────
+// ── Database types matching the Supabase schema (001 + 002 migrations) ────────
 
 export type TaskStatus   = "todo" | "in_progress" | "done";
 export type TaskPriority = "low" | "medium" | "high";
+export type ModuleStatus = "planned" | "active" | "completed" | "paused";
+export type ModuleType   = "pflicht" | "wahl" | "vertiefung";
+export type DataType     = "objective" | "content_section" | "assessment";
 
 export interface Module {
   id: string;
   user_id: string;
   name: string;
+  code: string | null;
   professor: string | null;
   ects: number | null;
   semester: string | null;
@@ -16,6 +20,18 @@ export interface Module {
   room: string | null;
   color: string;
   notes: string | null;
+  // Extended fields (migration 002)
+  link: string | null;
+  status: string;
+  exam_date: string | null;
+  weighting: number;
+  github_link: string | null;
+  sharepoint_link: string | null;
+  literature_links: string | null;
+  notes_link: string | null;
+  module_type: string;
+  in_plan: boolean;
+  target_grade: number | null;
   created_at: string;
 }
 
@@ -65,6 +81,13 @@ export interface Topic {
   title: string;
   description: string | null;
   status: string;
+  knowledge_level: number;
+  last_reviewed: string | null;
+  sr_easiness: number;
+  sr_interval: number;
+  sr_repetitions: number;
+  sr_next_review: string | null;
+  updated_at: string;
   created_at: string;
 }
 
@@ -93,6 +116,39 @@ export interface StundenplanEntry {
   room: string | null;
   color: string;
   created_at: string;
+}
+
+export interface ModuleScrapedData {
+  id: string;
+  user_id: string;
+  module_id: string | null;
+  data_type: string; // 'objective' | 'content_section' | 'assessment'
+  title: string;
+  body: string | null;
+  weight: number;
+  sort_order: number;
+  checked: boolean;
+  created_at: string;
+}
+
+export interface Studiengang {
+  id: string;
+  name: string;
+  fh: string;
+  abschluss: string;
+  semester_count: number;
+  ects_total: number;
+  modules_json: StudiengangModuleTemplate[] | null;
+  created_at: string;
+}
+
+export interface StudiengangModuleTemplate {
+  name: string;
+  code: string;
+  ects: number;
+  semester: string;
+  module_type: string;
+  color: string;
 }
 
 export interface AppSetting {

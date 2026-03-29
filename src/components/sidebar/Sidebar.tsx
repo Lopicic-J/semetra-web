@@ -4,7 +4,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
   LayoutDashboard, BookOpen, CheckSquare, Calendar, Clock4, Brain,
-  Timer, GraduationCap, BarChart2, Settings, Info, LogOut, Zap
+  Timer, GraduationCap, BarChart2, Settings, LogOut, Zap,
+  Award, Download, Info
 } from "lucide-react";
 import { clsx } from "clsx";
 
@@ -12,37 +13,45 @@ const NAV_GROUPS = [
   {
     label: "",
     items: [
-      { href: "/dashboard",   icon: LayoutDashboard, label: "Dashboard" },
-      { href: "/modules",     icon: BookOpen,        label: "Module" },
-      { href: "/tasks",       icon: CheckSquare,     label: "Aufgaben" },
+      { href: "/dashboard",    icon: LayoutDashboard, label: "Dashboard" },
+      { href: "/modules",      icon: BookOpen,        label: "Module" },
+      { href: "/tasks",        icon: CheckSquare,     label: "Aufgaben" },
     ],
   },
   {
     label: "PLANUNG",
     items: [
-      { href: "/calendar",    icon: Calendar,    label: "Kalender" },
-      { href: "/stundenplan", icon: Clock4,      label: "Stundenplan" },
-      { href: "/exams",       icon: GraduationCap, label: "Prüfungen" },
+      { href: "/calendar",     icon: Calendar,        label: "Kalender" },
+      { href: "/stundenplan",  icon: Clock4,          label: "Stundenplan" },
+      { href: "/exams",        icon: GraduationCap,   label: "Prüfungen" },
     ],
   },
   {
     label: "WISSEN",
     items: [
-      { href: "/knowledge",   icon: Brain,       label: "Lernziele" },
-      { href: "/timer",       icon: Timer,       label: "Timer" },
+      { href: "/knowledge",    icon: Brain,           label: "Lernziele" },
+      { href: "/timer",        icon: Timer,           label: "Timer" },
     ],
   },
   {
     label: "ANALYSE",
     items: [
-      { href: "/grades",      icon: BarChart2,   label: "Noten" },
+      { href: "/grades",       icon: BarChart2,       label: "Noten" },
+      { href: "/credits",      icon: Award,           label: "Credits & ECTS" },
+    ],
+  },
+  {
+    label: "FFHS",
+    items: [
+      { href: "/studiengaenge", icon: GraduationCap,  label: "Studiengänge" },
+      { href: "/scrap",          icon: Download,       label: "Portal Import" },
     ],
   },
 ];
 
 const BOTTOM_ITEMS = [
   { href: "/settings", icon: Settings, label: "Einstellungen" },
-  { href: "/credits",  icon: Info,     label: "Über Semetra" },
+  { href: "/about",    icon: Info,     label: "Über Semetra" },
 ];
 
 export default function Sidebar() {
