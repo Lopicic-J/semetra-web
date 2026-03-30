@@ -68,12 +68,47 @@ async function getUserIdFromCustomer(customerId: string): Promise<string | null>
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-  const userId = session.metadata?.supabase_user_id
-    ?? await getUserIdFromCustomer(session.customer as string);
+  // Try to find user by metadata or Stripe customer ID
+  let userId = session.metadata?.supabase_user_id ?? null;
 
-  if (!userId) return;
+  if (!userId && session.customer) {
+    userId = await getUserIdFromCustomer(session.customer as string);
+  }
 
+  // For one-time payments (Desktop Pro Einmalkauf), also try by email
+  if (!userId && session.customer_details?.email) {
+    const { data } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("email", session.customer_details.email)
+      .single();
+    userId = data?.id ?? null;
+  }
+
+  if (!userId) {
+    console.warn("[webhook] No user found for session:", session.id);
+    return;
+  }
+
+  // One-time payment (Desktop Pro Einmalkauf) — no subscription
+  if (session.mode === "payment") {
+    await supabaseAdmin.from("profiles").update({
+      plan: "pro",
+      stripe_subscription_status: "active",
+      stripe_customer_id: (session.customer as string) ?? null,
+      plan_expires_at: null, // lifetime — never expires
+    }).eq("id", userId);
+    console.log("[webhook] Desktop Pro activated for user:", userId);
+    return;
+  }
+
+  // Subscription-based purchase
   const subscriptionId = session.subscription as string;
+  if (!subscriptionId) {
+    console.warn("[webhook] No subscription in session:", session.id);
+    return;
+  }
+
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
   await supabaseAdmin.from("profiles").update({
