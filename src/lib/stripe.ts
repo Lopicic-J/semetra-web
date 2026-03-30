@@ -70,7 +70,7 @@ export const PLANS = {
       "Lernziele & Timer",
     ],
     lockedFeatures: [
-      "Studiengänge-Import (FH)",
+      "FH-Voreinstellungen",
       "KI-Coach (Desktop)",
       "Unbegrenzte Module & Noten",
       "Desktop ↔ Web Sync",
@@ -89,7 +89,7 @@ export const PLANS = {
     features: [
       "Alles aus Free — ohne Limits",
       "Unbegrenzte Module & Noten",
-      "Studiengänge-Import (FH)",
+      "FH-Voreinstellungen",
       "KI-Coach (Desktop-App)",
       "Desktop ↔ Web Echtzeit-Sync",
       "Prioritäts-Support",

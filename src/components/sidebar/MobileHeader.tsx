@@ -12,9 +12,10 @@ const NAV_GROUPS = [
   {
     label: "",
     items: [
-      { href: "/dashboard",    emoji: "\u{1F3E0}\uFE0F", label: "Dashboard",       pro: false },
-      { href: "/modules",      emoji: "\u{1F4DA}\uFE0F", label: "Module",          pro: false },
-      { href: "/tasks",        emoji: "\u2705\uFE0F",     label: "Aufgaben",        pro: false },
+      { href: "/dashboard",      emoji: "\u{1F3E0}\uFE0F", label: "Dashboard",           pro: false },
+      { href: "/modules",        emoji: "\u{1F4DA}\uFE0F", label: "Module",              pro: false },
+      { href: "/studiengaenge",  emoji: "\u{1F393}\uFE0F", label: "FH-Voreinstellungen", pro: true },
+      { href: "/tasks",          emoji: "\u2705\uFE0F",     label: "Aufgaben",            pro: false },
     ],
   },
   {
@@ -40,12 +41,6 @@ const NAV_GROUPS = [
     items: [
       { href: "/grades",       emoji: "\u{1F4C8}\uFE0F", label: "Noten",           pro: false },
       { href: "/credits",      emoji: "\u{1F3C6}\uFE0F", label: "Credits & ECTS",  pro: false },
-    ],
-  },
-  {
-    label: "IMPORT",
-    items: [
-      { href: "/studiengaenge", emoji: "\u{1F393}\uFE0F", label: "FH-Voreinstellungen", pro: true },
     ],
   },
 ];

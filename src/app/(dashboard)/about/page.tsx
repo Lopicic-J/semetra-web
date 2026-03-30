@@ -36,7 +36,7 @@ export default function AboutPage() {
             "Notenrechner",
             "Lernziele & Spaced Repetition",
             "Timer & Zeiterfassung",
-            "Studiengänge-Import (FH)",
+            "FH-Voreinstellungen",
             "Prüfungsplanung",
             "KI-Karteikarten",
             "KI-Studien-Coach",
@@ -88,7 +88,7 @@ export default function AboutPage() {
           </div>
           <div className="flex items-start gap-3">
             <span className="px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 text-xs font-bold shrink-0 mt-0.5">PRO</span>
-            <p className="text-gray-600">Ab CHF 4,99/Mt. — KI-Features, unbegrenzte Module, Sync, Studiengänge-Import</p>
+            <p className="text-gray-600">Ab CHF 4,99/Mt. — KI-Features, unbegrenzte Module, Sync, FH-Voreinstellungen</p>
           </div>
           <div className="flex items-start gap-3">
             <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold shrink-0 mt-0.5">DESKTOP</span>

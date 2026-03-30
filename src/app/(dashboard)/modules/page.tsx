@@ -175,7 +175,7 @@ export default function ModulesPage() {
         <div className="text-center py-20 text-gray-400">
           <BookOpen size={48} className="mx-auto mb-3 opacity-30" />
           <p className="font-medium">Keine Module gefunden</p>
-          <p className="text-sm mt-1">Klicke auf „Modul hinzufügen" oder importiere via Studiengänge.</p>
+          <p className="text-sm mt-1">Klicke auf „Modul hinzufügen" oder nutze die FH-Voreinstellungen.</p>
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

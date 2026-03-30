@@ -219,7 +219,7 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
           Einmalig zahlen, dauerhaft Pro-Features in der Desktop-App nutzen. Der Lizenzschlüssel wird per E-Mail zugestellt.
         </p>
         <div className="grid grid-cols-2 gap-1.5 text-sm text-gray-600 mb-4">
-          {["Unbegrenzte Module & Noten", "KI-Studien-Coach", "Studiengänge-Import (FH)", "KI-Karteikarten"].map(f => (
+          {["Unbegrenzte Module & Noten", "KI-Studien-Coach", "FH-Voreinstellungen", "KI-Karteikarten"].map(f => (
             <div key={f} className="flex items-center gap-1.5">
               <CheckCircle size={13} className="text-emerald-500 shrink-0" />
               <span>{f}</span>

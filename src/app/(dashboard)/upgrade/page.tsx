@@ -208,7 +208,7 @@ function UpgradeContent() {
                 Kein Abo · Dauerhaft gültig · Lizenzschlüssel per E-Mail
               </p>
               <div className="space-y-1.5">
-                {["Desktop-App dauerhaft Pro", "Unbegrenzte Module & Noten", "KI-Studien-Coach", "Studiengänge-Import (FH)", "Keine Registrierung nötig"].map(f => (
+                {["Desktop-App dauerhaft Pro", "Unbegrenzte Module & Noten", "KI-Studien-Coach", "FH-Voreinstellungen", "Keine Registrierung nötig"].map(f => (
                   <div key={f} className="flex items-center gap-2 text-sm text-gray-600">
                     <Check size={13} className="text-emerald-500 shrink-0" />
                     <span>{f}</span>
