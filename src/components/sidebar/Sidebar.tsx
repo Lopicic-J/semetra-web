@@ -30,6 +30,7 @@ const NAV_GROUPS = [
     label: "WISSEN",
     items: [
       { href: "/knowledge",    emoji: "\u{1F9E0}\uFE0F", label: "Lernziele",       pro: false },
+      { href: "/flashcards",   emoji: "\u{1F4C7}\uFE0F", label: "Karteikarten",    pro: false },
       { href: "/timer",        emoji: "\u23F1\uFE0F",     label: "Timer",           pro: false },
     ],
   },

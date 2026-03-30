@@ -153,6 +153,27 @@ export interface StudiengangModuleTemplate {
   color: string;
 }
 
+export interface Flashcard {
+  id: string;
+  user_id: string;
+  module_id: string | null;
+  exam_id: string | null;
+  knowledge_id: string | null;
+  deck_name: string;
+  front: string;
+  back: string;
+  source: "user" | "ai";
+  source_document: string | null;
+  ease_factor: number;
+  interval_days: number;
+  repetitions: number;
+  next_review: string | null;
+  last_reviewed: string | null;
+  created_at: string;
+  updated_at: string;
+  module?: Module;
+}
+
 export interface AppSetting {
   user_id: string;
   key: string;
