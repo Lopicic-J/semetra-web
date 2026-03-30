@@ -11,6 +11,15 @@ import type { Module } from "@/types/database";
 
 const SEMESTERS = ["Semester 1","Semester 2","Semester 3","Semester 4","Semester 5","Semester 6","Semester 7","Semester 8","Semester 9"];
 const DAYS = ["Mo","Di","Mi","Do","Fr","Sa"];
+
+/** Map legacy codes like "HS1" / "FS2" to "Semester 1" / "Semester 2" */
+function displaySemester(raw: string | null | undefined): string {
+  if (!raw) return "";
+  if (raw.startsWith("Semester ")) return raw;
+  const match = raw.match(/[HF]S?(\d+)/i);
+  if (match) return `Semester ${match[1]}`;
+  return raw;
+}
 const MODULE_TYPES = ["pflicht","wahl","vertiefung"];
 const STATUS_OPTIONS = ["planned","active","completed","paused"];
 
@@ -139,7 +148,7 @@ function ModuleCard({ mod, onEdit, onDelete }: {
 
       <div className="flex flex-wrap gap-1.5 mt-2">
         {mod.ects && <span className="badge badge-violet">{mod.ects} ECTS</span>}
-        {mod.semester && <span className="badge badge-gray">{mod.semester}</span>}
+        {mod.semester && <span className="badge badge-gray">{displaySemester(mod.semester)}</span>}
         {mod.module_type && mod.module_type !== "pflicht" && (
           <span className="badge bg-amber-50 text-amber-700">{mod.module_type}</span>
         )}
@@ -199,7 +208,7 @@ function ModuleModal({ initial, onClose, onSaved }: {
     code: initial?.code ?? "",
     professor: initial?.professor ?? "",
     ects: initial?.ects?.toString() ?? "",
-    semester: initial?.semester ?? "",
+    semester: displaySemester(initial?.semester) || "",
     day: initial?.day ?? "",
     time_start: initial?.time_start ?? "",
     time_end: initial?.time_end ?? "",

@@ -115,6 +115,8 @@ export interface StundenplanEntry {
   time_end: string;
   room: string | null;
   color: string;
+  kw: number | null;
+  semester: string | null;
   created_at: string;
 }
 

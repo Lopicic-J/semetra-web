@@ -1,61 +1,90 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Award, CheckCircle, Clock, TrendingUp, BookOpen } from "lucide-react";
-import type { Module } from "@/types/database";
+import { Award, CheckCircle, Clock, TrendingUp, BookOpen, AlertTriangle } from "lucide-react";
+import type { Module, Grade } from "@/types/database";
 
 const DEGREE_ECTS = 180;
 
-const SEMESTER_ORDER = ["HS1","FS2","HS3","FS4","HS5","FS6","HS7","FS8",
-  "HS24","FS25","HS25","FS26","HS26","FS27"];
+function displaySemester(raw: string | null | undefined): string {
+  if (!raw) return "Kein Semester";
+  if (raw.startsWith("Semester ")) return raw;
+  const match = raw.match(/[HF]S?(\d+)/i);
+  if (match) return `Semester ${match[1]}`;
+  return raw;
+}
 
-function sortSemester(a: string, b: string) {
-  const ai = SEMESTER_ORDER.indexOf(a);
-  const bi = SEMESTER_ORDER.indexOf(b);
-  if (ai === -1 && bi === -1) return a.localeCompare(b);
-  if (ai === -1) return 1;
-  if (bi === -1) return -1;
-  return ai - bi;
+function semesterNum(s: string): number {
+  const match = s.match(/(\d+)/);
+  return match ? parseInt(match[1]) : 999;
 }
 
 export default function CreditsPage() {
   const supabase = createClient();
   const [modules, setModules] = useState<Module[]>([]);
+  const [grades, setGrades] = useState<Grade[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    const { data } = await supabase
-      .from("modules")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("semester");
-    setModules(data ?? []);
+    const [modRes, gradeRes] = await Promise.all([
+      supabase.from("modules").select("*").eq("user_id", user.id).order("semester"),
+      supabase.from("grades").select("*").eq("user_id", user.id),
+    ]);
+    setModules(modRes.data ?? []);
+    setGrades(gradeRes.data ?? []);
     setLoading(false);
   }, [supabase]);
 
   useEffect(() => { load(); }, [load]);
 
-  const completedModules = modules.filter(m => m.status === "completed");
-  const activeModules    = modules.filter(m => m.status === "active");
-  const plannedModules   = modules.filter(m => m.status === "planned");
+  // Grade-based ECTS calculation
+  function bestGrade(moduleId: string): number | null {
+    const mg = grades.filter(g => g.module_id === moduleId);
+    if (mg.length === 0) return null;
+    return Math.max(...mg.map(g => g.grade));
+  }
 
-  const earnedEcts  = completedModules.reduce((s, m) => s + (m.ects ?? 0), 0);
+  function moduleStatus(m: Module): "passed" | "failed" | "active" | "planned" {
+    const bg = bestGrade(m.id);
+    if (bg !== null && bg >= 4.0) return "passed";
+    if (bg !== null && bg < 4.0) return "failed";
+    if (m.status === "active") return "active";
+    return "planned";
+  }
+
+  const passedModules = modules.filter(m => moduleStatus(m) === "passed");
+  const failedModules = modules.filter(m => moduleStatus(m) === "failed");
+  const activeModules = modules.filter(m => moduleStatus(m) === "active");
+  const plannedModules = modules.filter(m => moduleStatus(m) === "planned");
+
+  const earnedEcts  = passedModules.reduce((s, m) => s + (m.ects ?? 0), 0);
   const activeEcts  = activeModules.reduce((s, m) => s + (m.ects ?? 0), 0);
   const plannedEcts = plannedModules.reduce((s, m) => s + (m.ects ?? 0), 0);
+  const failedEcts  = failedModules.reduce((s, m) => s + (m.ects ?? 0), 0);
   const totalEcts   = modules.reduce((s, m) => s + (m.ects ?? 0), 0);
 
   const progressPct = Math.min(100, Math.round((earnedEcts / DEGREE_ECTS) * 100));
 
+  // Weighted average of passed modules
+  const weightedGrades = passedModules.map(m => {
+    const bg = bestGrade(m.id)!;
+    return { grade: bg, ects: m.ects ?? 0 };
+  });
+  const totalWeight = weightedGrades.reduce((s, g) => s + g.ects, 0);
+  const weightedAvg = totalWeight > 0
+    ? weightedGrades.reduce((s, g) => s + g.grade * g.ects, 0) / totalWeight
+    : 0;
+
+  // Group by semester (normalized)
   const bySemester = modules.reduce<Record<string, Module[]>>((acc, m) => {
-    const sem = m.semester ?? "Kein Semester";
+    const sem = displaySemester(m.semester);
     if (!acc[sem]) acc[sem] = [];
     acc[sem].push(m);
     return acc;
   }, {});
-
-  const sortedSemesters = Object.keys(bySemester).sort(sortSemester);
+  const sortedSemesters = Object.keys(bySemester).sort((a, b) => semesterNum(a) - semesterNum(b));
 
   if (loading) {
     return (
@@ -76,7 +105,7 @@ export default function CreditsPage() {
           Credits & ECTS
         </h1>
         <p className="text-gray-500 text-sm mt-1">
-          Dein ECTS-Fortschritt auf dem Weg zum Abschluss
+          ECTS-Fortschritt basierend auf deinen Noten (bestanden ab Note 4.0)
         </p>
       </div>
 
@@ -84,31 +113,31 @@ export default function CreditsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         <StatCard
           icon={<CheckCircle className="text-green-600" size={20} />}
-          label="Abgeschlossen"
+          label="Bestanden"
           value={`${earnedEcts} ECTS`}
-          sub={`${completedModules.length} Module`}
+          sub={`${passedModules.length} Module · ø ${weightedAvg > 0 ? weightedAvg.toFixed(2) : "—"}`}
           color="green"
         />
         <StatCard
           icon={<TrendingUp className="text-blue-600" size={20} />}
-          label="Aktuell aktiv"
+          label="In Bearbeitung"
           value={`${activeEcts} ECTS`}
           sub={`${activeModules.length} Module`}
           color="blue"
         />
         <StatCard
           icon={<Clock className="text-amber-600" size={20} />}
-          label="Geplant"
+          label="Offen"
           value={`${plannedEcts} ECTS`}
           sub={`${plannedModules.length} Module`}
           color="amber"
         />
         <StatCard
-          icon={<BookOpen className="text-violet-600" size={20} />}
-          label="Gesamt geplant"
-          value={`${totalEcts} ECTS`}
-          sub={`${modules.length} Module`}
-          color="violet"
+          icon={<AlertTriangle className="text-red-500" size={20} />}
+          label="Nicht bestanden"
+          value={`${failedEcts} ECTS`}
+          sub={`${failedModules.length} Module`}
+          color="red"
         />
       </div>
 
@@ -125,7 +154,7 @@ export default function CreditsPage() {
           />
         </div>
         <div className="flex justify-between text-xs text-gray-500 mt-2">
-          <span>{earnedEcts} / {DEGREE_ECTS} ECTS erreicht</span>
+          <span>{earnedEcts} / {DEGREE_ECTS} ECTS erlangt</span>
           <span>{DEGREE_ECTS - earnedEcts} ECTS verbleibend</span>
         </div>
       </div>
@@ -143,8 +172,8 @@ export default function CreditsPage() {
           {sortedSemesters.map(sem => {
             const mods = bySemester[sem];
             const semEcts = mods.reduce((s, m) => s + (m.ects ?? 0), 0);
-            const semCompleted = mods.filter(m => m.status === "completed").reduce((s, m) => s + (m.ects ?? 0), 0);
-            const semPct = semEcts > 0 ? Math.round((semCompleted / semEcts) * 100) : 0;
+            const semEarned = mods.filter(m => moduleStatus(m) === "passed").reduce((s, m) => s + (m.ects ?? 0), 0);
+            const semPct = semEcts > 0 ? Math.round((semEarned / semEcts) * 100) : 0;
 
             return (
               <div key={sem} className="card p-0 overflow-hidden">
@@ -154,29 +183,33 @@ export default function CreditsPage() {
                     <span className="text-xs text-gray-500">{mods.length} Module · {semEcts} ECTS</span>
                   </div>
                   <div className="flex items-center gap-3">
+                    <span className="text-xs text-green-600 font-medium">{semEarned}/{semEcts} ECTS</span>
                     <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-violet-500 rounded-full"
-                        style={{ width: `${semPct}%` }}
-                      />
+                      <div className="h-full bg-green-500 rounded-full" style={{ width: `${semPct}%` }} />
                     </div>
-                    <span className="text-xs font-medium text-gray-600 w-8 text-right">{semPct}%</span>
                   </div>
                 </div>
                 <div className="divide-y divide-gray-50">
-                  {mods.map(m => (
-                    <div key={m.id} className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50/50">
-                      <div className="w-2 h-2 rounded-full shrink-0" style={{ background: m.color }} />
-                      <span className="text-sm text-gray-800 flex-1">{m.name}</span>
-                      {m.code && (
-                        <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
-                          {m.code}
-                        </span>
-                      )}
-                      <span className="text-xs text-gray-500 w-14 text-right">{m.ects ?? "—"} ECTS</span>
-                      <StatusBadge status={m.status ?? "planned"} />
-                    </div>
-                  ))}
+                  {mods.map(m => {
+                    const status = moduleStatus(m);
+                    const bg = bestGrade(m.id);
+                    return (
+                      <div key={m.id} className={`flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50/50 ${status === "failed" ? "bg-red-50/30" : ""}`}>
+                        <div className="w-2 h-2 rounded-full shrink-0" style={{ background: m.color }} />
+                        <span className="text-sm text-gray-800 flex-1">{m.name}</span>
+                        {m.code && (
+                          <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">{m.code}</span>
+                        )}
+                        {bg !== null && (
+                          <span className={`text-xs font-bold ${bg >= 4.0 ? "text-green-600" : "text-red-600"}`}>
+                            {bg.toFixed(1)}
+                          </span>
+                        )}
+                        <span className="text-xs text-gray-500 w-14 text-right">{m.ects ?? "—"} ECTS</span>
+                        <StatusBadge status={status} />
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
@@ -199,6 +232,7 @@ function StatCard({ icon, label, value, sub, color }: {
     blue: "bg-blue-50",
     amber: "bg-amber-50",
     violet: "bg-violet-50",
+    red: "bg-red-50",
   };
   return (
     <div className={`rounded-2xl p-4 ${bg[color] ?? "bg-gray-50"}`}>
@@ -212,16 +246,16 @@ function StatCard({ icon, label, value, sub, color }: {
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    completed: "bg-green-100 text-green-700",
-    active:    "bg-blue-100 text-blue-700",
-    planned:   "bg-gray-100 text-gray-500",
-    paused:    "bg-amber-100 text-amber-700",
+    passed:  "bg-green-100 text-green-700",
+    failed:  "bg-red-100 text-red-700",
+    active:  "bg-blue-100 text-blue-700",
+    planned: "bg-gray-100 text-gray-500",
   };
   const labels: Record<string, string> = {
-    completed: "✓ fertig",
-    active:    "aktiv",
-    planned:   "geplant",
-    paused:    "pausiert",
+    passed:  "✓ bestanden",
+    failed:  "✗ n. best.",
+    active:  "aktiv",
+    planned: "offen",
   };
   return (
     <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full whitespace-nowrap ${map[status] ?? "bg-gray-100 text-gray-500"}`}>

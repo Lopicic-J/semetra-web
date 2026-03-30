@@ -47,10 +47,24 @@ export default function StudiengaengePage() {
   // Filtered list
   const visibleFhs = activeFh ? fhList.filter(([fh]) => fh === activeFh) : fhList;
 
+  // Map legacy semester codes (HS1, FS2, HS3…) to "Semester N"
+  function normalizeSemester(raw: string, semCount: number): string {
+    const match = raw.match(/[HF]S?(\d+)/i);
+    if (match) {
+      const n = parseInt(match[1]);
+      if (n >= 1 && n <= semCount) return `Semester ${n}`;
+    }
+    if (raw.startsWith("Semester ")) return raw;
+    return `Semester 1`;
+  }
+
   function pickProgram(p: Studiengang) {
     setSelected(p);
     const init: Record<string, string> = {};
-    (p.modules_json ?? []).forEach((m, i) => { init[i] = m.semester; });
+    const semCount = p.semester_count ?? 6;
+    (p.modules_json ?? []).forEach((m, i) => {
+      init[i] = normalizeSemester(m.semester, semCount);
+    });
     setCustomSemester(init);
     setStep("preview");
     setImported(false);
