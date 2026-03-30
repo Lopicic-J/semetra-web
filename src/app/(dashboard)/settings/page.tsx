@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Settings, User, Bell, Palette, Shield, LogOut, Zap, CreditCard, CheckCircle } from "lucide-react";
+import { Settings, User, Bell, Palette, Shield, LogOut, Zap, CreditCard, CheckCircle, Monitor, ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useProfile } from "@/lib/hooks/useProfile";
 import Link from "next/link";
@@ -140,22 +140,26 @@ function AccountTab({ user }: { user: { email?: string; created_at?: string } | 
 
 function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscription_status?: string | null; plan_expires_at?: string | null } | null }) {
   const [loading, setLoading] = useState(false);
+  const DESKTOP_PRO_LINK = "https://buy.stripe.com/3cIeVf54860AcOC2M3fYY03";
 
   async function handlePortal() {
     setLoading(true);
-    const res = await fetch("/api/stripe/portal", { method: "POST" });
-    const data = await res.json();
-    if (data.url) window.location.href = data.url;
+    try {
+      const res = await fetch("/api/stripe/portal", { method: "POST" });
+      const data = await res.json();
+      if (data.url) { window.location.href = data.url; return; }
+    } catch {}
     setLoading(false);
   }
 
   return (
     <div className="space-y-5">
+      {/* Web Abo */}
       <div className={`card border-2 ${isPro ? "border-violet-500" : "border-gray-200"}`}>
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="font-semibold text-gray-900">Dein aktueller Plan</h2>
-            <p className="text-xs text-gray-400 mt-0.5">Gültig für Web und Desktop</p>
+            <h2 className="font-semibold text-gray-900">Web-App Abo</h2>
+            <p className="text-xs text-gray-400 mt-0.5">Monatlich oder jährlich kündbar</p>
           </div>
           <span className={`px-3 py-1 rounded-full text-xs font-bold ${isPro ? "bg-violet-100 text-violet-700" : "bg-gray-100 text-gray-500"}`}>
             {isPro ? "PRO" : "FREE"}
@@ -184,17 +188,57 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
           </div>
         ) : (
           <div>
-            <p className="text-sm text-gray-500 mb-4">
-              Du nutzt Semetra Free. Upgrade auf Pro um alle Features freizuschalten.
+            <p className="text-sm text-gray-500 mb-3">
+              Du nutzt Semetra Free. Upgrade auf Pro für KI-Features, unbegrenzte Module und Sync.
             </p>
-            <Link href="/upgrade" className="btn-primary gap-2 inline-flex">
-              <Zap size={14} />
-              Jetzt upgraden — CHF 9.90/Mt.
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link href="/upgrade" className="btn-primary gap-2 inline-flex">
+                <Zap size={14} />
+                Pläne vergleichen & upgraden
+              </Link>
+            </div>
           </div>
         )}
       </div>
 
+      {/* Desktop Pro Einmalkauf */}
+      <div className="card border-2 border-emerald-200">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+              <Monitor size={18} className="text-emerald-600" />
+              Desktop Pro
+            </h2>
+            <p className="text-xs text-gray-400 mt-0.5">Einmalkauf · Dauerhaft gültig · Kein Abo</p>
+          </div>
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+            CHF 49,90
+          </span>
+        </div>
+        <p className="text-sm text-gray-600 mb-3">
+          Einmalig zahlen, dauerhaft Pro-Features in der Desktop-App nutzen. Der Lizenzschlüssel wird per E-Mail zugestellt.
+        </p>
+        <div className="grid grid-cols-2 gap-1.5 text-sm text-gray-600 mb-4">
+          {["Unbegrenzte Module & Noten", "KI-Studien-Coach", "Studiengänge-Import (FH)", "KI-Karteikarten"].map(f => (
+            <div key={f} className="flex items-center gap-1.5">
+              <CheckCircle size={13} className="text-emerald-500 shrink-0" />
+              <span>{f}</span>
+            </div>
+          ))}
+        </div>
+        <a
+          href={DESKTOP_PRO_LINK}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors"
+        >
+          <Monitor size={15} />
+          Desktop Pro kaufen
+          <ExternalLink size={12} />
+        </a>
+      </div>
+
+      {/* Desktop ↔ Web Sync */}
       <div className="card">
         <h2 className="font-semibold text-gray-900 mb-3">Desktop ↔ Web Sync</h2>
         <p className="text-sm text-gray-600 mb-2">
@@ -205,7 +249,7 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
         </div>
         {!isPro && (
           <p className="text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded-xl mt-3">
-            ⚡ Desktop-Sync erfordert Semetra Pro.
+            Desktop-Sync erfordert ein aktives Semetra Pro Abo oder Desktop Pro Lizenz.
           </p>
         )}
       </div>

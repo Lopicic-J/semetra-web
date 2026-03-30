@@ -1,11 +1,18 @@
 "use client";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
-import { CheckCircle, XCircle, Zap, Check, ArrowLeft, Star } from "lucide-react";
+import { CheckCircle, XCircle, Zap, Check, ArrowLeft, Star, Monitor, ExternalLink } from "lucide-react";
 import { PLANS, PRO_PRICES } from "@/lib/stripe";
 import type { PriceTier } from "@/lib/stripe";
 import { useProfile } from "@/lib/hooks/useProfile";
 import Link from "next/link";
+
+const STRIPE_PAYMENT_LINKS: Record<string, string> = {
+  "price_1TG9kaRNHcFqFbgIthnElTOy": "https://buy.stripe.com/14A3cxbsw2Oo7ui9arfYY01",
+  "price_1TG9kdRNHcFqFbgIlTDxPRla": "https://buy.stripe.com/dRmdRb548agQdSGcmDfYY00",
+  "price_1TG9kZRNHcFqFbgI6F0O2tqs": "https://buy.stripe.com/7sY5kFfIM9cM9Cq5YffYY02",
+};
+const DESKTOP_PRO_LINK = "https://buy.stripe.com/3cIeVf54860AcOC2M3fYY03";
 
 function UpgradeContent() {
   const params = useSearchParams();
@@ -181,6 +188,57 @@ function UpgradeContent() {
         </div>
       </div>
 
+      {/* Desktop Pro Einmalkauf */}
+      <div className="max-w-2xl mx-auto mb-8">
+        <div className="bg-white rounded-2xl border-2 border-emerald-500 p-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
+            EINMALKAUF
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <Monitor size={20} className="text-emerald-600" />
+                <p className="text-sm font-semibold text-emerald-600 uppercase tracking-wide">Desktop Pro</p>
+              </div>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-3xl font-bold text-gray-900">CHF 49,90</span>
+                <span className="text-sm text-gray-400">einmalig</span>
+              </div>
+              <p className="text-sm text-gray-500 mb-3">
+                Kein Abo · Dauerhaft gültig · Lizenzschlüssel per E-Mail
+              </p>
+              <div className="space-y-1.5">
+                {["Desktop-App dauerhaft Pro", "Unbegrenzte Module & Noten", "KI-Studien-Coach", "Studiengänge-Import (FH)", "Keine Registrierung nötig"].map(f => (
+                  <div key={f} className="flex items-center gap-2 text-sm text-gray-600">
+                    <Check size={13} className="text-emerald-500 shrink-0" />
+                    <span>{f}</span>
+                  </div>
+                ))}
+                <div className="flex items-center gap-2 text-sm text-gray-400">
+                  <XCircle size={13} className="text-gray-300 shrink-0" />
+                  <span>Kein Web-Sync / Mobile App</span>
+                </div>
+              </div>
+            </div>
+            <div className="sm:w-48 flex flex-col gap-2">
+              <a
+                href={DESKTOP_PRO_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 text-sm"
+              >
+                <Monitor size={16} />
+                Desktop Pro kaufen
+                <ExternalLink size={12} />
+              </a>
+              <p className="text-[11px] text-gray-400 text-center">
+                Lizenzschlüssel wird per E-Mail zugestellt
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <p className="text-center text-xs text-gray-400">
         Sichere Zahlung via Stripe · Schweizer Datenschutz · Keine versteckten Kosten
       </p>
@@ -203,10 +261,19 @@ function UpgradeButton({ priceId }: { priceId: string }) {
             body: JSON.stringify({ price_id: priceId }),
           });
           const data = await res.json();
-          if (data.url) window.location.href = data.url;
-        } finally {
-          setLoading(false);
+          if (data.url) {
+            window.location.href = data.url;
+            return;
+          }
+        } catch {
+          // API failed — fall through to direct link
         }
+        // Fallback: direct Stripe Payment Link
+        const directLink = STRIPE_PAYMENT_LINKS[priceId];
+        if (directLink) {
+          window.location.href = directLink;
+        }
+        setLoading(false);
       }}
       className="w-full py-3 rounded-xl bg-violet-600 text-white font-semibold hover:bg-violet-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
     >
