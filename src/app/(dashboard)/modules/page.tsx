@@ -98,16 +98,16 @@ export default function ModulesPage() {
   const filtered = filter === "all" ? modules : modules.filter(m => (m.status ?? "active") === filter);
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 md:p-6 max-w-6xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Module</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Module</h1>
           <p className="text-gray-500 text-sm mt-0.5">
             {modules.length} Module · {modules.reduce((s, m) => s + (m.ects ?? 0), 0)} ECTS total
             {!isPro && <span className="text-amber-600 ml-2">({modules.length}/{FREE_LIMITS.totalModules} Free-Limit)</span>}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 shrink-0">
           {modules.length > 0 && (
             <button
               onClick={() => { setSelectMode(!selectMode); setSelected(new Set()); }}

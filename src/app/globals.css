@@ -60,6 +60,37 @@
   .badge-blue    { @apply badge bg-blue-100 text-blue-700; }
 }
 
+/* Mobile responsive page wrapper */
+@media (max-width: 767px) {
+  /* Reduce padding on mobile for all dashboard pages */
+  main > div[class*="p-6"] {
+    padding: 1rem !important;
+  }
+  /* Stack header buttons vertically on very small screens */
+  .flex.items-center.justify-between {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  /* Make grid cards single column on mobile */
+  .grid.sm\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+  /* Card padding reduction */
+  .card {
+    padding: 1rem;
+  }
+  /* Smaller headings */
+  h1.text-2xl {
+    font-size: 1.25rem;
+  }
+  /* Modals full width on mobile */
+  .fixed.inset-0 .max-w-md,
+  .fixed.inset-0 .max-w-lg {
+    max-width: 100% !important;
+    margin: 0.5rem !important;
+  }
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { @apply bg-transparent; }
