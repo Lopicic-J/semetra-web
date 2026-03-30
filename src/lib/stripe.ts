@@ -70,7 +70,6 @@ export const PLANS = {
     ],
     lockedFeatures: [
       "KI-Coach & AI-Features",
-      "FFHS Portal Import (Scrap)",
       "Unbegrenzte Module",
       "Desktop ↔ Web Sync",
     ],
@@ -88,7 +87,6 @@ export const PLANS = {
       "Alles aus Free",
       "Unbegrenzte Module",
       "KI-Coach & AI-Zusammenfassungen",
-      "FFHS Portal Import (Scrap)",
       "Desktop ↔ Web Echtzeit-Sync",
       "Prioritäts-Support",
     ],

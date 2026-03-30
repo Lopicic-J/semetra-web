@@ -172,7 +172,10 @@ function EventModal({ defaultDate, onClose, onSaved }: { defaultDate: string; on
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
     await supabase.from("events").insert({
+      user_id: user.id,
       title: form.title,
       start_dt: `${form.date}T${form.time_start}:00`,
       end_dt: form.time_end ? `${form.date}T${form.time_end}:00` : null,

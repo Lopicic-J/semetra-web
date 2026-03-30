@@ -66,14 +66,18 @@ export default function TimerPage() {
 
     // Save focus session
     if (mode === "focus" && finalElapsed > 5) {
-      await supabase.from("time_logs").insert({
-        module_id: selectedModule || null,
-        duration_seconds: finalElapsed,
-        started_at: new Date(Date.now() - finalElapsed * 1000).toISOString(),
-        note: note || null,
-      });
-      refetchLogs();
-      setPomodoroCount(c => c + 1);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("time_logs").insert({
+          user_id: user.id,
+          module_id: selectedModule || null,
+          duration_seconds: finalElapsed,
+          started_at: new Date(Date.now() - finalElapsed * 1000).toISOString(),
+          note: note || null,
+        });
+        refetchLogs();
+        setPomodoroCount(c => c + 1);
+      }
     }
 
     setRunning(false);
@@ -132,13 +136,17 @@ export default function TimerPage() {
     startRef.current = null;
 
     if (mode === "focus" && finalElapsed > 5) {
-      await supabase.from("time_logs").insert({
-        module_id: selectedModule || null,
-        duration_seconds: finalElapsed,
-        started_at: new Date(Date.now() - finalElapsed * 1000).toISOString(),
-        note: note || null,
-      });
-      refetchLogs();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("time_logs").insert({
+          user_id: user.id,
+          module_id: selectedModule || null,
+          duration_seconds: finalElapsed,
+          started_at: new Date(Date.now() - finalElapsed * 1000).toISOString(),
+          note: note || null,
+        });
+        refetchLogs();
+      }
     }
   }
 

@@ -150,7 +150,10 @@ function StundenplanModal({ modules, onClose, onSaved }: {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
     await supabase.from("stundenplan").insert({
+      user_id: user.id,
       title: form.title,
       day: form.day,
       time_start: form.time_start,

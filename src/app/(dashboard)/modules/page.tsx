@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import type { Module } from "@/types/database";
 
-const SEMESTERS = ["HS1","FS2","HS3","FS4","HS5","FS6","HS7","FS8","HS24","FS25","HS25","FS26"];
+const SEMESTERS = ["Semester 1","Semester 2","Semester 3","Semester 4","Semester 5","Semester 6","Semester 7","Semester 8","Semester 9"];
 const DAYS = ["Mo","Di","Mi","Do","Fr","Sa"];
 const MODULE_TYPES = ["pflicht","wahl","vertiefung"];
 const STATUS_OPTIONS = ["planned","active","completed","paused"];
@@ -226,6 +226,8 @@ function ModuleModal({ initial, onClose, onSaved }: {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
     const payload = {
       name: form.name,
       code: form.code || null,
@@ -253,7 +255,7 @@ function ModuleModal({ initial, onClose, onSaved }: {
     if (initial) {
       await supabase.from("modules").update(payload).eq("id", initial.id);
     } else {
-      await supabase.from("modules").insert(payload);
+      await supabase.from("modules").insert({ ...payload, user_id: user.id });
     }
     setSaving(false);
     onSaved();

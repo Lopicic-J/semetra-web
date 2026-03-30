@@ -12,7 +12,6 @@ export const FREE_LIMITS = {
  * Pro-only features — check these before rendering locked UI
  */
 export const PRO_FEATURES = {
-  scrap:          "Portal Import (Scrap)",
   aiCoach:        "KI-Coach & AI",
   unlimitedMods:  "Unbegrenzte Module",
   desktopSync:    "Desktop ↔ Web Sync",
@@ -25,7 +24,6 @@ export type ProFeature = keyof typeof PRO_FEATURES;
  */
 export function canAccess(feature: ProFeature, isPro: boolean): boolean {
   switch (feature) {
-    case "scrap":
     case "aiCoach":
     case "unlimitedMods":
     case "desktopSync":

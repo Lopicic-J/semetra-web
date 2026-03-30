@@ -184,10 +184,12 @@ function ExamModal({ initial, modules, onClose, onSaved }: {
       color: form.color,
       event_type: "exam",
     };
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
     if (initial) {
       await supabase.from("events").update(payload).eq("id", initial.id);
     } else {
-      await supabase.from("events").insert(payload);
+      await supabase.from("events").insert({ ...payload, user_id: user.id });
     }
     setSaving(false);
     onSaved();

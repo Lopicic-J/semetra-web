@@ -495,6 +495,8 @@ function TopicModal({ initial, parentId, modules, onClose, onSaved }: {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
     const payload = {
       title: form.title,
       description: form.description || null,
@@ -506,7 +508,7 @@ function TopicModal({ initial, parentId, modules, onClose, onSaved }: {
     if (initial) {
       await supabase.from("topics").update(payload).eq("id", initial.id);
     } else {
-      await supabase.from("topics").insert(payload);
+      await supabase.from("topics").insert({ ...payload, user_id: user.id });
     }
     setSaving(false);
     onSaved();

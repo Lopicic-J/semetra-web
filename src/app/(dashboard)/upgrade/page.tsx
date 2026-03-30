@@ -69,7 +69,7 @@ function UpgradeContent() {
           Hol das Beste aus deinem Studium heraus
         </h1>
         <p className="text-gray-500 max-w-xl mx-auto">
-          Upgrade auf Pro und schalte KI-Features, unbegrenzte Module, den FFHS Portal Import und Desktop-Sync frei.
+          Upgrade auf Pro und schalte KI-Features, unbegrenzte Module und Desktop-Sync frei.
         </p>
       </div>
 

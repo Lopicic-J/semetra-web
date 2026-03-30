@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import {
   LayoutDashboard, BookOpen, CheckSquare, Calendar, Clock4, Brain,
   Timer, GraduationCap, BarChart2, Settings, LogOut, Zap,
-  Award, Download, Info, Target, CalendarDays
+  Award, Info, Target, CalendarDays
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useProfile } from "@/lib/hooks/useProfile";
@@ -47,8 +47,7 @@ const NAV_GROUPS = [
   {
     label: "IMPORT",
     items: [
-      { href: "/studiengaenge", icon: GraduationCap,  label: "Studiengänge",   pro: false },
-      { href: "/scrap",          icon: Download,       label: "Portal Import",  pro: true  },
+      { href: "/studiengaenge", icon: GraduationCap,  label: "FH-Voreinstellungen", pro: false },
     ],
   },
 ];
@@ -157,7 +156,7 @@ export default function Sidebar() {
           </div>
           <p className="text-[11px] text-violet-200 mb-2">KI-Coach, Sync & mehr</p>
           <div className="w-full py-1.5 rounded-lg bg-white text-violet-700 text-xs font-semibold text-center hover:bg-violet-50 transition-colors">
-            Upgrade — CHF 9.90/Mt.
+            Upgrade — ab CHF 3.33/Mt.
           </div>
         </Link>
       )}

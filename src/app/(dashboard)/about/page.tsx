@@ -26,7 +26,6 @@ export default function AboutPage() {
             "Lernziele & Spaced Repetition",
             "Timer & Zeiterfassung",
             "Studiengänge Import",
-            "FFHS Portal Scraper",
             "Prüfungsplanung",
           ].map(t => (
             <span key={t} className="flex items-center gap-2">

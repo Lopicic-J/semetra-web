@@ -158,6 +158,8 @@ function TaskModal({ initial, modules, onClose, onSaved }: {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
     const payload = {
       title: form.title,
       description: form.description || null,
@@ -169,7 +171,7 @@ function TaskModal({ initial, modules, onClose, onSaved }: {
     if (initial) {
       await supabase.from("tasks").update(payload).eq("id", initial.id);
     } else {
-      await supabase.from("tasks").insert(payload);
+      await supabase.from("tasks").insert({ ...payload, user_id: user.id });
     }
     setSaving(false);
     onSaved();

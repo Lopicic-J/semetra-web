@@ -173,6 +173,8 @@ function GradeModal({ initial, modules, onClose, onSaved }: {
     const gradeNum = parseFloat(form.grade);
     if (isNaN(gradeNum) || gradeNum < 1 || gradeNum > 6) return;
     setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
     const payload = {
       title: form.title,
       grade: gradeNum,
@@ -185,7 +187,7 @@ function GradeModal({ initial, modules, onClose, onSaved }: {
     if (initial) {
       await supabase.from("grades").update(payload).eq("id", initial.id);
     } else {
-      await supabase.from("grades").insert(payload);
+      await supabase.from("grades").insert({ ...payload, user_id: user.id });
     }
     setSaving(false);
     onSaved();
