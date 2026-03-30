@@ -1,11 +1,15 @@
 "use client";
 import { useState } from "react";
 import { useModules } from "@/lib/hooks/useModules";
+import { useProfile } from "@/lib/hooks/useProfile";
 import { createClient } from "@/lib/supabase/client";
 import { MODULE_COLORS } from "@/lib/utils";
+import { FREE_LIMITS } from "@/lib/gates";
+import { UpgradeModal } from "@/components/ui/ProGate";
 import {
   Plus, BookOpen, Pencil, Trash2, X, ExternalLink, Github,
-  FileText, Link2, CheckCircle, Clock, AlertCircle, PauseCircle
+  FileText, Link2, CheckCircle, Clock, AlertCircle, PauseCircle,
+  CheckSquare, Square, XSquare
 } from "lucide-react";
 import type { Module } from "@/types/database";
 
@@ -32,18 +36,63 @@ const STATUS_CONFIG: Record<string, { label: string; icon: React.ElementType; cl
 
 export default function ModulesPage() {
   const { modules, loading, refetch } = useModules();
+  const { isPro } = useProfile();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Module | null>(null);
   const [filter, setFilter] = useState<string>("all");
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const supabase = createClient();
 
-  function openNew() { setEditing(null); setShowForm(true); }
+  function openNew() {
+    // Pro gate: check module limit
+    if (!isPro && modules.length >= FREE_LIMITS.totalModules) {
+      setShowUpgrade(true);
+      return;
+    }
+    setEditing(null);
+    setShowForm(true);
+  }
+
   function openEdit(m: Module) { setEditing(m); setShowForm(true); }
 
   async function handleDelete(id: string) {
     if (!confirm("Modul wirklich löschen?")) return;
     await supabase.from("modules").delete().eq("id", id);
     refetch();
+  }
+
+  async function handleBulkDelete() {
+    if (selected.size === 0) return;
+    const msg = selected.size === modules.length
+      ? `Alle ${selected.size} Module wirklich löschen?`
+      : `${selected.size} ausgewählte Module wirklich löschen?`;
+    if (!confirm(msg)) return;
+    const ids = Array.from(selected);
+    for (const id of ids) {
+      await supabase.from("modules").delete().eq("id", id);
+    }
+    setSelected(new Set());
+    setSelectMode(false);
+    refetch();
+  }
+
+  function toggleSelect(id: string) {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function selectAll() {
+    if (selected.size === filtered.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(filtered.map(m => m.id)));
+    }
   }
 
   const filtered = filter === "all" ? modules : modules.filter(m => (m.status ?? "active") === filter);
@@ -53,12 +102,48 @@ export default function ModulesPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Module</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{modules.length} Module · {modules.reduce((s, m) => s + (m.ects ?? 0), 0)} ECTS total</p>
+          <p className="text-gray-500 text-sm mt-0.5">
+            {modules.length} Module · {modules.reduce((s, m) => s + (m.ects ?? 0), 0)} ECTS total
+            {!isPro && <span className="text-amber-600 ml-2">({modules.length}/{FREE_LIMITS.totalModules} Free-Limit)</span>}
+          </p>
         </div>
-        <button onClick={openNew} className="btn-primary gap-2">
-          <Plus size={16} /> Modul hinzufügen
-        </button>
+        <div className="flex gap-2">
+          {modules.length > 0 && (
+            <button
+              onClick={() => { setSelectMode(!selectMode); setSelected(new Set()); }}
+              className={`btn-secondary gap-2 text-sm ${selectMode ? "bg-violet-50 text-violet-700 border-violet-200" : ""}`}
+            >
+              {selectMode ? <XSquare size={15} /> : <CheckSquare size={15} />}
+              {selectMode ? "Abbrechen" : "Auswählen"}
+            </button>
+          )}
+          <button onClick={openNew} className="btn-primary gap-2">
+            <Plus size={16} /> Modul hinzufügen
+          </button>
+        </div>
       </div>
+
+      {/* Bulk actions bar */}
+      {selectMode && (
+        <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-xl border border-gray-200">
+          <button
+            onClick={selectAll}
+            className="text-sm font-medium text-violet-600 hover:text-violet-800"
+          >
+            {selected.size === filtered.length ? "Alle abwählen" : "Alle auswählen"}
+          </button>
+          <span className="text-xs text-gray-500">{selected.size} ausgewählt</span>
+          <div className="flex-1" />
+          <button
+            onClick={handleBulkDelete}
+            disabled={selected.size === 0}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            <Trash2 size={14} />
+            {selected.size > 0 ? `${selected.size} löschen` : "Löschen"}
+          </button>
+        </div>
+      )}
 
       {/* Status filter */}
       <div className="flex gap-2 mb-6 flex-wrap">
@@ -95,7 +180,15 @@ export default function ModulesPage() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map(mod => (
-            <ModuleCard key={mod.id} mod={mod} onEdit={openEdit} onDelete={handleDelete} />
+            <ModuleCard
+              key={mod.id}
+              mod={mod}
+              onEdit={openEdit}
+              onDelete={handleDelete}
+              selectMode={selectMode}
+              isSelected={selected.has(mod.id)}
+              onToggleSelect={toggleSelect}
+            />
           ))}
         </div>
       )}
@@ -107,37 +200,59 @@ export default function ModulesPage() {
           onSaved={() => { setShowForm(false); refetch(); }}
         />
       )}
+
+      {showUpgrade && (
+        <UpgradeModal feature="unlimitedMods" onClose={() => setShowUpgrade(false)} />
+      )}
     </div>
   );
 }
 
-function ModuleCard({ mod, onEdit, onDelete }: {
+function ModuleCard({ mod, onEdit, onDelete, selectMode, isSelected, onToggleSelect }: {
   mod: Module;
   onEdit: (m: Module) => void;
   onDelete: (id: string) => void;
+  selectMode: boolean;
+  isSelected: boolean;
+  onToggleSelect: (id: string) => void;
 }) {
   const statusCfg = STATUS_CONFIG[mod.status ?? "active"] ?? STATUS_CONFIG.active;
   const StatusIcon = statusCfg.icon;
 
   return (
-    <div className="card hover:shadow-md transition-shadow group flex flex-col">
+    <div
+      className={`card hover:shadow-md transition-shadow group flex flex-col ${
+        selectMode ? "cursor-pointer" : ""
+      } ${isSelected ? "ring-2 ring-violet-500 bg-violet-50/30" : ""}`}
+      onClick={selectMode ? () => onToggleSelect(mod.id) : undefined}
+    >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full mt-0.5 shrink-0" style={{ background: mod.color ?? "#6d28d9" }} />
+          {selectMode ? (
+            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+              isSelected ? "bg-violet-600 border-violet-600" : "border-gray-300"
+            }`}>
+              {isSelected && <CheckCircle size={12} className="text-white" />}
+            </div>
+          ) : (
+            <div className="w-3 h-3 rounded-full mt-0.5 shrink-0" style={{ background: mod.color ?? "#6d28d9" }} />
+          )}
           {mod.code && (
             <span className="text-[10px] font-mono bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">
               {mod.code}
             </span>
           )}
         </div>
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button onClick={() => onEdit(mod)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600">
-            <Pencil size={14} />
-          </button>
-          <button onClick={() => onDelete(mod.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500">
-            <Trash2 size={14} />
-          </button>
-        </div>
+        {!selectMode && (
+          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onClick={() => onEdit(mod)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600">
+              <Pencil size={14} />
+            </button>
+            <button onClick={() => onDelete(mod.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500">
+              <Trash2 size={14} />
+            </button>
+          </div>
+        )}
       </div>
 
       <h3 className="font-semibold text-gray-900 leading-snug mb-1">{mod.name}</h3>
@@ -161,36 +276,38 @@ function ModuleCard({ mod, onEdit, onDelete }: {
           <StatusIcon size={10} />
           {statusCfg.label}
         </span>
-        <div className="flex gap-1.5">
-          {mod.link && (
-            <a href={mod.link} target="_blank" rel="noreferrer"
-               className="p-1 rounded text-gray-400 hover:text-violet-600 hover:bg-violet-50 transition-colors"
-               title="Kurslink">
-              <ExternalLink size={13} />
-            </a>
-          )}
-          {mod.github_link && (
-            <a href={mod.github_link} target="_blank" rel="noreferrer"
-               className="p-1 rounded text-gray-400 hover:text-gray-800 hover:bg-gray-100 transition-colors"
-               title="GitHub">
-              <Github size={13} />
-            </a>
-          )}
-          {mod.sharepoint_link && (
-            <a href={mod.sharepoint_link} target="_blank" rel="noreferrer"
-               className="p-1 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-               title="SharePoint">
-              <FileText size={13} />
-            </a>
-          )}
-          {mod.notes_link && (
-            <a href={mod.notes_link} target="_blank" rel="noreferrer"
-               className="p-1 rounded text-gray-400 hover:text-green-600 hover:bg-green-50 transition-colors"
-               title="Notizen">
-              <Link2 size={13} />
-            </a>
-          )}
-        </div>
+        {!selectMode && (
+          <div className="flex gap-1.5">
+            {mod.link && (
+              <a href={mod.link} target="_blank" rel="noreferrer"
+                 className="p-1 rounded text-gray-400 hover:text-violet-600 hover:bg-violet-50 transition-colors"
+                 title="Kurslink">
+                <ExternalLink size={13} />
+              </a>
+            )}
+            {mod.github_link && (
+              <a href={mod.github_link} target="_blank" rel="noreferrer"
+                 className="p-1 rounded text-gray-400 hover:text-gray-800 hover:bg-gray-100 transition-colors"
+                 title="GitHub">
+                <Github size={13} />
+              </a>
+            )}
+            {mod.sharepoint_link && (
+              <a href={mod.sharepoint_link} target="_blank" rel="noreferrer"
+                 className="p-1 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                 title="SharePoint">
+                <FileText size={13} />
+              </a>
+            )}
+            {mod.notes_link && (
+              <a href={mod.notes_link} target="_blank" rel="noreferrer"
+                 className="p-1 rounded text-gray-400 hover:text-green-600 hover:bg-green-50 transition-colors"
+                 title="Notizen">
+                <Link2 size={13} />
+              </a>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

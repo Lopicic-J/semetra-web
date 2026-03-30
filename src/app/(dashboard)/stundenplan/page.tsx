@@ -2,6 +2,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
+import { useProfile } from "@/lib/hooks/useProfile";
+import { FREE_LIMITS } from "@/lib/gates";
+import { UpgradeModal } from "@/components/ui/ProGate";
 import { Plus, X, Trash2, ChevronLeft, ChevronRight, Copy } from "lucide-react";
 import type { StundenplanEntry } from "@/types/database";
 
@@ -14,9 +17,11 @@ const MAX_KW = 20;
 export default function StundenplanPage() {
   const [entries, setEntries] = useState<StundenplanEntry[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [currentKw, setCurrentKw] = useState(1);
   const [currentSemester, setCurrentSemester] = useState("Semester 1");
   const { modules } = useModules();
+  const { isPro } = useProfile();
   const supabase = createClient();
 
   const fetchEntries = useCallback(async () => {
@@ -82,9 +87,18 @@ export default function StundenplanPage() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Stundenplan</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Wochenplan nach Kalenderwoche & Semester</p>
+          <p className="text-gray-500 text-sm mt-0.5">
+            Wochenplan nach Kalenderwoche & Semester
+            {!isPro && <span className="text-amber-600 ml-2">({entries.length}/{FREE_LIMITS.stundenplanEntries} Einträge im Free-Plan)</span>}
+          </p>
         </div>
-        <button onClick={() => setShowForm(true)} className="btn-primary gap-2">
+        <button onClick={() => {
+          if (!isPro && entries.length >= FREE_LIMITS.stundenplanEntries) {
+            setShowUpgrade(true);
+            return;
+          }
+          setShowForm(true);
+        }} className="btn-primary gap-2">
           <Plus size={16} /> Eintrag
         </button>
       </div>
@@ -231,6 +245,10 @@ export default function StundenplanPage() {
           onClose={() => setShowForm(false)}
           onSaved={() => { setShowForm(false); fetchEntries(); }}
         />
+      )}
+
+      {showUpgrade && (
+        <UpgradeModal feature="unlimitedPlan" onClose={() => setShowUpgrade(false)} />
       )}
     </div>
   );

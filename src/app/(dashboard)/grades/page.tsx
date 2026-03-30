@@ -2,8 +2,11 @@
 import { useState } from "react";
 import { useGrades } from "@/lib/hooks/useGrades";
 import { useModules } from "@/lib/hooks/useModules";
+import { useProfile } from "@/lib/hooks/useProfile";
 import { createClient } from "@/lib/supabase/client";
 import { formatDate, gradeAvg, gradeColor } from "@/lib/utils";
+import { FREE_LIMITS } from "@/lib/gates";
+import { UpgradeModal } from "@/components/ui/ProGate";
 import { Plus, X, Trash2, Pencil, BarChart2, TrendingUp, AlertTriangle, Award, Target } from "lucide-react";
 import type { Grade, Module } from "@/types/database";
 
@@ -25,9 +28,11 @@ function bestGradeForModule(moduleId: string, grades: Grade[]): number | null {
 export default function GradesPage() {
   const { grades, loading, refetch } = useGrades();
   const { modules } = useModules();
+  const { isPro } = useProfile();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Grade | null>(null);
   const [filterModule, setFilterModule] = useState<string>("all");
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const supabase = createClient();
 
   const filtered = filterModule === "all" ? grades : grades.filter(g => g.module_id === filterModule);
@@ -65,9 +70,18 @@ export default function GradesPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Noten & ECTS</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{grades.length} Noten · {earnedEcts}/{totalEcts} ECTS erlangt</p>
+          <p className="text-gray-500 text-sm mt-0.5">
+            {grades.length} Noten · {earnedEcts}/{totalEcts} ECTS erlangt
+            {!isPro && <span className="text-amber-600 ml-2">({grades.length}/{FREE_LIMITS.grades} Free-Limit)</span>}
+          </p>
         </div>
-        <button onClick={() => { setEditing(null); setShowForm(true); }} className="btn-primary gap-2">
+        <button onClick={() => {
+          if (!isPro && grades.length >= FREE_LIMITS.grades) {
+            setShowUpgrade(true);
+            return;
+          }
+          setEditing(null); setShowForm(true);
+        }} className="btn-primary gap-2">
           <Plus size={16} /> Note erfassen
         </button>
       </div>
@@ -206,6 +220,10 @@ export default function GradesPage() {
           onClose={() => setShowForm(false)}
           onSaved={() => { setShowForm(false); refetch(); }}
         />
+      )}
+
+      {showUpgrade && (
+        <UpgradeModal feature="unlimitedGrades" onClose={() => setShowUpgrade(false)} />
       )}
     </div>
   );

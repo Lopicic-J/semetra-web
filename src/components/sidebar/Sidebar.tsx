@@ -2,11 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import {
-  LayoutDashboard, BookOpen, CheckSquare, Calendar, Clock4, Brain,
-  Timer, GraduationCap, BarChart2, Settings, LogOut, Zap,
-  Award, Info, Target, CalendarDays
-} from "lucide-react";
+import { LogOut, Zap } from "lucide-react";
 import { clsx } from "clsx";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { ProBadge } from "@/components/ui/ProGate";
@@ -15,46 +11,46 @@ const NAV_GROUPS = [
   {
     label: "",
     items: [
-      { href: "/dashboard",    icon: LayoutDashboard, label: "Dashboard",       pro: false },
-      { href: "/modules",      icon: BookOpen,        label: "Module",          pro: false },
-      { href: "/tasks",        icon: CheckSquare,     label: "Aufgaben",        pro: false },
+      { href: "/dashboard",    emoji: "\u{1F3E0}\uFE0F", label: "Dashboard",       pro: false },
+      { href: "/modules",      emoji: "\u{1F4DA}\uFE0F", label: "Module",          pro: false },
+      { href: "/tasks",        emoji: "\u2705\uFE0F",     label: "Aufgaben",        pro: false },
     ],
   },
   {
     label: "PLANUNG",
     items: [
-      { href: "/studienplan", icon: Target,          label: "Studienplan",     pro: false },
-      { href: "/calendar",     icon: Calendar,        label: "Kalender",        pro: false },
-      { href: "/timeline",     icon: CalendarDays,    label: "Timeline",        pro: false },
-      { href: "/stundenplan",  icon: Clock4,          label: "Stundenplan",     pro: false },
-      { href: "/exams",        icon: GraduationCap,   label: "Prüfungen",       pro: false },
+      { href: "/studienplan", emoji: "\u{1F3AF}\uFE0F", label: "Studienplan",     pro: false },
+      { href: "/calendar",     emoji: "\u{1F4C5}\uFE0F", label: "Kalender",        pro: false },
+      { href: "/timeline",     emoji: "\u{1F4CA}\uFE0F", label: "Timeline",        pro: false },
+      { href: "/stundenplan",  emoji: "\u{1F5D3}\uFE0F", label: "Stundenplan",     pro: false },
+      { href: "/exams",        emoji: "\u{1F393}\uFE0F", label: "Prüfungen",       pro: false },
     ],
   },
   {
     label: "WISSEN",
     items: [
-      { href: "/knowledge",    icon: Brain,           label: "Lernziele",       pro: false },
-      { href: "/timer",        icon: Timer,           label: "Timer",           pro: false },
+      { href: "/knowledge",    emoji: "\u{1F9E0}\uFE0F", label: "Lernziele",       pro: false },
+      { href: "/timer",        emoji: "\u23F1\uFE0F",     label: "Timer",           pro: false },
     ],
   },
   {
     label: "ANALYSE",
     items: [
-      { href: "/grades",       icon: BarChart2,       label: "Noten",           pro: false },
-      { href: "/credits",      icon: Award,           label: "Credits & ECTS",  pro: false },
+      { href: "/grades",       emoji: "\u{1F4C8}\uFE0F", label: "Noten",           pro: false },
+      { href: "/credits",      emoji: "\u{1F3C6}\uFE0F", label: "Credits & ECTS",  pro: false },
     ],
   },
   {
     label: "IMPORT",
     items: [
-      { href: "/studiengaenge", icon: GraduationCap,  label: "FH-Voreinstellungen", pro: false },
+      { href: "/studiengaenge", emoji: "\u{1F393}\uFE0F", label: "FH-Voreinstellungen", pro: true },
     ],
   },
 ];
 
 const BOTTOM_ITEMS = [
-  { href: "/settings", icon: Settings, label: "Einstellungen", pro: false },
-  { href: "/about",    icon: Info,     label: "Über Semetra",  pro: false },
+  { href: "/settings", emoji: "\u2699\uFE0F",     label: "Einstellungen", pro: false },
+  { href: "/about",    emoji: "\u2139\uFE0F",     label: "Über Semetra",  pro: false },
 ];
 
 export default function Sidebar() {
@@ -69,9 +65,9 @@ export default function Sidebar() {
     router.refresh();
   }
 
-  function NavItem({ href, icon: Icon, label, pro }: {
+  function NavItem({ href, emoji, label, pro }: {
     href: string;
-    icon: React.ElementType;
+    emoji: string;
     label: string;
     pro: boolean;
   }) {
@@ -88,7 +84,7 @@ export default function Sidebar() {
               ? "text-gray-400 hover:bg-gray-50"
               : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
         )}>
-        <Icon size={17} className="shrink-0" />
+        <span className="text-base shrink-0 w-5 text-center leading-none">{emoji}</span>
         <span className="flex-1">{label}</span>
         {locked && !active && <ProBadge />}
       </Link>
@@ -99,7 +95,9 @@ export default function Sidebar() {
     <aside className="flex flex-col w-60 shrink-0 h-screen bg-white border-r border-gray-100 px-3 py-4">
       {/* Logo */}
       <div className="flex items-center gap-3 px-2 mb-5">
-        <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-violet-600 text-white text-lg shrink-0">S</div>
+        <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-violet-600 text-white text-lg shrink-0">
+          <span className="text-base">{"\u{1F4D6}\uFE0F"}</span>
+        </div>
         <div>
           <p className="font-bold text-gray-900 text-sm leading-tight">Semetra</p>
           <p className="text-[10px] text-gray-400 leading-tight">Study Organizer</p>
@@ -108,7 +106,7 @@ export default function Sidebar() {
           "ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full",
           isPro ? "bg-violet-600 text-white" : "bg-gray-100 text-gray-500"
         )}>
-          {isPro ? "PRO" : "Free"}
+          {isPro ? "\u2B50 PRO" : "Free"}
         </span>
       </div>
 

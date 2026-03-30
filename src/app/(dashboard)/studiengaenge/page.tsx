@@ -1,7 +1,9 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { GraduationCap, BookOpen, CheckCircle, ChevronRight, Plus, Loader2, X, Building2 } from "lucide-react";
+import { useProfile } from "@/lib/hooks/useProfile";
+import { GraduationCap, BookOpen, CheckCircle, ChevronRight, Plus, Loader2, X, Building2, Lock } from "lucide-react";
+import { ProGate } from "@/components/ui/ProGate";
 import type { Studiengang, StudiengangModuleTemplate } from "@/types/database";
 
 const MODULE_COLORS = [
@@ -19,6 +21,7 @@ const FH_INFO: Record<string, { full: string; color: string }> = {
 
 export default function StudiengaengePage() {
   const supabase = createClient();
+  const { isPro } = useProfile();
   const [programmes, setProgrammes] = useState<Studiengang[]>([]);
   const [selected, setSelected] = useState<Studiengang | null>(null);
   const [importing, setImporting] = useState(false);
@@ -97,6 +100,26 @@ export default function StudiengaengePage() {
   // Dynamic semester options based on selected program
   const semesterCount = selected?.semester_count ?? 6;
   const SEMESTER_OPTIONS = Array.from({ length: semesterCount }, (_, i) => `Semester ${i + 1}`);
+
+  // Pro gate: FH import is Pro-only
+  if (!isPro) {
+    return (
+      <div className="p-6 max-w-4xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <GraduationCap className="text-violet-600" size={26} />
+            FH-Voreinstellungen
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">
+            Importiere alle Module deiner Fachhochschule automatisch.
+          </p>
+        </div>
+        <ProGate feature="fhImport" isPro={false}>
+          <div />
+        </ProGate>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
