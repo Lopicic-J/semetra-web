@@ -227,6 +227,34 @@ export interface MindMap {
   updated_at: string;
 }
 
+export type NoteStatus = "draft" | "in_progress" | "done";
+
+export interface Note {
+  id: string;
+  user_id: string;
+  title: string;
+  content: string;
+  module_id: string | null;
+  exam_id: string | null;
+  task_id: string | null;
+  status: NoteStatus;
+  color: string;
+  pinned: boolean;
+  created_at: string;
+  updated_at: string;
+  module?: Module;
+}
+
+export interface NoteChecklistItem {
+  id: string;
+  user_id: string;
+  note_id: string;
+  content: string;
+  checked: boolean;
+  sort_order: number;
+  created_at: string;
+}
+
 export type BrainstormTechnique =
   | "freeform"
   | "scamper"

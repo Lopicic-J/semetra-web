@@ -33,6 +33,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "WISSEN",
     items: [
+      { href: "/notes",        emoji: "\u{1F4DD}\uFE0F", label: "Notizen",         pro: false },
       { href: "/knowledge",    emoji: "\u{1F9E0}\uFE0F", label: "Lernziele",       pro: false },
       { href: "/mindmaps",    emoji: "\u{1F5FA}\uFE0F", label: "Mind Maps",       pro: false },
       { href: "/brainstorming", emoji: "\u{1F4A1}\uFE0F", label: "Brainstorming",  pro: false },
