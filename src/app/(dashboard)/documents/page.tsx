@@ -61,7 +61,7 @@ export default function DocumentsPage() {
   const [searchQ, setSearchQ] = useState("");
   const [filterModule, setFilterModule] = useState("");
   const [filterKind, setFilterKind] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "list" | "flow">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "flow">("flow");
   const [flowItems, setFlowItems] = useState<DocFlowItem[]>([]);
 
   const fetchDocs = useCallback(async () => {
@@ -345,7 +345,7 @@ export default function DocumentsPage() {
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
         <div className="flex rounded-lg overflow-hidden border border-surface-200">
-          {(["grid", "list", "flow"] as const).map(v => (
+          {(["flow", "grid", "list"] as const).map(v => (
             <button
               key={v}
               onClick={() => setViewMode(v)}
@@ -373,7 +373,7 @@ export default function DocumentsPage() {
         <DocFlowView items={filteredFlow} onOpenDoc={(d) => { setEditDoc(d); setShowCreate(true); }} />
       ) : viewMode === "grid" ? (
         filtered.length === 0 ? (
-          <EmptyState hasAny={docs.length > 0} />
+          <EmptyState hasAny={docs.length > 0} flowCount={flowItems.length} onSwitchToFlow={() => setViewMode("flow")} />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map(doc => (
@@ -390,7 +390,7 @@ export default function DocumentsPage() {
         )
       ) : (
         filtered.length === 0 ? (
-          <EmptyState hasAny={docs.length > 0} />
+          <EmptyState hasAny={docs.length > 0} flowCount={flowItems.length} onSwitchToFlow={() => setViewMode("flow")} />
         ) : (
           <div className="space-y-2">
             {filtered.map(doc => (
@@ -421,14 +421,20 @@ export default function DocumentsPage() {
 }
 
 /* ── Empty state ────────────────────────────────────────────────────── */
-function EmptyState({ hasAny }: { hasAny: boolean }) {
+function EmptyState({ hasAny, flowCount, onSwitchToFlow }: { hasAny: boolean; flowCount?: number; onSwitchToFlow?: () => void }) {
   return (
     <div className="text-center py-16">
       <FolderOpen size={48} className="mx-auto mb-4 text-surface-300" />
-      <p className="text-surface-500">{hasAny ? "Keine Dokumente gefunden" : "Noch keine Dokumente"}</p>
+      <p className="text-surface-500">{hasAny ? "Keine Dokumente gefunden" : "Noch keine eigenen Dokumente"}</p>
       <p className="text-sm mt-1 text-surface-400">
         {hasAny ? "Versuche einen anderen Filter" : "Füge Dokumente und Links zu deinen Modulen hinzu!"}
       </p>
+      {!hasAny && flowCount && flowCount > 0 && onSwitchToFlow && (
+        <button onClick={onSwitchToFlow} className="mt-4 px-4 py-2 rounded-lg bg-brand-50 text-brand-600 text-sm font-medium hover:bg-brand-100 transition">
+          <Workflow size={14} className="inline mr-1.5" />
+          {flowCount} Dokumente aus Modulen, Aufgaben & Prüfungen anzeigen
+        </button>
+      )}
     </div>
   );
 }
