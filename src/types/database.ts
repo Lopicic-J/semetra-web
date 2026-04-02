@@ -213,3 +213,33 @@ export interface AppSetting {
   key: string;
   value: string;
 }
+
+export interface MindMap {
+  id: string;
+  user_id: string;
+  title: string;
+  module_id: string | null;
+  exam_id: string | null;
+  task_id: string | null;
+  layout_mode: "tree" | "free";
+  color: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MindMapNode {
+  id: string;
+  user_id: string;
+  mindmap_id: string;
+  parent_id: string | null;
+  label: string;
+  notes: string | null;
+  color: string;
+  icon: string | null;
+  pos_x: number;
+  pos_y: number;
+  collapsed: boolean;
+  sort_order: number;
+  links: { label: string; url: string }[];
+  created_at: string;
+}
