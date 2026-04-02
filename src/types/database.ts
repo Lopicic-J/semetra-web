@@ -327,3 +327,46 @@ export interface MindMapNode {
   links: { label: string; url: string }[];
   created_at: string;
 }
+
+// ── Math Room ─────────────────────────────────────────────────────────────────
+
+export type MathTool = "calculator" | "equations" | "matrices" | "plotter" | "statistics" | "units" | "formulas";
+
+export type FormulaCategory =
+  | "allgemein"
+  | "analysis"
+  | "lineare_algebra"
+  | "statistik"
+  | "physik"
+  | "trigonometrie"
+  | "finanzen"
+  | "informatik";
+
+export interface MathHistory {
+  id: string;
+  user_id: string;
+  tool: MathTool;
+  expression: string;
+  result: string;
+  label: string | null;
+  module_id: string | null;
+  exam_id: string | null;
+  pinned: boolean;
+  created_at: string;
+  module?: Module;
+}
+
+export interface MathFormula {
+  id: string;
+  user_id: string;
+  title: string;
+  formula: string;
+  category: FormulaCategory;
+  description: string;
+  module_id: string | null;
+  tags: string[];
+  pinned: boolean;
+  created_at: string;
+  updated_at: string;
+  module?: Module;
+}

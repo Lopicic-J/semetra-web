@@ -39,6 +39,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/mindmaps",    emoji: "\u{1F5FA}\uFE0F", label: "Mind Maps",       pro: false },
       { href: "/brainstorming", emoji: "\u{1F4A1}\uFE0F", label: "Brainstorming",  pro: false },
       { href: "/flashcards",   emoji: "\u{1F4C7}\uFE0F", label: "Karteikarten",    pro: false },
+      { href: "/math",         emoji: "\u{1F9EE}\uFE0F", label: "Mathe-Raum",      pro: false },
       { href: "/timer",        emoji: "\u23F1\uFE0F",     label: "Timer",           pro: false },
     ],
   },
