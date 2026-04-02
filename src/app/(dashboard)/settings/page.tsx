@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Settings, User, Bell, Palette, Shield, LogOut, Zap, CreditCard, CheckCircle, Monitor, ExternalLink } from "lucide-react";
+import { Settings, User, Bell, Palette, Shield, LogOut, Zap, CreditCard, CheckCircle, Monitor, ExternalLink, Download, Loader2, FileJson, HardDrive, Database } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useProfile } from "@/lib/hooks/useProfile";
 import Link from "next/link";
@@ -398,6 +398,205 @@ function NotificationsTab() {
 }
 
 function PrivacyTab() {
+  const supabase = createClient();
+  const [exporting, setExporting] = useState(false);
+  const [exportFormat, setExportFormat] = useState<"desktop" | "json">("desktop");
+  const [exportResult, setExportResult] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  async function fetchAllData() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Nicht eingeloggt");
+
+    const [modules, tasks, events, grades, topics, timeLogs, stundenplan, taskAtt, examAtt] = await Promise.all([
+      supabase.from("modules").select("*").eq("user_id", user.id),
+      supabase.from("tasks").select("*").eq("user_id", user.id),
+      supabase.from("events").select("*").eq("user_id", user.id),
+      supabase.from("grades").select("*").eq("user_id", user.id),
+      supabase.from("topics").select("*").eq("user_id", user.id),
+      supabase.from("time_logs").select("*").eq("user_id", user.id),
+      supabase.from("stundenplan").select("*").eq("user_id", user.id),
+      supabase.from("task_attachments").select("*").eq("user_id", user.id),
+      supabase.from("exam_attachments").select("*").eq("user_id", user.id),
+    ]);
+
+    return {
+      modules: modules.data ?? [],
+      tasks: tasks.data ?? [],
+      events: events.data ?? [],
+      grades: grades.data ?? [],
+      topics: topics.data ?? [],
+      time_logs: timeLogs.data ?? [],
+      stundenplan: stundenplan.data ?? [],
+      task_attachments: taskAtt.data ?? [],
+      exam_attachments: examAtt.data ?? [],
+    };
+  }
+
+  /** Map web data → desktop-compatible format */
+  function toDesktopFormat(data: Awaited<ReturnType<typeof fetchAllData>>) {
+    // Build UUID → integer ID mapping for modules (desktop uses integer PKs)
+    const moduleIdMap = new Map<string, number>();
+    data.modules.forEach((m, i) => moduleIdMap.set(m.id, i + 1));
+
+    const taskIdMap = new Map<string, number>();
+    data.tasks.forEach((t, i) => taskIdMap.set(t.id, i + 1));
+
+    return {
+      _meta: {
+        format: "semetra-desktop-import",
+        version: 1,
+        exported_at: new Date().toISOString(),
+        source: "semetra-web",
+      },
+      modules: data.modules.map((m, i) => ({
+        id: i + 1,
+        name: m.name,
+        code: m.code ?? "",
+        semester: m.semester ?? "",
+        ects: m.ects ?? 0,
+        lecturer: m.professor ?? "",
+        link: m.link ?? "",
+        status: m.status ?? "planned",
+        exam_date: m.exam_date ?? "",
+        weighting: m.weighting ?? 1.0,
+        github_link: m.github_link ?? "",
+        sharepoint_link: m.sharepoint_link ?? "",
+        literature_links: m.literature_links ?? "",
+        notes_link: m.notes_link ?? "",
+        module_type: m.module_type ?? "pflicht",
+        in_plan: m.in_plan ? 1 : 0,
+        target_grade: m.target_grade ?? null,
+      })),
+      tasks: data.tasks.map((t, i) => ({
+        id: i + 1,
+        module_id: t.module_id ? (moduleIdMap.get(t.module_id) ?? 0) : 0,
+        title: t.title,
+        priority: t.priority === "high" ? "High" : t.priority === "critical" ? "Critical" : t.priority === "low" ? "Low" : "Medium",
+        status: t.status === "done" ? "Done" : t.status === "in_progress" ? "In Progress" : "Open",
+        due_date: t.due_date ?? "",
+        notes: t.notes ?? "",
+        created_at: t.created_at,
+        updated_at: t.updated_at ?? t.created_at,
+      })),
+      events: data.events.map((e, i) => ({
+        id: i + 1,
+        module_id: null,
+        title: e.title,
+        kind: e.event_type === "exam" ? "custom" : (e.event_type ?? "custom"),
+        start_date: e.start_dt ? e.start_dt.split("T")[0] : "",
+        end_date: e.start_dt ? e.start_dt.split("T")[0] : "",
+        start_time: e.start_dt ? e.start_dt.split("T")[1]?.slice(0, 5) ?? "" : "",
+        end_time: "",
+        recurrence: "none",
+        recurrence_until: "",
+        notes: e.description ?? "",
+        _web_event_type: e.event_type,
+        _web_location: e.location ?? "",
+        _web_color: e.color ?? "",
+      })),
+      grades: data.grades.map((g, i) => ({
+        id: i + 1,
+        module_id: g.module_id ? (moduleIdMap.get(g.module_id) ?? 0) : 0,
+        title: g.title ?? "",
+        grade: g.grade ?? 0,
+        max_grade: 6,
+        weight: g.weight ?? 1.0,
+        date: g.date ?? "",
+        notes: g.notes ?? "",
+        created_at: g.created_at,
+        grade_mode: "direct",
+        _web_exam_id: g.exam_id ?? null,
+        _web_ects_earned: g.ects_earned ?? null,
+      })),
+      topics: data.topics.map((t, i) => ({
+        id: i + 1,
+        module_id: t.module_id ? (moduleIdMap.get(t.module_id) ?? 0) : 0,
+        title: t.title,
+        knowledge_level: t.knowledge_level ?? 0,
+        notes: t.description ?? "",
+        created_at: t.created_at ?? new Date().toISOString(),
+        updated_at: t.created_at ?? new Date().toISOString(),
+        task_id: t.task_id ? (taskIdMap.get(t.task_id) ?? null) : null,
+        last_reviewed: t.last_reviewed ?? "",
+        sr_easiness: t.sr_easiness ?? 2.5,
+        sr_interval: t.sr_interval ?? 0,
+        sr_repetitions: t.sr_repetitions ?? 0,
+        sr_next_review: t.sr_next_review ?? "",
+      })),
+      time_logs: data.time_logs.map((l, i) => ({
+        id: i + 1,
+        module_id: l.module_id ? (moduleIdMap.get(l.module_id) ?? 0) : 0,
+        start_ts: Math.floor(new Date(l.started_at).getTime() / 1000),
+        end_ts: Math.floor(new Date(l.started_at).getTime() / 1000) + (l.duration_seconds ?? 0),
+        seconds: l.duration_seconds ?? 0,
+        kind: "study",
+        note: l.note ?? "",
+        created_at: l.created_at ?? l.started_at,
+      })),
+      stundenplan: data.stundenplan.map((s, i) => ({
+        id: i + 1,
+        day_of_week: s.day_of_week ?? 0,
+        time_from: s.time_from ?? "",
+        time_to: s.time_to ?? "",
+        subject: s.subject ?? "",
+        room: s.room ?? "",
+        lecturer: s.lecturer ?? "",
+        color: s.color ?? "#7C3AED",
+        module_id: s.module_id ? (moduleIdMap.get(s.module_id) ?? null) : null,
+        notes: s.notes ?? "",
+      })),
+      task_attachments: data.task_attachments.map((a, i) => ({
+        id: i + 1,
+        task_id: a.task_id ? (taskIdMap.get(a.task_id) ?? 0) : 0,
+        kind: a.kind ?? "link",
+        label: a.label ?? "",
+        url: a.url ?? "",
+        file_type: a.file_type ?? "",
+        file_size: a.file_size ?? 0,
+        created_at: a.created_at,
+      })),
+      // Web-only data (not in desktop, but included for backup)
+      _web_extra: {
+        exam_attachments: data.exam_attachments,
+      },
+    };
+  }
+
+  function downloadJSON(content: object, filename: string) {
+    const blob = new Blob([JSON.stringify(content, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  async function handleExport() {
+    setExporting(true);
+    setExportResult(null);
+    try {
+      const data = await fetchAllData();
+      const date = new Date().toISOString().split("T")[0];
+      const counts = `${data.modules.length} Module, ${data.tasks.length} Aufgaben, ${data.events.length} Termine, ${data.grades.length} Noten, ${data.topics.length} Themen`;
+
+      if (exportFormat === "desktop") {
+        const desktopData = toDesktopFormat(data);
+        downloadJSON(desktopData, `semetra-backup-${date}.json`);
+        setExportResult({ type: "success", text: `Desktop-kompatibles Backup exportiert (${counts})` });
+      } else {
+        const rawExport = { _meta: { format: "semetra-web-raw", exported_at: new Date().toISOString() }, ...data };
+        downloadJSON(rawExport, `semetra-web-export-${date}.json`);
+        setExportResult({ type: "success", text: `Web-Rohdaten exportiert (${counts})` });
+      }
+    } catch (err: any) {
+      setExportResult({ type: "error", text: `Export fehlgeschlagen: ${err.message}` });
+    }
+    setExporting(false);
+  }
+
   return (
     <div className="space-y-4">
       <div className="card">
@@ -406,10 +605,88 @@ function PrivacyTab() {
           Semetra speichert deine Daten sicher in der Cloud über Supabase (PostgreSQL). Alle Daten sind mit Row Level Security (RLS) geschützt — nur du hast Zugriff auf deine eigenen Daten.
         </p>
       </div>
+
       <div className="card">
-        <h2 className="font-semibold text-gray-900 mb-3">Daten exportieren</h2>
-        <p className="text-sm text-gray-500 mb-3">Exportiere alle deine Daten als JSON- oder CSV-Datei.</p>
-        <button className="btn-secondary gap-2">📥 Daten exportieren (demnächst)</button>
+        <h2 className="font-semibold text-gray-900 mb-2">Daten exportieren</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Exportiere alle deine Daten als Backup oder zum Import in die Desktop-App.
+          Module, Aufgaben, Prüfungen, Noten, Wissen, Zeitlogs, Stundenplan und Anhänge werden eingeschlossen.
+        </p>
+
+        {/* Format selection */}
+        <div className="space-y-2 mb-4">
+          <button
+            onClick={() => setExportFormat("desktop")}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-colors ${
+              exportFormat === "desktop"
+                ? "border-violet-300 bg-violet-50"
+                : "border-gray-200 hover:border-gray-300"
+            }`}
+          >
+            <HardDrive size={20} className={exportFormat === "desktop" ? "text-violet-600" : "text-gray-400"} />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-gray-800">Desktop-kompatibel (empfohlen)</p>
+              <p className="text-xs text-gray-500">
+                Kann direkt in die Semetra Desktop-App importiert werden. Auch als Backup geeignet.
+              </p>
+            </div>
+            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+              exportFormat === "desktop" ? "border-violet-600" : "border-gray-300"
+            }`}>
+              {exportFormat === "desktop" && <div className="w-2 h-2 rounded-full bg-violet-600" />}
+            </div>
+          </button>
+
+          <button
+            onClick={() => setExportFormat("json")}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-colors ${
+              exportFormat === "json"
+                ? "border-violet-300 bg-violet-50"
+                : "border-gray-200 hover:border-gray-300"
+            }`}
+          >
+            <Database size={20} className={exportFormat === "json" ? "text-violet-600" : "text-gray-400"} />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-gray-800">Web-Rohdaten (JSON)</p>
+              <p className="text-xs text-gray-500">
+                Originale Supabase-Daten mit UUIDs. Für technische Backups oder Datenanalyse.
+              </p>
+            </div>
+            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+              exportFormat === "json" ? "border-violet-600" : "border-gray-300"
+            }`}>
+              {exportFormat === "json" && <div className="w-2 h-2 rounded-full bg-violet-600" />}
+            </div>
+          </button>
+        </div>
+
+        {/* Export button */}
+        <button
+          onClick={handleExport}
+          disabled={exporting}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 disabled:opacity-50 transition-colors"
+        >
+          {exporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+          {exporting ? "Exportiere…" : "Daten exportieren"}
+        </button>
+
+        {/* Result message */}
+        {exportResult && (
+          <p className={`text-sm px-3 py-2 rounded-lg mt-3 ${
+            exportResult.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"
+          }`}>
+            {exportResult.type === "success" ? "✓ " : "✗ "}{exportResult.text}
+          </p>
+        )}
+
+        {/* Info box */}
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-4">
+          <p className="text-xs text-amber-700">
+            <strong>Tipp:</strong> Wenn die Cloud-Synchronisation nicht funktioniert, exportiere deine Daten hier
+            und importiere sie in der Desktop-App unter Einstellungen → Daten importieren.
+            Dateianhänge (PDFs etc.) werden als Links exportiert — die Dateien selbst müssen separat gesichert werden.
+          </p>
+        </div>
       </div>
     </div>
   );
