@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
 import {
@@ -7,7 +7,7 @@ import {
   Link2, File, Image, Video, Pin, PinOff, BookOpen, FolderOpen,
   LayoutGrid, ListIcon, Workflow, GraduationCap, CheckSquare,
   CircleDot, Tag, Download, Globe, FileSpreadsheet, FileCode,
-  Presentation, Archive
+  Presentation, Archive, Upload, Loader2
 } from "lucide-react";
 import type {
   Document as Doc, CalendarEvent, Task, Module,
@@ -630,6 +630,7 @@ function DocModal({
 }) {
   const supabase = createClient();
   const isEdit = !!doc;
+  const [mode, setMode] = useState<"link" | "upload">(doc ? "link" : "link");
   const [title, setTitle] = useState(doc?.title ?? "");
   const [url, setUrl] = useState(doc?.url ?? "");
   const [kind, setKind] = useState(doc?.kind ?? "link");
@@ -639,11 +640,44 @@ function DocModal({
   const [tagsStr, setTagsStr] = useState((doc?.tags ?? []).join(", "));
   const [color, setColor] = useState(doc?.color ?? "#6d28d9");
   const [saving, setSaving] = useState(false);
+  const [uploadFile, setUploadFile] = useState<globalThis.File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filteredExams = moduleId
     ? exams.filter(e => e.title?.toLowerCase().includes(modules.find(m => m.id === moduleId)?.name?.toLowerCase().slice(0, 5) ?? "---"))
     : exams;
   const filteredTasks = moduleId ? tasks.filter(t => t.module_id === moduleId) : tasks;
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadFile(file);
+    setUploadError("");
+    if (!title) setTitle(file.name.replace(/\.[^.]+$/, ""));
+    const detected = getKindFromUrl(file.name);
+    setKind(detected);
+  }
+
+  async function uploadToStorage(userId: string): Promise<string | null> {
+    if (!uploadFile) return null;
+    setUploading(true);
+    const ext = uploadFile.name.split(".").pop() ?? "bin";
+    const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage.from("documents").upload(path, uploadFile, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+    if (error) {
+      setUploadError(error.message);
+      setUploading(false);
+      return null;
+    }
+    const { data: urlData } = supabase.storage.from("documents").getPublicUrl(path);
+    setUploading(false);
+    return urlData.publicUrl;
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -651,11 +685,18 @@ function DocModal({
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    let finalUrl = url;
+    if (mode === "upload" && uploadFile && !isEdit) {
+      const uploaded = await uploadToStorage(user.id);
+      if (!uploaded) { setSaving(false); return; }
+      finalUrl = uploaded;
+    }
+
     const payload = {
       user_id: user.id,
-      title: title || url || "Neues Dokument",
-      url,
-      kind: kind || getKindFromUrl(url),
+      title: title || finalUrl || "Neues Dokument",
+      url: finalUrl,
+      kind: kind || getKindFromUrl(finalUrl),
       module_id: moduleId || null,
       exam_id: examId || null,
       task_id: taskId || null,
@@ -673,6 +714,8 @@ function DocModal({
     onSaved();
   }
 
+  const canSave = mode === "link" ? url.trim().length > 0 : !!uploadFile;
+
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
       <div className="bg-white border border-surface-200 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
@@ -681,20 +724,82 @@ function DocModal({
           <button onClick={onClose} className="text-surface-500 hover:text-surface-900 transition flex-shrink-0"><X size={20} /></button>
         </div>
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">URL / Link</label>
-        <input
-          value={url}
-          onChange={e => {
-            setUrl(e.target.value);
-            if (!title) {
-              const detected = getKindFromUrl(e.target.value);
-              setKind(detected);
-            }
-          }}
-          placeholder="https://..."
-          className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 mb-3 focus:border-brand-500 focus:outline-none transition"
-          autoFocus
-        />
+        {/* Mode toggle: Link vs Upload */}
+        {!isEdit && (
+          <div className="flex rounded-lg bg-surface-100 p-0.5 mb-4">
+            <button
+              onClick={() => setMode("link")}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs sm:text-sm font-medium transition ${
+                mode === "link" ? "bg-white text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"
+              }`}
+            >
+              <Globe size={14} /> Link / URL
+            </button>
+            <button
+              onClick={() => setMode("upload")}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs sm:text-sm font-medium transition ${
+                mode === "upload" ? "bg-white text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"
+              }`}
+            >
+              <Upload size={14} /> Datei hochladen
+            </button>
+          </div>
+        )}
+
+        {/* Link mode */}
+        {(mode === "link" || isEdit) && (
+          <>
+            <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">URL / Link</label>
+            <input
+              value={url}
+              onChange={e => {
+                setUrl(e.target.value);
+                if (!title) {
+                  const detected = getKindFromUrl(e.target.value);
+                  setKind(detected);
+                }
+              }}
+              placeholder="https://..."
+              className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 mb-3 focus:border-brand-500 focus:outline-none transition"
+              autoFocus
+            />
+          </>
+        )}
+
+        {/* Upload mode */}
+        {mode === "upload" && !isEdit && (
+          <>
+            <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileSelect}
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.txt,.md,.png,.jpg,.jpeg,.gif,.webp,.svg,.mp4,.mov,.zip,.rar" />
+            {!uploadFile ? (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full border-2 border-dashed border-surface-300 hover:border-brand-400 rounded-xl p-6 mb-3 flex flex-col items-center gap-2 transition-colors group"
+              >
+                <Upload size={28} className="text-surface-300 group-hover:text-brand-500 transition-colors" />
+                <span className="text-sm font-medium text-surface-500 group-hover:text-surface-700">Datei auswählen</span>
+                <span className="text-[10px] text-surface-400">PDF, Word, Excel, Bilder, Videos, etc.</span>
+              </button>
+            ) : (
+              <div className="flex items-center gap-3 bg-surface-50 border border-surface-200 rounded-xl p-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center shrink-0">
+                  <File size={18} className="text-brand-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-surface-800 truncate">{uploadFile.name}</p>
+                  <p className="text-xs text-surface-400">{(uploadFile.size / 1024).toFixed(0)} KB</p>
+                </div>
+                <button onClick={() => { setUploadFile(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                  className="p-1 rounded hover:bg-surface-200 text-surface-400 hover:text-surface-600 shrink-0">
+                  <X size={14} />
+                </button>
+              </div>
+            )}
+            {uploadError && (
+              <p className="text-xs text-red-500 mb-2">{uploadError}</p>
+            )}
+          </>
+        )}
 
         <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">Titel</label>
         <input
@@ -760,10 +865,11 @@ function DocModal({
 
         <button
           onClick={handleSave}
-          disabled={saving || !url.trim()}
-          className="w-full bg-brand-600 hover:bg-brand-500 text-white py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50"
+          disabled={saving || uploading || !canSave}
+          className="w-full bg-brand-600 hover:bg-brand-500 text-white py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          {saving ? "Speichern..." : isEdit ? "Änderungen speichern" : "Hinzufügen"}
+          {(saving || uploading) && <Loader2 size={14} className="animate-spin" />}
+          {uploading ? "Wird hochgeladen..." : saving ? "Speichern..." : isEdit ? "Änderungen speichern" : "Hinzufügen"}
         </button>
       </div>
     </div>

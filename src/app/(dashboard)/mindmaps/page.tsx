@@ -240,6 +240,7 @@ function MindMapEditor({ map, modules, onBack }: {
   const [editNode, setEditNode] = useState<MindMapNode | null>(null);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [showGrid, setShowGrid] = useState(true);
   const canvasRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ id: string; startX: number; startY: number; nodeX: number; nodeY: number } | null>(null);
   const panRef = useRef<{ startX: number; startY: number; panX: number; panY: number } | null>(null);
@@ -277,7 +278,7 @@ function MindMapEditor({ map, modules, onBack }: {
       const children = childrenOf(id);
       const x = 60 + depth * (NODE_W + 60);
       if (children.length === 0) {
-        pos.set(id, { x, y: 40 + startLeaf * NODE_H });
+        pos.set(id, { x, y: 80 + startLeaf * NODE_H });
         return startLeaf + 1;
       }
       let currentLeaf = startLeaf;
@@ -462,8 +463,8 @@ function MindMapEditor({ map, modules, onBack }: {
       maxX = Math.max(maxX, p.x + 200); // node width ~200
       maxY = Math.max(maxY, p.y + 50);  // node height ~50
     }
-    const contentW = maxX - minX + 60; // padding
-    const contentH = maxY - minY + 60;
+    const contentW = maxX - minX + 100; // padding
+    const contentH = maxY - minY + 100;
     const fitZoom = Math.min(cw / contentW, ch / contentH, 1);
     if (fitZoom < 0.95) {
       // Only auto-fit if content doesn't already fit
@@ -471,8 +472,8 @@ function MindMapEditor({ map, modules, onBack }: {
       setZoom(clampedZoom);
       // Center the content
       setPan({
-        x: (cw - contentW * clampedZoom) / 2 - minX * clampedZoom + 20,
-        y: (ch - contentH * clampedZoom) / 2 - minY * clampedZoom + 20,
+        x: (cw - contentW * clampedZoom) / 2 - minX * clampedZoom + 40,
+        y: (ch - contentH * clampedZoom) / 2 - minY * clampedZoom + 40,
       });
     }
   }, [loading, nodes]);
@@ -491,6 +492,13 @@ function MindMapEditor({ map, modules, onBack }: {
           title={layoutMode === "tree" ? "Wechsel zu Frei" : "Wechsel zu Baum"}>
           {layoutMode === "tree" ? <><GitBranch size={13} /> Baum</> : <><Move size={13} /> Frei</>}
         </button>
+        <button onClick={() => setShowGrid(g => !g)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            showGrid ? "bg-brand-50 text-brand-700" : "bg-surface-100 text-surface-500 hover:bg-surface-200"
+          }`}
+          title={showGrid ? "Raster ausblenden" : "Raster einblenden"}>
+          <LayoutGrid size={13} /> Raster
+        </button>
         <div className="flex items-center gap-1 bg-surface-100 rounded-lg px-1">
           <button onClick={() => setZoom(z => Math.max(0.3, z - 0.1))} className="p-1 hover:bg-surface-200 rounded"><ZoomOut size={14} /></button>
           <span className="text-[10px] text-surface-500 w-8 text-center">{Math.round(zoom * 100)}%</span>
@@ -501,8 +509,16 @@ function MindMapEditor({ map, modules, onBack }: {
 
       {/* Canvas */}
       <div
-        className="flex-1 overflow-hidden bg-surface-50 relative"
-        style={{ touchAction: "none" }}
+        className="flex-1 overflow-hidden relative"
+        style={{
+          touchAction: "none",
+          backgroundColor: "#f8fafc",
+          ...(showGrid ? {
+            backgroundImage: "radial-gradient(circle, #cbd5e1 0.8px, transparent 0.8px)",
+            backgroundSize: `${24 * zoom}px ${24 * zoom}px`,
+            backgroundPosition: `${pan.x % (24 * zoom)}px ${pan.y % (24 * zoom)}px`,
+          } : {}),
+        }}
         onMouseDown={handlePointerDownCanvas}
         onTouchStart={handlePointerDownCanvas}
         ref={canvasRef}
