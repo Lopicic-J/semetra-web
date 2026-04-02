@@ -5,7 +5,7 @@ import { useModules } from "@/lib/hooks/useModules";
 import { useTasks } from "@/lib/hooks/useTasks";
 import { useGrades } from "@/lib/hooks/useGrades";
 import { useTimeLogs } from "@/lib/hooks/useTimeLogs";
-import { formatDate, formatDuration, gradeAvg } from "@/lib/utils";
+import { formatDate, formatDuration, gradeAvg, ectsWeightedAvg, roundGrade } from "@/lib/utils";
 import { BookOpen, CheckSquare, Clock, TrendingUp, AlertCircle, Calendar, GraduationCap, Brain, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import type { CalendarEvent, Topic } from "@/types/database";
@@ -61,13 +61,24 @@ export default function DashboardPage() {
   const overdue = tasks.filter(t => t.status !== "done" && t.due_date && new Date(t.due_date) < new Date());
   const todayLogs = logs.filter(l => new Date(l.started_at).toDateString() === new Date().toDateString());
   const todaySecs = todayLogs.reduce((s, l) => s + (l.duration_seconds ?? 0), 0);
-  const avg = gradeAvg(grades);
+  // ECTS-weighted average (Swiss standard)
+  const ectsAvg = (() => {
+    const moduleGrades = modules
+      .map(m => {
+        const mg = grades.filter(g => g.module_id === m.id && g.grade != null);
+        if (mg.length === 0) return null;
+        const best = Math.max(...mg.map(g => g.grade!));
+        return { grade: best, ects: m.ects ?? 0 };
+      })
+      .filter((x): x is { grade: number; ects: number } => x !== null && x.ects > 0);
+    return ectsWeightedAvg(moduleGrades);
+  })();
 
   const statCards = [
     { label: "Module", value: modules.length, icon: BookOpen, color: "bg-brand-100 text-brand-600", href: "/modules" },
     { label: "Offene Aufgaben", value: openTasks.length, icon: CheckSquare, color: "bg-blue-100 text-blue-600", href: "/tasks" },
     { label: "Heute gelernt", value: formatDuration(todaySecs), icon: Clock, color: "bg-green-100 text-green-600", href: "/timer" },
-    { label: "Notendurchschnitt", value: avg ? avg.toFixed(2) : "—", icon: TrendingUp, color: "bg-orange-100 text-orange-600", href: "/grades" },
+    { label: "⌀ ECTS-gewichtet", value: ectsAvg ? roundGrade(ectsAvg).toFixed(2) : "—", icon: TrendingUp, color: "bg-orange-100 text-orange-600", href: "/grades" },
   ];
 
   return (

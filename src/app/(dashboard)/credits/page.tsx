@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { Award, CheckCircle, Clock, TrendingUp, BookOpen, AlertTriangle, Calendar, Pencil, Save, X } from "lucide-react";
+import { ectsWeightedAvg, roundGrade, gradeColor, gradeLabel } from "@/lib/utils";
 import type { Module, Grade } from "@/types/database";
 
 const DEGREE_ECTS = 180;
@@ -97,15 +98,10 @@ export default function CreditsPage() {
 
   const progressPct = Math.min(100, Math.round((earnedEcts / DEGREE_ECTS) * 100));
 
-  // Weighted average of passed modules
-  const weightedGrades = passedModules.map(m => {
-    const bg = bestGrade(m.id)!;
-    return { grade: bg, ects: m.ects ?? 0 };
-  });
-  const totalWeight = weightedGrades.reduce((s, g) => s + g.ects, 0);
-  const weightedAvg = totalWeight > 0
-    ? weightedGrades.reduce((s, g) => s + g.grade * g.ects, 0) / totalWeight
-    : 0;
+  // ECTS-weighted average of passed modules (Swiss standard)
+  const weightedAvg = ectsWeightedAvg(
+    passedModules.map(m => ({ grade: bestGrade(m.id)!, ects: m.ects ?? 0 }))
+  );
 
   // Group by semester (normalized)
   const bySemester = modules.reduce<Record<string, Module[]>>((acc, m) => {
@@ -145,7 +141,7 @@ export default function CreditsPage() {
           icon={<CheckCircle className="text-green-600" size={20} />}
           label="Bestanden"
           value={`${earnedEcts} ECTS`}
-          sub={`${passedModules.length} Module · ø ${weightedAvg > 0 ? weightedAvg.toFixed(2) : "—"}`}
+          sub={`${passedModules.length} Module · ø ${weightedAvg > 0 ? roundGrade(weightedAvg).toFixed(2) : "—"}`}
           color="green"
         />
         <StatCard

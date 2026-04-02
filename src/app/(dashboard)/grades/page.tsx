@@ -4,7 +4,7 @@ import { useGrades } from "@/lib/hooks/useGrades";
 import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { createClient } from "@/lib/supabase/client";
-import { formatDate, gradeAvg, gradeColor } from "@/lib/utils";
+import { formatDate, gradeAvg, gradeColor, gradeLabel, roundGrade, ectsWeightedAvg } from "@/lib/utils";
 import { FREE_LIMITS } from "@/lib/gates";
 import { UpgradeModal } from "@/components/ui/ProGate";
 import { Plus, X, Trash2, Pencil, BarChart2, TrendingUp, AlertTriangle, Award, Target, GraduationCap, RotateCcw } from "lucide-react";
@@ -85,6 +85,18 @@ export default function GradesPage() {
   const gradedModules = modules.filter(m => bestGradeForModule(m.id, grades) !== null);
   const ungradedModules = modules.filter(m => bestGradeForModule(m.id, grades) === null);
 
+  // ECTS-weighted average (official Swiss GPA)
+  const ectsAvg = (() => {
+    const moduleGrades = modules
+      .map(m => {
+        const best = bestGradeForModule(m.id, grades);
+        if (best === null) return null;
+        return { grade: best, ects: m.ects ?? 0 };
+      })
+      .filter((x): x is { grade: number; ects: number } => x !== null && x.ects > 0);
+    return ectsWeightedAvg(moduleGrades);
+  })();
+
   // Group by module with ECTS info
   const byModule = modules.map(m => {
     const mGrades = grades.filter(g => g.module_id === m.id);
@@ -153,13 +165,46 @@ export default function GradesPage() {
         </div>
       )}
 
+      {/* ECTS-weighted calculation breakdown */}
+      {ectsAvg > 0 && gradedModules.length > 1 && (
+        <div className="card mb-6 bg-brand-50/50 border-brand-200">
+          <h3 className="text-xs font-semibold text-brand-700 mb-2 flex items-center gap-1.5">
+            <TrendingUp size={12} /> ECTS-gewichteter Durchschnitt (Schweizer Berechnung)
+          </h3>
+          <div className="text-xs text-surface-600 space-y-1">
+            <p className="font-mono text-[11px]">
+              = Σ(Modulnote × ECTS) / Σ(ECTS) ={" "}
+              <span className={`font-bold ${gradeColor(ectsAvg)}`}>{roundGrade(ectsAvg).toFixed(2)}</span>
+            </p>
+            <div className="flex flex-wrap gap-1.5 mt-1.5">
+              {byModule.filter(x => x.bestGrade !== null).map(({ module: m, bestGrade }) => (
+                <span key={m.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-surface-200 text-[10px]">
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: m.color ?? "#6d28d9" }} />
+                  {m.name}: {bestGrade!.toFixed(1)} × {m.ects ?? 0}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Summary cards */}
       {grades.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <div className="card text-center py-4">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+          <div className="card text-center py-4 col-span-2 sm:col-span-1 sm:row-span-1 relative">
             <TrendingUp size={18} className="mx-auto mb-1.5 text-brand-500" />
-            <p className={`text-2xl font-bold ${gradeColor(avg)}`}>{avg ? avg.toFixed(2) : "—"}</p>
-            <p className="text-xs text-surface-500 mt-0.5">Durchschnitt</p>
+            <p className={`text-2xl font-bold ${ectsAvg ? gradeColor(ectsAvg) : "text-surface-300"}`}>
+              {ectsAvg ? roundGrade(ectsAvg).toFixed(2) : "—"}
+            </p>
+            <p className="text-xs text-surface-500 mt-0.5">ECTS-Durchschnitt</p>
+            {ectsAvg > 0 && (
+              <p className={`text-[10px] mt-0.5 ${gradeColor(ectsAvg)}`}>{gradeLabel(ectsAvg)}</p>
+            )}
+          </div>
+          <div className="card text-center py-4">
+            <BarChart2 size={18} className="mx-auto mb-1.5 text-surface-400" />
+            <p className={`text-2xl font-bold ${avg ? gradeColor(avg) : "text-surface-300"}`}>{avg ? roundGrade(avg).toFixed(2) : "—"}</p>
+            <p className="text-xs text-surface-500 mt-0.5">Einfacher ⌀</p>
           </div>
           <div className="card text-center py-4">
             <Award size={18} className="mx-auto mb-1.5 text-green-500" />
@@ -285,7 +330,12 @@ export default function GradesPage() {
                         {passed ? `${m.ects} ECTS ✓` : bestGrade !== null ? `${m.ects} ECTS ✗` : `${m.ects} ECTS`}
                       </span>
                     )}
-                    {mAvg > 0 && <span className={`text-lg font-bold ${gradeColor(mAvg)}`}>{mAvg.toFixed(2)}</span>}
+                    {mAvg > 0 && (
+                      <div className="text-right">
+                        <span className={`text-lg font-bold ${gradeColor(mAvg)}`}>{roundGrade(mAvg).toFixed(2)}</span>
+                        <p className={`text-[10px] ${gradeColor(mAvg)}`}>{gradeLabel(mAvg)}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="divide-y divide-surface-50">
@@ -360,7 +410,7 @@ function GradeRow({ grade, exams, onEdit, onDelete }: {
             <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${passed ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"}`}>
               {passed ? "bestanden" : "n. best."}
             </span>
-            <div className={`text-xl font-bold w-14 text-right ${gradeColor(grade.grade)}`}>
+            <div className={`text-xl font-bold w-14 text-right ${gradeColor(grade.grade)}`} title={gradeLabel(grade.grade)}>
               {grade.grade.toFixed(1)}
             </div>
           </>
@@ -486,7 +536,7 @@ function GradeModal({ initial, modules, exams, onClose, onSaved }: {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-surface-700 mb-1">Note (1–6)</label>
-              <input className="input" type="number" step="0.1" min="1" max="6" value={form.grade} onChange={e => set("grade", e.target.value)} placeholder="z.B. 5.5" />
+              <input className="input" type="number" step="0.25" min="1" max="6" value={form.grade} onChange={e => set("grade", e.target.value)} placeholder="z.B. 5.5" />
               <p className="text-[10px] text-surface-400 mt-0.5">Optional — Note oder ECTS oder beides</p>
             </div>
             <div>
@@ -498,8 +548,9 @@ function GradeModal({ initial, modules, exams, onClose, onSaved }: {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Gewicht</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Gewicht im Modul</label>
               <input className="input" type="number" step="0.5" min="0.5" max="5" value={form.weight} onChange={e => set("weight", e.target.value)} />
+              <p className="text-[10px] text-surface-400 mt-0.5">Gewichtung innerhalb des Moduls (z.B. Prüfung=2, Testat=1)</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-surface-700 mb-1">Datum</label>
@@ -515,10 +566,10 @@ function GradeModal({ initial, modules, exams, onClose, onSaved }: {
               "bg-blue-50 text-blue-700"
             }`}>
               {gradeNum !== null && gradeNum >= 4.0 && (
-                <>✓ Bestanden{selectedModule?.ects ? <> — <strong>{selectedModule.ects} ECTS</strong> werden gutgeschrieben</> : ""}{form.exam_id && " · Prüfung wird als abgehakt markiert"}</>
+                <>✓ Bestanden — {gradeLabel(gradeNum)}{selectedModule?.ects ? <> — <strong>{selectedModule.ects} ECTS</strong> werden gutgeschrieben</> : ""}{form.exam_id && " · Prüfung wird als abgehakt markiert"}</>
               )}
               {gradeNum !== null && gradeNum < 4.0 && (
-                <>✗ Nicht bestanden (Note &lt; 4.0){form.exam_id && " · Prüfung wird als zu wiederholen markiert"}</>
+                <>✗ Nicht bestanden — {gradeLabel(gradeNum)} (Note &lt; 4.0){form.exam_id && " · Prüfung wird als zu wiederholen markiert"}</>
               )}
               {gradeNum === null && ectsNum !== null && (
                 <>📊 {ectsNum} ECTS werden direkt gutgeschrieben</>
@@ -535,7 +586,9 @@ function GradeModal({ initial, modules, exams, onClose, onSaved }: {
               <option value="Testat">Testat</option>
               <option value="Hausarbeit">Hausarbeit</option>
               <option value="Projekt">Projekt</option>
-              <option value="Mündlich">Mündlich</option>
+              <option value="Präsentation">Präsentation</option>
+              <option value="Mitarbeit">Mitarbeit</option>
+              <option value="Mündlich">Mündliche Prüfung</option>
               <option value="Online-Prüfung">Online-Prüfung</option>
             </select>
           </div>

@@ -20,18 +20,46 @@ export function formatDuration(seconds: number): string {
 }
 
 export function gradeColor(grade: number): string {
-  if (grade >= 5.5) return "text-green-600";
-  if (grade >= 4.0) return "text-blue-600";
-  if (grade >= 3.0) return "text-yellow-600";
-  return "text-red-600";
+  if (grade >= 5.5) return "text-green-600";   // sehr gut
+  if (grade >= 5.0) return "text-emerald-600"; // gut
+  if (grade >= 4.5) return "text-blue-600";    // befriedigend
+  if (grade >= 4.0) return "text-sky-600";     // genügend
+  if (grade >= 3.5) return "text-amber-600";   // knapp ungenügend
+  return "text-red-600";                       // ungenügend
 }
 
+/** Grade label for Swiss system */
+export function gradeLabel(grade: number): string {
+  if (grade >= 5.5) return "sehr gut";
+  if (grade >= 5.0) return "gut";
+  if (grade >= 4.5) return "befriedigend";
+  if (grade >= 4.0) return "genügend";
+  return "ungenügend";
+}
+
+/** Round to nearest 0.25 (Swiss standard) */
+export function roundGrade(grade: number): number {
+  return Math.round(grade * 4) / 4;
+}
+
+/** Weighted average of sub-grades within a module (weight field) */
 export function gradeAvg(grades: { grade: number | null; weight?: number | null }[]): number {
   const valid = grades.filter((g): g is typeof g & { grade: number } => g.grade !== null);
   if (!valid.length) return 0;
   const totalWeight = valid.reduce((s, g) => s + (g.weight ?? 1), 0);
   const weighted = valid.reduce((s, g) => s + g.grade * (g.weight ?? 1), 0);
   return totalWeight > 0 ? weighted / totalWeight : 0;
+}
+
+/** ECTS-weighted average across modules (official GPA) */
+export function ectsWeightedAvg(
+  moduleGrades: { grade: number; ects: number }[]
+): number {
+  const valid = moduleGrades.filter(m => m.ects > 0);
+  if (!valid.length) return 0;
+  const totalEcts = valid.reduce((s, m) => s + m.ects, 0);
+  const weighted = valid.reduce((s, m) => s + m.grade * m.ects, 0);
+  return totalEcts > 0 ? weighted / totalEcts : 0;
 }
 
 export const MODULE_COLORS = [
