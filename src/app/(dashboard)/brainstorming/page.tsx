@@ -4,17 +4,17 @@ import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
 import {
   Plus, Trash2, Pencil, X, ArrowLeft, Save, Lightbulb,
-  ThumbsUp, Sparkles, GripVertical, LayoutGrid, List,
-  GraduationCap, Target, BookOpen, Shuffle, ArrowRight,
-  HelpCircle, Minus, RefreshCw, Zap, MessageSquare, Star,
-  ChevronDown, ChevronRight, Filter
+  ThumbsUp, Sparkles, LayoutGrid, List,
+  Target, BookOpen, Shuffle,
+  Minus, RefreshCw, Zap, MessageSquare, Star,
+  Bot, Send, Loader2, Copy, Check
 } from "lucide-react";
 import type {
   BrainstormSession, BrainstormIdea, BrainstormTechnique,
   CalendarEvent, Task, Module
 } from "@/types/database";
 
-/* ── Technique definitions ──────────────────────────────────────────── */
+/* ── Technique definitions (vollständig Deutsch) ────────────────────── */
 interface TechniqueDef {
   key: BrainstormTechnique;
   label: string;
@@ -30,7 +30,7 @@ const TECHNIQUES: TechniqueDef[] = [
     key: "freeform",
     label: "Freies Brainstorming",
     icon: <Lightbulb size={18} />,
-    color: "#6d28d9",
+    color: "#a78bfa",
     description: "Sammle frei alle Ideen die dir einfallen — ohne Grenzen oder Struktur.",
     prompts: [
       "Was fällt dir spontan zu diesem Thema ein?",
@@ -42,26 +42,26 @@ const TECHNIQUES: TechniqueDef[] = [
   },
   {
     key: "scamper",
-    label: "SCAMPER",
+    label: "SCAMPER-Methode",
     icon: <Shuffle size={18} />,
-    color: "#2563eb",
-    description: "Systematische Kreativtechnik: Substitute, Combine, Adapt, Modify, Put to other use, Eliminate, Reverse.",
+    color: "#60a5fa",
+    description: "Systematische Kreativtechnik: Ersetzen, Kombinieren, Anpassen, Verändern, Zweckentfremden, Entfernen, Umkehren.",
     prompts: [
-      "Substitute: Was könntest du ersetzen oder austauschen?",
-      "Combine: Welche Ideen/Konzepte lassen sich kombinieren?",
-      "Adapt: Was aus einem anderen Kontext lässt sich anpassen?",
-      "Modify: Was kannst du vergrössern, verkleinern oder verändern?",
-      "Put to other use: Wie kann es anders verwendet werden?",
-      "Eliminate: Was kann entfernt oder vereinfacht werden?",
-      "Reverse: Was passiert wenn du die Reihenfolge umkehrst?",
+      "Ersetzen: Was könntest du durch etwas anderes austauschen?",
+      "Kombinieren: Welche Ideen oder Konzepte lassen sich zusammenführen?",
+      "Anpassen: Was aus einem anderen Kontext lässt sich hier anwenden?",
+      "Verändern: Was kannst du vergrössern, verkleinern oder umgestalten?",
+      "Zweckentfremden: Wie könnte es für einen anderen Zweck genutzt werden?",
+      "Entfernen: Was kann weggelassen oder vereinfacht werden?",
+      "Umkehren: Was passiert wenn du die Reihenfolge oder Perspektive umdrehst?",
     ],
-    categories: ["Substitute", "Combine", "Adapt", "Modify", "Put to other use", "Eliminate", "Reverse"],
+    categories: ["Ersetzen", "Kombinieren", "Anpassen", "Verändern", "Zweckentfremden", "Entfernen", "Umkehren"],
   },
   {
     key: "pro_contra",
     label: "Pro & Contra",
     icon: <Minus size={18} />,
-    color: "#059669",
+    color: "#34d399",
     description: "Analysiere Vor- und Nachteile systematisch für bessere Entscheidungen.",
     prompts: [
       "Was spricht eindeutig dafür?",
@@ -73,25 +73,25 @@ const TECHNIQUES: TechniqueDef[] = [
   },
   {
     key: "starbursting",
-    label: "Starbursting (5W1H)",
+    label: "Sternfragen (5W1H)",
     icon: <Star size={18} />,
-    color: "#d97706",
+    color: "#fbbf24",
     description: "Erforsche dein Thema mit den 6 Grundfragen: Wer, Was, Wo, Wann, Warum, Wie.",
     prompts: [
       "WER ist betroffen oder beteiligt?",
-      "WAS genau ist das Problem/Thema?",
+      "WAS genau ist das Problem oder Thema?",
       "WO findet es statt oder tritt es auf?",
       "WANN ist es relevant oder tritt es ein?",
       "WARUM ist es wichtig?",
-      "WIE kann es gelöst/umgesetzt werden?",
+      "WIE kann es gelöst oder umgesetzt werden?",
     ],
     categories: ["Wer", "Was", "Wo", "Wann", "Warum", "Wie"],
   },
   {
     key: "brainwriting",
-    label: "Brainwriting",
+    label: "Ideenkettenreaktion",
     icon: <MessageSquare size={18} />,
-    color: "#db2777",
+    color: "#f472b6",
     description: "Schreibe Ideen auf und baue darauf weiter — jede Idee kann neue Ideen inspirieren.",
     prompts: [
       "Schreibe 3 Ideen auf — schnell, ohne zu urteilen.",
@@ -102,9 +102,9 @@ const TECHNIQUES: TechniqueDef[] = [
   },
   {
     key: "reverse",
-    label: "Reverse Brainstorming",
+    label: "Umkehr-Brainstorming",
     icon: <RefreshCw size={18} />,
-    color: "#dc2626",
+    color: "#f87171",
     description: "Denke umgekehrt: Was würde das Problem verschlimmern? Dann kehre die Ideen um.",
     prompts: [
       "Wie könntest du das Problem absichtlich verschlimmern?",
@@ -112,13 +112,13 @@ const TECHNIQUES: TechniqueDef[] = [
       "Welche Fehler könnten garantiert zum Scheitern führen?",
       "Jetzt umkehren: Was ist das Gegenteil jeder schlechten Idee?",
     ],
-    categories: ["Probleme verschlimmern", "Umgekehrte Lösung"],
+    categories: ["Problem verschlimmern", "Umgekehrte Lösung"],
   },
   {
     key: "minddump",
-    label: "Mind Dump",
+    label: "Gedankenflut",
     icon: <Zap size={18} />,
-    color: "#0891b2",
+    color: "#22d3ee",
     description: "Timer-basiert: Schreibe 5 Minuten lang alles auf was dir einfällt. Quantität vor Qualität!",
     prompts: [
       "Schreibe alles auf — ohne Filter, ohne Pause!",
@@ -129,10 +129,64 @@ const TECHNIQUES: TechniqueDef[] = [
 ];
 
 const IDEA_COLORS = [
-  "#6d28d9","#2563eb","#059669","#dc2626","#d97706",
-  "#db2777","#0891b2","#7c3aed","#16a34a","#ea580c",
-  "#6366f1","#0d9488","#f59e0b","#ef4444","#8b5cf6",
+  "#a78bfa","#60a5fa","#34d399","#f87171","#fbbf24",
+  "#f472b6","#22d3ee","#c084fc","#4ade80","#fb923c",
+  "#818cf8","#2dd4bf","#facc15","#fb7185","#a78bfa",
 ];
+
+/* ── KI-Assistent (lokale Prompt-basierte Vorschläge) ───────────────── */
+const AI_SUGGESTION_TEMPLATES: Record<string, (topic: string, existingIdeas: string[]) => string[]> = {
+  freeform: (topic, ideas) => [
+    `Hast du schon an die technische Seite von "${topic}" gedacht?`,
+    `Was würde jemand aus einer komplett anderen Fachrichtung zu "${topic}" sagen?`,
+    `Stelle dir vor "${topic}" existiert in 10 Jahren — wie sieht es aus?`,
+    ideas.length > 2 ? `Kannst du Idee "${ideas[0]}" mit "${ideas[1]}" kombinieren?` : `Welche Emotion verbindest du mit "${topic}"?`,
+    `Was ist das Minimum Viable Product für "${topic}"?`,
+  ],
+  scamper: (topic, ideas) => [
+    `Ersetzen: Was wäre, wenn du "${topic}" mit einer komplett anderen Methode umsetzt?`,
+    `Kombinieren: Wie liesse sich "${topic}" mit einem aktuellen Trend verbinden?`,
+    `Anpassen: Welche Lösung aus der Natur könnte auf "${topic}" angewendet werden?`,
+    `Verändern: Was wenn "${topic}" 10x grösser oder 10x kleiner wäre?`,
+    `Entfernen: Was passiert wenn du den wichtigsten Teil von "${topic}" weglässt?`,
+  ],
+  pro_contra: (topic, ideas) => [
+    `Welchen finanziellen Einfluss hat "${topic}"?`,
+    `Wie wirkt sich "${topic}" auf deine Zeitplanung aus?`,
+    `Was sagen Kritiker zu "${topic}" — und haben sie recht?`,
+    `Gibt es einen Mittelweg der die Nachteile minimiert?`,
+  ],
+  starbursting: (topic, ideas) => [
+    `Wer profitiert am meisten wenn "${topic}" umgesetzt wird?`,
+    `Was ist das grösste ungelöste Problem bei "${topic}"?`,
+    `Wie misst man den Erfolg von "${topic}"?`,
+    `Warum wurde "${topic}" bisher noch nicht anders gelöst?`,
+  ],
+  brainwriting: (topic, ideas) => {
+    if (ideas.length === 0) return [`Beginne mit 3 schnellen Ideen zu "${topic}" — ohne Nachdenken!`];
+    return [
+      `Wie könnte "${ideas[ideas.length - 1]}" noch besser werden?`,
+      `Was ist das Gegenteil von "${ideas[0]}"?`,
+      `Welche zwei bestehenden Ideen ergeben zusammen etwas Neues?`,
+    ];
+  },
+  reverse: (topic, ideas) => [
+    `Was wäre der sicherste Weg "${topic}" zum Scheitern zu bringen?`,
+    `Welcher Fehler wäre so offensichtlich, dass ihn niemand machen würde?`,
+    `Jetzt dreh es um: Was ist die perfekte Lösung die sich daraus ergibt?`,
+  ],
+  minddump: (topic, ideas) => [
+    `Schnell — was kommt dir als erstes in den Sinn?`,
+    `Noch mehr! Denk nicht nach, schreib einfach!`,
+    `Was hast du vergessen? Es wartet noch eine Idee!`,
+  ],
+};
+
+function getAiSuggestions(technique: string, topic: string, ideas: BrainstormIdea[]): string[] {
+  const fn = AI_SUGGESTION_TEMPLATES[technique] ?? AI_SUGGESTION_TEMPLATES.freeform;
+  const ideaTexts = ideas.map(i => i.content);
+  return fn(topic, ideaTexts);
+}
 
 /* ── Main Page ──────────────────────────────────────────────────────── */
 export default function BrainstormingPage() {
@@ -142,6 +196,7 @@ export default function BrainstormingPage() {
   const [loading, setLoading] = useState(true);
   const [activeSession, setActiveSession] = useState<BrainstormSession | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [preselectedTech, setPreselectedTech] = useState<BrainstormTechnique | null>(null);
   const [exams, setExams] = useState<CalendarEvent[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
 
@@ -175,13 +230,13 @@ export default function BrainstormingPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Lightbulb className="text-yellow-400" /> Brainstorming
+            <Lightbulb className="text-yellow-300" /> Brainstorming
           </h1>
           <p className="text-zinc-400 text-sm mt-1">Ideen sammeln, Kreativität entfalten, Probleme lösen</p>
         </div>
         <button
-          onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+          onClick={() => { setPreselectedTech(null); setShowCreate(true); }}
+          className="flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition"
         >
           <Plus size={16} /> Neue Session
         </button>
@@ -189,33 +244,33 @@ export default function BrainstormingPage() {
 
       {/* Technique overview cards */}
       <div className="mb-8">
-        <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-3">Techniken</h2>
+        <h2 className="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3">Techniken</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {TECHNIQUES.map(t => (
             <button
               key={t.key}
-              onClick={() => setShowCreate(true)}
-              className="bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-left hover:border-zinc-600 transition group"
+              onClick={() => { setPreselectedTech(t.key); setShowCreate(true); }}
+              className="bg-zinc-900/80 border border-zinc-700/60 rounded-lg p-3.5 text-left hover:border-zinc-500 hover:bg-zinc-800/80 transition group"
             >
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1.5">
                 <span style={{ color: t.color }}>{t.icon}</span>
-                <span className="text-sm font-medium text-white">{t.label}</span>
+                <span className="text-sm font-medium text-zinc-100">{t.label}</span>
               </div>
-              <p className="text-xs text-zinc-500 line-clamp-2">{t.description}</p>
+              <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">{t.description}</p>
             </button>
           ))}
         </div>
       </div>
 
       {/* Session list */}
-      <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-3">Meine Sessions</h2>
+      <h2 className="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3">Meine Sessions</h2>
       {loading ? (
-        <p className="text-zinc-500 text-sm">Laden...</p>
+        <p className="text-zinc-400 text-sm">Laden...</p>
       ) : sessions.length === 0 ? (
-        <div className="text-center py-16 text-zinc-500">
-          <Lightbulb size={48} className="mx-auto mb-4 opacity-30" />
-          <p>Noch keine Brainstorming-Sessions</p>
-          <p className="text-sm mt-1">Starte eine neue Session um Ideen zu sammeln!</p>
+        <div className="text-center py-16">
+          <Lightbulb size={48} className="mx-auto mb-4 text-zinc-600" />
+          <p className="text-zinc-400">Noch keine Brainstorming-Sessions</p>
+          <p className="text-sm mt-1 text-zinc-500">Starte eine neue Session um Ideen zu sammeln!</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -226,10 +281,10 @@ export default function BrainstormingPage() {
               <button
                 key={s.id}
                 onClick={() => setActiveSession(s)}
-                className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-left hover:border-violet-500/50 transition group"
+                className="bg-zinc-900/80 border border-zinc-700/60 rounded-xl p-4 text-left hover:border-violet-500/60 hover:bg-zinc-800/60 transition group"
               >
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-white text-sm group-hover:text-violet-300 transition line-clamp-1">
+                  <h3 className="font-semibold text-zinc-100 text-sm group-hover:text-violet-300 transition line-clamp-1">
                     {s.title}
                   </h3>
                   <span
@@ -239,7 +294,7 @@ export default function BrainstormingPage() {
                 </div>
                 {tech && (
                   <span
-                    className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full mb-2"
+                    className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full mb-2 font-medium"
                     style={{ backgroundColor: tech.color + "22", color: tech.color }}
                   >
                     {tech.icon} {tech.label}
@@ -247,7 +302,7 @@ export default function BrainstormingPage() {
                 )}
                 {mod && (
                   <span
-                    className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ml-1 mb-2"
+                    className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ml-1 mb-2 font-medium"
                     style={{ backgroundColor: mod.color + "22", color: mod.color }}
                   >
                     <BookOpen size={10} /> {mod.name}
@@ -267,6 +322,7 @@ export default function BrainstormingPage() {
           modules={modules}
           exams={exams}
           tasks={tasks}
+          initialTechnique={preselectedTech}
           onClose={() => setShowCreate(false)}
           onCreated={(s) => { setActiveSession(s); setShowCreate(false); }}
         />
@@ -277,21 +333,22 @@ export default function BrainstormingPage() {
 
 /* ── Create Session Modal ───────────────────────────────────────────── */
 function CreateSessionModal({
-  modules, exams, tasks, onClose, onCreated,
+  modules, exams, tasks, initialTechnique, onClose, onCreated,
 }: {
   modules: Module[];
   exams: CalendarEvent[];
   tasks: Task[];
+  initialTechnique: BrainstormTechnique | null;
   onClose: () => void;
   onCreated: (s: BrainstormSession) => void;
 }) {
   const supabase = createClient();
   const [title, setTitle] = useState("");
-  const [technique, setTechnique] = useState<BrainstormTechnique>("freeform");
+  const [technique, setTechnique] = useState<BrainstormTechnique>(initialTechnique ?? "freeform");
   const [moduleId, setModuleId] = useState("");
   const [examId, setExamId] = useState("");
   const [taskId, setTaskId] = useState("");
-  const [color, setColor] = useState("#6d28d9");
+  const [color, setColor] = useState("#a78bfa");
   const [saving, setSaving] = useState(false);
 
   const filteredExams = moduleId ? exams.filter(e => e.title?.toLowerCase().includes(
@@ -322,54 +379,52 @@ function CreateSessionModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-lg p-6 max-h-[85vh] overflow-y-auto"
+        className="bg-zinc-900 border border-zinc-600 rounded-2xl w-full max-w-lg p-6 max-h-[85vh] overflow-y-auto shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-5">
           <h2 className="text-lg font-bold text-white">Neue Brainstorming-Session</h2>
-          <button onClick={onClose} className="text-zinc-400 hover:text-white"><X size={20} /></button>
+          <button onClick={onClose} className="text-zinc-400 hover:text-white transition"><X size={20} /></button>
         </div>
 
-        <label className="block text-sm font-medium text-zinc-300 mb-1">Titel</label>
+        <label className="block text-sm font-medium text-zinc-200 mb-1.5">Titel</label>
         <input
           value={title}
           onChange={e => setTitle(e.target.value)}
           placeholder={selectedTech.label}
-          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white mb-4"
+          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-zinc-500 mb-4 focus:border-violet-500 focus:outline-none transition"
         />
 
-        <label className="block text-sm font-medium text-zinc-300 mb-2">Technik wählen</label>
+        <label className="block text-sm font-medium text-zinc-200 mb-2">Technik wählen</label>
         <div className="grid grid-cols-2 gap-2 mb-4">
           {TECHNIQUES.map(t => (
             <button
               key={t.key}
               onClick={() => setTechnique(t.key)}
-              className={`flex items-center gap-2 p-2 rounded-lg border text-xs text-left transition ${
+              className={`flex items-center gap-2 p-2.5 rounded-lg border text-xs text-left transition ${
                 technique === t.key
-                  ? "border-violet-500 bg-violet-500/10 text-white"
-                  : "border-zinc-700 bg-zinc-800 text-zinc-400 hover:border-zinc-600"
+                  ? "border-violet-500 bg-violet-500/15 text-white"
+                  : "border-zinc-600 bg-zinc-800/80 text-zinc-300 hover:border-zinc-500 hover:text-white"
               }`}
             >
               <span style={{ color: t.color }}>{t.icon}</span>
-              <div>
-                <div className="font-medium">{t.label}</div>
-              </div>
+              <div className="font-medium">{t.label}</div>
             </button>
           ))}
         </div>
 
-        <p className="text-xs text-zinc-500 mb-4 p-2 bg-zinc-800 rounded-lg">
-          <span style={{ color: selectedTech.color }}>{selectedTech.icon}</span>{" "}
-          {selectedTech.description}
-        </p>
+        <div className="text-xs text-zinc-300 mb-4 p-3 bg-zinc-800/80 border border-zinc-700/50 rounded-lg flex items-start gap-2">
+          <span className="mt-0.5" style={{ color: selectedTech.color }}>{selectedTech.icon}</span>
+          <span>{selectedTech.description}</span>
+        </div>
 
-        <label className="block text-sm font-medium text-zinc-300 mb-1">Verknüpfung (optional)</label>
+        <label className="block text-sm font-medium text-zinc-200 mb-1.5">Verknüpfung (optional)</label>
         <select
           value={moduleId}
           onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); }}
-          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white mb-2"
+          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2.5 text-sm text-white mb-2"
         >
           <option value="">Allgemein (kein Modul)</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -380,7 +435,7 @@ function CreateSessionModal({
             <select
               value={examId}
               onChange={e => setExamId(e.target.value)}
-              className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white"
+              className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2 text-sm text-white"
             >
               <option value="">Keine Prüfung</option>
               {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
@@ -388,7 +443,7 @@ function CreateSessionModal({
             <select
               value={taskId}
               onChange={e => setTaskId(e.target.value)}
-              className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white"
+              className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2 text-sm text-white"
             >
               <option value="">Keine Aufgabe</option>
               {filteredTasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
@@ -396,13 +451,13 @@ function CreateSessionModal({
           </div>
         )}
 
-        <label className="block text-sm font-medium text-zinc-300 mb-1 mt-3">Farbe</label>
-        <div className="flex gap-1.5 mb-5 flex-wrap">
-          {IDEA_COLORS.map(c => (
+        <label className="block text-sm font-medium text-zinc-200 mb-1.5 mt-3">Farbe</label>
+        <div className="flex gap-2 mb-5 flex-wrap">
+          {IDEA_COLORS.slice(0, 10).map(c => (
             <button
               key={c}
               onClick={() => setColor(c)}
-              className={`w-6 h-6 rounded-full border-2 transition ${color === c ? "border-white scale-110" : "border-transparent"}`}
+              className={`w-7 h-7 rounded-full border-2 transition ${color === c ? "border-white scale-110" : "border-zinc-700 hover:border-zinc-500"}`}
               style={{ backgroundColor: c }}
             />
           ))}
@@ -411,7 +466,7 @@ function CreateSessionModal({
         <button
           onClick={handleCreate}
           disabled={saving}
-          className="w-full bg-violet-600 hover:bg-violet-500 text-white py-2 rounded-lg font-medium text-sm transition disabled:opacity-50"
+          className="w-full bg-violet-600 hover:bg-violet-500 text-white py-2.5 rounded-lg font-medium text-sm transition disabled:opacity-50"
         >
           {saving ? "Erstellen..." : "Session starten"}
         </button>
@@ -440,7 +495,10 @@ function BrainstormEditor({
   const [showPrompt, setShowPrompt] = useState(true);
   const [filterCat, setFilterCat] = useState("");
   const [timerActive, setTimerActive] = useState(false);
-  const [timerSec, setTimerSec] = useState(300); // 5 min for minddump
+  const [timerSec, setTimerSec] = useState(300);
+  const [showAi, setShowAi] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -469,8 +527,9 @@ function BrainstormEditor({
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [timerActive, timerSec]);
 
-  async function addIdea() {
-    if (!newContent.trim()) return;
+  async function addIdea(content?: string) {
+    const text = content ?? newContent;
+    if (!text.trim()) return;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -481,16 +540,15 @@ function BrainstormEditor({
     await supabase.from("brainstorm_ideas").insert({
       user_id: user.id,
       session_id: session.id,
-      content: newContent.trim(),
+      content: text.trim(),
       category,
       color,
       sort_order: sortOrder,
     });
 
-    // Update session timestamp
     await supabase.from("brainstorm_sessions").update({ updated_at: new Date().toISOString() }).eq("id", session.id);
 
-    setNewContent("");
+    if (!content) setNewContent("");
     fetchIdeas();
     inputRef.current?.focus();
   }
@@ -513,11 +571,6 @@ function BrainstormEditor({
     fetchIdeas();
   }
 
-  async function updateCategory(id: string, cat: string) {
-    await supabase.from("brainstorm_ideas").update({ category: cat }).eq("id", id);
-    fetchIdeas();
-  }
-
   async function deleteSession() {
     if (!confirm("Session wirklich löschen? Alle Ideen gehen verloren.")) return;
     await supabase.from("brainstorm_ideas").delete().eq("session_id", session.id);
@@ -529,10 +582,18 @@ function BrainstormEditor({
     setPromptIndex(i => (i + 1) % tech.prompts.length);
   }
 
-  function getRandomPrompt(): string {
-    const filtered = tech.prompts.filter((_, i) => i !== promptIndex);
-    const idx = Math.floor(Math.random() * filtered.length);
-    return filtered[idx] ?? tech.prompts[0];
+  function generateAiSuggestions() {
+    const topic = session.title || mod?.name || "dein Thema";
+    const suggestions = getAiSuggestions(session.technique, topic, ideas);
+    setAiSuggestions(suggestions);
+    setShowAi(true);
+  }
+
+  function copyToInput(text: string, idx: number) {
+    setNewContent(text);
+    setCopiedIdx(idx);
+    setTimeout(() => setCopiedIdx(null), 1500);
+    inputRef.current?.focus();
   }
 
   // Group ideas by category
@@ -555,7 +616,7 @@ function BrainstormEditor({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="text-zinc-400 hover:text-white transition">
+          <button onClick={onBack} className="text-zinc-400 hover:text-white transition p-1">
             <ArrowLeft size={20} />
           </button>
           <div>
@@ -563,30 +624,37 @@ function BrainstormEditor({
               <span style={{ color: tech.color }}>{tech.icon}</span>
               {session.title}
             </h1>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: tech.color + "22", color: tech.color }}>
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: tech.color + "25", color: tech.color }}>
                 {tech.label}
               </span>
               {mod && (
-                <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: mod.color + "22", color: mod.color }}>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: mod.color + "25", color: mod.color }}>
                   <BookOpen size={10} className="inline mr-1" />{mod.name}
                 </span>
               )}
-              <span className="text-xs text-zinc-500">{ideas.length} Ideen</span>
+              <span className="text-xs text-zinc-400">{ideas.length} Ideen</span>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={generateAiSuggestions}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-violet-600/20 border border-violet-500/30 text-violet-300 hover:bg-violet-600/30 hover:text-violet-200 text-sm font-medium transition"
+            title="KI-Vorschläge generieren"
+          >
+            <Bot size={16} /> KI-Assistent
+          </button>
+          <button
             onClick={() => setViewMode(viewMode === "board" ? "list" : "board")}
-            className="p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white transition"
+            className="p-2 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white hover:border-zinc-600 transition"
             title={viewMode === "board" ? "Listenansicht" : "Board-Ansicht"}
           >
             {viewMode === "board" ? <List size={16} /> : <LayoutGrid size={16} />}
           </button>
           <button
             onClick={deleteSession}
-            className="p-2 rounded-lg bg-zinc-800 text-red-400 hover:text-red-300 transition"
+            className="p-2 rounded-lg bg-zinc-800 border border-zinc-700 text-red-400 hover:text-red-300 hover:border-red-500/40 transition"
             title="Session löschen"
           >
             <Trash2 size={16} />
@@ -594,17 +662,67 @@ function BrainstormEditor({
         </div>
       </div>
 
+      {/* KI-Assistent Panel */}
+      {showAi && aiSuggestions.length > 0 && (
+        <div className="mb-4 p-4 rounded-xl border border-violet-500/30 bg-violet-950/30">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-violet-300 flex items-center gap-2">
+              <Bot size={16} /> KI-Denkanstösse
+            </h3>
+            <div className="flex gap-1">
+              <button
+                onClick={generateAiSuggestions}
+                className="p-1.5 rounded text-violet-400 hover:text-violet-200 hover:bg-violet-500/20 transition"
+                title="Neue Vorschläge"
+              >
+                <RefreshCw size={14} />
+              </button>
+              <button
+                onClick={() => setShowAi(false)}
+                className="p-1.5 rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700/50 transition"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            {aiSuggestions.map((s, idx) => (
+              <div key={idx} className="flex items-start gap-2 group">
+                <Sparkles size={12} className="text-violet-400 mt-1.5 flex-shrink-0" />
+                <p className="text-sm text-zinc-200 flex-1 leading-relaxed">{s}</p>
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                  <button
+                    onClick={() => copyToInput(s, idx)}
+                    className="p-1 text-violet-400 hover:text-violet-200 transition"
+                    title="Als Idee übernehmen"
+                  >
+                    {copiedIdx === idx ? <Check size={14} /> : <Copy size={14} />}
+                  </button>
+                  <button
+                    onClick={() => addIdea(s)}
+                    className="p-1 text-green-400 hover:text-green-300 transition"
+                    title="Direkt als Idee hinzufügen"
+                  >
+                    <Plus size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Inspiration / Prompt Card */}
       {showPrompt && (
         <div
           className="mb-4 p-4 rounded-xl border flex items-start gap-3"
-          style={{ backgroundColor: tech.color + "0a", borderColor: tech.color + "33" }}
+          style={{ backgroundColor: tech.color + "10", borderColor: tech.color + "40" }}
         >
           <Sparkles size={20} className="flex-shrink-0 mt-0.5" style={{ color: tech.color }} />
           <div className="flex-1">
-            <p className="text-sm text-zinc-200 font-medium">{tech.prompts[promptIndex]}</p>
+            <p className="text-sm text-zinc-100 font-medium leading-relaxed">{tech.prompts[promptIndex]}</p>
             {mod && (
-              <p className="text-xs text-zinc-500 mt-1">
+              <p className="text-xs text-zinc-400 mt-1">
                 Kontext: {mod.name}
               </p>
             )}
@@ -620,7 +738,7 @@ function BrainstormEditor({
             </button>
             <button
               onClick={() => setShowPrompt(false)}
-              className="p-1.5 rounded-lg text-zinc-500 hover:bg-white/10 transition"
+              className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-white/10 transition"
               title="Ausblenden"
             >
               <X size={14} />
@@ -631,7 +749,7 @@ function BrainstormEditor({
       {!showPrompt && (
         <button
           onClick={() => setShowPrompt(true)}
-          className="mb-4 text-xs text-zinc-500 hover:text-zinc-300 flex items-center gap-1 transition"
+          className="mb-4 text-xs text-zinc-400 hover:text-zinc-200 flex items-center gap-1 transition"
         >
           <Sparkles size={12} /> Denkanstoß anzeigen
         </button>
@@ -639,31 +757,31 @@ function BrainstormEditor({
 
       {/* Mind Dump Timer */}
       {session.technique === "minddump" && (
-        <div className="mb-4 flex items-center gap-3 p-3 bg-zinc-900 border border-zinc-800 rounded-xl">
+        <div className="mb-4 flex items-center gap-3 p-3 bg-zinc-900/80 border border-cyan-500/20 rounded-xl">
           <Zap size={18} className="text-cyan-400" />
-          <span className="text-2xl font-mono text-white font-bold">{fmtTimer(timerSec)}</span>
+          <span className="text-2xl font-mono text-white font-bold tracking-wider">{fmtTimer(timerSec)}</span>
           {!timerActive ? (
             <button
               onClick={() => { setTimerActive(true); if (timerSec === 0) setTimerSec(300); }}
-              className="px-3 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm font-medium transition"
+              className="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm font-medium transition"
             >
               {timerSec === 300 ? "Start" : "Weiter"}
             </button>
           ) : (
             <button
               onClick={() => setTimerActive(false)}
-              className="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 text-white rounded-lg text-sm font-medium transition"
+              className="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 text-white rounded-lg text-sm font-medium transition"
             >
               Pause
             </button>
           )}
           <button
             onClick={() => { setTimerActive(false); setTimerSec(300); }}
-            className="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 rounded-lg text-sm transition"
+            className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-sm transition"
           >
             Reset
           </button>
-          <span className="text-xs text-zinc-500 ml-auto">Schreibe so viele Ideen wie möglich!</span>
+          <span className="text-xs text-zinc-400 ml-auto">Schreibe so viele Ideen wie möglich!</span>
         </div>
       )}
 
@@ -675,24 +793,24 @@ function BrainstormEditor({
             value={newContent}
             onChange={e => setNewContent(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addIdea(); } }}
-            placeholder="Neue Idee eingeben..."
-            className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-zinc-500 focus:border-violet-500 focus:outline-none transition"
+            placeholder="Neue Idee eingeben... (Enter zum Hinzufügen)"
+            className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-zinc-500 focus:border-violet-500 focus:outline-none transition"
             autoFocus
           />
           {tech.categories && (
             <select
               value={newCategory}
               onChange={e => setNewCategory(e.target.value)}
-              className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white min-w-[120px]"
+              className="bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2 text-sm text-white min-w-[130px]"
             >
               {tech.categories.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           )}
         </div>
         <button
-          onClick={addIdea}
+          onClick={() => addIdea()}
           disabled={!newContent.trim()}
-          className="bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-1"
+          className="bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-1.5"
         >
           <Plus size={16} /> Hinzufügen
         </button>
@@ -703,8 +821,8 @@ function BrainstormEditor({
         <div className="flex gap-1.5 mb-4 flex-wrap">
           <button
             onClick={() => setFilterCat("")}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition ${
-              !filterCat ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
+              !filterCat ? "bg-violet-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white"
             }`}
           >
             Alle
@@ -715,8 +833,8 @@ function BrainstormEditor({
               <button
                 key={cat}
                 onClick={() => setFilterCat(filterCat === cat ? "" : cat)}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition ${
-                  filterCat === cat ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
+                  filterCat === cat ? "bg-violet-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white"
                 }`}
               >
                 {cat} ({count})
@@ -728,22 +846,21 @@ function BrainstormEditor({
 
       {/* Ideas display */}
       {loading ? (
-        <p className="text-zinc-500 text-sm">Laden...</p>
+        <p className="text-zinc-400 text-sm">Laden...</p>
       ) : ideas.length === 0 ? (
-        <div className="text-center py-16 text-zinc-500">
-          <Lightbulb size={48} className="mx-auto mb-4 opacity-20" />
-          <p>Noch keine Ideen — leg los!</p>
-          <p className="text-xs mt-1">Nutze den Denkanstoß oben als Inspiration</p>
+        <div className="text-center py-16">
+          <Lightbulb size={48} className="mx-auto mb-4 text-zinc-600" />
+          <p className="text-zinc-400">Noch keine Ideen — leg los!</p>
+          <p className="text-xs mt-1 text-zinc-500">Nutze den Denkanstoß oder KI-Assistent als Inspiration</p>
         </div>
       ) : viewMode === "board" ? (
-        /* Board view: grouped by category */
         tech.categories ? (
           <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${Math.min(allCats.length, 4)}, 1fr)` }}>
             {allCats.filter(c => !filterCat || c === filterCat).map(cat => (
-              <div key={cat} className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-3">
-                <h3 className="text-sm font-semibold text-zinc-300 mb-3 flex items-center justify-between">
+              <div key={cat} className="bg-zinc-900/60 border border-zinc-700/50 rounded-xl p-3">
+                <h3 className="text-sm font-semibold text-zinc-200 mb-3 flex items-center justify-between">
                   {cat}
-                  <span className="text-xs text-zinc-500 font-normal">{(grouped[cat] ?? []).length}</span>
+                  <span className="text-xs text-zinc-500 font-normal bg-zinc-800 px-2 py-0.5 rounded-full">{(grouped[cat] ?? []).length}</span>
                 </h3>
                 <div className="space-y-2">
                   {(grouped[cat] ?? []).map(idea => (
@@ -765,7 +882,6 @@ function BrainstormEditor({
             ))}
           </div>
         ) : (
-          /* Board view: no categories — grid of cards */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {filteredIdeas.map(idea => (
               <IdeaCard
@@ -784,15 +900,14 @@ function BrainstormEditor({
           </div>
         )
       ) : (
-        /* List view */
         <div className="space-y-2">
           {filteredIdeas.map((idea, idx) => (
             <div
               key={idea.id}
-              className="flex items-start gap-3 p-3 bg-zinc-900 border border-zinc-800 rounded-lg group hover:border-zinc-700 transition"
+              className="flex items-start gap-3 p-3 bg-zinc-900/80 border border-zinc-700/50 rounded-lg group hover:border-zinc-600 transition"
             >
-              <span className="text-xs text-zinc-600 font-mono mt-1 w-6 text-right">{idx + 1}</span>
-              <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: idea.color }} />
+              <span className="text-xs text-zinc-500 font-mono mt-1 w-6 text-right">{idx + 1}</span>
+              <div className="w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: idea.color }} />
               <div className="flex-1 min-w-0">
                 {editingId === idea.id ? (
                   <div className="flex gap-2">
@@ -803,24 +918,24 @@ function BrainstormEditor({
                         if (e.key === "Enter") updateIdea(idea.id, editContent);
                         if (e.key === "Escape") setEditingId(null);
                       }}
-                      className="flex-1 bg-zinc-800 border border-zinc-600 rounded px-2 py-1 text-sm text-white"
+                      className="flex-1 bg-zinc-800 border border-zinc-500 rounded px-2 py-1 text-sm text-white focus:border-violet-500 focus:outline-none"
                       autoFocus
                     />
                     <button onClick={() => updateIdea(idea.id, editContent)} className="text-green-400 hover:text-green-300"><Save size={14} /></button>
                     <button onClick={() => setEditingId(null)} className="text-zinc-400 hover:text-white"><X size={14} /></button>
                   </div>
                 ) : (
-                  <p className="text-sm text-zinc-200">{idea.content}</p>
+                  <p className="text-sm text-zinc-100">{idea.content}</p>
                 )}
                 {idea.category && (
                   <span className="text-xs text-zinc-500 mt-0.5 inline-block">{idea.category}</span>
                 )}
               </div>
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
-                {idea.votes > 0 && <span className="text-xs text-yellow-400 mr-1">{idea.votes}</span>}
-                <button onClick={() => voteIdea(idea.id, 1)} className="p-1 text-zinc-500 hover:text-yellow-400"><ThumbsUp size={12} /></button>
-                <button onClick={() => { setEditingId(idea.id); setEditContent(idea.content); }} className="p-1 text-zinc-500 hover:text-white"><Pencil size={12} /></button>
-                <button onClick={() => deleteIdea(idea.id)} className="p-1 text-zinc-500 hover:text-red-400"><Trash2 size={12} /></button>
+                {idea.votes > 0 && <span className="text-xs text-yellow-400 mr-1 font-medium">{idea.votes}</span>}
+                <button onClick={() => voteIdea(idea.id, 1)} className="p-1 text-zinc-500 hover:text-yellow-400 transition"><ThumbsUp size={12} /></button>
+                <button onClick={() => { setEditingId(idea.id); setEditContent(idea.content); }} className="p-1 text-zinc-500 hover:text-white transition"><Pencil size={12} /></button>
+                <button onClick={() => deleteIdea(idea.id)} className="p-1 text-zinc-500 hover:text-red-400 transition"><Trash2 size={12} /></button>
               </div>
             </div>
           ))}
@@ -829,38 +944,38 @@ function BrainstormEditor({
 
       {/* Summary stats */}
       {ideas.length > 0 && (
-        <div className="mt-6 p-4 bg-zinc-900 border border-zinc-800 rounded-xl">
-          <h3 className="text-sm font-semibold text-zinc-300 mb-2 flex items-center gap-2">
-            <Target size={14} /> Zusammenfassung
+        <div className="mt-6 p-4 bg-zinc-900/80 border border-zinc-700/50 rounded-xl">
+          <h3 className="text-sm font-semibold text-zinc-200 mb-3 flex items-center gap-2">
+            <Target size={14} className="text-violet-400" /> Zusammenfassung
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
             <div>
               <p className="text-2xl font-bold text-white">{ideas.length}</p>
-              <p className="text-xs text-zinc-500">Ideen gesamt</p>
+              <p className="text-xs text-zinc-400">Ideen gesamt</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-yellow-400">{ideas.filter(i => i.votes > 0).length}</p>
-              <p className="text-xs text-zinc-500">Bewertet</p>
+              <p className="text-xs text-zinc-400">Bewertet</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-violet-400">
-                {tech.categories ? new Set(ideas.map(i => i.category).filter(Boolean)).size : "—"}
+                {tech.categories ? new Set(ideas.map(i => i.category).filter(Boolean)).size : "\u2014"}
               </p>
-              <p className="text-xs text-zinc-500">Kategorien genutzt</p>
+              <p className="text-xs text-zinc-400">Kategorien</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-cyan-400">
                 {ideas.reduce((max, i) => Math.max(max, i.votes), 0)}
               </p>
-              <p className="text-xs text-zinc-500">Max. Stimmen</p>
+              <p className="text-xs text-zinc-400">Höchste Bewertung</p>
             </div>
           </div>
           {ideas.filter(i => i.votes > 0).length > 0 && (
-            <div className="mt-3 pt-3 border-t border-zinc-800">
-              <p className="text-xs text-zinc-400 mb-1">Top Ideen:</p>
-              {[...ideas].sort((a, b) => b.votes - a.votes).slice(0, 3).map((idea, idx) => (
-                <p key={idea.id} className="text-sm text-zinc-300 flex items-center gap-2">
-                  <span className="text-yellow-400 text-xs">{idea.votes}x</span>
+            <div className="mt-3 pt-3 border-t border-zinc-700/50">
+              <p className="text-xs text-zinc-400 mb-2 font-medium">Top Ideen:</p>
+              {[...ideas].sort((a, b) => b.votes - a.votes).slice(0, 3).map((idea) => (
+                <p key={idea.id} className="text-sm text-zinc-200 flex items-center gap-2 py-0.5">
+                  <span className="text-yellow-400 text-xs font-medium min-w-[24px]">{idea.votes}x</span>
                   <span className="line-clamp-1">{idea.content}</span>
                 </p>
               ))}
@@ -888,7 +1003,7 @@ function IdeaCard({
 }) {
   return (
     <div
-      className="p-3 rounded-lg border border-zinc-800 bg-zinc-900 hover:border-zinc-700 group transition"
+      className="p-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 hover:border-zinc-600 group transition"
       style={{ borderLeftWidth: 3, borderLeftColor: idea.color }}
     >
       {editing ? (
@@ -900,35 +1015,35 @@ function IdeaCard({
               if (e.key === "Enter" && e.ctrlKey) onSaveEdit();
               if (e.key === "Escape") onCancelEdit();
             }}
-            className="w-full bg-zinc-800 border border-zinc-600 rounded px-2 py-1 text-sm text-white resize-none"
+            className="w-full bg-zinc-800 border border-zinc-500 rounded px-2 py-1.5 text-sm text-white resize-none focus:border-violet-500 focus:outline-none"
             rows={3}
             autoFocus
           />
-          <div className="flex gap-1 mt-1">
-            <button onClick={onSaveEdit} className="text-xs text-green-400 hover:text-green-300 flex items-center gap-1">
+          <div className="flex gap-2 mt-1.5">
+            <button onClick={onSaveEdit} className="text-xs text-green-400 hover:text-green-300 flex items-center gap-1 font-medium transition">
               <Save size={12} /> Speichern
             </button>
-            <button onClick={onCancelEdit} className="text-xs text-zinc-400 hover:text-white ml-2">Abbrechen</button>
+            <button onClick={onCancelEdit} className="text-xs text-zinc-400 hover:text-white transition">Abbrechen</button>
           </div>
         </div>
       ) : (
         <>
-          <p className="text-sm text-zinc-200 mb-2">{idea.content}</p>
+          <p className="text-sm text-zinc-100 mb-2 leading-relaxed">{idea.content}</p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1">
               {idea.votes > 0 && (
-                <span className="text-xs text-yellow-400 flex items-center gap-0.5">
+                <span className="text-xs text-yellow-400 flex items-center gap-0.5 font-medium">
                   <ThumbsUp size={10} /> {idea.votes}
                 </span>
               )}
             </div>
             <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition">
-              <button onClick={() => onVote(1)} className="p-1 text-zinc-500 hover:text-yellow-400" title="Vote"><ThumbsUp size={12} /></button>
+              <button onClick={() => onVote(1)} className="p-1 text-zinc-500 hover:text-yellow-400 transition" title="Bewerten"><ThumbsUp size={12} /></button>
               {idea.votes > 0 && (
-                <button onClick={() => onVote(-1)} className="p-1 text-zinc-500 hover:text-zinc-300" title="Unvote"><Minus size={12} /></button>
+                <button onClick={() => onVote(-1)} className="p-1 text-zinc-500 hover:text-zinc-300 transition" title="Abwerten"><Minus size={12} /></button>
               )}
-              <button onClick={onStartEdit} className="p-1 text-zinc-500 hover:text-white" title="Bearbeiten"><Pencil size={12} /></button>
-              <button onClick={onDelete} className="p-1 text-zinc-500 hover:text-red-400" title="Löschen"><Trash2 size={12} /></button>
+              <button onClick={onStartEdit} className="p-1 text-zinc-500 hover:text-white transition" title="Bearbeiten"><Pencil size={12} /></button>
+              <button onClick={onDelete} className="p-1 text-zinc-500 hover:text-red-400 transition" title="Löschen"><Trash2 size={12} /></button>
             </div>
           </div>
         </>
