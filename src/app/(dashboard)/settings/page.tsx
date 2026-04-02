@@ -152,6 +152,37 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
     setLoading(false);
   }
 
+  // Calculate subscription remaining time
+  const expiresAt = profile?.plan_expires_at ? new Date(profile.plan_expires_at) : null;
+  const now = new Date();
+  let remainingDays = 0;
+  let remainingLabel = "";
+  let aboExpired = false;
+
+  if (expiresAt) {
+    const diffMs = expiresAt.getTime() - now.getTime();
+    remainingDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    aboExpired = remainingDays <= 0;
+
+    if (aboExpired) {
+      remainingLabel = "Abgelaufen";
+    } else if (remainingDays > 365) {
+      const years = Math.floor(remainingDays / 365);
+      const months = Math.floor((remainingDays % 365) / 30);
+      remainingLabel = months > 0 ? `${years}J ${months}M` : `${years} Jahr${years > 1 ? "e" : ""}`;
+    } else if (remainingDays > 30) {
+      const months = Math.floor(remainingDays / 30);
+      const days = remainingDays % 30;
+      remainingLabel = days > 0 ? `${months}M ${days}T` : `${months} Monat${months > 1 ? "e" : ""}`;
+    } else {
+      remainingLabel = `${remainingDays} Tag${remainingDays !== 1 ? "e" : ""}`;
+    }
+  }
+
+  // Determine status styling
+  const isActive = profile?.stripe_subscription_status === "active" || profile?.stripe_subscription_status === "trialing";
+  const isCanceling = expiresAt && isActive && remainingDays > 0 && remainingDays <= 30;
+
   return (
     <div className="space-y-5">
       {/* Web Abo */}
@@ -167,20 +198,60 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
         </div>
 
         {isPro ? (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <CheckCircle size={15} className="text-green-500" />
               Abo aktiv · {profile?.stripe_subscription_status === "trialing" ? "Testphase" : "bezahlt"}
             </div>
-            {profile?.plan_expires_at && (
-              <div className="text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded-xl">
-                Abo läuft ab am {new Date(profile.plan_expires_at).toLocaleDateString("de-CH")}
+
+            {/* Subscription duration card */}
+            {expiresAt && (
+              <div className={`rounded-xl p-4 ${
+                aboExpired ? "bg-red-50 border border-red-200" :
+                isCanceling ? "bg-amber-50 border border-amber-200" :
+                "bg-violet-50 border border-violet-100"
+              }`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Laufzeit</span>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                    aboExpired ? "bg-red-100 text-red-700" :
+                    isCanceling ? "bg-amber-100 text-amber-700" :
+                    "bg-violet-100 text-violet-700"
+                  }`}>
+                    {aboExpired ? "Abgelaufen" : `Noch ${remainingLabel}`}
+                  </span>
+                </div>
+
+                {/* Progress bar */}
+                {!aboExpired && (
+                  <div className="h-2 bg-white/60 rounded-full overflow-hidden mb-2">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        isCanceling ? "bg-amber-400" : "bg-violet-500"
+                      }`}
+                      style={{ width: `${Math.max(5, 100 - Math.min(100, (remainingDays / 365) * 100))}%` }}
+                    />
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between text-xs">
+                  <span className={aboExpired ? "text-red-600" : "text-gray-500"}>
+                    {aboExpired
+                      ? `Abgelaufen am ${expiresAt.toLocaleDateString("de-CH", { day: "2-digit", month: "long", year: "numeric" })}`
+                      : `Gültig bis ${expiresAt.toLocaleDateString("de-CH", { day: "2-digit", month: "long", year: "numeric" })}`
+                    }
+                  </span>
+                  {!aboExpired && (
+                    <span className="text-gray-400">{remainingDays} Tage</span>
+                  )}
+                </div>
               </div>
             )}
+
             <button
               onClick={handlePortal}
               disabled={loading}
-              className="btn-secondary gap-2 mt-3"
+              className="btn-secondary gap-2"
             >
               <CreditCard size={14} />
               {loading ? "Öffne Stripe…" : "Abo verwalten / kündigen"}
