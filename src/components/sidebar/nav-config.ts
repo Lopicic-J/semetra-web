@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, Compass, BookOpen, GraduationCap, CheckSquare,
+  LayoutDashboard, Compass, BookOpen, CheckSquare,
   Target, Calendar, BarChart3, Clock3, Award,
   FileText, FolderOpen, Brain, Network, Lightbulb, Layers, Calculator, Timer,
   TrendingUp, Medal,
@@ -26,7 +26,6 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/dashboard",      icon: LayoutDashboard, label: "Dashboard",           pro: false },
       { href: "/navigator",      icon: Compass,         label: "Navigator",           pro: false },
       { href: "/modules",        icon: BookOpen,        label: "Module",              pro: false },
-      { href: "/studiengaenge",  icon: GraduationCap,   label: "FH-Voreinstellungen", pro: true },
       { href: "/tasks",          icon: CheckSquare,     label: "Aufgaben",            pro: false },
     ],
   },

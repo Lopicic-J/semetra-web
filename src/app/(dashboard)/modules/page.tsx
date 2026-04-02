@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { createClient } from "@/lib/supabase/client";
@@ -9,9 +9,12 @@ import { UpgradeModal } from "@/components/ui/ProGate";
 import {
   Plus, BookOpen, Pencil, Trash2, X, ExternalLink, Github,
   FileText, Link2, CheckCircle, Clock, AlertCircle, PauseCircle,
-  CheckSquare, Square, XSquare, AlertTriangle, Loader2
+  CheckSquare, Square, XSquare, AlertTriangle, Loader2,
+  GraduationCap, Building2, ChevronRight, Lock
 } from "lucide-react";
+import { ProGate } from "@/components/ui/ProGate";
 import type { Module } from "@/types/database";
+import type { Studiengang, StudiengangModuleTemplate } from "@/types/database";
 
 const SEMESTERS = ["Semester 1","Semester 2","Semester 3","Semester 4","Semester 5","Semester 6","Semester 7","Semester 8","Semester 9"];
 const DAYS = ["Mo","Di","Mi","Do","Fr","Sa"];
@@ -43,6 +46,7 @@ export default function ModulesPage() {
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [showFhImport, setShowFhImport] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ ids: string[]; names: string[] } | null>(null);
   const supabase = createClient();
 
@@ -108,6 +112,9 @@ export default function ModulesPage() {
               {selectMode ? "Abbrechen" : "Auswählen"}
             </button>
           )}
+          <button onClick={() => setShowFhImport(true)} className="btn-secondary gap-2 text-sm">
+            <GraduationCap size={15} /> FH-Import
+          </button>
           <button onClick={openNew} className="btn-primary gap-2">
             <Plus size={16} /> Modul hinzufügen
           </button>
@@ -163,10 +170,18 @@ export default function ModulesPage() {
           {[1,2,3,4,5,6].map(i => <div key={i} className="h-44 bg-surface-100 rounded-2xl animate-pulse" />)}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-20 text-surface-400">
-          <BookOpen size={48} className="mx-auto mb-3 opacity-30" />
-          <p className="font-medium">Keine Module gefunden</p>
-          <p className="text-sm mt-1">Klicke auf „Modul hinzufügen" oder nutze die FH-Voreinstellungen.</p>
+        <div className="text-center py-16">
+          <BookOpen size={48} className="mx-auto mb-4 text-surface-300 opacity-40" />
+          <p className="font-medium text-surface-600">Keine Module vorhanden</p>
+          <p className="text-sm mt-1 text-surface-400 mb-6">Starte mit einem FH-Import oder erstelle Module manuell.</p>
+          <div className="flex gap-3 justify-center">
+            <button onClick={() => setShowFhImport(true)} className="btn-primary gap-2">
+              <GraduationCap size={16} /> FH-Module importieren
+            </button>
+            <button onClick={openNew} className="btn-secondary gap-2">
+              <Plus size={16} /> Manuell erstellen
+            </button>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -189,6 +204,14 @@ export default function ModulesPage() {
           initial={editing}
           onClose={() => setShowForm(false)}
           onSaved={() => { setShowForm(false); refetch(); }}
+        />
+      )}
+
+      {showFhImport && (
+        <FhImportModal
+          isPro={isPro}
+          onClose={() => setShowFhImport(false)}
+          onImported={() => { setShowFhImport(false); refetch(); }}
         />
       )}
 
@@ -762,6 +785,289 @@ function ModuleModal({ initial, onClose, onSaved }: {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* FH Import Modal                                                            */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+const FH_INFO: Record<string, { full: string; color: string }> = {
+  "FFHS":   { full: "Fernfachhochschule Schweiz",                       color: "#6d28d9" },
+  "ZHAW":   { full: "Zürcher Hochschule für Angewandte Wissenschaften", color: "#2563eb" },
+  "FHNW":   { full: "Fachhochschule Nordwestschweiz",                   color: "#dc2626" },
+  "BFH":    { full: "Berner Fachhochschule",                            color: "#059669" },
+  "OST":    { full: "Ostschweizer Fachhochschule",                      color: "#d97706" },
+  "HES-SO": { full: "Haute École Spécialisée de Suisse Occidentale",    color: "#0891b2" },
+};
+
+function FhImportModal({ isPro, onClose, onImported }: {
+  isPro: boolean;
+  onClose: () => void;
+  onImported: () => void;
+}) {
+  const supabase = createClient();
+  const [programmes, setProgrammes] = useState<Studiengang[]>([]);
+  const [selected, setSelected] = useState<Studiengang | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [customSemester, setCustomSemester] = useState<Record<string, string>>({});
+  const [step, setStep] = useState<"choose" | "preview" | "done">("choose");
+  const [activeFh, setActiveFh] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.from("studiengaenge").select("*").order("fh").order("name")
+      .then(({ data }) => setProgrammes(data ?? []));
+  }, [supabase]);
+
+  const fhList = useMemo(() => {
+    const map = new Map<string, Studiengang[]>();
+    for (const p of programmes) {
+      if (!map.has(p.fh)) map.set(p.fh, []);
+      map.get(p.fh)!.push(p);
+    }
+    return Array.from(map.entries());
+  }, [programmes]);
+
+  const visibleFhs = activeFh ? fhList.filter(([fh]) => fh === activeFh) : fhList;
+
+  function normalizeSemester(raw: string, semCount: number): string {
+    const match = raw.match(/[HF]S?(\d+)/i);
+    if (match) {
+      const n = parseInt(match[1]);
+      if (n >= 1 && n <= semCount) return `Semester ${n}`;
+    }
+    if (raw.startsWith("Semester ")) return raw;
+    return `Semester 1`;
+  }
+
+  function pickProgram(p: Studiengang) {
+    setSelected(p);
+    const init: Record<string, string> = {};
+    const semCount = p.semester_count ?? 6;
+    (p.modules_json ?? []).forEach((m: StudiengangModuleTemplate, i: number) => {
+      init[i] = normalizeSemester(m.semester, semCount);
+    });
+    setCustomSemester(init);
+    setStep("preview");
+  }
+
+  async function doImport() {
+    if (!selected?.modules_json) return;
+    setImporting(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setImporting(false); return; }
+    const rows = selected.modules_json.map((m: StudiengangModuleTemplate, i: number) => ({
+      user_id: user.id,
+      name: m.name,
+      code: m.code,
+      ects: m.ects,
+      semester: customSemester[i] ?? m.semester,
+      module_type: m.module_type,
+      color: m.color,
+      status: "planned",
+      in_plan: true,
+    }));
+    await supabase.from("modules").insert(rows);
+    setImporting(false);
+    setStep("done");
+  }
+
+  const semesterCount = selected?.semester_count ?? 6;
+  const SEMESTER_OPTIONS = Array.from({ length: semesterCount }, (_, i) => `Semester ${i + 1}`);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] overflow-hidden mx-4 flex flex-col" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-surface-100 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-brand-50 flex items-center justify-center">
+              <GraduationCap size={18} className="text-brand-600" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-surface-900">FH-Module importieren</h2>
+              <p className="text-xs text-surface-500">Wähle deine Fachhochschule und deinen Studiengang</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400"><X size={16} /></button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5">
+          {!isPro ? (
+            <div className="text-center py-8">
+              <Lock size={40} className="mx-auto mb-3 text-surface-300" />
+              <p className="font-medium text-surface-700 mb-1">Pro-Feature</p>
+              <p className="text-sm text-surface-500 mb-4">Der FH-Import ist nur mit einem Pro-Abo verfügbar.</p>
+              <a href="/upgrade" className="btn-primary inline-flex gap-2">Upgrade auf Pro</a>
+            </div>
+          ) : step === "choose" ? (
+            <>
+              {/* FH Filter Chips */}
+              <div className="flex flex-wrap gap-2 mb-5">
+                <button
+                  onClick={() => setActiveFh(null)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    activeFh === null ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-600 hover:bg-surface-200"
+                  }`}
+                >
+                  Alle FHs ({programmes.length})
+                </button>
+                {fhList.map(([fh, progs]) => (
+                  <button
+                    key={fh}
+                    onClick={() => setActiveFh(activeFh === fh ? null : fh)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      activeFh === fh ? "text-white" : "bg-surface-100 text-surface-600 hover:bg-surface-200"
+                    }`}
+                    style={activeFh === fh ? { background: FH_INFO[fh]?.color ?? "#6d28d9" } : undefined}
+                  >
+                    {fh} ({progs.length})
+                  </button>
+                ))}
+              </div>
+
+              {/* FH Groups */}
+              <div className="space-y-6">
+                {visibleFhs.map(([fh, progs]) => (
+                  <div key={fh}>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div
+                        className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0"
+                        style={{ background: FH_INFO[fh]?.color ?? "#6d28d9" }}
+                      >
+                        <Building2 size={14} />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-surface-900 text-sm">{fh}</p>
+                        <p className="text-xs text-surface-400">{FH_INFO[fh]?.full ?? fh}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {progs.map(p => (
+                        <button
+                          key={p.id}
+                          onClick={() => pickProgram(p)}
+                          className="bg-white border border-surface-200 rounded-xl p-3 text-left hover:border-brand-300 hover:shadow-sm transition-all group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                              style={{ background: `${FH_INFO[fh]?.color ?? "#6d28d9"}12` }}
+                            >
+                              <BookOpen style={{ color: FH_INFO[fh]?.color ?? "#6d28d9" }} size={16} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-surface-900 text-sm truncate">{p.name}</p>
+                              <p className="text-xs text-surface-500">{p.abschluss} · {p.semester_count} Sem. · {p.ects_total} ECTS · {(p.modules_json ?? []).length} Module</p>
+                            </div>
+                            <ChevronRight size={14} className="text-surface-300 group-hover:text-brand-500 shrink-0 transition-colors" />
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {programmes.length === 0 && (
+                <div className="text-center py-8 text-surface-400">
+                  <Loader2 size={24} className="mx-auto mb-2 animate-spin" />
+                  <p className="text-sm">Studiengänge werden geladen…</p>
+                </div>
+              )}
+            </>
+          ) : step === "preview" && selected ? (
+            <>
+              <div className="flex items-center gap-3 mb-4">
+                <button onClick={() => setStep("choose")} className="btn-ghost text-sm gap-1 shrink-0">
+                  <ChevronRight size={14} className="rotate-180" /> Zurück
+                </button>
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-surface-800 text-sm truncate">{selected.name}</h3>
+                  <p className="text-xs text-surface-500">{selected.fh} · {selected.abschluss} · {selected.semester_count} Semester</p>
+                </div>
+              </div>
+
+              {/* Module table */}
+              <div className="border border-surface-200 rounded-xl overflow-hidden mb-4">
+                <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-surface-50 text-[10px] sm:text-xs font-semibold text-surface-500 border-b border-surface-100">
+                  <div className="col-span-5 sm:col-span-4">Modul</div>
+                  <div className="col-span-2 hidden sm:block">Code</div>
+                  <div className="col-span-2">ECTS</div>
+                  <div className="col-span-2 hidden sm:block">Typ</div>
+                  <div className="col-span-3 sm:col-span-2">Semester</div>
+                </div>
+                <div className="divide-y divide-surface-50 max-h-[40vh] overflow-y-auto">
+                  {(selected.modules_json ?? []).map((m: StudiengangModuleTemplate, i: number) => (
+                    <div key={i} className="grid grid-cols-12 gap-2 px-3 py-2.5 items-center hover:bg-surface-50/50">
+                      <div className="col-span-5 sm:col-span-4 flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full shrink-0" style={{ background: m.color }} />
+                        <span className="text-xs sm:text-sm font-medium text-surface-800 truncate">{m.name}</span>
+                      </div>
+                      <div className="col-span-2 hidden sm:block">
+                        <span className="text-[10px] font-mono bg-surface-100 text-surface-600 px-1.5 py-0.5 rounded">{m.code}</span>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-xs text-surface-600">{m.ects}</span>
+                      </div>
+                      <div className="col-span-2 hidden sm:block">
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${m.module_type === "pflicht" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}>
+                          {m.module_type}
+                        </span>
+                      </div>
+                      <div className="col-span-3 sm:col-span-2">
+                        <select
+                          className="input py-0.5 text-[10px] sm:text-xs"
+                          value={customSemester[i] ?? m.semester}
+                          onChange={e => setCustomSemester(s => ({ ...s, [i]: e.target.value }))}
+                        >
+                          {SEMESTER_OPTIONS.map(s => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-surface-500">
+                  {(selected.modules_json ?? []).length} Module · {selected.ects_total} ECTS
+                </p>
+                <button
+                  onClick={doImport}
+                  disabled={importing}
+                  className="btn-primary gap-2"
+                >
+                  {importing ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+                  {importing ? "Importiere…" : "Importieren"}
+                </button>
+              </div>
+            </>
+          ) : step === "done" ? (
+            <div className="text-center py-10">
+              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="text-green-600" size={28} />
+              </div>
+              <h3 className="text-lg font-bold text-surface-900 mb-1">Import erfolgreich!</h3>
+              <p className="text-sm text-surface-500 mb-6">
+                Alle Module von <strong>{selected?.name}</strong> ({selected?.fh}) wurden importiert.
+              </p>
+              <div className="flex gap-3 justify-center">
+                <button onClick={() => { setStep("choose"); setSelected(null); }} className="btn-secondary">
+                  Weiteren Studiengang
+                </button>
+                <button onClick={onImported} className="btn-primary">
+                  Fertig
+                </button>
+              </div>
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );
