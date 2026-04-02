@@ -15,6 +15,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "",
     items: [
       { href: "/dashboard",      emoji: "\u{1F3E0}\uFE0F", label: "Dashboard",           pro: false },
+      { href: "/navigator",     emoji: "\u{1F9ED}\uFE0F", label: "Navigator",           pro: false },
       { href: "/modules",        emoji: "\u{1F4DA}\uFE0F", label: "Module",              pro: false },
       { href: "/studiengaenge",  emoji: "\u{1F393}\uFE0F", label: "FH-Voreinstellungen", pro: true },
       { href: "/tasks",          emoji: "\u2705\uFE0F",     label: "Aufgaben",            pro: false },
