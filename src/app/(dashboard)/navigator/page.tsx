@@ -208,8 +208,8 @@ export default function NavigatorPage() {
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">🧭 Navigator</h1>
-        <p className="text-zinc-400 text-xs sm:text-sm mt-1">Finde schnell die richtige Funktion für dein Anliegen</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-surface-900 flex items-center gap-2">🧭 Navigator</h1>
+        <p className="text-surface-500 text-xs sm:text-sm mt-1">Finde schnell die richtige Funktion für dein Anliegen</p>
       </div>
 
       {/* Search */}
@@ -218,26 +218,26 @@ export default function NavigatorPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Was möchtest du tun? z.B. &quot;Prüfung&quot;, &quot;Notizen&quot;, &quot;Mathe&quot;..."
-          className="w-full bg-zinc-900 text-white rounded-xl px-5 py-4 pl-12 border border-zinc-800 text-base focus:outline-none focus:border-brand-600 transition-colors"
+          className="w-full bg-white text-surface-900 rounded-xl px-5 py-4 pl-12 border border-surface-200 text-base focus:outline-none focus:border-brand-600 transition-colors"
         />
         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl">🔍</span>
         {search && (
-          <button onClick={() => setSearch("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white">✕</button>
+          <button onClick={() => setSearch("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-900">✕</button>
         )}
       </div>
 
       {/* Quick Actions */}
       {!search && !activeGroup && (
         <div>
-          <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-3">Schnellaktionen</h2>
+          <h2 className="text-sm font-semibold text-surface-400 uppercase tracking-wider mb-3">Schnellaktionen</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
             {QUICK_ACTIONS.map((qa) => (
-              <Link key={qa.href} href={qa.href} className="bg-zinc-900 rounded-xl border border-zinc-800 p-4 hover:border-brand-600 hover:bg-zinc-800 transition-all group">
+              <Link key={qa.href} href={qa.href} className="bg-white rounded-xl border border-surface-200 p-4 hover:border-brand-600 hover:bg-surface-100 transition-all group">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl" style={{ backgroundColor: qa.color + "20" }}>{qa.emoji}</div>
-                  <span className="text-white font-medium text-sm group-hover:text-brand-300 transition-colors">{qa.label}</span>
+                  <span className="text-surface-900 font-medium text-sm group-hover:text-brand-600 transition-colors">{qa.label}</span>
                 </div>
-                <p className="text-zinc-500 text-xs leading-relaxed">{qa.description}</p>
+                <p className="text-surface-400 text-xs leading-relaxed">{qa.description}</p>
               </Link>
             ))}
           </div>
@@ -248,7 +248,7 @@ export default function NavigatorPage() {
       <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 -mx-1 px-1">
         <button
           onClick={() => setActiveGroup(null)}
-          className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${!activeGroup ? "bg-brand-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"}`}
+          className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${!activeGroup ? "bg-brand-600 text-white" : "bg-surface-200 text-surface-500 hover:bg-surface-300"}`}
         >
           Alle ({FEATURES.length})
         </button>
@@ -258,7 +258,7 @@ export default function NavigatorPage() {
             <button
               key={g}
               onClick={() => setActiveGroup(activeGroup === g ? null : g)}
-              className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all flex items-center gap-1.5 sm:gap-2 ${activeGroup === g ? "bg-brand-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"}`}
+              className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all flex items-center gap-1.5 sm:gap-2 ${activeGroup === g ? "bg-brand-600 text-white" : "bg-surface-200 text-surface-500 hover:bg-surface-300"}`}
             >
               <span>{GROUP_EMOJIS[g]}</span>
               <span>{g}</span>
@@ -271,7 +271,7 @@ export default function NavigatorPage() {
       {/* Features by Group */}
       {GROUPS.filter((g) => grouped[g]?.length).map((g) => (
         <div key={g}>
-          <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <h2 className="text-sm font-semibold text-surface-400 uppercase tracking-wider mb-3 flex items-center gap-2">
             <span>{GROUP_EMOJIS[g]}</span> {g}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -279,7 +279,7 @@ export default function NavigatorPage() {
               <Link
                 key={f.href}
                 href={f.href}
-                className="bg-zinc-900 rounded-xl border border-zinc-800 p-4 hover:border-brand-600 hover:bg-zinc-800 transition-all group relative overflow-hidden"
+                className="bg-white rounded-xl border border-surface-200 p-4 hover:border-brand-600 hover:bg-surface-100 transition-all group relative overflow-hidden"
               >
                 {/* Color accent bar */}
                 <div className="absolute top-0 left-0 w-1 h-full rounded-l-xl" style={{ backgroundColor: f.color }} />
@@ -290,15 +290,15 @@ export default function NavigatorPage() {
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-white font-semibold text-sm group-hover:text-brand-300 transition-colors">{f.label}</span>
+                      <span className="text-surface-900 font-semibold text-sm group-hover:text-brand-600 transition-colors">{f.label}</span>
                       {f.pro && <span className="text-xs bg-brand-900 text-brand-300 px-1.5 py-0.5 rounded font-medium">PRO</span>}
                     </div>
-                    <p className="text-zinc-500 text-xs mt-1 leading-relaxed line-clamp-2">{f.description}</p>
+                    <p className="text-surface-400 text-xs mt-1 leading-relaxed line-clamp-2">{f.description}</p>
                     <div className="flex items-center gap-1 mt-2">
-                      <span className="text-xs px-2 py-0.5 rounded bg-zinc-800 text-zinc-500">{f.group}</span>
+                      <span className="text-xs px-2 py-0.5 rounded bg-surface-200 text-surface-400">{f.group}</span>
                     </div>
                   </div>
-                  <span className="text-zinc-700 group-hover:text-brand-400 transition-colors ml-auto shrink-0 mt-1">→</span>
+                  <span className="text-surface-300 group-hover:text-brand-600 transition-colors ml-auto shrink-0 mt-1">→</span>
                 </div>
               </Link>
             ))}
@@ -310,16 +310,16 @@ export default function NavigatorPage() {
       {filtered.length === 0 && (
         <div className="text-center py-16">
           <div className="text-4xl mb-3">🔍</div>
-          <p className="text-zinc-400 text-sm">Keine Funktionen gefunden für &quot;{search}&quot;</p>
-          <button onClick={() => { setSearch(""); setActiveGroup(null); }} className="mt-3 text-brand-400 text-sm hover:text-brand-300">Filter zurücksetzen</button>
+          <p className="text-surface-500 text-sm">Keine Funktionen gefunden für &quot;{search}&quot;</p>
+          <button onClick={() => { setSearch(""); setActiveGroup(null); }} className="mt-3 text-brand-600 text-sm hover:text-brand-700">Filter zurücksetzen</button>
         </div>
       )}
 
       {/* Stats footer */}
       {!search && !activeGroup && (
-        <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm gap-1">
-          <span className="text-zinc-500">{FEATURES.length} Funktionen in {GROUPS.length} Kategorien</span>
-          <span className="text-zinc-600">Semetra — Dein Studienbegleiter</span>
+        <div className="bg-white rounded-xl border border-surface-200 p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm gap-1">
+          <span className="text-surface-400">{FEATURES.length} Funktionen in {GROUPS.length} Kategorien</span>
+          <span className="text-surface-300">Semetra — Dein Studienbegleiter</span>
         </div>
       )}
     </div>

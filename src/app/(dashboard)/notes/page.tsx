@@ -217,10 +217,10 @@ export default function NotesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 sm:justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 flex items-center gap-2">
             <FileText className="text-amber-400" /> Notizen
           </h1>
-          <p className="text-zinc-400 text-xs sm:text-sm mt-1">Alle Notizen an einem Ort — geordnet nach Modul, Aufgabe & Prüfung</p>
+          <p className="text-surface-500 text-xs sm:text-sm mt-1">Alle Notizen an einem Ort — geordnet nach Modul, Aufgabe & Prüfung</p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
@@ -234,43 +234,43 @@ export default function NotesPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         <button
           onClick={() => setViewMode("flow")}
-          className={`bg-zinc-900 border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-brand-500" : "border-zinc-700 hover:border-zinc-600"}`}
+          className={`bg-white border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-brand-500" : "border-surface-200 hover:border-surface-300"}`}
         >
-          <p className="text-lg sm:text-2xl font-bold text-white">{flowItems.length}</p>
-          <p className="text-xs text-zinc-400">Alle Notizen</p>
+          <p className="text-lg sm:text-2xl font-bold text-surface-900">{flowItems.length}</p>
+          <p className="text-xs text-surface-500">Alle Notizen</p>
           {(stats.fromModules + stats.fromTimer + stats.fromExams) > 0 && (
-            <p className="text-xs text-zinc-500 mt-0.5">
+            <p className="text-xs text-surface-400 mt-0.5">
               +{stats.fromModules + stats.fromTimer + stats.fromExams} aus anderen Quellen
             </p>
           )}
         </button>
         <button
           onClick={() => setFilterStatus(filterStatus === "draft" ? "" : "draft")}
-          className={`bg-zinc-900 border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "draft" ? "border-zinc-400" : "border-zinc-700 hover:border-zinc-600"}`}
+          className={`bg-white border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "draft" ? "border-surface-300" : "border-surface-200 hover:border-surface-300"}`}
         >
-          <p className="text-lg sm:text-2xl font-bold text-zinc-400">{stats.draft}</p>
-          <p className="text-xs text-zinc-400">Entwürfe</p>
+          <p className="text-lg sm:text-2xl font-bold text-surface-500">{stats.draft}</p>
+          <p className="text-xs text-surface-500">Entwürfe</p>
         </button>
         <button
           onClick={() => setFilterStatus(filterStatus === "in_progress" ? "" : "in_progress")}
-          className={`bg-zinc-900 border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "in_progress" ? "border-amber-500" : "border-zinc-700 hover:border-zinc-600"}`}
+          className={`bg-white border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "in_progress" ? "border-amber-500" : "border-surface-200 hover:border-surface-300"}`}
         >
           <p className="text-lg sm:text-2xl font-bold text-amber-400">{stats.inProgress}</p>
-          <p className="text-xs text-zinc-400">In Arbeit</p>
+          <p className="text-xs text-surface-500">In Arbeit</p>
         </button>
         <button
           onClick={() => setFilterStatus(filterStatus === "done" ? "" : "done")}
-          className={`bg-zinc-900 border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "done" ? "border-green-500" : "border-zinc-700 hover:border-zinc-600"}`}
+          className={`bg-white border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "done" ? "border-green-500" : "border-surface-200 hover:border-surface-300"}`}
         >
           <p className="text-lg sm:text-2xl font-bold text-green-400">{stats.done}</p>
-          <p className="text-xs text-zinc-400">Fertig</p>
+          <p className="text-xs text-surface-500">Fertig</p>
         </button>
       </div>
 
       {/* Module distribution */}
       {stats.byModule.length > 0 && (
-        <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-3 sm:p-4">
-          <h3 className="text-xs sm:text-sm font-semibold text-zinc-200 mb-2 sm:mb-3 flex items-center gap-2">
+        <div className="bg-white border border-surface-200 rounded-xl p-3 sm:p-4">
+          <h3 className="text-xs sm:text-sm font-semibold text-surface-800 mb-2 sm:mb-3 flex items-center gap-2">
             <FolderOpen size={14} className="text-brand-400" /> Notizen nach Modul
           </h3>
           <div className="flex gap-1.5 sm:gap-2 flex-wrap">
@@ -291,7 +291,7 @@ export default function NotesPage() {
             {stats.unlinked > 0 && (
               <button
                 onClick={() => setFilterModule("")}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 hover:bg-zinc-700 transition"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-medium bg-surface-100 text-surface-700 hover:bg-surface-200 transition"
               >
                 <StickyNote size={10} /> Ohne Zuordnung ({stats.unlinked})
               </button>
@@ -303,40 +303,40 @@ export default function NotesPage() {
       {/* Search + filters */}
       <div className="flex gap-1.5 sm:gap-2 mb-4 flex-wrap">
         <div className="relative flex-1 min-w-[160px] sm:min-w-[200px]">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
           <input
             value={searchQ}
             onChange={e => setSearchQ(e.target.value)}
             placeholder="Notizen durchsuchen..."
-            className="w-full bg-zinc-900 border border-zinc-700 rounded-lg pl-10 pr-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:border-brand-500 focus:outline-none transition"
+            className="w-full bg-white border border-surface-200 rounded-lg pl-10 pr-3 py-2 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none transition"
           />
         </div>
         <select
           value={filterModule}
           onChange={e => setFilterModule(e.target.value)}
-          className="bg-zinc-900 border border-zinc-700 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm text-white"
+          className="bg-white border border-surface-200 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm text-surface-900"
         >
           <option value="">Alle Module</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
-        <div className="flex rounded-lg overflow-hidden border border-zinc-700 overflow-x-auto">
+        <div className="flex rounded-lg overflow-hidden border border-surface-200 overflow-x-auto">
           <button
             onClick={() => setViewMode("grid")}
-            className={`p-2 transition ${viewMode === "grid" ? "bg-brand-600 text-white" : "bg-zinc-900 text-zinc-400 hover:text-white"}`}
+            className={`p-2 transition ${viewMode === "grid" ? "bg-brand-600 text-white" : "bg-white text-surface-500 hover:text-surface-900"}`}
             title="Karten"
           >
             <LayoutGrid size={16} />
           </button>
           <button
             onClick={() => setViewMode("list")}
-            className={`p-2 transition ${viewMode === "list" ? "bg-brand-600 text-white" : "bg-zinc-900 text-zinc-400 hover:text-white"}`}
+            className={`p-2 transition ${viewMode === "list" ? "bg-brand-600 text-white" : "bg-white text-surface-500 hover:text-surface-900"}`}
             title="Liste"
           >
             <ListIcon size={16} />
           </button>
           <button
             onClick={() => setViewMode("flow")}
-            className={`p-2 transition ${viewMode === "flow" ? "bg-brand-600 text-white" : "bg-zinc-900 text-zinc-400 hover:text-white"}`}
+            className={`p-2 transition ${viewMode === "flow" ? "bg-brand-600 text-white" : "bg-white text-surface-500 hover:text-surface-900"}`}
             title="Flow — alle Notizen chronologisch"
           >
             <Workflow size={16} />
@@ -345,7 +345,7 @@ export default function NotesPage() {
         {(filterModule || filterStatus || searchQ) && (
           <button
             onClick={() => { setFilterModule(""); setFilterStatus(""); setSearchQ(""); }}
-            className="px-3 py-2 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white text-xs transition"
+            className="px-3 py-2 rounded-lg bg-surface-100 text-surface-500 hover:text-surface-900 text-xs transition"
           >
             Filter zurücksetzen
           </button>
@@ -354,12 +354,12 @@ export default function NotesPage() {
 
       {/* Notes list */}
       {loading ? (
-        <p className="text-zinc-400 text-sm">Laden...</p>
+        <p className="text-surface-500 text-sm">Laden...</p>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16">
-          <FileText size={48} className="mx-auto mb-4 text-zinc-600" />
-          <p className="text-zinc-400">{notes.length === 0 ? "Noch keine Notizen" : "Keine Notizen gefunden"}</p>
-          <p className="text-sm mt-1 text-zinc-500">
+          <FileText size={48} className="mx-auto mb-4 text-surface-300" />
+          <p className="text-surface-500">{notes.length === 0 ? "Noch keine Notizen" : "Keine Notizen gefunden"}</p>
+          <p className="text-sm mt-1 text-surface-400">
             {notes.length === 0 ? "Erstelle deine erste Notiz zu einem Modul oder Thema!" : "Versuche einen anderen Suchbegriff oder Filter"}
           </p>
         </div>
@@ -431,9 +431,9 @@ function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: No
   if (items.length === 0) {
     return (
       <div className="text-center py-16">
-        <Workflow size={48} className="mx-auto mb-4 text-zinc-600" />
-        <p className="text-zinc-400">Keine Notizen im Flow</p>
-        <p className="text-sm mt-1 text-zinc-500">Erstelle Notizen in Modulen, Timer oder direkt hier</p>
+        <Workflow size={48} className="mx-auto mb-4 text-surface-300" />
+        <p className="text-surface-500">Keine Notizen im Flow</p>
+        <p className="text-sm mt-1 text-surface-400">Erstelle Notizen in Modulen, Timer oder direkt hier</p>
       </div>
     );
   }
@@ -452,7 +452,7 @@ function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: No
             </span>
           );
         })}
-        <span className="text-xs text-zinc-500 ml-auto">{items.length} Einträge total</span>
+        <span className="text-xs text-surface-400 ml-auto">{items.length} Einträge total</span>
       </div>
 
       {/* Timeline */}
@@ -460,15 +460,15 @@ function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: No
         <div key={dateLabel}>
           {/* Date header */}
           <div className="flex items-center gap-3 mb-3">
-            <div className="h-px flex-1 bg-zinc-800" />
-            <span className="text-xs font-medium text-zinc-400 px-2">{dateLabel}</span>
-            <div className="h-px flex-1 bg-zinc-800" />
+            <div className="h-px flex-1 bg-surface-100" />
+            <span className="text-xs font-medium text-surface-500 px-2">{dateLabel}</span>
+            <div className="h-px flex-1 bg-surface-100" />
           </div>
 
           {/* Items with timeline line */}
           <div className="relative pl-6 sm:pl-8">
             {/* Vertical line */}
-            <div className="absolute left-2.5 sm:left-3 top-0 bottom-0 w-px bg-zinc-800" />
+            <div className="absolute left-2.5 sm:left-3 top-0 bottom-0 w-px bg-surface-100" />
 
             <div className="space-y-2 sm:space-y-3">
               {dayItems.map((item, idx) => {
@@ -483,21 +483,21 @@ function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: No
                   >
                     {/* Timeline dot */}
                     <div
-                      className="absolute -left-4.5 sm:-left-5 top-3 w-2.5 sm:w-3 h-2.5 sm:h-3 rounded-full border-2 border-zinc-900"
+                      className="absolute -left-4.5 sm:-left-5 top-3 w-2.5 sm:w-3 h-2.5 sm:h-3 rounded-full border-2 border-surface-100"
                       style={{ backgroundColor: typeColor }}
                     />
 
                     {/* Card */}
                     <div
-                      className={`bg-zinc-900 border border-zinc-700 rounded-lg p-2.5 sm:p-3.5 transition ${
-                        isClickable ? "hover:border-zinc-500 hover:bg-zinc-800/50" : ""
+                      className={`bg-white border border-surface-200 rounded-lg p-2.5 sm:p-3.5 transition ${
+                        isClickable ? "hover:border-surface-400 hover:bg-surface-200/50" : ""
                       }`}
                       style={{ borderLeftWidth: 3, borderLeftColor: item.module_color ?? typeColor }}
                     >
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-1">
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
                           <span style={{ color: typeColor }} className="flex-shrink-0">{FLOW_ICONS[item.type]}</span>
-                          <h4 className={`text-xs sm:text-sm font-medium text-white line-clamp-1 ${isClickable ? "group-hover:text-brand-300" : ""}`}>
+                          <h4 className={`text-xs sm:text-sm font-medium text-surface-900 line-clamp-1 ${isClickable ? "group-hover:text-brand-300" : ""}`}>
                             {item.pinned && <Pin size={10} className="inline mr-1 text-amber-400" />}
                             {item.title}
                           </h4>
@@ -524,7 +524,7 @@ function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: No
                       </div>
 
                       {item.content && (
-                        <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed mt-1.5">{item.content}</p>
+                        <p className="text-xs text-surface-500 line-clamp-2 leading-relaxed mt-1.5">{item.content}</p>
                       )}
 
                       <div className="flex items-center gap-1 sm:gap-2 mt-2 flex-wrap">
@@ -536,7 +536,7 @@ function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: No
                             {item.module_name}
                           </span>
                         )}
-                        <span className="text-xs text-zinc-600 ml-auto">
+                        <span className="text-xs text-surface-300 ml-auto">
                           {new Date(item.date).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}
                         </span>
                       </div>
@@ -561,11 +561,11 @@ function NoteCard({ note, modules, onClick }: { note: Note; modules: Module[]; o
   return (
     <button
       onClick={onClick}
-      className="bg-zinc-900 border border-zinc-700 rounded-xl p-4 text-left hover:border-zinc-500 transition group"
+      className="bg-white border border-surface-200 rounded-xl p-4 text-left hover:border-surface-400 transition group"
       style={{ borderTopWidth: 3, borderTopColor: note.color }}
     >
       <div className="flex items-start justify-between mb-2">
-        <h3 className="font-semibold text-white text-sm group-hover:text-brand-300 transition line-clamp-1 flex-1">
+        <h3 className="font-semibold text-surface-900 text-sm group-hover:text-brand-300 transition line-clamp-1 flex-1">
           {note.pinned && <Pin size={12} className="inline mr-1 text-amber-400" />}
           {note.title}
         </h3>
@@ -578,7 +578,7 @@ function NoteCard({ note, modules, onClick }: { note: Note; modules: Module[]; o
       </div>
 
       {preview && (
-        <p className="text-xs text-zinc-400 line-clamp-3 mb-3 leading-relaxed">{preview}</p>
+        <p className="text-xs text-surface-500 line-clamp-3 mb-3 leading-relaxed">{preview}</p>
       )}
 
       <div className="flex items-center gap-2 flex-wrap">
@@ -590,7 +590,7 @@ function NoteCard({ note, modules, onClick }: { note: Note; modules: Module[]; o
             <BookOpen size={10} className="inline mr-1" />{mod.name}
           </span>
         )}
-        <span className="text-xs text-zinc-500 ml-auto">
+        <span className="text-xs text-surface-400 ml-auto">
           {new Date(note.updated_at).toLocaleDateString("de-CH")}
         </span>
       </div>
@@ -606,12 +606,12 @@ function NoteListRow({ note, modules, onClick }: { note: Note; modules: Module[]
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-3 p-3 bg-zinc-900 border border-zinc-700 rounded-lg hover:border-zinc-500 transition group text-left"
+      className="w-full flex items-center gap-3 p-3 bg-white border border-surface-200 rounded-lg hover:border-surface-400 transition group text-left"
     >
       <div className="w-1 h-8 rounded-full flex-shrink-0" style={{ backgroundColor: note.color }} />
       {note.pinned && <Pin size={14} className="text-amber-400 flex-shrink-0" />}
       <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-medium text-white group-hover:text-brand-300 transition line-clamp-1">{note.title}</h3>
+        <h3 className="text-sm font-medium text-surface-900 group-hover:text-brand-300 transition line-clamp-1">{note.title}</h3>
         {mod && (
           <span className="text-xs" style={{ color: mod.color }}>{mod.name}</span>
         )}
@@ -622,7 +622,7 @@ function NoteListRow({ note, modules, onClick }: { note: Note; modules: Module[]
       >
         {st.icon} {st.label}
       </span>
-      <span className="text-xs text-zinc-500 flex-shrink-0">
+      <span className="text-xs text-surface-400 flex-shrink-0">
         {new Date(note.updated_at).toLocaleDateString("de-CH")}
       </span>
     </button>
@@ -673,27 +673,27 @@ function CreateNoteModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
-      <div className="bg-zinc-900 border border-zinc-600 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
+      <div className="bg-white border border-surface-300 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-4 sm:mb-5">
-          <h2 className="text-base sm:text-lg font-bold text-white">Neue Notiz</h2>
-          <button onClick={onClose} className="text-zinc-400 hover:text-white transition"><X size={20} /></button>
+          <h2 className="text-base sm:text-lg font-bold text-surface-900">Neue Notiz</h2>
+          <button onClick={onClose} className="text-surface-500 hover:text-surface-900 transition"><X size={20} /></button>
         </div>
 
-        <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-1.5">Titel</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">Titel</label>
         <input
           value={title}
           onChange={e => setTitle(e.target.value)}
           placeholder="z.B. Zusammenfassung Kapitel 3..."
-          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-white placeholder:text-zinc-500 mb-3 sm:mb-4 focus:border-brand-500 focus:outline-none transition"
+          className="w-full bg-surface-100 border border-surface-300 rounded-lg px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 mb-3 sm:mb-4 focus:border-brand-500 focus:outline-none transition"
           autoFocus
         />
 
-        <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-1.5">Zuordnung (optional)</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">Zuordnung (optional)</label>
         <select
           value={moduleId}
           onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); }}
-          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-white mb-2"
+          className="w-full bg-surface-100 border border-surface-300 rounded-lg px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 mb-2"
         >
           <option value="">Allgemein (kein Modul)</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -704,7 +704,7 @@ function CreateNoteModal({
             <select
               value={examId}
               onChange={e => setExamId(e.target.value)}
-              className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-2.5 sm:px-3 py-2 text-xs sm:text-sm text-white"
+              className="flex-1 bg-surface-100 border border-surface-300 rounded-lg px-2.5 sm:px-3 py-2 text-xs sm:text-sm text-surface-900"
             >
               <option value="">Keine Prüfung</option>
               {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
@@ -712,7 +712,7 @@ function CreateNoteModal({
             <select
               value={taskId}
               onChange={e => setTaskId(e.target.value)}
-              className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-2.5 sm:px-3 py-2 text-xs sm:text-sm text-white"
+              className="flex-1 bg-surface-100 border border-surface-300 rounded-lg px-2.5 sm:px-3 py-2 text-xs sm:text-sm text-surface-900"
             >
               <option value="">Keine Aufgabe</option>
               {filteredTasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
@@ -720,13 +720,13 @@ function CreateNoteModal({
           </div>
         )}
 
-        <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-1.5 mt-3">Farbe</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5 mt-3">Farbe</label>
         <div className="flex gap-1.5 sm:gap-2 mb-4 sm:mb-5 flex-wrap">
           {NOTE_COLORS.map(c => (
             <button
               key={c}
               onClick={() => setColor(c)}
-              className={`w-7 h-7 rounded-full border-2 transition ${color === c ? "border-white scale-110" : "border-zinc-700 hover:border-zinc-500"}`}
+              className={`w-7 h-7 rounded-full border-2 transition ${color === c ? "border-white scale-110" : "border-surface-200 hover:border-surface-400"}`}
               style={{ backgroundColor: c }}
             />
           ))}
@@ -751,7 +751,7 @@ function TBtn({ active, onClick, children, title }: {
   return (
     <button
       onMouseDown={e => { e.preventDefault(); onClick(); }}
-      className={`p-1 sm:p-1.5 rounded transition ${active ? "bg-brand-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-700"}`}
+      className={`p-1 sm:p-1.5 rounded transition ${active ? "bg-brand-600 text-white" : "text-surface-500 hover:text-surface-900 hover:bg-surface-200"}`}
       title={title}
     >
       {children}
@@ -885,14 +885,14 @@ function NoteEditor({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 sm:justify-between mb-3 sm:mb-4">
         <div className="flex items-center gap-2 sm:gap-3">
-          <button onClick={() => { saveNote(); onBack(); }} className="text-zinc-400 hover:text-white transition p-1 flex-shrink-0">
+          <button onClick={() => { saveNote(); onBack(); }} className="text-surface-500 hover:text-surface-900 transition p-1 flex-shrink-0">
             <ArrowLeft size={20} />
           </button>
           <div className="flex-1 min-w-0">
             <input
               value={title}
               onChange={e => { setTitle(e.target.value); scheduleAutoSave(); }}
-              className="text-lg sm:text-xl font-bold text-white bg-transparent border-none focus:outline-none w-full"
+              className="text-lg sm:text-xl font-bold text-surface-900 bg-transparent border-none focus:outline-none w-full"
               placeholder="Notiz-Titel..."
             />
             <div className="flex items-center gap-1.5 sm:gap-2 mt-1 flex-wrap">
@@ -915,7 +915,7 @@ function NoteEditor({
                 {st.icon} {st.label}
               </span>
               {lastSaved && (
-                <span className="text-xs text-zinc-500 flex-shrink-0">
+                <span className="text-xs text-surface-400 flex-shrink-0">
                   {saving ? "Speichern..." : `Gespeichert ${lastSaved.toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}`}
                 </span>
               )}
@@ -923,13 +923,13 @@ function NoteEditor({
           </div>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap flex-shrink-0">
-          <button onClick={togglePin} className={`p-2 rounded-lg transition ${pinned ? "bg-amber-500/20 text-amber-400" : "bg-zinc-800 text-zinc-400 hover:text-white"} border border-zinc-700`} title={pinned ? "Loslösen" : "Anheften"}>
+          <button onClick={togglePin} className={`p-2 rounded-lg transition ${pinned ? "bg-amber-500/20 text-amber-400" : "bg-surface-100 text-surface-500 hover:text-surface-900"} border border-surface-200`} title={pinned ? "Loslösen" : "Anheften"}>
             {pinned ? <PinOff size={16} /> : <Pin size={16} />}
           </button>
           <button onClick={saveNote} className="flex items-center gap-1.5 px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-sm font-medium transition">
             <Save size={14} /> Speichern
           </button>
-          <button onClick={deleteNote} className="p-2 rounded-lg bg-zinc-800 border border-zinc-700 text-red-400 hover:text-red-300 hover:border-red-500/40 transition">
+          <button onClick={deleteNote} className="p-2 rounded-lg bg-surface-100 border border-surface-200 text-red-400 hover:text-red-300 hover:border-red-500/40 transition">
             <Trash2 size={16} />
           </button>
         </div>
@@ -940,7 +940,7 @@ function NoteEditor({
         <select
           value={moduleId}
           onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); scheduleAutoSave(); }}
-          className="bg-zinc-900 border border-zinc-700 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-white flex-shrink-0"
+          className="bg-white border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-surface-900 flex-shrink-0"
         >
           <option value="">Kein Modul</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -950,7 +950,7 @@ function NoteEditor({
             <select
               value={examId}
               onChange={e => { setExamId(e.target.value); scheduleAutoSave(); }}
-              className="bg-zinc-900 border border-zinc-700 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-white flex-shrink-0"
+              className="bg-white border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-surface-900 flex-shrink-0"
             >
               <option value="">Keine Prüfung</option>
               {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
@@ -958,7 +958,7 @@ function NoteEditor({
             <select
               value={taskId}
               onChange={e => { setTaskId(e.target.value); scheduleAutoSave(); }}
-              className="bg-zinc-900 border border-zinc-700 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-white flex-shrink-0"
+              className="bg-white border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-surface-900 flex-shrink-0"
             >
               <option value="">Keine Aufgabe</option>
               {filteredTasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
@@ -968,19 +968,19 @@ function NoteEditor({
       </div>
 
       {/* Rich Text Toolbar */}
-      <div className="flex items-center gap-0.5 p-1.5 sm:p-2 bg-zinc-900 border border-zinc-700 rounded-t-xl flex-wrap overflow-x-auto">
+      <div className="flex items-center gap-0.5 p-1.5 sm:p-2 bg-white border border-surface-200 rounded-t-xl flex-wrap overflow-x-auto">
         <TBtn onClick={() => execCmd("bold")} title="Fett"><Bold size={14} /></TBtn>
         <TBtn onClick={() => execCmd("italic")} title="Kursiv"><Italic size={14} /></TBtn>
         <TBtn onClick={() => execCmd("underline")} title="Unterstrichen"><Underline size={14} /></TBtn>
         <TBtn onClick={() => execCmd("strikeThrough")} title="Durchgestrichen"><Strikethrough size={14} /></TBtn>
-        <div className="w-px h-4 sm:h-5 bg-zinc-700 mx-0.5 sm:mx-1" />
+        <div className="w-px h-4 sm:h-5 bg-surface-200 mx-0.5 sm:mx-1" />
         <TBtn onClick={() => execCmd("formatBlock", "h1")} title="Überschrift 1"><Heading1 size={14} /></TBtn>
         <TBtn onClick={() => execCmd("formatBlock", "h2")} title="Überschrift 2"><Heading2 size={14} /></TBtn>
         <TBtn onClick={() => execCmd("formatBlock", "p")} title="Absatz"><AlignLeft size={14} /></TBtn>
-        <div className="w-px h-4 sm:h-5 bg-zinc-700 mx-0.5 sm:mx-1" />
+        <div className="w-px h-4 sm:h-5 bg-surface-200 mx-0.5 sm:mx-1" />
         <TBtn onClick={() => execCmd("insertUnorderedList")} title="Aufzählung"><List size={14} /></TBtn>
         <TBtn onClick={() => execCmd("insertOrderedList")} title="Nummerierung"><ListOrdered size={14} /></TBtn>
-        <div className="w-px h-4 sm:h-5 bg-zinc-700 mx-0.5 sm:mx-1" />
+        <div className="w-px h-4 sm:h-5 bg-surface-200 mx-0.5 sm:mx-1" />
         <TBtn onClick={() => {
           const url = prompt("Link-URL:");
           if (url) execCmd("createLink", url);
@@ -993,25 +993,25 @@ function NoteEditor({
         ref={editorRef}
         contentEditable
         onInput={scheduleAutoSave}
-        className="min-h-[300px] bg-zinc-900 border-x border-b border-zinc-700 rounded-b-xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:outline-none prose prose-invert prose-sm max-w-none [&_h1]:text-lg sm:[&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-white [&_h1]:mt-3 sm:[&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-base sm:[&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-zinc-100 [&_h2]:mt-2 sm:[&_h2]:mt-3 [&_h2]:mb-1.5 [&_ul]:list-disc [&_ul]:pl-4 sm:[&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-4 sm:[&_ol]:pl-5 [&_a]:text-brand-400 [&_a]:underline [&_li]:text-zinc-200 [&_p]:text-zinc-200 [&_p]:leading-relaxed"
+        className="min-h-[300px] bg-white border-x border-b border-surface-200 rounded-b-xl p-3 sm:p-4 text-xs sm:text-sm text-surface-900 focus:outline-none prose prose-sm max-w-none [&_h1]:text-lg sm:[&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-surface-900 [&_h1]:mt-3 sm:[&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-base sm:[&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-surface-200 [&_h2]:mt-2 sm:[&_h2]:mt-3 [&_h2]:mb-1.5 [&_ul]:list-disc [&_ul]:pl-4 sm:[&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-4 sm:[&_ol]:pl-5 [&_a]:text-brand-400 [&_a]:underline [&_li]:text-surface-800 [&_p]:text-surface-800 [&_p]:leading-relaxed"
         data-placeholder="Beginne hier zu schreiben..."
         suppressContentEditableWarning
       />
 
       {/* Checklist */}
-      <div className="mt-3 sm:mt-4 bg-zinc-900 border border-zinc-700 rounded-xl">
+      <div className="mt-3 sm:mt-4 bg-white border border-surface-200 rounded-xl">
         <button
           onClick={() => setShowChecklist(!showChecklist)}
           className="w-full flex items-center justify-between p-2.5 sm:p-3 text-left"
         >
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             <CheckSquare size={16} className="text-brand-400 flex-shrink-0" />
-            <span className="text-xs sm:text-sm font-semibold text-zinc-200">Checkliste</span>
+            <span className="text-xs sm:text-sm font-semibold text-surface-800">Checkliste</span>
             {checkTotal > 0 && (
-              <span className="text-xs text-zinc-400">({checkDone}/{checkTotal})</span>
+              <span className="text-xs text-surface-500">({checkDone}/{checkTotal})</span>
             )}
           </div>
-          <ChevronDown size={14} className={`text-zinc-400 transition ${showChecklist ? "rotate-180" : ""} flex-shrink-0`} />
+          <ChevronDown size={14} className={`text-surface-500 transition ${showChecklist ? "rotate-180" : ""} flex-shrink-0`} />
         </button>
 
         {showChecklist && (
@@ -1019,7 +1019,7 @@ function NoteEditor({
             {/* Progress bar */}
             {checkTotal > 0 && (
               <div className="mb-2.5 sm:mb-3">
-                <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-surface-100 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-green-500 transition-all duration-300 rounded-full"
                     style={{ width: `${(checkDone / checkTotal) * 100}%` }}
@@ -1031,22 +1031,22 @@ function NoteEditor({
             {/* Items */}
             <div className="space-y-1 sm:space-y-1">
               {checklist.map(item => (
-                <div key={item.id} className="flex items-center gap-1.5 sm:gap-2 group p-1 rounded hover:bg-zinc-800/50 transition">
+                <div key={item.id} className="flex items-center gap-1.5 sm:gap-2 group p-1 rounded hover:bg-surface-200/50 transition">
                   <button
                     onClick={() => toggleCheckItem(item.id, item.checked)}
                     className="flex-shrink-0"
                   >
                     {item.checked
                       ? <CheckSquare size={16} className="text-green-400" />
-                      : <Square size={16} className="text-zinc-500 hover:text-zinc-300" />
+                      : <Square size={16} className="text-surface-400 hover:text-surface-700" />
                     }
                   </button>
-                  <span className={`text-xs sm:text-sm flex-1 ${item.checked ? "text-zinc-500 line-through" : "text-zinc-200"}`}>
+                  <span className={`text-xs sm:text-sm flex-1 ${item.checked ? "text-surface-400 line-through" : "text-surface-800"}`}>
                     {item.content}
                   </span>
                   <button
                     onClick={() => deleteCheckItem(item.id)}
-                    className="p-1 text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition flex-shrink-0"
+                    className="p-1 text-surface-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition flex-shrink-0"
                   >
                     <X size={12} />
                   </button>
@@ -1061,12 +1061,12 @@ function NoteEditor({
                 onChange={e => setNewCheckItem(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter") addCheckItem(); }}
                 placeholder="Neuer Punkt..."
-                className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:border-brand-500 focus:outline-none transition min-w-[120px]"
+                className="flex-1 bg-surface-100 border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none transition min-w-[120px]"
               />
               <button
                 onClick={addCheckItem}
                 disabled={!newCheckItem.trim()}
-                className="px-2.5 sm:px-3 py-1.5 bg-brand-600 hover:bg-brand-500 disabled:opacity-40 text-white rounded-lg text-xs sm:text-sm transition flex-shrink-0"
+                className="px-2.5 sm:px-3 py-1.5 bg-brand-600 hover:bg-brand-500 disabled:opacity-40 text-surface-900 rounded-lg text-xs sm:text-sm transition flex-shrink-0"
               >
                 <Plus size={14} />
               </button>

@@ -240,10 +240,10 @@ export default function DocumentsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 sm:mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 flex items-center gap-2">
             <FolderOpen className="text-blue-400" /> Dokumente & Links
           </h1>
-          <p className="text-zinc-400 text-xs sm:text-sm mt-1">Alle Dokumente und Links an einem Ort — zugeordnet zu Modulen, Aufgaben & Prüfungen</p>
+          <p className="text-surface-500 text-xs sm:text-sm mt-1">Alle Dokumente und Links an einem Ort — zugeordnet zu Modulen, Aufgaben & Prüfungen</p>
         </div>
         <button
           onClick={() => { setEditDoc(null); setShowCreate(true); }}
@@ -257,29 +257,29 @@ export default function DocumentsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
         <button
           onClick={() => setViewMode("flow")}
-          className={`bg-zinc-900 border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-brand-500" : "border-zinc-700 hover:border-zinc-600"}`}
+          className={`bg-white border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-brand-500" : "border-surface-200 hover:border-surface-300"}`}
         >
-          <p className="text-lg sm:text-2xl font-bold text-white">{stats.total}</p>
-          <p className="text-xs text-zinc-400">Alle Dokumente</p>
+          <p className="text-lg sm:text-2xl font-bold text-surface-900">{stats.total}</p>
+          <p className="text-xs text-surface-500">Alle Dokumente</p>
         </button>
-        <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-2 sm:p-3 text-center">
+        <div className="bg-white border border-surface-200 rounded-xl p-2 sm:p-3 text-center">
           <p className="text-lg sm:text-2xl font-bold text-brand-400">{stats.own}</p>
-          <p className="text-xs text-zinc-400">Eigene</p>
+          <p className="text-xs text-surface-500">Eigene</p>
         </div>
-        <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-2 sm:p-3 text-center">
+        <div className="bg-white border border-surface-200 rounded-xl p-2 sm:p-3 text-center">
           <p className="text-lg sm:text-2xl font-bold text-blue-400">{stats.fromTasks + stats.fromExams}</p>
-          <p className="text-xs text-zinc-400">Aus Aufgaben & Prüfungen</p>
+          <p className="text-xs text-surface-500">Aus Aufgaben & Prüfungen</p>
         </div>
-        <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-2 sm:p-3 text-center">
+        <div className="bg-white border border-surface-200 rounded-xl p-2 sm:p-3 text-center">
           <p className="text-lg sm:text-2xl font-bold text-cyan-400">{stats.fromModules}</p>
-          <p className="text-xs text-zinc-400">Modul-Links</p>
+          <p className="text-xs text-surface-500">Modul-Links</p>
         </div>
       </div>
 
       {/* Module distribution */}
       {stats.byModule.length > 0 && (
-        <div className="mb-4 sm:mb-6 bg-zinc-900 border border-zinc-700 rounded-xl p-3 sm:p-4">
-          <h3 className="text-xs sm:text-sm font-semibold text-zinc-200 mb-2 sm:mb-3 flex items-center gap-2">
+        <div className="mb-4 sm:mb-6 bg-white border border-surface-200 rounded-xl p-3 sm:p-4">
+          <h3 className="text-xs sm:text-sm font-semibold text-surface-800 mb-2 sm:mb-3 flex items-center gap-2">
             <FolderOpen size={14} className="text-blue-400" /> Nach Modul
           </h3>
           <div className="flex gap-1 sm:gap-2 flex-wrap">
@@ -304,7 +304,7 @@ export default function DocumentsPage() {
         <div className="flex gap-1 sm:gap-1.5 mb-3 sm:mb-4 flex-wrap">
           <button
             onClick={() => setFilterKind("")}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${!filterKind ? "bg-brand-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700"}`}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${!filterKind ? "bg-brand-600 text-white" : "bg-surface-100 border border-surface-200 text-surface-700 hover:bg-surface-200"}`}
           >
             Alle Typen
           </button>
@@ -315,7 +315,7 @@ export default function DocumentsPage() {
                 key={kind}
                 onClick={() => setFilterKind(filterKind === kind ? "" : kind)}
                 className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition ${
-                  filterKind === kind ? "bg-brand-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700"
+                  filterKind === kind ? "bg-brand-600 text-white" : "bg-surface-100 border border-surface-200 text-surface-700 hover:bg-surface-200"
                 }`}
               >
                 <span style={{ color: cfg.color }}>{cfg.icon}</span> {cfg.label} ({count})
@@ -328,28 +328,28 @@ export default function DocumentsPage() {
       {/* Search + view toggle */}
       <div className="flex gap-1 sm:gap-2 mb-3 sm:mb-4 flex-wrap">
         <div className="relative flex-1 min-w-[150px] sm:min-w-[200px]">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
           <input
             value={searchQ}
             onChange={e => setSearchQ(e.target.value)}
             placeholder="Dokumente durchsuchen..."
-            className="w-full bg-zinc-900 border border-zinc-700 rounded-lg pl-10 pr-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:border-brand-500 focus:outline-none transition"
+            className="w-full bg-white border border-surface-200 rounded-lg pl-10 pr-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none transition"
           />
         </div>
         <select
           value={filterModule}
           onChange={e => setFilterModule(e.target.value)}
-          className="bg-zinc-900 border border-zinc-700 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white"
+          className="bg-white border border-surface-200 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900"
         >
           <option value="">Module</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
-        <div className="flex rounded-lg overflow-hidden border border-zinc-700">
+        <div className="flex rounded-lg overflow-hidden border border-surface-200">
           {(["grid", "list", "flow"] as const).map(v => (
             <button
               key={v}
               onClick={() => setViewMode(v)}
-              className={`p-1 sm:p-2 transition ${viewMode === v ? "bg-brand-600 text-white" : "bg-zinc-900 text-zinc-400 hover:text-white"}`}
+              className={`p-1 sm:p-2 transition ${viewMode === v ? "bg-brand-600 text-white" : "bg-white text-surface-500 hover:text-surface-900"}`}
               title={v === "flow" ? "Flow — alle Quellen" : v === "grid" ? "Karten" : "Liste"}
             >
               {v === "grid" ? <LayoutGrid size={14} /> : v === "list" ? <ListIcon size={14} /> : <Workflow size={14} />}
@@ -359,7 +359,7 @@ export default function DocumentsPage() {
         {(filterModule || filterKind || searchQ) && (
           <button
             onClick={() => { setFilterModule(""); setFilterKind(""); setSearchQ(""); }}
-            className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white text-xs transition flex-shrink-0"
+            className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-surface-100 text-surface-500 hover:text-surface-900 text-xs transition flex-shrink-0"
           >
             Reset
           </button>
@@ -368,7 +368,7 @@ export default function DocumentsPage() {
 
       {/* Content */}
       {loading ? (
-        <p className="text-zinc-400 text-sm">Laden...</p>
+        <p className="text-surface-500 text-sm">Laden...</p>
       ) : viewMode === "flow" ? (
         <DocFlowView items={filteredFlow} onOpenDoc={(d) => { setEditDoc(d); setShowCreate(true); }} />
       ) : viewMode === "grid" ? (
@@ -424,9 +424,9 @@ export default function DocumentsPage() {
 function EmptyState({ hasAny }: { hasAny: boolean }) {
   return (
     <div className="text-center py-16">
-      <FolderOpen size={48} className="mx-auto mb-4 text-zinc-600" />
-      <p className="text-zinc-400">{hasAny ? "Keine Dokumente gefunden" : "Noch keine Dokumente"}</p>
-      <p className="text-sm mt-1 text-zinc-500">
+      <FolderOpen size={48} className="mx-auto mb-4 text-surface-300" />
+      <p className="text-surface-500">{hasAny ? "Keine Dokumente gefunden" : "Noch keine Dokumente"}</p>
+      <p className="text-sm mt-1 text-surface-400">
         {hasAny ? "Versuche einen anderen Filter" : "Füge Dokumente und Links zu deinen Modulen hinzu!"}
       </p>
     </div>
@@ -443,13 +443,13 @@ function DocCard({ doc, modules, onEdit, onDelete, onTogglePin }: {
 
   return (
     <div
-      className="bg-zinc-900 border border-zinc-700 rounded-xl p-2 sm:p-4 hover:border-zinc-500 transition group"
+      className="bg-white border border-surface-200 rounded-xl p-2 sm:p-4 hover:border-surface-300 transition group"
       style={{ borderTopWidth: 3, borderTopColor: cfg.color }}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
           <span style={{ color: cfg.color }}>{cfg.icon}</span>
-          <h3 className="font-semibold text-white text-xs sm:text-sm line-clamp-1 flex-1">
+          <h3 className="font-semibold text-surface-900 text-xs sm:text-sm line-clamp-1 flex-1">
             {doc.pinned && <Pin size={10} className="inline mr-1 text-amber-400" />}
             {doc.title}
           </h3>
@@ -460,7 +460,7 @@ function DocCard({ doc, modules, onEdit, onDelete, onTogglePin }: {
         </span>
       </div>
 
-      {domain && <p className="text-xs text-zinc-500 mb-2 truncate text-[10px]">{domain}</p>}
+      {domain && <p className="text-xs text-surface-400 mb-2 truncate text-[10px]">{domain}</p>}
 
       <div className="flex items-center gap-1 sm:gap-2 flex-wrap mb-2 sm:mb-3">
         {mod && (
@@ -470,19 +470,19 @@ function DocCard({ doc, modules, onEdit, onDelete, onTogglePin }: {
           </span>
         )}
         {doc.tags?.length > 0 && doc.tags.map(t => (
-          <span key={t} className="text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
+          <span key={t} className="text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded bg-surface-100 text-surface-500">
             <Tag size={8} className="inline mr-0.5" />{t}
           </span>
         ))}
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[10px] sm:text-xs text-zinc-500">{new Date(doc.updated_at).toLocaleDateString("de-CH")}</span>
+        <span className="text-[10px] sm:text-xs text-surface-400">{new Date(doc.updated_at).toLocaleDateString("de-CH")}</span>
         <div className="flex items-center gap-0 sm:gap-0.5 opacity-0 group-hover:opacity-100 transition">
-          <a href={doc.url} target="_blank" rel="noopener" className="p-1 sm:p-1.5 text-zinc-400 hover:text-blue-400 transition" title="Öffnen"><ExternalLink size={13} /></a>
-          <button onClick={onTogglePin} className={`p-1 sm:p-1.5 transition ${doc.pinned ? "text-amber-400" : "text-zinc-400 hover:text-amber-400"}`} title={doc.pinned ? "Loslösen" : "Anheften"}><Pin size={13} /></button>
-          <button onClick={onEdit} className="p-1 sm:p-1.5 text-zinc-400 hover:text-white transition" title="Bearbeiten"><Pencil size={13} /></button>
-          <button onClick={onDelete} className="p-1 sm:p-1.5 text-zinc-400 hover:text-red-400 transition" title="Löschen"><Trash2 size={13} /></button>
+          <a href={doc.url} target="_blank" rel="noopener" className="p-1 sm:p-1.5 text-surface-500 hover:text-blue-400 transition" title="Öffnen"><ExternalLink size={13} /></a>
+          <button onClick={onTogglePin} className={`p-1 sm:p-1.5 transition ${doc.pinned ? "text-amber-400" : "text-surface-500 hover:text-amber-400"}`} title={doc.pinned ? "Loslösen" : "Anheften"}><Pin size={13} /></button>
+          <button onClick={onEdit} className="p-1 sm:p-1.5 text-surface-500 hover:text-surface-900 transition" title="Bearbeiten"><Pencil size={13} /></button>
+          <button onClick={onDelete} className="p-1 sm:p-1.5 text-surface-500 hover:text-red-400 transition" title="Löschen"><Trash2 size={13} /></button>
         </div>
       </div>
     </div>
@@ -497,12 +497,12 @@ function DocListRow({ doc, modules, onEdit, onDelete }: {
   const cfg = KIND_CONFIG[doc.kind] ?? KIND_CONFIG.other;
 
   return (
-    <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-zinc-900 border border-zinc-700 rounded-lg hover:border-zinc-500 transition group">
+    <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-white border border-surface-200 rounded-lg hover:border-surface-300 transition group">
       <span style={{ color: cfg.color }}>{cfg.icon}</span>
       {doc.pinned && <Pin size={12} className="text-amber-400 flex-shrink-0" />}
       <div className="flex-1 min-w-0">
-        <h3 className="text-xs sm:text-sm font-medium text-white line-clamp-1">{doc.title}</h3>
-        <p className="text-[10px] sm:text-xs text-zinc-500 truncate">{doc.url}</p>
+        <h3 className="text-xs sm:text-sm font-medium text-surface-900 line-clamp-1">{doc.title}</h3>
+        <p className="text-[10px] sm:text-xs text-surface-400 truncate">{doc.url}</p>
       </div>
       {mod && (
         <span className="text-xs px-1.5 sm:px-2 py-0.5 rounded-full font-medium flex-shrink-0" style={{ backgroundColor: mod.color + "20", color: mod.color }}>
@@ -513,9 +513,9 @@ function DocListRow({ doc, modules, onEdit, onDelete }: {
         {cfg.label}
       </span>
       <div className="flex items-center gap-0 sm:gap-0.5 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
-        <a href={doc.url} target="_blank" rel="noopener" className="p-1 sm:p-1.5 text-zinc-400 hover:text-blue-400 transition"><ExternalLink size={13} /></a>
-        <button onClick={onEdit} className="p-1 sm:p-1.5 text-zinc-400 hover:text-white transition"><Pencil size={13} /></button>
-        <button onClick={onDelete} className="p-1 sm:p-1.5 text-zinc-400 hover:text-red-400 transition"><Trash2 size={13} /></button>
+        <a href={doc.url} target="_blank" rel="noopener" className="p-1 sm:p-1.5 text-surface-500 hover:text-blue-400 transition"><ExternalLink size={13} /></a>
+        <button onClick={onEdit} className="p-1 sm:p-1.5 text-surface-500 hover:text-surface-900 transition"><Pencil size={13} /></button>
+        <button onClick={onDelete} className="p-1 sm:p-1.5 text-surface-500 hover:text-red-400 transition"><Trash2 size={13} /></button>
       </div>
     </div>
   );
@@ -555,7 +555,7 @@ function DocFlowView({ items, onOpenDoc }: { items: DocFlowItem[]; onOpenDoc: (d
             </span>
           );
         })}
-        <span className="text-xs text-zinc-500 ml-auto">{items.length} Einträge</span>
+        <span className="text-xs text-surface-400 ml-auto">{items.length} Einträge</span>
       </div>
 
       {/* Grouped by module */}
@@ -564,10 +564,10 @@ function DocFlowView({ items, onOpenDoc }: { items: DocFlowItem[]; onOpenDoc: (d
         return (
           <div key={modName}>
             <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-              <div className="w-2 sm:w-3 h-2 sm:h-3 rounded-full flex-shrink-0" style={{ backgroundColor: modName === "Ohne Zuordnung" ? "#666" : modColor }} />
-              <h3 className="text-xs sm:text-sm font-semibold text-zinc-200">{modName}</h3>
-              <span className="text-xs text-zinc-500">({modItems.length})</span>
-              <div className="h-px flex-1 bg-zinc-800" />
+              <div className="w-2 sm:w-3 h-2 sm:h-3 rounded-full flex-shrink-0" style={{ backgroundColor: modName === "Ohne Zuordnung" ? "#999" : modColor }} />
+              <h3 className="text-xs sm:text-sm font-semibold text-surface-800">{modName}</h3>
+              <span className="text-xs text-surface-400">({modItems.length})</span>
+              <div className="h-px flex-1 bg-surface-200" />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2 ml-2 sm:ml-6">
@@ -579,24 +579,24 @@ function DocFlowView({ items, onOpenDoc }: { items: DocFlowItem[]; onOpenDoc: (d
                 return (
                   <div
                     key={item.id}
-                    className={`flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-zinc-900 border border-zinc-700 rounded-lg transition ${
-                      isOwn ? "hover:border-zinc-500 cursor-pointer" : ""
+                    className={`flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-white border border-surface-200 rounded-lg transition ${
+                      isOwn ? "hover:border-surface-300 cursor-pointer" : ""
                     } group`}
                     onClick={() => { if (isOwn && item.original) onOpenDoc(item.original); }}
                   >
                     <span className="mt-0.5 flex-shrink-0" style={{ color: cfg.color }}>{cfg.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <h4 className={`text-xs sm:text-sm font-medium text-white line-clamp-1 ${isOwn ? "group-hover:text-brand-300" : ""}`}>
+                      <h4 className={`text-xs sm:text-sm font-medium text-surface-900 line-clamp-1 ${isOwn ? "group-hover:text-brand-600" : ""}`}>
                         {item.pinned && <Pin size={10} className="inline mr-1 text-amber-400" />}
                         {item.title}
                       </h4>
-                      <p className="text-[10px] sm:text-xs text-zinc-500 truncate mt-0.5">{item.context_label}</p>
+                      <p className="text-[10px] sm:text-xs text-surface-400 truncate mt-0.5">{item.context_label}</p>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <span className="text-xs px-1 sm:px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: srcCfg.color + "20", color: srcCfg.color }}>
                         {srcCfg.label}
                       </span>
-                      <a href={item.url} target="_blank" rel="noopener" className="p-1 text-zinc-500 hover:text-blue-400 transition" onClick={e => e.stopPropagation()}>
+                      <a href={item.url} target="_blank" rel="noopener" className="p-1 text-surface-400 hover:text-blue-400 transition" onClick={e => e.stopPropagation()}>
                         <ExternalLink size={12} />
                       </a>
                     </div>
@@ -668,14 +668,14 @@ function DocModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
-      <div className="bg-zinc-900 border border-zinc-600 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
+      <div className="bg-white border border-surface-200 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center gap-2 mb-4 sm:mb-5">
-          <h2 className="text-base sm:text-lg font-bold text-white">{isEdit ? "Dokument bearbeiten" : "Dokument hinzufügen"}</h2>
-          <button onClick={onClose} className="text-zinc-400 hover:text-white transition flex-shrink-0"><X size={20} /></button>
+          <h2 className="text-base sm:text-lg font-bold text-surface-900">{isEdit ? "Dokument bearbeiten" : "Dokument hinzufügen"}</h2>
+          <button onClick={onClose} className="text-surface-500 hover:text-surface-900 transition flex-shrink-0"><X size={20} /></button>
         </div>
 
-        <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-1.5">URL / Link</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">URL / Link</label>
         <input
           value={url}
           onChange={e => {
@@ -686,26 +686,26 @@ function DocModal({
             }
           }}
           placeholder="https://..."
-          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-white placeholder:text-zinc-500 mb-3 focus:border-brand-500 focus:outline-none transition"
+          className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 mb-3 focus:border-brand-500 focus:outline-none transition"
           autoFocus
         />
 
-        <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-1.5">Titel</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">Titel</label>
         <input
           value={title}
           onChange={e => setTitle(e.target.value)}
           placeholder="z.B. Skript Kapitel 5, Vorlesungsfolien..."
-          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-white placeholder:text-zinc-500 mb-3 focus:border-brand-500 focus:outline-none transition"
+          className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 mb-3 focus:border-brand-500 focus:outline-none transition"
         />
 
-        <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-1.5">Typ</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">Typ</label>
         <div className="flex gap-1 sm:gap-1.5 mb-3 flex-wrap">
           {Object.entries(KIND_CONFIG).map(([k, cfg]) => (
             <button
               key={k}
               onClick={() => setKind(k as Doc["kind"])}
               className={`flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-medium transition ${
-                kind === k ? "bg-brand-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white"
+                kind === k ? "bg-brand-600 text-white" : "bg-surface-100 border border-surface-200 text-surface-500 hover:text-surface-900"
               }`}
             >
               <span style={{ color: kind === k ? "white" : cfg.color }}>{cfg.icon}</span> {cfg.label}
@@ -713,11 +713,11 @@ function DocModal({
           ))}
         </div>
 
-        <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-1.5">Zuordnung</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">Zuordnung</label>
         <select
           value={moduleId}
           onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); }}
-          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white mb-2"
+          className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 mb-2"
         >
           <option value="">Kein Modul</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -728,7 +728,7 @@ function DocModal({
             <select
               value={examId}
               onChange={e => setExamId(e.target.value)}
-              className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white"
+              className="flex-1 bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900"
             >
               <option value="">Keine Prüfung</option>
               {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
@@ -736,7 +736,7 @@ function DocModal({
             <select
               value={taskId}
               onChange={e => setTaskId(e.target.value)}
-              className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white"
+              className="flex-1 bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900"
             >
               <option value="">Keine Aufgabe</option>
               {filteredTasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
@@ -744,12 +744,12 @@ function DocModal({
           </div>
         )}
 
-        <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-1.5 mt-2">Tags (kommagetrennt)</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5 mt-2">Tags (kommagetrennt)</label>
         <input
           value={tagsStr}
           onChange={e => setTagsStr(e.target.value)}
           placeholder="z.B. Skript, Vorlesung, Übung"
-          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white placeholder:text-zinc-500 mb-3 sm:mb-4 focus:border-brand-500 focus:outline-none transition"
+          className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 mb-3 sm:mb-4 focus:border-brand-500 focus:outline-none transition"
         />
 
         <button
