@@ -9,7 +9,7 @@ import {
   AlignLeft, AlignCenter, Link2, Strikethrough, GripVertical,
   ChevronDown, Clock, CheckCircle2, FileEdit, LayoutGrid, ListIcon,
   StickyNote, FolderOpen, CircleDot, Timer, GraduationCap,
-  GitBranch, ArrowDown, Workflow
+  GitBranch, ArrowDown, Workflow, Tag, FolderPlus, Layers
 } from "lucide-react";
 import type {
   Note, NoteStatus, NoteChecklistItem,
@@ -43,6 +43,20 @@ const NOTE_COLORS = [
   "#db2777","#0891b2","#7c3aed","#16a34a","#ea580c",
 ];
 
+const FLOW_ICONS: Record<string, React.ReactNode> = {
+  note: <FileText size={14} />,
+  module: <BookOpen size={14} />,
+  timer: <Timer size={14} />,
+  exam: <GraduationCap size={14} />,
+};
+
+const FLOW_TYPE_COLORS: Record<string, string> = {
+  note: "#a78bfa",
+  module: "#60a5fa",
+  timer: "#22d3ee",
+  exam: "#fbbf24",
+};
+
 /* ── Main Page ──────────────────────────────────────────────────────── */
 export default function NotesPage() {
   const supabase = createClient();
@@ -56,8 +70,14 @@ export default function NotesPage() {
   const [searchQ, setSearchQ] = useState("");
   const [filterModule, setFilterModule] = useState("");
   const [filterStatus, setFilterStatus] = useState<NoteStatus | "">("");
-  const [viewMode, setViewMode] = useState<"grid" | "list" | "flow">("grid");
+  const [filterSource, setFilterSource] = useState<"" | "note" | "module" | "timer" | "exam">("");
+  const [filterUnlinked, setFilterUnlinked] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "flow">("flow");
   const [flowItems, setFlowItems] = useState<FlowItem[]>([]);
+  // Custom Rubriken
+  const [rubriken, setRubriken] = useState<{ id: string; name: string; color: string }[]>([]);
+  const [filterRubrik, setFilterRubrik] = useState("");
+  const [showRubrikCreate, setShowRubrikCreate] = useState(false);
 
   const fetchNotes = useCallback(async () => {
     const { data } = await supabase
@@ -67,6 +87,11 @@ export default function NotesPage() {
       .order("updated_at", { ascending: false });
     setNotes((data ?? []) as Note[]);
     setLoading(false);
+  }, [supabase]);
+
+  const fetchRubriken = useCallback(async () => {
+    const { data } = await supabase.from("note_categories").select("*").order("sort_order");
+    setRubriken(data ?? []);
   }, [supabase]);
 
   // Fetch all note sources for flow view
@@ -169,9 +194,10 @@ export default function NotesPage() {
   useEffect(() => {
     fetchNotes();
     fetchFlowItems();
+    fetchRubriken();
     supabase.from("events").select("*").eq("event_type", "exam").then(r => setExams(r.data ?? []));
     supabase.from("tasks").select("*").then(r => setTasks(r.data ?? []));
-  }, [supabase, fetchNotes, fetchFlowItems]);
+  }, [supabase, fetchNotes, fetchFlowItems, fetchRubriken]);
 
   const filtered = useMemo(() => {
     let list = notes;
@@ -267,88 +293,142 @@ export default function NotesPage() {
         </button>
       </div>
 
-      {/* Module distribution */}
-      {stats.byModule.length > 0 && (
-        <div className="bg-white border border-surface-200 rounded-xl p-3 sm:p-4">
-          <h3 className="text-xs sm:text-sm font-semibold text-surface-800 mb-2 sm:mb-3 flex items-center gap-2">
-            <FolderOpen size={14} className="text-brand-400" /> Notizen nach Modul
-          </h3>
-          <div className="flex gap-1.5 sm:gap-2 flex-wrap">
-            {stats.byModule.map(({ module: m, count }) => (
-              <button
-                key={m.id}
-                onClick={() => setFilterModule(filterModule === m.id ? "" : m.id)}
-                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-medium transition ${
-                  filterModule === m.id
-                    ? "ring-2 ring-white/30"
-                    : "hover:brightness-110"
-                }`}
-                style={{ backgroundColor: m.color + "25", color: m.color }}
-              >
-                <CircleDot size={10} /> {m.name} ({count})
-              </button>
-            ))}
-            {stats.unlinked > 0 && (
-              <button
-                onClick={() => setFilterModule("")}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-medium bg-surface-100 text-surface-700 hover:bg-surface-200 transition"
-              >
-                <StickyNote size={10} /> Ohne Zuordnung ({stats.unlinked})
-              </button>
-            )}
+      {/* Filter Bar */}
+      <div className="bg-white border border-surface-200 rounded-xl p-3 sm:p-4 space-y-3">
+        {/* Row 1: Search + View Toggle + New Note (compact) */}
+        <div className="flex gap-2 flex-wrap items-center">
+          <div className="relative flex-1 min-w-[160px]">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+            <input
+              value={searchQ}
+              onChange={e => setSearchQ(e.target.value)}
+              placeholder="Notizen durchsuchen..."
+              className="w-full bg-surface-50 border border-surface-200 rounded-lg pl-10 pr-3 py-2 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none transition"
+            />
+          </div>
+          <div className="flex rounded-lg overflow-hidden border border-surface-200">
+            {(["flow", "grid", "list"] as const).map(mode => {
+              const icons = { flow: <Workflow size={15} />, grid: <LayoutGrid size={15} />, list: <ListIcon size={15} /> };
+              const titles = { flow: "Flow", grid: "Karten", list: "Liste" };
+              return (
+                <button
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  className={`p-2 transition ${viewMode === mode ? "bg-brand-600 text-white" : "bg-white text-surface-500 hover:text-surface-900"}`}
+                  title={titles[mode]}
+                >
+                  {icons[mode]}
+                </button>
+              );
+            })}
           </div>
         </div>
-      )}
 
-      {/* Search + filters */}
-      <div className="flex gap-1.5 sm:gap-2 mb-4 flex-wrap">
-        <div className="relative flex-1 min-w-[160px] sm:min-w-[200px]">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
-          <input
-            value={searchQ}
-            onChange={e => setSearchQ(e.target.value)}
-            placeholder="Notizen durchsuchen..."
-            className="w-full bg-white border border-surface-200 rounded-lg pl-10 pr-3 py-2 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none transition"
-          />
-        </div>
-        <select
-          value={filterModule}
-          onChange={e => setFilterModule(e.target.value)}
-          className="bg-white border border-surface-200 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm text-surface-900"
-        >
-          <option value="">Alle Module</option>
-          {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-        </select>
-        <div className="flex rounded-lg overflow-hidden border border-surface-200 overflow-x-auto">
+        {/* Row 2: Module Filter Chips */}
+        <div className="flex gap-1.5 flex-wrap items-center">
+          <span className="text-xs font-medium text-surface-500 mr-1"><Layers size={12} className="inline mr-0.5" /> Module:</span>
           <button
-            onClick={() => setViewMode("grid")}
-            className={`p-2 transition ${viewMode === "grid" ? "bg-brand-600 text-white" : "bg-white text-surface-500 hover:text-surface-900"}`}
-            title="Karten"
+            onClick={() => { setFilterModule(""); setFilterUnlinked(false); }}
+            className={`px-2.5 py-1 rounded-full text-xs font-medium transition ${
+              !filterModule && !filterUnlinked ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-600 hover:bg-surface-200"
+            }`}
           >
-            <LayoutGrid size={16} />
+            Alle
           </button>
+          {modules.map(m => {
+            const count = flowItems.filter(i => i.module_name === m.name).length;
+            return (
+              <button
+                key={m.id}
+                onClick={() => { setFilterModule(filterModule === m.id ? "" : m.id); setFilterUnlinked(false); }}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition ${
+                  filterModule === m.id ? "ring-2 ring-offset-1" : "hover:brightness-110"
+                }`}
+                style={{ backgroundColor: m.color + "20", color: m.color, ...(filterModule === m.id ? { ringColor: m.color } : {}) }}
+              >
+                <CircleDot size={8} /> {m.name}{count > 0 ? ` (${count})` : ""}
+              </button>
+            );
+          })}
           <button
-            onClick={() => setViewMode("list")}
-            className={`p-2 transition ${viewMode === "list" ? "bg-brand-600 text-white" : "bg-white text-surface-500 hover:text-surface-900"}`}
-            title="Liste"
+            onClick={() => { setFilterUnlinked(!filterUnlinked); setFilterModule(""); }}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition ${
+              filterUnlinked ? "bg-surface-700 text-white" : "bg-surface-100 text-surface-600 hover:bg-surface-200"
+            }`}
           >
-            <ListIcon size={16} />
-          </button>
-          <button
-            onClick={() => setViewMode("flow")}
-            className={`p-2 transition ${viewMode === "flow" ? "bg-brand-600 text-white" : "bg-white text-surface-500 hover:text-surface-900"}`}
-            title="Flow — alle Notizen chronologisch"
-          >
-            <Workflow size={16} />
+            <StickyNote size={8} /> Allgemein
           </button>
         </div>
-        {(filterModule || filterStatus || searchQ) && (
+
+        {/* Row 3: Source Type + Rubriken + Status filters */}
+        <div className="flex gap-1.5 flex-wrap items-center">
+          <span className="text-xs font-medium text-surface-500 mr-1"><Filter size={12} className="inline mr-0.5" /> Quelle:</span>
+          {([
+            { key: "", label: "Alle", icon: null },
+            { key: "note", label: "Notizen", icon: FLOW_ICONS.note },
+            { key: "module", label: "Modul", icon: FLOW_ICONS.module },
+            { key: "timer", label: "Timer", icon: FLOW_ICONS.timer },
+            { key: "exam", label: "Prüfung", icon: FLOW_ICONS.exam },
+          ] as const).map(({ key, label, icon }) => (
+            <button
+              key={key}
+              onClick={() => setFilterSource(key as any)}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition ${
+                filterSource === key ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-600 hover:bg-surface-200"
+              }`}
+            >
+              {icon} {label}
+            </button>
+          ))}
+
+          <div className="w-px h-4 bg-surface-200 mx-1" />
+
+          <span className="text-xs font-medium text-surface-500 mr-1"><Tag size={12} className="inline mr-0.5" /> Rubrik:</span>
           <button
-            onClick={() => { setFilterModule(""); setFilterStatus(""); setSearchQ(""); }}
-            className="px-3 py-2 rounded-lg bg-surface-100 text-surface-500 hover:text-surface-900 text-xs transition"
+            onClick={() => setFilterRubrik("")}
+            className={`px-2.5 py-1 rounded-full text-xs font-medium transition ${
+              !filterRubrik ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-600 hover:bg-surface-200"
+            }`}
           >
-            Filter zurücksetzen
+            Alle
           </button>
+          {rubriken.map(r => (
+            <button
+              key={r.id}
+              onClick={() => setFilterRubrik(filterRubrik === r.id ? "" : r.id)}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition ${
+                filterRubrik === r.id ? "ring-2 ring-offset-1" : "hover:brightness-110"
+              }`}
+              style={{ backgroundColor: r.color + "20", color: r.color }}
+            >
+              <Tag size={8} /> {r.name}
+            </button>
+          ))}
+          <button
+            onClick={() => setShowRubrikCreate(true)}
+            className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-surface-50 text-surface-400 hover:bg-surface-100 hover:text-surface-600 transition border border-dashed border-surface-300"
+          >
+            <FolderPlus size={10} /> Neue Rubrik
+          </button>
+        </div>
+
+        {/* Active filters summary + reset */}
+        {(filterModule || filterStatus || filterSource || filterRubrik || filterUnlinked || searchQ) && (
+          <div className="flex items-center gap-2 pt-1 border-t border-surface-100">
+            <span className="text-xs text-surface-400">Aktive Filter:</span>
+            {searchQ && <span className="text-xs bg-surface-100 px-2 py-0.5 rounded-full text-surface-600">Suche: "{searchQ}"</span>}
+            {filterModule && <span className="text-xs bg-brand-100 px-2 py-0.5 rounded-full text-brand-700">{modules.find(m => m.id === filterModule)?.name}</span>}
+            {filterUnlinked && <span className="text-xs bg-surface-200 px-2 py-0.5 rounded-full text-surface-700">Allgemein</span>}
+            {filterSource && <span className="text-xs bg-surface-100 px-2 py-0.5 rounded-full text-surface-600">{({ note: "Notizen", module: "Modul", timer: "Timer", exam: "Prüfung" } as any)[filterSource]}</span>}
+            {filterStatus && <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: STATUS_CONFIG[filterStatus].color + "20", color: STATUS_CONFIG[filterStatus].color }}>{STATUS_CONFIG[filterStatus].label}</span>}
+            {filterRubrik && <span className="text-xs bg-surface-100 px-2 py-0.5 rounded-full text-surface-600">{rubriken.find(r => r.id === filterRubrik)?.name}</span>}
+            <button
+              onClick={() => { setFilterModule(""); setFilterStatus(""); setSearchQ(""); setFilterSource(""); setFilterRubrik(""); setFilterUnlinked(false); }}
+              className="text-xs text-red-500 hover:text-red-700 ml-auto"
+            >
+              Alle zurücksetzen
+            </button>
+          </div>
         )}
       </div>
 
@@ -371,6 +451,10 @@ export default function NotesPage() {
               if (!item.title.toLowerCase().includes(q) && !item.content.toLowerCase().includes(q)) return false;
             }
             if (filterModule && item.module_name !== modules.find(m => m.id === filterModule)?.name) return false;
+            if (filterUnlinked && item.module_name) return false;
+            if (filterSource && item.type !== filterSource) return false;
+            if (filterRubrik && item.type === "note" && item.original?.category_id !== filterRubrik) return false;
+            if (filterRubrik && item.type !== "note") return false;
             return true;
           })}
           onOpenNote={(note) => setActiveNote(note)}
@@ -394,8 +478,16 @@ export default function NotesPage() {
           modules={modules}
           exams={exams}
           tasks={tasks}
+          rubriken={rubriken}
           onClose={() => setShowCreate(false)}
           onCreated={(n) => { setActiveNote(n); setShowCreate(false); }}
+        />
+      )}
+
+      {showRubrikCreate && (
+        <RubrikCreateModal
+          onClose={() => setShowRubrikCreate(false)}
+          onCreated={() => { setShowRubrikCreate(false); fetchRubriken(); }}
         />
       )}
     </div>
@@ -403,20 +495,6 @@ export default function NotesPage() {
 }
 
 /* ── Flow View ──────────────────────────────────────────────────────── */
-const FLOW_ICONS: Record<string, React.ReactNode> = {
-  note: <FileText size={14} />,
-  module: <BookOpen size={14} />,
-  timer: <Timer size={14} />,
-  exam: <GraduationCap size={14} />,
-};
-
-const FLOW_TYPE_COLORS: Record<string, string> = {
-  note: "#a78bfa",
-  module: "#60a5fa",
-  timer: "#22d3ee",
-  exam: "#fbbf24",
-};
-
 function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: Note) => void }) {
   // Group by date
   const grouped: Record<string, FlowItem[]> = {};
@@ -631,11 +709,12 @@ function NoteListRow({ note, modules, onClick }: { note: Note; modules: Module[]
 
 /* ── Create Note Modal ──────────────────────────────────────────────── */
 function CreateNoteModal({
-  modules, exams, tasks, onClose, onCreated,
+  modules, exams, tasks, rubriken, onClose, onCreated,
 }: {
   modules: Module[];
   exams: CalendarEvent[];
   tasks: Task[];
+  rubriken: { id: string; name: string; color: string }[];
   onClose: () => void;
   onCreated: (n: Note) => void;
 }) {
@@ -644,6 +723,7 @@ function CreateNoteModal({
   const [moduleId, setModuleId] = useState("");
   const [examId, setExamId] = useState("");
   const [taskId, setTaskId] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [color, setColor] = useState("#6d28d9");
   const [saving, setSaving] = useState(false);
 
@@ -663,6 +743,7 @@ function CreateNoteModal({
       module_id: moduleId || null,
       exam_id: examId || null,
       task_id: taskId || null,
+      category_id: categoryId || null,
       color,
       content: "",
       status: "draft",
@@ -720,7 +801,17 @@ function CreateNoteModal({
           </div>
         )}
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5 mt-3">Farbe</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5 mt-3">Rubrik (optional)</label>
+        <select
+          value={categoryId}
+          onChange={e => setCategoryId(e.target.value)}
+          className="w-full bg-surface-100 border border-surface-300 rounded-lg px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 mb-3 sm:mb-4"
+        >
+          <option value="">Keine Rubrik</option>
+          {rubriken.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+        </select>
+
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">Farbe</label>
         <div className="flex gap-1.5 sm:gap-2 mb-4 sm:mb-5 flex-wrap">
           {NOTE_COLORS.map(c => (
             <button
@@ -777,11 +868,13 @@ function NoteEditor({
   const [moduleId, setModuleId] = useState(note.module_id ?? "");
   const [examId, setExamId] = useState(note.exam_id ?? "");
   const [taskId, setTaskId] = useState(note.task_id ?? "");
+  const [categoryId, setCategoryId] = useState(note.category_id ?? "");
   const [checklist, setChecklist] = useState<NoteChecklistItem[]>([]);
   const [newCheckItem, setNewCheckItem] = useState("");
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [showChecklist, setShowChecklist] = useState(true);
+  const [rubriken, setRubriken] = useState<{ id: string; name: string; color: string }[]>([]);
   const saveTimer = useRef<NodeJS.Timeout | null>(null);
 
   const mod = modules.find(m => m.id === moduleId);
@@ -797,7 +890,7 @@ function NoteEditor({
     }
   }, [note.content]);
 
-  // Load checklist
+  // Load checklist and rubriken
   useEffect(() => {
     supabase
       .from("note_checklist_items")
@@ -805,6 +898,11 @@ function NoteEditor({
       .eq("note_id", note.id)
       .order("sort_order")
       .then(r => setChecklist(r.data ?? []));
+    supabase
+      .from("note_categories")
+      .select("*")
+      .order("sort_order")
+      .then(r => setRubriken(r.data ?? []));
   }, [supabase, note.id]);
 
   // Auto-save with debounce
@@ -824,6 +922,7 @@ function NoteEditor({
       module_id: moduleId || null,
       exam_id: examId || null,
       task_id: taskId || null,
+      category_id: categoryId || null,
       updated_at: new Date().toISOString(),
     }).eq("id", note.id);
     setSaving(false);
@@ -965,6 +1064,14 @@ function NoteEditor({
             </select>
           </>
         )}
+        <select
+          value={categoryId}
+          onChange={e => { setCategoryId(e.target.value); scheduleAutoSave(); }}
+          className="bg-white border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-surface-900 flex-shrink-0"
+        >
+          <option value="">Keine Rubrik</option>
+          {rubriken.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+        </select>
       </div>
 
       {/* Rich Text Toolbar */}
@@ -1073,6 +1180,68 @@ function NoteEditor({
             </div>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Rubrik Create Modal ──────────────────────────────────────────── */
+function RubrikCreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const supabase = createClient();
+  const [name, setName] = useState("");
+  const [color, setColor] = useState(NOTE_COLORS[0]);
+  const [saving, setSaving] = useState(false);
+
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim()) return;
+    setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
+    await supabase.from("note_categories").insert({
+      user_id: user.id,
+      name: name.trim(),
+      color,
+    });
+    setSaving(false);
+    onCreated();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm">
+        <div className="flex items-center justify-between p-4 border-b border-surface-100">
+          <h2 className="font-semibold text-surface-900 text-sm">Neue Rubrik erstellen</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
+        </div>
+        <form onSubmit={handleCreate} className="p-4 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Name</label>
+            <input
+              className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-2 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="z.B. Zusammenfassungen, Lernnotizen..."
+              autoFocus
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-surface-700 mb-2">Farbe</label>
+            <div className="flex gap-1.5 flex-wrap">
+              {NOTE_COLORS.map(c => (
+                <button key={c} type="button" onClick={() => setColor(c)}
+                  className={`w-7 h-7 rounded-full border-2 transition-transform ${color === c ? "border-surface-800 scale-110" : "border-transparent"}`}
+                  style={{ background: c }} />
+              ))}
+            </div>
+          </div>
+          <div className="flex gap-3 pt-1">
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-2 rounded-lg border border-surface-200 text-sm font-medium text-surface-600 hover:bg-surface-50 transition">Abbrechen</button>
+            <button type="submit" disabled={saving || !name.trim()} className="flex-1 px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-500 transition disabled:opacity-50">
+              {saving ? "Erstellen…" : "Erstellen"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

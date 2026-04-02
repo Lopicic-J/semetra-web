@@ -257,6 +257,7 @@ export interface Note {
   module_id: string | null;
   exam_id: string | null;
   task_id: string | null;
+  category_id: string | null;
   status: NoteStatus;
   color: string;
   pinned: boolean;
