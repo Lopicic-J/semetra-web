@@ -227,6 +227,42 @@ export interface MindMap {
   updated_at: string;
 }
 
+export type BrainstormTechnique =
+  | "freeform"
+  | "scamper"
+  | "pro_contra"
+  | "starbursting"
+  | "brainwriting"
+  | "reverse"
+  | "minddump";
+
+export interface BrainstormSession {
+  id: string;
+  user_id: string;
+  title: string;
+  module_id: string | null;
+  exam_id: string | null;
+  task_id: string | null;
+  technique: BrainstormTechnique;
+  color: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BrainstormIdea {
+  id: string;
+  user_id: string;
+  session_id: string;
+  content: string;
+  category: string;
+  color: string;
+  pos_x: number;
+  pos_y: number;
+  votes: number;
+  sort_order: number;
+  created_at: string;
+}
+
 export interface MindMapNode {
   id: string;
   user_id: string;
