@@ -31,7 +31,8 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/register") ||
     pathname.startsWith("/reset-password") ||
     pathname.startsWith("/update-password") ||
-    pathname.startsWith("/auth/callback");
+    pathname.startsWith("/auth/callback") ||
+    pathname.startsWith("/auth/confirm");
 
   // API routes should pass through
   const isApiRoute = pathname.startsWith("/api/");

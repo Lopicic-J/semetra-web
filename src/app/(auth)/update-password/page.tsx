@@ -17,26 +17,22 @@ export default function UpdatePasswordPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  // Supabase automatically picks up the recovery token from the URL hash
+  // After /auth/callback exchanges the recovery code, the user arrives here authenticated
   useEffect(() => {
-    supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
+    const checkSession = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
         setSessionReady(true);
+      } else {
+        // Small delay in case cookies are still being set
+        setTimeout(async () => {
+          const { data: { user: u } } = await supabase.auth.getUser();
+          if (u) setSessionReady(true);
+          else setNoSession(true);
+        }, 1500);
       }
-    });
-    // Also check if user is already authenticated (recovery token processed)
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setSessionReady(true);
-      else {
-        // Give it a moment for the hash to be processed
-        setTimeout(() => {
-          supabase.auth.getUser().then(({ data: { user: u } }) => {
-            if (u) setSessionReady(true);
-            else setNoSession(true);
-          });
-        }, 2000);
-      }
-    });
+    };
+    checkSession();
   }, [supabase]);
 
   async function handleSubmit(e: React.FormEvent) {
