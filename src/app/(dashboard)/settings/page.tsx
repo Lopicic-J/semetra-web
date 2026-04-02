@@ -140,7 +140,7 @@ function AccountTab({ user }: { user: { email?: string; created_at?: string } | 
 
 function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscription_status?: string | null; plan_expires_at?: string | null } | null }) {
   const [loading, setLoading] = useState(false);
-  const DESKTOP_PRO_LINK = "https://buy.stripe.com/3cIeVf54860AcOC2M3fYY03";
+  // Desktop Pro Einmalkauf entfernt — unified Pro-Abo deckt Web + Desktop
 
   async function handlePortal() {
     setLoading(true);
@@ -272,43 +272,6 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
         )}
       </div>
 
-      {/* Desktop Pro Einmalkauf */}
-      <div className="card border-2 border-emerald-200">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h2 className="font-semibold text-surface-900 flex items-center gap-2">
-              <Monitor size={18} className="text-emerald-600" />
-              Desktop Pro
-            </h2>
-            <p className="text-xs text-surface-400 mt-0.5">Einmalkauf · Dauerhaft gültig · Kein Abo</p>
-          </div>
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
-            CHF 49,90
-          </span>
-        </div>
-        <p className="text-sm text-surface-600 mb-3">
-          Einmalig zahlen, dauerhaft Pro-Features in der Desktop-App nutzen. Der Lizenzschlüssel wird per E-Mail zugestellt.
-        </p>
-        <div className="grid grid-cols-2 gap-1.5 text-sm text-surface-600 mb-4">
-          {["Unbegrenzte Module & Noten", "KI-Studien-Coach", "FH-Voreinstellungen", "KI-Karteikarten"].map(f => (
-            <div key={f} className="flex items-center gap-1.5">
-              <CheckCircle size={13} className="text-emerald-500 shrink-0" />
-              <span>{f}</span>
-            </div>
-          ))}
-        </div>
-        <a
-          href={DESKTOP_PRO_LINK}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors"
-        >
-          <Monitor size={15} />
-          Desktop Pro kaufen
-          <ExternalLink size={12} />
-        </a>
-      </div>
-
       {/* Desktop ↔ Web Sync */}
       <div className="card">
         <h2 className="font-semibold text-surface-900 mb-3">Desktop ↔ Web Sync</h2>
@@ -320,7 +283,7 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
         </div>
         {!isPro && (
           <p className="text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded-xl mt-3">
-            Desktop-Sync erfordert ein aktives Semetra Pro Abo oder Desktop Pro Lizenz.
+            Desktop-Sync erfordert ein aktives Semetra Pro Abo.
           </p>
         )}
       </div>

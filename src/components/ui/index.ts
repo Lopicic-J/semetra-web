@@ -4,4 +4,4 @@ export { Card } from "./Card";
 export { FormField } from "./FormField";
 export { EmptyState } from "./EmptyState";
 export { LoadingSpinner } from "./LoadingSpinner";
-export { ProGate, UpgradeModal, ProBadge } from "./ProGate";
+export { ProGate, UpgradeModal, ProBadge, LimitNudge, LimitCounter } from "./ProGate";

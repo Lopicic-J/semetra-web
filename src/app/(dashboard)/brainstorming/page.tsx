@@ -2,6 +2,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
+import { useProfile } from "@/lib/hooks/useProfile";
+import { FREE_LIMITS, withinFreeLimit } from "@/lib/gates";
+import { LimitNudge, LimitCounter, UpgradeModal } from "@/components/ui/ProGate";
 import {
   Plus, Trash2, Pencil, X, ArrowLeft, Save, Lightbulb,
   ThumbsUp, Sparkles, LayoutGrid, List,
@@ -192,10 +195,12 @@ function getAiSuggestions(technique: string, topic: string, ideas: BrainstormIde
 export default function BrainstormingPage() {
   const supabase = createClient();
   const { modules } = useModules();
+  const { isPro } = useProfile();
   const [sessions, setSessions] = useState<BrainstormSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeSession, setActiveSession] = useState<BrainstormSession | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [preselectedTech, setPreselectedTech] = useState<BrainstormTechnique | null>(null);
   const [exams, setExams] = useState<CalendarEvent[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -234,13 +239,26 @@ export default function BrainstormingPage() {
           </h1>
           <p className="text-surface-500 text-xs sm:text-sm mt-1">Ideen sammeln, Kreativität entfalten, Probleme lösen</p>
         </div>
-        <button
-          onClick={() => { setPreselectedTech(null); setShowCreate(true); }}
-          className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition"
-        >
-          <Plus size={16} /> Neue Session
-        </button>
+        <div className="flex items-center gap-3">
+          <LimitCounter current={sessions.length} max={FREE_LIMITS.brainstormSessions} isPro={isPro} />
+          <button
+            onClick={() => {
+              const check = withinFreeLimit("brainstormSessions", sessions.length, isPro);
+              if (!check.allowed) { setShowUpgrade(true); return; }
+              setPreselectedTech(null); setShowCreate(true);
+            }}
+            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition"
+          >
+            <Plus size={16} /> Neue Session
+          </button>
+        </div>
       </div>
+
+      <LimitNudge current={sessions.length} max={FREE_LIMITS.brainstormSessions} isPro={isPro} label="Brainstorming-Sessions" />
+
+      {showUpgrade && (
+        <UpgradeModal feature="unlimitedBrainstorm" onClose={() => setShowUpgrade(false)} />
+      )}
 
       {/* Technique overview cards */}
       <div className="mb-8">

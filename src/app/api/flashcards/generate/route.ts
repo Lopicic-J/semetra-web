@@ -32,22 +32,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
   }
 
-  // Check pro status
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("plan, stripe_subscription_status, plan_expires_at")
-    .eq("id", user.id)
-    .single();
-
-  const isPro = profile?.plan === "pro" && (
-    profile.stripe_subscription_status === "active" ||
-    profile.stripe_subscription_status === "trialing" ||
-    (profile.plan_expires_at && new Date(profile.plan_expires_at) > new Date())
-  );
-
-  if (!isPro) {
-    return NextResponse.json({ error: "Pro erforderlich" }, { status: 403 });
-  }
+  // KI-Features sind Beta — free für alle User
+  // Wird zu Pro hochgestuft wenn echter Mehrwert vorhanden
 
   const body = await req.json();
   const { text, module_id, deck_name, filename } = body as {

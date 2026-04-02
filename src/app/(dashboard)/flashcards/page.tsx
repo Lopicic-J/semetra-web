@@ -2,6 +2,8 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useProfile } from "@/lib/hooks/useProfile";
+import { FREE_LIMITS, withinFreeLimit } from "@/lib/gates";
+import { LimitNudge, LimitCounter, UpgradeModal } from "@/components/ui/ProGate";
 import {
   Plus, Trash2, BookOpen, Brain, Sparkles, ChevronLeft, ChevronRight,
   Eye, EyeOff, RotateCcw, Check, X, Upload, Loader2, Filter
@@ -236,12 +238,13 @@ function StudyMode({
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function FlashcardsPage() {
   const supabase = createClient();
-  const { profile } = useProfile();
+  const { profile, isPro } = useProfile();
   const [cards, setCards] = useState<Flashcard[]>([]);
   const [modules, setModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
   const [editCard, setEditCard] = useState<Flashcard | undefined>();
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [studyMode, setStudyMode] = useState(false);
   const [filterModule, setFilterModule] = useState<string>("");
   const [filterSource, setFilterSource] = useState<"all" | "user" | "ai">("all");
@@ -400,7 +403,8 @@ export default function FlashcardsPage() {
             )}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          <LimitCounter current={decks.length} max={FREE_LIMITS.flashcardSets} isPro={isPro} />
           {dueCards.length > 0 && (
             <button
               onClick={() => setStudyMode(true)}
@@ -422,7 +426,11 @@ export default function FlashcardsPage() {
             />
           </label>
           <button
-            onClick={() => { setEditCard(undefined); setShowDialog(true); }}
+            onClick={() => {
+              const check = withinFreeLimit("flashcardSets", decks.length, isPro);
+              if (!check.allowed) { setShowUpgrade(true); return; }
+              setEditCard(undefined); setShowDialog(true);
+            }}
             className="btn-primary gap-2"
           >
             <Plus size={16} />
@@ -430,6 +438,12 @@ export default function FlashcardsPage() {
           </button>
         </div>
       </div>
+
+      <LimitNudge current={decks.length} max={FREE_LIMITS.flashcardSets} isPro={isPro} label="Karteikarten-Sets" />
+
+      {showUpgrade && (
+        <UpgradeModal feature="unlimitedFlashcards" onClose={() => setShowUpgrade(false)} />
+      )}
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2 mb-6">

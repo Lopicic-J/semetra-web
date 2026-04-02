@@ -2,6 +2,9 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
+import { useProfile } from "@/lib/hooks/useProfile";
+import { FREE_LIMITS, withinFreeLimit } from "@/lib/gates";
+import { LimitNudge, LimitCounter, UpgradeModal } from "@/components/ui/ProGate";
 import {
   Plus, Trash2, Pencil, X, ArrowLeft, Save, GitBranch, Move,
   ChevronRight, ChevronDown, Link2, ExternalLink, StickyNote,
@@ -21,10 +24,12 @@ const NODE_ICONS = ["", "💡","📌","⭐","🔥","✅","❓","📖","🎯","�
 export default function MindMapsPage() {
   const supabase = createClient();
   const { modules } = useModules();
+  const { isPro } = useProfile();
   const [maps, setMaps] = useState<MindMap[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingMap, setEditingMap] = useState<MindMap | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [exams, setExams] = useState<CalendarEvent[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
 
@@ -51,10 +56,23 @@ export default function MindMapsPage() {
           <h1 className="text-2xl font-bold text-surface-900">Mind Maps</h1>
           <p className="text-surface-500 text-sm mt-0.5">{maps.length} Mind Map{maps.length !== 1 ? "s" : ""}</p>
         </div>
-        <button onClick={() => setShowCreate(true)} className="btn-primary gap-2">
-          <Plus size={16} /> Neue Mind Map
-        </button>
+        <div className="flex items-center gap-3">
+          <LimitCounter current={maps.length} max={FREE_LIMITS.mindMaps} isPro={isPro} />
+          <button onClick={() => {
+            const check = withinFreeLimit("mindMaps", maps.length, isPro);
+            if (!check.allowed) { setShowUpgrade(true); return; }
+            setShowCreate(true);
+          }} className="btn-primary gap-2">
+            <Plus size={16} /> Neue Mind Map
+          </button>
+        </div>
       </div>
+
+      <LimitNudge current={maps.length} max={FREE_LIMITS.mindMaps} isPro={isPro} label="Mind Maps" />
+
+      {showUpgrade && (
+        <UpgradeModal feature="unlimitedMindMaps" onClose={() => setShowUpgrade(false)} />
+      )}
 
       {loading ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useProfile } from "@/lib/hooks/useProfile";
+import { FREE_LIMITS, mathUsageToday, mathUsageIncrement } from "@/lib/gates";
+import { LimitNudge, UpgradeModal } from "@/components/ui/ProGate";
 import type { Module, MathHistory, MathFormula, MathTool, FormulaCategory } from "@/types/database";
 
 /* ─── Constants ───────────────────────────────────────────────────────────── */
@@ -287,12 +290,15 @@ function numberToBase(num: number, base: number): string {
 
 export default function MathPage() {
   const supabase = createClient();
+  const { isPro } = useProfile();
   const [userId, setUserId] = useState<string | null>(null);
   const [modules, setModules] = useState<Module[]>([]);
   const [activeTool, setActiveTool] = useState<MathTool>("calculator");
   const [history, setHistory] = useState<MathHistory[]>([]);
   const [formulas, setFormulas] = useState<MathFormula[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [mathLimitHit, setMathLimitHit] = useState(false);
 
   /* Auth + data */
   useEffect(() => {
@@ -306,8 +312,21 @@ export default function MathPage() {
     });
   }, []);
 
+  /** Check math daily limit before calculating */
+  const checkMathLimit = useCallback((tool: MathTool): boolean => {
+    const usage = mathUsageToday(tool, isPro);
+    if (!usage.allowed) {
+      setMathLimitHit(true);
+      setShowUpgrade(true);
+      return false;
+    }
+    return true;
+  }, [isPro]);
+
   const saveToHistory = useCallback(async (tool: MathTool, expression: string, result: string, moduleId?: string | null) => {
     if (!userId) return;
+    // Increment daily usage counter for free users
+    mathUsageIncrement(tool);
     const entry: Partial<MathHistory> = { user_id: userId, tool, expression, result, module_id: moduleId || null };
     const { data } = await supabase.from("math_history").insert(entry).select().single();
     if (data) setHistory((prev) => [data as MathHistory, ...prev]);
@@ -362,13 +381,34 @@ export default function MathPage() {
         </div>
       )}
 
+      {/* Daily usage info for free users */}
+      {!isPro && (
+        <div className="flex items-center gap-2 text-xs text-surface-500 bg-surface-50 rounded-lg px-3 py-2">
+          <span>Tageslimit:</span>
+          {(() => {
+            const usage = mathUsageToday(activeTool, isPro);
+            return (
+              <span className={usage.used >= usage.max ? "text-red-600 font-medium" : usage.used >= usage.max - 1 ? "text-amber-600 font-medium" : ""}>
+                {usage.used}/{usage.max} Berechnungen heute
+              </span>
+            );
+          })()}
+          <span className="text-surface-400">·</span>
+          <a href="/upgrade" className="text-brand-600 hover:text-brand-500 font-medium">Pro = unbegrenzt</a>
+        </div>
+      )}
+
+      {showUpgrade && (
+        <UpgradeModal feature="unlimitedMath" onClose={() => { setShowUpgrade(false); setMathLimitHit(false); }} />
+      )}
+
       {/* Tool Content */}
       <div className="bg-white rounded-xl border border-surface-200 p-3 sm:p-6">
-        {activeTool === "calculator" && <CalculatorTool onSave={saveToHistory} modules={modules} />}
-        {activeTool === "equations" && <EquationsTool onSave={saveToHistory} modules={modules} />}
-        {activeTool === "matrices" && <MatricesTool onSave={saveToHistory} modules={modules} />}
-        {activeTool === "plotter" && <PlotterTool onSave={saveToHistory} modules={modules} />}
-        {activeTool === "statistics" && <StatisticsTool onSave={saveToHistory} modules={modules} />}
+        {activeTool === "calculator" && <CalculatorTool onSave={saveToHistory} modules={modules} checkLimit={() => checkMathLimit("calculator")} />}
+        {activeTool === "equations" && <EquationsTool onSave={saveToHistory} modules={modules} checkLimit={() => checkMathLimit("equations")} />}
+        {activeTool === "matrices" && <MatricesTool onSave={saveToHistory} modules={modules} checkLimit={() => checkMathLimit("matrices")} />}
+        {activeTool === "plotter" && <PlotterTool onSave={saveToHistory} modules={modules} checkLimit={() => checkMathLimit("plotter")} />}
+        {activeTool === "statistics" && <StatisticsTool onSave={saveToHistory} modules={modules} checkLimit={() => checkMathLimit("statistics")} />}
         {activeTool === "units" && <UnitsTool onSave={saveToHistory} modules={modules} />}
         {activeTool === "formulas" && <FormulasTool userId={userId} supabase={supabase} formulas={formulas} setFormulas={setFormulas} modules={modules} />}
       </div>
@@ -380,7 +420,7 @@ export default function MathPage() {
 /* TOOL 1: Scientific Calculator                                              */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
-function CalculatorTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[] }) {
+function CalculatorTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
   const [display, setDisplay] = useState("");
   const [result, setResult] = useState("");
   const [angleMode, setAngleMode] = useState<"deg" | "rad">("deg");
@@ -397,6 +437,7 @@ function CalculatorTool({ onSave, modules }: { onSave: (t: MathTool, e: string, 
         expr = expr.replace(/cos\(([^)]+)\)/g, `cos(($1)*${Math.PI}/180)`);
         expr = expr.replace(/tan\(([^)]+)\)/g, `tan(($1)*${Math.PI}/180)`);
       }
+      if (checkLimit && !checkLimit()) return;
       const r = safeEval(expr);
       setResult(r);
       onSave("calculator", display, r, moduleId);
@@ -452,7 +493,7 @@ function CalculatorTool({ onSave, modules }: { onSave: (t: MathTool, e: string, 
 /* TOOL 2: Equation Solver                                                    */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
-function EquationsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[] }) {
+function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
   const [mode, setMode] = useState<"linear" | "quadratic" | "system" | "custom">("quadratic");
   const [a, setA] = useState("1");
   const [b, setB] = useState("0");
@@ -499,6 +540,7 @@ function EquationsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r
         }
       } catch { /* keep default message */ }
     }
+    if (checkLimit && !checkLimit()) return;
     setResult(res);
     onSave("equations", expr, res, moduleId);
   };
@@ -601,7 +643,7 @@ function EquationsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r
 /* TOOL 3: Matrix Calculator                                                  */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
-function MatricesTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[] }) {
+function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
   const [size, setSize] = useState(3);
   const [matA, setMatA] = useState<number[][]>(Array.from({ length: 3 }, () => Array(3).fill(0)));
   const [matB, setMatB] = useState<number[][]>(Array.from({ length: 3 }, () => Array(3).fill(0)));
@@ -709,6 +751,7 @@ function MatricesTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r:
       setResult(`Rang = ${rank}`);
     }
 
+    if (checkLimit && !checkLimit()) return;
     onSave("matrices", expr, res, moduleId);
   };
 
@@ -785,7 +828,7 @@ function MatricesTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r:
 /* TOOL 4: Function Plotter                                                   */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
-function PlotterTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[] }) {
+function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [functions, setFunctions] = useState<{ expr: string; color: string }[]>([
     { expr: "sin(x)", color: "#8b5cf6" },
@@ -916,6 +959,7 @@ function PlotterTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: 
   };
 
   const savePlot = () => {
+    if (checkLimit && !checkLimit()) return;
     const expr = functions.map((f) => f.expr).filter(Boolean).join(", ");
     onSave("plotter", `f(x) = ${expr}`, `[${xMin}, ${xMax}] × [${yMin}, ${yMax}]`, moduleId);
   };
@@ -982,7 +1026,7 @@ function PlotterTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: 
 /* TOOL 5: Statistics Tool                                                    */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
-function StatisticsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[] }) {
+function StatisticsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
   const [data, setData] = useState("5, 8, 12, 7, 9, 15, 6, 11, 10, 8");
   const [moduleId, setModuleId] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -1058,6 +1102,7 @@ function StatisticsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, 
   }, [stats, numbers]);
 
   const handleSave = () => {
+    if (checkLimit && !checkLimit()) return;
     if (!stats) return;
     onSave("statistics", `Daten (n=${stats.n})`, `x̄=${stats.mean.toFixed(4)}, σ=${stats.stddev.toFixed(4)}, Median=${stats.median}`, moduleId);
   };

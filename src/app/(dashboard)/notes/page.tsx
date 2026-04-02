@@ -2,6 +2,9 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
+import { useProfile } from "@/lib/hooks/useProfile";
+import { FREE_LIMITS, withinFreeLimit } from "@/lib/gates";
+import { LimitNudge, LimitCounter, UpgradeModal } from "@/components/ui/ProGate";
 import {
   Plus, Trash2, Pencil, X, ArrowLeft, Save, FileText,
   Pin, PinOff, Search, Filter, BookOpen, CheckSquare, Square,
@@ -61,7 +64,9 @@ const FLOW_TYPE_COLORS: Record<string, string> = {
 export default function NotesPage() {
   const supabase = createClient();
   const { modules } = useModules();
+  const { isPro } = useProfile();
   const [notes, setNotes] = useState<Note[]>([]);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeNote, setActiveNote] = useState<Note | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -248,13 +253,22 @@ export default function NotesPage() {
           </h1>
           <p className="text-surface-500 text-xs sm:text-sm mt-1">Alle Notizen an einem Ort — geordnet nach Modul, Aufgabe & Prüfung</p>
         </div>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition"
-        >
-          <Plus size={16} /> Neue Notiz
-        </button>
+        <div className="flex items-center gap-3">
+          <LimitCounter current={notes.length} max={FREE_LIMITS.notes} isPro={isPro} />
+          <button
+            onClick={() => {
+              const check = withinFreeLimit("notes", notes.length, isPro);
+              if (!check.allowed) { setShowUpgrade(true); return; }
+              setShowCreate(true);
+            }}
+            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition"
+          >
+            <Plus size={16} /> Neue Notiz
+          </button>
+        </div>
       </div>
+
+      <LimitNudge current={notes.length} max={FREE_LIMITS.notes} isPro={isPro} label="Notizen" />
 
       {/* Stats overview */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
@@ -471,6 +485,10 @@ export default function NotesPage() {
             <NoteListRow key={note.id} note={note} modules={modules} onClick={() => setActiveNote(note)} />
           ))}
         </div>
+      )}
+
+      {showUpgrade && (
+        <UpgradeModal feature="unlimitedNotes" onClose={() => setShowUpgrade(false)} />
       )}
 
       {showCreate && (

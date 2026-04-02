@@ -114,7 +114,7 @@ export default function StudiengaengePage() {
             Importiere alle Module deiner Fachhochschule automatisch.
           </p>
         </div>
-        <ProGate feature="fhImport" isPro={false}>
+        <ProGate feature="fhImportAll" isPro={false}>
           <div />
         </ProGate>
       </div>

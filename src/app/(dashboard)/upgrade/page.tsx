@@ -1,7 +1,7 @@
 "use client";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
-import { CheckCircle, XCircle, Zap, Check, ArrowLeft, Star, Monitor, ExternalLink } from "lucide-react";
+import { CheckCircle, XCircle, Zap, Check, ArrowLeft, Star, Sparkles } from "lucide-react";
 import { PLANS, PRO_PRICES } from "@/lib/stripe";
 import type { PriceTier } from "@/lib/stripe";
 import { useProfile } from "@/lib/hooks/useProfile";
@@ -12,7 +12,6 @@ const STRIPE_PAYMENT_LINKS: Record<string, string> = {
   "price_1TG9kdRNHcFqFbgIlTDxPRla": "https://buy.stripe.com/dRmdRb548agQdSGcmDfYY00",
   "price_1TG9kZRNHcFqFbgI6F0O2tqs": "https://buy.stripe.com/7sY5kFfIM9cM9Cq5YffYY02",
 };
-const DESKTOP_PRO_LINK = "https://buy.stripe.com/3cIeVf54860AcOC2M3fYY03";
 
 function UpgradeContent() {
   const params = useSearchParams();
@@ -34,9 +33,9 @@ function UpgradeContent() {
         <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-6">
           <CheckCircle className="text-green-500" size={44} />
         </div>
-        <h1 className="text-2xl font-bold text-surface-900 mb-2">Willkommen bei Semetra Pro! 🎉</h1>
+        <h1 className="text-2xl font-bold text-surface-900 mb-2">Willkommen bei Semetra Pro!</h1>
         <p className="text-surface-500 mb-8 max-w-sm">
-          Dein Upgrade war erfolgreich. Alle Pro-Features sind jetzt freigeschaltet.
+          Dein Upgrade war erfolgreich. Alle Pro-Features sind jetzt freigeschaltet — auf Web und Desktop.
         </p>
         <Link href="/dashboard" className="btn-primary gap-2">
           <ArrowLeft size={16} />
@@ -76,7 +75,7 @@ function UpgradeContent() {
           Hol das Beste aus deinem Studium heraus
         </h1>
         <p className="text-surface-500 max-w-xl mx-auto">
-          Upgrade auf Pro und schalte KI-Features, unbegrenzte Module und Desktop-Sync frei.
+          Ein Abo, alle Plattformen. Upgrade auf Pro und schalte unbegrenzte Features, KI-Coach und Desktop-Sync frei.
         </p>
       </div>
 
@@ -188,54 +187,16 @@ function UpgradeContent() {
         </div>
       </div>
 
-      {/* Desktop Pro Einmalkauf */}
+      {/* Platform info */}
       <div className="max-w-2xl mx-auto mb-8">
-        <div className="bg-white rounded-2xl border-2 border-emerald-500 p-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
-            EINMALKAUF
+        <div className="bg-gradient-to-r from-brand-50 to-violet-50 border border-brand-200/60 rounded-2xl p-5 text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Sparkles size={16} className="text-brand-600" />
+            <span className="text-sm font-semibold text-brand-700">Ein Abo — überall Pro</span>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <Monitor size={20} className="text-emerald-600" />
-                <p className="text-sm font-semibold text-emerald-600 uppercase tracking-wide">Desktop Pro</p>
-              </div>
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-3xl font-bold text-surface-900">CHF 49,90</span>
-                <span className="text-sm text-surface-400">einmalig</span>
-              </div>
-              <p className="text-sm text-surface-500 mb-3">
-                Kein Abo · Dauerhaft gültig · Lizenzschlüssel per E-Mail
-              </p>
-              <div className="space-y-1.5">
-                {["Desktop-App dauerhaft Pro", "Unbegrenzte Module & Noten", "KI-Studien-Coach", "FH-Voreinstellungen", "Keine Registrierung nötig"].map(f => (
-                  <div key={f} className="flex items-center gap-2 text-sm text-surface-600">
-                    <Check size={13} className="text-emerald-500 shrink-0" />
-                    <span>{f}</span>
-                  </div>
-                ))}
-                <div className="flex items-center gap-2 text-sm text-surface-400">
-                  <XCircle size={13} className="text-surface-300 shrink-0" />
-                  <span>Kein Web-Sync / Mobile App</span>
-                </div>
-              </div>
-            </div>
-            <div className="sm:w-48 flex flex-col gap-2">
-              <a
-                href={DESKTOP_PRO_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-3 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2 text-sm"
-              >
-                <Monitor size={16} />
-                Desktop Pro kaufen
-                <ExternalLink size={12} />
-              </a>
-              <p className="text-[11px] text-surface-400 text-center">
-                Lizenzschlüssel wird per E-Mail zugestellt
-              </p>
-            </div>
-          </div>
+          <p className="text-sm text-surface-600">
+            Dein Pro-Abo gilt für Web-App, Desktop-App und zukünftige Mobile-App. Kein separater Desktop-Kauf nötig.
+          </p>
         </div>
       </div>
 
@@ -275,7 +236,7 @@ function UpgradeButton({ priceId }: { priceId: string }) {
         }
         setLoading(false);
       }}
-      className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+      className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-500 transition-all flex items-center justify-center gap-2 disabled:opacity-60 shadow-md shadow-brand-600/20"
     >
       <Zap size={16} />
       {loading ? "Wird geladen…" : "Jetzt upgraden"}

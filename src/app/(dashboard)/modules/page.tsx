@@ -4,8 +4,8 @@ import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { createClient } from "@/lib/supabase/client";
 import { MODULE_COLORS } from "@/lib/utils";
-import { FREE_LIMITS } from "@/lib/gates";
-import { UpgradeModal } from "@/components/ui/ProGate";
+import { FREE_LIMITS, withinFreeLimit } from "@/lib/gates";
+import { UpgradeModal, LimitNudge, LimitCounter } from "@/components/ui/ProGate";
 import {
   Plus, BookOpen, Pencil, Trash2, X, ExternalLink, Github,
   FileText, Link2, CheckCircle, Clock, AlertCircle, PauseCircle,
@@ -51,7 +51,8 @@ export default function ModulesPage() {
   const supabase = createClient();
 
   function openNew() {
-    if (!isPro && modules.length >= FREE_LIMITS.totalModules) {
+    const check = withinFreeLimit("modules", modules.length, isPro);
+    if (!check.allowed) {
       setShowUpgrade(true);
       return;
     }
@@ -99,10 +100,10 @@ export default function ModulesPage() {
           <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-surface-900">Module</h1>
           <p className="text-surface-500 text-sm mt-0.5">
             {modules.length} Module · {modules.reduce((s, m) => s + (m.ects ?? 0), 0)} ECTS total
-            {!isPro && <span className="text-amber-600 ml-2">({modules.length}/{FREE_LIMITS.totalModules} Free-Limit)</span>}
           </p>
         </div>
-        <div className="flex gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
+          <LimitCounter current={modules.length} max={FREE_LIMITS.modules} isPro={isPro} />
           {modules.length > 0 && (
             <button
               onClick={() => { setSelectMode(!selectMode); setSelected(new Set()); }}
@@ -215,8 +216,10 @@ export default function ModulesPage() {
         />
       )}
 
+      <LimitNudge current={modules.length} max={FREE_LIMITS.modules} isPro={isPro} label="Module" />
+
       {showUpgrade && (
-        <UpgradeModal feature="unlimitedMods" onClose={() => setShowUpgrade(false)} />
+        <UpgradeModal feature="unlimitedModules" onClose={() => setShowUpgrade(false)} />
       )}
 
       {deleteTarget && (
@@ -853,12 +856,15 @@ function FhImportModal({ isPro, onClose, onImported }: {
     setStep("preview");
   }
 
+  const maxImport = isPro ? Infinity : FREE_LIMITS.modules;
+
   async function doImport() {
     if (!selected?.modules_json) return;
     setImporting(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setImporting(false); return; }
-    const rows = selected.modules_json.map((m: StudiengangModuleTemplate, i: number) => ({
+    const modulesToImport = isPro ? selected.modules_json : selected.modules_json.slice(0, FREE_LIMITS.modules);
+    const rows = modulesToImport.map((m: StudiengangModuleTemplate, i: number) => ({
       user_id: user.id,
       name: m.name,
       code: m.code,
@@ -896,14 +902,7 @@ function FhImportModal({ isPro, onClose, onImported }: {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-5">
-          {!isPro ? (
-            <div className="text-center py-8">
-              <Lock size={40} className="mx-auto mb-3 text-surface-300" />
-              <p className="font-medium text-surface-700 mb-1">Pro-Feature</p>
-              <p className="text-sm text-surface-500 mb-4">Der FH-Import ist nur mit einem Pro-Abo verfügbar.</p>
-              <a href="/upgrade" className="btn-primary inline-flex gap-2">Upgrade auf Pro</a>
-            </div>
-          ) : step === "choose" ? (
+          {step === "choose" ? (
             <>
               {/* FH Filter Chips */}
               <div className="flex flex-wrap gap-2 mb-5">
@@ -1001,10 +1000,12 @@ function FhImportModal({ isPro, onClose, onImported }: {
                   <div className="col-span-3 sm:col-span-2">Semester</div>
                 </div>
                 <div className="divide-y divide-surface-50 max-h-[40vh] overflow-y-auto">
-                  {(selected.modules_json ?? []).map((m: StudiengangModuleTemplate, i: number) => (
-                    <div key={i} className="grid grid-cols-12 gap-2 px-3 py-2.5 items-center hover:bg-surface-50/50">
+                  {(selected.modules_json ?? []).map((m: StudiengangModuleTemplate, i: number) => {
+                    const locked = !isPro && i >= FREE_LIMITS.modules;
+                    return (
+                    <div key={i} className={`grid grid-cols-12 gap-2 px-3 py-2.5 items-center ${locked ? "opacity-40" : "hover:bg-surface-50/50"}`}>
                       <div className="col-span-5 sm:col-span-4 flex items-center gap-1.5">
-                        <div className="w-2 h-2 rounded-full shrink-0" style={{ background: m.color }} />
+                        {locked ? <Lock size={10} className="text-surface-400 shrink-0" /> : <div className="w-2 h-2 rounded-full shrink-0" style={{ background: m.color }} />}
                         <span className="text-xs sm:text-sm font-medium text-surface-800 truncate">{m.name}</span>
                       </div>
                       <div className="col-span-2 hidden sm:block">
@@ -1019,6 +1020,9 @@ function FhImportModal({ isPro, onClose, onImported }: {
                         </span>
                       </div>
                       <div className="col-span-3 sm:col-span-2">
+                        {locked ? (
+                          <span className="text-[10px] text-surface-400">Pro</span>
+                        ) : (
                         <select
                           className="input py-0.5 text-[10px] sm:text-xs"
                           value={customSemester[i] ?? m.semester}
@@ -1028,15 +1032,30 @@ function FhImportModal({ isPro, onClose, onImported }: {
                             <option key={s} value={s}>{s}</option>
                           ))}
                         </select>
+                        )}
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
+              {!isPro && (selected.modules_json ?? []).length > FREE_LIMITS.modules && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-3 flex items-center gap-2">
+                  <Lock size={14} className="text-amber-600 shrink-0" />
+                  <p className="text-xs text-amber-800">
+                    Im Free-Plan werden die ersten <strong>{FREE_LIMITS.modules} Module</strong> importiert.
+                    Mit Pro erhältst du alle {(selected.modules_json ?? []).length} Module.
+                  </p>
+                  <a href="/upgrade" className="text-xs font-semibold text-amber-700 hover:text-amber-900 whitespace-nowrap ml-auto">Upgrade →</a>
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <p className="text-sm text-surface-500">
-                  {(selected.modules_json ?? []).length} Module · {selected.ects_total} ECTS
+                  {isPro
+                    ? `${(selected.modules_json ?? []).length} Module · ${selected.ects_total} ECTS`
+                    : `${Math.min((selected.modules_json ?? []).length, FREE_LIMITS.modules)} von ${(selected.modules_json ?? []).length} Modulen`
+                  }
                 </p>
                 <button
                   onClick={doImport}

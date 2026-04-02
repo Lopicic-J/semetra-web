@@ -128,14 +128,9 @@ export default function GradesPage() {
           <h1 className="text-xl md:text-2xl font-bold text-surface-900">Noten & ECTS</h1>
           <p className="text-surface-500 text-sm mt-0.5">
             {grades.length} Noten · {totalEarnedEcts}/{totalEcts} ECTS erlangt
-            {!isPro && <span className="text-amber-600 ml-2">({grades.length}/{FREE_LIMITS.grades} Free-Limit)</span>}
           </p>
         </div>
         <button onClick={() => {
-          if (!isPro && grades.length >= FREE_LIMITS.grades) {
-            setShowUpgrade(true);
-            return;
-          }
           setEditing(null); setShowForm(true);
         }} className="btn-primary gap-2">
           <Plus size={16} /> Note erfassen
@@ -366,7 +361,7 @@ export default function GradesPage() {
       )}
 
       {showUpgrade && (
-        <UpgradeModal feature="unlimitedGrades" onClose={() => setShowUpgrade(false)} />
+        <UpgradeModal onClose={() => setShowUpgrade(false)} />
       )}
     </div>
   );

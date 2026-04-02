@@ -89,14 +89,9 @@ export default function StundenplanPage() {
           <h1 className="text-xl sm:text-2xl font-bold text-surface-900">Stundenplan</h1>
           <p className="text-surface-500 text-sm mt-0.5">
             Wochenplan nach Kalenderwoche & Semester
-            {!isPro && <span className="text-amber-600 ml-2">({entries.length}/{FREE_LIMITS.stundenplanEntries} Einträge im Free-Plan)</span>}
           </p>
         </div>
         <button onClick={() => {
-          if (!isPro && entries.length >= FREE_LIMITS.stundenplanEntries) {
-            setShowUpgrade(true);
-            return;
-          }
           setShowForm(true);
         }} className="btn-primary gap-2">
           <Plus size={16} /> Eintrag
@@ -248,7 +243,7 @@ export default function StundenplanPage() {
       )}
 
       {showUpgrade && (
-        <UpgradeModal feature="unlimitedPlan" onClose={() => setShowUpgrade(false)} />
+        <UpgradeModal onClose={() => setShowUpgrade(false)} />
       )}
     </div>
   );

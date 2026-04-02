@@ -6,10 +6,10 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
   typescript: true,
 });
 
-// Default price (1 month) — used as fallback
+// Default price (yearly) — used as fallback
 export const STRIPE_PRO_PRICE_ID = process.env.STRIPE_PRO_PRICE_ID ?? "";
 
-// All Pro pricing tiers
+// All Pro pricing tiers — Unified (Web + Desktop)
 export const PRO_PRICES = {
   monthly: {
     priceId: "price_1TG9kaRNHcFqFbgIthnElTOy",
@@ -56,23 +56,25 @@ export const PLANS = {
     name: "Free",
     price: 0,
     currency: "CHF",
-    limits: {
-      totalModules: 6,
-      grades: 3,
-      stundenplanEntries: 4,
-    },
     features: [
-      "Bis zu 6 Module",
-      "Bis zu 3 Noten",
-      "Bis zu 4 Stundenplan-Einträge",
-      "Aufgaben & Kalender",
-      "ECTS-Tracking",
-      "Lernziele & Timer",
+      "Bis zu 8 Module",
+      "Unbegrenzte Noten (Basisansicht)",
+      "Stundenplan & Kalender",
+      "Aufgaben & ECTS-Tracking",
+      "Lernziele & Pomodoro-Timer",
+      "Mathe-Raum (5 Berechnungen/Tag)",
+      "Bis zu 15 Notizen",
+      "Bis zu 3 Mind Maps",
+      "Bis zu 5 Karteikarten-Sets",
+      "KI-Features (Beta)",
     ],
     lockedFeatures: [
-      "FH-Voreinstellungen",
-      "KI-Coach (Desktop)",
-      "Unbegrenzte Module & Noten",
+      "Unbegrenzte Module & Wissens-Tools",
+      "Mathe-Raum unbegrenzt",
+      "Notenprognosen & Trendanalyse",
+      "Semester-Report PDF Export",
+      "Smart Spaced Repetition",
+      "FH-Voreinstellungen Import",
       "Desktop ↔ Web Sync",
     ],
   },
@@ -81,17 +83,18 @@ export const PLANS = {
     price: 4.9,
     currency: "CHF",
     interval: "Monat",
-    limits: {
-      totalModules: Infinity,
-      grades: Infinity,
-      stundenplanEntries: Infinity,
-    },
     features: [
       "Alles aus Free — ohne Limits",
-      "Unbegrenzte Module & Noten",
-      "FH-Voreinstellungen",
-      "KI-Coach (Desktop-App)",
+      "Unbegrenzte Module",
+      "Unbegrenzte Notizen, Mind Maps & Karteikarten",
+      "Unbegrenzte Dokumente & Brainstorming",
+      "Mathe-Raum ohne Tageslimit",
+      "Notenprognosen & Trendanalyse",
+      "Semester-Report PDF Export",
+      "Smart Spaced Repetition (Algorithmus)",
+      "FH-Voreinstellungen Import",
       "Desktop ↔ Web Echtzeit-Sync",
+      "Benutzerdefinierte Themes",
       "Prioritäts-Support",
     ],
   },

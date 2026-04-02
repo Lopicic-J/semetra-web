@@ -2,6 +2,9 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
+import { useProfile } from "@/lib/hooks/useProfile";
+import { FREE_LIMITS, withinFreeLimit } from "@/lib/gates";
+import { LimitNudge, LimitCounter, UpgradeModal } from "@/components/ui/ProGate";
 import {
   Plus, Trash2, Pencil, X, ExternalLink, FileText, Search,
   Link2, File, Image, Video, Pin, PinOff, BookOpen, FolderOpen,
@@ -52,8 +55,10 @@ interface DocFlowItem {
 export default function DocumentsPage() {
   const supabase = createClient();
   const { modules } = useModules();
+  const { isPro } = useProfile();
   const [docs, setDocs] = useState<Doc[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [exams, setExams] = useState<CalendarEvent[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showCreate, setShowCreate] = useState(false);
@@ -245,13 +250,26 @@ export default function DocumentsPage() {
           </h1>
           <p className="text-surface-500 text-xs sm:text-sm mt-1">Alle Dokumente und Links an einem Ort — zugeordnet zu Modulen, Aufgaben & Prüfungen</p>
         </div>
-        <button
-          onClick={() => { setEditDoc(null); setShowCreate(true); }}
-          className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition flex-shrink-0"
-        >
-          <Plus size={16} /> Hinzufügen
-        </button>
+        <div className="flex items-center gap-3">
+          <LimitCounter current={docs.length} max={FREE_LIMITS.documents} isPro={isPro} />
+          <button
+            onClick={() => {
+              const check = withinFreeLimit("documents", docs.length, isPro);
+              if (!check.allowed) { setShowUpgrade(true); return; }
+              setEditDoc(null); setShowCreate(true);
+            }}
+            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition flex-shrink-0"
+          >
+            <Plus size={16} /> Hinzufügen
+          </button>
+        </div>
       </div>
+
+      <LimitNudge current={docs.length} max={FREE_LIMITS.documents} isPro={isPro} label="Dokumente" />
+
+      {showUpgrade && (
+        <UpgradeModal feature="unlimitedDocs" onClose={() => setShowUpgrade(false)} />
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
