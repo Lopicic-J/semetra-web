@@ -1,17 +1,43 @@
 "use client";
+import { useState, useEffect, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
 import { useTasks } from "@/lib/hooks/useTasks";
 import { useGrades } from "@/lib/hooks/useGrades";
 import { useTimeLogs } from "@/lib/hooks/useTimeLogs";
 import { formatDate, formatDuration, gradeAvg } from "@/lib/utils";
-import { BookOpen, CheckSquare, Clock, TrendingUp, AlertCircle, Calendar } from "lucide-react";
+import { BookOpen, CheckSquare, Clock, TrendingUp, AlertCircle, Calendar, GraduationCap } from "lucide-react";
 import Link from "next/link";
+import type { CalendarEvent } from "@/types/database";
+
+type Exam = CalendarEvent & { daysLeft?: number };
 
 export default function DashboardPage() {
   const { modules, loading: ml } = useModules();
   const { tasks } = useTasks();
   const { grades } = useGrades();
   const { logs } = useTimeLogs();
+  const [exams, setExams] = useState<Exam[]>([]);
+  const supabase = createClient();
+
+  const fetchExams = useCallback(async () => {
+    const { data } = await supabase
+      .from("events")
+      .select("*")
+      .eq("event_type", "exam")
+      .order("start_dt", { ascending: true });
+    const now = new Date();
+    setExams(
+      (data ?? [])
+        .map(e => ({
+          ...e,
+          daysLeft: Math.ceil((new Date(e.start_dt).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
+        }))
+        .filter(e => (e.daysLeft ?? 0) >= 0)  // nur zukünftige
+    );
+  }, [supabase]);
+
+  useEffect(() => { fetchExams(); }, [fetchExams]);
 
   const openTasks = tasks.filter(t => t.status !== "done");
   const overdue = tasks.filter(t => t.status !== "done" && t.due_date && new Date(t.due_date) < new Date());
@@ -45,6 +71,56 @@ export default function DashboardPage() {
           </Link>
         ))}
       </div>
+
+      {/* Upcoming exams */}
+      {exams.length > 0 && (
+        <div className="card mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+              <GraduationCap size={16} className="text-violet-500" /> Anstehende Prüfungen
+            </h2>
+            <Link href="/exams" className="text-xs text-violet-600 hover:underline">Alle anzeigen</Link>
+          </div>
+          <div className="space-y-2">
+            {exams.slice(0, 5).map(exam => {
+              const d = exam.daysLeft ?? 999;
+              const isToday = d === 0;
+              const isUrgent = d > 0 && d <= 3;
+              const isSoon = d > 3 && d <= 7;
+              return (
+                <div key={exam.id} className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
+                  isToday ? "bg-red-50 border border-red-200" :
+                  isUrgent ? "bg-orange-50 border border-orange-200" :
+                  isSoon ? "bg-yellow-50 border border-yellow-100" :
+                  "bg-gray-50 hover:bg-gray-100"
+                }`}>
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 text-white"
+                    style={{ background: exam.color ?? "#6d28d9" }}>
+                    <GraduationCap size={16} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 truncate">{exam.title}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {formatDate(exam.start_dt)}
+                      {exam.location ? ` · ${exam.location}` : ""}
+                    </p>
+                  </div>
+                  <div className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0 ${
+                    isToday ? "bg-red-100 text-red-700" :
+                    isUrgent ? "bg-orange-100 text-orange-700" :
+                    isSoon ? "bg-yellow-100 text-yellow-700" :
+                    d <= 30 ? "bg-blue-100 text-blue-700" :
+                    "bg-green-100 text-green-700"
+                  }`}>
+                    <Clock size={12} />
+                    {isToday ? "Heute!" : d === 1 ? "Morgen" : `${d} Tage`}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-2 gap-4">
         {/* Overdue / urgent tasks */}
