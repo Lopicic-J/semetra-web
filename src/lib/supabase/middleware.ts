@@ -23,8 +23,20 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  const isAuthPage = request.nextUrl.pathname.startsWith("/login") ||
-                     request.nextUrl.pathname.startsWith("/register");
+  const pathname = request.nextUrl.pathname;
+
+  // Public auth pages (no auth required)
+  const isAuthPage =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/reset-password") ||
+    pathname.startsWith("/update-password") ||
+    pathname.startsWith("/auth/callback");
+
+  // API routes should pass through
+  const isApiRoute = pathname.startsWith("/api/");
+
+  if (isApiRoute) return supabaseResponse;
 
   if (!user && !isAuthPage) {
     const url = request.nextUrl.clone();
@@ -32,7 +44,8 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && isAuthPage) {
+  // Redirect logged-in users away from login/register (but allow reset/update-password)
+  if (user && (pathname.startsWith("/login") || pathname.startsWith("/register"))) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
