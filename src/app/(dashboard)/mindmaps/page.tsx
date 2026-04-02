@@ -48,8 +48,8 @@ export default function MindMapsPage() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Mind Maps</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{maps.length} Mind Map{maps.length !== 1 ? "s" : ""}</p>
+          <h1 className="text-2xl font-bold text-surface-900">Mind Maps</h1>
+          <p className="text-surface-500 text-sm mt-0.5">{maps.length} Mind Map{maps.length !== 1 ? "s" : ""}</p>
         </div>
         <button onClick={() => setShowCreate(true)} className="btn-primary gap-2">
           <Plus size={16} /> Neue Mind Map
@@ -58,10 +58,10 @@ export default function MindMapsPage() {
 
       {loading ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1,2,3].map(i => <div key={i} className="h-32 bg-gray-100 rounded-2xl animate-pulse" />)}
+          {[1,2,3].map(i => <div key={i} className="h-32 bg-surface-100 rounded-2xl animate-pulse" />)}
         </div>
       ) : maps.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20 text-surface-400">
           <Network size={48} className="mx-auto mb-3 opacity-30" />
           <p className="font-medium">Noch keine Mind Maps</p>
           <p className="text-sm mt-1">Erstelle deine erste Mind Map um Wissen zu strukturieren.</p>
@@ -87,21 +87,21 @@ export default function MindMapsPage() {
                       await supabase.from("mindmaps").delete().eq("id", m.id);
                       fetchMaps();
                     }}
-                    className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <Trash2 size={13} />
                   </button>
                 </div>
-                <h3 className="font-semibold text-gray-900 text-sm">{m.title}</h3>
+                <h3 className="font-semibold text-surface-900 text-sm">{m.title}</h3>
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {mod && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-700">{mod.name}</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-100 text-brand-700">{mod.name}</span>
                   )}
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-surface-100 text-surface-500">
                     {m.layout_mode === "tree" ? "Baum" : "Frei"}
                   </span>
                 </div>
-                <p className="text-[10px] text-gray-400 mt-2">
+                <p className="text-[10px] text-surface-400 mt-2">
                   {new Date(m.updated_at).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" })}
                 </p>
               </div>
@@ -168,25 +168,25 @@ function CreateMapModal({ modules, exams, tasks, onClose, onCreated }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">Neue Mind Map</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100"><X size={16} /></button>
+        <div className="flex items-center justify-between p-5 border-b border-surface-100">
+          <h2 className="font-semibold text-surface-900">Neue Mind Map</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
         </div>
         <form onSubmit={handleCreate} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Titel</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Titel</label>
             <input className="input" value={title} onChange={e => setTitle(e.target.value)} placeholder="z.B. Mathematik Übersicht" autoFocus />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Modul (optional)</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Modul (optional)</label>
               <select className="input text-sm" value={moduleId} onChange={e => setModuleId(e.target.value)}>
                 <option value="">— Kein Modul —</option>
                 {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Prüfung (optional)</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Prüfung (optional)</label>
               <select className="input text-sm" value={examId} onChange={e => setExamId(e.target.value)}>
                 <option value="">— Keine —</option>
                 {exams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
@@ -194,24 +194,24 @@ function CreateMapModal({ modules, exams, tasks, onClose, onCreated }: {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Layout</label>
+            <label className="block text-sm font-medium text-surface-700 mb-2">Layout</label>
             <div className="flex gap-2">
               <button type="button" onClick={() => setLayout("tree")}
-                className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl border-2 text-sm font-medium transition-colors ${layout === "tree" ? "border-violet-400 bg-violet-50 text-violet-700" : "border-gray-200 text-gray-500"}`}>
+                className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl border-2 text-sm font-medium transition-colors ${layout === "tree" ? "border-brand-400 bg-brand-50 text-brand-700" : "border-surface-200 text-surface-500"}`}>
                 <GitBranch size={16} /> Baumstruktur
               </button>
               <button type="button" onClick={() => setLayout("free")}
-                className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl border-2 text-sm font-medium transition-colors ${layout === "free" ? "border-violet-400 bg-violet-50 text-violet-700" : "border-gray-200 text-gray-500"}`}>
+                className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl border-2 text-sm font-medium transition-colors ${layout === "free" ? "border-brand-400 bg-brand-50 text-brand-700" : "border-surface-200 text-surface-500"}`}>
                 <Move size={16} /> Frei positioniert
               </button>
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Farbe</label>
+            <label className="block text-sm font-medium text-surface-700 mb-2">Farbe</label>
             <div className="flex gap-1.5 flex-wrap">
               {NODE_COLORS.slice(0, 10).map(c => (
                 <button key={c} type="button" onClick={() => setColor(c)}
-                  className={`w-7 h-7 rounded-full border-2 transition-transform ${color === c ? "border-gray-800 scale-110" : "border-transparent"}`}
+                  className={`w-7 h-7 rounded-full border-2 transition-transform ${color === c ? "border-surface-800 scale-110" : "border-transparent"}`}
                   style={{ background: c }} />
               ))}
             </div>
@@ -480,35 +480,35 @@ function MindMapEditor({ map, modules, onBack }: {
   return (
     <div className="flex flex-col h-[calc(100vh-64px)]">
       {/* Toolbar */}
-      <div className="flex items-center gap-3 px-4 py-2.5 bg-white border-b border-gray-100 shrink-0">
-        <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-violet-600">
+      <div className="flex items-center gap-3 px-4 py-2.5 bg-white border-b border-surface-100 shrink-0">
+        <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-surface-500 hover:text-brand-600">
           <ArrowLeft size={16} /> Zurück
         </button>
-        <div className="w-px h-5 bg-gray-200" />
-        <h2 className="font-semibold text-gray-900 text-sm truncate flex-1">{map.title}</h2>
+        <div className="w-px h-5 bg-surface-200" />
+        <h2 className="font-semibold text-surface-900 text-sm truncate flex-1">{map.title}</h2>
         <button onClick={toggleLayout}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 hover:bg-violet-100 text-gray-600 hover:text-violet-700 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-100 hover:bg-brand-100 text-surface-600 hover:text-brand-700 transition-colors"
           title={layoutMode === "tree" ? "Wechsel zu Frei" : "Wechsel zu Baum"}>
           {layoutMode === "tree" ? <><GitBranch size={13} /> Baum</> : <><Move size={13} /> Frei</>}
         </button>
-        <div className="flex items-center gap-1 bg-gray-100 rounded-lg px-1">
-          <button onClick={() => setZoom(z => Math.max(0.3, z - 0.1))} className="p-1 hover:bg-gray-200 rounded"><ZoomOut size={14} /></button>
-          <span className="text-[10px] text-gray-500 w-8 text-center">{Math.round(zoom * 100)}%</span>
-          <button onClick={() => setZoom(z => Math.min(2, z + 0.1))} className="p-1 hover:bg-gray-200 rounded"><ZoomIn size={14} /></button>
-          <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="p-1 hover:bg-gray-200 rounded"><Maximize2 size={14} /></button>
+        <div className="flex items-center gap-1 bg-surface-100 rounded-lg px-1">
+          <button onClick={() => setZoom(z => Math.max(0.3, z - 0.1))} className="p-1 hover:bg-surface-200 rounded"><ZoomOut size={14} /></button>
+          <span className="text-[10px] text-surface-500 w-8 text-center">{Math.round(zoom * 100)}%</span>
+          <button onClick={() => setZoom(z => Math.min(2, z + 0.1))} className="p-1 hover:bg-surface-200 rounded"><ZoomIn size={14} /></button>
+          <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="p-1 hover:bg-surface-200 rounded"><Maximize2 size={14} /></button>
         </div>
       </div>
 
       {/* Canvas */}
       <div
-        className="flex-1 overflow-hidden bg-gray-50 relative"
+        className="flex-1 overflow-hidden bg-surface-50 relative"
         style={{ touchAction: "none" }}
         onMouseDown={handlePointerDownCanvas}
         onTouchStart={handlePointerDownCanvas}
         ref={canvasRef}
       >
         {loading ? (
-          <div className="flex items-center justify-center h-full text-gray-400">Laden…</div>
+          <div className="flex items-center justify-center h-full text-surface-400">Laden…</div>
         ) : (
           <div
             className="canvas-bg"
@@ -559,12 +559,12 @@ function MindMapEditor({ map, modules, onBack }: {
                   onDoubleClick={(e) => { e.stopPropagation(); setEditNode(n); }}
                 >
                   <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 bg-white shadow-sm transition-all min-w-[120px] max-w-[200px] ${
-                    isSelected ? "ring-2 ring-violet-400 border-violet-300" : "border-gray-200 hover:border-gray-300"
+                    isSelected ? "ring-2 ring-brand-400 border-brand-300" : "border-surface-200 hover:border-surface-300"
                   } ${isRoot ? "border-l-4" : ""}`}
                     style={isRoot ? { borderLeftColor: n.color } : {}}
                   >
                     {n.icon && <span className="text-sm shrink-0">{n.icon}</span>}
-                    <span className={`text-sm truncate ${isRoot ? "font-semibold" : "font-medium"} text-gray-800`}>{n.label}</span>
+                    <span className={`text-sm truncate ${isRoot ? "font-semibold" : "font-medium"} text-surface-800`}>{n.label}</span>
                     {n.notes && <StickyNote size={10} className="text-amber-400 shrink-0" />}
                     {(n.links?.length ?? 0) > 0 && <Link2 size={10} className="text-blue-400 shrink-0" />}
                   </div>
@@ -573,11 +573,11 @@ function MindMapEditor({ map, modules, onBack }: {
                   {isSelected && (
                     <div className="flex gap-1 mt-1 justify-center">
                       <button onClick={(e) => { e.stopPropagation(); addChild(n.id); }}
-                        className="p-1 rounded bg-violet-600 text-white hover:bg-violet-700" title="Kind hinzufügen">
+                        className="p-1 rounded bg-brand-600 text-white hover:bg-brand-700" title="Kind hinzufügen">
                         <Plus size={12} />
                       </button>
                       <button onClick={(e) => { e.stopPropagation(); setEditNode(n); }}
-                        className="p-1 rounded bg-gray-200 text-gray-600 hover:bg-gray-300" title="Bearbeiten">
+                        className="p-1 rounded bg-surface-200 text-surface-600 hover:bg-surface-300" title="Bearbeiten">
                         <Pencil size={12} />
                       </button>
                       {!isRoot && (
@@ -647,25 +647,25 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[85vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">Knoten bearbeiten</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100"><X size={16} /></button>
+        <div className="flex items-center justify-between p-5 border-b border-surface-100">
+          <h2 className="font-semibold text-surface-900">Knoten bearbeiten</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
         </div>
         <div className="p-5 space-y-4">
           {/* Label */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Bezeichnung</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Bezeichnung</label>
             <input className="input" value={label} onChange={e => setLabel(e.target.value)} autoFocus />
           </div>
 
           {/* Icon */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Icon</label>
+            <label className="block text-sm font-medium text-surface-700 mb-2">Icon</label>
             <div className="flex gap-1.5 flex-wrap">
               {NODE_ICONS.map(ic => (
                 <button key={ic} type="button" onClick={() => setIcon(ic)}
                   className={`w-8 h-8 rounded-lg text-sm flex items-center justify-center border-2 transition-colors ${
-                    icon === ic ? "border-violet-500 bg-violet-50" : "border-gray-200 hover:border-gray-300"
+                    icon === ic ? "border-brand-500 bg-brand-50" : "border-surface-200 hover:border-surface-300"
                   }`}>
                   {ic || "—"}
                 </button>
@@ -675,11 +675,11 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
 
           {/* Color */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Farbe</label>
+            <label className="block text-sm font-medium text-surface-700 mb-2">Farbe</label>
             <div className="flex gap-1.5 flex-wrap">
               {NODE_COLORS.map(c => (
                 <button key={c} type="button" onClick={() => setColor(c)}
-                  className={`w-6 h-6 rounded-full border-2 transition-transform ${color === c ? "border-gray-800 scale-110" : "border-transparent"}`}
+                  className={`w-6 h-6 rounded-full border-2 transition-transform ${color === c ? "border-surface-800 scale-110" : "border-transparent"}`}
                   style={{ background: c }} />
               ))}
             </div>
@@ -687,24 +687,24 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
 
           {/* Notes */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notizen</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Notizen</label>
             <textarea className="input resize-none text-sm" rows={3} value={notes} onChange={e => setNotes(e.target.value)}
               placeholder="Erklärungen, Zusammenfassung, Formeln…" />
           </div>
 
           {/* Links */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Links & Dokumente</label>
+            <label className="block text-sm font-medium text-surface-700 mb-2">Links & Dokumente</label>
             {links.length > 0 && (
               <div className="space-y-1.5 mb-2">
                 {links.map((l, i) => (
-                  <div key={i} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg text-xs">
+                  <div key={i} className="flex items-center gap-2 p-2 bg-surface-50 rounded-lg text-xs">
                     <Link2 size={12} className="text-blue-500 shrink-0" />
-                    <span className="flex-1 truncate text-gray-700">{l.label}</span>
+                    <span className="flex-1 truncate text-surface-700">{l.label}</span>
                     <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
                       <ExternalLink size={12} />
                     </a>
-                    <button onClick={() => removeLink(i)} className="text-gray-400 hover:text-red-500">
+                    <button onClick={() => removeLink(i)} className="text-surface-400 hover:text-red-500">
                       <Trash2 size={12} />
                     </button>
                   </div>
@@ -716,7 +716,7 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
                 placeholder="https://..." onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addLink())} />
               <input className="input w-28 text-xs" value={newLinkLabel} onChange={e => setNewLinkLabel(e.target.value)}
                 placeholder="Titel" />
-              <button onClick={addLink} className="px-2 py-1 rounded-lg bg-violet-600 text-white text-xs hover:bg-violet-700">+</button>
+              <button onClick={addLink} className="px-2 py-1 rounded-lg bg-brand-600 text-white text-xs hover:bg-brand-700">+</button>
             </div>
           </div>
 

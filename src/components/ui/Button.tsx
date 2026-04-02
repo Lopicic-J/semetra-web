@@ -18,13 +18,13 @@ export function Button({
   children,
   ...props
 }: ButtonProps) {
-  const baseStyles = "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+  const baseStyles = "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
 
   const variantStyles = {
-    primary: "bg-violet-600 text-white hover:bg-violet-700 focus-visible:ring-violet-500",
-    secondary: "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 focus-visible:ring-gray-400",
-    danger: "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500",
-    ghost: "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 focus-visible:ring-gray-400",
+    primary: "bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800 focus-visible:ring-brand-500 shadow-sm hover:shadow-md",
+    secondary: "bg-surface-100 text-surface-700 border border-surface-200/60 hover:bg-surface-200/70 hover:text-surface-800 focus-visible:ring-surface-400",
+    danger: "bg-danger-50 text-danger-700 border border-danger-100 hover:bg-danger-100 focus-visible:ring-danger-500",
+    ghost: "text-surface-500 hover:bg-surface-100 hover:text-surface-700 focus-visible:ring-surface-400",
   };
 
   const sizeStyles = {

@@ -113,8 +113,8 @@ export default function GradesPage() {
     <div className="p-4 md:p-6 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Noten & ECTS</h1>
-          <p className="text-gray-500 text-sm mt-0.5">
+          <h1 className="text-xl md:text-2xl font-bold text-surface-900">Noten & ECTS</h1>
+          <p className="text-surface-500 text-sm mt-0.5">
             {grades.length} Noten · {totalEarnedEcts}/{totalEcts} ECTS erlangt
             {!isPro && <span className="text-amber-600 ml-2">({grades.length}/{FREE_LIMITS.grades} Free-Limit)</span>}
           </p>
@@ -134,10 +134,10 @@ export default function GradesPage() {
       {totalEcts > 0 && (
         <div className="card mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">ECTS-Fortschritt</span>
-            <span className="text-sm font-bold text-violet-600">{totalEarnedEcts} / {totalEcts} ECTS</span>
+            <span className="text-sm font-medium text-surface-700">ECTS-Fortschritt</span>
+            <span className="text-sm font-bold text-brand-600">{totalEarnedEcts} / {totalEcts} ECTS</span>
           </div>
-          <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-surface-100 rounded-full h-3 overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-500"
               style={{
@@ -146,7 +146,7 @@ export default function GradesPage() {
               }}
             />
           </div>
-          <p className="text-xs text-gray-400 mt-1.5">
+          <p className="text-xs text-surface-400 mt-1.5">
             {Math.round((totalEarnedEcts / totalEcts) * 100)}% abgeschlossen
             {ungradedModules.length > 0 && ` · ${ungradedModules.length} Module noch offen`}
           </p>
@@ -157,24 +157,24 @@ export default function GradesPage() {
       {grades.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           <div className="card text-center py-4">
-            <TrendingUp size={18} className="mx-auto mb-1.5 text-violet-500" />
+            <TrendingUp size={18} className="mx-auto mb-1.5 text-brand-500" />
             <p className={`text-2xl font-bold ${gradeColor(avg)}`}>{avg ? avg.toFixed(2) : "—"}</p>
-            <p className="text-xs text-gray-500 mt-0.5">Durchschnitt</p>
+            <p className="text-xs text-surface-500 mt-0.5">Durchschnitt</p>
           </div>
           <div className="card text-center py-4">
             <Award size={18} className="mx-auto mb-1.5 text-green-500" />
             <p className="text-2xl font-bold text-green-600">{totalEarnedEcts}</p>
-            <p className="text-xs text-gray-500 mt-0.5">ECTS erlangt</p>
+            <p className="text-xs text-surface-500 mt-0.5">ECTS erlangt</p>
           </div>
           <div className="card text-center py-4">
             <Target size={18} className="mx-auto mb-1.5 text-blue-500" />
             <p className="text-2xl font-bold text-blue-600">{gradedModules.length}</p>
-            <p className="text-xs text-gray-500 mt-0.5">Module bewertet</p>
+            <p className="text-xs text-surface-500 mt-0.5">Module bewertet</p>
           </div>
           <div className="card text-center py-4">
             <AlertTriangle size={18} className="mx-auto mb-1.5 text-red-400" />
             <p className="text-2xl font-bold text-red-600">{failedModules.length}</p>
-            <p className="text-xs text-gray-500 mt-0.5">Nicht bestanden</p>
+            <p className="text-xs text-surface-500 mt-0.5">Nicht bestanden</p>
           </div>
         </div>
       )}
@@ -182,7 +182,7 @@ export default function GradesPage() {
       {/* Exam status overview */}
       {examStatus.filter(e => e.status !== "pending").length > 0 && (
         <div className="card mb-6">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-surface-700 mb-3 flex items-center gap-2">
             <GraduationCap size={14} /> Prüfungsstatus
           </h3>
           <div className="flex flex-wrap gap-2">
@@ -221,14 +221,14 @@ export default function GradesPage() {
       {/* Filters: Module + Exam */}
       <div className="space-y-2 mb-5">
         <div className="flex gap-2 flex-wrap items-center">
-          <span className="text-xs text-gray-400 font-medium w-14 shrink-0">Modul:</span>
+          <span className="text-xs text-surface-400 font-medium w-14 shrink-0">Modul:</span>
           <button onClick={() => { setFilterModule("all"); setFilterExam("all"); }}
-            className={`badge cursor-pointer text-xs ${filterModule === "all" ? "bg-violet-600 text-white" : "badge-gray hover:bg-gray-200"}`}>
+            className={`badge cursor-pointer text-xs ${filterModule === "all" ? "bg-brand-600 text-white" : "badge-gray hover:bg-surface-200"}`}>
             Alle
           </button>
           {byModule.map(({ module: m, passed }) => (
             <button key={m.id} onClick={() => { setFilterModule(m.id); setFilterExam("all"); }}
-              className={`badge cursor-pointer text-xs ${filterModule === m.id ? "text-white" : "badge-gray hover:bg-gray-200"}`}
+              className={`badge cursor-pointer text-xs ${filterModule === m.id ? "text-white" : "badge-gray hover:bg-surface-200"}`}
               style={filterModule === m.id ? { background: m.color ?? "#6d28d9" } : {}}>
               {m.name} {passed ? "✓" : ""}
             </button>
@@ -237,16 +237,16 @@ export default function GradesPage() {
 
         {gradedExams.length > 0 && (
           <div className="flex gap-2 flex-wrap items-center">
-            <span className="text-xs text-gray-400 font-medium w-14 shrink-0">Prüfung:</span>
+            <span className="text-xs text-surface-400 font-medium w-14 shrink-0">Prüfung:</span>
             <button onClick={() => setFilterExam("all")}
-              className={`badge cursor-pointer text-xs ${filterExam === "all" ? "bg-violet-600 text-white" : "badge-gray hover:bg-gray-200"}`}>
+              className={`badge cursor-pointer text-xs ${filterExam === "all" ? "bg-brand-600 text-white" : "badge-gray hover:bg-surface-200"}`}>
               Alle
             </button>
             {gradedExams.map(e => {
               const es = examStatus.find(x => x.exam.id === e.id);
               return (
                 <button key={e.id} onClick={() => setFilterExam(e.id)}
-                  className={`badge cursor-pointer text-xs flex items-center gap-1 ${filterExam === e.id ? "text-white" : "badge-gray hover:bg-gray-200"}`}
+                  className={`badge cursor-pointer text-xs flex items-center gap-1 ${filterExam === e.id ? "text-white" : "badge-gray hover:bg-surface-200"}`}
                   style={filterExam === e.id ? { background: e.color ?? "#dc2626" } : {}}>
                   <GraduationCap size={10} /> {e.title}
                   {es?.status === "passed" && " ✓"}
@@ -259,9 +259,9 @@ export default function GradesPage() {
       </div>
 
       {loading ? (
-        <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />)}</div>
+        <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-16 bg-surface-100 rounded-xl animate-pulse" />)}</div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-surface-400">
           <BarChart2 size={40} className="mx-auto mb-3 opacity-30" />
           <p className="font-medium">Noch keine Noten erfasst</p>
           <p className="text-sm mt-1">Erfasse Noten für deine Module — ECTS werden automatisch gutgeschrieben bei Note ≥ 4.0</p>
@@ -273,22 +273,22 @@ export default function GradesPage() {
             const mAvg = safeGradeAvg(mGrades);
             return (
               <div key={m.id} className={`card p-0 overflow-hidden ${!passed && bestGrade !== null ? "ring-1 ring-red-200" : ""}`}>
-                <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 border-b border-gray-100">
+                <div className="flex items-center gap-3 px-4 py-3 bg-surface-50 border-b border-surface-100">
                   <span className="w-3 h-3 rounded-full shrink-0" style={{ background: m.color ?? "#6d28d9" }} />
                   <div className="flex-1 min-w-0">
-                    <span className="font-semibold text-gray-900">{m.name}</span>
-                    {m.semester && <span className="text-xs text-gray-400 ml-2">{displaySemester(m.semester)}</span>}
+                    <span className="font-semibold text-surface-900">{m.name}</span>
+                    {m.semester && <span className="text-xs text-surface-400 ml-2">{displaySemester(m.semester)}</span>}
                   </div>
                   <div className="flex items-center gap-3">
                     {m.ects && (
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${passed ? "bg-green-100 text-green-700" : bestGrade !== null ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-500"}`}>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${passed ? "bg-green-100 text-green-700" : bestGrade !== null ? "bg-red-100 text-red-700" : "bg-surface-100 text-surface-500"}`}>
                         {passed ? `${m.ects} ECTS ✓` : bestGrade !== null ? `${m.ects} ECTS ✗` : `${m.ects} ECTS`}
                       </span>
                     )}
                     {mAvg > 0 && <span className={`text-lg font-bold ${gradeColor(mAvg)}`}>{mAvg.toFixed(2)}</span>}
                   </div>
                 </div>
-                <div className="divide-y divide-gray-50">
+                <div className="divide-y divide-surface-50">
                   {mGrades.map(g => (
                     <GradeRow key={g.id} grade={g} exams={exams} onEdit={e => { setEditing(e); setShowForm(true); }} onDelete={handleDelete} />
                   ))}
@@ -298,7 +298,7 @@ export default function GradesPage() {
           })}
         </div>
       ) : (
-        <div className="card p-0 overflow-hidden divide-y divide-gray-50">
+        <div className="card p-0 overflow-hidden divide-y divide-surface-50">
           {filtered.map(g => (
             <GradeRow key={g.id} grade={g} exams={exams} onEdit={e => { setEditing(e); setShowForm(true); }} onDelete={handleDelete} />
           ))}
@@ -332,17 +332,17 @@ function GradeRow({ grade, exams, onEdit, onDelete }: {
   const linkedExam = grade.exam_id ? exams.find(e => e.id === grade.exam_id) : null;
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 group">
+    <div className="flex items-center gap-3 px-4 py-3 hover:bg-surface-50 group">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-medium text-gray-800">{grade.title}</p>
+          <p className="text-sm font-medium text-surface-800">{grade.title}</p>
           {linkedExam && (
-            <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-violet-50 text-violet-600 shrink-0">
+            <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-brand-50 text-brand-600 shrink-0">
               <GraduationCap size={9} /> {linkedExam.title.length > 20 ? linkedExam.title.slice(0, 20) + "…" : linkedExam.title}
             </span>
           )}
         </div>
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-surface-400">
           {formatDate(grade.date)}
           {grade.weight && grade.weight !== 1 ? ` · Gewicht: ${grade.weight}` : ""}
           {grade.exam_type && ` · ${grade.exam_type}`}
@@ -370,8 +370,8 @@ function GradeRow({ grade, exams, onEdit, onDelete }: {
         )}
       </div>
       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button onClick={() => onEdit(grade)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400"><Pencil size={13} /></button>
-        <button onClick={() => onDelete(grade.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500"><Trash2 size={13} /></button>
+        <button onClick={() => onEdit(grade)} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400"><Pencil size={13} /></button>
+        <button onClick={() => onDelete(grade.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500"><Trash2 size={13} /></button>
       </div>
     </div>
   );
@@ -451,13 +451,13 @@ function GradeModal({ initial, modules, exams, onClose, onSaved }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">{initial ? "Note bearbeiten" : "Note erfassen"}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100"><X size={16} /></button>
+        <div className="flex items-center justify-between p-5 border-b border-surface-100">
+          <h2 className="font-semibold text-surface-900">{initial ? "Note bearbeiten" : "Note erfassen"}</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Modul</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Modul</label>
             <select className="input" value={form.module_id} onChange={e => set("module_id", e.target.value)}>
               <option value="">— Modul wählen —</option>
               {modules.map(m => <option key={m.id} value={m.id}>{m.name} {m.ects ? `(${m.ects} ECTS)` : ""}</option>)}
@@ -465,7 +465,7 @@ function GradeModal({ initial, modules, exams, onClose, onSaved }: {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+            <label className="block text-sm font-medium text-surface-700 mb-1 flex items-center gap-1">
               <GraduationCap size={12} /> Prüfung
             </label>
             <select className="input" value={form.exam_id} onChange={e => set("exam_id", e.target.value)}>
@@ -479,30 +479,30 @@ function GradeModal({ initial, modules, exams, onClose, onSaved }: {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Bezeichnung *</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Bezeichnung *</label>
             <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder="z.B. Schlussprüfung" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Note (1–6)</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Note (1–6)</label>
               <input className="input" type="number" step="0.1" min="1" max="6" value={form.grade} onChange={e => set("grade", e.target.value)} placeholder="z.B. 5.5" />
-              <p className="text-[10px] text-gray-400 mt-0.5">Optional — Note oder ECTS oder beides</p>
+              <p className="text-[10px] text-surface-400 mt-0.5">Optional — Note oder ECTS oder beides</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">ECTS-Punkte</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">ECTS-Punkte</label>
               <input className="input" type="number" step="0.5" min="0" max="30" value={form.ects_earned} onChange={e => set("ects_earned", e.target.value)} placeholder="z.B. 5" />
-              <p className="text-[10px] text-gray-400 mt-0.5">Direkt erlangte ECTS</p>
+              <p className="text-[10px] text-surface-400 mt-0.5">Direkt erlangte ECTS</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Gewicht</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Gewicht</label>
               <input className="input" type="number" step="0.5" min="0.5" max="5" value={form.weight} onChange={e => set("weight", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Datum</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Datum</label>
               <input className="input" type="date" value={form.date} onChange={e => set("date", e.target.value)} />
             </div>
           </div>
@@ -527,7 +527,7 @@ function GradeModal({ initial, modules, exams, onClose, onSaved }: {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Typ</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Typ</label>
             <select className="input" value={form.exam_type} onChange={e => set("exam_type", e.target.value)}>
               <option value="">—</option>
               <option value="Schlussprüfung">Schlussprüfung</option>
@@ -540,7 +540,7 @@ function GradeModal({ initial, modules, exams, onClose, onSaved }: {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notizen</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Notizen</label>
             <textarea className="input resize-none" rows={2} value={form.notes} onChange={e => set("notes", e.target.value)} placeholder="Feedback, Kommentar…" />
           </div>
           <div className="flex gap-3 pt-2">

@@ -34,8 +34,8 @@ function UpgradeContent() {
         <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-6">
           <CheckCircle className="text-green-500" size={44} />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Willkommen bei Semetra Pro! 🎉</h1>
-        <p className="text-gray-500 mb-8 max-w-sm">
+        <h1 className="text-2xl font-bold text-surface-900 mb-2">Willkommen bei Semetra Pro! 🎉</h1>
+        <p className="text-surface-500 mb-8 max-w-sm">
           Dein Upgrade war erfolgreich. Alle Pro-Features sind jetzt freigeschaltet.
         </p>
         <Link href="/dashboard" className="btn-primary gap-2">
@@ -49,11 +49,11 @@ function UpgradeContent() {
   if (canceled) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] text-center px-6">
-        <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mb-6">
-          <XCircle className="text-gray-400" size={44} />
+        <div className="w-24 h-24 rounded-full bg-surface-100 flex items-center justify-center mb-6">
+          <XCircle className="text-surface-400" size={44} />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Upgrade abgebrochen</h1>
-        <p className="text-gray-500 mb-8">Kein Problem — du kannst jederzeit upgraden.</p>
+        <h1 className="text-2xl font-bold text-surface-900 mb-2">Upgrade abgebrochen</h1>
+        <p className="text-surface-500 mb-8">Kein Problem — du kannst jederzeit upgraden.</p>
         <Link href="/dashboard" className="btn-secondary">Zurück zum Dashboard</Link>
       </div>
     );
@@ -68,29 +68,29 @@ function UpgradeContent() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="text-center mb-10">
-        <div className="inline-flex items-center gap-2 bg-violet-100 text-violet-700 px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
+        <div className="inline-flex items-center gap-2 bg-brand-100 text-brand-700 px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
           <Zap size={14} />
           Semetra Pro
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-3">
+        <h1 className="text-3xl font-bold text-surface-900 mb-3">
           Hol das Beste aus deinem Studium heraus
         </h1>
-        <p className="text-gray-500 max-w-xl mx-auto">
+        <p className="text-surface-500 max-w-xl mx-auto">
           Upgrade auf Pro und schalte KI-Features, unbegrenzte Module und Desktop-Sync frei.
         </p>
       </div>
 
       {/* Pricing tier selector */}
       <div className="flex justify-center mb-8">
-        <div className="inline-flex bg-gray-100 rounded-xl p-1 gap-1">
+        <div className="inline-flex bg-surface-100 rounded-xl p-1 gap-1">
           {tiers.map((tier) => (
             <button
               key={tier.key}
               onClick={() => setSelectedTier(tier.key)}
               className={`relative px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
                 selectedTier === tier.key
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-white text-surface-900 shadow-sm"
+                  : "text-surface-500 hover:text-surface-700"
               }`}
             >
               {tier.label}
@@ -107,58 +107,58 @@ function UpgradeContent() {
       {/* Cards */}
       <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto mb-8">
         {/* Free */}
-        <div className="bg-white rounded-2xl border-2 border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border-2 border-surface-200 p-6">
           <div className="mb-5">
-            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Free</p>
-            <p className="text-3xl font-bold text-gray-900">CHF 0</p>
-            <p className="text-sm text-gray-400 mt-1">für immer</p>
+            <p className="text-sm font-semibold text-surface-500 uppercase tracking-wide mb-1">Free</p>
+            <p className="text-3xl font-bold text-surface-900">CHF 0</p>
+            <p className="text-sm text-surface-400 mt-1">für immer</p>
           </div>
           <div className="space-y-2.5 mb-6">
             {PLANS.free.features.map(f => (
-              <div key={f} className="flex items-center gap-2.5 text-sm text-gray-600">
-                <Check size={14} className="text-gray-400 shrink-0" />
+              <div key={f} className="flex items-center gap-2.5 text-sm text-surface-600">
+                <Check size={14} className="text-surface-400 shrink-0" />
                 <span>{f}</span>
               </div>
             ))}
             {PLANS.free.lockedFeatures.map(f => (
-              <div key={f} className="flex items-center gap-2.5 text-sm text-gray-400 line-through">
-                <Check size={14} className="text-gray-200 shrink-0" />
+              <div key={f} className="flex items-center gap-2.5 text-sm text-surface-400 line-through">
+                <Check size={14} className="text-surface-200 shrink-0" />
                 <span>{f}</span>
               </div>
             ))}
           </div>
           {!isPro && (
-            <div className="w-full py-2.5 rounded-xl border-2 border-gray-200 text-gray-500 text-sm text-center font-medium">
+            <div className="w-full py-2.5 rounded-xl border-2 border-surface-200 text-surface-500 text-sm text-center font-medium">
               Dein aktueller Plan
             </div>
           )}
         </div>
 
         {/* Pro */}
-        <div className="bg-white rounded-2xl border-2 border-violet-500 p-6 relative overflow-hidden">
+        <div className="bg-white rounded-2xl border-2 border-brand-500 p-6 relative overflow-hidden">
           {PRO_PRICES[selectedTier] && "popular" in PRO_PRICES[selectedTier] && (
-            <div className="absolute top-0 right-0 bg-violet-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl flex items-center gap-1">
+            <div className="absolute top-0 right-0 bg-brand-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl flex items-center gap-1">
               <Star size={10} fill="white" />
               BELIEBTESTE WAHL
             </div>
           )}
           {!("popular" in PRO_PRICES[selectedTier]) && (
-            <div className="absolute top-0 right-0 bg-violet-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
+            <div className="absolute top-0 right-0 bg-brand-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
               PRO
             </div>
           )}
           <div className="mb-5">
-            <p className="text-sm font-semibold text-violet-600 uppercase tracking-wide mb-1">Pro</p>
+            <p className="text-sm font-semibold text-brand-600 uppercase tracking-wide mb-1">Pro</p>
             <div className="flex items-baseline gap-1">
-              <span className="text-3xl font-bold text-gray-900">
+              <span className="text-3xl font-bold text-surface-900">
                 CHF {PRO_PRICES[selectedTier].price.toFixed(2).replace(".", ",")}
               </span>
-              <span className="text-sm text-gray-400">
+              <span className="text-sm text-surface-400">
                 / {PRO_PRICES[selectedTier].interval}
               </span>
             </div>
             {PRO_PRICES[selectedTier].intervalCount > 1 && (
-              <p className="text-sm text-violet-600 font-medium mt-1">
+              <p className="text-sm text-brand-600 font-medium mt-1">
                 = CHF {PRO_PRICES[selectedTier].perMonth.toFixed(2).replace(".", ",")} pro Monat
                 {"savings" in PRO_PRICES[selectedTier] && (
                   <span className="ml-1.5 text-green-600 font-semibold">
@@ -167,12 +167,12 @@ function UpgradeContent() {
                 )}
               </p>
             )}
-            <p className="text-sm text-gray-400 mt-1">jederzeit kündbar</p>
+            <p className="text-sm text-surface-400 mt-1">jederzeit kündbar</p>
           </div>
           <div className="space-y-2.5 mb-6">
             {PLANS.pro.features.map(f => (
-              <div key={f} className="flex items-center gap-2.5 text-sm text-gray-700">
-                <Check size={14} className="text-violet-600 shrink-0" />
+              <div key={f} className="flex items-center gap-2.5 text-sm text-surface-700">
+                <Check size={14} className="text-brand-600 shrink-0" />
                 <span>{f}</span>
               </div>
             ))}
@@ -201,21 +201,21 @@ function UpgradeContent() {
                 <p className="text-sm font-semibold text-emerald-600 uppercase tracking-wide">Desktop Pro</p>
               </div>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-3xl font-bold text-gray-900">CHF 49,90</span>
-                <span className="text-sm text-gray-400">einmalig</span>
+                <span className="text-3xl font-bold text-surface-900">CHF 49,90</span>
+                <span className="text-sm text-surface-400">einmalig</span>
               </div>
-              <p className="text-sm text-gray-500 mb-3">
+              <p className="text-sm text-surface-500 mb-3">
                 Kein Abo · Dauerhaft gültig · Lizenzschlüssel per E-Mail
               </p>
               <div className="space-y-1.5">
                 {["Desktop-App dauerhaft Pro", "Unbegrenzte Module & Noten", "KI-Studien-Coach", "FH-Voreinstellungen", "Keine Registrierung nötig"].map(f => (
-                  <div key={f} className="flex items-center gap-2 text-sm text-gray-600">
+                  <div key={f} className="flex items-center gap-2 text-sm text-surface-600">
                     <Check size={13} className="text-emerald-500 shrink-0" />
                     <span>{f}</span>
                   </div>
                 ))}
-                <div className="flex items-center gap-2 text-sm text-gray-400">
-                  <XCircle size={13} className="text-gray-300 shrink-0" />
+                <div className="flex items-center gap-2 text-sm text-surface-400">
+                  <XCircle size={13} className="text-surface-300 shrink-0" />
                   <span>Kein Web-Sync / Mobile App</span>
                 </div>
               </div>
@@ -231,7 +231,7 @@ function UpgradeContent() {
                 Desktop Pro kaufen
                 <ExternalLink size={12} />
               </a>
-              <p className="text-[11px] text-gray-400 text-center">
+              <p className="text-[11px] text-surface-400 text-center">
                 Lizenzschlüssel wird per E-Mail zugestellt
               </p>
             </div>
@@ -239,7 +239,7 @@ function UpgradeContent() {
         </div>
       </div>
 
-      <p className="text-center text-xs text-gray-400">
+      <p className="text-center text-xs text-surface-400">
         Sichere Zahlung via Stripe · Schweizer Datenschutz · Keine versteckten Kosten
       </p>
     </div>
@@ -275,7 +275,7 @@ function UpgradeButton({ priceId }: { priceId: string }) {
         }
         setLoading(false);
       }}
-      className="w-full py-3 rounded-xl bg-violet-600 text-white font-semibold hover:bg-violet-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+      className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
     >
       <Zap size={16} />
       {loading ? "Wird geladen…" : "Jetzt upgraden"}

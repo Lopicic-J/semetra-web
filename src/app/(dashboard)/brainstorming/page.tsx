@@ -236,7 +236,7 @@ export default function BrainstormingPage() {
         </div>
         <button
           onClick={() => { setPreselectedTech(null); setShowCreate(true); }}
-          className="flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition"
+          className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition"
         >
           <Plus size={16} /> Neue Session
         </button>
@@ -281,10 +281,10 @@ export default function BrainstormingPage() {
               <button
                 key={s.id}
                 onClick={() => setActiveSession(s)}
-                className="bg-zinc-900 border border-zinc-700 rounded-xl p-4 text-left hover:border-violet-500/60 hover:bg-zinc-800/60 transition group"
+                className="bg-zinc-900 border border-zinc-700 rounded-xl p-4 text-left hover:border-brand-500/60 hover:bg-zinc-800/60 transition group"
               >
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-zinc-100 text-sm group-hover:text-violet-300 transition line-clamp-1">
+                  <h3 className="font-semibold text-zinc-100 text-sm group-hover:text-brand-300 transition line-clamp-1">
                     {s.title}
                   </h3>
                   <span
@@ -394,7 +394,7 @@ function CreateSessionModal({
           value={title}
           onChange={e => setTitle(e.target.value)}
           placeholder={selectedTech.label}
-          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-white placeholder:text-zinc-500 mb-4 focus:border-violet-500 focus:outline-none transition"
+          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-white placeholder:text-zinc-500 mb-4 focus:border-brand-500 focus:outline-none transition"
         />
 
         <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-2">Technik wählen</label>
@@ -405,7 +405,7 @@ function CreateSessionModal({
               onClick={() => setTechnique(t.key)}
               className={`flex items-center gap-2 p-1.5 sm:p-2.5 rounded-lg border text-xs text-left transition ${
                 technique === t.key
-                  ? "border-violet-500 bg-violet-500/15 text-white"
+                  ? "border-brand-500 bg-brand-500/15 text-white"
                   : "border-zinc-600 bg-zinc-800/80 text-zinc-300 hover:border-zinc-500 hover:text-white"
               }`}
             >
@@ -466,7 +466,7 @@ function CreateSessionModal({
         <button
           onClick={handleCreate}
           disabled={saving}
-          className="w-full bg-violet-600 hover:bg-violet-500 text-white py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50"
+          className="w-full bg-brand-600 hover:bg-brand-500 text-white py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50"
         >
           {saving ? "Erstellen..." : "Session starten"}
         </button>
@@ -640,7 +640,7 @@ function BrainstormEditor({
         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap">
           <button
             onClick={generateAiSuggestions}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-violet-600 border border-violet-500 text-white hover:bg-violet-500 text-xs sm:text-sm font-medium transition"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-brand-600 border border-brand-500 text-white hover:bg-brand-500 text-xs sm:text-sm font-medium transition"
             title="KI-Vorschläge generieren"
           >
             <Bot size={16} /> KI-Assistent
@@ -666,7 +666,7 @@ function BrainstormEditor({
       {showAi && aiSuggestions.length > 0 && (
         <div className="mb-4 p-3 sm:p-4 rounded-xl border border-zinc-600 bg-zinc-900">
           <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-            <h3 className="text-xs sm:text-sm font-semibold text-violet-400 flex items-center gap-2">
+            <h3 className="text-xs sm:text-sm font-semibold text-brand-400 flex items-center gap-2">
               <Bot size={16} /> KI-Denkanstösse
             </h3>
             <div className="flex gap-1">
@@ -688,7 +688,7 @@ function BrainstormEditor({
           <div className="space-y-2.5">
             {aiSuggestions.map((s, idx) => (
               <div key={idx} className="flex items-start gap-2.5 group">
-                <Sparkles size={12} className="text-violet-400 mt-1.5 flex-shrink-0" />
+                <Sparkles size={12} className="text-brand-400 mt-1.5 flex-shrink-0" />
                 <p className="text-xs sm:text-sm text-white flex-1 leading-relaxed">{s}</p>
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
                   <button
@@ -790,7 +790,7 @@ function BrainstormEditor({
             onChange={e => setNewContent(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addIdea(); } }}
             placeholder="Neue Idee eingeben... (Enter zum Hinzufügen)"
-            className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:border-violet-500 focus:outline-none transition"
+            className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:border-brand-500 focus:outline-none transition"
             autoFocus
           />
           {tech.categories && (
@@ -806,7 +806,7 @@ function BrainstormEditor({
         <button
           onClick={() => addIdea()}
           disabled={!newContent.trim()}
-          className="bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 w-full sm:w-auto justify-center sm:justify-start"
+          className="bg-brand-600 hover:bg-brand-500 disabled:opacity-40 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 w-full sm:w-auto justify-center sm:justify-start"
         >
           <Plus size={16} /> Hinzufügen
         </button>
@@ -818,7 +818,7 @@ function BrainstormEditor({
           <button
             onClick={() => setFilterCat("")}
             className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-medium transition whitespace-nowrap ${
-              !filterCat ? "bg-violet-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white"
+              !filterCat ? "bg-brand-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white"
             }`}
           >
             Alle
@@ -830,7 +830,7 @@ function BrainstormEditor({
                 key={cat}
                 onClick={() => setFilterCat(filterCat === cat ? "" : cat)}
                 className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-medium transition whitespace-nowrap ${
-                  filterCat === cat ? "bg-violet-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white"
+                  filterCat === cat ? "bg-brand-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white"
                 }`}
               >
                 {cat} ({count})
@@ -914,7 +914,7 @@ function BrainstormEditor({
                         if (e.key === "Enter") updateIdea(idea.id, editContent);
                         if (e.key === "Escape") setEditingId(null);
                       }}
-                      className="flex-1 bg-zinc-800 border border-zinc-500 rounded px-2 py-1 text-xs sm:text-sm text-white focus:border-violet-500 focus:outline-none"
+                      className="flex-1 bg-zinc-800 border border-zinc-500 rounded px-2 py-1 text-xs sm:text-sm text-white focus:border-brand-500 focus:outline-none"
                       autoFocus
                     />
                     <button onClick={() => updateIdea(idea.id, editContent)} className="text-green-400 hover:text-green-300"><Save size={14} /></button>
@@ -942,7 +942,7 @@ function BrainstormEditor({
       {ideas.length > 0 && (
         <div className="mt-6 p-3 sm:p-4 bg-zinc-900 border border-zinc-700 rounded-xl">
           <h3 className="text-xs sm:text-sm font-semibold text-zinc-200 mb-3 flex items-center gap-2">
-            <Target size={14} className="text-violet-400" /> Zusammenfassung
+            <Target size={14} className="text-brand-400" /> Zusammenfassung
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-center">
             <div>
@@ -954,7 +954,7 @@ function BrainstormEditor({
               <p className="text-xs text-zinc-400">Bewertet</p>
             </div>
             <div>
-              <p className="text-lg sm:text-2xl font-bold text-violet-400">
+              <p className="text-lg sm:text-2xl font-bold text-brand-400">
                 {tech.categories ? new Set(ideas.map(i => i.category).filter(Boolean)).size : "\u2014"}
               </p>
               <p className="text-xs text-zinc-400">Kategorien</p>
@@ -1011,7 +1011,7 @@ function IdeaCard({
               if (e.key === "Enter" && e.ctrlKey) onSaveEdit();
               if (e.key === "Escape") onCancelEdit();
             }}
-            className="w-full bg-zinc-800 border border-zinc-500 rounded px-2 py-1 sm:py-1.5 text-xs sm:text-sm text-white resize-none focus:border-violet-500 focus:outline-none"
+            className="w-full bg-zinc-800 border border-zinc-500 rounded px-2 py-1 sm:py-1.5 text-xs sm:text-sm text-white resize-none focus:border-brand-500 focus:outline-none"
             rows={3}
             autoFocus
           />

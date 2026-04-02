@@ -86,8 +86,8 @@ export default function StundenplanPage() {
     <div className="p-3 sm:p-6 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Stundenplan</h1>
-          <p className="text-gray-500 text-sm mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900">Stundenplan</h1>
+          <p className="text-surface-500 text-sm mt-0.5">
             Wochenplan nach Kalenderwoche & Semester
             {!isPro && <span className="text-amber-600 ml-2">({entries.length}/{FREE_LIMITS.stundenplanEntries} Einträge im Free-Plan)</span>}
           </p>
@@ -111,8 +111,8 @@ export default function StundenplanPage() {
             onClick={() => { setCurrentSemester(s); setCurrentKw(1); }}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               currentSemester === s
-                ? "bg-violet-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                ? "bg-brand-600 text-white"
+                : "bg-surface-100 text-surface-600 hover:bg-surface-200"
             }`}
           >
             {s}
@@ -125,7 +125,7 @@ export default function StundenplanPage() {
         <button
           onClick={() => setCurrentKw(Math.max(1, currentKw - 1))}
           disabled={currentKw <= 1}
-          className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-30"
+          className="p-1.5 rounded-lg hover:bg-surface-100 disabled:opacity-30"
         >
           <ChevronLeft size={18} />
         </button>
@@ -137,10 +137,10 @@ export default function StundenplanPage() {
               onClick={() => setCurrentKw(kw)}
               className={`px-2.5 py-1 rounded-lg text-xs font-medium shrink-0 transition-colors ${
                 currentKw === kw
-                  ? "bg-violet-600 text-white"
+                  ? "bg-brand-600 text-white"
                   : kwsWithEntries.has(kw)
-                    ? "bg-violet-100 text-violet-700 hover:bg-violet-200"
-                    : "bg-gray-50 text-gray-400 hover:bg-gray-100"
+                    ? "bg-brand-100 text-brand-700 hover:bg-brand-200"
+                    : "bg-surface-50 text-surface-400 hover:bg-surface-100"
               }`}
             >
               KW{kw}
@@ -151,7 +151,7 @@ export default function StundenplanPage() {
         <button
           onClick={() => setCurrentKw(Math.min(MAX_KW, currentKw + 1))}
           disabled={currentKw >= MAX_KW}
-          className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-30"
+          className="p-1.5 rounded-lg hover:bg-surface-100 disabled:opacity-30"
         >
           <ChevronRight size={18} />
         </button>
@@ -177,10 +177,10 @@ export default function StundenplanPage() {
       <div className="card p-0 overflow-hidden overflow-x-auto">
         <div className="min-w-[700px]">
           {/* Header */}
-          <div className="grid border-b border-gray-100" style={{ gridTemplateColumns: "48px repeat(6, 1fr)" }}>
-            <div className="py-2 text-center text-[10px] font-medium text-gray-400">KW{currentKw}</div>
+          <div className="grid border-b border-surface-100" style={{ gridTemplateColumns: "48px repeat(6, 1fr)" }}>
+            <div className="py-2 text-center text-[10px] font-medium text-surface-400">KW{currentKw}</div>
             {DAYS_SHORT.map(d => (
-              <div key={d} className="py-2.5 text-center text-sm font-semibold text-gray-600 border-l border-gray-100">{d}</div>
+              <div key={d} className="py-2.5 text-center text-sm font-semibold text-surface-600 border-l border-surface-100">{d}</div>
             ))}
           </div>
 
@@ -188,14 +188,14 @@ export default function StundenplanPage() {
           <div className="relative">
             {HOURS.map(h => (
               <div key={h} className="absolute w-full flex items-start" style={{ top: `${(h - 7) * 56}px`, height: "56px" }}>
-                <div className="w-12 text-[10px] text-gray-400 text-right pr-2 pt-0.5 shrink-0">{h}:00</div>
-                <div className="flex-1 border-t border-gray-100" />
+                <div className="w-12 text-[10px] text-surface-400 text-right pr-2 pt-0.5 shrink-0">{h}:00</div>
+                <div className="flex-1 border-t border-surface-100" />
               </div>
             ))}
 
             <div className="ml-12 grid relative" style={{ gridTemplateColumns: "repeat(6, 1fr)", height: `${14 * 56}px` }}>
               {DAYS.map((_, i) => (
-                <div key={i} className="border-l border-gray-100" />
+                <div key={i} className="border-l border-surface-100" />
               ))}
 
               {currentEntries.map(entry => {
@@ -232,7 +232,7 @@ export default function StundenplanPage() {
       </div>
 
       {currentEntries.length === 0 && (
-        <p className="text-center text-sm text-gray-400 mt-4">
+        <p className="text-center text-sm text-surface-400 mt-4">
           Keine Einträge für KW{currentKw} in {currentSemester}. Erstelle neue oder kopiere aus einer anderen KW.
         </p>
       )}
@@ -312,28 +312,28 @@ function StundenplanModal({ modules, currentKw, currentSemester, onClose, onSave
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">Neuer Eintrag</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100"><X size={16} /></button>
+        <div className="flex items-center justify-between p-5 border-b border-surface-100">
+          <h2 className="font-semibold text-surface-900">Neuer Eintrag</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Bezeichnung *</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Bezeichnung *</label>
             <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder="z.B. Mathematik 1" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tag</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Tag</label>
               <select className="input" value={form.day} onChange={e => set("day", e.target.value)}>
                 {DAYS_SHORT.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Von</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Von</label>
               <input className="input" type="time" value={form.time_start} onChange={e => set("time_start", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Bis</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Bis</label>
               <input className="input" type="time" value={form.time_end} onChange={e => set("time_end", e.target.value)} />
             </div>
           </div>
@@ -341,27 +341,27 @@ function StundenplanModal({ modules, currentKw, currentSemester, onClose, onSave
           {/* KW range */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Von KW</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Von KW</label>
               <input className="input" type="number" min="1" max={MAX_KW} value={form.kw_from} onChange={e => set("kw_from", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Bis KW</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Bis KW</label>
               <input className="input" type="number" min={form.kw_from} max={MAX_KW} value={form.kw_to} onChange={e => set("kw_to", e.target.value)} />
             </div>
           </div>
           {parseInt(form.kw_to) > parseInt(form.kw_from) && (
-            <p className="text-xs text-violet-600 -mt-2">
+            <p className="text-xs text-brand-600 -mt-2">
               Wird in {parseInt(form.kw_to) - parseInt(form.kw_from) + 1} Wochen erstellt (KW{form.kw_from}–KW{form.kw_to})
             </p>
           )}
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Raum</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Raum</label>
               <input className="input" value={form.room} onChange={e => set("room", e.target.value)} placeholder="A101" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Modul</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Modul</label>
               <select className="input" value={form.module_id} onChange={e => set("module_id", e.target.value)}>
                 <option value="">—</option>
                 {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -369,11 +369,11 @@ function StundenplanModal({ modules, currentKw, currentSemester, onClose, onSave
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Farbe</label>
+            <label className="block text-sm font-medium text-surface-700 mb-2">Farbe</label>
             <div className="flex gap-2 flex-wrap">
               {COLORS.map(c => (
                 <button key={c} type="button" onClick={() => set("color", c)}
-                  className={`w-7 h-7 rounded-full border-2 transition-transform ${form.color === c ? "border-gray-800 scale-110" : "border-transparent"}`}
+                  className={`w-7 h-7 rounded-full border-2 transition-transform ${form.color === c ? "border-surface-800 scale-110" : "border-transparent"}`}
                   style={{ background: c }} />
               ))}
             </div>

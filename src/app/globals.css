@@ -4,86 +4,121 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* BASE — Design Tokens & Defaults                                            */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
 @layer base {
   :root {
-    --brand: #7c3aed;
-    --brand-light: #8b5cf6;
-    --brand-dark: #6d28d9;
+    --brand:       #4f46e5;
+    --brand-light: #6366f1;
+    --brand-dark:  #4338ca;
+    --brand-muted: #eef2ff;
+    --radius:      0.75rem;
   }
+
   * { box-sizing: border-box; }
+
   body {
-    @apply font-sans text-gray-900 bg-gray-50;
+    @apply font-sans text-surface-800 bg-surface-50;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  .dark body {
-    @apply text-gray-100 bg-gray-950;
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-surface-900 tracking-tight;
+  }
+
+  ::selection {
+    @apply bg-brand-100 text-brand-900;
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* COMPONENTS — Reusable UI primitives                                        */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
 @layer components {
+
+  /* ── Cards ─────────────────────────────────────────────────────────────── */
   .card {
-    @apply bg-white rounded-2xl shadow-card border border-gray-100 p-5;
+    @apply bg-white rounded-2xl shadow-card border border-surface-200/60 p-5
+           transition-shadow duration-200;
   }
-  .dark .card {
-    @apply bg-gray-900 border-gray-800;
+  .card-hover {
+    @apply card hover:shadow-card-md hover:border-surface-200;
   }
+  .card-interactive {
+    @apply card hover:shadow-card-md hover:border-surface-200
+           cursor-pointer active:scale-[0.995] transition-all duration-200;
+  }
+
+  /* ── Buttons ───────────────────────────────────────────────────────────── */
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 text-white
-           font-medium text-sm hover:bg-violet-700 transition-colors disabled:opacity-50
-           disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2
-           focus-visible:ring-violet-500 focus-visible:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl
+           bg-brand-600 text-white font-medium text-sm
+           hover:bg-brand-700 active:bg-brand-800
+           transition-all duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2
+           shadow-sm hover:shadow-md;
   }
   .btn-secondary {
-    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700
-           font-medium text-sm hover:bg-gray-200 transition-colors
-           dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl
+           bg-surface-100 text-surface-700 font-medium text-sm
+           border border-surface-200/60
+           hover:bg-surface-200/70 hover:text-surface-800
+           active:bg-surface-200
+           transition-all duration-150;
   }
   .btn-ghost {
-    @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-gray-600
-           font-medium text-sm hover:bg-gray-100 transition-colors
-           dark:text-gray-400 dark:hover:bg-gray-800;
+    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg
+           text-surface-500 font-medium text-sm
+           hover:bg-surface-100 hover:text-surface-700
+           transition-all duration-150;
   }
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl
+           bg-danger-50 text-danger-700 font-medium text-sm border border-danger-100
+           hover:bg-danger-100 hover:text-danger-800
+           transition-all duration-150;
+  }
+
+  /* ── Inputs ────────────────────────────────────────────────────────────── */
   .input {
-    @apply w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm
-           focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent
-           placeholder:text-gray-400
-           dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100;
+    @apply w-full px-3 py-2 rounded-xl text-sm
+           bg-white border border-surface-200
+           text-surface-800 placeholder:text-surface-400
+           focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400
+           transition-all duration-150;
   }
+
+  /* ── Badges ────────────────────────────────────────────────────────────── */
   .badge {
     @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
   }
-  .badge-violet  { @apply badge bg-violet-100 text-violet-700; }
-  .badge-green   { @apply badge bg-green-100 text-green-700; }
-  .badge-yellow  { @apply badge bg-yellow-100 text-yellow-700; }
-  .badge-red     { @apply badge bg-red-100 text-red-700; }
-  .badge-gray    { @apply badge bg-gray-100 text-gray-600; }
-  .badge-blue    { @apply badge bg-blue-100 text-blue-700; }
+  .badge-violet  { @apply badge bg-brand-50 text-brand-700; }
+  .badge-green   { @apply badge bg-success-50 text-success-700; }
+  .badge-yellow  { @apply badge bg-warning-50 text-warning-700; }
+  .badge-red     { @apply badge bg-danger-50 text-danger-700; }
+  .badge-gray    { @apply badge bg-surface-100 text-surface-600; }
+  .badge-blue    { @apply badge bg-info-50 text-info-700; }
 }
 
-/* Mobile responsive page wrapper */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* RESPONSIVE — Mobile refinements                                            */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
 @media (max-width: 767px) {
-  /* Reduce padding on mobile for all dashboard pages */
   main > div[class*="p-6"] {
     padding: 1rem !important;
   }
-  /* Stack header buttons vertically on very small screens */
-  .flex.items-center.justify-between {
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  /* Make grid cards single column on mobile */
-  .grid.sm\:grid-cols-2 {
-    grid-template-columns: 1fr !important;
-  }
-  /* Card padding reduction */
   .card {
     padding: 1rem;
   }
-  /* Smaller headings */
   h1.text-2xl {
     font-size: 1.25rem;
   }
-  /* Modals full width on mobile */
   .fixed.inset-0 .max-w-md,
   .fixed.inset-0 .max-w-lg {
     max-width: 100% !important;
@@ -91,9 +126,16 @@
   }
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* SCROLLBAR                                                                  */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { @apply bg-transparent; }
-::-webkit-scrollbar-thumb { @apply bg-gray-300 rounded-full; }
-::-webkit-scrollbar-thumb:hover { @apply bg-gray-400; }
-.dark ::-webkit-scrollbar-thumb { @apply bg-gray-700; }
+::-webkit-scrollbar-thumb { @apply bg-surface-300/50 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-surface-400/50; }
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225 / 0.5) transparent;
+}

@@ -247,7 +247,7 @@ export default function DocumentsPage() {
         </div>
         <button
           onClick={() => { setEditDoc(null); setShowCreate(true); }}
-          className="flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition flex-shrink-0"
+          className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition flex-shrink-0"
         >
           <Plus size={16} /> Hinzufügen
         </button>
@@ -257,13 +257,13 @@ export default function DocumentsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
         <button
           onClick={() => setViewMode("flow")}
-          className={`bg-zinc-900 border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-violet-500" : "border-zinc-700 hover:border-zinc-600"}`}
+          className={`bg-zinc-900 border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-brand-500" : "border-zinc-700 hover:border-zinc-600"}`}
         >
           <p className="text-lg sm:text-2xl font-bold text-white">{stats.total}</p>
           <p className="text-xs text-zinc-400">Alle Dokumente</p>
         </button>
         <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-2 sm:p-3 text-center">
-          <p className="text-lg sm:text-2xl font-bold text-violet-400">{stats.own}</p>
+          <p className="text-lg sm:text-2xl font-bold text-brand-400">{stats.own}</p>
           <p className="text-xs text-zinc-400">Eigene</p>
         </div>
         <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-2 sm:p-3 text-center">
@@ -304,7 +304,7 @@ export default function DocumentsPage() {
         <div className="flex gap-1 sm:gap-1.5 mb-3 sm:mb-4 flex-wrap">
           <button
             onClick={() => setFilterKind("")}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${!filterKind ? "bg-violet-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700"}`}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${!filterKind ? "bg-brand-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700"}`}
           >
             Alle Typen
           </button>
@@ -315,7 +315,7 @@ export default function DocumentsPage() {
                 key={kind}
                 onClick={() => setFilterKind(filterKind === kind ? "" : kind)}
                 className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition ${
-                  filterKind === kind ? "bg-violet-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700"
+                  filterKind === kind ? "bg-brand-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700"
                 }`}
               >
                 <span style={{ color: cfg.color }}>{cfg.icon}</span> {cfg.label} ({count})
@@ -333,7 +333,7 @@ export default function DocumentsPage() {
             value={searchQ}
             onChange={e => setSearchQ(e.target.value)}
             placeholder="Dokumente durchsuchen..."
-            className="w-full bg-zinc-900 border border-zinc-700 rounded-lg pl-10 pr-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:border-violet-500 focus:outline-none transition"
+            className="w-full bg-zinc-900 border border-zinc-700 rounded-lg pl-10 pr-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:border-brand-500 focus:outline-none transition"
           />
         </div>
         <select
@@ -349,7 +349,7 @@ export default function DocumentsPage() {
             <button
               key={v}
               onClick={() => setViewMode(v)}
-              className={`p-1 sm:p-2 transition ${viewMode === v ? "bg-violet-600 text-white" : "bg-zinc-900 text-zinc-400 hover:text-white"}`}
+              className={`p-1 sm:p-2 transition ${viewMode === v ? "bg-brand-600 text-white" : "bg-zinc-900 text-zinc-400 hover:text-white"}`}
               title={v === "flow" ? "Flow — alle Quellen" : v === "grid" ? "Karten" : "Liste"}
             >
               {v === "grid" ? <LayoutGrid size={14} /> : v === "list" ? <ListIcon size={14} /> : <Workflow size={14} />}
@@ -586,7 +586,7 @@ function DocFlowView({ items, onOpenDoc }: { items: DocFlowItem[]; onOpenDoc: (d
                   >
                     <span className="mt-0.5 flex-shrink-0" style={{ color: cfg.color }}>{cfg.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <h4 className={`text-xs sm:text-sm font-medium text-white line-clamp-1 ${isOwn ? "group-hover:text-violet-300" : ""}`}>
+                      <h4 className={`text-xs sm:text-sm font-medium text-white line-clamp-1 ${isOwn ? "group-hover:text-brand-300" : ""}`}>
                         {item.pinned && <Pin size={10} className="inline mr-1 text-amber-400" />}
                         {item.title}
                       </h4>
@@ -686,7 +686,7 @@ function DocModal({
             }
           }}
           placeholder="https://..."
-          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-white placeholder:text-zinc-500 mb-3 focus:border-violet-500 focus:outline-none transition"
+          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-white placeholder:text-zinc-500 mb-3 focus:border-brand-500 focus:outline-none transition"
           autoFocus
         />
 
@@ -695,7 +695,7 @@ function DocModal({
           value={title}
           onChange={e => setTitle(e.target.value)}
           placeholder="z.B. Skript Kapitel 5, Vorlesungsfolien..."
-          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-white placeholder:text-zinc-500 mb-3 focus:border-violet-500 focus:outline-none transition"
+          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-white placeholder:text-zinc-500 mb-3 focus:border-brand-500 focus:outline-none transition"
         />
 
         <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-1.5">Typ</label>
@@ -705,7 +705,7 @@ function DocModal({
               key={k}
               onClick={() => setKind(k as Doc["kind"])}
               className={`flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-medium transition ${
-                kind === k ? "bg-violet-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white"
+                kind === k ? "bg-brand-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white"
               }`}
             >
               <span style={{ color: kind === k ? "white" : cfg.color }}>{cfg.icon}</span> {cfg.label}
@@ -749,13 +749,13 @@ function DocModal({
           value={tagsStr}
           onChange={e => setTagsStr(e.target.value)}
           placeholder="z.B. Skript, Vorlesung, Übung"
-          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white placeholder:text-zinc-500 mb-3 sm:mb-4 focus:border-violet-500 focus:outline-none transition"
+          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white placeholder:text-zinc-500 mb-3 sm:mb-4 focus:border-brand-500 focus:outline-none transition"
         />
 
         <button
           onClick={handleSave}
           disabled={saving || !url.trim()}
-          className="w-full bg-violet-600 hover:bg-violet-500 text-white py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50"
+          className="w-full bg-brand-600 hover:bg-brand-500 text-white py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50"
         >
           {saving ? "Speichern..." : isEdit ? "Änderungen speichern" : "Hinzufügen"}
         </button>

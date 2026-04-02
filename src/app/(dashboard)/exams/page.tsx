@@ -67,8 +67,8 @@ export default function ExamsPage() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Prüfungen</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{upcoming.length} bevorstehend · {past.length} vergangen</p>
+          <h1 className="text-2xl font-bold text-surface-900">Prüfungen</h1>
+          <p className="text-surface-500 text-sm mt-0.5">{upcoming.length} bevorstehend · {past.length} vergangen</p>
         </div>
         <button onClick={() => { setEditing(null); setShowForm(true); }} className="btn-primary gap-2">
           <Plus size={16} /> Prüfung
@@ -76,11 +76,11 @@ export default function ExamsPage() {
       </div>
 
       {loading ? (
-        <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />)}</div>
+        <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-20 bg-surface-100 rounded-xl animate-pulse" />)}</div>
       ) : (
         <>
           {upcoming.length === 0 && past.length === 0 ? (
-            <div className="text-center py-20 text-gray-400">
+            <div className="text-center py-20 text-surface-400">
               <GraduationCap size={48} className="mx-auto mb-3 opacity-30" />
               <p className="font-medium">Noch keine Prüfungen eingetragen</p>
             </div>
@@ -88,7 +88,7 @@ export default function ExamsPage() {
             <>
               {upcoming.length > 0 && (
                 <div className="mb-6">
-                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Bevorstehend</h2>
+                  <h2 className="text-sm font-semibold text-surface-500 uppercase tracking-wider mb-3">Bevorstehend</h2>
                   <div className="space-y-3">
                     {upcoming.map(exam => (
                       <div key={exam.id}>
@@ -108,7 +108,7 @@ export default function ExamsPage() {
               )}
               {past.length > 0 && (
                 <div>
-                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Vergangen</h2>
+                  <h2 className="text-sm font-semibold text-surface-500 uppercase tracking-wider mb-3">Vergangen</h2>
                   <div className="space-y-3 opacity-60">
                     {past.map(exam => (
                       <div key={exam.id}>
@@ -161,19 +161,19 @@ function ExamCard({ exam, modules, onEdit, onDelete, isExpanded, onToggleExpand 
         <GraduationCap size={18} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-gray-900">{exam.title}</p>
+        <p className="font-semibold text-surface-900">{exam.title}</p>
         <div className="flex flex-wrap gap-3 mt-1">
-          <span className="text-xs text-gray-500 flex items-center gap-1">
+          <span className="text-xs text-surface-500 flex items-center gap-1">
             📅 {formatDate(exam.start_dt)}
             {" "}
             {new Date(exam.start_dt).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}
           </span>
-          {exam.location && <span className="text-xs text-gray-500">📍 {exam.location}</span>}
+          {exam.location && <span className="text-xs text-surface-500">📍 {exam.location}</span>}
         </div>
       </div>
       <div className="flex items-center gap-2 shrink-0">
         <button onClick={onToggleExpand}
-          className={`p-1.5 rounded-lg transition-colors ${isExpanded ? "bg-violet-100 text-violet-600" : "text-gray-400 hover:bg-gray-100"}`}
+          className={`p-1.5 rounded-lg transition-colors ${isExpanded ? "bg-brand-100 text-brand-600" : "text-surface-400 hover:bg-surface-100"}`}
           title="Materialien & Notizen">
           <Paperclip size={14} />
         </button>
@@ -189,8 +189,8 @@ function ExamCard({ exam, modules, onEdit, onDelete, isExpanded, onToggleExpand 
           </div>
         )}
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button onClick={() => onEdit(exam)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400"><Pencil size={13} /></button>
-          <button onClick={() => onDelete(exam.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500"><Trash2 size={13} /></button>
+          <button onClick={() => onEdit(exam)} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400"><Pencil size={13} /></button>
+          <button onClick={() => onDelete(exam.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500"><Trash2 size={13} /></button>
         </div>
       </div>
     </div>
@@ -248,23 +248,23 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
   }
 
   return (
-    <div className="bg-gray-50 border border-t-0 border-gray-100 rounded-b-xl p-4 space-y-4">
+    <div className="bg-surface-50 border border-t-0 border-surface-100 rounded-b-xl p-4 space-y-4">
       {/* Action buttons */}
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+        <h3 className="text-xs font-semibold text-surface-500 uppercase tracking-wider flex items-center gap-1.5">
           <Paperclip size={12} /> Materialien & Notizen
         </h3>
         <div className="flex gap-2">
           <button onClick={() => { setShowNoteForm(!showNoteForm); setShowLinkForm(false); }}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-gray-200 text-gray-600 hover:border-violet-300 hover:text-violet-600 transition-colors">
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
             <StickyNote size={12} /> Notiz
           </button>
           <button onClick={() => { setShowLinkForm(!showLinkForm); setShowNoteForm(false); }}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-gray-200 text-gray-600 hover:border-violet-300 hover:text-violet-600 transition-colors">
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
             <Link2 size={12} /> Link
           </button>
           <button onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-gray-200 text-gray-600 hover:border-violet-300 hover:text-violet-600 transition-colors">
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
             <Upload size={12} /> Datei
           </button>
           <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileUpload}
@@ -280,7 +280,7 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
             className="input resize-none text-sm w-full" rows={3} required />
           <div className="flex gap-2 justify-end">
             <button type="button" onClick={() => setShowNoteForm(false)}
-              className="px-3 py-1.5 text-xs rounded-lg hover:bg-gray-200 text-gray-500">Abbrechen</button>
+              className="px-3 py-1.5 text-xs rounded-lg hover:bg-surface-200 text-surface-500">Abbrechen</button>
             <button type="submit" className="btn-primary text-xs px-3 py-1.5">Notiz speichern</button>
           </div>
         </form>
@@ -295,20 +295,20 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
             placeholder="Bezeichnung (optional)" className="input w-40 text-sm" />
           <button type="submit" className="btn-primary text-xs px-3 py-1.5">Hinzufügen</button>
           <button type="button" onClick={() => setShowLinkForm(false)}
-            className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-400"><X size={14} /></button>
+            className="p-1.5 rounded-lg hover:bg-surface-200 text-surface-400"><X size={14} /></button>
         </form>
       )}
 
       {loading ? (
-        <div className="h-8 bg-gray-200 rounded animate-pulse" />
+        <div className="h-8 bg-surface-200 rounded animate-pulse" />
       ) : attachments.length === 0 ? (
-        <p className="text-xs text-gray-400 text-center py-3">Noch keine Materialien oder Notizen. Füge Links, Dateien oder Notizen hinzu um alles griffbereit zu haben.</p>
+        <p className="text-xs text-surface-400 text-center py-3">Noch keine Materialien oder Notizen. Füge Links, Dateien oder Notizen hinzu um alles griffbereit zu haben.</p>
       ) : (
         <div className="space-y-3">
           {/* Notes section */}
           {notes.length > 0 && (
             <div>
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Notizen</p>
+              <p className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider mb-1.5">Notizen</p>
               <div className="space-y-1.5">
                 {notes.map(att => (
                   <div key={att.id} className="p-3 rounded-lg bg-yellow-50 border border-yellow-100 group/att">
@@ -318,7 +318,7 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
                           className="input resize-none text-sm w-full" rows={3} />
                         <div className="flex gap-2 justify-end">
                           <button onClick={() => setEditingNote(null)}
-                            className="px-2 py-1 text-xs rounded hover:bg-gray-200 text-gray-500">Abbrechen</button>
+                            className="px-2 py-1 text-xs rounded hover:bg-surface-200 text-surface-500">Abbrechen</button>
                           <button onClick={() => handleUpdateNote(att.id)}
                             className="btn-primary text-xs px-2 py-1">Speichern</button>
                         </div>
@@ -326,14 +326,14 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
                     ) : (
                       <div className="flex items-start gap-2">
                         <span className="text-sm shrink-0 mt-0.5">📝</span>
-                        <p className="text-sm text-gray-700 flex-1 whitespace-pre-wrap">{att.content}</p>
+                        <p className="text-sm text-surface-700 flex-1 whitespace-pre-wrap">{att.content}</p>
                         <div className="flex gap-1 opacity-0 group-hover/att:opacity-100 transition-opacity shrink-0">
                           <button onClick={() => { setEditingNote(att.id); setEditNoteText(att.content ?? ""); }}
-                            className="p-1 rounded hover:bg-yellow-200 text-gray-400 hover:text-gray-600">
+                            className="p-1 rounded hover:bg-yellow-200 text-surface-400 hover:text-surface-600">
                             <Pencil size={12} />
                           </button>
                           <button onClick={() => remove(att)}
-                            className="p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-500">
+                            className="p-1 rounded hover:bg-red-50 text-surface-300 hover:text-red-500">
                             <Trash2 size={12} />
                           </button>
                         </div>
@@ -348,21 +348,21 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
           {/* Links section */}
           {links.length > 0 && (
             <div>
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Links</p>
+              <p className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider mb-1.5">Links</p>
               <div className="space-y-1.5">
                 {links.map(att => (
-                  <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-gray-100 group/att hover:border-violet-200 transition-colors">
+                  <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-surface-100 group/att hover:border-brand-200 transition-colors">
                     <span className="text-sm shrink-0">🔗</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-gray-800 truncate">{att.label || att.url}</p>
-                      <p className="text-[10px] text-gray-400 truncate">{att.url}</p>
+                      <p className="text-xs font-medium text-surface-800 truncate">{att.label || att.url}</p>
+                      <p className="text-[10px] text-surface-400 truncate">{att.url}</p>
                     </div>
                     <a href={att.url} target="_blank" rel="noopener noreferrer"
-                      className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-violet-600 transition-colors">
+                      className="p-1 rounded hover:bg-surface-100 text-surface-400 hover:text-brand-600 transition-colors">
                       <ExternalLink size={13} />
                     </a>
                     <button onClick={() => remove(att)}
-                      className="p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-500 opacity-0 group-hover/att:opacity-100 transition-all">
+                      className="p-1 rounded hover:bg-red-50 text-surface-300 hover:text-red-500 opacity-0 group-hover/att:opacity-100 transition-all">
                       <Trash2 size={13} />
                     </button>
                   </div>
@@ -374,24 +374,24 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
           {/* Files section */}
           {files.length > 0 && (
             <div>
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Dateien</p>
+              <p className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider mb-1.5">Dateien</p>
               <div className="space-y-1.5">
                 {files.map(att => (
-                  <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-gray-100 group/att hover:border-violet-200 transition-colors">
+                  <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-surface-100 group/att hover:border-brand-200 transition-colors">
                     <span className="text-sm shrink-0">{fileIcon(att.kind, att.file_type)}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-gray-800 truncate">{att.label || att.url}</p>
+                      <p className="text-xs font-medium text-surface-800 truncate">{att.label || att.url}</p>
                       {att.file_size > 0 && (
-                        <p className="text-[10px] text-gray-400">{att.file_type?.toUpperCase()} · {humanSize(att.file_size)}</p>
+                        <p className="text-[10px] text-surface-400">{att.file_type?.toUpperCase()} · {humanSize(att.file_size)}</p>
                       )}
                     </div>
                     <a href={getDownloadUrl(att) ?? att.url} target="_blank" rel="noopener noreferrer"
-                      className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-violet-600 transition-colors"
+                      className="p-1 rounded hover:bg-surface-100 text-surface-400 hover:text-brand-600 transition-colors"
                       title="Öffnen">
                       <ExternalLink size={13} />
                     </a>
                     <button onClick={() => remove(att)}
-                      className="p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-500 opacity-0 group-hover/att:opacity-100 transition-all"
+                      className="p-1 rounded hover:bg-red-50 text-surface-300 hover:text-red-500 opacity-0 group-hover/att:opacity-100 transition-all"
                       title="Entfernen">
                       <Trash2 size={13} />
                     </button>
@@ -451,39 +451,39 @@ function ExamModal({ initial, modules, onClose, onSaved }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">{initial ? "Prüfung bearbeiten" : "Prüfung hinzufügen"}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100"><X size={16} /></button>
+        <div className="flex items-center justify-between p-5 border-b border-surface-100">
+          <h2 className="font-semibold text-surface-900">{initial ? "Prüfung bearbeiten" : "Prüfung hinzufügen"}</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Prüfungsname *</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Prüfungsname *</label>
             <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder="z.B. Mathematik 1 Prüfung" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Datum *</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Datum *</label>
               <input className="input" type="date" required value={form.date} onChange={e => set("date", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Uhrzeit</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Uhrzeit</label>
               <input className="input" type="time" value={form.time} onChange={e => set("time", e.target.value)} />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Raum / Ort</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Raum / Ort</label>
             <input className="input" value={form.location} onChange={e => set("location", e.target.value)} placeholder="Prüfungsraum…" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notizen</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Notizen</label>
             <textarea className="input resize-none" rows={2} value={form.description} onChange={e => set("description", e.target.value)} placeholder="Erlaubte Hilfsmittel, etc." />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Farbe</label>
+            <label className="block text-sm font-medium text-surface-700 mb-2">Farbe</label>
             <div className="flex gap-2">
               {COLORS.map(c => (
                 <button key={c} type="button" onClick={() => set("color", c)}
-                  className={`w-7 h-7 rounded-full border-2 transition-transform ${form.color === c ? "border-gray-800 scale-110" : "border-transparent"}`}
+                  className={`w-7 h-7 rounded-full border-2 transition-transform ${form.color === c ? "border-surface-800 scale-110" : "border-transparent"}`}
                   style={{ background: c }} />
               ))}
             </div>

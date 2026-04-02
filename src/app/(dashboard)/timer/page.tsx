@@ -287,19 +287,19 @@ export default function TimerPage() {
   return (
     <div className="p-3 sm:p-6 max-w-4xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Lern-Timer</h1>
-        <p className="text-gray-500 text-sm mt-0.5">Pomodoro-Technik & Lernzeit-Tracking</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-surface-900">Lern-Timer</h1>
+        <p className="text-surface-500 text-sm mt-0.5">Pomodoro-Technik & Lernzeit-Tracking</p>
       </div>
 
       {/* Stats row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="card text-center">
-          <p className="text-3xl font-bold text-violet-600">{formatDuration(todaySecs)}</p>
-          <p className="text-sm text-gray-500 mt-1">Heute gelernt</p>
+          <p className="text-3xl font-bold text-brand-600">{formatDuration(todaySecs)}</p>
+          <p className="text-sm text-surface-500 mt-1">Heute gelernt</p>
         </div>
         <div className="card text-center">
-          <p className="text-3xl font-bold text-indigo-600">{formatDuration(weekSecs)}</p>
-          <p className="text-sm text-gray-500 mt-1">Diese Woche</p>
+          <p className="text-3xl font-bold text-brand-700">{formatDuration(weekSecs)}</p>
+          <p className="text-sm text-surface-500 mt-1">Diese Woche</p>
         </div>
         <div className="card text-center">
           <div className="flex items-center justify-center gap-1">
@@ -307,7 +307,7 @@ export default function TimerPage() {
               <span key={i} className={`text-2xl ${i < pomodoroCount % 4 ? "" : "opacity-20"}`}>🍅</span>
             ))}
           </div>
-          <p className="text-sm text-gray-500 mt-1">{pomodoroCount} Pomodoro{pomodoroCount !== 1 ? "s" : ""}</p>
+          <p className="text-sm text-surface-500 mt-1">{pomodoroCount} Pomodoro{pomodoroCount !== 1 ? "s" : ""}</p>
         </div>
       </div>
 
@@ -320,7 +320,7 @@ export default function TimerPage() {
             className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
               mode === key
                 ? "text-white shadow-sm"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                : "bg-surface-100 text-surface-600 hover:bg-surface-200"
             }`}
             style={mode === key ? { background: preset.color } : {}}
             disabled={running}
@@ -339,8 +339,8 @@ export default function TimerPage() {
               onClick={() => { setTargetSeconds(d.seconds); setShowCustom(false); }}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 targetSeconds === d.seconds && !showCustom
-                  ? "bg-violet-100 text-violet-700 ring-1 ring-violet-300"
-                  : "bg-gray-50 text-gray-500 hover:bg-gray-100"
+                  ? "bg-brand-100 text-brand-700 ring-1 ring-brand-300"
+                  : "bg-surface-50 text-surface-500 hover:bg-surface-100"
               }`}
             >
               {d.label}
@@ -352,8 +352,8 @@ export default function TimerPage() {
               onClick={() => setShowCustom(true)}
               className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 !FOCUS_DURATIONS.some(d => d.seconds === targetSeconds)
-                  ? "bg-violet-100 text-violet-700 ring-1 ring-violet-300"
-                  : "bg-gray-50 text-gray-500 hover:bg-gray-100"
+                  ? "bg-brand-100 text-brand-700 ring-1 ring-brand-300"
+                  : "bg-surface-50 text-surface-500 hover:bg-surface-100"
               }`}
             >
               <SlidersHorizontal size={12} /> Individuell
@@ -368,18 +368,18 @@ export default function TimerPage() {
                 onChange={e => setCustomMinutes(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && applyCustomDuration()}
                 placeholder="Min."
-                className="w-20 px-2 py-1.5 rounded-lg border border-violet-300 text-xs text-center focus:outline-none focus:ring-2 focus:ring-violet-400"
+                className="w-20 px-2 py-1.5 rounded-lg border border-brand-300 text-xs text-center focus:outline-none focus:ring-2 focus:ring-brand-400"
                 autoFocus
               />
               <button
                 onClick={applyCustomDuration}
-                className="px-2.5 py-1.5 rounded-lg bg-violet-600 text-white text-xs font-medium hover:bg-violet-700"
+                className="px-2.5 py-1.5 rounded-lg bg-brand-600 text-white text-xs font-medium hover:bg-brand-700"
               >
                 OK
               </button>
               <button
                 onClick={() => setShowCustom(false)}
-                className="px-2 py-1.5 rounded-lg text-gray-400 hover:bg-gray-100 text-xs"
+                className="px-2 py-1.5 rounded-lg text-surface-400 hover:bg-surface-100 text-xs"
               >
                 ✕
               </button>
@@ -387,7 +387,7 @@ export default function TimerPage() {
           )}
           {/* Show current custom if not a preset */}
           {!showCustom && !FOCUS_DURATIONS.some(d => d.seconds === targetSeconds) && (
-            <span className="text-xs text-violet-600 font-medium">
+            <span className="text-xs text-brand-600 font-medium">
               ({Math.round(targetSeconds / 60)} Min.)
             </span>
           )}
@@ -410,7 +410,7 @@ export default function TimerPage() {
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-4xl font-mono font-bold text-gray-900">{timeStr}</span>
+              <span className="text-4xl font-mono font-bold text-surface-900">{timeStr}</span>
               <span className="text-xs mt-1 font-medium" style={{ color: currentPreset.color }}>
                 {running && !paused ? currentPreset.label : paused ? "Pausiert" : "Bereit"}
               </span>
@@ -420,7 +420,7 @@ export default function TimerPage() {
 
         {/* Context label while running */}
         {running && contextLabel && (
-          <p className="text-sm text-gray-500 mb-4 -mt-2 truncate max-w-md mx-auto">{contextLabel}</p>
+          <p className="text-sm text-surface-500 mb-4 -mt-2 truncate max-w-md mx-auto">{contextLabel}</p>
         )}
 
         {/* Module + Context selectors */}
@@ -438,7 +438,7 @@ export default function TimerPage() {
             {/* Toggle for extended context */}
             <button
               onClick={() => setShowContext(!showContext)}
-              className="flex items-center gap-1.5 mx-auto text-xs text-gray-400 hover:text-violet-600 transition-colors"
+              className="flex items-center gap-1.5 mx-auto text-xs text-surface-400 hover:text-brand-600 transition-colors"
             >
               {showContext ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               {showContext ? "Weniger Optionen" : "Prüfung, Wissensthema oder Aufgabe wählen"}
@@ -446,7 +446,7 @@ export default function TimerPage() {
 
             {/* Extended selectors */}
             {showContext && (
-              <div className="grid grid-cols-1 gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="grid grid-cols-1 gap-2 p-3 bg-surface-50 rounded-xl border border-surface-100">
                 {/* Exam selector */}
                 <div className="flex items-center gap-2">
                   <GraduationCap size={14} className="text-red-400 shrink-0" />
@@ -484,7 +484,7 @@ export default function TimerPage() {
 
                 {/* Context summary */}
                 {contextLabel && (
-                  <p className="text-[10px] text-gray-400 mt-1 text-center truncate">
+                  <p className="text-[10px] text-surface-400 mt-1 text-center truncate">
                     Lernkontext: {contextLabel}
                   </p>
                 )}
@@ -504,7 +504,7 @@ export default function TimerPage() {
               <button onClick={paused ? resume : pause} className="btn-secondary gap-2 px-6 py-2.5">
                 {paused ? <><Play size={16} /> Weiter</> : <><Pause size={16} /> Pause</>}
               </button>
-              <button onClick={reset} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium transition-colors">
+              <button onClick={reset} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface-100 hover:bg-surface-200 text-surface-600 font-medium transition-colors">
                 <RotateCcw size={16} /> Reset
               </button>
               <button onClick={stop} className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-medium transition-colors">
@@ -516,15 +516,15 @@ export default function TimerPage() {
 
         {/* Settings */}
         {!running && (
-          <div className="flex justify-center gap-6 mt-5 pt-4 border-t border-gray-100">
-            <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+          <div className="flex justify-center gap-6 mt-5 pt-4 border-t border-surface-100">
+            <label className="flex items-center gap-2 text-sm text-surface-600 cursor-pointer">
               <input type="checkbox" checked={autoBreak} onChange={e => setAutoBreak(e.target.checked)}
-                className="rounded border-gray-300 text-violet-600 focus:ring-violet-500" />
+                className="rounded border-surface-300 text-brand-600 focus:ring-brand-500" />
               Auto-Pause
             </label>
-            <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+            <label className="flex items-center gap-2 text-sm text-surface-600 cursor-pointer">
               <input type="checkbox" checked={useCountdown} onChange={e => setUseCountdown(e.target.checked)}
-                className="rounded border-gray-300 text-violet-600 focus:ring-violet-500" />
+                className="rounded border-surface-300 text-brand-600 focus:ring-brand-500" />
               Countdown
             </label>
           </div>
@@ -533,9 +533,9 @@ export default function TimerPage() {
 
       {/* Logs */}
       <div>
-        <h2 className="font-semibold text-gray-900 mb-3">Letzte Sitzungen</h2>
+        <h2 className="font-semibold text-surface-900 mb-3">Letzte Sitzungen</h2>
         {logs.length === 0 ? (
-          <div className="text-center py-10 text-gray-400">
+          <div className="text-center py-10 text-surface-400">
             <Timer size={32} className="mx-auto mb-2 opacity-30" />
             <p className="text-sm">Noch keine Sitzungen aufgezeichnet.</p>
           </div>
@@ -583,33 +583,33 @@ function SessionLogRow({ log, contextLabel, onDelete, onNoteUpdated }: {
   }
 
   return (
-    <div className="rounded-xl bg-white border border-gray-100 hover:border-violet-200 group transition-colors">
+    <div className="rounded-xl bg-white border border-surface-100 hover:border-brand-200 group transition-colors">
       {/* Main row */}
       <div className="flex items-center gap-3 p-3">
         <div className="w-2.5 h-2.5 rounded-full shrink-0"
           style={{ background: log.modules?.color ?? "#6d28d9" }} />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-800 truncate">{contextLabel}</p>
+          <p className="text-sm font-medium text-surface-800 truncate">{contextLabel}</p>
           <div className="flex items-center gap-2 mt-0.5">
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-surface-400">
               {new Date(log.started_at).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" })} ·{" "}
               {new Date(log.started_at).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}
             </p>
             {!editingNote && log.note && (
-              <span className="text-xs text-gray-400 truncate">· {log.note}</span>
+              <span className="text-xs text-surface-400 truncate">· {log.note}</span>
             )}
           </div>
         </div>
-        <span className="text-sm font-semibold text-violet-600 shrink-0">{formatDuration(log.duration_seconds ?? 0)}</span>
+        <span className="text-sm font-semibold text-brand-600 shrink-0">{formatDuration(log.duration_seconds ?? 0)}</span>
         <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
           <button
             onClick={() => { setEditingNote(!editingNote); setNoteText(log.note ?? ""); }}
-            className={`p-1.5 rounded-lg transition-colors ${editingNote ? "bg-violet-100 text-violet-600" : "hover:bg-gray-100 text-gray-400"}`}
+            className={`p-1.5 rounded-lg transition-colors ${editingNote ? "bg-brand-100 text-brand-600" : "hover:bg-surface-100 text-surface-400"}`}
             title="Notiz bearbeiten"
           >
             <StickyNote size={13} />
           </button>
-          <button onClick={() => onDelete(log.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500">
+          <button onClick={() => onDelete(log.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500">
             <Trash2 size={13} />
           </button>
         </div>
@@ -635,21 +635,21 @@ function SessionLogRow({ log, contextLabel, onDelete, onNoteUpdated }: {
               <button
                 onClick={saveNote}
                 disabled={saving}
-                className="p-1.5 rounded-lg bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-50"
+                className="p-1.5 rounded-lg bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50"
                 title="Speichern (Ctrl+Enter)"
               >
                 {saving ? <span className="w-3 h-3 block border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save size={13} />}
               </button>
               <button
                 onClick={cancelEdit}
-                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400"
+                className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400"
                 title="Abbrechen (Esc)"
               >
                 <X size={13} />
               </button>
             </div>
           </div>
-          <p className="text-[10px] text-gray-400 mt-1">Ctrl+Enter zum Speichern · Esc zum Abbrechen</p>
+          <p className="text-[10px] text-surface-400 mt-1">Ctrl+Enter zum Speichern · Esc zum Abbrechen</p>
         </div>
       )}
     </div>

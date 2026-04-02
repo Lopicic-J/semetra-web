@@ -120,11 +120,11 @@ export default function TimelinePage() {
     <div className="p-6 max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Calendar className="text-violet-600" size={26} />
+          <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
+            <Calendar className="text-brand-600" size={26} />
             Timeline
           </h1>
-          <p className="text-gray-500 text-sm mt-0.5">
+          <p className="text-surface-500 text-sm mt-0.5">
             {items.length} Einträge
             {overdueCount > 0 && <span className="text-red-500 font-medium ml-1">· {overdueCount} überfällig</span>}
           </p>
@@ -133,26 +133,26 @@ export default function TimelinePage() {
 
       {/* Filters */}
       <div className="flex items-center gap-3 mb-6 flex-wrap">
-        <div className="flex gap-1 bg-gray-100 rounded-xl p-1">
+        <div className="flex gap-1 bg-surface-100 rounded-xl p-1">
           {RANGES.map(r => (
             <button key={r.days} onClick={() => setRangeDays(r.days)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                rangeDays === r.days ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                rangeDays === r.days ? "bg-white text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"
               }`}>
               {r.label}
             </button>
           ))}
         </div>
-        <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+        <label className="flex items-center gap-2 text-sm text-surface-600 cursor-pointer">
           <input type="checkbox" checked={showOverdue} onChange={e => setShowOverdue(e.target.checked)}
-            className="rounded border-gray-300 text-violet-600 focus:ring-violet-500" />
+            className="rounded border-surface-300 text-brand-600 focus:ring-brand-500" />
           Überfällige zeigen
         </label>
       </div>
 
       {/* Timeline */}
       {items.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20 text-surface-400">
           <Calendar size={48} className="mx-auto mb-3 opacity-30" />
           <p className="font-medium">Keine Einträge im gewählten Zeitraum</p>
           <p className="text-sm mt-1">Erstelle Aufgaben mit Fälligkeitsdaten oder trage Prüfungen ein.</p>
@@ -169,13 +169,13 @@ export default function TimelinePage() {
                 <div className="flex items-center gap-2 mb-3">
                   {isOverdue && <AlertTriangle size={14} className="text-red-500" />}
                   <h2 className={`text-sm font-semibold uppercase tracking-wider ${
-                    isOverdue ? "text-red-500" : label === "Heute" ? "text-violet-600" : "text-gray-400"
+                    isOverdue ? "text-red-500" : label === "Heute" ? "text-brand-600" : "text-surface-400"
                   }`}>
                     {label}
                   </h2>
-                  <span className="text-xs text-gray-400">({group.length})</span>
+                  <span className="text-xs text-surface-400">({group.length})</span>
                 </div>
-                <div className="space-y-2 relative pl-6 border-l-2 border-gray-100">
+                <div className="space-y-2 relative pl-6 border-l-2 border-surface-100">
                   {group.map(item => (
                     <div key={item.id} className="relative">
                       {/* Timeline dot */}
@@ -183,13 +183,13 @@ export default function TimelinePage() {
                         item.type === "exam" ? "bg-red-500" :
                         isOverdue ? "bg-red-400" :
                         item.daysLeft <= 3 ? "bg-amber-400" :
-                        "bg-violet-400"
+                        "bg-brand-400"
                       }`} />
 
                       <div className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${
                         isOverdue
                           ? "border-red-200 bg-red-50/50"
-                          : "border-gray-100 hover:border-violet-200 bg-white"
+                          : "border-surface-100 hover:border-brand-200 bg-white"
                       }`}>
                         {/* Icon */}
                         <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
@@ -202,27 +202,27 @@ export default function TimelinePage() {
 
                         {/* Content */}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-800 truncate">{item.title}</p>
+                          <p className="text-sm font-medium text-surface-800 truncate">{item.title}</p>
                           <div className="flex items-center gap-2 mt-0.5">
                             {item.moduleName && (
-                              <span className="text-[10px] text-gray-500">{item.moduleName}</span>
+                              <span className="text-[10px] text-surface-500">{item.moduleName}</span>
                             )}
                             {item.location && (
-                              <span className="text-[10px] text-gray-400">· {item.location}</span>
+                              <span className="text-[10px] text-surface-400">· {item.location}</span>
                             )}
                           </div>
                         </div>
 
                         {/* Date + badge */}
                         <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-surface-500">
                             {item.date.toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" })}
                           </span>
                           <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                             item.type === "exam" ? "bg-red-100 text-red-700" :
                             item.priority === "high" ? "bg-red-100 text-red-700" :
                             item.priority === "medium" ? "bg-amber-100 text-amber-700" :
-                            "bg-gray-100 text-gray-600"
+                            "bg-surface-100 text-surface-600"
                           }`}>
                             {item.type === "exam" ? "Prüfung" :
                               item.daysLeft < 0 ? `${Math.abs(item.daysLeft)}d überfällig` :

@@ -57,14 +57,14 @@ function CardDialog({
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">
+        <h3 className="text-lg font-bold text-surface-900 mb-4">
           {card ? "Karteikarte bearbeiten" : "Neue Karteikarte"}
         </h3>
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium text-gray-500 mb-1 block">Modul</label>
+              <label className="text-xs font-medium text-surface-500 mb-1 block">Modul</label>
               <select
                 className="input w-full"
                 value={moduleId}
@@ -77,7 +77,7 @@ function CardDialog({
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-500 mb-1 block">Deck</label>
+              <label className="text-xs font-medium text-surface-500 mb-1 block">Deck</label>
               <input
                 className="input w-full"
                 value={deckName}
@@ -88,7 +88,7 @@ function CardDialog({
           </div>
 
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Vorderseite (Frage)</label>
+            <label className="text-xs font-medium text-surface-500 mb-1 block">Vorderseite (Frage)</label>
             <textarea
               className="input w-full min-h-[80px] resize-y"
               value={front}
@@ -98,7 +98,7 @@ function CardDialog({
           </div>
 
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Rückseite (Antwort)</label>
+            <label className="text-xs font-medium text-surface-500 mb-1 block">Rückseite (Antwort)</label>
             <textarea
               className="input w-full min-h-[80px] resize-y"
               value={back}
@@ -151,8 +151,8 @@ function StudyMode({
         <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
           <Check className="text-green-600" size={36} />
         </div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Geschafft!</h2>
-        <p className="text-gray-500 mb-6">Alle Karteikarten für heute wiederholt.</p>
+        <h2 className="text-xl font-bold text-surface-900 mb-2">Geschafft!</h2>
+        <p className="text-surface-500 mb-6">Alle Karteikarten für heute wiederholt.</p>
         <button onClick={onClose} className="btn-primary">Zurück</button>
       </div>
     );
@@ -170,7 +170,7 @@ function StudyMode({
         <button onClick={onClose} className="btn-ghost text-sm gap-1">
           <ChevronLeft size={14} /> Zurück
         </button>
-        <span className="text-sm text-gray-400">{idx + 1} / {cards.length}</span>
+        <span className="text-sm text-surface-400">{idx + 1} / {cards.length}</span>
       </div>
 
       <div
@@ -179,14 +179,14 @@ function StudyMode({
           hover:shadow-lg transition-all select-none"
       >
         <div className="text-center">
-          <p className="text-xs font-semibold text-violet-600 mb-3">
+          <p className="text-xs font-semibold text-brand-600 mb-3">
             {flipped ? "ANTWORT" : "FRAGE"}
           </p>
-          <p className="text-lg text-gray-800 whitespace-pre-wrap">
+          <p className="text-lg text-surface-800 whitespace-pre-wrap">
             {flipped ? card.back : card.front}
           </p>
           {!flipped && (
-            <p className="text-xs text-gray-400 mt-4 flex items-center justify-center gap-1">
+            <p className="text-xs text-surface-400 mt-4 flex items-center justify-center gap-1">
               <Eye size={12} /> Tippe zum Aufdecken
             </p>
           )}
@@ -223,9 +223,9 @@ function StudyMode({
       )}
 
       {/* Progress bar */}
-      <div className="mt-6 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+      <div className="mt-6 h-1.5 bg-surface-100 rounded-full overflow-hidden">
         <div
-          className="h-full bg-violet-500 rounded-full transition-all"
+          className="h-full bg-brand-500 rounded-full transition-all"
           style={{ width: `${((idx) / cards.length) * 100}%` }}
         />
       </div>
@@ -389,14 +389,14 @@ export default function FlashcardsPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <BookOpen className="text-violet-600" size={26} />
+          <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
+            <BookOpen className="text-brand-600" size={26} />
             Karteikarten
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-surface-500 text-sm mt-1">
             {cards.length} Karten · {userCount} eigene · {aiCount} KI-generiert
             {dueCards.length > 0 && (
-              <span className="text-violet-600 font-medium"> · {dueCards.length} fällig</span>
+              <span className="text-brand-600 font-medium"> · {dueCards.length} fällig</span>
             )}
           </p>
         </div>
@@ -481,11 +481,11 @@ export default function FlashcardsPage() {
         return (
           <div className="mb-6 space-y-2">
             {Array.from(docs.entries()).map(([doc, docCards]) => (
-              <div key={doc} className="flex items-center justify-between bg-violet-50 rounded-xl px-4 py-2.5">
+              <div key={doc} className="flex items-center justify-between bg-brand-50 rounded-xl px-4 py-2.5">
                 <div className="flex items-center gap-2">
-                  <Sparkles size={14} className="text-violet-600" />
-                  <span className="text-sm font-medium text-violet-800">{doc}</span>
-                  <span className="text-xs text-violet-500">({docCards.length} Karten)</span>
+                  <Sparkles size={14} className="text-brand-600" />
+                  <span className="text-sm font-medium text-brand-800">{doc}</span>
+                  <span className="text-xs text-brand-500">({docCards.length} Karten)</span>
                 </div>
                 <button
                   onClick={() => handleDeleteAiBatch(doc)}
@@ -502,10 +502,10 @@ export default function FlashcardsPage() {
       {/* Cards list */}
       {loading ? (
         <div className="text-center py-12">
-          <Loader2 className="animate-spin mx-auto text-violet-400" size={32} />
+          <Loader2 className="animate-spin mx-auto text-brand-400" size={32} />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
+        <div className="text-center py-12 text-surface-400">
           <BookOpen size={40} className="mx-auto mb-3 opacity-30" />
           <p className="font-medium">Keine Karteikarten</p>
           <p className="text-sm mt-1">Erstelle deine erste Karteikarte oder lade ein Dokument hoch.</p>
@@ -520,11 +520,11 @@ export default function FlashcardsPage() {
               {/* Source badge */}
               <div className="flex items-center gap-2 mb-2">
                 {card.source === "ai" ? (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
                     <Sparkles size={10} /> KI
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-surface-500 bg-surface-50 px-2 py-0.5 rounded-full">
                     Eigene
                   </span>
                 )}
@@ -537,25 +537,25 @@ export default function FlashcardsPage() {
                   </span>
                 )}
                 {card.deck_name !== "Standard" && (
-                  <span className="text-[10px] text-gray-400">{card.deck_name}</span>
+                  <span className="text-[10px] text-surface-400">{card.deck_name}</span>
                 )}
               </div>
 
               {/* Content */}
-              <p className="text-sm font-medium text-gray-800 mb-1 line-clamp-2">{card.front}</p>
-              <p className="text-xs text-gray-500 line-clamp-2">{card.back}</p>
+              <p className="text-sm font-medium text-surface-800 mb-1 line-clamp-2">{card.front}</p>
+              <p className="text-xs text-surface-500 line-clamp-2">{card.back}</p>
 
               {/* Actions */}
               <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
                 <button
                   onClick={() => { setEditCard(card); setShowDialog(true); }}
-                  className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                  className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400 hover:text-surface-600"
                 >
                   <BookOpen size={14} />
                 </button>
                 <button
                   onClick={() => handleDelete(card.id)}
-                  className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500"
+                  className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500"
                 >
                   <Trash2 size={14} />
                 </button>

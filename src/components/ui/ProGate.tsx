@@ -24,7 +24,7 @@ export function ProGate({ feature, isPro, children, overlay = false }: ProGatePr
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/60 backdrop-blur-sm rounded-xl">
           <Link
             href="/upgrade"
-            className="flex items-center gap-2 bg-violet-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg hover:bg-violet-700 transition-colors"
+            className="flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg hover:bg-brand-700 transition-colors"
           >
             <Lock size={14} />
             Pro-Feature freischalten
@@ -36,8 +36,8 @@ export function ProGate({ feature, isPro, children, overlay = false }: ProGatePr
 
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="w-20 h-20 rounded-full bg-violet-50 flex items-center justify-center mb-4">
-        <Lock className="text-violet-500" size={32} />
+      <div className="w-20 h-20 rounded-full bg-brand-50 flex items-center justify-center mb-4">
+        <Lock className="text-brand-500" size={32} />
       </div>
       <h2 className="text-lg font-bold text-gray-900 mb-1">{PRO_FEATURES[feature]}</h2>
       <p className="text-gray-500 text-sm mb-5">
@@ -45,7 +45,7 @@ export function ProGate({ feature, isPro, children, overlay = false }: ProGatePr
       </p>
       <Link
         href="/upgrade"
-        className="flex items-center gap-2 bg-violet-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-violet-700 transition-colors"
+        className="flex items-center gap-2 bg-brand-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-brand-700 transition-colors"
       >
         <Zap size={15} />
         Jetzt upgraden — ab CHF 3.33/Mt.
@@ -90,7 +90,7 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-br from-violet-600 to-indigo-600 p-6 text-white relative">
+        <div className="bg-gradient-to-br from-brand-600 to-brand-800 p-6 text-white relative">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/20 transition-colors"
@@ -102,7 +102,7 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
             <span className="font-bold text-lg">Semetra Pro</span>
           </div>
           {feature && (
-            <p className="text-violet-200 text-sm">
+            <p className="text-brand-200 text-sm">
               Schalte <strong className="text-white">{PRO_FEATURES[feature]}</strong> und alle weiteren Pro-Features frei.
             </p>
           )}
@@ -117,14 +117,14 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
                 onClick={() => setSelectedTier(t.key)}
                 className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-colors ${
                   selectedTier === t.key
-                    ? "border-violet-600 bg-violet-50"
+                    ? "border-violet-600 bg-brand-50"
                     : "border-gray-200 hover:border-gray-300"
                 }`}
               >
                 <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
                   selectedTier === t.key ? "border-violet-600" : "border-gray-300"
                 }`}>
-                  {selectedTier === t.key && <div className="w-2 h-2 rounded-full bg-violet-600" />}
+                  {selectedTier === t.key && <div className="w-2 h-2 rounded-full bg-brand-600" />}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
@@ -137,7 +137,7 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
                   </div>
                   <span className="text-xs text-gray-500">{t.sub}</span>
                 </div>
-                <span className="text-sm font-bold text-violet-600">{t.price}</span>
+                <span className="text-sm font-bold text-brand-600">{t.price}</span>
               </button>
             ))}
           </div>
@@ -146,7 +146,7 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
           <div className="space-y-2 mb-5">
             {PLANS.pro.features.map(f => (
               <div key={f} className="flex items-center gap-2.5 text-sm text-gray-700">
-                <Check size={16} className="text-violet-600 shrink-0" />
+                <Check size={16} className="text-brand-600 shrink-0" />
                 <span>{f}</span>
               </div>
             ))}
@@ -161,7 +161,7 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
           <button
             onClick={handleUpgrade}
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-violet-600 text-white font-semibold hover:bg-violet-700 transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors flex items-center justify-center gap-2"
           >
             {loading
               ? <><Loader2 size={16} className="animate-spin" /> Weiterleitung zu Stripe...</>

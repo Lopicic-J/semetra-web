@@ -106,11 +106,11 @@ export default function StudiengaengePage() {
     return (
       <div className="p-6 max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <GraduationCap className="text-violet-600" size={26} />
+          <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
+            <GraduationCap className="text-brand-600" size={26} />
             FH-Voreinstellungen
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-surface-500 text-sm mt-1">
             Importiere alle Module deiner Fachhochschule automatisch.
           </p>
         </div>
@@ -124,11 +124,11 @@ export default function StudiengaengePage() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <GraduationCap className="text-violet-600" size={26} />
+        <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
+          <GraduationCap className="text-brand-600" size={26} />
           FH-Voreinstellungen
         </h1>
-        <p className="text-gray-500 text-sm mt-1">
+        <p className="text-surface-500 text-sm mt-1">
           Wähle deine Fachhochschule und deinen Studiengang — alle Module werden als Voreinstellung importiert.
         </p>
       </div>
@@ -141,8 +141,8 @@ export default function StudiengaengePage() {
               onClick={() => setActiveFh(null)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 activeFh === null
-                  ? "bg-violet-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-brand-600 text-white"
+                  : "bg-surface-100 text-surface-600 hover:bg-surface-200"
               }`}
             >
               Alle FHs ({programmes.length})
@@ -154,7 +154,7 @@ export default function StudiengaengePage() {
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   activeFh === fh
                     ? "text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    : "bg-surface-100 text-surface-600 hover:bg-surface-200"
                 }`}
                 style={activeFh === fh ? { background: FH_INFO[fh]?.color ?? "#6d28d9" } : undefined}
               >
@@ -175,8 +175,8 @@ export default function StudiengaengePage() {
                     <Building2 size={16} />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 text-sm">{fh}</p>
-                    <p className="text-xs text-gray-400">{FH_INFO[fh]?.full ?? fh}</p>
+                    <p className="font-semibold text-surface-900 text-sm">{fh}</p>
+                    <p className="text-xs text-surface-400">{FH_INFO[fh]?.full ?? fh}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -184,7 +184,7 @@ export default function StudiengaengePage() {
                     <button
                       key={p.id}
                       onClick={() => pickProgram(p)}
-                      className="card p-4 text-left hover:shadow-md hover:border-violet-200 border border-transparent transition-all group"
+                      className="card p-4 text-left hover:shadow-md hover:border-brand-200 border border-transparent transition-all group"
                     >
                       <div className="flex items-start gap-3">
                         <div
@@ -194,13 +194,13 @@ export default function StudiengaengePage() {
                           <BookOpen style={{ color: FH_INFO[fh]?.color ?? "#6d28d9" }} size={20} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 text-sm truncate">{p.name}</p>
-                          <p className="text-xs text-gray-500 mt-0.5">{p.abschluss} · {p.semester_count} Semester</p>
+                          <p className="font-semibold text-surface-900 text-sm truncate">{p.name}</p>
+                          <p className="text-xs text-surface-500 mt-0.5">{p.abschluss} · {p.semester_count} Semester</p>
                           <p className="text-xs font-medium mt-1" style={{ color: FH_INFO[fh]?.color ?? "#6d28d9" }}>
                             {p.ects_total} ECTS · {(p.modules_json ?? []).length} Module
                           </p>
                         </div>
-                        <ChevronRight size={16} className="text-gray-300 group-hover:text-violet-500 mt-1 transition-colors shrink-0" />
+                        <ChevronRight size={16} className="text-surface-300 group-hover:text-brand-500 mt-1 transition-colors shrink-0" />
                       </div>
                     </button>
                   ))}
@@ -210,7 +210,7 @@ export default function StudiengaengePage() {
           </div>
 
           {programmes.length === 0 && (
-            <div className="text-center py-12 text-gray-400">
+            <div className="text-center py-12 text-surface-400">
               <GraduationCap size={40} className="mx-auto mb-3 opacity-30" />
               <p>Keine Studiengänge gefunden. Bitte Migration 005 ausführen.</p>
             </div>
@@ -225,31 +225,31 @@ export default function StudiengaengePage() {
               <X size={14} /> Zurück
             </button>
             <div>
-              <h2 className="font-semibold text-gray-800">{selected.name}</h2>
-              <p className="text-xs text-gray-500">{selected.fh} · {selected.abschluss} · {selected.semester_count} Semester</p>
+              <h2 className="font-semibold text-surface-800">{selected.name}</h2>
+              <p className="text-xs text-surface-500">{selected.fh} · {selected.abschluss} · {selected.semester_count} Semester</p>
             </div>
           </div>
 
           <div className="card p-0 overflow-hidden mb-6">
-            <div className="grid grid-cols-12 gap-2 px-4 py-2.5 bg-gray-50 text-xs font-semibold text-gray-500 border-b border-gray-100">
+            <div className="grid grid-cols-12 gap-2 px-4 py-2.5 bg-surface-50 text-xs font-semibold text-surface-500 border-b border-surface-100">
               <div className="col-span-4">Modul</div>
               <div className="col-span-2">Code</div>
               <div className="col-span-2">ECTS</div>
               <div className="col-span-2">Typ</div>
               <div className="col-span-2">Semester</div>
             </div>
-            <div className="divide-y divide-gray-50">
+            <div className="divide-y divide-surface-50">
               {(selected.modules_json ?? []).map((m, i) => (
-                <div key={i} className="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-gray-50/50">
+                <div key={i} className="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-surface-50/50">
                   <div className="col-span-4 flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: m.color }} />
-                    <span className="text-sm font-medium text-gray-800 truncate">{m.name}</span>
+                    <span className="text-sm font-medium text-surface-800 truncate">{m.name}</span>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-xs font-mono bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">{m.code}</span>
+                    <span className="text-xs font-mono bg-surface-100 text-surface-600 px-1.5 py-0.5 rounded">{m.code}</span>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-sm text-gray-600">{m.ects} ECTS</span>
+                    <span className="text-sm text-surface-600">{m.ects} ECTS</span>
                   </div>
                   <div className="col-span-2">
                     <span className={`badge text-[10px] ${m.module_type === "pflicht" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}>
@@ -273,7 +273,7 @@ export default function StudiengaengePage() {
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-surface-500">
               {(selected.modules_json ?? []).length} Module · {selected.ects_total} ECTS total
             </div>
             <button
@@ -293,8 +293,8 @@ export default function StudiengaengePage() {
           <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="text-green-600" size={36} />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Import erfolgreich!</h2>
-          <p className="text-gray-500 mb-6">
+          <h2 className="text-xl font-bold text-surface-900 mb-2">Import erfolgreich!</h2>
+          <p className="text-surface-500 mb-6">
             Alle Module von <strong>{selected?.name}</strong> ({selected?.fh}) wurden importiert.
           </p>
           <div className="flex gap-3 justify-center">

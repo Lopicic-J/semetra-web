@@ -35,8 +35,8 @@ export default function SettingsPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Einstellungen</h1>
-        <p className="text-gray-500 text-sm mt-0.5">App & Konto verwalten</p>
+        <h1 className="text-2xl font-bold text-surface-900">Einstellungen</h1>
+        <p className="text-surface-500 text-sm mt-0.5">App & Konto verwalten</p>
       </div>
 
       <div className="flex gap-6">
@@ -44,13 +44,13 @@ export default function SettingsPage() {
         <nav className="w-48 shrink-0 space-y-1">
           {tabs.map(t => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
-              className={`flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === t.id ? "bg-violet-600 text-white" : "text-gray-600 hover:bg-gray-100"}`}>
+              className={`flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === t.id ? "bg-brand-600 text-white" : "text-surface-600 hover:bg-surface-100"}`}>
               <t.icon size={16} />
               {t.label}
             </button>
           ))}
           <button onClick={handleLogout}
-            className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors mt-4">
+            className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-surface-500 hover:bg-red-50 hover:text-red-600 transition-colors mt-4">
             <LogOut size={16} />
             Abmelden
           </button>
@@ -90,15 +90,15 @@ function AccountTab({ user }: { user: { email?: string; created_at?: string } | 
   return (
     <div className="space-y-5">
       <div className="card">
-        <h2 className="font-semibold text-gray-900 mb-4">Kontoinformationen</h2>
+        <h2 className="font-semibold text-surface-900 mb-4">Kontoinformationen</h2>
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">E-Mail</label>
-            <p className="text-sm text-gray-800 bg-gray-50 px-3 py-2.5 rounded-xl">{user?.email ?? "—"}</p>
+            <label className="block text-xs font-medium text-surface-500 uppercase tracking-wider mb-1">E-Mail</label>
+            <p className="text-sm text-surface-800 bg-surface-50 px-3 py-2.5 rounded-xl">{user?.email ?? "—"}</p>
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Konto erstellt</label>
-            <p className="text-sm text-gray-800 bg-gray-50 px-3 py-2.5 rounded-xl">
+            <label className="block text-xs font-medium text-surface-500 uppercase tracking-wider mb-1">Konto erstellt</label>
+            <p className="text-sm text-surface-800 bg-surface-50 px-3 py-2.5 rounded-xl">
               {user?.created_at ? new Date(user.created_at).toLocaleDateString("de-CH", { day: "2-digit", month: "long", year: "numeric" }) : "—"}
             </p>
           </div>
@@ -106,14 +106,14 @@ function AccountTab({ user }: { user: { email?: string; created_at?: string } | 
       </div>
 
       <div className="card">
-        <h2 className="font-semibold text-gray-900 mb-4">Passwort ändern</h2>
+        <h2 className="font-semibold text-surface-900 mb-4">Passwort ändern</h2>
         <form onSubmit={handlePasswordChange} className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Neues Passwort</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Neues Passwort</label>
             <input className="input" type="password" minLength={8} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Min. 8 Zeichen" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Passwort bestätigen</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Passwort bestätigen</label>
             <input className="input" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Wiederholen…" />
           </div>
           {msg && (
@@ -129,7 +129,7 @@ function AccountTab({ user }: { user: { email?: string; created_at?: string } | 
 
       <div className="card border-red-100">
         <h2 className="font-semibold text-red-700 mb-2">Gefahrenzone</h2>
-        <p className="text-sm text-gray-500 mb-3">Das Löschen deines Kontos ist permanent und kann nicht rückgängig gemacht werden.</p>
+        <p className="text-sm text-surface-500 mb-3">Das Löschen deines Kontos ist permanent und kann nicht rückgängig gemacht werden.</p>
         <button className="px-4 py-2 rounded-xl border border-red-200 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors">
           Konto löschen
         </button>
@@ -186,20 +186,20 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
   return (
     <div className="space-y-5">
       {/* Web Abo */}
-      <div className={`card border-2 ${isPro ? "border-violet-500" : "border-gray-200"}`}>
+      <div className={`card border-2 ${isPro ? "border-brand-500" : "border-surface-200"}`}>
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="font-semibold text-gray-900">Web-App Abo</h2>
-            <p className="text-xs text-gray-400 mt-0.5">Monatlich oder jährlich kündbar</p>
+            <h2 className="font-semibold text-surface-900">Web-App Abo</h2>
+            <p className="text-xs text-surface-400 mt-0.5">Monatlich oder jährlich kündbar</p>
           </div>
-          <span className={`px-3 py-1 rounded-full text-xs font-bold ${isPro ? "bg-violet-100 text-violet-700" : "bg-gray-100 text-gray-500"}`}>
+          <span className={`px-3 py-1 rounded-full text-xs font-bold ${isPro ? "bg-brand-100 text-brand-700" : "bg-surface-100 text-surface-500"}`}>
             {isPro ? "PRO" : "FREE"}
           </span>
         </div>
 
         {isPro ? (
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-surface-600">
               <CheckCircle size={15} className="text-green-500" />
               Abo aktiv · {profile?.stripe_subscription_status === "trialing" ? "Testphase" : "bezahlt"}
             </div>
@@ -209,14 +209,14 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
               <div className={`rounded-xl p-4 ${
                 aboExpired ? "bg-red-50 border border-red-200" :
                 isCanceling ? "bg-amber-50 border border-amber-200" :
-                "bg-violet-50 border border-violet-100"
+                "bg-brand-50 border border-brand-100"
               }`}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Laufzeit</span>
+                  <span className="text-xs font-medium text-surface-500 uppercase tracking-wider">Laufzeit</span>
                   <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                     aboExpired ? "bg-red-100 text-red-700" :
                     isCanceling ? "bg-amber-100 text-amber-700" :
-                    "bg-violet-100 text-violet-700"
+                    "bg-brand-100 text-brand-700"
                   }`}>
                     {aboExpired ? "Abgelaufen" : `Noch ${remainingLabel}`}
                   </span>
@@ -227,7 +227,7 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
                   <div className="h-2 bg-white/60 rounded-full overflow-hidden mb-2">
                     <div
                       className={`h-full rounded-full transition-all ${
-                        isCanceling ? "bg-amber-400" : "bg-violet-500"
+                        isCanceling ? "bg-amber-400" : "bg-brand-500"
                       }`}
                       style={{ width: `${Math.max(5, 100 - Math.min(100, (remainingDays / 365) * 100))}%` }}
                     />
@@ -235,14 +235,14 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
                 )}
 
                 <div className="flex items-center justify-between text-xs">
-                  <span className={aboExpired ? "text-red-600" : "text-gray-500"}>
+                  <span className={aboExpired ? "text-red-600" : "text-surface-500"}>
                     {aboExpired
                       ? `Abgelaufen am ${expiresAt.toLocaleDateString("de-CH", { day: "2-digit", month: "long", year: "numeric" })}`
                       : `Gültig bis ${expiresAt.toLocaleDateString("de-CH", { day: "2-digit", month: "long", year: "numeric" })}`
                     }
                   </span>
                   {!aboExpired && (
-                    <span className="text-gray-400">{remainingDays} Tage</span>
+                    <span className="text-surface-400">{remainingDays} Tage</span>
                   )}
                 </div>
               </div>
@@ -259,7 +259,7 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
           </div>
         ) : (
           <div>
-            <p className="text-sm text-gray-500 mb-3">
+            <p className="text-sm text-surface-500 mb-3">
               Du nutzt Semetra Free. Upgrade auf Pro für KI-Features, unbegrenzte Module und Sync.
             </p>
             <div className="flex flex-wrap gap-2">
@@ -276,20 +276,20 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
       <div className="card border-2 border-emerald-200">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+            <h2 className="font-semibold text-surface-900 flex items-center gap-2">
               <Monitor size={18} className="text-emerald-600" />
               Desktop Pro
             </h2>
-            <p className="text-xs text-gray-400 mt-0.5">Einmalkauf · Dauerhaft gültig · Kein Abo</p>
+            <p className="text-xs text-surface-400 mt-0.5">Einmalkauf · Dauerhaft gültig · Kein Abo</p>
           </div>
           <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
             CHF 49,90
           </span>
         </div>
-        <p className="text-sm text-gray-600 mb-3">
+        <p className="text-sm text-surface-600 mb-3">
           Einmalig zahlen, dauerhaft Pro-Features in der Desktop-App nutzen. Der Lizenzschlüssel wird per E-Mail zugestellt.
         </p>
-        <div className="grid grid-cols-2 gap-1.5 text-sm text-gray-600 mb-4">
+        <div className="grid grid-cols-2 gap-1.5 text-sm text-surface-600 mb-4">
           {["Unbegrenzte Module & Noten", "KI-Studien-Coach", "FH-Voreinstellungen", "KI-Karteikarten"].map(f => (
             <div key={f} className="flex items-center gap-1.5">
               <CheckCircle size={13} className="text-emerald-500 shrink-0" />
@@ -311,11 +311,11 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
 
       {/* Desktop ↔ Web Sync */}
       <div className="card">
-        <h2 className="font-semibold text-gray-900 mb-3">Desktop ↔ Web Sync</h2>
-        <p className="text-sm text-gray-600 mb-2">
+        <h2 className="font-semibold text-surface-900 mb-3">Desktop ↔ Web Sync</h2>
+        <p className="text-sm text-surface-600 mb-2">
           Melde dich in der Desktop-App mit denselben Zugangsdaten an (E-Mail + Passwort). Deine Daten werden automatisch synchronisiert — über Supabase, in Echtzeit.
         </p>
-        <div className="bg-gray-50 rounded-xl p-3 text-xs text-gray-500 font-mono">
+        <div className="bg-surface-50 rounded-xl p-3 text-xs text-surface-500 font-mono">
           Supabase URL: {process.env.NEXT_PUBLIC_SUPABASE_URL ?? "—"}
         </div>
         {!isPro && (
@@ -331,17 +331,17 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
 function AppearanceTab() {
   return (
     <div className="card">
-      <h2 className="font-semibold text-gray-900 mb-4">Darstellung</h2>
+      <h2 className="font-semibold text-surface-900 mb-4">Darstellung</h2>
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Farbschema</label>
+          <label className="block text-sm font-medium text-surface-700 mb-2">Farbschema</label>
           <div className="flex gap-3">
             {[
               { id: "light", label: "Hell", emoji: "☀️" },
               { id: "dark", label: "Dunkel", emoji: "🌙" },
               { id: "system", label: "System", emoji: "💻" },
             ].map(t => (
-              <button key={t.id} className="flex flex-col items-center gap-1 p-3 rounded-xl border-2 border-violet-200 bg-violet-50 text-violet-700 text-sm font-medium">
+              <button key={t.id} className="flex flex-col items-center gap-1 p-3 rounded-xl border-2 border-brand-200 bg-brand-50 text-brand-700 text-sm font-medium">
                 <span className="text-xl">{t.emoji}</span>
                 {t.label}
               </button>
@@ -349,14 +349,14 @@ function AppearanceTab() {
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Akzentfarbe</label>
+          <label className="block text-sm font-medium text-surface-700 mb-1">Akzentfarbe</label>
           <div className="flex gap-2">
             {["#6d28d9","#2563eb","#059669","#dc2626","#d97706"].map(c => (
               <button key={c} className="w-8 h-8 rounded-full border-2 border-transparent hover:scale-110 transition-transform" style={{ background: c }} />
             ))}
           </div>
         </div>
-        <p className="text-xs text-gray-400">Weitere Darstellungsoptionen folgen in einem Update.</p>
+        <p className="text-xs text-surface-400">Weitere Darstellungsoptionen folgen in einem Update.</p>
       </div>
     </div>
   );
@@ -372,7 +372,7 @@ function NotificationsTab() {
 
   return (
     <div className="card">
-      <h2 className="font-semibold text-gray-900 mb-4">Benachrichtigungen</h2>
+      <h2 className="font-semibold text-surface-900 mb-4">Benachrichtigungen</h2>
       <div className="space-y-4">
         {[
           { key: "exam_reminder" as const, label: "Prüfungserinnerungen", description: "7 und 1 Tag vor einer Prüfung" },
@@ -382,16 +382,16 @@ function NotificationsTab() {
         ].map(item => (
           <div key={item.key} className="flex items-center justify-between py-2">
             <div>
-              <p className="text-sm font-medium text-gray-800">{item.label}</p>
-              <p className="text-xs text-gray-400">{item.description}</p>
+              <p className="text-sm font-medium text-surface-800">{item.label}</p>
+              <p className="text-xs text-surface-400">{item.description}</p>
             </div>
             <button onClick={() => setSettings(s => ({ ...s, [item.key]: !s[item.key] }))}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings[item.key] ? "bg-violet-600" : "bg-gray-200"}`}>
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings[item.key] ? "bg-brand-600" : "bg-surface-200"}`}>
               <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transform transition-transform ${settings[item.key] ? "translate-x-6" : "translate-x-1"}`} />
             </button>
           </div>
         ))}
-        <p className="text-xs text-gray-400 pt-2">Einstellungen werden lokal gespeichert. Cloud-Sync kommt mit Semetra Pro.</p>
+        <p className="text-xs text-surface-400 pt-2">Einstellungen werden lokal gespeichert. Cloud-Sync kommt mit Semetra Pro.</p>
       </div>
     </div>
   );
@@ -600,15 +600,15 @@ function PrivacyTab() {
   return (
     <div className="space-y-4">
       <div className="card">
-        <h2 className="font-semibold text-gray-900 mb-3">Datenschutz</h2>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <h2 className="font-semibold text-surface-900 mb-3">Datenschutz</h2>
+        <p className="text-sm text-surface-600 leading-relaxed">
           Semetra speichert deine Daten sicher in der Cloud über Supabase (PostgreSQL). Alle Daten sind mit Row Level Security (RLS) geschützt — nur du hast Zugriff auf deine eigenen Daten.
         </p>
       </div>
 
       <div className="card">
-        <h2 className="font-semibold text-gray-900 mb-2">Daten exportieren</h2>
-        <p className="text-sm text-gray-500 mb-4">
+        <h2 className="font-semibold text-surface-900 mb-2">Daten exportieren</h2>
+        <p className="text-sm text-surface-500 mb-4">
           Exportiere alle deine Daten als Backup oder zum Import in die Desktop-App.
           Module, Aufgaben, Prüfungen, Noten, Wissen, Zeitlogs, Stundenplan und Anhänge werden eingeschlossen.
         </p>
@@ -619,21 +619,21 @@ function PrivacyTab() {
             onClick={() => setExportFormat("desktop")}
             className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-colors ${
               exportFormat === "desktop"
-                ? "border-violet-300 bg-violet-50"
-                : "border-gray-200 hover:border-gray-300"
+                ? "border-brand-300 bg-brand-50"
+                : "border-surface-200 hover:border-surface-300"
             }`}
           >
-            <HardDrive size={20} className={exportFormat === "desktop" ? "text-violet-600" : "text-gray-400"} />
+            <HardDrive size={20} className={exportFormat === "desktop" ? "text-brand-600" : "text-surface-400"} />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-gray-800">Desktop-kompatibel (empfohlen)</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-sm font-semibold text-surface-800">Desktop-kompatibel (empfohlen)</p>
+              <p className="text-xs text-surface-500">
                 Kann direkt in die Semetra Desktop-App importiert werden. Auch als Backup geeignet.
               </p>
             </div>
             <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-              exportFormat === "desktop" ? "border-violet-600" : "border-gray-300"
+              exportFormat === "desktop" ? "border-brand-600" : "border-surface-300"
             }`}>
-              {exportFormat === "desktop" && <div className="w-2 h-2 rounded-full bg-violet-600" />}
+              {exportFormat === "desktop" && <div className="w-2 h-2 rounded-full bg-brand-600" />}
             </div>
           </button>
 
@@ -641,21 +641,21 @@ function PrivacyTab() {
             onClick={() => setExportFormat("json")}
             className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-colors ${
               exportFormat === "json"
-                ? "border-violet-300 bg-violet-50"
-                : "border-gray-200 hover:border-gray-300"
+                ? "border-brand-300 bg-brand-50"
+                : "border-surface-200 hover:border-surface-300"
             }`}
           >
-            <Database size={20} className={exportFormat === "json" ? "text-violet-600" : "text-gray-400"} />
+            <Database size={20} className={exportFormat === "json" ? "text-brand-600" : "text-surface-400"} />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-gray-800">Web-Rohdaten (JSON)</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-sm font-semibold text-surface-800">Web-Rohdaten (JSON)</p>
+              <p className="text-xs text-surface-500">
                 Originale Supabase-Daten mit UUIDs. Für technische Backups oder Datenanalyse.
               </p>
             </div>
             <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-              exportFormat === "json" ? "border-violet-600" : "border-gray-300"
+              exportFormat === "json" ? "border-brand-600" : "border-surface-300"
             }`}>
-              {exportFormat === "json" && <div className="w-2 h-2 rounded-full bg-violet-600" />}
+              {exportFormat === "json" && <div className="w-2 h-2 rounded-full bg-brand-600" />}
             </div>
           </button>
         </div>
@@ -664,7 +664,7 @@ function PrivacyTab() {
         <button
           onClick={handleExport}
           disabled={exporting}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 disabled:opacity-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 disabled:opacity-50 transition-colors"
         >
           {exporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
           {exporting ? "Exportiere…" : "Daten exportieren"}

@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Menu, X, LogOut, Zap } from "lucide-react";
+import { Menu, X, LogOut, Zap, Gem } from "lucide-react";
 import { clsx } from "clsx";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { ProBadge } from "@/components/ui/ProGate";
@@ -22,7 +22,6 @@ export default function MobileHeader() {
     router.refresh();
   }
 
-  // Find current page label
   const allItems = getAllNavItems();
   const currentPage = allItems.find(
     i => pathname === i.href || (i.href !== "/dashboard" && pathname.startsWith(i.href))
@@ -31,33 +30,34 @@ export default function MobileHeader() {
   return (
     <>
       {/* Mobile top bar */}
-      <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 shrink-0">
+      <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-surface-200/60 shrink-0">
         <button
           onClick={() => setOpen(true)}
-          className="p-2 -ml-2 rounded-xl hover:bg-gray-100 transition-colors"
+          className="p-2 -ml-2 rounded-xl hover:bg-surface-100 transition-colors"
         >
-          <Menu size={22} className="text-gray-700" />
+          <Menu size={20} className="text-surface-600" />
         </button>
 
         <div className="flex items-center gap-2">
-          <span className="text-base">{"\u{1F4D6}\uFE0F"}</span>
-          <span className="font-bold text-gray-900 text-sm">Semetra</span>
+          <div className="flex items-center justify-center w-6 h-6 rounded-md bg-brand-600 text-white">
+            <Gem size={12} strokeWidth={2.2} />
+          </div>
+          <span className="font-bold text-surface-900 text-sm tracking-tight">Semetra</span>
           <span className={clsx(
-            "text-[9px] font-bold px-1.5 py-0.5 rounded-full",
-            isPro ? "bg-violet-600 text-white" : "bg-gray-100 text-gray-500"
+            "text-[9px] font-bold px-1.5 py-0.5 rounded-md",
+            isPro ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500"
           )}>
             {isPro ? "PRO" : "Free"}
           </span>
         </div>
 
-        {/* Current page indicator or empty spacer */}
         <div className="w-10" />
       </header>
 
       {/* Overlay */}
       {open && (
         <div
-          className="md:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+          className="md:hidden fixed inset-0 z-50 bg-surface-900/30 backdrop-blur-sm animate-fade-in"
           onClick={() => setOpen(false)}
         />
       )}
@@ -70,21 +70,21 @@ export default function MobileHeader() {
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-violet-600 text-white text-lg shrink-0">
-              <span className="text-base">{"\u{1F4D6}\uFE0F"}</span>
+        <div className="flex items-center justify-between px-4 py-4 border-b border-surface-100">
+          <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-600 text-white shrink-0">
+              <Gem size={16} strokeWidth={2.2} />
             </div>
             <div>
-              <p className="font-bold text-gray-900 text-sm leading-tight">Semetra</p>
-              <p className="text-[10px] text-gray-400 leading-tight">Study Organizer</p>
+              <p className="font-bold text-surface-900 text-sm leading-tight tracking-tight">Semetra</p>
+              <p className="text-[10px] text-surface-400 leading-tight">Study Organizer</p>
             </div>
           </div>
           <button
             onClick={() => setOpen(false)}
-            className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-xl hover:bg-surface-100 transition-colors"
           >
-            <X size={20} className="text-gray-500" />
+            <X size={18} className="text-surface-400" />
           </button>
         </div>
 
@@ -93,11 +93,12 @@ export default function MobileHeader() {
           {NAV_GROUPS.map((group) => (
             <div key={group.label}>
               {group.label && (
-                <p className="px-3 pt-4 pb-1 text-[10px] font-semibold text-gray-400 tracking-wider uppercase">
+                <p className="px-3 pt-4 pb-1.5 text-[10px] font-semibold text-surface-400 tracking-wider uppercase select-none">
                   {group.label}
                 </p>
               )}
               {group.items.map((item) => {
+                const Icon = item.icon;
                 const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
                 const locked = item.pro && !isPro;
                 return (
@@ -106,15 +107,15 @@ export default function MobileHeader() {
                     href={item.href}
                     onClick={() => setOpen(false)}
                     className={clsx(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
+                      "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150",
                       active
-                        ? "bg-violet-600 text-white shadow-sm"
+                        ? "bg-brand-600 text-white shadow-sm"
                         : locked
-                          ? "text-gray-400 hover:bg-gray-50"
-                          : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                          ? "text-surface-400 hover:bg-surface-50"
+                          : "text-surface-500 hover:bg-surface-100 hover:text-surface-800"
                     )}
                   >
-                    <span className="text-base shrink-0 w-5 text-center leading-none">{item.emoji}</span>
+                    <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
                     <span className="flex-1">{item.label}</span>
                     {locked && !active && <ProBadge />}
                   </Link>
@@ -125,8 +126,9 @@ export default function MobileHeader() {
         </nav>
 
         {/* Bottom */}
-        <div className="px-3 pt-2 pb-3 border-t border-gray-100 space-y-0.5">
+        <div className="px-3 pt-2 pb-3 border-t border-surface-100 space-y-0.5">
           {BOTTOM_ITEMS.map((item) => {
+            const Icon = item.icon;
             const active = pathname === item.href;
             return (
               <Link
@@ -134,22 +136,22 @@ export default function MobileHeader() {
                 href={item.href}
                 onClick={() => setOpen(false)}
                 className={clsx(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
+                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150",
                   active
-                    ? "bg-violet-600 text-white shadow-sm"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                    ? "bg-brand-600 text-white shadow-sm"
+                    : "text-surface-500 hover:bg-surface-100 hover:text-surface-800"
                 )}
               >
-                <span className="text-base shrink-0 w-5 text-center leading-none">{item.emoji}</span>
+                <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
                 <span>{item.label}</span>
               </Link>
             );
           })}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-[13px] font-medium text-surface-400 hover:bg-danger-50 hover:text-danger-600 transition-all duration-150"
           >
-            <LogOut size={17} className="shrink-0 ml-0.5" />
+            <LogOut size={17} strokeWidth={1.8} className="shrink-0" />
             Abmelden
           </button>
         </div>
@@ -157,25 +159,25 @@ export default function MobileHeader() {
         {/* Upgrade / Pro badge */}
         <div className="px-3 pb-4">
           {isPro ? (
-            <div className="p-3 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white">
               <div className="flex items-center gap-2">
-                <Zap size={14} />
+                <Zap size={13} />
                 <span className="text-xs font-semibold">Semetra Pro aktiv</span>
               </div>
-              <p className="text-[11px] text-violet-200 mt-1">Alle Features freigeschaltet</p>
+              <p className="text-[11px] text-brand-200 mt-1">Alle Features freigeschaltet</p>
             </div>
           ) : (
             <Link
               href="/upgrade"
               onClick={() => setOpen(false)}
-              className="p-3 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white block hover:opacity-90 transition-opacity"
+              className="p-3 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white block hover:opacity-95 transition-opacity"
             >
               <div className="flex items-center gap-2 mb-1">
-                <Zap size={14} />
+                <Zap size={13} />
                 <span className="text-xs font-semibold">Semetra Pro</span>
               </div>
-              <p className="text-[11px] text-violet-200 mb-2">KI-Coach, Sync & mehr</p>
-              <div className="w-full py-1.5 rounded-lg bg-white text-violet-700 text-xs font-semibold text-center">
+              <p className="text-[11px] text-brand-200 mb-2.5">KI-Coach, Sync & mehr</p>
+              <div className="w-full py-1.5 rounded-lg bg-white/95 text-brand-700 text-xs font-semibold text-center">
                 Upgrade — ab CHF 3.33/Mt.
               </div>
             </Link>

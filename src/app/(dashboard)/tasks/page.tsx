@@ -56,8 +56,8 @@ export default function TasksPage() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Aufgaben</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{tasks.filter(t => t.status !== "done").length} offen · {tasks.filter(t => t.status === "done").length} erledigt</p>
+          <h1 className="text-2xl font-bold text-surface-900">Aufgaben</h1>
+          <p className="text-surface-500 text-sm mt-0.5">{tasks.filter(t => t.status !== "done").length} offen · {tasks.filter(t => t.status === "done").length} erledigt</p>
         </div>
         <button onClick={() => { setEditing(null); setShowForm(true); }} className="btn-primary gap-2">
           <Plus size={16} /> Neue Aufgabe
@@ -65,10 +65,10 @@ export default function TasksPage() {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1 p-1 bg-gray-100 rounded-xl mb-5 w-fit">
+      <div className="flex gap-1 p-1 bg-surface-100 rounded-xl mb-5 w-fit">
         {(["all", "todo", "in_progress", "done"] as const).map(s => (
           <button key={s} onClick={() => setFilter(s)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === s ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === s ? "bg-white text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"}`}>
             {s === "all" ? "Alle" : STATUS_LABELS[s]}
           </button>
         ))}
@@ -76,10 +76,10 @@ export default function TasksPage() {
 
       {loading ? (
         <div className="space-y-2">
-          {[1,2,3,4].map(i => <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />)}
+          {[1,2,3,4].map(i => <div key={i} className="h-16 bg-surface-100 rounded-xl animate-pulse" />)}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-surface-400">
           <CheckSquare size={40} className="mx-auto mb-3 opacity-30" />
           <p className="font-medium">Keine Aufgaben</p>
         </div>
@@ -126,22 +126,22 @@ function TaskRow({ task, modules, onToggle, onEdit, onDelete, isExpanded, onTogg
   const isOverdue = task.status !== "done" && task.due_date && new Date(task.due_date) < new Date();
 
   return (
-    <div className={`flex items-center gap-3 p-3 rounded-xl border transition-colors group ${task.status === "done" ? "bg-gray-50 border-gray-100" : "bg-white border-gray-100 hover:border-violet-200"} ${isExpanded ? "rounded-b-none border-b-0" : ""}`}>
+    <div className={`flex items-center gap-3 p-3 rounded-xl border transition-colors group ${task.status === "done" ? "bg-surface-50 border-surface-100" : "bg-white border-surface-100 hover:border-brand-200"} ${isExpanded ? "rounded-b-none border-b-0" : ""}`}>
       <button onClick={() => onToggle(task)}
-        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${task.status === "done" ? "bg-green-500 border-green-500 text-white" : "border-gray-300 hover:border-violet-400"}`}>
+        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${task.status === "done" ? "bg-green-500 border-green-500 text-white" : "border-surface-300 hover:border-brand-400"}`}>
         {task.status === "done" && <Check size={11} />}
       </button>
 
       <div className="flex-1 min-w-0">
-        <p className={`text-sm font-medium ${task.status === "done" ? "line-through text-gray-400" : "text-gray-800"}`}>{task.title}</p>
+        <p className={`text-sm font-medium ${task.status === "done" ? "line-through text-surface-400" : "text-surface-800"}`}>{task.title}</p>
         <div className="flex flex-wrap gap-2 mt-0.5">
           {task.due_date && (
-            <span className={`text-xs ${isOverdue ? "text-red-500 font-medium" : "text-gray-400"}`}>
+            <span className={`text-xs ${isOverdue ? "text-red-500 font-medium" : "text-surface-400"}`}>
               📅 {formatDate(task.due_date)}
             </span>
           )}
           {(task as any).modules && (
-            <span className="text-xs text-gray-400 flex items-center gap-1">
+            <span className="text-xs text-surface-400 flex items-center gap-1">
               <span className="w-2 h-2 rounded-full" style={{ background: (task as any).modules.color }} />
               {(task as any).modules.name}
             </span>
@@ -151,19 +151,19 @@ function TaskRow({ task, modules, onToggle, onEdit, onDelete, isExpanded, onTogg
 
       <div className="flex items-center gap-2 shrink-0">
         <button onClick={onToggleExpand}
-          className={`p-1.5 rounded-lg transition-colors ${isExpanded ? "bg-violet-100 text-violet-600" : "text-gray-400 hover:bg-gray-100"}`}
+          className={`p-1.5 rounded-lg transition-colors ${isExpanded ? "bg-brand-100 text-brand-600" : "text-surface-400 hover:bg-surface-100"}`}
           title="Materialien">
           <Paperclip size={14} />
         </button>
-        <span className={`badge text-[10px] ${task.priority === "high" ? "bg-red-100 text-red-600" : task.priority === "medium" ? "bg-yellow-100 text-yellow-700" : "badge-gray"}`}>
+        <span className={`badge text-[10px] ${task.priority === "high" ? "bg-red-100 text-red-600" : task.priority === "medium" ? "bg-yellow-100 text-yellow-700" : "badge-surface"}`}>
           {PRIORITY_LABELS[task.priority ?? "low"]}
         </span>
-        <span className={`badge text-[10px] ${task.status === "done" ? "bg-green-100 text-green-700" : task.status === "in_progress" ? "bg-blue-100 text-blue-700" : "badge-gray"}`}>
+        <span className={`badge text-[10px] ${task.status === "done" ? "bg-green-100 text-green-700" : task.status === "in_progress" ? "bg-blue-100 text-blue-700" : "badge-surface"}`}>
           {STATUS_LABELS[task.status ?? "todo"]}
         </span>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button onClick={() => onEdit(task)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400"><Pencil size={13} /></button>
-          <button onClick={() => onDelete(task.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500"><Trash2 size={13} /></button>
+          <button onClick={() => onEdit(task)} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400"><Pencil size={13} /></button>
+          <button onClick={() => onDelete(task.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500"><Trash2 size={13} /></button>
         </div>
       </div>
     </div>
@@ -198,18 +198,18 @@ function TaskAttachmentsPanel({ taskId }: { taskId: string }) {
   }
 
   return (
-    <div className="bg-gray-50 border border-t-0 border-gray-100 rounded-b-xl p-4">
+    <div className="bg-surface-50 border border-t-0 border-surface-100 rounded-b-xl p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+        <h3 className="text-xs font-semibold text-surface-500 uppercase tracking-wider flex items-center gap-1.5">
           <Paperclip size={12} /> Materialien
         </h3>
         <div className="flex gap-2">
           <button onClick={() => setShowLinkForm(!showLinkForm)}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-gray-200 text-gray-600 hover:border-violet-300 hover:text-violet-600 transition-colors">
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
             <Link2 size={12} /> Link
           </button>
           <button onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-gray-200 text-gray-600 hover:border-violet-300 hover:text-violet-600 transition-colors">
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
             <Upload size={12} /> Datei
           </button>
           <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileUpload}
@@ -226,33 +226,33 @@ function TaskAttachmentsPanel({ taskId }: { taskId: string }) {
             placeholder="Bezeichnung (optional)" className="input w-40 text-sm" />
           <button type="submit" className="btn-primary text-xs px-3 py-1.5">Hinzufügen</button>
           <button type="button" onClick={() => setShowLinkForm(false)}
-            className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-400"><X size={14} /></button>
+            className="p-1.5 rounded-lg hover:bg-surface-200 text-surface-400"><X size={14} /></button>
         </form>
       )}
 
       {/* Attachment list */}
       {loading ? (
-        <div className="h-8 bg-gray-200 rounded animate-pulse" />
+        <div className="h-8 bg-surface-200 rounded animate-pulse" />
       ) : attachments.length === 0 ? (
-        <p className="text-xs text-gray-400 text-center py-3">Noch keine Materialien angehängt.</p>
+        <p className="text-xs text-surface-400 text-center py-3">Noch keine Materialien angehängt.</p>
       ) : (
         <div className="space-y-1.5">
           {attachments.map(att => (
-            <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-gray-100 group/att hover:border-violet-200 transition-colors">
+            <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-surface-100 group/att hover:border-brand-200 transition-colors">
               <span className="text-sm shrink-0">{fileIcon(att.kind, att.file_type)}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-gray-800 truncate">{att.label || att.url}</p>
+                <p className="text-xs font-medium text-surface-800 truncate">{att.label || att.url}</p>
                 {att.kind === "file" && att.file_size > 0 && (
-                  <p className="text-[10px] text-gray-400">{att.file_type?.toUpperCase()} · {humanSize(att.file_size)}</p>
+                  <p className="text-[10px] text-surface-400">{att.file_type?.toUpperCase()} · {humanSize(att.file_size)}</p>
                 )}
               </div>
               <a href={getDownloadUrl(att) ?? att.url} target="_blank" rel="noopener noreferrer"
-                className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-violet-600 transition-colors"
+                className="p-1 rounded hover:bg-surface-100 text-surface-400 hover:text-brand-600 transition-colors"
                 title="Öffnen">
                 <ExternalLink size={13} />
               </a>
               <button onClick={() => remove(att)}
-                className="p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-500 opacity-0 group-hover/att:opacity-100 transition-all"
+                className="p-1 rounded hover:bg-red-50 text-surface-300 hover:text-red-500 opacity-0 group-hover/att:opacity-100 transition-all"
                 title="Entfernen">
                 <Trash2 size={13} />
               </button>
@@ -308,26 +308,26 @@ function TaskModal({ initial, modules, onClose, onSaved }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">{initial ? "Aufgabe bearbeiten" : "Neue Aufgabe"}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100"><X size={16} /></button>
+        <div className="flex items-center justify-between p-5 border-b border-surface-100">
+          <h2 className="font-semibold text-surface-900">{initial ? "Aufgabe bearbeiten" : "Neue Aufgabe"}</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Titel *</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Titel *</label>
             <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder="Aufgabe beschreiben…" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Beschreibung</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Beschreibung</label>
             <textarea className="input resize-none" rows={2} value={form.description} onChange={e => set("description", e.target.value)} placeholder="Details…" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Fälligkeitsdatum</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Fälligkeitsdatum</label>
               <input className="input" type="date" value={form.due_date} onChange={e => set("due_date", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Modul</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Modul</label>
               <select className="input" value={form.module_id} onChange={e => set("module_id", e.target.value)}>
                 <option value="">— kein —</option>
                 {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -336,7 +336,7 @@ function TaskModal({ initial, modules, onClose, onSaved }: {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Priorität</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Priorität</label>
               <select className="input" value={form.priority} onChange={e => set("priority", e.target.value)}>
                 <option value="low">Niedrig</option>
                 <option value="medium">Mittel</option>
@@ -344,7 +344,7 @@ function TaskModal({ initial, modules, onClose, onSaved }: {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Status</label>
               <select className="input" value={form.status} onChange={e => set("status", e.target.value)}>
                 <option value="todo">Offen</option>
                 <option value="in_progress">In Arbeit</option>

@@ -10,7 +10,7 @@ import type { Topic, CalendarEvent } from "@/types/database";
 type Exam = CalendarEvent & { daysLeft?: number };
 
 const STATUS_COLORS: Record<string, string> = {
-  not_started: "bg-gray-200 text-gray-600",
+  not_started: "bg-surface-200 text-surface-600",
   in_progress: "bg-blue-100 text-blue-700",
   understood: "bg-green-100 text-green-700",
   needs_review: "bg-yellow-100 text-yellow-700",
@@ -23,7 +23,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const KNOWLEDGE_LEVELS = [
-  { level: 0, label: "Unbekannt", color: "bg-gray-300" },
+  { level: 0, label: "Unbekannt", color: "bg-surface-300" },
   { level: 1, label: "Gesehen", color: "bg-red-400" },
   { level: 2, label: "Grundlagen", color: "bg-orange-400" },
   { level: 3, label: "Verstanden", color: "bg-yellow-400" },
@@ -198,8 +198,8 @@ export default function KnowledgePage() {
     <div className="p-3 sm:p-6 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Lernziele & Wissen</h1>
-          <p className="text-gray-500 text-sm mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900">Lernziele & Wissen</h1>
+          <p className="text-surface-500 text-sm mt-0.5">
             {filteredTopics.filter(t => t.status === "understood").length}/{filteredTopics.length} verstanden
             {dueTopics.length > 0 && (
               <span className="text-amber-600 font-medium ml-2">· {dueTopics.length} Review{dueTopics.length !== 1 ? "s" : ""} fällig</span>
@@ -232,15 +232,15 @@ export default function KnowledgePage() {
                 w.understoodPct < 60 ? "text-orange-500" : "text-yellow-500"
               } />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900">
+                <p className="text-sm font-semibold text-surface-900">
                   {w.exam.title} — {w.understoodPct}% Wissensstand
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-surface-500">
                   Prüfung in {w.exam.daysLeft} Tagen · {w.topicCount} Themen zugeordnet
                 </p>
               </div>
               <button onClick={() => startExamReview(w.exam.id)}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-white border border-gray-200 hover:border-violet-300 hover:text-violet-600 transition-colors shrink-0">
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-white border border-surface-200 hover:border-brand-300 hover:text-brand-600 transition-colors shrink-0">
                 <Brain size={12} /> Review starten
               </button>
             </div>
@@ -252,10 +252,10 @@ export default function KnowledgePage() {
       {filteredTopics.length > 0 && (
         <div className="card mb-5">
           <div className="flex justify-between text-sm mb-3">
-            <span className="font-medium text-gray-700">Wissensstand</span>
-            <span className="text-gray-500">{Math.round((filteredTopics.filter(t => (t.knowledge_level ?? 0) >= 3).length / filteredTopics.length) * 100)}% gut oder besser</span>
+            <span className="font-medium text-surface-700">Wissensstand</span>
+            <span className="text-surface-500">{Math.round((filteredTopics.filter(t => (t.knowledge_level ?? 0) >= 3).length / filteredTopics.length) * 100)}% gut oder besser</span>
           </div>
-          <div className="h-3 bg-gray-100 rounded-full overflow-hidden flex">
+          <div className="h-3 bg-surface-100 rounded-full overflow-hidden flex">
             {levelDist.map(ld => (
               ld.count > 0 && (
                 <div key={ld.level} className={`h-full ${ld.color} transition-all`}
@@ -265,7 +265,7 @@ export default function KnowledgePage() {
               )
             ))}
           </div>
-          <div className="flex gap-4 mt-3 text-xs text-gray-500 flex-wrap">
+          <div className="flex gap-4 mt-3 text-xs text-surface-500 flex-wrap">
             {levelDist.map(ld => (
               <span key={ld.level} className="flex items-center gap-1">
                 <span className={`w-2 h-2 rounded-full ${ld.color}`} />
@@ -280,14 +280,14 @@ export default function KnowledgePage() {
       <div className="space-y-2 mb-5">
         {/* Module filter */}
         <div className="flex gap-2 flex-wrap items-center">
-          <span className="text-xs text-gray-400 font-medium w-14 shrink-0">Modul:</span>
+          <span className="text-xs text-surface-400 font-medium w-14 shrink-0">Modul:</span>
           <button onClick={() => { setFilterModule("all"); setFilterExam("all"); setFilterTask("all"); }}
-            className={`badge cursor-pointer text-xs ${filterModule === "all" ? "bg-violet-600 text-white" : "badge-gray hover:bg-gray-200"}`}>
+            className={`badge cursor-pointer text-xs ${filterModule === "all" ? "bg-brand-600 text-white" : "badge-gray hover:bg-surface-200"}`}>
             Alle
           </button>
           {modules.map(m => (
             <button key={m.id} onClick={() => { setFilterModule(m.id); setFilterExam("all"); setFilterTask("all"); }}
-              className={`badge cursor-pointer text-xs ${filterModule === m.id ? "text-white" : "badge-gray hover:bg-gray-200"}`}
+              className={`badge cursor-pointer text-xs ${filterModule === m.id ? "text-white" : "badge-gray hover:bg-surface-200"}`}
               style={filterModule === m.id ? { background: m.color ?? "#6d28d9" } : {}}>
               {m.name}
             </button>
@@ -297,16 +297,16 @@ export default function KnowledgePage() {
         {/* Exam filter */}
         {upcomingExams.length > 0 && (
           <div className="flex gap-2 flex-wrap items-center">
-            <span className="text-xs text-gray-400 font-medium w-14 shrink-0">Prüfung:</span>
+            <span className="text-xs text-surface-400 font-medium w-14 shrink-0">Prüfung:</span>
             <button onClick={() => setFilterExam("all")}
-              className={`badge cursor-pointer text-xs ${filterExam === "all" ? "bg-violet-600 text-white" : "badge-gray hover:bg-gray-200"}`}>
+              className={`badge cursor-pointer text-xs ${filterExam === "all" ? "bg-brand-600 text-white" : "badge-gray hover:bg-surface-200"}`}>
               Alle
             </button>
             {upcomingExams.map(e => {
               const count = topics.filter(t => t.exam_id === e.id).length;
               return (
                 <button key={e.id} onClick={() => setFilterExam(e.id)}
-                  className={`badge cursor-pointer text-xs flex items-center gap-1 ${filterExam === e.id ? "text-white" : "badge-gray hover:bg-gray-200"}`}
+                  className={`badge cursor-pointer text-xs flex items-center gap-1 ${filterExam === e.id ? "text-white" : "badge-gray hover:bg-surface-200"}`}
                   style={filterExam === e.id ? { background: e.color ?? "#dc2626" } : {}}>
                   <GraduationCap size={10} /> {e.title}
                   {count > 0 && <span className="opacity-70">({count})</span>}
@@ -320,16 +320,16 @@ export default function KnowledgePage() {
         {/* Task filter */}
         {openTasks.length > 0 && (
           <div className="flex gap-2 flex-wrap items-center">
-            <span className="text-xs text-gray-400 font-medium w-14 shrink-0">Aufgabe:</span>
+            <span className="text-xs text-surface-400 font-medium w-14 shrink-0">Aufgabe:</span>
             <button onClick={() => setFilterTask("all")}
-              className={`badge cursor-pointer text-xs ${filterTask === "all" ? "bg-violet-600 text-white" : "badge-gray hover:bg-gray-200"}`}>
+              className={`badge cursor-pointer text-xs ${filterTask === "all" ? "bg-brand-600 text-white" : "badge-gray hover:bg-surface-200"}`}>
               Alle
             </button>
             {openTasks.slice(0, 8).map(t => {
               const count = topics.filter(tp => tp.task_id === t.id).length;
               return (
                 <button key={t.id} onClick={() => setFilterTask(t.id)}
-                  className={`badge cursor-pointer text-xs ${filterTask === t.id ? "bg-blue-600 text-white" : "badge-gray hover:bg-gray-200"}`}>
+                  className={`badge cursor-pointer text-xs ${filterTask === t.id ? "bg-blue-600 text-white" : "badge-gray hover:bg-surface-200"}`}>
                   {t.title.length > 25 ? t.title.slice(0, 25) + "…" : t.title}
                   {count > 0 && <span className="opacity-70 ml-1">({count})</span>}
                 </button>
@@ -343,21 +343,21 @@ export default function KnowledgePage() {
       {filteredTopics.length > 0 && (
         <div className="card mb-5">
           <div className="flex justify-between text-sm mb-2">
-            <span className="font-medium text-gray-700">
+            <span className="font-medium text-surface-700">
               Gesamtfortschritt
-              {filterExam !== "all" && <span className="text-violet-600 ml-1">· {examName(filterExam)}</span>}
+              {filterExam !== "all" && <span className="text-brand-600 ml-1">· {examName(filterExam)}</span>}
               {filterTask !== "all" && <span className="text-blue-600 ml-1">· {taskName(filterTask)}</span>}
             </span>
-            <span className="text-gray-500">{Math.round((filteredTopics.filter(t => t.status === "understood").length / filteredTopics.length) * 100)}%</span>
+            <span className="text-surface-500">{Math.round((filteredTopics.filter(t => t.status === "understood").length / filteredTopics.length) * 100)}%</span>
           </div>
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all"
+          <div className="h-2 bg-surface-100 rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-brand-500 to-indigo-500 rounded-full transition-all"
               style={{ width: `${(filteredTopics.filter(t => t.status === "understood").length / filteredTopics.length) * 100}%` }} />
           </div>
-          <div className="flex gap-4 mt-3 text-xs text-gray-500">
+          <div className="flex gap-4 mt-3 text-xs text-surface-500">
             {Object.entries(STATUS_LABELS).map(([k, v]) => (
               <span key={k} className="flex items-center gap-1">
-                <span className={`w-2 h-2 rounded-full ${k === "not_started" ? "bg-gray-400" : k === "in_progress" ? "bg-blue-500" : k === "understood" ? "bg-green-500" : "bg-yellow-500"}`} />
+                <span className={`w-2 h-2 rounded-full ${k === "not_started" ? "bg-surface-400" : k === "in_progress" ? "bg-blue-500" : k === "understood" ? "bg-green-500" : "bg-yellow-500"}`} />
                 {filteredTopics.filter(t => t.status === k).length} {v}
               </span>
             ))}
@@ -366,9 +366,9 @@ export default function KnowledgePage() {
       )}
 
       {loading ? (
-        <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-12 bg-gray-100 rounded-xl animate-pulse" />)}</div>
+        <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-12 bg-surface-100 rounded-xl animate-pulse" />)}</div>
       ) : rootTopics.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-surface-400">
           <Brain size={40} className="mx-auto mb-3 opacity-30" />
           <p className="font-medium">Keine Lernziele {filterExam !== "all" ? "für diese Prüfung" : filterTask !== "all" ? "für diese Aufgabe" : ""}</p>
           <p className="text-sm mt-1">Füge Themen hinzu und ordne sie einer Prüfung oder Aufgabe zu.</p>
@@ -442,9 +442,9 @@ function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onTog
 
   return (
     <div>
-      <div className={`flex items-center gap-2 p-2.5 rounded-xl hover:bg-gray-50 group ${depth > 0 ? "ml-6" : ""}`}>
-        <button onClick={() => hasChildren && onToggleExpand(topic.id)} className="w-5 h-5 flex items-center justify-center shrink-0 text-gray-400">
-          {hasChildren ? (isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />) : <span className="w-2 h-2 rounded-full bg-gray-200" />}
+      <div className={`flex items-center gap-2 p-2.5 rounded-xl hover:bg-surface-50 group ${depth > 0 ? "ml-6" : ""}`}>
+        <button onClick={() => hasChildren && onToggleExpand(topic.id)} className="w-5 h-5 flex items-center justify-center shrink-0 text-surface-400">
+          {hasChildren ? (isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />) : <span className="w-2 h-2 rounded-full bg-surface-200" />}
         </button>
 
         <button onClick={() => onToggleStatus(topic)}
@@ -452,7 +452,7 @@ function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onTog
           {STATUS_LABELS[topic.status ?? "not_started"]}
         </button>
 
-        <span className="flex-1 text-sm text-gray-800 font-medium">{topic.title}</span>
+        <span className="flex-1 text-sm text-surface-800 font-medium">{topic.title}</span>
 
         {/* Exam badge */}
         {linkedExam && (
@@ -465,31 +465,31 @@ function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onTog
         <div className="flex gap-0.5 shrink-0">
           {KNOWLEDGE_LEVELS.map(l => (
             <button key={l.level} onClick={() => onSetLevel(topic, l.level)}
-              className={`w-3 h-3 rounded-sm transition-all ${kl >= l.level ? l.color : "bg-gray-200"} hover:scale-125`}
+              className={`w-3 h-3 rounded-sm transition-all ${kl >= l.level ? l.color : "bg-surface-200"} hover:scale-125`}
               title={l.label}
             />
           ))}
         </div>
 
-        {topic.description && <span className="text-xs text-gray-400 truncate max-w-[150px] hidden sm:block">{topic.description}</span>}
+        {topic.description && <span className="text-xs text-surface-400 truncate max-w-[150px] hidden sm:block">{topic.description}</span>}
 
         {/* SR info */}
         {topic.sr_next_review && (
           <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-            new Date(topic.sr_next_review) <= new Date() ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-500"
+            new Date(topic.sr_next_review) <= new Date() ? "bg-amber-100 text-amber-700" : "bg-surface-100 text-surface-500"
           }`}>
             {new Date(topic.sr_next_review) <= new Date() ? "Fällig" : new Date(topic.sr_next_review).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" })}
           </span>
         )}
 
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button onClick={() => onAddChild(topic.id)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-violet-500" title="Unterthema">
+          <button onClick={() => onAddChild(topic.id)} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400 hover:text-brand-500" title="Unterthema">
             <Plus size={13} />
           </button>
-          <button onClick={() => onEdit(topic)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400">
+          <button onClick={() => onEdit(topic)} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400">
             <Pencil size={13} />
           </button>
-          <button onClick={() => onDelete(topic.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500">
+          <button onClick={() => onDelete(topic.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500">
             <Trash2 size={13} />
           </button>
         </div>
@@ -559,8 +559,8 @@ function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; con
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
         <div className="bg-white rounded-2xl shadow-xl w-full max-w-md text-center p-8">
           <Check size={32} className="mx-auto mb-4 text-green-500" />
-          <h2 className="text-lg font-bold text-gray-900 mb-2">Keine Reviews fällig</h2>
-          <p className="text-gray-500 text-sm mb-4">Alle Themen sind auf dem neuesten Stand.</p>
+          <h2 className="text-lg font-bold text-surface-900 mb-2">Keine Reviews fällig</h2>
+          <p className="text-surface-500 text-sm mb-4">Alle Themen sind auf dem neuesten Stand.</p>
           <button onClick={onClose} className="btn-primary w-full justify-center">Schliessen</button>
         </div>
       </div>
@@ -574,19 +574,19 @@ function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; con
           <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
             <Check size={32} className="text-green-600" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Review abgeschlossen!</h2>
-          {contextLabel && <p className="text-violet-600 text-sm font-medium mb-1">{contextLabel}</p>}
-          <p className="text-gray-500 mb-4">
+          <h2 className="text-xl font-bold text-surface-900 mb-2">Review abgeschlossen!</h2>
+          {contextLabel && <p className="text-brand-600 text-sm font-medium mb-1">{contextLabel}</p>}
+          <p className="text-surface-500 mb-4">
             {stats.good + stats.again} Themen wiederholt
           </p>
           <div className="flex justify-center gap-6 mb-6">
             <div className="text-center">
               <p className="text-2xl font-bold text-green-600">{stats.good}</p>
-              <p className="text-xs text-gray-500">Gewusst</p>
+              <p className="text-xs text-surface-500">Gewusst</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-red-500">{stats.again}</p>
-              <p className="text-xs text-gray-500">Wiederholen</p>
+              <p className="text-xs text-surface-500">Wiederholen</p>
             </div>
           </div>
           <button onClick={onClose} className="btn-primary w-full justify-center">Fertig</button>
@@ -600,43 +600,43 @@ function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; con
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
+        <div className="flex items-center justify-between p-5 border-b border-surface-100">
           <div className="flex items-center gap-3">
-            <Brain size={18} className="text-violet-600" />
+            <Brain size={18} className="text-brand-600" />
             <div>
-              <span className="font-semibold text-gray-900">Spaced Repetition Review</span>
-              {contextLabel && <p className="text-xs text-violet-500">{contextLabel}</p>}
+              <span className="font-semibold text-surface-900">Spaced Repetition Review</span>
+              {contextLabel && <p className="text-xs text-brand-500">{contextLabel}</p>}
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-gray-400">{idx + 1} / {topics.length}</span>
-            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100"><X size={16} /></button>
+            <span className="text-xs text-surface-400">{idx + 1} / {topics.length}</span>
+            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
           </div>
         </div>
 
-        <div className="h-1 bg-gray-100">
-          <div className="h-full bg-violet-500 transition-all" style={{ width: `${((idx) / topics.length) * 100}%` }} />
+        <div className="h-1 bg-surface-100">
+          <div className="h-full bg-brand-500 transition-all" style={{ width: `${((idx) / topics.length) * 100}%` }} />
         </div>
 
         <div className="p-8 text-center min-h-[200px] flex flex-col items-center justify-center">
-          <h3 className="text-xl font-bold text-gray-900 mb-2">{current.title}</h3>
+          <h3 className="text-xl font-bold text-surface-900 mb-2">{current.title}</h3>
           {current.description && !showAnswer && (
-            <p className="text-gray-400 text-sm">Kannst du dieses Thema erklären?</p>
+            <p className="text-surface-400 text-sm">Kannst du dieses Thema erklären?</p>
           )}
           {showAnswer && current.description && (
-            <p className="text-gray-600 mt-3 text-sm bg-gray-50 rounded-xl p-4">{current.description}</p>
+            <p className="text-surface-600 mt-3 text-sm bg-surface-50 rounded-xl p-4">{current.description}</p>
           )}
         </div>
 
-        <div className="p-5 border-t border-gray-100">
+        <div className="p-5 border-t border-surface-100">
           {!showAnswer ? (
             <button onClick={() => setShowAnswer(true)}
-              className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors">
+              className="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium transition-colors">
               Antwort zeigen
             </button>
           ) : (
             <div>
-              <p className="text-xs text-gray-500 text-center mb-3">Wie gut wusstest du es?</p>
+              <p className="text-xs text-surface-500 text-center mb-3">Wie gut wusstest du es?</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <button onClick={() => rate(1)} className="py-2.5 rounded-xl bg-red-100 hover:bg-red-200 text-red-700 text-sm font-medium transition-colors">Nochmal</button>
                 <button onClick={() => rate(3)} className="py-2.5 rounded-xl bg-orange-100 hover:bg-orange-200 text-orange-700 text-sm font-medium transition-colors">Schwer</button>
@@ -705,29 +705,29 @@ function TopicModal({ initial, parentId, modules, exams, tasks, presetExam, pres
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">{initial ? "Thema bearbeiten" : parentId ? "Unterthema hinzufügen" : "Neues Thema"}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100"><X size={16} /></button>
+        <div className="flex items-center justify-between p-5 border-b border-surface-100">
+          <h2 className="font-semibold text-surface-900">{initial ? "Thema bearbeiten" : parentId ? "Unterthema hinzufügen" : "Neues Thema"}</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Titel *</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Titel *</label>
             <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder="Thema…" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Beschreibung</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Beschreibung</label>
             <textarea className="input resize-none" rows={2} value={form.description} onChange={e => set("description", e.target.value)} placeholder="Details…" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Modul</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Modul</label>
               <select className="input" value={form.module_id} onChange={e => set("module_id", e.target.value)}>
                 <option value="">—</option>
                 {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Status</label>
               <select className="input" value={form.status} onChange={e => set("status", e.target.value)}>
                 {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
@@ -735,7 +735,7 @@ function TopicModal({ initial, parentId, modules, exams, tasks, presetExam, pres
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+              <label className="block text-sm font-medium text-surface-700 mb-1 flex items-center gap-1">
                 <GraduationCap size={12} /> Prüfung
               </label>
               <select className="input" value={form.exam_id} onChange={e => set("exam_id", e.target.value)}>
@@ -744,7 +744,7 @@ function TopicModal({ initial, parentId, modules, exams, tasks, presetExam, pres
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Aufgabe</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Aufgabe</label>
               <select className="input" value={form.task_id} onChange={e => set("task_id", e.target.value)}>
                 <option value="">— keine —</option>
                 {tasks.map(t => <option key={t.id} value={t.id}>{t.title.length > 30 ? t.title.slice(0, 30) + "…" : t.title}</option>)}
@@ -752,13 +752,13 @@ function TopicModal({ initial, parentId, modules, exams, tasks, presetExam, pres
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Wissensstand</label>
+            <label className="block text-sm font-medium text-surface-700 mb-2">Wissensstand</label>
             <div className="flex gap-2">
               {KNOWLEDGE_LEVELS.map(kl => (
                 <button key={kl.level} type="button"
                   onClick={() => set("knowledge_level", kl.level)}
                   className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                    form.knowledge_level >= kl.level ? `${kl.color} text-white` : "bg-gray-100 text-gray-500"
+                    form.knowledge_level >= kl.level ? `${kl.color} text-white` : "bg-surface-100 text-surface-500"
                   }`}>
                   {kl.label}
                 </button>

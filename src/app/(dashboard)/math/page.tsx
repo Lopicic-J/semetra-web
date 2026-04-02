@@ -320,18 +320,18 @@ export default function MathPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">🧮 Mathe-Raum</h1>
-          <p className="text-zinc-400 text-xs sm:text-sm mt-1">Dein wissenschaftlicher Arbeitsplatz für Mathematik</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 flex items-center gap-2">🧮 Mathe-Raum</h1>
+          <p className="text-surface-500 text-xs sm:text-sm mt-1">Dein wissenschaftlicher Arbeitsplatz für Mathematik</p>
         </div>
-        <button onClick={() => setShowHistory(!showHistory)} className="px-3 sm:px-4 py-2 rounded-lg bg-zinc-800 text-zinc-300 hover:bg-zinc-700 text-sm flex items-center gap-2 self-start sm:self-auto">
-          📜 Verlauf {history.length > 0 && <span className="bg-violet-600 text-white text-xs rounded-full px-2">{history.length}</span>}
+        <button onClick={() => setShowHistory(!showHistory)} className="px-3 sm:px-4 py-2 rounded-lg bg-surface-100 text-surface-700 hover:bg-surface-200 text-sm flex items-center gap-2 self-start sm:self-auto">
+          📜 Verlauf {history.length > 0 && <span className="bg-brand-600 text-white text-xs rounded-full px-2">{history.length}</span>}
         </button>
       </div>
 
       {/* Tool Tabs */}
       <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 -mx-1 px-1">
         {TOOLS.map((t) => (
-          <button key={t.key} onClick={() => setActiveTool(t.key)} className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${activeTool === t.key ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200"}`}>
+          <button key={t.key} onClick={() => setActiveTool(t.key)} className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${activeTool === t.key ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200 hover:text-surface-800"}`}>
             <span>{t.icon}</span>
             <span className="hidden sm:inline">{t.label}</span>
           </button>
@@ -340,21 +340,21 @@ export default function MathPage() {
 
       {/* History Sidebar */}
       {showHistory && (
-        <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-4">
-          <h3 className="text-white font-semibold mb-3">Berechnungsverlauf</h3>
+        <div className="bg-white rounded-xl border border-surface-200 p-4">
+          <h3 className="text-surface-900 font-semibold mb-3">Berechnungsverlauf</h3>
           {history.length === 0 ? (
-            <p className="text-zinc-500 text-sm">Noch keine Berechnungen gespeichert.</p>
+            <p className="text-surface-400 text-sm">Noch keine Berechnungen gespeichert.</p>
           ) : (
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {history.slice(0, 30).map((h) => (
-                <div key={h.id} className="flex items-center justify-between bg-zinc-800 rounded-lg px-3 py-2">
+                <div key={h.id} className="flex items-center justify-between bg-surface-100 rounded-lg px-3 py-2">
                   <div className="min-w-0">
-                    <span className="text-xs text-violet-400 mr-2">{TOOLS.find((t) => t.key === h.tool)?.icon}</span>
-                    <span className="text-zinc-300 text-sm font-mono truncate">{h.expression}</span>
-                    <span className="text-zinc-500 mx-2">=</span>
-                    <span className="text-emerald-400 text-sm font-mono">{h.result}</span>
+                    <span className="text-xs text-brand-600 mr-2">{TOOLS.find((t) => t.key === h.tool)?.icon}</span>
+                    <span className="text-surface-700 text-sm font-mono truncate">{h.expression}</span>
+                    <span className="text-surface-400 mx-2">=</span>
+                    <span className="text-success-600 text-sm font-mono">{h.result}</span>
                   </div>
-                  <span className="text-zinc-600 text-xs ml-2 whitespace-nowrap">{new Date(h.created_at).toLocaleDateString("de-CH")}</span>
+                  <span className="text-surface-300 text-xs ml-2 whitespace-nowrap">{new Date(h.created_at).toLocaleDateString("de-CH")}</span>
                 </div>
               ))}
             </div>
@@ -363,7 +363,7 @@ export default function MathPage() {
       )}
 
       {/* Tool Content */}
-      <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-3 sm:p-6">
+      <div className="bg-white rounded-xl border border-surface-200 p-3 sm:p-6">
         {activeTool === "calculator" && <CalculatorTool onSave={saveToHistory} modules={modules} />}
         {activeTool === "equations" && <EquationsTool onSave={saveToHistory} modules={modules} />}
         {activeTool === "matrices" && <MatricesTool onSave={saveToHistory} modules={modules} />}
@@ -413,22 +413,22 @@ function CalculatorTool({ onSave, modules }: { onSave: (t: MathTool, e: string, 
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h2 className="text-base sm:text-lg font-semibold text-white">Wissenschaftlicher Taschenrechner</h2>
+        <h2 className="text-base sm:text-lg font-semibold text-surface-900">Wissenschaftlicher Taschenrechner</h2>
         <div className="flex items-center gap-2 sm:gap-3">
-          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-xs sm:text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-zinc-700 flex-1 sm:flex-none">
+          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-xs sm:text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 flex-1 sm:flex-none">
             <option value="">Kein Modul</option>
             {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
-          <button onClick={() => setAngleMode(angleMode === "deg" ? "rad" : "deg")} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-300 text-sm border border-zinc-700 hover:bg-zinc-700">
+          <button onClick={() => setAngleMode(angleMode === "deg" ? "rad" : "deg")} className="px-3 py-1.5 rounded-lg bg-surface-100 text-surface-700 text-sm border border-surface-200 hover:bg-surface-200">
             {angleMode === "deg" ? "DEG" : "RAD"}
           </button>
         </div>
       </div>
 
       {/* Display */}
-      <div className="bg-zinc-950 rounded-xl p-4 mb-4 border border-zinc-800">
-        <input ref={inputRef} value={display} onChange={(e) => setDisplay(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleButton("="); }} placeholder="Ausdruck eingeben..." className="w-full bg-transparent text-white text-base sm:text-xl font-mono outline-none text-right" />
-        {result && <div className="text-right text-emerald-400 text-xl sm:text-2xl font-mono mt-2 font-bold break-all">= {result}</div>}
+      <div className="bg-surface-50 rounded-xl p-4 mb-4 border border-surface-200">
+        <input ref={inputRef} value={display} onChange={(e) => setDisplay(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleButton("="); }} placeholder="Ausdruck eingeben..." className="w-full bg-transparent text-surface-900 text-base sm:text-xl font-mono outline-none text-right" />
+        {result && <div className="text-right text-success-600 text-xl sm:text-2xl font-mono mt-2 font-bold break-all">= {result}</div>}
       </div>
 
       {/* Buttons */}
@@ -438,7 +438,7 @@ function CalculatorTool({ onSave, modules }: { onSave: (t: MathTool, e: string, 
           const isFn = ["sin", "cos", "tan", "ln", "log", "√", "^", "!", "%", "abs", "e", "π"].includes(btn);
           const isClear = btn === "C" || btn === "⌫";
           return (
-            <button key={i} onClick={() => handleButton(btn)} className={`py-2.5 sm:py-3 rounded-lg font-mono text-sm sm:text-base font-semibold transition-all active:scale-95 sm:hover:scale-105 ${btn === "=" ? "bg-violet-600 text-white hover:bg-violet-500" : isClear ? "bg-red-900 text-red-300 hover:bg-red-800" : isOp ? "bg-zinc-700 text-violet-300 hover:bg-zinc-600" : isFn ? "bg-zinc-800 text-blue-300 hover:bg-zinc-700" : "bg-zinc-800 text-white hover:bg-zinc-700"}`}>
+            <button key={i} onClick={() => handleButton(btn)} className={`py-2.5 sm:py-3 rounded-lg font-mono text-sm sm:text-base font-semibold transition-all active:scale-95 sm:hover:scale-105 ${btn === "=" ? "bg-brand-600 text-white hover:bg-brand-700" : isClear ? "bg-danger-50 text-danger-600 hover:bg-danger-100" : isOp ? "bg-surface-200 text-brand-500 hover:bg-surface-200" : isFn ? "bg-surface-100 text-info-600 hover:bg-surface-200" : "bg-surface-100 text-surface-900 hover:bg-surface-200"}`}>
               {btn}
             </button>
           );
@@ -503,13 +503,13 @@ function EquationsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r
     onSave("equations", expr, res, moduleId);
   };
 
-  const inputCls = "bg-zinc-800 text-white rounded-lg px-2 sm:px-3 py-2 border border-zinc-700 text-center font-mono w-14 sm:w-20";
+  const inputCls = "bg-surface-100 text-surface-900 rounded-lg px-2 sm:px-3 py-2 border border-surface-200 text-center font-mono w-14 sm:w-20";
 
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h2 className="text-lg font-semibold text-white">Gleichungslöser & Umsteller</h2>
-        <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-zinc-700 min-w-0 self-start sm:self-auto">
+        <h2 className="text-lg font-semibold text-surface-900">Gleichungslöser & Umsteller</h2>
+        <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 min-w-0 self-start sm:self-auto">
           <option value="">Kein Modul</option>
           {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
@@ -518,14 +518,14 @@ function EquationsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r
       {/* Mode Tabs */}
       <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6">
         {([ ["linear", "Linear"], ["quadratic", "Quadratisch"], ["system", "System (2×2)"], ["custom", "Custom"] ] as [string, string][]).map(([k, l]) => (
-          <button key={k} onClick={() => setMode(k as typeof mode)} className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm ${mode === k ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"}`}>{l}</button>
+          <button key={k} onClick={() => setMode(k as typeof mode)} className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm ${mode === k ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{l}</button>
         ))}
       </div>
 
       {/* Inputs */}
-      <div className="bg-zinc-800 rounded-xl p-3 sm:p-6 mb-4">
+      <div className="bg-surface-100 rounded-xl p-3 sm:p-6 mb-4">
         {mode === "linear" && (
-          <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-white font-mono flex-wrap">
+          <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-surface-900 font-mono flex-wrap">
             <input value={a} onChange={(e) => setA(e.target.value)} className={inputCls} />
             <span>x +</span>
             <input value={b} onChange={(e) => setB(e.target.value)} className={inputCls} />
@@ -533,7 +533,7 @@ function EquationsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r
           </div>
         )}
         {mode === "quadratic" && (
-          <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-white font-mono flex-wrap">
+          <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-surface-900 font-mono flex-wrap">
             <input value={a} onChange={(e) => setA(e.target.value)} className={inputCls} />
             <span>x² +</span>
             <input value={b} onChange={(e) => setB(e.target.value)} className={inputCls} />
@@ -544,12 +544,12 @@ function EquationsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r
         )}
         {mode === "system" && (
           <div className="space-y-3">
-            <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-white font-mono flex-wrap">
+            <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-surface-900 font-mono flex-wrap">
               <input value={a} onChange={(e) => setA(e.target.value)} className={inputCls} /><span>x +</span>
               <input value={b} onChange={(e) => setB(e.target.value)} className={inputCls} /><span>y =</span>
               <input value={c} onChange={(e) => setC(e.target.value)} className={inputCls} />
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-white font-mono flex-wrap">
+            <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-surface-900 font-mono flex-wrap">
               <input value={a2} onChange={(e) => setA2(e.target.value)} className={inputCls} /><span>x +</span>
               <input value={b2} onChange={(e) => setB2(e.target.value)} className={inputCls} /><span>y =</span>
               <input value={c2} onChange={(e) => setC2(e.target.value)} className={inputCls} />
@@ -558,27 +558,27 @@ function EquationsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r
         )}
         {mode === "custom" && (
           <div className="space-y-3">
-            <input value={customExpr} onChange={(e) => setCustomExpr(e.target.value)} placeholder="z.B. 2*x^2 + 3*x - 5 = 0" className="w-full bg-zinc-900 text-white rounded-lg px-4 py-3 border border-zinc-700 font-mono" />
-            <div className="flex items-center gap-2 text-sm text-zinc-400">
+            <input value={customExpr} onChange={(e) => setCustomExpr(e.target.value)} placeholder="z.B. 2*x^2 + 3*x - 5 = 0" className="w-full bg-white text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono" />
+            <div className="flex items-center gap-2 text-sm text-surface-500">
               <span>Variable:</span>
-              <input value={customVar} onChange={(e) => setCustomVar(e.target.value)} className="bg-zinc-900 text-white rounded px-2 py-1 border border-zinc-700 font-mono w-12 text-center" />
+              <input value={customVar} onChange={(e) => setCustomVar(e.target.value)} className="bg-white text-surface-900 rounded px-2 py-1 border border-surface-200 font-mono w-12 text-center" />
             </div>
           </div>
         )}
       </div>
 
-      <button onClick={solve} className="w-full py-3 rounded-xl bg-violet-600 text-white font-semibold hover:bg-violet-500 transition-colors mb-4">Lösen</button>
+      <button onClick={solve} className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors mb-4">Lösen</button>
 
       {result && (
-        <div className="bg-zinc-950 rounded-xl p-4 border border-zinc-800">
-          <div className="text-zinc-400 text-sm mb-1">Ergebnis:</div>
-          <div className="text-emerald-400 text-xl font-mono whitespace-pre-line">{result}</div>
+        <div className="bg-surface-50 rounded-xl p-4 border border-surface-200">
+          <div className="text-surface-500 text-sm mb-1">Ergebnis:</div>
+          <div className="text-success-600 text-xl font-mono whitespace-pre-line">{result}</div>
         </div>
       )}
 
       {/* Quick formulas */}
       <div className="mt-6">
-        <h3 className="text-zinc-400 text-sm font-semibold mb-2">Schnell-Referenz</h3>
+        <h3 className="text-surface-500 text-sm font-semibold mb-2">Schnell-Referenz</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {[
             ["pq-Formel", "x = −p/2 ± √((p/2)² − q)"],
@@ -586,9 +586,9 @@ function EquationsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r
             ["Vieta", "x₁+x₂ = −b/a,  x₁·x₂ = c/a"],
             ["Cramersche Regel", "x = det(Aₓ)/det(A)"],
           ].map(([t, f]) => (
-            <div key={t} className="bg-zinc-800 rounded-lg px-3 py-2">
-              <div className="text-zinc-400 text-xs">{t}</div>
-              <div className="text-zinc-200 text-sm font-mono">{f}</div>
+            <div key={t} className="bg-surface-100 rounded-lg px-3 py-2">
+              <div className="text-surface-500 text-xs">{t}</div>
+              <div className="text-surface-800 text-sm font-mono">{f}</div>
             </div>
           ))}
         </div>
@@ -714,12 +714,12 @@ function MatricesTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r:
 
   const renderMatrix = (mat: number[][], setter: "A" | "B") => (
     <div className="inline-block max-w-full">
-      <div className="text-zinc-400 text-xs mb-1 text-center">Matrix {setter}</div>
-      <div className="border-l-2 border-r-2 border-zinc-600 px-1 sm:px-2 py-1 overflow-x-auto">
+      <div className="text-surface-500 text-xs mb-1 text-center">Matrix {setter}</div>
+      <div className="border-l-2 border-r-2 border-surface-300 px-1 sm:px-2 py-1 overflow-x-auto">
         {mat.map((row, r) => (
           <div key={r} className="flex gap-1">
             {row.map((v, c) => (
-              <input key={c} value={v || ""} onChange={(e) => updateCell(setter, r, c, e.target.value)} className="w-10 sm:w-14 h-8 sm:h-10 bg-zinc-800 text-white text-center rounded border border-zinc-700 font-mono text-[11px] sm:text-sm shrink-0" />
+              <input key={c} value={v || ""} onChange={(e) => updateCell(setter, r, c, e.target.value)} className="w-10 sm:w-14 h-8 sm:h-10 bg-surface-100 text-surface-900 text-center rounded border border-surface-200 font-mono text-[11px] sm:text-sm shrink-0" />
             ))}
           </div>
         ))}
@@ -730,13 +730,13 @@ function MatricesTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r:
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h2 className="text-lg font-semibold text-white">Matrizen-Rechner</h2>
+        <h2 className="text-lg font-semibold text-surface-900">Matrizen-Rechner</h2>
         <div className="flex items-center gap-2 sm:gap-3">
-          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-zinc-700 min-w-0 flex-1 sm:flex-none">
+          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 min-w-0 flex-1 sm:flex-none">
             <option value="">Kein Modul</option>
             {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
-          <select value={size} onChange={(e) => setSize(Number(e.target.value))} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-zinc-700">
+          <select value={size} onChange={(e) => setSize(Number(e.target.value))} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200">
             <option value={2}>2×2</option>
             <option value={3}>3×3</option>
             <option value={4}>4×4</option>
@@ -749,7 +749,7 @@ function MatricesTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r:
         {[
           ["det", "Determinante"], ["transpose", "Transponierte"], ["inverse", "Inverse"], ["eigenvalues", "Eigenwerte"], ["rank", "Rang"], ["multiply", "A × B"], ["add", "A + B"],
         ].map(([k, l]) => (
-          <button key={k} onClick={() => setOperation(k)} className={`px-3 py-1.5 rounded-lg text-sm ${operation === k ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"}`}>{l}</button>
+          <button key={k} onClick={() => setOperation(k)} className={`px-3 py-1.5 rounded-lg text-sm ${operation === k ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{l}</button>
         ))}
       </div>
 
@@ -759,17 +759,17 @@ function MatricesTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r:
         {(operation === "multiply" || operation === "add") && renderMatrix(matB, "B")}
       </div>
 
-      <button onClick={compute} className="w-full py-3 rounded-xl bg-violet-600 text-white font-semibold hover:bg-violet-500 transition-colors mb-4">Berechnen</button>
+      <button onClick={compute} className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors mb-4">Berechnen</button>
 
       {result && (
-        <div className="bg-zinc-950 rounded-xl p-4 border border-zinc-800">
-          <div className="text-emerald-400 font-mono text-lg mb-2">{result}</div>
+        <div className="bg-surface-50 rounded-xl p-4 border border-surface-200">
+          <div className="text-success-600 font-mono text-lg mb-2">{result}</div>
           {resultMatrix && (
-            <div className="border-l-2 border-r-2 border-emerald-800 px-2 py-1 inline-block">
+            <div className="border-l-2 border-r-2 border-success-200 px-2 py-1 inline-block">
               {resultMatrix.map((row, r) => (
                 <div key={r} className="flex gap-2">
                   {row.map((v, c) => (
-                    <div key={c} className="w-16 h-10 flex items-center justify-center text-emerald-300 font-mono text-sm">{fmt(v)}</div>
+                    <div key={c} className="w-16 h-10 flex items-center justify-center text-success-600 font-mono text-sm">{fmt(v)}</div>
                   ))}
                 </div>
               ))}
@@ -827,7 +827,7 @@ function PlotterTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: 
     const W = canvas.width;
     const H = canvas.height;
 
-    ctx.fillStyle = "#09090b";
+    ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, W, H);
 
     // Grid
@@ -837,7 +837,7 @@ function PlotterTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: 
     ];
 
     // Grid lines
-    ctx.strokeStyle = "#27272a";
+    ctx.strokeStyle = "#e2e8f0";
     ctx.lineWidth = 1;
     const stepX = Math.pow(10, Math.floor(Math.log10(xMax - xMin)) - 1) * 2;
     const stepY = Math.pow(10, Math.floor(Math.log10(yMax - yMin)) - 1) * 2;
@@ -851,14 +851,14 @@ function PlotterTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: 
     }
 
     // Axes
-    ctx.strokeStyle = "#52525b";
+    ctx.strokeStyle = "#94a3b8";
     ctx.lineWidth = 2;
     const [ox, oy] = toScreen(0, 0);
     ctx.beginPath(); ctx.moveTo(0, oy); ctx.lineTo(W, oy); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(ox, 0); ctx.lineTo(ox, H); ctx.stroke();
 
     // Axis labels
-    ctx.fillStyle = "#71717a";
+    ctx.fillStyle = "#64748b";
     ctx.font = "11px monospace";
     for (let gx = Math.ceil(xMin / stepX) * stepX; gx <= xMax; gx += stepX) {
       if (Math.abs(gx) < 0.001) continue;
@@ -898,7 +898,7 @@ function PlotterTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: 
       ctx.setLineDash([]);
       const mx = xMin + (mousePos.x / W) * (xMax - xMin);
       const my = yMax - (mousePos.y / H) * (yMax - yMin);
-      ctx.fillStyle = "#a1a1aa";
+      ctx.fillStyle = "#475569";
       ctx.font = "12px monospace";
       ctx.fillText(`(${mx.toFixed(2)}, ${my.toFixed(2)})`, mousePos.x + 10, mousePos.y - 10);
     }
@@ -923,13 +923,13 @@ function PlotterTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: 
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h2 className="text-lg font-semibold text-white">Funktions-Plotter</h2>
+        <h2 className="text-lg font-semibold text-surface-900">Funktions-Plotter</h2>
         <div className="flex items-center gap-2">
-          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-zinc-700 min-w-0 flex-1 sm:flex-none">
+          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 min-w-0 flex-1 sm:flex-none">
             <option value="">Kein Modul</option>
             {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
-          <button onClick={savePlot} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-300 text-sm hover:bg-zinc-700 whitespace-nowrap">💾 Speichern</button>
+          <button onClick={savePlot} className="px-3 py-1.5 rounded-lg bg-surface-100 text-surface-700 text-sm hover:bg-surface-200 whitespace-nowrap">💾 Speichern</button>
         </div>
       </div>
 
@@ -938,40 +938,40 @@ function PlotterTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: 
         {functions.map((fn, i) => (
           <div key={i} className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: fn.color }} />
-            <span className="text-zinc-400 text-sm font-mono">f{i > 0 ? i + 1 : ""}(x) =</span>
-            <input value={fn.expr} onChange={(e) => { const copy = [...functions]; copy[i] = { ...copy[i], expr: e.target.value }; setFunctions(copy); }} placeholder="z.B. sin(x), x^2, 2*x+1" className="flex-1 bg-zinc-800 text-white rounded-lg px-3 py-2 border border-zinc-700 font-mono text-sm" />
+            <span className="text-surface-500 text-sm font-mono">f{i > 0 ? i + 1 : ""}(x) =</span>
+            <input value={fn.expr} onChange={(e) => { const copy = [...functions]; copy[i] = { ...copy[i], expr: e.target.value }; setFunctions(copy); }} placeholder="z.B. sin(x), x^2, 2*x+1" className="flex-1 bg-surface-100 text-surface-900 rounded-lg px-3 py-2 border border-surface-200 font-mono text-sm" />
             {functions.length > 1 && (
-              <button onClick={() => setFunctions(functions.filter((_, j) => j !== i))} className="text-zinc-500 hover:text-red-400">✕</button>
+              <button onClick={() => setFunctions(functions.filter((_, j) => j !== i))} className="text-surface-400 hover:text-danger-600">✕</button>
             )}
           </div>
         ))}
-        <button onClick={addFunction} className="text-violet-400 text-sm hover:text-violet-300">+ Funktion hinzufügen</button>
+        <button onClick={addFunction} className="text-brand-600 text-sm hover:text-brand-500">+ Funktion hinzufügen</button>
       </div>
 
       {/* Range controls */}
       <div className="flex flex-wrap gap-2 sm:gap-4 mb-4 text-sm">
-        <div className="flex items-center gap-1 text-zinc-400">
-          x: <input value={xMin} onChange={(e) => setXMin(Number(e.target.value))} className="w-12 sm:w-16 bg-zinc-800 text-white rounded px-1 sm:px-2 py-1 border border-zinc-700 font-mono text-center text-xs sm:text-sm" />
-          bis <input value={xMax} onChange={(e) => setXMax(Number(e.target.value))} className="w-12 sm:w-16 bg-zinc-800 text-white rounded px-1 sm:px-2 py-1 border border-zinc-700 font-mono text-center text-xs sm:text-sm" />
+        <div className="flex items-center gap-1 text-surface-500">
+          x: <input value={xMin} onChange={(e) => setXMin(Number(e.target.value))} className="w-12 sm:w-16 bg-surface-100 text-surface-900 rounded px-1 sm:px-2 py-1 border border-surface-200 font-mono text-center text-xs sm:text-sm" />
+          bis <input value={xMax} onChange={(e) => setXMax(Number(e.target.value))} className="w-12 sm:w-16 bg-surface-100 text-surface-900 rounded px-1 sm:px-2 py-1 border border-surface-200 font-mono text-center text-xs sm:text-sm" />
         </div>
-        <div className="flex items-center gap-1 text-zinc-400">
-          y: <input value={yMin} onChange={(e) => setYMin(Number(e.target.value))} className="w-12 sm:w-16 bg-zinc-800 text-white rounded px-1 sm:px-2 py-1 border border-zinc-700 font-mono text-center text-xs sm:text-sm" />
-          bis <input value={yMax} onChange={(e) => setYMax(Number(e.target.value))} className="w-12 sm:w-16 bg-zinc-800 text-white rounded px-1 sm:px-2 py-1 border border-zinc-700 font-mono text-center text-xs sm:text-sm" />
+        <div className="flex items-center gap-1 text-surface-500">
+          y: <input value={yMin} onChange={(e) => setYMin(Number(e.target.value))} className="w-12 sm:w-16 bg-surface-100 text-surface-900 rounded px-1 sm:px-2 py-1 border border-surface-200 font-mono text-center text-xs sm:text-sm" />
+          bis <input value={yMax} onChange={(e) => setYMax(Number(e.target.value))} className="w-12 sm:w-16 bg-surface-100 text-surface-900 rounded px-1 sm:px-2 py-1 border border-surface-200 font-mono text-center text-xs sm:text-sm" />
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={() => { setXMin(xMin * 0.5); setXMax(xMax * 0.5); setYMin(yMin * 0.5); setYMax(yMax * 0.5); }} className="px-2 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700 text-xs">🔍+</button>
-          <button onClick={() => { setXMin(xMin * 2); setXMax(xMax * 2); setYMin(yMin * 2); setYMax(yMax * 2); }} className="px-2 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700 text-xs">🔍−</button>
-          <button onClick={() => { setXMin(-10); setXMax(10); setYMin(-5); setYMax(5); }} className="px-2 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700 text-xs">↺</button>
+          <button onClick={() => { setXMin(xMin * 0.5); setXMax(xMax * 0.5); setYMin(yMin * 0.5); setYMax(yMax * 0.5); }} className="px-2 py-1 bg-surface-100 text-surface-700 rounded hover:bg-surface-200 text-xs">🔍+</button>
+          <button onClick={() => { setXMin(xMin * 2); setXMax(xMax * 2); setYMin(yMin * 2); setYMax(yMax * 2); }} className="px-2 py-1 bg-surface-100 text-surface-700 rounded hover:bg-surface-200 text-xs">🔍−</button>
+          <button onClick={() => { setXMin(-10); setXMax(10); setYMin(-5); setYMax(5); }} className="px-2 py-1 bg-surface-100 text-surface-700 rounded hover:bg-surface-200 text-xs">↺</button>
         </div>
       </div>
 
       {/* Canvas */}
-      <canvas ref={canvasRef} width={800} height={500} onMouseMove={handleMouseMove} onMouseLeave={() => setMousePos(null)} className="w-full rounded-xl border border-zinc-800 cursor-crosshair" />
+      <canvas ref={canvasRef} width={800} height={500} onMouseMove={handleMouseMove} onMouseLeave={() => setMousePos(null)} className="w-full rounded-xl border border-surface-200 cursor-crosshair" />
 
       {/* Quick functions */}
       <div className="mt-4 flex flex-wrap gap-2">
         {["sin(x)", "cos(x)", "tan(x)", "x^2", "x^3", "sqrt(x)", "1/x", "ln(x)", "e^x", "abs(x)"].map((f) => (
-          <button key={f} onClick={() => setFunctions([{ expr: f, color: COLORS[0] }])} className="px-2 py-1 bg-zinc-800 text-zinc-400 rounded text-xs font-mono hover:bg-zinc-700 hover:text-white">{f}</button>
+          <button key={f} onClick={() => setFunctions([{ expr: f, color: COLORS[0] }])} className="px-2 py-1 bg-surface-100 text-surface-500 rounded text-xs font-mono hover:bg-surface-200 hover:text-surface-900">{f}</button>
         ))}
       </div>
     </div>
@@ -1021,7 +1021,7 @@ function StatisticsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const W = canvas.width, H = canvas.height;
-    ctx.fillStyle = "#09090b";
+    ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, W, H);
 
     const bins = 10;
@@ -1037,9 +1037,9 @@ function StatisticsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, 
 
     counts.forEach((c, i) => {
       const barH = maxCount > 0 ? (c / maxCount) * barArea : 0;
-      ctx.fillStyle = "#7c3aed";
+      ctx.fillStyle = "#4f46e5";
       ctx.fillRect(40 + i * barW + 2, H - 30 - barH, barW - 4, barH);
-      ctx.fillStyle = "#a1a1aa";
+      ctx.fillStyle = "#475569";
       ctx.font = "10px monospace";
       ctx.fillText(String(c), 40 + i * barW + barW / 2 - 4, H - 30 - barH - 5);
       ctx.fillText((stats.min + i * binWidth).toFixed(1), 40 + i * barW, H - 15);
@@ -1067,17 +1067,17 @@ function StatisticsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, 
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h2 className="text-lg font-semibold text-white">Statistik-Werkzeug</h2>
+        <h2 className="text-lg font-semibold text-surface-900">Statistik-Werkzeug</h2>
         <div className="flex items-center gap-2">
-          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-zinc-700 min-w-0 flex-1 sm:flex-none">
+          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 min-w-0 flex-1 sm:flex-none">
             <option value="">Kein Modul</option>
             {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
-          <button onClick={handleSave} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-300 text-sm hover:bg-zinc-700 whitespace-nowrap">💾 Speichern</button>
+          <button onClick={handleSave} className="px-3 py-1.5 rounded-lg bg-surface-100 text-surface-700 text-sm hover:bg-surface-200 whitespace-nowrap">💾 Speichern</button>
         </div>
       </div>
 
-      <textarea value={data} onChange={(e) => setData(e.target.value)} placeholder="Daten eingeben (komma- oder leerzeichen-getrennt)..." className="w-full bg-zinc-800 text-white rounded-lg px-4 py-3 border border-zinc-700 font-mono text-sm mb-4 h-20 resize-none" />
+      <textarea value={data} onChange={(e) => setData(e.target.value)} placeholder="Daten eingeben (komma- oder leerzeichen-getrennt)..." className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-sm mb-4 h-20 resize-none" />
 
       {stats && (
         <>
@@ -1100,15 +1100,15 @@ function StatisticsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, 
               ["Q3 (75%)", fmt(stats.q3)],
               ["Modalwert", stats.modes.join(", ")],
             ].map(([label, val]) => (
-              <div key={label} className="bg-zinc-800 rounded-lg px-3 py-2">
-                <div className="text-zinc-500 text-xs">{label}</div>
-                <div className="text-white font-mono text-sm">{val}</div>
+              <div key={label} className="bg-surface-100 rounded-lg px-3 py-2">
+                <div className="text-surface-400 text-xs">{label}</div>
+                <div className="text-surface-900 font-mono text-sm">{val}</div>
               </div>
             ))}
           </div>
 
           {/* Histogram */}
-          <canvas ref={canvasRef} width={700} height={250} className="w-full rounded-xl border border-zinc-800" />
+          <canvas ref={canvasRef} width={700} height={250} className="w-full rounded-xl border border-surface-200" />
         </>
       )}
     </div>
@@ -1160,8 +1160,8 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h2 className="text-lg font-semibold text-white">Einheiten & Konstanten</h2>
-        <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-zinc-700 min-w-0 self-start sm:self-auto">
+        <h2 className="text-lg font-semibold text-surface-900">Einheiten & Konstanten</h2>
+        <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 min-w-0 self-start sm:self-auto">
           <option value="">Kein Modul</option>
           {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
@@ -1169,7 +1169,7 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
 
       <div className="flex gap-2 mb-6">
         {([["convert", "Umrechner"], ["constants", "Konstanten"], ["bases", "Zahlensysteme"]] as [string, string][]).map(([k, l]) => (
-          <button key={k} onClick={() => setTab(k as typeof tab)} className={`px-4 py-2 rounded-lg text-sm ${tab === k ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"}`}>{l}</button>
+          <button key={k} onClick={() => setTab(k as typeof tab)} className={`px-4 py-2 rounded-lg text-sm ${tab === k ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{l}</button>
         ))}
       </div>
 
@@ -1178,28 +1178,28 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
           {/* Group selector */}
           <div className="flex flex-wrap gap-2 mb-4">
             {UNIT_GROUPS.map((g, i) => (
-              <button key={g.label} onClick={() => { setGroup(i); setFromUnit(0); setToUnit(1); }} className={`px-3 py-1.5 rounded-lg text-sm ${group === i ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"}`}>{g.label}</button>
+              <button key={g.label} onClick={() => { setGroup(i); setFromUnit(0); setToUnit(1); }} className={`px-3 py-1.5 rounded-lg text-sm ${group === i ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{g.label}</button>
             ))}
           </div>
 
-          <div className="bg-zinc-800 rounded-xl p-4 sm:p-6">
+          <div className="bg-surface-100 rounded-xl p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center">
               <div className="text-center w-full sm:w-auto">
-                <input value={value} onChange={(e) => setValue(e.target.value)} className="w-full sm:w-40 bg-zinc-900 text-white text-lg sm:text-xl rounded-lg px-4 py-3 border border-zinc-700 font-mono text-center" />
-                <select value={fromUnit} onChange={(e) => setFromUnit(Number(e.target.value))} className="mt-2 w-full sm:w-40 bg-zinc-900 text-zinc-300 rounded-lg px-3 py-2 border border-zinc-700 text-sm">
+                <input value={value} onChange={(e) => setValue(e.target.value)} className="w-full sm:w-40 bg-white text-surface-900 text-lg sm:text-xl rounded-lg px-4 py-3 border border-surface-200 font-mono text-center" />
+                <select value={fromUnit} onChange={(e) => setFromUnit(Number(e.target.value))} className="mt-2 w-full sm:w-40 bg-white text-surface-700 rounded-lg px-3 py-2 border border-surface-200 text-sm">
                   {currentGroup.units.map((u, i) => <option key={i} value={i}>{u.name} ({u.symbol})</option>)}
                 </select>
               </div>
-              <button onClick={() => { setFromUnit(toUnit); setToUnit(fromUnit); }} className="text-2xl text-zinc-400 hover:text-violet-400 rotate-90 sm:rotate-0">⇄</button>
+              <button onClick={() => { setFromUnit(toUnit); setToUnit(fromUnit); }} className="text-2xl text-surface-500 hover:text-brand-600 rotate-90 sm:rotate-0">⇄</button>
               <div className="text-center w-full sm:w-auto">
-                <div className="w-full sm:w-40 text-emerald-400 text-lg sm:text-xl font-mono py-3 px-4 text-center break-all">{convertResult}</div>
-                <select value={toUnit} onChange={(e) => setToUnit(Number(e.target.value))} className="mt-2 w-full sm:w-40 bg-zinc-900 text-zinc-300 rounded-lg px-3 py-2 border border-zinc-700 text-sm">
+                <div className="w-full sm:w-40 text-success-600 text-lg sm:text-xl font-mono py-3 px-4 text-center break-all">{convertResult}</div>
+                <select value={toUnit} onChange={(e) => setToUnit(Number(e.target.value))} className="mt-2 w-full sm:w-40 bg-white text-surface-700 rounded-lg px-3 py-2 border border-surface-200 text-sm">
                   {currentGroup.units.map((u, i) => <option key={i} value={i}>{u.name} ({u.symbol})</option>)}
                 </select>
               </div>
             </div>
             <div className="text-center mt-4">
-              <button onClick={handleSaveConvert} className="text-violet-400 text-sm hover:text-violet-300">💾 Im Verlauf speichern</button>
+              <button onClick={handleSaveConvert} className="text-brand-600 text-sm hover:text-brand-500">💾 Im Verlauf speichern</button>
             </div>
           </div>
         </div>
@@ -1208,14 +1208,14 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
       {tab === "constants" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3">
           {CONSTANTS.map((c) => (
-            <div key={c.name} className="bg-zinc-800 rounded-lg px-4 py-3 flex items-center justify-between">
+            <div key={c.name} className="bg-surface-100 rounded-lg px-4 py-3 flex items-center justify-between">
               <div>
-                <div className="text-white text-sm font-medium">{c.name}</div>
-                <div className="text-zinc-500 text-xs">{c.unit}</div>
+                <div className="text-surface-900 text-sm font-medium">{c.name}</div>
+                <div className="text-surface-400 text-xs">{c.unit}</div>
               </div>
               <div className="text-right">
-                <div className="text-violet-400 font-mono text-sm">{c.symbol}</div>
-                <div className="text-emerald-400 font-mono text-sm">{c.value}</div>
+                <div className="text-brand-600 font-mono text-sm">{c.symbol}</div>
+                <div className="text-success-600 font-mono text-sm">{c.value}</div>
               </div>
             </div>
           ))}
@@ -1223,10 +1223,10 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
       )}
 
       {tab === "bases" && (
-        <div className="bg-zinc-800 rounded-xl p-4 sm:p-6">
+        <div className="bg-surface-100 rounded-xl p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mb-6">
-            <input value={baseInput} onChange={(e) => setBaseInput(e.target.value)} className="flex-1 bg-zinc-900 text-white text-lg sm:text-xl rounded-lg px-4 py-3 border border-zinc-700 font-mono min-w-0" placeholder="Zahl eingeben..." />
-            <select value={baseFrom} onChange={(e) => setBaseFrom(Number(e.target.value))} className="bg-zinc-900 text-zinc-300 rounded-lg px-3 py-3 border border-zinc-700 text-sm">
+            <input value={baseInput} onChange={(e) => setBaseInput(e.target.value)} className="flex-1 bg-white text-surface-900 text-lg sm:text-xl rounded-lg px-4 py-3 border border-surface-200 font-mono min-w-0" placeholder="Zahl eingeben..." />
+            <select value={baseFrom} onChange={(e) => setBaseFrom(Number(e.target.value))} className="bg-white text-surface-700 rounded-lg px-3 py-3 border border-surface-200 text-sm">
               <option value={2}>Binär (2)</option>
               <option value={8}>Oktal (8)</option>
               <option value={10}>Dezimal (10)</option>
@@ -1241,12 +1241,12 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
                 ["Dezimal (10)", baseResults.dec, "DEC"],
                 ["Hexadezimal (16)", baseResults.hex, "HEX"],
               ].map(([label, val, tag]) => (
-                <div key={label} className="bg-zinc-900 rounded-lg px-4 py-3">
+                <div key={label} className="bg-white rounded-lg px-4 py-3">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-zinc-500 text-xs">{label}</span>
-                    <span className="text-violet-400 text-xs font-mono">{tag}</span>
+                    <span className="text-surface-400 text-xs">{label}</span>
+                    <span className="text-brand-600 text-xs font-mono">{tag}</span>
                   </div>
-                  <div className="text-emerald-400 font-mono text-lg break-all">{val}</div>
+                  <div className="text-success-600 font-mono text-lg break-all">{val}</div>
                 </div>
               ))}
             </div>
@@ -1311,39 +1311,39 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules }: { us
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h2 className="text-lg font-semibold text-white">Formel-Sammlung</h2>
-        <button onClick={openNew} className="px-4 py-2 rounded-lg bg-violet-600 text-white text-sm font-medium hover:bg-violet-500 self-start sm:self-auto whitespace-nowrap">+ Eigene Formel</button>
+        <h2 className="text-lg font-semibold text-surface-900">Formel-Sammlung</h2>
+        <button onClick={openNew} className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 self-start sm:self-auto whitespace-nowrap">+ Eigene Formel</button>
       </div>
 
       {/* Search + Category filter */}
       <div className="flex gap-3 mb-4">
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Formeln durchsuchen..." className="flex-1 bg-zinc-800 text-white rounded-lg px-4 py-2 border border-zinc-700 text-sm" />
+        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Formeln durchsuchen..." className="flex-1 bg-surface-100 text-surface-900 rounded-lg px-4 py-2 border border-surface-200 text-sm" />
       </div>
       <div className="flex flex-wrap gap-2 mb-4">
-        <button onClick={() => setCategory("all")} className={`px-3 py-1.5 rounded-lg text-xs ${category === "all" ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"}`}>Alle</button>
+        <button onClick={() => setCategory("all")} className={`px-3 py-1.5 rounded-lg text-xs ${category === "all" ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>Alle</button>
         {FORMULA_CATEGORIES.map((c) => (
-          <button key={c.key} onClick={() => setCategory(c.key)} className={`px-3 py-1.5 rounded-lg text-xs ${category === c.key ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"}`}>{c.label}</button>
+          <button key={c.key} onClick={() => setCategory(c.key)} className={`px-3 py-1.5 rounded-lg text-xs ${category === c.key ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{c.label}</button>
         ))}
       </div>
 
       {/* Formulas List */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3">
         {allFormulas.map((f) => (
-          <div key={f.id} className="bg-zinc-800 rounded-lg px-4 py-3 group">
+          <div key={f.id} className="bg-surface-100 rounded-lg px-4 py-3 group">
             <div className="flex items-start justify-between">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  {(f as { isCustom?: boolean }).isCustom && <span className="text-xs bg-violet-900 text-violet-300 px-1.5 py-0.5 rounded">Eigene</span>}
-                  <span className="text-xs bg-zinc-700 text-zinc-300 px-1.5 py-0.5 rounded">{FORMULA_CATEGORIES.find((c) => c.key === f.category)?.label}</span>
+                  {(f as { isCustom?: boolean }).isCustom && <span className="text-xs bg-brand-50 text-brand-500 px-1.5 py-0.5 rounded">Eigene</span>}
+                  <span className="text-xs bg-surface-200 text-surface-700 px-1.5 py-0.5 rounded">{FORMULA_CATEGORIES.find((c) => c.key === f.category)?.label}</span>
                 </div>
-                <div className="text-white font-medium text-sm mt-1">{f.title}</div>
-                <div className="text-emerald-400 font-mono text-sm mt-1">{f.formula}</div>
-                {f.description && <div className="text-zinc-500 text-xs mt-1">{f.description}</div>}
+                <div className="text-surface-900 font-medium text-sm mt-1">{f.title}</div>
+                <div className="text-success-600 font-mono text-sm mt-1">{f.formula}</div>
+                {f.description && <div className="text-surface-400 text-xs mt-1">{f.description}</div>}
               </div>
               {(f as { isCustom?: boolean }).isCustom && (
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => openEdit(f as MathFormula)} className="text-zinc-500 hover:text-violet-400 text-xs">✏️</button>
-                  <button onClick={() => remove(f.id)} className="text-zinc-500 hover:text-red-400 text-xs">🗑️</button>
+                  <button onClick={() => openEdit(f as MathFormula)} className="text-surface-400 hover:text-brand-600 text-xs">✏️</button>
+                  <button onClick={() => remove(f.id)} className="text-surface-400 hover:text-danger-600 text-xs">🗑️</button>
                 </div>
               )}
             </div>
@@ -1351,29 +1351,29 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules }: { us
         ))}
       </div>
 
-      {allFormulas.length === 0 && <p className="text-zinc-500 text-sm text-center py-8">Keine Formeln gefunden.</p>}
+      {allFormulas.length === 0 && <p className="text-surface-400 text-sm text-center py-8">Keine Formeln gefunden.</p>}
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setShowModal(false)}>
-          <div className="bg-zinc-900 rounded-2xl p-6 w-full max-w-lg border border-zinc-800" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold text-white mb-4">{editId ? "Formel bearbeiten" : "Neue Formel"}</h3>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowModal(false)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-lg border border-surface-200" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold text-surface-900 mb-4">{editId ? "Formel bearbeiten" : "Neue Formel"}</h3>
             <div className="space-y-3">
-              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titel *" className="w-full bg-zinc-800 text-white rounded-lg px-4 py-2.5 border border-zinc-700 text-sm" />
-              <input value={formula} onChange={(e) => setFormula(e.target.value)} placeholder="Formel * (z.B. a² + b² = c²)" className="w-full bg-zinc-800 text-white rounded-lg px-4 py-2.5 border border-zinc-700 font-mono text-sm" />
-              <input value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Beschreibung (optional)" className="w-full bg-zinc-800 text-white rounded-lg px-4 py-2.5 border border-zinc-700 text-sm" />
-              <select value={cat} onChange={(e) => setCat(e.target.value as FormulaCategory)} className="w-full bg-zinc-800 text-zinc-300 rounded-lg px-4 py-2.5 border border-zinc-700 text-sm">
+              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titel *" className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />
+              <input value={formula} onChange={(e) => setFormula(e.target.value)} placeholder="Formel * (z.B. a² + b² = c²)" className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 font-mono text-sm" />
+              <input value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Beschreibung (optional)" className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />
+              <select value={cat} onChange={(e) => setCat(e.target.value as FormulaCategory)} className="w-full bg-surface-100 text-surface-700 rounded-lg px-4 py-2.5 border border-surface-200 text-sm">
                 {FORMULA_CATEGORIES.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
               </select>
-              <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="w-full bg-zinc-800 text-zinc-300 rounded-lg px-4 py-2.5 border border-zinc-700 text-sm">
+              <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="w-full bg-surface-100 text-surface-700 rounded-lg px-4 py-2.5 border border-surface-200 text-sm">
                 <option value="">Kein Modul</option>
                 {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
               </select>
-              <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Tags (komma-getrennt)" className="w-full bg-zinc-800 text-white rounded-lg px-4 py-2.5 border border-zinc-700 text-sm" />
+              <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Tags (komma-getrennt)" className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowModal(false)} className="flex-1 py-2.5 rounded-xl bg-zinc-800 text-zinc-300 hover:bg-zinc-700">Abbrechen</button>
-              <button onClick={save} className="flex-1 py-2.5 rounded-xl bg-violet-600 text-white font-semibold hover:bg-violet-500">Speichern</button>
+              <button onClick={() => setShowModal(false)} className="flex-1 py-2.5 rounded-xl bg-surface-100 text-surface-700 hover:bg-surface-200">Abbrechen</button>
+              <button onClick={save} className="flex-1 py-2.5 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700">Speichern</button>
             </div>
           </div>
         </div>

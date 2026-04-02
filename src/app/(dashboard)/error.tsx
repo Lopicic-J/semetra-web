@@ -15,7 +15,7 @@ export default function DashboardError({
   }, [error]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+    <div className="flex items-center justify-center min-h-screen bg-surface-50 p-4">
       <div className="w-full max-w-md">
         <div className="card bg-white rounded-2xl shadow-lg border border-red-100">
           {/* Error Icon */}
@@ -26,12 +26,12 @@ export default function DashboardError({
           </div>
 
           {/* Error Title */}
-          <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">
+          <h1 className="text-2xl font-bold text-surface-900 text-center mb-2">
             Etwas ist schiefgelaufen
           </h1>
 
           {/* Error Description */}
-          <p className="text-gray-600 text-center mb-6">
+          <p className="text-surface-600 text-center mb-6">
             Ein Fehler ist aufgetreten. Bitte versuche es erneut.
           </p>
 
@@ -62,7 +62,7 @@ export default function DashboardError({
         </div>
 
         {/* Footer Text */}
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-sm text-surface-500 mt-6">
           Wenn das Problem weiterhin besteht, kontaktiere bitte den Support.
         </p>
       </div>

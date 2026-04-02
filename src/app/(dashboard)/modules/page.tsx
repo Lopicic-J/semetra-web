@@ -28,7 +28,7 @@ const MODULE_TYPES = ["pflicht","wahl","vertiefung"];
 const STATUS_OPTIONS = ["planned","active","completed","paused"];
 
 const STATUS_CONFIG: Record<string, { label: string; icon: React.ElementType; cls: string }> = {
-  planned:   { label: "Geplant",      icon: Clock,        cls: "bg-gray-100 text-gray-600" },
+  planned:   { label: "Geplant",      icon: Clock,        cls: "bg-surface-100 text-surface-600" },
   active:    { label: "Aktiv",        icon: AlertCircle,  cls: "bg-blue-50 text-blue-700" },
   completed: { label: "Abgeschlossen",icon: CheckCircle,  cls: "bg-green-50 text-green-700" },
   paused:    { label: "Pausiert",     icon: PauseCircle,  cls: "bg-amber-50 text-amber-700" },
@@ -92,8 +92,8 @@ export default function ModulesPage() {
     <div className="p-3 sm:p-6 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">Module</h1>
-          <p className="text-gray-500 text-sm mt-0.5">
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-surface-900">Module</h1>
+          <p className="text-surface-500 text-sm mt-0.5">
             {modules.length} Module · {modules.reduce((s, m) => s + (m.ects ?? 0), 0)} ECTS total
             {!isPro && <span className="text-amber-600 ml-2">({modules.length}/{FREE_LIMITS.totalModules} Free-Limit)</span>}
           </p>
@@ -102,7 +102,7 @@ export default function ModulesPage() {
           {modules.length > 0 && (
             <button
               onClick={() => { setSelectMode(!selectMode); setSelected(new Set()); }}
-              className={`btn-secondary gap-2 text-sm ${selectMode ? "bg-violet-50 text-violet-700 border-violet-200" : ""}`}
+              className={`btn-secondary gap-2 text-sm ${selectMode ? "bg-brand-50 text-brand-700 border-brand-200" : ""}`}
             >
               {selectMode ? <XSquare size={15} /> : <CheckSquare size={15} />}
               {selectMode ? "Abbrechen" : "Auswählen"}
@@ -116,14 +116,14 @@ export default function ModulesPage() {
 
       {/* Bulk actions bar */}
       {selectMode && (
-        <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-xl border border-gray-200">
+        <div className="flex items-center gap-3 mb-4 p-3 bg-surface-50 rounded-xl border border-surface-200">
           <button
             onClick={selectAll}
-            className="text-sm font-medium text-violet-600 hover:text-violet-800"
+            className="text-sm font-medium text-brand-600 hover:text-brand-800"
           >
             {selected.size === filtered.length ? "Alle abwählen" : "Alle auswählen"}
           </button>
-          <span className="text-xs text-gray-500">{selected.size} ausgewählt</span>
+          <span className="text-xs text-surface-500">{selected.size} ausgewählt</span>
           <div className="flex-1" />
           <button
             onClick={handleBulkDelete}
@@ -144,8 +144,8 @@ export default function ModulesPage() {
             onClick={() => setFilter(s)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               filter === s
-                ? "bg-violet-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                ? "bg-brand-600 text-white"
+                : "bg-surface-100 text-surface-600 hover:bg-surface-200"
             }`}
           >
             {s === "all" ? "Alle" : STATUS_CONFIG[s]?.label ?? s}
@@ -160,10 +160,10 @@ export default function ModulesPage() {
 
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1,2,3,4,5,6].map(i => <div key={i} className="h-44 bg-gray-100 rounded-2xl animate-pulse" />)}
+          {[1,2,3,4,5,6].map(i => <div key={i} className="h-44 bg-surface-100 rounded-2xl animate-pulse" />)}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20 text-surface-400">
           <BookOpen size={48} className="mx-auto mb-3 opacity-30" />
           <p className="font-medium">Keine Module gefunden</p>
           <p className="text-sm mt-1">Klicke auf „Modul hinzufügen" oder nutze die FH-Voreinstellungen.</p>
@@ -299,16 +299,16 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
               <AlertTriangle size={20} className="text-red-500" />
             </div>
             <div>
-              <h2 className="font-semibold text-gray-900">{title}</h2>
-              <p className="text-sm text-gray-500">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+              <h2 className="font-semibold text-surface-900">{title}</h2>
+              <p className="text-sm text-surface-500">Diese Aktion kann nicht rückgängig gemacht werden.</p>
             </div>
           </div>
 
           {/* Loading state */}
           {!counts ? (
             <div className="flex items-center justify-center py-6">
-              <Loader2 size={20} className="animate-spin text-gray-400" />
-              <span className="ml-2 text-sm text-gray-500">Verknüpfte Daten werden geprüft…</span>
+              <Loader2 size={20} className="animate-spin text-surface-400" />
+              <span className="ml-2 text-sm text-surface-500">Verknüpfte Daten werden geprüft…</span>
             </div>
           ) : totalRelated > 0 ? (
             <>
@@ -347,12 +347,12 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
                 <button
                   onClick={deleteModuleOnly}
                   disabled={deleting}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-gray-50 hover:bg-gray-100 text-left transition-colors disabled:opacity-50"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl border-2 border-surface-200 bg-surface-50 hover:bg-surface-100 text-left transition-colors disabled:opacity-50"
                 >
-                  <BookOpen size={18} className="text-gray-500 shrink-0" />
+                  <BookOpen size={18} className="text-surface-500 shrink-0" />
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-gray-700">Nur {isSingle ? "Modul" : "Module"} löschen</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-sm font-semibold text-surface-700">Nur {isSingle ? "Modul" : "Module"} löschen</p>
+                    <p className="text-xs text-surface-500">
                       Aufgaben, Noten, Wissen etc. bleiben erhalten (ohne Modulzuordnung)
                     </p>
                   </div>
@@ -361,8 +361,8 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
             </>
           ) : (
             /* No related data — simple delete */
-            <div className="bg-gray-50 rounded-xl p-4 mb-4">
-              <p className="text-sm text-gray-600">
+            <div className="bg-surface-50 rounded-xl p-4 mb-4">
+              <p className="text-sm text-surface-600">
                 Keine verknüpften Daten vorhanden. {isSingle ? "Das Modul" : "Die Module"} kann sicher gelöscht werden.
               </p>
             </div>
@@ -391,7 +391,7 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
 
           {/* Deleting indicator */}
           {deleting && (
-            <div className="flex items-center justify-center gap-2 mt-3 text-sm text-gray-500">
+            <div className="flex items-center justify-center gap-2 mt-3 text-sm text-surface-500">
               <Loader2 size={14} className="animate-spin" />
               Wird gelöscht…
             </div>
@@ -417,14 +417,14 @@ function ModuleCard({ mod, onEdit, onDelete, selectMode, isSelected, onToggleSel
     <div
       className={`card hover:shadow-md transition-shadow group flex flex-col ${
         selectMode ? "cursor-pointer" : ""
-      } ${isSelected ? "ring-2 ring-violet-500 bg-violet-50/30" : ""}`}
+      } ${isSelected ? "ring-2 ring-brand-500 bg-brand-50/30" : ""}`}
       onClick={selectMode ? () => onToggleSelect(mod.id) : undefined}
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           {selectMode ? (
             <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-              isSelected ? "bg-violet-600 border-violet-600" : "border-gray-300"
+              isSelected ? "bg-brand-600 border-brand-600" : "border-surface-300"
             }`}>
               {isSelected && <CheckCircle size={12} className="text-white" />}
             </div>
@@ -432,25 +432,25 @@ function ModuleCard({ mod, onEdit, onDelete, selectMode, isSelected, onToggleSel
             <div className="w-3 h-3 rounded-full mt-0.5 shrink-0" style={{ background: mod.color ?? "#6d28d9" }} />
           )}
           {mod.code && (
-            <span className="text-[10px] font-mono bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-mono bg-surface-100 text-surface-500 px-1.5 py-0.5 rounded">
               {mod.code}
             </span>
           )}
         </div>
         {!selectMode && (
           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button onClick={() => onEdit(mod)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600">
+            <button onClick={() => onEdit(mod)} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400 hover:text-surface-600">
               <Pencil size={14} />
             </button>
-            <button onClick={() => onDelete(mod.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500">
+            <button onClick={() => onDelete(mod.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500">
               <Trash2 size={14} />
             </button>
           </div>
         )}
       </div>
 
-      <h3 className="font-semibold text-gray-900 leading-snug mb-1">{mod.name}</h3>
-      {mod.professor && <p className="text-xs text-gray-500 mb-1">{mod.professor}</p>}
+      <h3 className="font-semibold text-surface-900 leading-snug mb-1">{mod.name}</h3>
+      {mod.professor && <p className="text-xs text-surface-500 mb-1">{mod.professor}</p>}
       {mod.exam_date && (
         <p className="text-xs text-red-500 mb-1">Prüfung: {mod.exam_date}</p>
       )}
@@ -474,28 +474,28 @@ function ModuleCard({ mod, onEdit, onDelete, selectMode, isSelected, onToggleSel
           <div className="flex gap-1.5">
             {mod.link && (
               <a href={mod.link} target="_blank" rel="noreferrer"
-                 className="p-1 rounded text-gray-400 hover:text-violet-600 hover:bg-violet-50 transition-colors"
+                 className="p-1 rounded text-surface-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
                  title="Kurslink">
                 <ExternalLink size={13} />
               </a>
             )}
             {mod.github_link && (
               <a href={mod.github_link} target="_blank" rel="noreferrer"
-                 className="p-1 rounded text-gray-400 hover:text-gray-800 hover:bg-gray-100 transition-colors"
+                 className="p-1 rounded text-surface-400 hover:text-surface-800 hover:bg-surface-100 transition-colors"
                  title="GitHub">
                 <Github size={13} />
               </a>
             )}
             {mod.sharepoint_link && (
               <a href={mod.sharepoint_link} target="_blank" rel="noreferrer"
-                 className="p-1 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                 className="p-1 rounded text-surface-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                  title="SharePoint">
                 <FileText size={13} />
               </a>
             )}
             {mod.notes_link && (
               <a href={mod.notes_link} target="_blank" rel="noreferrer"
-                 className="p-1 rounded text-gray-400 hover:text-green-600 hover:bg-green-50 transition-colors"
+                 className="p-1 rounded text-surface-400 hover:text-green-600 hover:bg-green-50 transition-colors"
                  title="Notizen">
                 <Link2 size={13} />
               </a>
@@ -590,13 +590,13 @@ function ModuleModal({ initial, onClose, onSaved }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto mx-4">
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">{initial ? "Modul bearbeiten" : "Neues Modul"}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100"><X size={16} /></button>
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-surface-100">
+          <h2 className="font-semibold text-surface-900">{initial ? "Modul bearbeiten" : "Neues Modul"}</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-100 px-4 sm:px-5 overflow-x-auto">
+        <div className="flex border-b border-surface-100 px-4 sm:px-5 overflow-x-auto">
           {TABS.map(t => (
             <button
               key={t.id}
@@ -604,8 +604,8 @@ function ModuleModal({ initial, onClose, onSaved }: {
               onClick={() => setTab(t.id)}
               className={`py-2.5 px-1 mr-4 text-sm font-medium border-b-2 transition-colors ${
                 tab === t.id
-                  ? "border-violet-600 text-violet-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                  ? "border-brand-600 text-brand-600"
+                  : "border-transparent text-surface-500 hover:text-surface-700"
               }`}
             >
               {t.label}
@@ -618,34 +618,34 @@ function ModuleModal({ initial, onClose, onSaved }: {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Modulname *</label>
+                  <label className="block text-sm font-medium text-surface-700 mb-1">Modulname *</label>
                   <input className="input" required value={form.name} onChange={e => set("name", e.target.value)} placeholder="z.B. Mathematik 1" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Code</label>
+                  <label className="block text-sm font-medium text-surface-700 mb-1">Code</label>
                   <input className="input font-mono" value={form.code} onChange={e => set("code", e.target.value)} placeholder="MAT1" />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Dozent</label>
+                  <label className="block text-sm font-medium text-surface-700 mb-1">Dozent</label>
                   <input className="input" value={form.professor} onChange={e => set("professor", e.target.value)} placeholder="Prof. Muster" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">ECTS</label>
+                  <label className="block text-sm font-medium text-surface-700 mb-1">ECTS</label>
                   <input className="input" type="number" min="1" max="30" value={form.ects} onChange={e => set("ects", e.target.value)} placeholder="4" />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Semester</label>
+                  <label className="block text-sm font-medium text-surface-700 mb-1">Semester</label>
                   <select className="input" value={form.semester} onChange={e => set("semester", e.target.value)}>
                     <option value="">— wählen —</option>
                     {SEMESTERS.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Typ</label>
+                  <label className="block text-sm font-medium text-surface-700 mb-1">Typ</label>
                   <select className="input" value={form.module_type} onChange={e => set("module_type", e.target.value)}>
                     {MODULE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
@@ -653,45 +653,45 @@ function ModuleModal({ initial, onClose, onSaved }: {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tag</label>
+                  <label className="block text-sm font-medium text-surface-700 mb-1">Tag</label>
                   <select className="input" value={form.day} onChange={e => set("day", e.target.value)}>
                     <option value="">—</option>
                     {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Von</label>
+                  <label className="block text-sm font-medium text-surface-700 mb-1">Von</label>
                   <input className="input" type="time" value={form.time_start} onChange={e => set("time_start", e.target.value)} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Bis</label>
+                  <label className="block text-sm font-medium text-surface-700 mb-1">Bis</label>
                   <input className="input" type="time" value={form.time_end} onChange={e => set("time_end", e.target.value)} />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Zimmer</label>
+                  <label className="block text-sm font-medium text-surface-700 mb-1">Zimmer</label>
                   <input className="input" value={form.room} onChange={e => set("room", e.target.value)} placeholder="A101" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <label className="block text-sm font-medium text-surface-700 mb-1">Status</label>
                   <select className="input" value={form.status} onChange={e => set("status", e.target.value)}>
                     {STATUS_OPTIONS.map(s => <option key={s} value={s}>{STATUS_CONFIG[s]?.label ?? s}</option>)}
                   </select>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Farbe</label>
+                <label className="block text-sm font-medium text-surface-700 mb-2">Farbe</label>
                 <div className="flex gap-2 flex-wrap">
                   {MODULE_COLORS.map(c => (
                     <button key={c} type="button" onClick={() => set("color", c)}
-                      className={`w-7 h-7 rounded-full border-2 transition-transform ${form.color === c ? "border-gray-800 scale-110" : "border-transparent"}`}
+                      className={`w-7 h-7 rounded-full border-2 transition-transform ${form.color === c ? "border-surface-800 scale-110" : "border-transparent"}`}
                       style={{ background: c }} />
                   ))}
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Notizen</label>
+                <label className="block text-sm font-medium text-surface-700 mb-1">Notizen</label>
                 <textarea className="input resize-none" rows={2} value={form.notes} onChange={e => set("notes", e.target.value)} placeholder="Optionale Notizen…" />
               </div>
             </>
@@ -701,30 +701,30 @@ function ModuleModal({ initial, onClose, onSaved }: {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Prüfungsdatum</label>
+                  <label className="block text-sm font-medium text-surface-700 mb-1">Prüfungsdatum</label>
                   <input className="input" type="date" value={form.exam_date} onChange={e => set("exam_date", e.target.value)} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Ziel-Note</label>
+                  <label className="block text-sm font-medium text-surface-700 mb-1">Ziel-Note</label>
                   <input className="input" type="number" min="1" max="6" step="0.1" value={form.target_grade} onChange={e => set("target_grade", e.target.value)} placeholder="5.0" />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Gewichtung</label>
+                <label className="block text-sm font-medium text-surface-700 mb-1">Gewichtung</label>
                 <input className="input" type="number" min="0.1" max="10" step="0.1" value={form.weighting} onChange={e => set("weighting", e.target.value)} placeholder="1" />
-                <p className="text-xs text-gray-400 mt-1">Für den gewichteten Notendurchschnitt</p>
+                <p className="text-xs text-surface-400 mt-1">Für den gewichteten Notendurchschnitt</p>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+              <div className="flex items-center gap-3 p-3 bg-surface-50 rounded-xl">
                 <input
                   type="checkbox"
                   id="in_plan"
                   checked={form.in_plan}
                   onChange={e => set("in_plan", e.target.checked)}
-                  className="w-4 h-4 accent-violet-600"
+                  className="w-4 h-4 accent-brand-600"
                 />
-                <label htmlFor="in_plan" className="text-sm text-gray-700 cursor-pointer">
+                <label htmlFor="in_plan" className="text-sm text-surface-700 cursor-pointer">
                   <span className="font-medium">Im Studienplan</span>
-                  <span className="text-gray-500 ml-1">— erscheint in der Semesterübersicht</span>
+                  <span className="text-surface-500 ml-1">— erscheint in der Semesterübersicht</span>
                 </label>
               </div>
             </>
@@ -733,23 +733,23 @@ function ModuleModal({ initial, onClose, onSaved }: {
           {tab === "links" && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Kurslink (Moodle/FH)</label>
+                <label className="block text-sm font-medium text-surface-700 mb-1">Kurslink (Moodle/FH)</label>
                 <input className="input" type="url" value={form.link} onChange={e => set("link", e.target.value)} placeholder="https://moodle.ffhs.ch/course/…" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">GitHub</label>
+                <label className="block text-sm font-medium text-surface-700 mb-1">GitHub</label>
                 <input className="input" type="url" value={form.github_link} onChange={e => set("github_link", e.target.value)} placeholder="https://github.com/…" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">SharePoint / OneDrive</label>
+                <label className="block text-sm font-medium text-surface-700 mb-1">SharePoint / OneDrive</label>
                 <input className="input" type="url" value={form.sharepoint_link} onChange={e => set("sharepoint_link", e.target.value)} placeholder="https://…sharepoint.com/…" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Notizen-Link (Notion, OneNote…)</label>
+                <label className="block text-sm font-medium text-surface-700 mb-1">Notizen-Link (Notion, OneNote…)</label>
                 <input className="input" type="url" value={form.notes_link} onChange={e => set("notes_link", e.target.value)} placeholder="https://notion.so/…" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Literatur-Links</label>
+                <label className="block text-sm font-medium text-surface-700 mb-1">Literatur-Links</label>
                 <textarea className="input resize-none" rows={3} value={form.literature_links} onChange={e => set("literature_links", e.target.value)} placeholder="https://… (eine URL pro Zeile)" />
               </div>
             </>

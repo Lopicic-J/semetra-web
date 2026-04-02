@@ -119,9 +119,9 @@ export default function CreditsPage() {
   if (loading) {
     return (
       <div className="p-3 sm:p-6 max-w-4xl mx-auto">
-        <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-6" />
+        <div className="h-8 w-48 bg-surface-200 rounded animate-pulse mb-6" />
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          {[1,2,3,4].map(i => <div key={i} className="h-28 bg-gray-100 rounded-2xl animate-pulse" />)}
+          {[1,2,3,4].map(i => <div key={i} className="h-28 bg-surface-100 rounded-2xl animate-pulse" />)}
         </div>
       </div>
     );
@@ -130,11 +130,11 @@ export default function CreditsPage() {
   return (
     <div className="p-3 sm:p-6 max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex flex-col sm:flex-row sm:items-center gap-2">
-          <Award className="text-violet-600" size={26} />
+        <h1 className="text-xl sm:text-2xl font-bold text-surface-900 flex flex-col sm:flex-row sm:items-center gap-2">
+          <Award className="text-brand-600" size={26} />
           Credits & ECTS
         </h1>
-        <p className="text-gray-500 text-sm mt-1">
+        <p className="text-surface-500 text-sm mt-1">
           ECTS-Fortschritt basierend auf deinen Noten (bestanden ab Note 4.0)
         </p>
       </div>
@@ -174,16 +174,16 @@ export default function CreditsPage() {
       {/* Progress toward degree */}
       <div className="card mb-8">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-gray-800">Fortschritt Abschluss (BSc = 180 ECTS)</h2>
-          <span className="text-2xl font-bold text-violet-600">{progressPct}%</span>
+          <h2 className="font-semibold text-surface-800">Fortschritt Abschluss (BSc = 180 ECTS)</h2>
+          <span className="text-2xl font-bold text-brand-600">{progressPct}%</span>
         </div>
-        <div className="h-4 bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-4 bg-surface-100 rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all duration-700"
+            className="h-full bg-gradient-to-r from-brand-500 to-indigo-500 rounded-full transition-all duration-700"
             style={{ width: `${progressPct}%` }}
           />
         </div>
-        <div className="flex justify-between text-xs text-gray-500 mt-2">
+        <div className="flex justify-between text-xs text-surface-500 mt-2">
           <span>{earnedEcts} / {DEGREE_ECTS} ECTS erlangt</span>
           <span>{DEGREE_ECTS - earnedEcts} ECTS verbleibend</span>
         </div>
@@ -204,9 +204,9 @@ export default function CreditsPage() {
       />
 
       {/* Semester breakdown */}
-      <h2 className="font-semibold text-gray-800 mb-4">Semesterübersicht</h2>
+      <h2 className="font-semibold text-surface-800 mb-4">Semesterübersicht</h2>
       {sortedSemesters.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
+        <div className="text-center py-12 text-surface-400">
           <Award size={40} className="mx-auto mb-3 opacity-30" />
           <p>Keine Module gefunden.</p>
           <p className="text-sm mt-1">Importiere einen Studiengang oder füge Module manuell hinzu.</p>
@@ -221,35 +221,35 @@ export default function CreditsPage() {
 
             return (
               <div key={sem} className="card p-0 overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-100">
+                <div className="flex items-center justify-between px-4 py-3 bg-surface-50 border-b border-surface-100">
                   <div className="flex items-center gap-3">
-                    <span className="font-semibold text-gray-800 text-sm">{sem}</span>
-                    <span className="text-xs text-gray-500">{mods.length} Module · {semEcts} ECTS</span>
+                    <span className="font-semibold text-surface-800 text-sm">{sem}</span>
+                    <span className="text-xs text-surface-500">{mods.length} Module · {semEcts} ECTS</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-xs text-green-600 font-medium">{semEarned}/{semEcts} ECTS</span>
-                    <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="w-24 h-2 bg-surface-200 rounded-full overflow-hidden">
                       <div className="h-full bg-green-500 rounded-full" style={{ width: `${semPct}%` }} />
                     </div>
                   </div>
                 </div>
-                <div className="divide-y divide-gray-50">
+                <div className="divide-y divide-surface-50">
                   {mods.map(m => {
                     const status = moduleStatus(m);
                     const bg = bestGrade(m.id);
                     return (
-                      <div key={m.id} className={`flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50/50 ${status === "failed" ? "bg-red-50/30" : ""}`}>
+                      <div key={m.id} className={`flex items-center gap-3 px-4 py-2.5 hover:bg-surface-50/50 ${status === "failed" ? "bg-red-50/30" : ""}`}>
                         <div className="w-2 h-2 rounded-full shrink-0" style={{ background: m.color }} />
-                        <span className="text-sm text-gray-800 flex-1">{m.name}</span>
+                        <span className="text-sm text-surface-800 flex-1">{m.name}</span>
                         {m.code && (
-                          <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">{m.code}</span>
+                          <span className="text-[10px] font-mono text-surface-400 bg-surface-100 px-1.5 py-0.5 rounded">{m.code}</span>
                         )}
                         {bg !== null && (
                           <span className={`text-xs font-bold ${bg >= 4.0 ? "text-green-600" : "text-red-600"}`}>
                             {bg.toFixed(1)}
                           </span>
                         )}
-                        <span className="text-xs text-gray-500 w-14 text-right">{m.ects ?? "—"} ECTS</span>
+                        <span className="text-xs text-surface-500 w-14 text-right">{m.ects ?? "—"} ECTS</span>
                         <StatusBadge status={status} />
                       </div>
                     );
@@ -275,15 +275,15 @@ function StatCard({ icon, label, value, sub, color }: {
     green: "bg-green-50",
     blue: "bg-blue-50",
     amber: "bg-amber-50",
-    violet: "bg-violet-50",
+    violet: "bg-brand-50",
     red: "bg-red-50",
   };
   return (
-    <div className={`rounded-2xl p-4 ${bg[color] ?? "bg-gray-50"}`}>
+    <div className={`rounded-2xl p-4 ${bg[color] ?? "bg-surface-50"}`}>
       <div className="mb-2">{icon}</div>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
-      <p className="text-xs font-medium text-gray-600">{label}</p>
-      <p className="text-xs text-gray-400 mt-0.5">{sub}</p>
+      <p className="text-2xl font-bold text-surface-900">{value}</p>
+      <p className="text-xs font-medium text-surface-600">{label}</p>
+      <p className="text-xs text-surface-400 mt-0.5">{sub}</p>
     </div>
   );
 }
@@ -340,13 +340,13 @@ function StudyPeriodCard({
   return (
     <div className="card mb-8">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="font-semibold text-gray-800 flex items-center gap-2">
-          <Calendar size={18} className="text-violet-500" />
+        <h2 className="font-semibold text-surface-800 flex items-center gap-2">
+          <Calendar size={18} className="text-brand-500" />
           Studienzeitraum
         </h2>
         <button
           onClick={onToggleEdit}
-          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-violet-600 transition-colors"
+          className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400 hover:text-brand-600 transition-colors"
           title={editing ? "Abbrechen" : "Bearbeiten"}
         >
           {editing ? <X size={16} /> : <Pencil size={14} />}
@@ -357,7 +357,7 @@ function StudyPeriodCard({
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Studienbeginn</label>
+              <label className="block text-xs font-medium text-surface-600 mb-1">Studienbeginn</label>
               <input
                 type="date"
                 value={editStart}
@@ -366,7 +366,7 @@ function StudyPeriodCard({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Studienende (geplant)</label>
+              <label className="block text-xs font-medium text-surface-600 mb-1">Studienende (geplant)</label>
               <input
                 type="date"
                 value={editEnd}
@@ -375,17 +375,17 @@ function StudyPeriodCard({
               />
             </div>
           </div>
-          <p className="text-[10px] text-gray-400">
+          <p className="text-[10px] text-surface-400">
             Freiwillig — wenn du das genaue Datum nicht kennst, trage ein ungefähres ein.
           </p>
           <div className="flex gap-2 justify-end">
-            <button onClick={onToggleEdit} className="px-3 py-1.5 text-xs rounded-lg hover:bg-gray-100 text-gray-500">
+            <button onClick={onToggleEdit} className="px-3 py-1.5 text-xs rounded-lg hover:bg-surface-100 text-surface-500">
               Abbrechen
             </button>
             <button
               onClick={onSave}
               disabled={saving}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 text-white text-xs font-medium hover:bg-violet-700 disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-600 text-white text-xs font-medium hover:bg-brand-700 disabled:opacity-50"
             >
               <Save size={12} /> {saving ? "Speichern…" : "Speichern"}
             </button>
@@ -394,23 +394,23 @@ function StudyPeriodCard({
       ) : hasData ? (
         <div>
           {/* Time progress bar */}
-          <div className="h-3 bg-gray-100 rounded-full overflow-hidden mb-2">
+          <div className="h-3 bg-surface-100 rounded-full overflow-hidden mb-2">
             <div
               className={`h-full rounded-full transition-all duration-700 ${
                 isFinished
                   ? "bg-gradient-to-r from-green-400 to-emerald-500"
-                  : "bg-gradient-to-r from-violet-400 to-indigo-500"
+                  : "bg-gradient-to-r from-brand-400 to-indigo-500"
               }`}
               style={{ width: `${isFinished ? 100 : timePct}%` }}
             />
           </div>
 
-          <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="flex items-center justify-between text-xs text-surface-500">
             <span>{formatDateDE(studyStart)}</span>
             {isFinished ? (
               <span className="text-green-600 font-semibold">Studium abgeschlossen!</span>
             ) : (
-              <span className="font-medium text-violet-600">
+              <span className="font-medium text-brand-600">
                 Noch {remainingLabel} · {timePct}% der Studienzeit vorbei
               </span>
             )}
@@ -419,30 +419,30 @@ function StudyPeriodCard({
 
           {/* Quick stats */}
           {!isFinished && (
-            <div className="flex gap-2 sm:gap-4 mt-3 pt-3 border-t border-gray-100">
+            <div className="flex gap-2 sm:gap-4 mt-3 pt-3 border-t border-surface-100">
               <div className="text-center flex-1">
-                <p className="text-lg font-bold text-gray-800">{totalMonths}</p>
-                <p className="text-[10px] text-gray-400">Monate gesamt</p>
+                <p className="text-lg font-bold text-surface-800">{totalMonths}</p>
+                <p className="text-[10px] text-surface-400">Monate gesamt</p>
               </div>
               <div className="text-center flex-1">
-                <p className="text-lg font-bold text-violet-600">{elapsedMonths}</p>
-                <p className="text-[10px] text-gray-400">Monate absolviert</p>
+                <p className="text-lg font-bold text-brand-600">{elapsedMonths}</p>
+                <p className="text-[10px] text-surface-400">Monate absolviert</p>
               </div>
               <div className="text-center flex-1">
-                <p className="text-lg font-bold text-indigo-600">{remainingMonths}</p>
-                <p className="text-[10px] text-gray-400">Monate verbleibend</p>
+                <p className="text-lg font-bold text-brand-700">{remainingMonths}</p>
+                <p className="text-[10px] text-surface-400">Monate verbleibend</p>
               </div>
             </div>
           )}
         </div>
       ) : (
         <div className="text-center py-4">
-          <p className="text-sm text-gray-400 mb-2">
+          <p className="text-sm text-surface-400 mb-2">
             Trage deinen Studienzeitraum ein, um den zeitlichen Fortschritt zu sehen.
           </p>
           <button
             onClick={onToggleEdit}
-            className="text-xs font-medium text-violet-600 hover:text-violet-700"
+            className="text-xs font-medium text-brand-600 hover:text-brand-700"
           >
             Studienzeitraum eintragen →
           </button>
@@ -457,7 +457,7 @@ function StatusBadge({ status }: { status: string }) {
     passed:  "bg-green-100 text-green-700",
     failed:  "bg-red-100 text-red-700",
     active:  "bg-blue-100 text-blue-700",
-    planned: "bg-gray-100 text-gray-500",
+    planned: "bg-surface-100 text-surface-500",
   };
   const labels: Record<string, string> = {
     passed:  "✓ bestanden",
@@ -466,7 +466,7 @@ function StatusBadge({ status }: { status: string }) {
     planned: "offen",
   };
   return (
-    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full whitespace-nowrap ${map[status] ?? "bg-gray-100 text-gray-500"}`}>
+    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full whitespace-nowrap ${map[status] ?? "bg-surface-100 text-surface-500"}`}>
       {labels[status] ?? status}
     </span>
   );
