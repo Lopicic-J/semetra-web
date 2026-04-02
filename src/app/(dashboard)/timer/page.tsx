@@ -4,7 +4,11 @@ import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
 import { useTimeLogs } from "@/lib/hooks/useTimeLogs";
 import { formatDuration } from "@/lib/utils";
-import { Play, Pause, Square, Timer, Trash2, RotateCcw, Coffee, BookOpen, Zap } from "lucide-react";
+import {
+  Play, Pause, Square, Timer, Trash2, RotateCcw, Coffee, BookOpen,
+  GraduationCap, Brain, ClipboardList, SlidersHorizontal, ChevronDown, ChevronUp
+} from "lucide-react";
+import type { CalendarEvent, Topic, Task } from "@/types/database";
 
 type TimerMode = "focus" | "short_break" | "long_break";
 
@@ -15,6 +19,7 @@ const PRESETS: Record<TimerMode, { label: string; seconds: number; color: string
 };
 
 const FOCUS_DURATIONS = [
+  { label: "15 Min", seconds: 15 * 60 },
   { label: "25 Min", seconds: 25 * 60 },
   { label: "50 Min", seconds: 50 * 60 },
   { label: "90 Min", seconds: 90 * 60 },
@@ -23,20 +28,74 @@ const FOCUS_DURATIONS = [
 export default function TimerPage() {
   const { modules } = useModules();
   const { logs, refetch: refetchLogs } = useTimeLogs();
+  const supabase = createClient();
+
+  // Context selection
   const [selectedModule, setSelectedModule] = useState<string>("");
+  const [selectedExam, setSelectedExam] = useState<string>("");
+  const [selectedTopic, setSelectedTopic] = useState<string>("");
+  const [selectedTask, setSelectedTask] = useState<string>("");
   const [note, setNote] = useState("");
+  const [showContext, setShowContext] = useState(false);
+
+  // Context data (fetched from Supabase)
+  const [exams, setExams] = useState<CalendarEvent[]>([]);
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  // Timer state
   const [running, setRunning] = useState(false);
   const [paused, setPaused] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [mode, setMode] = useState<TimerMode>("focus");
   const [targetSeconds, setTargetSeconds] = useState(25 * 60);
+  const [customMinutes, setCustomMinutes] = useState("");
+  const [showCustom, setShowCustom] = useState(false);
   const [pomodoroCount, setPomodoroCount] = useState(0);
   const [autoBreak, setAutoBreak] = useState(true);
   const [useCountdown, setUseCountdown] = useState(true);
   const startRef = useRef<Date | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const pausedAtRef = useRef(0);
-  const supabase = createClient();
+
+  // Fetch exams, topics, tasks
+  useEffect(() => {
+    async function load() {
+      const [examRes, topicRes, taskRes] = await Promise.all([
+        supabase.from("events").select("*").eq("event_type", "exam")
+          .gte("start_dt", new Date().toISOString()).order("start_dt"),
+        supabase.from("topics").select("*").order("title"),
+        supabase.from("tasks").select("*").neq("status", "done").order("due_date"),
+      ]);
+      setExams(examRes.data ?? []);
+      setTopics(topicRes.data ?? []);
+      setTasks(taskRes.data ?? []);
+    }
+    load();
+  }, [supabase]);
+
+  // Filter context by module
+  const filteredExams = selectedModule
+    ? exams.filter(e => {
+        const mod = modules.find(m => m.id === selectedModule);
+        return mod && e.title.toLowerCase().includes(mod.name.toLowerCase().split(" ")[0]);
+      })
+    : exams;
+
+  const filteredTopics = selectedModule
+    ? topics.filter(t => t.module_id === selectedModule)
+    : topics;
+
+  const filteredTasks = selectedModule
+    ? tasks.filter(t => t.module_id === selectedModule)
+    : tasks;
+
+  // Reset sub-selections when module changes
+  useEffect(() => {
+    setSelectedExam("");
+    setSelectedTopic("");
+    setSelectedTask("");
+  }, [selectedModule]);
 
   const tick = useCallback(() => {
     if (startRef.current) {
@@ -48,36 +107,40 @@ export default function TimerPage() {
   // Check if countdown is done
   useEffect(() => {
     if (useCountdown && running && !paused && elapsed >= targetSeconds) {
-      // Timer finished
       handleTimerComplete();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [elapsed, targetSeconds, running, paused, useCountdown]);
+
+  async function saveLog(duration: number) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || duration <= 5) return;
+    await supabase.from("time_logs").insert({
+      user_id: user.id,
+      module_id: selectedModule || null,
+      exam_id: selectedExam || null,
+      topic_id: selectedTopic || null,
+      task_id: selectedTask || null,
+      duration_seconds: duration,
+      started_at: new Date(Date.now() - duration * 1000).toISOString(),
+      note: note || null,
+    });
+    refetchLogs();
+  }
 
   async function handleTimerComplete() {
     if (intervalRef.current) clearInterval(intervalRef.current);
     const finalElapsed = Math.min(elapsed, targetSeconds);
 
-    // Play notification sound
     try {
       const audio = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbsGUcBj+a2teleR0OVqzk5aViDACG0Oz/nUwAHYDY8f+oWgAWc9P0/7BjAA5p0Pb/t2wACGLP+P+8dAADb87+/8B7AABhzf//w4EAAFzN///EhgAAV83//8eLAABRzf//yJAAAEzN///IlQAAR83//8iaAABCzf//yJ8AAD3N///JpAAAOMz//8mpAAAzzP//yq4AAC7M///KswAAKcz//8u4AAAkzP//y70AAB/M///MwgAAGsz//8zHAAAVzP//zMwAABDM///NzwAAC8z//83SAAAL");
       audio.volume = 0.3;
       audio.play().catch(() => {});
     } catch {}
 
-    // Save focus session
-    if (mode === "focus" && finalElapsed > 5) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from("time_logs").insert({
-          user_id: user.id,
-          module_id: selectedModule || null,
-          duration_seconds: finalElapsed,
-          started_at: new Date(Date.now() - finalElapsed * 1000).toISOString(),
-          note: note || null,
-        });
-        refetchLogs();
-        setPomodoroCount(c => c + 1);
-      }
+    if (mode === "focus") {
+      await saveLog(finalElapsed);
+      setPomodoroCount(c => c + 1);
     }
 
     setRunning(false);
@@ -86,12 +149,10 @@ export default function TimerPage() {
     pausedAtRef.current = 0;
     startRef.current = null;
 
-    // Auto-switch to break
     if (autoBreak && mode === "focus") {
       const nextMode = (pomodoroCount + 1) % 4 === 0 ? "long_break" : "short_break";
       setMode(nextMode);
       setTargetSeconds(PRESETS[nextMode].seconds);
-      // Auto-start break
       setTimeout(() => startTimer(PRESETS[nextMode].seconds), 500);
     } else if (autoBreak && (mode === "short_break" || mode === "long_break")) {
       setMode("focus");
@@ -100,7 +161,6 @@ export default function TimerPage() {
   }
 
   function startTimer(overrideTarget?: number) {
-    const target = overrideTarget ?? targetSeconds;
     startRef.current = new Date();
     setElapsed(0);
     pausedAtRef.current = 0;
@@ -109,9 +169,7 @@ export default function TimerPage() {
     intervalRef.current = setInterval(tick, 1000);
   }
 
-  function start() {
-    startTimer();
-  }
+  function start() { startTimer(); }
 
   function pause() {
     if (intervalRef.current) clearInterval(intervalRef.current);
@@ -134,20 +192,7 @@ export default function TimerPage() {
     setElapsed(0);
     pausedAtRef.current = 0;
     startRef.current = null;
-
-    if (mode === "focus" && finalElapsed > 5) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from("time_logs").insert({
-          user_id: user.id,
-          module_id: selectedModule || null,
-          duration_seconds: finalElapsed,
-          started_at: new Date(Date.now() - finalElapsed * 1000).toISOString(),
-          note: note || null,
-        });
-        refetchLogs();
-      }
-    }
+    if (mode === "focus") await saveLog(finalElapsed);
   }
 
   function reset() {
@@ -157,6 +202,14 @@ export default function TimerPage() {
     setElapsed(0);
     pausedAtRef.current = 0;
     startRef.current = null;
+  }
+
+  function applyCustomDuration() {
+    const mins = parseInt(customMinutes);
+    if (mins > 0 && mins <= 600) {
+      setTargetSeconds(mins * 60);
+      setShowCustom(false);
+    }
   }
 
   useEffect(() => () => { if (intervalRef.current) clearInterval(intervalRef.current); }, []);
@@ -178,18 +231,57 @@ export default function TimerPage() {
 
   // Display time
   const displaySeconds = useCountdown ? Math.max(0, targetSeconds - elapsed) : elapsed;
-  const h = Math.floor(displaySeconds / 3600);
-  const m = Math.floor((displaySeconds % 3600) / 60);
-  const sec = displaySeconds % 60;
-  const timeStr = h > 0
-    ? `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`
-    : `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+  const hh = Math.floor(displaySeconds / 3600);
+  const mm = Math.floor((displaySeconds % 3600) / 60);
+  const ss = displaySeconds % 60;
+  const timeStr = hh > 0
+    ? `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`
+    : `${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
 
   const progress = useCountdown
     ? Math.min(1, elapsed / targetSeconds)
     : (elapsed % 3600) / 3600;
 
   const currentPreset = PRESETS[mode];
+
+  // Build context label for running state
+  const contextParts: string[] = [];
+  if (selectedModule) {
+    const mod = modules.find(m => m.id === selectedModule);
+    if (mod) contextParts.push(mod.name);
+  }
+  if (selectedExam) {
+    const ex = exams.find(e => e.id === selectedExam);
+    if (ex) contextParts.push(`🎓 ${ex.title}`);
+  }
+  if (selectedTopic) {
+    const tp = topics.find(t => t.id === selectedTopic);
+    if (tp) contextParts.push(`🧠 ${tp.title}`);
+  }
+  if (selectedTask) {
+    const tk = tasks.find(t => t.id === selectedTask);
+    if (tk) contextParts.push(`📋 ${tk.title}`);
+  }
+  const contextLabel = contextParts.join(" · ");
+
+  // Helper to resolve context names for log entries
+  function logContextLabel(log: any): string {
+    const parts: string[] = [];
+    if (log.modules?.name) parts.push(log.modules.name);
+    if (log.exam_id) {
+      const ex = exams.find(e => e.id === log.exam_id);
+      if (ex) parts.push(`🎓 ${ex.title}`);
+    }
+    if (log.topic_id) {
+      const tp = topics.find(t => t.id === log.topic_id);
+      if (tp) parts.push(`🧠 ${tp.title}`);
+    }
+    if (log.task_id) {
+      const tk = tasks.find(t => t.id === log.task_id);
+      if (tk) parts.push(`📋 ${tk.title}`);
+    }
+    return parts.length > 0 ? parts.join(" · ") : "Freie Sitzung";
+  }
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -223,7 +315,7 @@ export default function TimerPage() {
         {(Object.entries(PRESETS) as [TimerMode, typeof PRESETS["focus"]][]).map(([key, preset]) => (
           <button
             key={key}
-            onClick={() => { if (!running) { setMode(key); setTargetSeconds(preset.seconds); } }}
+            onClick={() => { if (!running) { setMode(key); setTargetSeconds(preset.seconds); setShowCustom(false); } }}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
               mode === key
                 ? "text-white shadow-sm"
@@ -237,15 +329,15 @@ export default function TimerPage() {
         ))}
       </div>
 
-      {/* Focus duration presets (only in focus mode) */}
+      {/* Focus duration presets + custom */}
       {mode === "focus" && !running && (
-        <div className="flex justify-center gap-2 mb-4">
+        <div className="flex justify-center items-center gap-2 mb-4 flex-wrap">
           {FOCUS_DURATIONS.map(d => (
             <button
               key={d.seconds}
-              onClick={() => setTargetSeconds(d.seconds)}
+              onClick={() => { setTargetSeconds(d.seconds); setShowCustom(false); }}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                targetSeconds === d.seconds
+                targetSeconds === d.seconds && !showCustom
                   ? "bg-violet-100 text-violet-700 ring-1 ring-violet-300"
                   : "bg-gray-50 text-gray-500 hover:bg-gray-100"
               }`}
@@ -253,6 +345,51 @@ export default function TimerPage() {
               {d.label}
             </button>
           ))}
+          {/* Custom duration button */}
+          {!showCustom ? (
+            <button
+              onClick={() => setShowCustom(true)}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                !FOCUS_DURATIONS.some(d => d.seconds === targetSeconds)
+                  ? "bg-violet-100 text-violet-700 ring-1 ring-violet-300"
+                  : "bg-gray-50 text-gray-500 hover:bg-gray-100"
+              }`}
+            >
+              <SlidersHorizontal size={12} /> Individuell
+            </button>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <input
+                type="number"
+                min="1"
+                max="600"
+                value={customMinutes}
+                onChange={e => setCustomMinutes(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && applyCustomDuration()}
+                placeholder="Min."
+                className="w-20 px-2 py-1.5 rounded-lg border border-violet-300 text-xs text-center focus:outline-none focus:ring-2 focus:ring-violet-400"
+                autoFocus
+              />
+              <button
+                onClick={applyCustomDuration}
+                className="px-2.5 py-1.5 rounded-lg bg-violet-600 text-white text-xs font-medium hover:bg-violet-700"
+              >
+                OK
+              </button>
+              <button
+                onClick={() => setShowCustom(false)}
+                className="px-2 py-1.5 rounded-lg text-gray-400 hover:bg-gray-100 text-xs"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+          {/* Show current custom if not a preset */}
+          {!showCustom && !FOCUS_DURATIONS.some(d => d.seconds === targetSeconds) && (
+            <span className="text-xs text-violet-600 font-medium">
+              ({Math.round(targetSeconds / 60)} Min.)
+            </span>
+          )}
         </div>
       )}
 
@@ -280,14 +417,78 @@ export default function TimerPage() {
           </div>
         </div>
 
-        {/* Module & note selector */}
+        {/* Context label while running */}
+        {running && contextLabel && (
+          <p className="text-sm text-gray-500 mb-4 -mt-2 truncate max-w-md mx-auto">{contextLabel}</p>
+        )}
+
+        {/* Module + Context selectors */}
         {!running && mode === "focus" && (
-          <div className="flex gap-3 mb-5 max-w-md mx-auto">
-            <select className="input flex-1" value={selectedModule} onChange={e => setSelectedModule(e.target.value)}>
-              <option value="">— Modul —</option>
-              {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-            </select>
-            <input className="input flex-1" value={note} onChange={e => setNote(e.target.value)} placeholder="Notiz…" />
+          <div className="max-w-lg mx-auto mb-5 space-y-3">
+            {/* Module + Note (always visible) */}
+            <div className="flex gap-3">
+              <select className="input flex-1" value={selectedModule} onChange={e => setSelectedModule(e.target.value)}>
+                <option value="">— Modul —</option>
+                {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+              </select>
+              <input className="input flex-1" value={note} onChange={e => setNote(e.target.value)} placeholder="Notiz…" />
+            </div>
+
+            {/* Toggle for extended context */}
+            <button
+              onClick={() => setShowContext(!showContext)}
+              className="flex items-center gap-1.5 mx-auto text-xs text-gray-400 hover:text-violet-600 transition-colors"
+            >
+              {showContext ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              {showContext ? "Weniger Optionen" : "Prüfung, Wissensthema oder Aufgabe wählen"}
+            </button>
+
+            {/* Extended selectors */}
+            {showContext && (
+              <div className="grid grid-cols-1 gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                {/* Exam selector */}
+                <div className="flex items-center gap-2">
+                  <GraduationCap size={14} className="text-red-400 shrink-0" />
+                  <select className="input flex-1 text-sm" value={selectedExam} onChange={e => setSelectedExam(e.target.value)}>
+                    <option value="">— Prüfung —</option>
+                    {filteredExams.map(e => (
+                      <option key={e.id} value={e.id}>
+                        {e.title} ({new Date(e.start_dt).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" })})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Topic selector */}
+                <div className="flex items-center gap-2">
+                  <Brain size={14} className="text-purple-400 shrink-0" />
+                  <select className="input flex-1 text-sm" value={selectedTopic} onChange={e => setSelectedTopic(e.target.value)}>
+                    <option value="">— Wissensthema —</option>
+                    {filteredTopics.map(t => (
+                      <option key={t.id} value={t.id}>{t.title}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Task selector */}
+                <div className="flex items-center gap-2">
+                  <ClipboardList size={14} className="text-green-400 shrink-0" />
+                  <select className="input flex-1 text-sm" value={selectedTask} onChange={e => setSelectedTask(e.target.value)}>
+                    <option value="">— Aufgabe —</option>
+                    {filteredTasks.map(t => (
+                      <option key={t.id} value={t.id}>{t.title}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Context summary */}
+                {contextLabel && (
+                  <p className="text-[10px] text-gray-400 mt-1 text-center truncate">
+                    Lernkontext: {contextLabel}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -344,16 +545,18 @@ export default function TimerPage() {
                 <div className="w-2.5 h-2.5 rounded-full shrink-0"
                   style={{ background: (log as any).modules?.color ?? "#6d28d9" }} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-800">
-                    {(log as any).modules?.name ?? "Ohne Modul"}
-                    {log.note && <span className="text-gray-400 font-normal ml-2">· {log.note}</span>}
+                  <p className="text-sm font-medium text-gray-800 truncate">
+                    {logContextLabel(log)}
                   </p>
-                  <p className="text-xs text-gray-400">
-                    {new Date(log.started_at).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" })} ·{" "}
-                    {new Date(log.started_at).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}
-                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-xs text-gray-400">
+                      {new Date(log.started_at).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" })} ·{" "}
+                      {new Date(log.started_at).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                    {log.note && <span className="text-xs text-gray-400 truncate">· {log.note}</span>}
+                  </div>
                 </div>
-                <span className="text-sm font-semibold text-violet-600">{formatDuration(log.duration_seconds ?? 0)}</span>
+                <span className="text-sm font-semibold text-violet-600 shrink-0">{formatDuration(log.duration_seconds ?? 0)}</span>
                 <button onClick={() => deleteLog(log.id)} className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500">
                   <Trash2 size={13} />
                 </button>

@@ -66,6 +66,9 @@ export interface TimeLog {
   id: string;
   user_id: string;
   module_id: string | null;
+  exam_id: string | null;
+  topic_id: string | null;
+  task_id: string | null;
   duration_seconds: number;
   started_at: string;
   note: string | null;
