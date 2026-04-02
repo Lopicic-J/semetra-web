@@ -83,10 +83,10 @@ export default function StundenplanPage() {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-6xl mx-auto">
+    <div className="p-3 sm:p-6 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Stundenplan</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Stundenplan</h1>
           <p className="text-gray-500 text-sm mt-0.5">
             Wochenplan nach Kalenderwoche & Semester
             {!isPro && <span className="text-amber-600 ml-2">({entries.length}/{FREE_LIMITS.stundenplanEntries} Einträge im Free-Plan)</span>}
@@ -321,7 +321,7 @@ function StundenplanModal({ modules, currentKw, currentSemester, onClose, onSave
             <label className="block text-sm font-medium text-gray-700 mb-1">Bezeichnung *</label>
             <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder="z.B. Mathematik 1" />
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Tag</label>
               <select className="input" value={form.day} onChange={e => set("day", e.target.value)}>

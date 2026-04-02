@@ -118,9 +118,9 @@ export default function CreditsPage() {
 
   if (loading) {
     return (
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-3 sm:p-6 max-w-4xl mx-auto">
         <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-6" />
-        <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {[1,2,3,4].map(i => <div key={i} className="h-28 bg-gray-100 rounded-2xl animate-pulse" />)}
         </div>
       </div>
@@ -128,9 +128,9 @@ export default function CreditsPage() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-3 sm:p-6 max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex flex-col sm:flex-row sm:items-center gap-2">
           <Award className="text-violet-600" size={26} />
           Credits & ECTS
         </h1>
@@ -419,7 +419,7 @@ function StudyPeriodCard({
 
           {/* Quick stats */}
           {!isFinished && (
-            <div className="flex gap-4 mt-3 pt-3 border-t border-gray-100">
+            <div className="flex gap-2 sm:gap-4 mt-3 pt-3 border-t border-gray-100">
               <div className="text-center flex-1">
                 <p className="text-lg font-bold text-gray-800">{totalMonths}</p>
                 <p className="text-[10px] text-gray-400">Monate gesamt</p>

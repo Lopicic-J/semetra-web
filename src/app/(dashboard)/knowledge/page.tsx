@@ -195,10 +195,10 @@ export default function KnowledgePage() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-3 sm:p-6 max-w-5xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Lernziele & Wissen</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Lernziele & Wissen</h1>
           <p className="text-gray-500 text-sm mt-0.5">
             {filteredTopics.filter(t => t.status === "understood").length}/{filteredTopics.length} verstanden
             {dueTopics.length > 0 && (
@@ -637,7 +637,7 @@ function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; con
           ) : (
             <div>
               <p className="text-xs text-gray-500 text-center mb-3">Wie gut wusstest du es?</p>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <button onClick={() => rate(1)} className="py-2.5 rounded-xl bg-red-100 hover:bg-red-200 text-red-700 text-sm font-medium transition-colors">Nochmal</button>
                 <button onClick={() => rate(3)} className="py-2.5 rounded-xl bg-orange-100 hover:bg-orange-200 text-orange-700 text-sm font-medium transition-colors">Schwer</button>
                 <button onClick={() => rate(4)} className="py-2.5 rounded-xl bg-green-100 hover:bg-green-200 text-green-700 text-sm font-medium transition-colors">Gut</button>

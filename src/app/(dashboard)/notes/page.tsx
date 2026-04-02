@@ -213,14 +213,14 @@ export default function NotesPage() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-3 sm:p-6 max-w-6xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
             <FileText className="text-amber-400" /> Notizen
           </h1>
-          <p className="text-zinc-400 text-sm mt-1">Alle Notizen an einem Ort — geordnet nach Modul, Aufgabe & Prüfung</p>
+          <p className="text-zinc-400 text-xs sm:text-sm mt-1">Alle Notizen an einem Ort — geordnet nach Modul, Aufgabe & Prüfung</p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
@@ -231,12 +231,12 @@ export default function NotesPage() {
       </div>
 
       {/* Stats overview */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         <button
           onClick={() => setViewMode("flow")}
-          className={`bg-zinc-900 border rounded-xl p-3 text-center transition ${viewMode === "flow" ? "border-violet-500" : "border-zinc-700 hover:border-zinc-600"}`}
+          className={`bg-zinc-900 border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-violet-500" : "border-zinc-700 hover:border-zinc-600"}`}
         >
-          <p className="text-2xl font-bold text-white">{flowItems.length}</p>
+          <p className="text-lg sm:text-2xl font-bold text-white">{flowItems.length}</p>
           <p className="text-xs text-zinc-400">Alle Notizen</p>
           {(stats.fromModules + stats.fromTimer + stats.fromExams) > 0 && (
             <p className="text-xs text-zinc-500 mt-0.5">
@@ -246,39 +246,39 @@ export default function NotesPage() {
         </button>
         <button
           onClick={() => setFilterStatus(filterStatus === "draft" ? "" : "draft")}
-          className={`bg-zinc-900 border rounded-xl p-3 text-center transition ${filterStatus === "draft" ? "border-zinc-400" : "border-zinc-700 hover:border-zinc-600"}`}
+          className={`bg-zinc-900 border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "draft" ? "border-zinc-400" : "border-zinc-700 hover:border-zinc-600"}`}
         >
-          <p className="text-2xl font-bold text-zinc-400">{stats.draft}</p>
+          <p className="text-lg sm:text-2xl font-bold text-zinc-400">{stats.draft}</p>
           <p className="text-xs text-zinc-400">Entwürfe</p>
         </button>
         <button
           onClick={() => setFilterStatus(filterStatus === "in_progress" ? "" : "in_progress")}
-          className={`bg-zinc-900 border rounded-xl p-3 text-center transition ${filterStatus === "in_progress" ? "border-amber-500" : "border-zinc-700 hover:border-zinc-600"}`}
+          className={`bg-zinc-900 border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "in_progress" ? "border-amber-500" : "border-zinc-700 hover:border-zinc-600"}`}
         >
-          <p className="text-2xl font-bold text-amber-400">{stats.inProgress}</p>
+          <p className="text-lg sm:text-2xl font-bold text-amber-400">{stats.inProgress}</p>
           <p className="text-xs text-zinc-400">In Arbeit</p>
         </button>
         <button
           onClick={() => setFilterStatus(filterStatus === "done" ? "" : "done")}
-          className={`bg-zinc-900 border rounded-xl p-3 text-center transition ${filterStatus === "done" ? "border-green-500" : "border-zinc-700 hover:border-zinc-600"}`}
+          className={`bg-zinc-900 border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "done" ? "border-green-500" : "border-zinc-700 hover:border-zinc-600"}`}
         >
-          <p className="text-2xl font-bold text-green-400">{stats.done}</p>
+          <p className="text-lg sm:text-2xl font-bold text-green-400">{stats.done}</p>
           <p className="text-xs text-zinc-400">Fertig</p>
         </button>
       </div>
 
       {/* Module distribution */}
       {stats.byModule.length > 0 && (
-        <div className="mb-6 bg-zinc-900 border border-zinc-700 rounded-xl p-4">
-          <h3 className="text-sm font-semibold text-zinc-200 mb-3 flex items-center gap-2">
+        <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-3 sm:p-4">
+          <h3 className="text-xs sm:text-sm font-semibold text-zinc-200 mb-2 sm:mb-3 flex items-center gap-2">
             <FolderOpen size={14} className="text-violet-400" /> Notizen nach Modul
           </h3>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-1.5 sm:gap-2 flex-wrap">
             {stats.byModule.map(({ module: m, count }) => (
               <button
                 key={m.id}
                 onClick={() => setFilterModule(filterModule === m.id ? "" : m.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition ${
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-medium transition ${
                   filterModule === m.id
                     ? "ring-2 ring-white/30"
                     : "hover:brightness-110"
@@ -291,7 +291,7 @@ export default function NotesPage() {
             {stats.unlinked > 0 && (
               <button
                 onClick={() => setFilterModule("")}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 hover:bg-zinc-700 transition"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 hover:bg-zinc-700 transition"
               >
                 <StickyNote size={10} /> Ohne Zuordnung ({stats.unlinked})
               </button>
@@ -301,8 +301,8 @@ export default function NotesPage() {
       )}
 
       {/* Search + filters */}
-      <div className="flex gap-2 mb-4 flex-wrap">
-        <div className="relative flex-1 min-w-[200px]">
+      <div className="flex gap-1.5 sm:gap-2 mb-4 flex-wrap">
+        <div className="relative flex-1 min-w-[160px] sm:min-w-[200px]">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
           <input
             value={searchQ}
@@ -314,12 +314,12 @@ export default function NotesPage() {
         <select
           value={filterModule}
           onChange={e => setFilterModule(e.target.value)}
-          className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white"
+          className="bg-zinc-900 border border-zinc-700 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm text-white"
         >
           <option value="">Alle Module</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
-        <div className="flex rounded-lg overflow-hidden border border-zinc-700">
+        <div className="flex rounded-lg overflow-hidden border border-zinc-700 overflow-x-auto">
           <button
             onClick={() => setViewMode("grid")}
             className={`p-2 transition ${viewMode === "grid" ? "bg-violet-600 text-white" : "bg-zinc-900 text-zinc-400 hover:text-white"}`}
@@ -441,7 +441,7 @@ function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: No
   return (
     <div className="space-y-6">
       {/* Legend */}
-      <div className="flex gap-3 flex-wrap mb-2">
+      <div className="flex gap-2 sm:gap-3 flex-wrap mb-2 overflow-x-auto">
         {(["note", "module", "timer", "exam"] as const).map(type => {
           const count = items.filter(i => i.type === type).length;
           if (count === 0) return null;
@@ -466,11 +466,11 @@ function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: No
           </div>
 
           {/* Items with timeline line */}
-          <div className="relative pl-8">
+          <div className="relative pl-6 sm:pl-8">
             {/* Vertical line */}
-            <div className="absolute left-3 top-0 bottom-0 w-px bg-zinc-800" />
+            <div className="absolute left-2.5 sm:left-3 top-0 bottom-0 w-px bg-zinc-800" />
 
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {dayItems.map((item, idx) => {
                 const typeColor = FLOW_TYPE_COLORS[item.type] ?? "#a78bfa";
                 const isClickable = item.type === "note" && item.original;
@@ -483,26 +483,26 @@ function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: No
                   >
                     {/* Timeline dot */}
                     <div
-                      className="absolute -left-5 top-3 w-3 h-3 rounded-full border-2 border-zinc-900"
+                      className="absolute -left-4.5 sm:-left-5 top-3 w-2.5 sm:w-3 h-2.5 sm:h-3 rounded-full border-2 border-zinc-900"
                       style={{ backgroundColor: typeColor }}
                     />
 
                     {/* Card */}
                     <div
-                      className={`bg-zinc-900 border border-zinc-700 rounded-lg p-3.5 transition ${
+                      className={`bg-zinc-900 border border-zinc-700 rounded-lg p-2.5 sm:p-3.5 transition ${
                         isClickable ? "hover:border-zinc-500 hover:bg-zinc-800/50" : ""
                       }`}
                       style={{ borderLeftWidth: 3, borderLeftColor: item.module_color ?? typeColor }}
                     >
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <span style={{ color: typeColor }}>{FLOW_ICONS[item.type]}</span>
-                          <h4 className={`text-sm font-medium text-white line-clamp-1 ${isClickable ? "group-hover:text-violet-300" : ""}`}>
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-1">
+                        <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
+                          <span style={{ color: typeColor }} className="flex-shrink-0">{FLOW_ICONS[item.type]}</span>
+                          <h4 className={`text-xs sm:text-sm font-medium text-white line-clamp-1 ${isClickable ? "group-hover:text-violet-300" : ""}`}>
                             {item.pinned && <Pin size={10} className="inline mr-1 text-amber-400" />}
                             {item.title}
                           </h4>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 flex-wrap sm:flex-nowrap justify-end">
                           <span
                             className="text-xs px-1.5 py-0.5 rounded font-medium"
                             style={{ backgroundColor: typeColor + "20", color: typeColor }}
@@ -524,10 +524,10 @@ function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: No
                       </div>
 
                       {item.content && (
-                        <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed mt-1">{item.content}</p>
+                        <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed mt-1.5">{item.content}</p>
                       )}
 
-                      <div className="flex items-center gap-2 mt-2">
+                      <div className="flex items-center gap-1 sm:gap-2 mt-2 flex-wrap">
                         {item.module_name && (
                           <span
                             className="text-xs px-1.5 py-0.5 rounded font-medium"
@@ -673,38 +673,38 @@ function CreateNoteModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-zinc-900 border border-zinc-600 rounded-2xl w-full max-w-md p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
-        <div className="flex justify-between items-center mb-5">
-          <h2 className="text-lg font-bold text-white">Neue Notiz</h2>
+    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
+      <div className="bg-zinc-900 border border-zinc-600 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-4 sm:mb-5">
+          <h2 className="text-base sm:text-lg font-bold text-white">Neue Notiz</h2>
           <button onClick={onClose} className="text-zinc-400 hover:text-white transition"><X size={20} /></button>
         </div>
 
-        <label className="block text-sm font-medium text-zinc-200 mb-1.5">Titel</label>
+        <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-1.5">Titel</label>
         <input
           value={title}
           onChange={e => setTitle(e.target.value)}
           placeholder="z.B. Zusammenfassung Kapitel 3..."
-          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-zinc-500 mb-4 focus:border-violet-500 focus:outline-none transition"
+          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-white placeholder:text-zinc-500 mb-3 sm:mb-4 focus:border-violet-500 focus:outline-none transition"
           autoFocus
         />
 
-        <label className="block text-sm font-medium text-zinc-200 mb-1.5">Zuordnung (optional)</label>
+        <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-1.5">Zuordnung (optional)</label>
         <select
           value={moduleId}
           onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); }}
-          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2.5 text-sm text-white mb-2"
+          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-white mb-2"
         >
           <option value="">Allgemein (kein Modul)</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
 
         {moduleId && (
-          <div className="flex gap-2 mb-2">
+          <div className="flex gap-1.5 sm:gap-2 mb-2 flex-wrap sm:flex-nowrap">
             <select
               value={examId}
               onChange={e => setExamId(e.target.value)}
-              className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2 text-sm text-white"
+              className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-2.5 sm:px-3 py-2 text-xs sm:text-sm text-white"
             >
               <option value="">Keine Prüfung</option>
               {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
@@ -712,7 +712,7 @@ function CreateNoteModal({
             <select
               value={taskId}
               onChange={e => setTaskId(e.target.value)}
-              className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2 text-sm text-white"
+              className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-2.5 sm:px-3 py-2 text-xs sm:text-sm text-white"
             >
               <option value="">Keine Aufgabe</option>
               {filteredTasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
@@ -720,8 +720,8 @@ function CreateNoteModal({
           </div>
         )}
 
-        <label className="block text-sm font-medium text-zinc-200 mb-1.5 mt-3">Farbe</label>
-        <div className="flex gap-2 mb-5 flex-wrap">
+        <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-1.5 mt-3">Farbe</label>
+        <div className="flex gap-1.5 sm:gap-2 mb-4 sm:mb-5 flex-wrap">
           {NOTE_COLORS.map(c => (
             <button
               key={c}
@@ -735,7 +735,7 @@ function CreateNoteModal({
         <button
           onClick={handleCreate}
           disabled={saving}
-          className="w-full bg-violet-600 hover:bg-violet-500 text-white py-2.5 rounded-lg font-medium text-sm transition disabled:opacity-50"
+          className="w-full bg-violet-600 hover:bg-violet-500 text-white py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50"
         >
           {saving ? "Erstellen..." : "Notiz erstellen"}
         </button>
@@ -751,7 +751,7 @@ function TBtn({ active, onClick, children, title }: {
   return (
     <button
       onMouseDown={e => { e.preventDefault(); onClick(); }}
-      className={`p-1.5 rounded transition ${active ? "bg-violet-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-700"}`}
+      className={`p-1 sm:p-1.5 rounded transition ${active ? "bg-violet-600 text-white" : "text-zinc-400 hover:text-white hover:bg-zinc-700"}`}
       title={title}
     >
       {children}
@@ -881,28 +881,28 @@ function NoteEditor({
   const st = STATUS_CONFIG[status];
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-3 sm:p-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <button onClick={() => { saveNote(); onBack(); }} className="text-zinc-400 hover:text-white transition p-1">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 sm:justify-between mb-3 sm:mb-4">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button onClick={() => { saveNote(); onBack(); }} className="text-zinc-400 hover:text-white transition p-1 flex-shrink-0">
             <ArrowLeft size={20} />
           </button>
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <input
               value={title}
               onChange={e => { setTitle(e.target.value); scheduleAutoSave(); }}
-              className="text-xl font-bold text-white bg-transparent border-none focus:outline-none w-full"
+              className="text-lg sm:text-xl font-bold text-white bg-transparent border-none focus:outline-none w-full"
               placeholder="Notiz-Titel..."
             />
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
+            <div className="flex items-center gap-1.5 sm:gap-2 mt-1 flex-wrap">
               {mod && (
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: mod.color + "25", color: mod.color }}>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: mod.color + "25", color: mod.color }}>
                   <BookOpen size={10} className="inline mr-1" />{mod.name}
                 </span>
               )}
               <span
-                className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium cursor-pointer"
+                className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium cursor-pointer flex-shrink-0"
                 style={{ backgroundColor: st.color + "20", color: st.color }}
                 onClick={() => {
                   const order: NoteStatus[] = ["draft", "in_progress", "done"];
@@ -915,14 +915,14 @@ function NoteEditor({
                 {st.icon} {st.label}
               </span>
               {lastSaved && (
-                <span className="text-xs text-zinc-500">
+                <span className="text-xs text-zinc-500 flex-shrink-0">
                   {saving ? "Speichern..." : `Gespeichert ${lastSaved.toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}`}
                 </span>
               )}
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap flex-shrink-0">
           <button onClick={togglePin} className={`p-2 rounded-lg transition ${pinned ? "bg-amber-500/20 text-amber-400" : "bg-zinc-800 text-zinc-400 hover:text-white"} border border-zinc-700`} title={pinned ? "Loslösen" : "Anheften"}>
             {pinned ? <PinOff size={16} /> : <Pin size={16} />}
           </button>
@@ -936,11 +936,11 @@ function NoteEditor({
       </div>
 
       {/* Linking selectors */}
-      <div className="flex gap-2 mb-4 flex-wrap">
+      <div className="flex gap-1.5 sm:gap-2 mb-3 sm:mb-4 flex-wrap overflow-x-auto">
         <select
           value={moduleId}
           onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); scheduleAutoSave(); }}
-          className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-white"
+          className="bg-zinc-900 border border-zinc-700 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-white flex-shrink-0"
         >
           <option value="">Kein Modul</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -950,7 +950,7 @@ function NoteEditor({
             <select
               value={examId}
               onChange={e => { setExamId(e.target.value); scheduleAutoSave(); }}
-              className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-white"
+              className="bg-zinc-900 border border-zinc-700 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-white flex-shrink-0"
             >
               <option value="">Keine Prüfung</option>
               {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
@@ -958,7 +958,7 @@ function NoteEditor({
             <select
               value={taskId}
               onChange={e => { setTaskId(e.target.value); scheduleAutoSave(); }}
-              className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 text-xs text-white"
+              className="bg-zinc-900 border border-zinc-700 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-white flex-shrink-0"
             >
               <option value="">Keine Aufgabe</option>
               {filteredTasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
@@ -968,19 +968,19 @@ function NoteEditor({
       </div>
 
       {/* Rich Text Toolbar */}
-      <div className="flex items-center gap-0.5 p-2 bg-zinc-900 border border-zinc-700 rounded-t-xl flex-wrap">
+      <div className="flex items-center gap-0.5 p-1.5 sm:p-2 bg-zinc-900 border border-zinc-700 rounded-t-xl flex-wrap overflow-x-auto">
         <TBtn onClick={() => execCmd("bold")} title="Fett"><Bold size={14} /></TBtn>
         <TBtn onClick={() => execCmd("italic")} title="Kursiv"><Italic size={14} /></TBtn>
         <TBtn onClick={() => execCmd("underline")} title="Unterstrichen"><Underline size={14} /></TBtn>
         <TBtn onClick={() => execCmd("strikeThrough")} title="Durchgestrichen"><Strikethrough size={14} /></TBtn>
-        <div className="w-px h-5 bg-zinc-700 mx-1" />
+        <div className="w-px h-4 sm:h-5 bg-zinc-700 mx-0.5 sm:mx-1" />
         <TBtn onClick={() => execCmd("formatBlock", "h1")} title="Überschrift 1"><Heading1 size={14} /></TBtn>
         <TBtn onClick={() => execCmd("formatBlock", "h2")} title="Überschrift 2"><Heading2 size={14} /></TBtn>
         <TBtn onClick={() => execCmd("formatBlock", "p")} title="Absatz"><AlignLeft size={14} /></TBtn>
-        <div className="w-px h-5 bg-zinc-700 mx-1" />
+        <div className="w-px h-4 sm:h-5 bg-zinc-700 mx-0.5 sm:mx-1" />
         <TBtn onClick={() => execCmd("insertUnorderedList")} title="Aufzählung"><List size={14} /></TBtn>
         <TBtn onClick={() => execCmd("insertOrderedList")} title="Nummerierung"><ListOrdered size={14} /></TBtn>
-        <div className="w-px h-5 bg-zinc-700 mx-1" />
+        <div className="w-px h-4 sm:h-5 bg-zinc-700 mx-0.5 sm:mx-1" />
         <TBtn onClick={() => {
           const url = prompt("Link-URL:");
           if (url) execCmd("createLink", url);
@@ -993,32 +993,32 @@ function NoteEditor({
         ref={editorRef}
         contentEditable
         onInput={scheduleAutoSave}
-        className="min-h-[300px] bg-zinc-900 border-x border-b border-zinc-700 rounded-b-xl p-4 text-sm text-white focus:outline-none prose prose-invert prose-sm max-w-none [&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-white [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-zinc-100 [&_h2]:mt-3 [&_h2]:mb-1.5 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:text-violet-400 [&_a]:underline [&_li]:text-zinc-200 [&_p]:text-zinc-200 [&_p]:leading-relaxed"
+        className="min-h-[300px] bg-zinc-900 border-x border-b border-zinc-700 rounded-b-xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:outline-none prose prose-invert prose-sm max-w-none [&_h1]:text-lg sm:[&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-white [&_h1]:mt-3 sm:[&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-base sm:[&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-zinc-100 [&_h2]:mt-2 sm:[&_h2]:mt-3 [&_h2]:mb-1.5 [&_ul]:list-disc [&_ul]:pl-4 sm:[&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-4 sm:[&_ol]:pl-5 [&_a]:text-violet-400 [&_a]:underline [&_li]:text-zinc-200 [&_p]:text-zinc-200 [&_p]:leading-relaxed"
         data-placeholder="Beginne hier zu schreiben..."
         suppressContentEditableWarning
       />
 
       {/* Checklist */}
-      <div className="mt-4 bg-zinc-900 border border-zinc-700 rounded-xl">
+      <div className="mt-3 sm:mt-4 bg-zinc-900 border border-zinc-700 rounded-xl">
         <button
           onClick={() => setShowChecklist(!showChecklist)}
-          className="w-full flex items-center justify-between p-3 text-left"
+          className="w-full flex items-center justify-between p-2.5 sm:p-3 text-left"
         >
-          <div className="flex items-center gap-2">
-            <CheckSquare size={16} className="text-violet-400" />
-            <span className="text-sm font-semibold text-zinc-200">Checkliste</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            <CheckSquare size={16} className="text-violet-400 flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-semibold text-zinc-200">Checkliste</span>
             {checkTotal > 0 && (
               <span className="text-xs text-zinc-400">({checkDone}/{checkTotal})</span>
             )}
           </div>
-          <ChevronDown size={14} className={`text-zinc-400 transition ${showChecklist ? "rotate-180" : ""}`} />
+          <ChevronDown size={14} className={`text-zinc-400 transition ${showChecklist ? "rotate-180" : ""} flex-shrink-0`} />
         </button>
 
         {showChecklist && (
-          <div className="px-3 pb-3">
+          <div className="px-2.5 sm:px-3 pb-2.5 sm:pb-3">
             {/* Progress bar */}
             {checkTotal > 0 && (
-              <div className="mb-3">
+              <div className="mb-2.5 sm:mb-3">
                 <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-green-500 transition-all duration-300 rounded-full"
@@ -1029,9 +1029,9 @@ function NoteEditor({
             )}
 
             {/* Items */}
-            <div className="space-y-1">
+            <div className="space-y-1 sm:space-y-1">
               {checklist.map(item => (
-                <div key={item.id} className="flex items-center gap-2 group p-1 rounded hover:bg-zinc-800/50 transition">
+                <div key={item.id} className="flex items-center gap-1.5 sm:gap-2 group p-1 rounded hover:bg-zinc-800/50 transition">
                   <button
                     onClick={() => toggleCheckItem(item.id, item.checked)}
                     className="flex-shrink-0"
@@ -1041,12 +1041,12 @@ function NoteEditor({
                       : <Square size={16} className="text-zinc-500 hover:text-zinc-300" />
                     }
                   </button>
-                  <span className={`text-sm flex-1 ${item.checked ? "text-zinc-500 line-through" : "text-zinc-200"}`}>
+                  <span className={`text-xs sm:text-sm flex-1 ${item.checked ? "text-zinc-500 line-through" : "text-zinc-200"}`}>
                     {item.content}
                   </span>
                   <button
                     onClick={() => deleteCheckItem(item.id)}
-                    className="p-1 text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition"
+                    className="p-1 text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition flex-shrink-0"
                   >
                     <X size={12} />
                   </button>
@@ -1055,18 +1055,18 @@ function NoteEditor({
             </div>
 
             {/* Add item */}
-            <div className="flex gap-2 mt-2">
+            <div className="flex gap-1.5 sm:gap-2 mt-2 flex-wrap sm:flex-nowrap">
               <input
                 value={newCheckItem}
                 onChange={e => setNewCheckItem(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter") addCheckItem(); }}
                 placeholder="Neuer Punkt..."
-                className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-white placeholder:text-zinc-500 focus:border-violet-500 focus:outline-none transition"
+                className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:border-violet-500 focus:outline-none transition min-w-[120px]"
               />
               <button
                 onClick={addCheckItem}
                 disabled={!newCheckItem.trim()}
-                className="px-3 py-1.5 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white rounded-lg text-sm transition"
+                className="px-2.5 sm:px-3 py-1.5 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white rounded-lg text-xs sm:text-sm transition flex-shrink-0"
               >
                 <Plus size={14} />
               </button>

@@ -316,24 +316,24 @@ export default function MathPage() {
   const toolHistory = useMemo(() => history.filter((h) => h.tool === activeTool), [history, activeTool]);
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">🧮 Mathe-Raum</h1>
-          <p className="text-zinc-400 text-sm mt-1">Dein wissenschaftlicher Arbeitsplatz für Mathematik</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">🧮 Mathe-Raum</h1>
+          <p className="text-zinc-400 text-xs sm:text-sm mt-1">Dein wissenschaftlicher Arbeitsplatz für Mathematik</p>
         </div>
-        <button onClick={() => setShowHistory(!showHistory)} className="px-4 py-2 rounded-lg bg-zinc-800 text-zinc-300 hover:bg-zinc-700 text-sm flex items-center gap-2">
+        <button onClick={() => setShowHistory(!showHistory)} className="px-3 sm:px-4 py-2 rounded-lg bg-zinc-800 text-zinc-300 hover:bg-zinc-700 text-sm flex items-center gap-2 self-start sm:self-auto">
           📜 Verlauf {history.length > 0 && <span className="bg-violet-600 text-white text-xs rounded-full px-2">{history.length}</span>}
         </button>
       </div>
 
       {/* Tool Tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 -mx-1 px-1">
         {TOOLS.map((t) => (
-          <button key={t.key} onClick={() => setActiveTool(t.key)} className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${activeTool === t.key ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200"}`}>
+          <button key={t.key} onClick={() => setActiveTool(t.key)} className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${activeTool === t.key ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200"}`}>
             <span>{t.icon}</span>
-            <span>{t.label}</span>
+            <span className="hidden sm:inline">{t.label}</span>
           </button>
         ))}
       </div>
@@ -363,7 +363,7 @@ export default function MathPage() {
       )}
 
       {/* Tool Content */}
-      <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-6">
+      <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-3 sm:p-6">
         {activeTool === "calculator" && <CalculatorTool onSave={saveToHistory} modules={modules} />}
         {activeTool === "equations" && <EquationsTool onSave={saveToHistory} modules={modules} />}
         {activeTool === "matrices" && <MatricesTool onSave={saveToHistory} modules={modules} />}
@@ -412,10 +412,10 @@ function CalculatorTool({ onSave, modules }: { onSave: (t: MathTool, e: string, 
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-white">Wissenschaftlicher Taschenrechner</h2>
-        <div className="flex items-center gap-3">
-          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-1.5 border border-zinc-700">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        <h2 className="text-base sm:text-lg font-semibold text-white">Wissenschaftlicher Taschenrechner</h2>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-xs sm:text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-zinc-700 flex-1 sm:flex-none">
             <option value="">Kein Modul</option>
             {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
@@ -427,18 +427,18 @@ function CalculatorTool({ onSave, modules }: { onSave: (t: MathTool, e: string, 
 
       {/* Display */}
       <div className="bg-zinc-950 rounded-xl p-4 mb-4 border border-zinc-800">
-        <input ref={inputRef} value={display} onChange={(e) => setDisplay(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleButton("="); }} placeholder="Ausdruck eingeben..." className="w-full bg-transparent text-white text-xl font-mono outline-none text-right" />
-        {result && <div className="text-right text-emerald-400 text-2xl font-mono mt-2 font-bold">= {result}</div>}
+        <input ref={inputRef} value={display} onChange={(e) => setDisplay(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleButton("="); }} placeholder="Ausdruck eingeben..." className="w-full bg-transparent text-white text-base sm:text-xl font-mono outline-none text-right" />
+        {result && <div className="text-right text-emerald-400 text-xl sm:text-2xl font-mono mt-2 font-bold break-all">= {result}</div>}
       </div>
 
       {/* Buttons */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
         {CALC_BUTTONS.flat().map((btn, i) => {
           const isOp = ["÷", "×", "−", "+", "="].includes(btn);
           const isFn = ["sin", "cos", "tan", "ln", "log", "√", "^", "!", "%", "abs", "e", "π"].includes(btn);
           const isClear = btn === "C" || btn === "⌫";
           return (
-            <button key={i} onClick={() => handleButton(btn)} className={`py-3 rounded-lg font-mono text-base font-semibold transition-all hover:scale-105 ${btn === "=" ? "bg-violet-600 text-white hover:bg-violet-500" : isClear ? "bg-red-900 text-red-300 hover:bg-red-800" : isOp ? "bg-zinc-700 text-violet-300 hover:bg-zinc-600" : isFn ? "bg-zinc-800 text-blue-300 hover:bg-zinc-700" : "bg-zinc-800 text-white hover:bg-zinc-700"}`}>
+            <button key={i} onClick={() => handleButton(btn)} className={`py-2.5 sm:py-3 rounded-lg font-mono text-sm sm:text-base font-semibold transition-all active:scale-95 sm:hover:scale-105 ${btn === "=" ? "bg-violet-600 text-white hover:bg-violet-500" : isClear ? "bg-red-900 text-red-300 hover:bg-red-800" : isOp ? "bg-zinc-700 text-violet-300 hover:bg-zinc-600" : isFn ? "bg-zinc-800 text-blue-300 hover:bg-zinc-700" : "bg-zinc-800 text-white hover:bg-zinc-700"}`}>
               {btn}
             </button>
           );
@@ -503,7 +503,7 @@ function EquationsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r
     onSave("equations", expr, res, moduleId);
   };
 
-  const inputCls = "bg-zinc-800 text-white rounded-lg px-3 py-2 border border-zinc-700 text-center font-mono w-20";
+  const inputCls = "bg-zinc-800 text-white rounded-lg px-2 sm:px-3 py-2 border border-zinc-700 text-center font-mono w-14 sm:w-20";
 
   return (
     <div>
@@ -516,16 +516,16 @@ function EquationsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r
       </div>
 
       {/* Mode Tabs */}
-      <div className="flex gap-2 mb-6">
-        {([ ["linear", "Linear (ax+b=0)"], ["quadratic", "Quadratisch (ax²+bx+c=0)"], ["system", "Gleichungssystem (2×2)"], ["custom", "Benutzerdefiniert"] ] as [string, string][]).map(([k, l]) => (
-          <button key={k} onClick={() => setMode(k as typeof mode)} className={`px-3 py-1.5 rounded-lg text-sm ${mode === k ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"}`}>{l}</button>
+      <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6">
+        {([ ["linear", "Linear"], ["quadratic", "Quadratisch"], ["system", "System (2×2)"], ["custom", "Custom"] ] as [string, string][]).map(([k, l]) => (
+          <button key={k} onClick={() => setMode(k as typeof mode)} className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm ${mode === k ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"}`}>{l}</button>
         ))}
       </div>
 
       {/* Inputs */}
-      <div className="bg-zinc-800 rounded-xl p-6 mb-4">
+      <div className="bg-zinc-800 rounded-xl p-3 sm:p-6 mb-4">
         {mode === "linear" && (
-          <div className="flex items-center gap-2 justify-center text-lg text-white font-mono">
+          <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-white font-mono flex-wrap">
             <input value={a} onChange={(e) => setA(e.target.value)} className={inputCls} />
             <span>x +</span>
             <input value={b} onChange={(e) => setB(e.target.value)} className={inputCls} />
@@ -533,7 +533,7 @@ function EquationsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r
           </div>
         )}
         {mode === "quadratic" && (
-          <div className="flex items-center gap-2 justify-center text-lg text-white font-mono">
+          <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-white font-mono flex-wrap">
             <input value={a} onChange={(e) => setA(e.target.value)} className={inputCls} />
             <span>x² +</span>
             <input value={b} onChange={(e) => setB(e.target.value)} className={inputCls} />
@@ -544,12 +544,12 @@ function EquationsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r
         )}
         {mode === "system" && (
           <div className="space-y-3">
-            <div className="flex items-center gap-2 justify-center text-lg text-white font-mono">
+            <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-white font-mono flex-wrap">
               <input value={a} onChange={(e) => setA(e.target.value)} className={inputCls} /><span>x +</span>
               <input value={b} onChange={(e) => setB(e.target.value)} className={inputCls} /><span>y =</span>
               <input value={c} onChange={(e) => setC(e.target.value)} className={inputCls} />
             </div>
-            <div className="flex items-center gap-2 justify-center text-lg text-white font-mono">
+            <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-white font-mono flex-wrap">
               <input value={a2} onChange={(e) => setA2(e.target.value)} className={inputCls} /><span>x +</span>
               <input value={b2} onChange={(e) => setB2(e.target.value)} className={inputCls} /><span>y =</span>
               <input value={c2} onChange={(e) => setC2(e.target.value)} className={inputCls} />
@@ -579,7 +579,7 @@ function EquationsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r
       {/* Quick formulas */}
       <div className="mt-6">
         <h3 className="text-zinc-400 text-sm font-semibold mb-2">Schnell-Referenz</h3>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {[
             ["pq-Formel", "x = −p/2 ± √((p/2)² − q)"],
             ["abc-Formel", "x = (−b ± √(b²−4ac)) / 2a"],
@@ -719,7 +719,7 @@ function MatricesTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r:
         {mat.map((row, r) => (
           <div key={r} className="flex gap-1">
             {row.map((v, c) => (
-              <input key={c} value={v || ""} onChange={(e) => updateCell(setter, r, c, e.target.value)} className="w-14 h-10 bg-zinc-800 text-white text-center rounded border border-zinc-700 font-mono text-sm" />
+              <input key={c} value={v || ""} onChange={(e) => updateCell(setter, r, c, e.target.value)} className="w-11 sm:w-14 h-9 sm:h-10 bg-zinc-800 text-white text-center rounded border border-zinc-700 font-mono text-xs sm:text-sm" />
             ))}
           </div>
         ))}
@@ -754,7 +754,7 @@ function MatricesTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r:
       </div>
 
       {/* Matrix Inputs */}
-      <div className="flex flex-wrap gap-6 justify-center mb-4">
+      <div className="flex flex-wrap gap-3 sm:gap-6 justify-center mb-4 overflow-x-auto">
         {renderMatrix(matA, "A")}
         {(operation === "multiply" || operation === "add") && renderMatrix(matB, "B")}
       </div>
@@ -949,14 +949,14 @@ function PlotterTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: 
       </div>
 
       {/* Range controls */}
-      <div className="flex gap-4 mb-4 text-sm">
+      <div className="flex flex-wrap gap-2 sm:gap-4 mb-4 text-sm">
         <div className="flex items-center gap-1 text-zinc-400">
-          x: <input value={xMin} onChange={(e) => setXMin(Number(e.target.value))} className="w-16 bg-zinc-800 text-white rounded px-2 py-1 border border-zinc-700 font-mono text-center" />
-          bis <input value={xMax} onChange={(e) => setXMax(Number(e.target.value))} className="w-16 bg-zinc-800 text-white rounded px-2 py-1 border border-zinc-700 font-mono text-center" />
+          x: <input value={xMin} onChange={(e) => setXMin(Number(e.target.value))} className="w-12 sm:w-16 bg-zinc-800 text-white rounded px-1 sm:px-2 py-1 border border-zinc-700 font-mono text-center text-xs sm:text-sm" />
+          bis <input value={xMax} onChange={(e) => setXMax(Number(e.target.value))} className="w-12 sm:w-16 bg-zinc-800 text-white rounded px-1 sm:px-2 py-1 border border-zinc-700 font-mono text-center text-xs sm:text-sm" />
         </div>
         <div className="flex items-center gap-1 text-zinc-400">
-          y: <input value={yMin} onChange={(e) => setYMin(Number(e.target.value))} className="w-16 bg-zinc-800 text-white rounded px-2 py-1 border border-zinc-700 font-mono text-center" />
-          bis <input value={yMax} onChange={(e) => setYMax(Number(e.target.value))} className="w-16 bg-zinc-800 text-white rounded px-2 py-1 border border-zinc-700 font-mono text-center" />
+          y: <input value={yMin} onChange={(e) => setYMin(Number(e.target.value))} className="w-12 sm:w-16 bg-zinc-800 text-white rounded px-1 sm:px-2 py-1 border border-zinc-700 font-mono text-center text-xs sm:text-sm" />
+          bis <input value={yMax} onChange={(e) => setYMax(Number(e.target.value))} className="w-12 sm:w-16 bg-zinc-800 text-white rounded px-1 sm:px-2 py-1 border border-zinc-700 font-mono text-center text-xs sm:text-sm" />
         </div>
         <div className="flex items-center gap-1">
           <button onClick={() => { setXMin(xMin * 0.5); setXMax(xMax * 0.5); setYMin(yMin * 0.5); setYMax(yMax * 0.5); }} className="px-2 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700 text-xs">🔍+</button>
@@ -1082,7 +1082,7 @@ function StatisticsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, 
       {stats && (
         <>
           {/* Stats Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 mb-4">
             {[
               ["Anzahl (n)", String(stats.n)],
               ["Summe", fmt(stats.sum)],
@@ -1182,18 +1182,18 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
             ))}
           </div>
 
-          <div className="bg-zinc-800 rounded-xl p-6">
-            <div className="flex items-center gap-4 justify-center">
-              <div className="text-center">
-                <input value={value} onChange={(e) => setValue(e.target.value)} className="w-40 bg-zinc-900 text-white text-xl rounded-lg px-4 py-3 border border-zinc-700 font-mono text-center" />
-                <select value={fromUnit} onChange={(e) => setFromUnit(Number(e.target.value))} className="mt-2 w-40 bg-zinc-900 text-zinc-300 rounded-lg px-3 py-2 border border-zinc-700 text-sm">
+          <div className="bg-zinc-800 rounded-xl p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center">
+              <div className="text-center w-full sm:w-auto">
+                <input value={value} onChange={(e) => setValue(e.target.value)} className="w-full sm:w-40 bg-zinc-900 text-white text-lg sm:text-xl rounded-lg px-4 py-3 border border-zinc-700 font-mono text-center" />
+                <select value={fromUnit} onChange={(e) => setFromUnit(Number(e.target.value))} className="mt-2 w-full sm:w-40 bg-zinc-900 text-zinc-300 rounded-lg px-3 py-2 border border-zinc-700 text-sm">
                   {currentGroup.units.map((u, i) => <option key={i} value={i}>{u.name} ({u.symbol})</option>)}
                 </select>
               </div>
-              <button onClick={() => { setFromUnit(toUnit); setToUnit(fromUnit); }} className="text-2xl text-zinc-400 hover:text-violet-400">⇄</button>
-              <div className="text-center">
-                <div className="w-40 text-emerald-400 text-xl font-mono py-3 px-4 text-center">{convertResult}</div>
-                <select value={toUnit} onChange={(e) => setToUnit(Number(e.target.value))} className="mt-2 w-40 bg-zinc-900 text-zinc-300 rounded-lg px-3 py-2 border border-zinc-700 text-sm">
+              <button onClick={() => { setFromUnit(toUnit); setToUnit(fromUnit); }} className="text-2xl text-zinc-400 hover:text-violet-400 rotate-90 sm:rotate-0">⇄</button>
+              <div className="text-center w-full sm:w-auto">
+                <div className="w-full sm:w-40 text-emerald-400 text-lg sm:text-xl font-mono py-3 px-4 text-center break-all">{convertResult}</div>
+                <select value={toUnit} onChange={(e) => setToUnit(Number(e.target.value))} className="mt-2 w-full sm:w-40 bg-zinc-900 text-zinc-300 rounded-lg px-3 py-2 border border-zinc-700 text-sm">
                   {currentGroup.units.map((u, i) => <option key={i} value={i}>{u.name} ({u.symbol})</option>)}
                 </select>
               </div>
@@ -1206,7 +1206,7 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
       )}
 
       {tab === "constants" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3">
           {CONSTANTS.map((c) => (
             <div key={c.name} className="bg-zinc-800 rounded-lg px-4 py-3 flex items-center justify-between">
               <div>
@@ -1327,7 +1327,7 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules }: { us
       </div>
 
       {/* Formulas List */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3">
         {allFormulas.map((f) => (
           <div key={f.id} className="bg-zinc-800 rounded-lg px-4 py-3 group">
             <div className="flex items-start justify-between">

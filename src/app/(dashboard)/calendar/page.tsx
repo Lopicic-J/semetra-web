@@ -53,10 +53,10 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-3 sm:p-6 max-w-5xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Kalender</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Kalender</h1>
           <p className="text-gray-500 text-sm mt-0.5">{MONTHS[month]} {year}</p>
         </div>
         <div className="flex gap-2">
@@ -86,7 +86,7 @@ export default function CalendarPage() {
             return (
               <div key={i}
                 onClick={() => day && setSelected(selected === dateStr(day) ? null : dateStr(day))}
-                className={`min-h-[90px] p-1.5 border-b border-r border-gray-50 cursor-pointer transition-colors ${day ? "hover:bg-violet-50/50" : "bg-gray-50/50"} ${selected === (day ? dateStr(day) : "") ? "bg-violet-50" : ""}`}>
+                className={`min-h-[70px] sm:min-h-[90px] p-1 sm:p-1.5 border-b border-r border-gray-50 cursor-pointer transition-colors text-xs sm:text-sm ${day ? "hover:bg-violet-50/50" : "bg-gray-50/50"} ${selected === (day ? dateStr(day) : "") ? "bg-violet-50" : ""}`}>
                 {day && (
                   <>
                     <div className={`w-7 h-7 flex items-center justify-center rounded-full text-sm font-medium mb-1 ${isToday ? "bg-violet-600 text-white" : "text-gray-700"}`}>{day}</div>
@@ -190,18 +190,18 @@ function EventModal({ defaultDate, onClose, onSaved }: { defaultDate: string; on
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100">
           <h2 className="font-semibold text-gray-900">Neuer Termin</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100"><X size={16} /></button>
         </div>
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Titel *</label>
             <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder="Termin…" />
           </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="col-span-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Datum</label>
               <input className="input" type="date" value={form.date} onChange={e => set("date", e.target.value)} required />
             </div>

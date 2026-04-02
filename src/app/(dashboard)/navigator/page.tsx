@@ -205,11 +205,11 @@ export default function NavigatorPage() {
   }, [filtered]);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">🧭 Navigator</h1>
-        <p className="text-zinc-400 text-sm mt-1">Finde schnell die richtige Funktion für dein Anliegen</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">🧭 Navigator</h1>
+        <p className="text-zinc-400 text-xs sm:text-sm mt-1">Finde schnell die richtige Funktion für dein Anliegen</p>
       </div>
 
       {/* Search */}
@@ -230,7 +230,7 @@ export default function NavigatorPage() {
       {!search && !activeGroup && (
         <div>
           <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-3">Schnellaktionen</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
             {QUICK_ACTIONS.map((qa) => (
               <Link key={qa.href} href={qa.href} className="bg-zinc-900 rounded-xl border border-zinc-800 p-4 hover:border-violet-600 hover:bg-zinc-800 transition-all group">
                 <div className="flex items-center gap-3 mb-2">
@@ -245,10 +245,10 @@ export default function NavigatorPage() {
       )}
 
       {/* Group Filter */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 -mx-1 px-1">
         <button
           onClick={() => setActiveGroup(null)}
-          className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${!activeGroup ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"}`}
+          className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${!activeGroup ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"}`}
         >
           Alle ({FEATURES.length})
         </button>
@@ -258,7 +258,7 @@ export default function NavigatorPage() {
             <button
               key={g}
               onClick={() => setActiveGroup(activeGroup === g ? null : g)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all flex items-center gap-2 ${activeGroup === g ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"}`}
+              className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all flex items-center gap-1.5 sm:gap-2 ${activeGroup === g ? "bg-violet-600 text-white" : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"}`}
             >
               <span>{GROUP_EMOJIS[g]}</span>
               <span>{g}</span>
@@ -317,8 +317,8 @@ export default function NavigatorPage() {
 
       {/* Stats footer */}
       {!search && !activeGroup && (
-        <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-4 flex items-center justify-between text-sm">
-          <span className="text-zinc-500">{FEATURES.length} Funktionen in {GROUPS.length} Kategorien verfügbar</span>
+        <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm gap-1">
+          <span className="text-zinc-500">{FEATURES.length} Funktionen in {GROUPS.length} Kategorien</span>
           <span className="text-zinc-600">Semetra — Dein Studienbegleiter</span>
         </div>
       )}

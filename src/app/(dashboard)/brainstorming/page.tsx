@@ -226,17 +226,17 @@ export default function BrainstormingPage() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-3 sm:p-6 max-w-5xl mx-auto space-y-4 sm:space-y-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
             <Lightbulb className="text-yellow-300" /> Brainstorming
           </h1>
-          <p className="text-zinc-400 text-sm mt-1">Ideen sammeln, Kreativität entfalten, Probleme lösen</p>
+          <p className="text-zinc-400 text-xs sm:text-sm mt-1">Ideen sammeln, Kreativität entfalten, Probleme lösen</p>
         </div>
         <button
           onClick={() => { setPreselectedTech(null); setShowCreate(true); }}
-          className="flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition"
+          className="flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition"
         >
           <Plus size={16} /> Neue Session
         </button>
@@ -245,7 +245,7 @@ export default function BrainstormingPage() {
       {/* Technique overview cards */}
       <div className="mb-8">
         <h2 className="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3">Techniken</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {TECHNIQUES.map(t => (
             <button
               key={t.key}
@@ -273,7 +273,7 @@ export default function BrainstormingPage() {
           <p className="text-sm mt-1 text-zinc-500">Starte eine neue Session um Ideen zu sammeln!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
           {sessions.map(s => {
             const tech = TECHNIQUES.find(t => t.key === s.technique);
             const mod = modules.find(m => m.id === s.module_id);
@@ -381,7 +381,7 @@ function CreateSessionModal({
   return (
     <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-zinc-900 border border-zinc-600 rounded-2xl w-full max-w-lg p-6 max-h-[85vh] overflow-y-auto shadow-2xl"
+        className="bg-zinc-900 border border-zinc-600 rounded-2xl w-full max-w-lg p-3 sm:p-6 mx-4 max-h-[85vh] overflow-y-auto shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-5">
@@ -389,21 +389,21 @@ function CreateSessionModal({
           <button onClick={onClose} className="text-zinc-400 hover:text-white transition"><X size={20} /></button>
         </div>
 
-        <label className="block text-sm font-medium text-zinc-200 mb-1.5">Titel</label>
+        <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-1.5">Titel</label>
         <input
           value={title}
           onChange={e => setTitle(e.target.value)}
           placeholder={selectedTech.label}
-          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-zinc-500 mb-4 focus:border-violet-500 focus:outline-none transition"
+          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-white placeholder:text-zinc-500 mb-4 focus:border-violet-500 focus:outline-none transition"
         />
 
-        <label className="block text-sm font-medium text-zinc-200 mb-2">Technik wählen</label>
-        <div className="grid grid-cols-2 gap-2 mb-4">
+        <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-2">Technik wählen</label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
           {TECHNIQUES.map(t => (
             <button
               key={t.key}
               onClick={() => setTechnique(t.key)}
-              className={`flex items-center gap-2 p-2.5 rounded-lg border text-xs text-left transition ${
+              className={`flex items-center gap-2 p-1.5 sm:p-2.5 rounded-lg border text-xs text-left transition ${
                 technique === t.key
                   ? "border-violet-500 bg-violet-500/15 text-white"
                   : "border-zinc-600 bg-zinc-800/80 text-zinc-300 hover:border-zinc-500 hover:text-white"
@@ -420,22 +420,22 @@ function CreateSessionModal({
           <span>{selectedTech.description}</span>
         </div>
 
-        <label className="block text-sm font-medium text-zinc-200 mb-1.5">Verknüpfung (optional)</label>
+        <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-1.5">Verknüpfung (optional)</label>
         <select
           value={moduleId}
           onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); }}
-          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2.5 text-sm text-white mb-2"
+          className="w-full bg-zinc-800 border border-zinc-600 rounded-lg px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-white mb-2"
         >
           <option value="">Allgemein (kein Modul)</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
 
         {moduleId && (
-          <div className="flex gap-2 mb-2">
+          <div className="flex flex-col sm:flex-row gap-2 mb-2">
             <select
               value={examId}
               onChange={e => setExamId(e.target.value)}
-              className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2 text-sm text-white"
+              className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white"
             >
               <option value="">Keine Prüfung</option>
               {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
@@ -443,7 +443,7 @@ function CreateSessionModal({
             <select
               value={taskId}
               onChange={e => setTaskId(e.target.value)}
-              className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2 text-sm text-white"
+              className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white"
             >
               <option value="">Keine Aufgabe</option>
               {filteredTasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
@@ -451,7 +451,7 @@ function CreateSessionModal({
           </div>
         )}
 
-        <label className="block text-sm font-medium text-zinc-200 mb-1.5 mt-3">Farbe</label>
+        <label className="block text-xs sm:text-sm font-medium text-zinc-200 mb-1.5 mt-3">Farbe</label>
         <div className="flex gap-2 mb-5 flex-wrap">
           {IDEA_COLORS.slice(0, 10).map(c => (
             <button
@@ -466,7 +466,7 @@ function CreateSessionModal({
         <button
           onClick={handleCreate}
           disabled={saving}
-          className="w-full bg-violet-600 hover:bg-violet-500 text-white py-2.5 rounded-lg font-medium text-sm transition disabled:opacity-50"
+          className="w-full bg-violet-600 hover:bg-violet-500 text-white py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50"
         >
           {saving ? "Erstellen..." : "Session starten"}
         </button>
@@ -612,10 +612,10 @@ function BrainstormEditor({
   const fmtTimer = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-3 sm:p-6 max-w-6xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 sm:mb-4 mb-4">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button onClick={onBack} className="text-zinc-400 hover:text-white transition p-1">
             <ArrowLeft size={20} />
           </button>
@@ -637,10 +637,10 @@ function BrainstormEditor({
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap">
           <button
             onClick={generateAiSuggestions}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-violet-600 border border-violet-500 text-white hover:bg-violet-500 text-sm font-medium transition"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-violet-600 border border-violet-500 text-white hover:bg-violet-500 text-xs sm:text-sm font-medium transition"
             title="KI-Vorschläge generieren"
           >
             <Bot size={16} /> KI-Assistent
@@ -664,9 +664,9 @@ function BrainstormEditor({
 
       {/* KI-Assistent Panel */}
       {showAi && aiSuggestions.length > 0 && (
-        <div className="mb-4 p-4 rounded-xl border border-zinc-600 bg-zinc-900">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-violet-400 flex items-center gap-2">
+        <div className="mb-4 p-3 sm:p-4 rounded-xl border border-zinc-600 bg-zinc-900">
+          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <h3 className="text-xs sm:text-sm font-semibold text-violet-400 flex items-center gap-2">
               <Bot size={16} /> KI-Denkanstösse
             </h3>
             <div className="flex gap-1">
@@ -689,7 +689,7 @@ function BrainstormEditor({
             {aiSuggestions.map((s, idx) => (
               <div key={idx} className="flex items-start gap-2.5 group">
                 <Sparkles size={12} className="text-violet-400 mt-1.5 flex-shrink-0" />
-                <p className="text-sm text-white flex-1 leading-relaxed">{s}</p>
+                <p className="text-xs sm:text-sm text-white flex-1 leading-relaxed">{s}</p>
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
                   <button
                     onClick={() => copyToInput(s, idx)}
@@ -714,10 +714,10 @@ function BrainstormEditor({
 
       {/* Inspiration / Prompt Card */}
       {showPrompt && (
-        <div className="mb-4 p-4 rounded-xl border border-zinc-600 bg-zinc-900 flex items-start gap-3">
-          <Sparkles size={20} className="flex-shrink-0 mt-0.5" style={{ color: tech.color }} />
+        <div className="mb-4 p-3 sm:p-4 rounded-xl border border-zinc-600 bg-zinc-900 flex flex-col sm:flex-row items-start gap-2 sm:gap-3">
+          <Sparkles size={16} className="flex-shrink-0 mt-0.5 sm:mt-0.5" style={{ color: tech.color }} />
           <div className="flex-1">
-            <p className="text-sm text-white font-medium leading-relaxed">{tech.prompts[promptIndex]}</p>
+            <p className="text-xs sm:text-sm text-white font-medium leading-relaxed">{tech.prompts[promptIndex]}</p>
             {mod && (
               <p className="text-xs text-zinc-400 mt-1">
                 Kontext: {mod.name}
@@ -753,27 +753,27 @@ function BrainstormEditor({
 
       {/* Mind Dump Timer */}
       {session.technique === "minddump" && (
-        <div className="mb-4 flex items-center gap-3 p-3 bg-zinc-900 border border-zinc-600 rounded-xl">
-          <Zap size={18} className="text-cyan-400" />
-          <span className="text-2xl font-mono text-white font-bold tracking-wider">{fmtTimer(timerSec)}</span>
+        <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-zinc-900 border border-zinc-600 rounded-xl">
+          <Zap size={16} className="text-cyan-400 sm:size-[18px]" />
+          <span className="text-lg sm:text-2xl font-mono text-white font-bold tracking-wider">{fmtTimer(timerSec)}</span>
           {!timerActive ? (
             <button
               onClick={() => { setTimerActive(true); if (timerSec === 0) setTimerSec(300); }}
-              className="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm font-medium transition"
+              className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs sm:text-sm font-medium transition"
             >
               {timerSec === 300 ? "Start" : "Weiter"}
             </button>
           ) : (
             <button
               onClick={() => setTimerActive(false)}
-              className="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 text-white rounded-lg text-sm font-medium transition"
+              className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-zinc-700 hover:bg-zinc-600 text-white rounded-lg text-xs sm:text-sm font-medium transition"
             >
               Pause
             </button>
           )}
           <button
             onClick={() => { setTimerActive(false); setTimerSec(300); }}
-            className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-sm transition"
+            className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-xs sm:text-sm transition"
           >
             Reset
           </button>
@@ -782,7 +782,7 @@ function BrainstormEditor({
       )}
 
       {/* Input bar */}
-      <div className="mb-6 flex gap-2">
+      <div className="mb-6 flex flex-col sm:flex-row gap-2">
         <div className="flex-1 flex gap-2">
           <input
             ref={inputRef}
@@ -790,14 +790,14 @@ function BrainstormEditor({
             onChange={e => setNewContent(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addIdea(); } }}
             placeholder="Neue Idee eingeben... (Enter zum Hinzufügen)"
-            className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-zinc-500 focus:border-violet-500 focus:outline-none transition"
+            className="flex-1 bg-zinc-800 border border-zinc-600 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:border-violet-500 focus:outline-none transition"
             autoFocus
           />
           {tech.categories && (
             <select
               value={newCategory}
               onChange={e => setNewCategory(e.target.value)}
-              className="bg-zinc-800 border border-zinc-600 rounded-lg px-3 py-2 text-sm text-white min-w-[130px]"
+              className="bg-zinc-800 border border-zinc-600 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white w-full sm:w-auto sm:min-w-[130px]"
             >
               {tech.categories.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -806,7 +806,7 @@ function BrainstormEditor({
         <button
           onClick={() => addIdea()}
           disabled={!newContent.trim()}
-          className="bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-1.5"
+          className="bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 w-full sm:w-auto justify-center sm:justify-start"
         >
           <Plus size={16} /> Hinzufügen
         </button>
@@ -814,10 +814,10 @@ function BrainstormEditor({
 
       {/* Category filter */}
       {tech.categories && tech.categories.length > 1 && (
-        <div className="flex gap-1.5 mb-4 flex-wrap">
+        <div className="flex gap-1 sm:gap-1.5 mb-4 flex-wrap overflow-x-auto pb-2">
           <button
             onClick={() => setFilterCat("")}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-medium transition whitespace-nowrap ${
               !filterCat ? "bg-violet-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white"
             }`}
           >
@@ -829,7 +829,7 @@ function BrainstormEditor({
               <button
                 key={cat}
                 onClick={() => setFilterCat(filterCat === cat ? "" : cat)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
+                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-medium transition whitespace-nowrap ${
                   filterCat === cat ? "bg-violet-600 text-white" : "bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white"
                 }`}
               >
@@ -851,10 +851,10 @@ function BrainstormEditor({
         </div>
       ) : viewMode === "board" ? (
         tech.categories ? (
-          <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${Math.min(allCats.length, 4)}, 1fr)` }}>
+          <div className="grid gap-2 sm:gap-4" style={{ gridTemplateColumns: `repeat(${Math.min(allCats.length, 4)}, 1fr)` }}>
             {allCats.filter(c => !filterCat || c === filterCat).map(cat => (
-              <div key={cat} className="bg-zinc-900 border border-zinc-700 rounded-xl p-3">
-                <h3 className="text-sm font-semibold text-zinc-200 mb-3 flex items-center justify-between">
+              <div key={cat} className="bg-zinc-900 border border-zinc-700 rounded-xl p-2 sm:p-3">
+                <h3 className="text-xs sm:text-sm font-semibold text-zinc-200 mb-3 flex items-center justify-between">
                   {cat}
                   <span className="text-xs text-zinc-500 font-normal bg-zinc-800 px-2 py-0.5 rounded-full">{(grouped[cat] ?? []).length}</span>
                 </h3>
@@ -878,7 +878,7 @@ function BrainstormEditor({
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
             {filteredIdeas.map(idea => (
               <IdeaCard
                 key={idea.id}
@@ -896,17 +896,17 @@ function BrainstormEditor({
           </div>
         )
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-1.5 sm:space-y-2">
           {filteredIdeas.map((idea, idx) => (
             <div
               key={idea.id}
-              className="flex items-start gap-3 p-3 bg-zinc-900 border border-zinc-700 rounded-lg group hover:border-zinc-600 transition"
+              className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-zinc-900 border border-zinc-700 rounded-lg group hover:border-zinc-600 transition text-xs sm:text-sm"
             >
               <span className="text-xs text-zinc-500 font-mono mt-1 w-6 text-right">{idx + 1}</span>
               <div className="w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: idea.color }} />
               <div className="flex-1 min-w-0">
                 {editingId === idea.id ? (
-                  <div className="flex gap-2">
+                  <div className="flex gap-1 sm:gap-2 w-full">
                     <input
                       value={editContent}
                       onChange={e => setEditContent(e.target.value)}
@@ -914,20 +914,20 @@ function BrainstormEditor({
                         if (e.key === "Enter") updateIdea(idea.id, editContent);
                         if (e.key === "Escape") setEditingId(null);
                       }}
-                      className="flex-1 bg-zinc-800 border border-zinc-500 rounded px-2 py-1 text-sm text-white focus:border-violet-500 focus:outline-none"
+                      className="flex-1 bg-zinc-800 border border-zinc-500 rounded px-2 py-1 text-xs sm:text-sm text-white focus:border-violet-500 focus:outline-none"
                       autoFocus
                     />
                     <button onClick={() => updateIdea(idea.id, editContent)} className="text-green-400 hover:text-green-300"><Save size={14} /></button>
                     <button onClick={() => setEditingId(null)} className="text-zinc-400 hover:text-white"><X size={14} /></button>
                   </div>
                 ) : (
-                  <p className="text-sm text-zinc-100">{idea.content}</p>
+                  <p className="text-xs sm:text-sm text-zinc-100">{idea.content}</p>
                 )}
                 {idea.category && (
                   <span className="text-xs text-zinc-500 mt-0.5 inline-block">{idea.category}</span>
                 )}
               </div>
-              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+              <div className="flex items-center gap-0.5 sm:gap-1 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
                 {idea.votes > 0 && <span className="text-xs text-yellow-400 mr-1 font-medium">{idea.votes}</span>}
                 <button onClick={() => voteIdea(idea.id, 1)} className="p-1 text-zinc-500 hover:text-yellow-400 transition"><ThumbsUp size={12} /></button>
                 <button onClick={() => { setEditingId(idea.id); setEditContent(idea.content); }} className="p-1 text-zinc-500 hover:text-white transition"><Pencil size={12} /></button>
@@ -940,38 +940,38 @@ function BrainstormEditor({
 
       {/* Summary stats */}
       {ideas.length > 0 && (
-        <div className="mt-6 p-4 bg-zinc-900 border border-zinc-700 rounded-xl">
-          <h3 className="text-sm font-semibold text-zinc-200 mb-3 flex items-center gap-2">
+        <div className="mt-6 p-3 sm:p-4 bg-zinc-900 border border-zinc-700 rounded-xl">
+          <h3 className="text-xs sm:text-sm font-semibold text-zinc-200 mb-3 flex items-center gap-2">
             <Target size={14} className="text-violet-400" /> Zusammenfassung
           </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-center">
             <div>
-              <p className="text-2xl font-bold text-white">{ideas.length}</p>
-              <p className="text-xs text-zinc-400">Ideen gesamt</p>
+              <p className="text-lg sm:text-2xl font-bold text-white">{ideas.length}</p>
+              <p className="text-xs text-zinc-400">Ideen</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-yellow-400">{ideas.filter(i => i.votes > 0).length}</p>
+              <p className="text-lg sm:text-2xl font-bold text-yellow-400">{ideas.filter(i => i.votes > 0).length}</p>
               <p className="text-xs text-zinc-400">Bewertet</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-violet-400">
+              <p className="text-lg sm:text-2xl font-bold text-violet-400">
                 {tech.categories ? new Set(ideas.map(i => i.category).filter(Boolean)).size : "\u2014"}
               </p>
               <p className="text-xs text-zinc-400">Kategorien</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-cyan-400">
+              <p className="text-lg sm:text-2xl font-bold text-cyan-400">
                 {ideas.reduce((max, i) => Math.max(max, i.votes), 0)}
               </p>
-              <p className="text-xs text-zinc-400">Höchste Bewertung</p>
+              <p className="text-xs text-zinc-400">Top Wertung</p>
             </div>
           </div>
           {ideas.filter(i => i.votes > 0).length > 0 && (
             <div className="mt-3 pt-3 border-t border-zinc-700">
               <p className="text-xs text-zinc-400 mb-2 font-medium">Top Ideen:</p>
               {[...ideas].sort((a, b) => b.votes - a.votes).slice(0, 3).map((idea) => (
-                <p key={idea.id} className="text-sm text-zinc-200 flex items-center gap-2 py-0.5">
-                  <span className="text-yellow-400 text-xs font-medium min-w-[24px]">{idea.votes}x</span>
+                <p key={idea.id} className="text-xs sm:text-sm text-zinc-200 flex items-center gap-2 py-0.5">
+                  <span className="text-yellow-400 text-xs font-medium min-w-[20px]">{idea.votes}x</span>
                   <span className="line-clamp-1">{idea.content}</span>
                 </p>
               ))}
@@ -999,7 +999,7 @@ function IdeaCard({
 }) {
   return (
     <div
-      className="p-3 rounded-lg border border-zinc-700 bg-zinc-800 hover:border-zinc-500 group transition"
+      className="p-2 sm:p-3 rounded-lg border border-zinc-700 bg-zinc-800 hover:border-zinc-500 group transition"
       style={{ borderLeftWidth: 3, borderLeftColor: idea.color }}
     >
       {editing ? (
@@ -1011,11 +1011,11 @@ function IdeaCard({
               if (e.key === "Enter" && e.ctrlKey) onSaveEdit();
               if (e.key === "Escape") onCancelEdit();
             }}
-            className="w-full bg-zinc-800 border border-zinc-500 rounded px-2 py-1.5 text-sm text-white resize-none focus:border-violet-500 focus:outline-none"
+            className="w-full bg-zinc-800 border border-zinc-500 rounded px-2 py-1 sm:py-1.5 text-xs sm:text-sm text-white resize-none focus:border-violet-500 focus:outline-none"
             rows={3}
             autoFocus
           />
-          <div className="flex gap-2 mt-1.5">
+          <div className="flex gap-1.5 sm:gap-2 mt-1.5">
             <button onClick={onSaveEdit} className="text-xs text-green-400 hover:text-green-300 flex items-center gap-1 font-medium transition">
               <Save size={12} /> Speichern
             </button>
@@ -1024,8 +1024,8 @@ function IdeaCard({
         </div>
       ) : (
         <>
-          <p className="text-sm text-zinc-100 mb-2 leading-relaxed">{idea.content}</p>
-          <div className="flex items-center justify-between">
+          <p className="text-xs sm:text-sm text-zinc-100 mb-2 leading-relaxed">{idea.content}</p>
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-1">
               {idea.votes > 0 && (
                 <span className="text-xs text-yellow-400 flex items-center gap-0.5 font-medium">
@@ -1033,7 +1033,7 @@ function IdeaCard({
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition">
+            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
               <button onClick={() => onVote(1)} className="p-1 text-zinc-500 hover:text-yellow-400 transition" title="Bewerten"><ThumbsUp size={12} /></button>
               {idea.votes > 0 && (
                 <button onClick={() => onVote(-1)} className="p-1 text-zinc-500 hover:text-zinc-300 transition" title="Abwerten"><Minus size={12} /></button>

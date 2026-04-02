@@ -89,10 +89,10 @@ export default function ModulesPage() {
   const filtered = filter === "all" ? modules : modules.filter(m => (m.status ?? "active") === filter);
 
   return (
-    <div className="p-4 md:p-6 max-w-6xl mx-auto">
+    <div className="p-3 sm:p-6 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Module</h1>
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">Module</h1>
           <p className="text-gray-500 text-sm mt-0.5">
             {modules.length} Module · {modules.reduce((s, m) => s + (m.ects ?? 0), 0)} ECTS total
             {!isPro && <span className="text-amber-600 ml-2">({modules.length}/{FREE_LIMITS.totalModules} Free-Limit)</span>}
@@ -159,7 +159,7 @@ export default function ModulesPage() {
       </div>
 
       {loading ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1,2,3,4,5,6].map(i => <div key={i} className="h-44 bg-gray-100 rounded-2xl animate-pulse" />)}
         </div>
       ) : filtered.length === 0 ? (
@@ -169,7 +169,7 @@ export default function ModulesPage() {
           <p className="text-sm mt-1">Klicke auf „Modul hinzufügen" oder nutze die FH-Voreinstellungen.</p>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map(mod => (
             <ModuleCard
               key={mod.id}
@@ -291,8 +291,8 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
-        <div className="p-6">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
+        <div className="p-4 sm:p-6">
           {/* Header */}
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
@@ -589,14 +589,14 @@ function ModuleModal({ initial, onClose, onSaved }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto mx-4">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100">
           <h2 className="font-semibold text-gray-900">{initial ? "Modul bearbeiten" : "Neues Modul"}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100"><X size={16} /></button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-100 px-5">
+        <div className="flex border-b border-gray-100 px-4 sm:px-5 overflow-x-auto">
           {TABS.map(t => (
             <button
               key={t.id}
@@ -613,11 +613,11 @@ function ModuleModal({ initial, onClose, onSaved }: {
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
           {tab === "basic" && (
             <>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="col-span-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Modulname *</label>
                   <input className="input" required value={form.name} onChange={e => set("name", e.target.value)} placeholder="z.B. Mathematik 1" />
                 </div>
@@ -626,7 +626,7 @@ function ModuleModal({ initial, onClose, onSaved }: {
                   <input className="input font-mono" value={form.code} onChange={e => set("code", e.target.value)} placeholder="MAT1" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Dozent</label>
                   <input className="input" value={form.professor} onChange={e => set("professor", e.target.value)} placeholder="Prof. Muster" />
@@ -636,7 +636,7 @@ function ModuleModal({ initial, onClose, onSaved }: {
                   <input className="input" type="number" min="1" max="30" value={form.ects} onChange={e => set("ects", e.target.value)} placeholder="4" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Semester</label>
                   <select className="input" value={form.semester} onChange={e => set("semester", e.target.value)}>
@@ -651,7 +651,7 @@ function ModuleModal({ initial, onClose, onSaved }: {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Tag</label>
                   <select className="input" value={form.day} onChange={e => set("day", e.target.value)}>
@@ -668,7 +668,7 @@ function ModuleModal({ initial, onClose, onSaved }: {
                   <input className="input" type="time" value={form.time_end} onChange={e => set("time_end", e.target.value)} />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Zimmer</label>
                   <input className="input" value={form.room} onChange={e => set("room", e.target.value)} placeholder="A101" />
@@ -699,7 +699,7 @@ function ModuleModal({ initial, onClose, onSaved }: {
 
           {tab === "details" && (
             <>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Prüfungsdatum</label>
                   <input className="input" type="date" value={form.exam_date} onChange={e => set("exam_date", e.target.value)} />

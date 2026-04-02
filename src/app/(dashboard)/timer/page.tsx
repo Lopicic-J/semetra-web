@@ -285,14 +285,14 @@ export default function TimerPage() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-3 sm:p-6 max-w-4xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Lern-Timer</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Lern-Timer</h1>
         <p className="text-gray-500 text-sm mt-0.5">Pomodoro-Technik & Lernzeit-Tracking</p>
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="card text-center">
           <p className="text-3xl font-bold text-violet-600">{formatDuration(todaySecs)}</p>
           <p className="text-sm text-gray-500 mt-1">Heute gelernt</p>
