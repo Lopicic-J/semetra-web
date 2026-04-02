@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Award, CheckCircle, Clock, TrendingUp, BookOpen, AlertTriangle } from "lucide-react";
+import { useProfile } from "@/lib/hooks/useProfile";
+import { Award, CheckCircle, Clock, TrendingUp, BookOpen, AlertTriangle, Calendar, Pencil, Save, X } from "lucide-react";
 import type { Module, Grade } from "@/types/database";
 
 const DEGREE_ECTS = 180;
@@ -21,9 +22,24 @@ function semesterNum(s: string): number {
 
 export default function CreditsPage() {
   const supabase = createClient();
+  const { profile, refetch: refetchProfile } = useProfile();
   const [modules, setModules] = useState<Module[]>([]);
   const [grades, setGrades] = useState<Grade[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Study period editing
+  const [editingPeriod, setEditingPeriod] = useState(false);
+  const [studyStart, setStudyStart] = useState("");
+  const [studyEnd, setStudyEnd] = useState("");
+  const [savingPeriod, setSavingPeriod] = useState(false);
+
+  // Sync form with profile
+  useEffect(() => {
+    if (profile) {
+      setStudyStart(profile.study_start ?? "");
+      setStudyEnd(profile.study_end ?? "");
+    }
+  }, [profile]);
 
   const load = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -38,6 +54,18 @@ export default function CreditsPage() {
   }, [supabase]);
 
   useEffect(() => { load(); }, [load]);
+
+  async function saveStudyPeriod() {
+    if (!profile) return;
+    setSavingPeriod(true);
+    await supabase.from("profiles").update({
+      study_start: studyStart || null,
+      study_end: studyEnd || null,
+    }).eq("id", profile.id);
+    await refetchProfile();
+    setEditingPeriod(false);
+    setSavingPeriod(false);
+  }
 
   // Grade-based ECTS calculation
   function bestGrade(moduleId: string): number | null {
@@ -161,6 +189,20 @@ export default function CreditsPage() {
         </div>
       </div>
 
+      {/* Study period */}
+      <StudyPeriodCard
+        studyStart={profile?.study_start ?? null}
+        studyEnd={profile?.study_end ?? null}
+        editing={editingPeriod}
+        editStart={studyStart}
+        editEnd={studyEnd}
+        saving={savingPeriod}
+        onEditStart={setStudyStart}
+        onEditEnd={setStudyEnd}
+        onToggleEdit={() => { setEditingPeriod(!editingPeriod); setStudyStart(profile?.study_start ?? ""); setStudyEnd(profile?.study_end ?? ""); }}
+        onSave={saveStudyPeriod}
+      />
+
       {/* Semester breakdown */}
       <h2 className="font-semibold text-gray-800 mb-4">Semesterübersicht</h2>
       {sortedSemesters.length === 0 ? (
@@ -242,6 +284,170 @@ function StatCard({ icon, label, value, sub, color }: {
       <p className="text-2xl font-bold text-gray-900">{value}</p>
       <p className="text-xs font-medium text-gray-600">{label}</p>
       <p className="text-xs text-gray-400 mt-0.5">{sub}</p>
+    </div>
+  );
+}
+
+function StudyPeriodCard({
+  studyStart, studyEnd, editing, editStart, editEnd, saving,
+  onEditStart, onEditEnd, onToggleEdit, onSave,
+}: {
+  studyStart: string | null;
+  studyEnd: string | null;
+  editing: boolean;
+  editStart: string;
+  editEnd: string;
+  saving: boolean;
+  onEditStart: (v: string) => void;
+  onEditEnd: (v: string) => void;
+  onToggleEdit: () => void;
+  onSave: () => void;
+}) {
+  const now = new Date();
+  const start = studyStart ? new Date(studyStart) : null;
+  const end = studyEnd ? new Date(studyEnd) : null;
+
+  // Calculate time progress
+  let timePct = 0;
+  let totalMonths = 0;
+  let elapsedMonths = 0;
+  let remainingMonths = 0;
+  let remainingLabel = "";
+
+  if (start && end && end > start) {
+    totalMonths = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30.44));
+    elapsedMonths = Math.max(0, Math.round((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30.44)));
+    remainingMonths = Math.max(0, Math.round((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30.44)));
+    timePct = Math.min(100, Math.max(0, Math.round((elapsedMonths / totalMonths) * 100)));
+
+    if (remainingMonths > 12) {
+      const years = Math.floor(remainingMonths / 12);
+      const months = remainingMonths % 12;
+      remainingLabel = months > 0 ? `${years}J ${months}M` : `${years} Jahr${years > 1 ? "e" : ""}`;
+    } else {
+      remainingLabel = `${remainingMonths} Monat${remainingMonths !== 1 ? "e" : ""}`;
+    }
+  }
+
+  const hasData = start && end;
+  const isFinished = end && now > end;
+
+  const formatDateDE = (d: string | null) => {
+    if (!d) return "—";
+    return new Date(d).toLocaleDateString("de-CH", { month: "long", year: "numeric" });
+  };
+
+  return (
+    <div className="card mb-8">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-semibold text-gray-800 flex items-center gap-2">
+          <Calendar size={18} className="text-violet-500" />
+          Studienzeitraum
+        </h2>
+        <button
+          onClick={onToggleEdit}
+          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-violet-600 transition-colors"
+          title={editing ? "Abbrechen" : "Bearbeiten"}
+        >
+          {editing ? <X size={16} /> : <Pencil size={14} />}
+        </button>
+      </div>
+
+      {editing ? (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Studienbeginn</label>
+              <input
+                type="date"
+                value={editStart}
+                onChange={e => onEditStart(e.target.value)}
+                className="input text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Studienende (geplant)</label>
+              <input
+                type="date"
+                value={editEnd}
+                onChange={e => onEditEnd(e.target.value)}
+                className="input text-sm"
+              />
+            </div>
+          </div>
+          <p className="text-[10px] text-gray-400">
+            Freiwillig — wenn du das genaue Datum nicht kennst, trage ein ungefähres ein.
+          </p>
+          <div className="flex gap-2 justify-end">
+            <button onClick={onToggleEdit} className="px-3 py-1.5 text-xs rounded-lg hover:bg-gray-100 text-gray-500">
+              Abbrechen
+            </button>
+            <button
+              onClick={onSave}
+              disabled={saving}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 text-white text-xs font-medium hover:bg-violet-700 disabled:opacity-50"
+            >
+              <Save size={12} /> {saving ? "Speichern…" : "Speichern"}
+            </button>
+          </div>
+        </div>
+      ) : hasData ? (
+        <div>
+          {/* Time progress bar */}
+          <div className="h-3 bg-gray-100 rounded-full overflow-hidden mb-2">
+            <div
+              className={`h-full rounded-full transition-all duration-700 ${
+                isFinished
+                  ? "bg-gradient-to-r from-green-400 to-emerald-500"
+                  : "bg-gradient-to-r from-violet-400 to-indigo-500"
+              }`}
+              style={{ width: `${isFinished ? 100 : timePct}%` }}
+            />
+          </div>
+
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <span>{formatDateDE(studyStart)}</span>
+            {isFinished ? (
+              <span className="text-green-600 font-semibold">Studium abgeschlossen!</span>
+            ) : (
+              <span className="font-medium text-violet-600">
+                Noch {remainingLabel} · {timePct}% der Studienzeit vorbei
+              </span>
+            )}
+            <span>{formatDateDE(studyEnd)}</span>
+          </div>
+
+          {/* Quick stats */}
+          {!isFinished && (
+            <div className="flex gap-4 mt-3 pt-3 border-t border-gray-100">
+              <div className="text-center flex-1">
+                <p className="text-lg font-bold text-gray-800">{totalMonths}</p>
+                <p className="text-[10px] text-gray-400">Monate gesamt</p>
+              </div>
+              <div className="text-center flex-1">
+                <p className="text-lg font-bold text-violet-600">{elapsedMonths}</p>
+                <p className="text-[10px] text-gray-400">Monate absolviert</p>
+              </div>
+              <div className="text-center flex-1">
+                <p className="text-lg font-bold text-indigo-600">{remainingMonths}</p>
+                <p className="text-[10px] text-gray-400">Monate verbleibend</p>
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="text-center py-4">
+          <p className="text-sm text-gray-400 mb-2">
+            Trage deinen Studienzeitraum ein, um den zeitlichen Fortschritt zu sehen.
+          </p>
+          <button
+            onClick={onToggleEdit}
+            className="text-xs font-medium text-violet-600 hover:text-violet-700"
+          >
+            Studienzeitraum eintragen →
+          </button>
+        </div>
+      )}
     </div>
   );
 }
