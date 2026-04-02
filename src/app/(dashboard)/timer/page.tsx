@@ -6,7 +6,8 @@ import { useTimeLogs } from "@/lib/hooks/useTimeLogs";
 import { formatDuration } from "@/lib/utils";
 import {
   Play, Pause, Square, Timer, Trash2, RotateCcw, Coffee, BookOpen,
-  GraduationCap, Brain, ClipboardList, SlidersHorizontal, ChevronDown, ChevronUp
+  GraduationCap, Brain, ClipboardList, SlidersHorizontal, ChevronDown, ChevronUp,
+  Pencil, Save, X, StickyNote
 } from "lucide-react";
 import type { CalendarEvent, Topic, Task } from "@/types/database";
 
@@ -541,30 +542,116 @@ export default function TimerPage() {
         ) : (
           <div className="space-y-2">
             {logs.slice(0, 20).map(log => (
-              <div key={log.id} className="flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-100 hover:border-violet-200 group">
-                <div className="w-2.5 h-2.5 rounded-full shrink-0"
-                  style={{ background: (log as any).modules?.color ?? "#6d28d9" }} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-800 truncate">
-                    {logContextLabel(log)}
-                  </p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <p className="text-xs text-gray-400">
-                      {new Date(log.started_at).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" })} ·{" "}
-                      {new Date(log.started_at).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}
-                    </p>
-                    {log.note && <span className="text-xs text-gray-400 truncate">· {log.note}</span>}
-                  </div>
-                </div>
-                <span className="text-sm font-semibold text-violet-600 shrink-0">{formatDuration(log.duration_seconds ?? 0)}</span>
-                <button onClick={() => deleteLog(log.id)} className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500">
-                  <Trash2 size={13} />
-                </button>
-              </div>
+              <SessionLogRow
+                key={log.id}
+                log={log}
+                contextLabel={logContextLabel(log)}
+                onDelete={deleteLog}
+                onNoteUpdated={refetchLogs}
+              />
             ))}
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+/** Individual session log row with inline note editing */
+function SessionLogRow({ log, contextLabel, onDelete, onNoteUpdated }: {
+  log: any;
+  contextLabel: string;
+  onDelete: (id: string) => void;
+  onNoteUpdated: () => void;
+}) {
+  const supabase = createClient();
+  const [editingNote, setEditingNote] = useState(false);
+  const [noteText, setNoteText] = useState(log.note ?? "");
+  const [saving, setSaving] = useState(false);
+
+  async function saveNote() {
+    setSaving(true);
+    await supabase.from("time_logs").update({ note: noteText.trim() || null }).eq("id", log.id);
+    setSaving(false);
+    setEditingNote(false);
+    onNoteUpdated();
+  }
+
+  function cancelEdit() {
+    setNoteText(log.note ?? "");
+    setEditingNote(false);
+  }
+
+  return (
+    <div className="rounded-xl bg-white border border-gray-100 hover:border-violet-200 group transition-colors">
+      {/* Main row */}
+      <div className="flex items-center gap-3 p-3">
+        <div className="w-2.5 h-2.5 rounded-full shrink-0"
+          style={{ background: log.modules?.color ?? "#6d28d9" }} />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-gray-800 truncate">{contextLabel}</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <p className="text-xs text-gray-400">
+              {new Date(log.started_at).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" })} ·{" "}
+              {new Date(log.started_at).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}
+            </p>
+            {!editingNote && log.note && (
+              <span className="text-xs text-gray-400 truncate">· {log.note}</span>
+            )}
+          </div>
+        </div>
+        <span className="text-sm font-semibold text-violet-600 shrink-0">{formatDuration(log.duration_seconds ?? 0)}</span>
+        <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+          <button
+            onClick={() => { setEditingNote(!editingNote); setNoteText(log.note ?? ""); }}
+            className={`p-1.5 rounded-lg transition-colors ${editingNote ? "bg-violet-100 text-violet-600" : "hover:bg-gray-100 text-gray-400"}`}
+            title="Notiz bearbeiten"
+          >
+            <StickyNote size={13} />
+          </button>
+          <button onClick={() => onDelete(log.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500">
+            <Trash2 size={13} />
+          </button>
+        </div>
+      </div>
+
+      {/* Inline note editor */}
+      {editingNote && (
+        <div className="px-3 pb-3 pt-0">
+          <div className="flex gap-2 items-start">
+            <textarea
+              value={noteText}
+              onChange={e => setNoteText(e.target.value)}
+              placeholder="Notiz zur Sitzung… (z.B. was gelernt, offene Fragen, nächste Schritte)"
+              className="input flex-1 text-sm resize-none"
+              rows={2}
+              autoFocus
+              onKeyDown={e => {
+                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) saveNote();
+                if (e.key === "Escape") cancelEdit();
+              }}
+            />
+            <div className="flex flex-col gap-1 shrink-0">
+              <button
+                onClick={saveNote}
+                disabled={saving}
+                className="p-1.5 rounded-lg bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-50"
+                title="Speichern (Ctrl+Enter)"
+              >
+                {saving ? <span className="w-3 h-3 block border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save size={13} />}
+              </button>
+              <button
+                onClick={cancelEdit}
+                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400"
+                title="Abbrechen (Esc)"
+              >
+                <X size={13} />
+              </button>
+            </div>
+          </div>
+          <p className="text-[10px] text-gray-400 mt-1">Ctrl+Enter zum Speichern · Esc zum Abbrechen</p>
+        </div>
+      )}
     </div>
   );
 }
