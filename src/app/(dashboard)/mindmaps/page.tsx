@@ -435,7 +435,7 @@ function MindMapEditor({ map, modules, onBack }: {
     await supabase.from("mindmaps").update({ layout_mode: newMode }).eq("id", map.id);
   }
 
-  // Canvas size — add padding so nodes at edges are never cut off
+  // Canvas size — generous padding so edges/nodes are never cut off
   const canvasW = useMemo(() => {
     const maxX = Math.max(800, ...nodes.map(n => getPos(n).x + 240));
     return maxX + 200;
@@ -534,11 +534,12 @@ function MindMapEditor({ map, modules, onBack }: {
               width: canvasW,
               height: canvasH,
               position: "relative",
+              overflow: "visible",
               cursor: panRef.current ? "grabbing" : "grab",
             }}
           >
             {/* SVG connections */}
-            <svg className="absolute inset-0 pointer-events-none" width={canvasW} height={canvasH}>
+            <svg className="absolute inset-0 pointer-events-none" style={{ overflow: "visible" }} width={canvasW} height={canvasH}>
               {nodes.filter(n => n.parent_id).map(n => {
                 const parent = nodes.find(p => p.id === n.parent_id);
                 if (!parent) return null;
