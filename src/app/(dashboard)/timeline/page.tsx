@@ -3,8 +3,8 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
 import { useTasks } from "@/lib/hooks/useTasks";
-import { Calendar, Clock, GraduationCap, CheckSquare, AlertTriangle, Filter } from "lucide-react";
-import type { Task, CalendarEvent, Module } from "@/types/database";
+import { Calendar, Clock, GraduationCap, CheckSquare, AlertTriangle, Filter, ChevronDown, ChevronUp, ExternalLink, FileText, Link2, FolderOpen } from "lucide-react";
+import type { Task, CalendarEvent, Module, Document } from "@/types/database";
 
 type TimelineItem = {
   id: string;
@@ -17,6 +17,10 @@ type TimelineItem = {
   status?: string;
   daysLeft: number;
   location?: string;
+  description?: string;
+  notes?: string;
+  links?: { label: string; url: string }[];
+  documents?: { title: string; url: string; kind: string }[];
 };
 
 const RANGES = [
@@ -30,6 +34,8 @@ export default function TimelinePage() {
   const { modules } = useModules();
   const { tasks } = useTasks();
   const [exams, setExams] = useState<CalendarEvent[]>([]);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [rangeDays, setRangeDays] = useState(30);
   const [showOverdue, setShowOverdue] = useState(true);
   const supabase = createClient();
@@ -43,7 +49,27 @@ export default function TimelinePage() {
     setExams(data ?? []);
   }, [supabase]);
 
-  useEffect(() => { fetchExams(); }, [fetchExams]);
+  const fetchDocuments = useCallback(async () => {
+    const { data } = await supabase
+      .from("documents")
+      .select("*");
+    setDocuments(data ?? []);
+  }, [supabase]);
+
+  const toggleExpanded = (itemId: string) => {
+    const newExpanded = new Set(expandedItems);
+    if (newExpanded.has(itemId)) {
+      newExpanded.delete(itemId);
+    } else {
+      newExpanded.add(itemId);
+    }
+    setExpandedItems(newExpanded);
+  };
+
+  useEffect(() => {
+    fetchExams();
+    fetchDocuments();
+  }, [fetchExams, fetchDocuments]);
 
   const items = useMemo(() => {
     const now = new Date();
@@ -60,6 +86,10 @@ export default function TimelinePage() {
       if (daysLeft > rangeDays && rangeDays < 9999) return;
       if (!showOverdue && daysLeft < 0) return;
       const mod = modules.find(m => m.id === t.module_id);
+
+      // Get associated documents
+      const taskDocs = documents.filter(doc => doc.task_id === t.id);
+
       result.push({
         id: t.id,
         type: "task",
@@ -70,6 +100,8 @@ export default function TimelinePage() {
         priority: t.priority,
         status: t.status,
         daysLeft,
+        description: t.description ?? undefined,
+        documents: taskDocs.map(doc => ({ title: doc.title, url: doc.url, kind: doc.kind })),
       });
     });
 
@@ -79,6 +111,10 @@ export default function TimelinePage() {
       const daysLeft = Math.ceil((d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
       if (daysLeft > rangeDays && rangeDays < 9999) return;
       if (!showOverdue && daysLeft < 0) return;
+
+      // Get associated documents
+      const examDocs = documents.filter(doc => doc.exam_id === e.id);
+
       result.push({
         id: e.id,
         type: "exam",
@@ -87,13 +123,15 @@ export default function TimelinePage() {
         moduleColor: e.color ?? "#dc2626",
         daysLeft,
         location: e.location ?? undefined,
+        description: e.description ?? undefined,
+        documents: examDocs.map(doc => ({ title: doc.title, url: doc.url, kind: doc.kind })),
       });
     });
 
     // Sort by date
     result.sort((a, b) => a.date.getTime() - b.date.getTime());
     return result;
-  }, [tasks, exams, modules, rangeDays, showOverdue]);
+  }, [tasks, exams, modules, documents, rangeDays, showOverdue]);
 
   // Group by relative date
   const grouped = useMemo(() => {
@@ -176,64 +214,149 @@ export default function TimelinePage() {
                   <span className="text-xs text-surface-400">({group.length})</span>
                 </div>
                 <div className="space-y-2 relative pl-6 border-l-2 border-surface-100">
-                  {group.map(item => (
-                    <div key={item.id} className="relative">
-                      {/* Timeline dot */}
-                      <div className={`absolute -left-[25px] w-3 h-3 rounded-full border-2 border-white ${
-                        item.type === "exam" ? "bg-red-500" :
-                        isOverdue ? "bg-red-400" :
-                        item.daysLeft <= 3 ? "bg-amber-400" :
-                        "bg-brand-400"
-                      }`} />
+                  {group.map(item => {
+                    const isExpanded = expandedItems.has(item.id);
 
-                      <div className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${
-                        isOverdue
-                          ? "border-red-200 bg-red-50/50"
-                          : "border-surface-100 hover:border-brand-200 bg-white"
-                      }`}>
-                        {/* Icon */}
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                          style={{ background: item.moduleColor + "20" }}>
-                          {item.type === "exam"
-                            ? <GraduationCap size={14} style={{ color: item.moduleColor }} />
-                            : <CheckSquare size={14} style={{ color: item.moduleColor }} />
-                          }
-                        </div>
+                    return (
+                      <div key={item.id} className="relative">
+                        {/* Timeline dot */}
+                        <div className={`absolute -left-[25px] w-3 h-3 rounded-full border-2 border-white ${
+                          item.type === "exam" ? "bg-red-500" :
+                          isOverdue ? "bg-red-400" :
+                          item.daysLeft <= 3 ? "bg-amber-400" :
+                          "bg-brand-400"
+                        }`} />
 
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-surface-800 truncate">{item.title}</p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            {item.moduleName && (
-                              <span className="text-[10px] text-surface-500">{item.moduleName}</span>
-                            )}
-                            {item.location && (
-                              <span className="text-[10px] text-surface-400">· {item.location}</span>
-                            )}
-                          </div>
-                        </div>
+                        {/* Main card */}
+                        <div className={`rounded-xl border transition-colors ${
+                          isOverdue
+                            ? "border-red-200 bg-red-50/50"
+                            : "border-surface-100 hover:border-brand-200 bg-white"
+                        }`}>
+                          {/* Header - clickable */}
+                          <button
+                            onClick={() => toggleExpanded(item.id)}
+                            className="w-full flex items-center gap-3 p-3 hover:bg-surface-50/50 transition-colors text-left"
+                          >
+                            {/* Icon */}
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                              style={{ background: item.moduleColor + "20" }}>
+                              {item.type === "exam"
+                                ? <GraduationCap size={14} style={{ color: item.moduleColor }} />
+                                : <CheckSquare size={14} style={{ color: item.moduleColor }} />
+                              }
+                            </div>
 
-                        {/* Date + badge */}
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-xs text-surface-500">
-                            {item.date.toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" })}
-                          </span>
-                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                            item.type === "exam" ? "bg-red-100 text-red-700" :
-                            item.priority === "high" ? "bg-red-100 text-red-700" :
-                            item.priority === "medium" ? "bg-amber-100 text-amber-700" :
-                            "bg-surface-100 text-surface-600"
-                          }`}>
-                            {item.type === "exam" ? "Prüfung" :
-                              item.daysLeft < 0 ? `${Math.abs(item.daysLeft)}d überfällig` :
-                              item.daysLeft === 0 ? "Heute" :
-                              `${item.daysLeft}d`
-                            }
-                          </span>
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-surface-800">{item.title}</p>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                {item.moduleName && (
+                                  <span className="text-[10px] text-surface-500">{item.moduleName}</span>
+                                )}
+                                {item.location && (
+                                  <span className="text-[10px] text-surface-400">· {item.location}</span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Priority + Date + Badge + Expand Icon */}
+                            <div className="flex items-center gap-2 shrink-0">
+                              {item.priority && item.type === "task" && (
+                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                                  item.priority === "high" ? "bg-red-100 text-red-700" :
+                                  item.priority === "medium" ? "bg-amber-100 text-amber-700" :
+                                  "bg-surface-100 text-surface-600"
+                                }`}>
+                                  {item.priority === "high" ? "Hoch" :
+                                   item.priority === "medium" ? "Mittel" :
+                                   "Niedrig"}
+                                </span>
+                              )}
+                              <span className="text-xs text-surface-500 w-10 text-right">
+                                {item.date.toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" })}
+                              </span>
+                              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                                item.type === "exam" ? "bg-red-100 text-red-700" :
+                                item.priority === "high" ? "bg-red-100 text-red-700" :
+                                item.priority === "medium" ? "bg-amber-100 text-amber-700" :
+                                "bg-surface-100 text-surface-600"
+                              }`}>
+                                {item.type === "exam" ? "Prüfung" :
+                                  item.daysLeft < 0 ? `${Math.abs(item.daysLeft)}d überfällig` :
+                                  item.daysLeft === 0 ? "Heute" :
+                                  `${item.daysLeft}d`
+                                }
+                              </span>
+                              {isExpanded ? (
+                                <ChevronUp size={16} className="text-surface-400" />
+                              ) : (
+                                <ChevronDown size={16} className="text-surface-400" />
+                              )}
+                            </div>
+                          </button>
+
+                          {/* Expanded content */}
+                          {isExpanded && (
+                            <div className="border-t border-surface-100 px-3 py-3 space-y-3 bg-surface-50/30">
+                              {/* Description */}
+                              {item.description && (
+                                <div>
+                                  <p className="text-sm text-surface-600">{item.description}</p>
+                                </div>
+                              )}
+
+                              {/* Notes */}
+                              {item.notes && (
+                                <div>
+                                  <p className="text-xs text-surface-500 italic">{item.notes}</p>
+                                </div>
+                              )}
+
+                              {/* Documents */}
+                              {item.documents && item.documents.length > 0 && (
+                                <div>
+                                  <p className="text-xs font-medium text-surface-600 mb-2">Dokumente</p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {item.documents.map((doc, idx) => (
+                                      <a
+                                        key={idx}
+                                        href={doc.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-100 hover:bg-surface-200 transition-colors"
+                                      >
+                                        {doc.kind === "file" || doc.kind === "pdf" ? (
+                                          <FileText size={12} className="text-surface-600" />
+                                        ) : (
+                                          <Link2 size={12} className="text-surface-600" />
+                                        )}
+                                        <span className="text-xs text-surface-700 truncate max-w-[200px]">{doc.title}</span>
+                                        <ExternalLink size={11} className="text-surface-500" />
+                                      </a>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Status for tasks */}
+                              {item.status && item.type === "task" && (
+                                <div className="pt-1">
+                                  <span className="text-[10px] text-surface-600">
+                                    Status: <span className="font-medium">
+                                      {item.status === "todo" ? "Zu tun" :
+                                       item.status === "in_progress" ? "In Bearbeitung" :
+                                       "Erledigt"}
+                                    </span>
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             );
