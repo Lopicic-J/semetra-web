@@ -227,6 +227,26 @@ export interface MindMap {
   updated_at: string;
 }
 
+export interface Document {
+  id: string;
+  user_id: string;
+  title: string;
+  kind: "link" | "file" | "pdf" | "image" | "video" | "other";
+  url: string;
+  file_type: string | null;
+  file_size: number;
+  storage_path: string | null;
+  module_id: string | null;
+  exam_id: string | null;
+  task_id: string | null;
+  tags: string[];
+  color: string;
+  pinned: boolean;
+  created_at: string;
+  updated_at: string;
+  module?: Module;
+}
+
 export type NoteStatus = "draft" | "in_progress" | "done";
 
 export interface Note {
