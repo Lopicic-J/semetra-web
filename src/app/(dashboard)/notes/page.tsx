@@ -8,12 +8,29 @@ import {
   Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2,
   AlignLeft, AlignCenter, Link2, Strikethrough, GripVertical,
   ChevronDown, Clock, CheckCircle2, FileEdit, LayoutGrid, ListIcon,
-  StickyNote, FolderOpen, CircleDot
+  StickyNote, FolderOpen, CircleDot, Timer, GraduationCap,
+  GitBranch, ArrowDown, Workflow
 } from "lucide-react";
 import type {
   Note, NoteStatus, NoteChecklistItem,
-  CalendarEvent, Task, Module
+  CalendarEvent, Task, Module, TimeLog
 } from "@/types/database";
+
+/* ── Unified note item for Flow view ─────────────────────────────── */
+interface FlowItem {
+  id: string;
+  type: "note" | "module" | "timer" | "exam";
+  title: string;
+  content: string;
+  date: string;
+  module_name?: string;
+  module_color?: string;
+  color: string;
+  status?: NoteStatus;
+  source_label: string;
+  pinned?: boolean;
+  original?: Note;
+}
 
 const STATUS_CONFIG: Record<NoteStatus, { label: string; color: string; icon: React.ReactNode }> = {
   draft:       { label: "Entwurf",    color: "#a1a1aa", icon: <FileEdit size={12} /> },
@@ -39,7 +56,8 @@ export default function NotesPage() {
   const [searchQ, setSearchQ] = useState("");
   const [filterModule, setFilterModule] = useState("");
   const [filterStatus, setFilterStatus] = useState<NoteStatus | "">("");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "flow">("grid");
+  const [flowItems, setFlowItems] = useState<FlowItem[]>([]);
 
   const fetchNotes = useCallback(async () => {
     const { data } = await supabase
@@ -51,11 +69,109 @@ export default function NotesPage() {
     setLoading(false);
   }, [supabase]);
 
+  // Fetch all note sources for flow view
+  const fetchFlowItems = useCallback(async () => {
+    const items: FlowItem[] = [];
+
+    // 1. Own notes (from notes table)
+    const { data: ownNotes } = await supabase
+      .from("notes")
+      .select("*, module:modules(id,name,color)")
+      .order("updated_at", { ascending: false });
+    (ownNotes ?? []).forEach((n: any) => {
+      items.push({
+        id: "note-" + n.id,
+        type: "note",
+        title: n.title,
+        content: n.content?.replace(/<[^>]*>/g, "").slice(0, 200) ?? "",
+        date: n.updated_at,
+        module_name: n.module?.name,
+        module_color: n.module?.color,
+        color: n.color ?? "#6d28d9",
+        status: n.status,
+        source_label: "Notiz",
+        pinned: n.pinned,
+        original: n as Note,
+      });
+    });
+
+    // 2. Module notes (modules.notes field)
+    const { data: mods } = await supabase
+      .from("modules")
+      .select("id,name,color,notes,updated_at:created_at")
+      .not("notes", "is", null)
+      .neq("notes", "");
+    (mods ?? []).forEach((m: any) => {
+      items.push({
+        id: "mod-" + m.id,
+        type: "module",
+        title: `Modul-Notiz: ${m.name}`,
+        content: (m.notes ?? "").slice(0, 200),
+        date: m.updated_at ?? m.created_at,
+        module_name: m.name,
+        module_color: m.color,
+        color: m.color ?? "#2563eb",
+        source_label: "Modul",
+      });
+    });
+
+    // 3. Timer session notes (time_logs.note field)
+    const { data: logs } = await supabase
+      .from("time_logs")
+      .select("id,note,started_at,duration_seconds,module_id,module:modules(id,name,color)")
+      .not("note", "is", null)
+      .neq("note", "")
+      .order("started_at", { ascending: false })
+      .limit(50);
+    (logs ?? []).forEach((l: any) => {
+      const mins = Math.round((l.duration_seconds ?? 0) / 60);
+      items.push({
+        id: "timer-" + l.id,
+        type: "timer",
+        title: `Timer-Notiz (${mins} Min.)`,
+        content: (l.note ?? "").slice(0, 200),
+        date: l.started_at,
+        module_name: l.module?.name,
+        module_color: l.module?.color,
+        color: "#0891b2",
+        source_label: "Timer",
+      });
+    });
+
+    // 4. Exam attachment notes (exam_attachments with kind='note')
+    const { data: examNotes } = await supabase
+      .from("exam_attachments")
+      .select("id,label,content,created_at,exam_id")
+      .eq("kind", "note")
+      .order("created_at", { ascending: false });
+    (examNotes ?? []).forEach((en: any) => {
+      items.push({
+        id: "exam-" + en.id,
+        type: "exam",
+        title: en.label || "Prüfungs-Notiz",
+        content: (en.content ?? "").slice(0, 200),
+        date: en.created_at,
+        color: "#d97706",
+        source_label: "Prüfung",
+      });
+    });
+
+    // Sort by date descending, pinned first
+    items.sort((a, b) => {
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+
+    setFlowItems(items);
+  }, [supabase]);
+
   useEffect(() => {
     fetchNotes();
+    fetchFlowItems();
     supabase.from("events").select("*").eq("event_type", "exam").then(r => setExams(r.data ?? []));
     supabase.from("tasks").select("*").then(r => setTasks(r.data ?? []));
-  }, [supabase, fetchNotes]);
+  }, [supabase, fetchNotes, fetchFlowItems]);
 
   const filtered = useMemo(() => {
     let list = notes;
@@ -79,7 +195,10 @@ export default function NotesPage() {
       count: notes.filter(n => n.module_id === m.id).length,
     })).filter(x => x.count > 0).sort((a, b) => b.count - a.count),
     unlinked: notes.filter(n => !n.module_id && !n.exam_id && !n.task_id).length,
-  }), [notes, modules]);
+    fromModules: flowItems.filter(i => i.type === "module").length,
+    fromTimer: flowItems.filter(i => i.type === "timer").length,
+    fromExams: flowItems.filter(i => i.type === "exam").length,
+  }), [notes, modules, flowItems]);
 
   if (activeNote) {
     return (
@@ -113,10 +232,18 @@ export default function NotesPage() {
 
       {/* Stats overview */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-center">
-          <p className="text-2xl font-bold text-white">{stats.total}</p>
-          <p className="text-xs text-zinc-400">Notizen gesamt</p>
-        </div>
+        <button
+          onClick={() => setViewMode("flow")}
+          className={`bg-zinc-900 border rounded-xl p-3 text-center transition ${viewMode === "flow" ? "border-violet-500" : "border-zinc-700 hover:border-zinc-600"}`}
+        >
+          <p className="text-2xl font-bold text-white">{flowItems.length}</p>
+          <p className="text-xs text-zinc-400">Alle Notizen</p>
+          {(stats.fromModules + stats.fromTimer + stats.fromExams) > 0 && (
+            <p className="text-xs text-zinc-500 mt-0.5">
+              +{stats.fromModules + stats.fromTimer + stats.fromExams} aus anderen Quellen
+            </p>
+          )}
+        </button>
         <button
           onClick={() => setFilterStatus(filterStatus === "draft" ? "" : "draft")}
           className={`bg-zinc-900 border rounded-xl p-3 text-center transition ${filterStatus === "draft" ? "border-zinc-400" : "border-zinc-700 hover:border-zinc-600"}`}
@@ -192,12 +319,29 @@ export default function NotesPage() {
           <option value="">Alle Module</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
-        <button
-          onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
-          className="p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-300 hover:text-white hover:border-zinc-600 transition"
-        >
-          {viewMode === "grid" ? <ListIcon size={16} /> : <LayoutGrid size={16} />}
-        </button>
+        <div className="flex rounded-lg overflow-hidden border border-zinc-700">
+          <button
+            onClick={() => setViewMode("grid")}
+            className={`p-2 transition ${viewMode === "grid" ? "bg-violet-600 text-white" : "bg-zinc-900 text-zinc-400 hover:text-white"}`}
+            title="Karten"
+          >
+            <LayoutGrid size={16} />
+          </button>
+          <button
+            onClick={() => setViewMode("list")}
+            className={`p-2 transition ${viewMode === "list" ? "bg-violet-600 text-white" : "bg-zinc-900 text-zinc-400 hover:text-white"}`}
+            title="Liste"
+          >
+            <ListIcon size={16} />
+          </button>
+          <button
+            onClick={() => setViewMode("flow")}
+            className={`p-2 transition ${viewMode === "flow" ? "bg-violet-600 text-white" : "bg-zinc-900 text-zinc-400 hover:text-white"}`}
+            title="Flow — alle Notizen chronologisch"
+          >
+            <Workflow size={16} />
+          </button>
+        </div>
         {(filterModule || filterStatus || searchQ) && (
           <button
             onClick={() => { setFilterModule(""); setFilterStatus(""); setSearchQ(""); }}
@@ -219,6 +363,18 @@ export default function NotesPage() {
             {notes.length === 0 ? "Erstelle deine erste Notiz zu einem Modul oder Thema!" : "Versuche einen anderen Suchbegriff oder Filter"}
           </p>
         </div>
+      ) : viewMode === "flow" ? (
+        <FlowView
+          items={flowItems.filter(item => {
+            if (searchQ) {
+              const q = searchQ.toLowerCase();
+              if (!item.title.toLowerCase().includes(q) && !item.content.toLowerCase().includes(q)) return false;
+            }
+            if (filterModule && item.module_name !== modules.find(m => m.id === filterModule)?.name) return false;
+            return true;
+          })}
+          onOpenNote={(note) => setActiveNote(note)}
+        />
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map(note => (
@@ -242,6 +398,156 @@ export default function NotesPage() {
           onCreated={(n) => { setActiveNote(n); setShowCreate(false); }}
         />
       )}
+    </div>
+  );
+}
+
+/* ── Flow View ──────────────────────────────────────────────────────── */
+const FLOW_ICONS: Record<string, React.ReactNode> = {
+  note: <FileText size={14} />,
+  module: <BookOpen size={14} />,
+  timer: <Timer size={14} />,
+  exam: <GraduationCap size={14} />,
+};
+
+const FLOW_TYPE_COLORS: Record<string, string> = {
+  note: "#a78bfa",
+  module: "#60a5fa",
+  timer: "#22d3ee",
+  exam: "#fbbf24",
+};
+
+function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: Note) => void }) {
+  // Group by date
+  const grouped: Record<string, FlowItem[]> = {};
+  items.forEach(item => {
+    const dateKey = new Date(item.date).toLocaleDateString("de-CH", {
+      weekday: "long", day: "numeric", month: "long", year: "numeric"
+    });
+    if (!grouped[dateKey]) grouped[dateKey] = [];
+    grouped[dateKey].push(item);
+  });
+
+  if (items.length === 0) {
+    return (
+      <div className="text-center py-16">
+        <Workflow size={48} className="mx-auto mb-4 text-zinc-600" />
+        <p className="text-zinc-400">Keine Notizen im Flow</p>
+        <p className="text-sm mt-1 text-zinc-500">Erstelle Notizen in Modulen, Timer oder direkt hier</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Legend */}
+      <div className="flex gap-3 flex-wrap mb-2">
+        {(["note", "module", "timer", "exam"] as const).map(type => {
+          const count = items.filter(i => i.type === type).length;
+          if (count === 0) return null;
+          const labels: Record<string, string> = { note: "Notizen", module: "Modul-Notizen", timer: "Timer-Notizen", exam: "Prüfungs-Notizen" };
+          return (
+            <span key={type} className="flex items-center gap-1.5 text-xs font-medium" style={{ color: FLOW_TYPE_COLORS[type] }}>
+              {FLOW_ICONS[type]} {labels[type]} ({count})
+            </span>
+          );
+        })}
+        <span className="text-xs text-zinc-500 ml-auto">{items.length} Einträge total</span>
+      </div>
+
+      {/* Timeline */}
+      {Object.entries(grouped).map(([dateLabel, dayItems]) => (
+        <div key={dateLabel}>
+          {/* Date header */}
+          <div className="flex items-center gap-3 mb-3">
+            <div className="h-px flex-1 bg-zinc-800" />
+            <span className="text-xs font-medium text-zinc-400 px-2">{dateLabel}</span>
+            <div className="h-px flex-1 bg-zinc-800" />
+          </div>
+
+          {/* Items with timeline line */}
+          <div className="relative pl-8">
+            {/* Vertical line */}
+            <div className="absolute left-3 top-0 bottom-0 w-px bg-zinc-800" />
+
+            <div className="space-y-3">
+              {dayItems.map((item, idx) => {
+                const typeColor = FLOW_TYPE_COLORS[item.type] ?? "#a78bfa";
+                const isClickable = item.type === "note" && item.original;
+
+                return (
+                  <div
+                    key={item.id}
+                    className={`relative group ${isClickable ? "cursor-pointer" : ""}`}
+                    onClick={() => { if (isClickable && item.original) onOpenNote(item.original); }}
+                  >
+                    {/* Timeline dot */}
+                    <div
+                      className="absolute -left-5 top-3 w-3 h-3 rounded-full border-2 border-zinc-900"
+                      style={{ backgroundColor: typeColor }}
+                    />
+
+                    {/* Card */}
+                    <div
+                      className={`bg-zinc-900 border border-zinc-700 rounded-lg p-3.5 transition ${
+                        isClickable ? "hover:border-zinc-500 hover:bg-zinc-800/50" : ""
+                      }`}
+                      style={{ borderLeftWidth: 3, borderLeftColor: item.module_color ?? typeColor }}
+                    >
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <span style={{ color: typeColor }}>{FLOW_ICONS[item.type]}</span>
+                          <h4 className={`text-sm font-medium text-white line-clamp-1 ${isClickable ? "group-hover:text-violet-300" : ""}`}>
+                            {item.pinned && <Pin size={10} className="inline mr-1 text-amber-400" />}
+                            {item.title}
+                          </h4>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span
+                            className="text-xs px-1.5 py-0.5 rounded font-medium"
+                            style={{ backgroundColor: typeColor + "20", color: typeColor }}
+                          >
+                            {item.source_label}
+                          </span>
+                          {item.status && (
+                            <span
+                              className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded font-medium"
+                              style={{
+                                backgroundColor: STATUS_CONFIG[item.status].color + "20",
+                                color: STATUS_CONFIG[item.status].color
+                              }}
+                            >
+                              {STATUS_CONFIG[item.status].icon} {STATUS_CONFIG[item.status].label}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {item.content && (
+                        <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed mt-1">{item.content}</p>
+                      )}
+
+                      <div className="flex items-center gap-2 mt-2">
+                        {item.module_name && (
+                          <span
+                            className="text-xs px-1.5 py-0.5 rounded font-medium"
+                            style={{ backgroundColor: (item.module_color ?? "#666") + "20", color: item.module_color }}
+                          >
+                            {item.module_name}
+                          </span>
+                        )}
+                        <span className="text-xs text-zinc-600 ml-auto">
+                          {new Date(item.date).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
