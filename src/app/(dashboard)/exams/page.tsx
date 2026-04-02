@@ -1,18 +1,39 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
+import { useExamAttachments } from "@/lib/hooks/useExamAttachments";
 import { formatDate } from "@/lib/utils";
-import { Plus, X, Trash2, Pencil, GraduationCap, Clock } from "lucide-react";
-import type { CalendarEvent } from "@/types/database";
+import { Plus, X, Trash2, Pencil, GraduationCap, Clock, Paperclip, Link2, Upload, ExternalLink, FileText, StickyNote, ChevronDown, ChevronUp } from "lucide-react";
+import type { CalendarEvent, ExamAttachment } from "@/types/database";
 
 type Exam = CalendarEvent & { daysLeft?: number };
+
+const FILE_ICONS: Record<string, string> = {
+  pdf: "📄", docx: "📝", doc: "📝", xlsx: "📊", xls: "📊", csv: "📊",
+  pptx: "📽️", ppt: "📽️", png: "🖼️", jpg: "🖼️", jpeg: "🖼️", gif: "🖼️",
+  zip: "📦", rar: "📦", txt: "📃", py: "🐍", js: "📜", ts: "📜",
+  html: "🌐", mp4: "🎬", mp3: "🎵",
+};
+
+function fileIcon(kind: string, fileType?: string | null) {
+  if (kind === "link") return "🔗";
+  if (kind === "note") return "📝";
+  return FILE_ICONS[fileType?.toLowerCase() ?? ""] ?? "📎";
+}
+
+function humanSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 export default function ExamsPage() {
   const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Exam | null>(null);
+  const [expandedExam, setExpandedExam] = useState<string | null>(null);
   const { modules } = useModules();
   const supabase = createClient();
 
@@ -70,9 +91,17 @@ export default function ExamsPage() {
                   <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Bevorstehend</h2>
                   <div className="space-y-3">
                     {upcoming.map(exam => (
-                      <ExamCard key={exam.id} exam={exam} modules={modules}
-                        onEdit={e => { setEditing(e); setShowForm(true); }}
-                        onDelete={handleDelete} />
+                      <div key={exam.id}>
+                        <ExamCard exam={exam} modules={modules}
+                          onEdit={e => { setEditing(e); setShowForm(true); }}
+                          onDelete={handleDelete}
+                          isExpanded={expandedExam === exam.id}
+                          onToggleExpand={() => setExpandedExam(expandedExam === exam.id ? null : exam.id)}
+                        />
+                        {expandedExam === exam.id && (
+                          <ExamAttachmentsPanel examId={exam.id} />
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -82,9 +111,17 @@ export default function ExamsPage() {
                   <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Vergangen</h2>
                   <div className="space-y-3 opacity-60">
                     {past.map(exam => (
-                      <ExamCard key={exam.id} exam={exam} modules={modules}
-                        onEdit={e => { setEditing(e); setShowForm(true); }}
-                        onDelete={handleDelete} />
+                      <div key={exam.id}>
+                        <ExamCard exam={exam} modules={modules}
+                          onEdit={e => { setEditing(e); setShowForm(true); }}
+                          onDelete={handleDelete}
+                          isExpanded={expandedExam === exam.id}
+                          onToggleExpand={() => setExpandedExam(expandedExam === exam.id ? null : exam.id)}
+                        />
+                        {expandedExam === exam.id && (
+                          <ExamAttachmentsPanel examId={exam.id} />
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -106,17 +143,19 @@ export default function ExamsPage() {
   );
 }
 
-function ExamCard({ exam, modules, onEdit, onDelete }: {
+function ExamCard({ exam, modules, onEdit, onDelete, isExpanded, onToggleExpand }: {
   exam: Exam;
   modules: ReturnType<typeof useModules>["modules"];
   onEdit: (e: Exam) => void;
   onDelete: (id: string) => void;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
 }) {
   const urgent = (exam.daysLeft ?? 999) >= 0 && (exam.daysLeft ?? 999) <= 7;
   const mod = modules.find(m => exam.title.toLowerCase().includes(m.name.toLowerCase().split(" ")[0]));
 
   return (
-    <div className={`card hover:shadow-md transition-shadow group flex items-center gap-4 ${urgent ? "border-l-4 border-l-red-400" : ""}`}>
+    <div className={`card hover:shadow-md transition-shadow group flex items-center gap-4 ${urgent ? "border-l-4 border-l-red-400" : ""} ${isExpanded ? "rounded-b-none border-b-0" : ""}`}>
       <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-white"
         style={{ background: exam.color ?? mod?.color ?? "#6d28d9" }}>
         <GraduationCap size={18} />
@@ -132,7 +171,12 @@ function ExamCard({ exam, modules, onEdit, onDelete }: {
           {exam.location && <span className="text-xs text-gray-500">📍 {exam.location}</span>}
         </div>
       </div>
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
+        <button onClick={onToggleExpand}
+          className={`p-1.5 rounded-lg transition-colors ${isExpanded ? "bg-violet-100 text-violet-600" : "text-gray-400 hover:bg-gray-100"}`}
+          title="Materialien & Notizen">
+          <Paperclip size={14} />
+        </button>
         {exam.daysLeft !== undefined && exam.daysLeft >= 0 && (
           <div className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold ${
             exam.daysLeft === 0 ? "bg-red-100 text-red-700" :
@@ -149,6 +193,215 @@ function ExamCard({ exam, modules, onEdit, onDelete }: {
           <button onClick={() => onDelete(exam.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500"><Trash2 size={13} /></button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Expandable panel showing notes, links, and files for an exam */
+function ExamAttachmentsPanel({ examId }: { examId: string }) {
+  const { attachments, loading, addNote, updateNote, addLink, uploadFile, remove, getDownloadUrl } = useExamAttachments(examId);
+  const [showLinkForm, setShowLinkForm] = useState(false);
+  const [showNoteForm, setShowNoteForm] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkLabel, setLinkLabel] = useState("");
+  const [noteText, setNoteText] = useState("");
+  const [editingNote, setEditingNote] = useState<string | null>(null);
+  const [editNoteText, setEditNoteText] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const notes = attachments.filter(a => a.kind === "note");
+  const links = attachments.filter(a => a.kind === "link");
+  const files = attachments.filter(a => a.kind === "file");
+
+  async function handleAddLink(e: React.FormEvent) {
+    e.preventDefault();
+    if (!linkUrl.trim()) return;
+    const url = linkUrl.trim().startsWith("http") ? linkUrl.trim() : `https://${linkUrl.trim()}`;
+    await addLink(linkLabel.trim() || url, url);
+    setLinkUrl("");
+    setLinkLabel("");
+    setShowLinkForm(false);
+  }
+
+  async function handleAddNote(e: React.FormEvent) {
+    e.preventDefault();
+    if (!noteText.trim()) return;
+    await addNote(noteText.trim());
+    setNoteText("");
+    setShowNoteForm(false);
+  }
+
+  async function handleUpdateNote(id: string) {
+    if (!editNoteText.trim()) return;
+    await updateNote(id, editNoteText.trim());
+    setEditingNote(null);
+    setEditNoteText("");
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const fileList = e.target.files;
+    if (!fileList) return;
+    for (let i = 0; i < fileList.length; i++) {
+      await uploadFile(fileList[i]);
+    }
+    e.target.value = "";
+  }
+
+  return (
+    <div className="bg-gray-50 border border-t-0 border-gray-100 rounded-b-xl p-4 space-y-4">
+      {/* Action buttons */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+          <Paperclip size={12} /> Materialien & Notizen
+        </h3>
+        <div className="flex gap-2">
+          <button onClick={() => { setShowNoteForm(!showNoteForm); setShowLinkForm(false); }}
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-gray-200 text-gray-600 hover:border-violet-300 hover:text-violet-600 transition-colors">
+            <StickyNote size={12} /> Notiz
+          </button>
+          <button onClick={() => { setShowLinkForm(!showLinkForm); setShowNoteForm(false); }}
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-gray-200 text-gray-600 hover:border-violet-300 hover:text-violet-600 transition-colors">
+            <Link2 size={12} /> Link
+          </button>
+          <button onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-gray-200 text-gray-600 hover:border-violet-300 hover:text-violet-600 transition-colors">
+            <Upload size={12} /> Datei
+          </button>
+          <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileUpload}
+            accept=".pdf,.docx,.doc,.xlsx,.xls,.csv,.pptx,.ppt,.png,.jpg,.jpeg,.gif,.svg,.zip,.rar,.txt,.py,.js,.ts,.html,.mp4,.mp3" />
+        </div>
+      </div>
+
+      {/* Note form */}
+      {showNoteForm && (
+        <form onSubmit={handleAddNote} className="space-y-2">
+          <textarea value={noteText} onChange={e => setNoteText(e.target.value)}
+            placeholder="Notiz schreiben… (z.B. erlaubte Hilfsmittel, Themen, Tipps)"
+            className="input resize-none text-sm w-full" rows={3} required />
+          <div className="flex gap-2 justify-end">
+            <button type="button" onClick={() => setShowNoteForm(false)}
+              className="px-3 py-1.5 text-xs rounded-lg hover:bg-gray-200 text-gray-500">Abbrechen</button>
+            <button type="submit" className="btn-primary text-xs px-3 py-1.5">Notiz speichern</button>
+          </div>
+        </form>
+      )}
+
+      {/* Link form */}
+      {showLinkForm && (
+        <form onSubmit={handleAddLink} className="flex gap-2">
+          <input value={linkUrl} onChange={e => setLinkUrl(e.target.value)}
+            placeholder="https://..." className="input flex-1 text-sm" required />
+          <input value={linkLabel} onChange={e => setLinkLabel(e.target.value)}
+            placeholder="Bezeichnung (optional)" className="input w-40 text-sm" />
+          <button type="submit" className="btn-primary text-xs px-3 py-1.5">Hinzufügen</button>
+          <button type="button" onClick={() => setShowLinkForm(false)}
+            className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-400"><X size={14} /></button>
+        </form>
+      )}
+
+      {loading ? (
+        <div className="h-8 bg-gray-200 rounded animate-pulse" />
+      ) : attachments.length === 0 ? (
+        <p className="text-xs text-gray-400 text-center py-3">Noch keine Materialien oder Notizen. Füge Links, Dateien oder Notizen hinzu um alles griffbereit zu haben.</p>
+      ) : (
+        <div className="space-y-3">
+          {/* Notes section */}
+          {notes.length > 0 && (
+            <div>
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Notizen</p>
+              <div className="space-y-1.5">
+                {notes.map(att => (
+                  <div key={att.id} className="p-3 rounded-lg bg-yellow-50 border border-yellow-100 group/att">
+                    {editingNote === att.id ? (
+                      <div className="space-y-2">
+                        <textarea value={editNoteText} onChange={e => setEditNoteText(e.target.value)}
+                          className="input resize-none text-sm w-full" rows={3} />
+                        <div className="flex gap-2 justify-end">
+                          <button onClick={() => setEditingNote(null)}
+                            className="px-2 py-1 text-xs rounded hover:bg-gray-200 text-gray-500">Abbrechen</button>
+                          <button onClick={() => handleUpdateNote(att.id)}
+                            className="btn-primary text-xs px-2 py-1">Speichern</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start gap-2">
+                        <span className="text-sm shrink-0 mt-0.5">📝</span>
+                        <p className="text-sm text-gray-700 flex-1 whitespace-pre-wrap">{att.content}</p>
+                        <div className="flex gap-1 opacity-0 group-hover/att:opacity-100 transition-opacity shrink-0">
+                          <button onClick={() => { setEditingNote(att.id); setEditNoteText(att.content ?? ""); }}
+                            className="p-1 rounded hover:bg-yellow-200 text-gray-400 hover:text-gray-600">
+                            <Pencil size={12} />
+                          </button>
+                          <button onClick={() => remove(att)}
+                            className="p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-500">
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Links section */}
+          {links.length > 0 && (
+            <div>
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Links</p>
+              <div className="space-y-1.5">
+                {links.map(att => (
+                  <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-gray-100 group/att hover:border-violet-200 transition-colors">
+                    <span className="text-sm shrink-0">🔗</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-gray-800 truncate">{att.label || att.url}</p>
+                      <p className="text-[10px] text-gray-400 truncate">{att.url}</p>
+                    </div>
+                    <a href={att.url} target="_blank" rel="noopener noreferrer"
+                      className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-violet-600 transition-colors">
+                      <ExternalLink size={13} />
+                    </a>
+                    <button onClick={() => remove(att)}
+                      className="p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-500 opacity-0 group-hover/att:opacity-100 transition-all">
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Files section */}
+          {files.length > 0 && (
+            <div>
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Dateien</p>
+              <div className="space-y-1.5">
+                {files.map(att => (
+                  <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-gray-100 group/att hover:border-violet-200 transition-colors">
+                    <span className="text-sm shrink-0">{fileIcon(att.kind, att.file_type)}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-gray-800 truncate">{att.label || att.url}</p>
+                      {att.file_size > 0 && (
+                        <p className="text-[10px] text-gray-400">{att.file_type?.toUpperCase()} · {humanSize(att.file_size)}</p>
+                      )}
+                    </div>
+                    <a href={getDownloadUrl(att) ?? att.url} target="_blank" rel="noopener noreferrer"
+                      className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-violet-600 transition-colors"
+                      title="Öffnen">
+                      <ExternalLink size={13} />
+                    </a>
+                    <button onClick={() => remove(att)}
+                      className="p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-500 opacity-0 group-hover/att:opacity-100 transition-all"
+                      title="Entfernen">
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

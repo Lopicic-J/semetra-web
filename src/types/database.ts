@@ -87,6 +87,8 @@ export interface Topic {
   sr_interval: number;
   sr_repetitions: number;
   sr_next_review: string | null;
+  task_id: string | null;
+  exam_id: string | null;
   updated_at: string;
   created_at: string;
 }
@@ -95,8 +97,10 @@ export interface Grade {
   id: string;
   user_id: string;
   module_id: string | null;
+  exam_id: string | null;
   title: string;
-  grade: number;
+  grade: number | null;
+  ects_earned: number | null;
   weight: number;
   date: string | null;
   exam_type: string | null;
@@ -172,6 +176,33 @@ export interface Flashcard {
   created_at: string;
   updated_at: string;
   module?: Module;
+}
+
+export interface TaskAttachment {
+  id: string;
+  user_id: string;
+  task_id: string;
+  kind: "link" | "file";
+  label: string;
+  url: string;
+  file_type: string | null;
+  file_size: number;
+  storage_path: string | null;
+  created_at: string;
+}
+
+export interface ExamAttachment {
+  id: string;
+  user_id: string;
+  exam_id: string;
+  kind: "link" | "file" | "note";
+  label: string;
+  url: string;
+  content: string | null;
+  file_type: string | null;
+  file_size: number;
+  storage_path: string | null;
+  created_at: string;
 }
 
 export interface AppSetting {

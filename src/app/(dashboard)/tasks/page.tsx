@@ -1,14 +1,33 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTasks } from "@/lib/hooks/useTasks";
 import { useModules } from "@/lib/hooks/useModules";
+import { useTaskAttachments } from "@/lib/hooks/useTaskAttachments";
 import { createClient } from "@/lib/supabase/client";
 import { formatDate } from "@/lib/utils";
-import { Plus, CheckSquare, X, Pencil, Trash2, Check } from "lucide-react";
-import type { Task, TaskStatus, TaskPriority } from "@/types/database";
+import { Plus, CheckSquare, X, Pencil, Trash2, Check, Paperclip, Link2, Upload, ExternalLink, FileText } from "lucide-react";
+import type { Task, TaskStatus, TaskPriority, TaskAttachment } from "@/types/database";
 
 const STATUS_LABELS: Record<string, string> = { todo: "Offen", in_progress: "In Arbeit", done: "Erledigt" };
 const PRIORITY_LABELS: Record<string, string> = { low: "Niedrig", medium: "Mittel", high: "Hoch" };
+
+const FILE_ICONS: Record<string, string> = {
+  pdf: "📄", docx: "📝", doc: "📝", xlsx: "📊", xls: "📊", csv: "📊",
+  pptx: "📽️", ppt: "📽️", png: "🖼️", jpg: "🖼️", jpeg: "🖼️", gif: "🖼️",
+  zip: "📦", rar: "📦", txt: "📃", py: "🐍", js: "📜", ts: "📜",
+  html: "🌐", mp4: "🎬", mp3: "🎵",
+};
+
+function fileIcon(kind: string, fileType?: string | null) {
+  if (kind === "link") return "🔗";
+  return FILE_ICONS[fileType?.toLowerCase() ?? ""] ?? "📎";
+}
+
+function humanSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 export default function TasksPage() {
   const { tasks, loading, refetch } = useTasks();
@@ -16,6 +35,7 @@ export default function TasksPage() {
   const [filter, setFilter] = useState<"all" | TaskStatus>("all");
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Task | null>(null);
+  const [expandedTask, setExpandedTask] = useState<string | null>(null);
   const supabase = createClient();
 
   const filtered = filter === "all" ? tasks : tasks.filter(t => t.status === filter);
@@ -66,11 +86,18 @@ export default function TasksPage() {
       ) : (
         <div className="space-y-2">
           {filtered.map(task => (
-            <TaskRow key={task.id} task={task} modules={modules}
-              onToggle={toggleDone}
-              onEdit={t => { setEditing(t); setShowForm(true); }}
-              onDelete={handleDelete}
-            />
+            <div key={task.id}>
+              <TaskRow task={task} modules={modules}
+                onToggle={toggleDone}
+                onEdit={t => { setEditing(t); setShowForm(true); }}
+                onDelete={handleDelete}
+                isExpanded={expandedTask === task.id}
+                onToggleExpand={() => setExpandedTask(expandedTask === task.id ? null : task.id)}
+              />
+              {expandedTask === task.id && (
+                <TaskAttachmentsPanel taskId={task.id} />
+              )}
+            </div>
           ))}
         </div>
       )}
@@ -87,17 +114,19 @@ export default function TasksPage() {
   );
 }
 
-function TaskRow({ task, modules, onToggle, onEdit, onDelete }: {
+function TaskRow({ task, modules, onToggle, onEdit, onDelete, isExpanded, onToggleExpand }: {
   task: Task & { modules?: { name: string; color: string } | null };
   modules: ReturnType<typeof useModules>["modules"];
   onToggle: (t: Task) => void;
   onEdit: (t: Task) => void;
   onDelete: (id: string) => void;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
 }) {
   const isOverdue = task.status !== "done" && task.due_date && new Date(task.due_date) < new Date();
 
   return (
-    <div className={`flex items-center gap-3 p-3 rounded-xl border transition-colors group ${task.status === "done" ? "bg-gray-50 border-gray-100" : "bg-white border-gray-100 hover:border-violet-200"}`}>
+    <div className={`flex items-center gap-3 p-3 rounded-xl border transition-colors group ${task.status === "done" ? "bg-gray-50 border-gray-100" : "bg-white border-gray-100 hover:border-violet-200"} ${isExpanded ? "rounded-b-none border-b-0" : ""}`}>
       <button onClick={() => onToggle(task)}
         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${task.status === "done" ? "bg-green-500 border-green-500 text-white" : "border-gray-300 hover:border-violet-400"}`}>
         {task.status === "done" && <Check size={11} />}
@@ -121,6 +150,11 @@ function TaskRow({ task, modules, onToggle, onEdit, onDelete }: {
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
+        <button onClick={onToggleExpand}
+          className={`p-1.5 rounded-lg transition-colors ${isExpanded ? "bg-violet-100 text-violet-600" : "text-gray-400 hover:bg-gray-100"}`}
+          title="Materialien">
+          <Paperclip size={14} />
+        </button>
         <span className={`badge text-[10px] ${task.priority === "high" ? "bg-red-100 text-red-600" : task.priority === "medium" ? "bg-yellow-100 text-yellow-700" : "badge-gray"}`}>
           {PRIORITY_LABELS[task.priority ?? "low"]}
         </span>
@@ -132,6 +166,100 @@ function TaskRow({ task, modules, onToggle, onEdit, onDelete }: {
           <button onClick={() => onDelete(task.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500"><Trash2 size={13} /></button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Expandable panel showing attachments for a task */
+function TaskAttachmentsPanel({ taskId }: { taskId: string }) {
+  const { attachments, loading, addLink, uploadFile, remove, getDownloadUrl } = useTaskAttachments(taskId);
+  const [showLinkForm, setShowLinkForm] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkLabel, setLinkLabel] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleAddLink(e: React.FormEvent) {
+    e.preventDefault();
+    if (!linkUrl.trim()) return;
+    const url = linkUrl.trim().startsWith("http") ? linkUrl.trim() : `https://${linkUrl.trim()}`;
+    await addLink(linkLabel.trim() || url, url);
+    setLinkUrl("");
+    setLinkLabel("");
+    setShowLinkForm(false);
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    for (let i = 0; i < files.length; i++) {
+      await uploadFile(files[i]);
+    }
+    e.target.value = "";
+  }
+
+  return (
+    <div className="bg-gray-50 border border-t-0 border-gray-100 rounded-b-xl p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+          <Paperclip size={12} /> Materialien
+        </h3>
+        <div className="flex gap-2">
+          <button onClick={() => setShowLinkForm(!showLinkForm)}
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-gray-200 text-gray-600 hover:border-violet-300 hover:text-violet-600 transition-colors">
+            <Link2 size={12} /> Link
+          </button>
+          <button onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-gray-200 text-gray-600 hover:border-violet-300 hover:text-violet-600 transition-colors">
+            <Upload size={12} /> Datei
+          </button>
+          <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileUpload}
+            accept=".pdf,.docx,.doc,.xlsx,.xls,.csv,.pptx,.ppt,.png,.jpg,.jpeg,.gif,.svg,.zip,.rar,.txt,.py,.js,.ts,.html,.mp4,.mp3" />
+        </div>
+      </div>
+
+      {/* Link form */}
+      {showLinkForm && (
+        <form onSubmit={handleAddLink} className="flex gap-2 mb-3">
+          <input value={linkUrl} onChange={e => setLinkUrl(e.target.value)}
+            placeholder="https://..." className="input flex-1 text-sm" required />
+          <input value={linkLabel} onChange={e => setLinkLabel(e.target.value)}
+            placeholder="Bezeichnung (optional)" className="input w-40 text-sm" />
+          <button type="submit" className="btn-primary text-xs px-3 py-1.5">Hinzufügen</button>
+          <button type="button" onClick={() => setShowLinkForm(false)}
+            className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-400"><X size={14} /></button>
+        </form>
+      )}
+
+      {/* Attachment list */}
+      {loading ? (
+        <div className="h-8 bg-gray-200 rounded animate-pulse" />
+      ) : attachments.length === 0 ? (
+        <p className="text-xs text-gray-400 text-center py-3">Noch keine Materialien angehängt.</p>
+      ) : (
+        <div className="space-y-1.5">
+          {attachments.map(att => (
+            <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-gray-100 group/att hover:border-violet-200 transition-colors">
+              <span className="text-sm shrink-0">{fileIcon(att.kind, att.file_type)}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-gray-800 truncate">{att.label || att.url}</p>
+                {att.kind === "file" && att.file_size > 0 && (
+                  <p className="text-[10px] text-gray-400">{att.file_type?.toUpperCase()} · {humanSize(att.file_size)}</p>
+                )}
+              </div>
+              <a href={getDownloadUrl(att) ?? att.url} target="_blank" rel="noopener noreferrer"
+                className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-violet-600 transition-colors"
+                title="Öffnen">
+                <ExternalLink size={13} />
+              </a>
+              <button onClick={() => remove(att)}
+                className="p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-500 opacity-0 group-hover/att:opacity-100 transition-all"
+                title="Entfernen">
+                <Trash2 size={13} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

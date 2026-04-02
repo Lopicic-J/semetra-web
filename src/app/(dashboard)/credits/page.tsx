@@ -43,7 +43,9 @@ export default function CreditsPage() {
   function bestGrade(moduleId: string): number | null {
     const mg = grades.filter(g => g.module_id === moduleId);
     if (mg.length === 0) return null;
-    return Math.max(...mg.map(g => g.grade));
+    const valid = mg.filter(g => g.grade !== null).map(g => g.grade as number);
+    if (valid.length === 0) return null;
+    return Math.max(...valid);
   }
 
   function moduleStatus(m: Module): "passed" | "failed" | "active" | "planned" {

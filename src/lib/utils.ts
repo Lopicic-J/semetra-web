@@ -26,10 +26,11 @@ export function gradeColor(grade: number): string {
   return "text-red-600";
 }
 
-export function gradeAvg(grades: { grade: number; weight?: number | null }[]): number {
-  if (!grades.length) return 0;
-  const totalWeight = grades.reduce((s, g) => s + (g.weight ?? 1), 0);
-  const weighted = grades.reduce((s, g) => s + g.grade * (g.weight ?? 1), 0);
+export function gradeAvg(grades: { grade: number | null; weight?: number | null }[]): number {
+  const valid = grades.filter((g): g is typeof g & { grade: number } => g.grade !== null);
+  if (!valid.length) return 0;
+  const totalWeight = valid.reduce((s, g) => s + (g.weight ?? 1), 0);
+  const weighted = valid.reduce((s, g) => s + g.grade * (g.weight ?? 1), 0);
   return totalWeight > 0 ? weighted / totalWeight : 0;
 }
 

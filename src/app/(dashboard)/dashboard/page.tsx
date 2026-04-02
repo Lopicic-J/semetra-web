@@ -6,9 +6,9 @@ import { useTasks } from "@/lib/hooks/useTasks";
 import { useGrades } from "@/lib/hooks/useGrades";
 import { useTimeLogs } from "@/lib/hooks/useTimeLogs";
 import { formatDate, formatDuration, gradeAvg } from "@/lib/utils";
-import { BookOpen, CheckSquare, Clock, TrendingUp, AlertCircle, Calendar, GraduationCap } from "lucide-react";
+import { BookOpen, CheckSquare, Clock, TrendingUp, AlertCircle, Calendar, GraduationCap, Brain, AlertTriangle } from "lucide-react";
 import Link from "next/link";
-import type { CalendarEvent } from "@/types/database";
+import type { CalendarEvent, Topic } from "@/types/database";
 
 type Exam = CalendarEvent & { daysLeft?: number };
 
@@ -18,6 +18,7 @@ export default function DashboardPage() {
   const { grades } = useGrades();
   const { logs } = useTimeLogs();
   const [exams, setExams] = useState<Exam[]>([]);
+  const [topics, setTopics] = useState<Topic[]>([]);
   const supabase = createClient();
 
   const fetchExams = useCallback(async () => {
@@ -33,11 +34,28 @@ export default function DashboardPage() {
           ...e,
           daysLeft: Math.ceil((new Date(e.start_dt).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
         }))
-        .filter(e => (e.daysLeft ?? 0) >= 0)  // nur zukünftige
+        .filter(e => (e.daysLeft ?? 0) >= 0)
     );
   }, [supabase]);
 
-  useEffect(() => { fetchExams(); }, [fetchExams]);
+  const fetchTopics = useCallback(async () => {
+    const { data } = await supabase.from("topics").select("*");
+    setTopics(data ?? []);
+  }, [supabase]);
+
+  useEffect(() => { fetchExams(); fetchTopics(); }, [fetchExams, fetchTopics]);
+
+  // Exam knowledge warnings: upcoming exams with low knowledge scores
+  const examKnowledgeWarnings = exams
+    .filter(e => (e.daysLeft ?? 999) > 0 && (e.daysLeft ?? 999) <= 30)
+    .map(exam => {
+      const examTopics = topics.filter(t => t.exam_id === exam.id);
+      if (examTopics.length === 0) return null;
+      const understoodPct = Math.round((examTopics.filter(t => (t.knowledge_level ?? 0) >= 3).length / examTopics.length) * 100);
+      if (understoodPct >= 80) return null;
+      return { exam, understoodPct, topicCount: examTopics.length };
+    })
+    .filter(Boolean) as { exam: Exam; understoodPct: number; topicCount: number }[];
 
   const openTasks = tasks.filter(t => t.status !== "done");
   const overdue = tasks.filter(t => t.status !== "done" && t.due_date && new Date(t.due_date) < new Date());
@@ -119,6 +137,34 @@ export default function DashboardPage() {
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* Knowledge warnings for upcoming exams */}
+      {examKnowledgeWarnings.length > 0 && (
+        <div className="space-y-2 mb-6">
+          {examKnowledgeWarnings.map(w => (
+            <Link key={w.exam.id} href="/knowledge" className="flex items-center gap-3 p-3 rounded-xl border transition-colors hover:shadow-sm no-underline"
+              style={{
+                background: w.understoodPct < 30 ? "#fef2f2" : w.understoodPct < 60 ? "#fff7ed" : "#fefce8",
+                borderColor: w.understoodPct < 30 ? "#fecaca" : w.understoodPct < 60 ? "#fed7aa" : "#fef08a",
+              }}>
+              <AlertTriangle size={18} className={
+                w.understoodPct < 30 ? "text-red-500" : w.understoodPct < 60 ? "text-orange-500" : "text-yellow-500"
+              } />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900">
+                  ⚠️ {w.exam.title} — nur {w.understoodPct}% Wissensstand
+                </p>
+                <p className="text-xs text-gray-500">
+                  Prüfung in {w.exam.daysLeft} Tagen · {w.topicCount} Themen zugeordnet → Wissen überprüfen
+                </p>
+              </div>
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-white border border-gray-200 text-violet-600 shrink-0">
+                <Brain size={12} /> Review
+              </div>
+            </Link>
+          ))}
         </div>
       )}
 
