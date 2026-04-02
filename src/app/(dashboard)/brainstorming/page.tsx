@@ -250,7 +250,7 @@ export default function BrainstormingPage() {
             <button
               key={t.key}
               onClick={() => { setPreselectedTech(t.key); setShowCreate(true); }}
-              className="bg-zinc-900/80 border border-zinc-700/60 rounded-lg p-3.5 text-left hover:border-zinc-500 hover:bg-zinc-800/80 transition group"
+              className="bg-zinc-900 border border-zinc-700 rounded-lg p-3.5 text-left hover:border-zinc-500 hover:bg-zinc-800/80 transition group"
             >
               <div className="flex items-center gap-2 mb-1.5">
                 <span style={{ color: t.color }}>{t.icon}</span>
@@ -281,7 +281,7 @@ export default function BrainstormingPage() {
               <button
                 key={s.id}
                 onClick={() => setActiveSession(s)}
-                className="bg-zinc-900/80 border border-zinc-700/60 rounded-xl p-4 text-left hover:border-violet-500/60 hover:bg-zinc-800/60 transition group"
+                className="bg-zinc-900 border border-zinc-700 rounded-xl p-4 text-left hover:border-violet-500/60 hover:bg-zinc-800/60 transition group"
               >
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-semibold text-zinc-100 text-sm group-hover:text-violet-300 transition line-clamp-1">
@@ -415,7 +415,7 @@ function CreateSessionModal({
           ))}
         </div>
 
-        <div className="text-xs text-zinc-300 mb-4 p-3 bg-zinc-800/80 border border-zinc-700/50 rounded-lg flex items-start gap-2">
+        <div className="text-xs text-zinc-300 mb-4 p-3 bg-zinc-800/80 border border-zinc-700 rounded-lg flex items-start gap-2">
           <span className="mt-0.5" style={{ color: selectedTech.color }}>{selectedTech.icon}</span>
           <span>{selectedTech.description}</span>
         </div>
@@ -625,11 +625,11 @@ function BrainstormEditor({
               {session.title}
             </h1>
             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-              <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: tech.color + "25", color: tech.color }}>
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: tech.color + "30", color: tech.color }}>
                 {tech.label}
               </span>
               {mod && (
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: mod.color + "25", color: mod.color }}>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ backgroundColor: mod.color + "30", color: mod.color }}>
                   <BookOpen size={10} className="inline mr-1" />{mod.name}
                 </span>
               )}
@@ -640,7 +640,7 @@ function BrainstormEditor({
         <div className="flex items-center gap-2">
           <button
             onClick={generateAiSuggestions}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-violet-600/20 border border-violet-500/30 text-violet-300 hover:bg-violet-600/30 hover:text-violet-200 text-sm font-medium transition"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-violet-600 border border-violet-500 text-white hover:bg-violet-500 text-sm font-medium transition"
             title="KI-Vorschläge generieren"
           >
             <Bot size={16} /> KI-Assistent
@@ -664,43 +664,43 @@ function BrainstormEditor({
 
       {/* KI-Assistent Panel */}
       {showAi && aiSuggestions.length > 0 && (
-        <div className="mb-4 p-4 rounded-xl border border-violet-500/30 bg-violet-950/30">
+        <div className="mb-4 p-4 rounded-xl border border-zinc-600 bg-zinc-900">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-violet-300 flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-violet-400 flex items-center gap-2">
               <Bot size={16} /> KI-Denkanstösse
             </h3>
             <div className="flex gap-1">
               <button
                 onClick={generateAiSuggestions}
-                className="p-1.5 rounded text-violet-400 hover:text-violet-200 hover:bg-violet-500/20 transition"
+                className="p-1.5 rounded text-zinc-400 hover:text-white hover:bg-zinc-700 transition"
                 title="Neue Vorschläge"
               >
                 <RefreshCw size={14} />
               </button>
               <button
                 onClick={() => setShowAi(false)}
-                className="p-1.5 rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700/50 transition"
+                className="p-1.5 rounded text-zinc-400 hover:text-white hover:bg-zinc-700 transition"
               >
                 <X size={14} />
               </button>
             </div>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {aiSuggestions.map((s, idx) => (
-              <div key={idx} className="flex items-start gap-2 group">
+              <div key={idx} className="flex items-start gap-2.5 group">
                 <Sparkles size={12} className="text-violet-400 mt-1.5 flex-shrink-0" />
-                <p className="text-sm text-zinc-200 flex-1 leading-relaxed">{s}</p>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                <p className="text-sm text-white flex-1 leading-relaxed">{s}</p>
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
                   <button
                     onClick={() => copyToInput(s, idx)}
-                    className="p-1 text-violet-400 hover:text-violet-200 transition"
-                    title="Als Idee übernehmen"
+                    className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-700 rounded transition"
+                    title="In Eingabefeld kopieren"
                   >
                     {copiedIdx === idx ? <Check size={14} /> : <Copy size={14} />}
                   </button>
                   <button
                     onClick={() => addIdea(s)}
-                    className="p-1 text-green-400 hover:text-green-300 transition"
+                    className="p-1.5 text-zinc-400 hover:text-green-400 hover:bg-zinc-700 rounded transition"
                     title="Direkt als Idee hinzufügen"
                   >
                     <Plus size={14} />
@@ -714,13 +714,10 @@ function BrainstormEditor({
 
       {/* Inspiration / Prompt Card */}
       {showPrompt && (
-        <div
-          className="mb-4 p-4 rounded-xl border flex items-start gap-3"
-          style={{ backgroundColor: tech.color + "10", borderColor: tech.color + "40" }}
-        >
+        <div className="mb-4 p-4 rounded-xl border border-zinc-600 bg-zinc-900 flex items-start gap-3">
           <Sparkles size={20} className="flex-shrink-0 mt-0.5" style={{ color: tech.color }} />
           <div className="flex-1">
-            <p className="text-sm text-zinc-100 font-medium leading-relaxed">{tech.prompts[promptIndex]}</p>
+            <p className="text-sm text-white font-medium leading-relaxed">{tech.prompts[promptIndex]}</p>
             {mod && (
               <p className="text-xs text-zinc-400 mt-1">
                 Kontext: {mod.name}
@@ -730,15 +727,14 @@ function BrainstormEditor({
           <div className="flex items-center gap-1">
             <button
               onClick={nextPrompt}
-              className="p-1.5 rounded-lg hover:bg-white/10 transition"
-              style={{ color: tech.color }}
+              className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-700 transition"
               title="Nächster Denkanstoß"
             >
               <RefreshCw size={14} />
             </button>
             <button
               onClick={() => setShowPrompt(false)}
-              className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-white/10 transition"
+              className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-700 transition"
               title="Ausblenden"
             >
               <X size={14} />
@@ -749,7 +745,7 @@ function BrainstormEditor({
       {!showPrompt && (
         <button
           onClick={() => setShowPrompt(true)}
-          className="mb-4 text-xs text-zinc-400 hover:text-zinc-200 flex items-center gap-1 transition"
+          className="mb-4 text-xs text-zinc-300 hover:text-white flex items-center gap-1 transition"
         >
           <Sparkles size={12} /> Denkanstoß anzeigen
         </button>
@@ -757,7 +753,7 @@ function BrainstormEditor({
 
       {/* Mind Dump Timer */}
       {session.technique === "minddump" && (
-        <div className="mb-4 flex items-center gap-3 p-3 bg-zinc-900/80 border border-cyan-500/20 rounded-xl">
+        <div className="mb-4 flex items-center gap-3 p-3 bg-zinc-900 border border-zinc-600 rounded-xl">
           <Zap size={18} className="text-cyan-400" />
           <span className="text-2xl font-mono text-white font-bold tracking-wider">{fmtTimer(timerSec)}</span>
           {!timerActive ? (
@@ -857,7 +853,7 @@ function BrainstormEditor({
         tech.categories ? (
           <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${Math.min(allCats.length, 4)}, 1fr)` }}>
             {allCats.filter(c => !filterCat || c === filterCat).map(cat => (
-              <div key={cat} className="bg-zinc-900/60 border border-zinc-700/50 rounded-xl p-3">
+              <div key={cat} className="bg-zinc-900 border border-zinc-700 rounded-xl p-3">
                 <h3 className="text-sm font-semibold text-zinc-200 mb-3 flex items-center justify-between">
                   {cat}
                   <span className="text-xs text-zinc-500 font-normal bg-zinc-800 px-2 py-0.5 rounded-full">{(grouped[cat] ?? []).length}</span>
@@ -904,7 +900,7 @@ function BrainstormEditor({
           {filteredIdeas.map((idea, idx) => (
             <div
               key={idea.id}
-              className="flex items-start gap-3 p-3 bg-zinc-900/80 border border-zinc-700/50 rounded-lg group hover:border-zinc-600 transition"
+              className="flex items-start gap-3 p-3 bg-zinc-900 border border-zinc-700 rounded-lg group hover:border-zinc-600 transition"
             >
               <span className="text-xs text-zinc-500 font-mono mt-1 w-6 text-right">{idx + 1}</span>
               <div className="w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: idea.color }} />
@@ -944,7 +940,7 @@ function BrainstormEditor({
 
       {/* Summary stats */}
       {ideas.length > 0 && (
-        <div className="mt-6 p-4 bg-zinc-900/80 border border-zinc-700/50 rounded-xl">
+        <div className="mt-6 p-4 bg-zinc-900 border border-zinc-700 rounded-xl">
           <h3 className="text-sm font-semibold text-zinc-200 mb-3 flex items-center gap-2">
             <Target size={14} className="text-violet-400" /> Zusammenfassung
           </h3>
@@ -971,7 +967,7 @@ function BrainstormEditor({
             </div>
           </div>
           {ideas.filter(i => i.votes > 0).length > 0 && (
-            <div className="mt-3 pt-3 border-t border-zinc-700/50">
+            <div className="mt-3 pt-3 border-t border-zinc-700">
               <p className="text-xs text-zinc-400 mb-2 font-medium">Top Ideen:</p>
               {[...ideas].sort((a, b) => b.votes - a.votes).slice(0, 3).map((idea) => (
                 <p key={idea.id} className="text-sm text-zinc-200 flex items-center gap-2 py-0.5">
@@ -1003,7 +999,7 @@ function IdeaCard({
 }) {
   return (
     <div
-      className="p-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 hover:border-zinc-600 group transition"
+      className="p-3 rounded-lg border border-zinc-700 bg-zinc-800 hover:border-zinc-500 group transition"
       style={{ borderLeftWidth: 3, borderLeftColor: idea.color }}
     >
       {editing ? (
