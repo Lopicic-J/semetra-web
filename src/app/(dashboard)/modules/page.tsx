@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { createClient } from "@/lib/supabase/client";
@@ -9,7 +9,7 @@ import { UpgradeModal } from "@/components/ui/ProGate";
 import {
   Plus, BookOpen, Pencil, Trash2, X, ExternalLink, Github,
   FileText, Link2, CheckCircle, Clock, AlertCircle, PauseCircle,
-  CheckSquare, Square, XSquare
+  CheckSquare, Square, XSquare, AlertTriangle, Loader2
 } from "lucide-react";
 import type { Module } from "@/types/database";
 
@@ -43,10 +43,10 @@ export default function ModulesPage() {
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ ids: string[]; names: string[] } | null>(null);
   const supabase = createClient();
 
   function openNew() {
-    // Pro gate: check module limit
     if (!isPro && modules.length >= FREE_LIMITS.totalModules) {
       setShowUpgrade(true);
       return;
@@ -57,25 +57,16 @@ export default function ModulesPage() {
 
   function openEdit(m: Module) { setEditing(m); setShowForm(true); }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Modul wirklich löschen?")) return;
-    await supabase.from("modules").delete().eq("id", id);
-    refetch();
+  function handleDelete(id: string) {
+    const mod = modules.find(m => m.id === id);
+    setDeleteTarget({ ids: [id], names: [mod?.name ?? "Modul"] });
   }
 
-  async function handleBulkDelete() {
+  function handleBulkDelete() {
     if (selected.size === 0) return;
-    const msg = selected.size === modules.length
-      ? `Alle ${selected.size} Module wirklich löschen?`
-      : `${selected.size} ausgewählte Module wirklich löschen?`;
-    if (!confirm(msg)) return;
     const ids = Array.from(selected);
-    for (const id of ids) {
-      await supabase.from("modules").delete().eq("id", id);
-    }
-    setSelected(new Set());
-    setSelectMode(false);
-    refetch();
+    const names = ids.map(id => modules.find(m => m.id === id)?.name ?? "Modul");
+    setDeleteTarget({ ids, names });
   }
 
   function toggleSelect(id: string) {
@@ -204,6 +195,209 @@ export default function ModulesPage() {
       {showUpgrade && (
         <UpgradeModal feature="unlimitedMods" onClose={() => setShowUpgrade(false)} />
       )}
+
+      {deleteTarget && (
+        <DeleteModuleModal
+          moduleIds={deleteTarget.ids}
+          moduleNames={deleteTarget.names}
+          onClose={() => setDeleteTarget(null)}
+          onDeleted={() => {
+            setDeleteTarget(null);
+            setSelected(new Set());
+            setSelectMode(false);
+            refetch();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+/** Modal that shows related data and offers "delete all" vs "module only" */
+function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
+  moduleIds: string[];
+  moduleNames: string[];
+  onClose: () => void;
+  onDeleted: () => void;
+}) {
+  const supabase = createClient();
+  const [counts, setCounts] = useState<{
+    tasks: number; grades: number; topics: number;
+    timeLogs: number; stundenplan: number;
+  } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  // Fetch counts of related data
+  useEffect(() => {
+    async function load() {
+      const [tasks, grades, topics, timeLogs, stundenplan] = await Promise.all([
+        supabase.from("tasks").select("id", { count: "exact", head: true }).in("module_id", moduleIds),
+        supabase.from("grades").select("id", { count: "exact", head: true }).in("module_id", moduleIds),
+        supabase.from("topics").select("id", { count: "exact", head: true }).in("module_id", moduleIds),
+        supabase.from("time_logs").select("id", { count: "exact", head: true }).in("module_id", moduleIds),
+        supabase.from("stundenplan").select("id", { count: "exact", head: true }).in("module_id", moduleIds),
+      ]);
+      setCounts({
+        tasks: tasks.count ?? 0,
+        grades: grades.count ?? 0,
+        topics: topics.count ?? 0,
+        timeLogs: timeLogs.count ?? 0,
+        stundenplan: stundenplan.count ?? 0,
+      });
+    }
+    load();
+  }, [supabase, moduleIds]);
+
+  const totalRelated = counts
+    ? counts.tasks + counts.grades + counts.topics + counts.timeLogs + counts.stundenplan
+    : 0;
+
+  const isSingle = moduleIds.length === 1;
+  const title = isSingle
+    ? `„${moduleNames[0]}" löschen?`
+    : `${moduleIds.length} Module löschen?`;
+
+  async function deleteModuleOnly() {
+    setDeleting(true);
+    for (const id of moduleIds) {
+      await supabase.from("modules").delete().eq("id", id);
+    }
+    onDeleted();
+  }
+
+  async function deleteWithAll() {
+    setDeleting(true);
+    // Delete related data first, then the module
+    for (const id of moduleIds) {
+      await Promise.all([
+        supabase.from("tasks").delete().eq("module_id", id),
+        supabase.from("grades").delete().eq("module_id", id),
+        supabase.from("topics").delete().eq("module_id", id),
+        supabase.from("time_logs").delete().eq("module_id", id),
+        supabase.from("stundenplan").delete().eq("module_id", id),
+      ]);
+      await supabase.from("modules").delete().eq("id", id);
+    }
+    onDeleted();
+  }
+
+  const countItems: { label: string; count: number; icon: string }[] = counts ? [
+    { label: "Aufgaben", count: counts.tasks, icon: "📋" },
+    { label: "Noten", count: counts.grades, icon: "📊" },
+    { label: "Wissensthemen", count: counts.topics, icon: "🧠" },
+    { label: "Zeiteinträge", count: counts.timeLogs, icon: "⏱️" },
+    { label: "Stundenplan", count: counts.stundenplan, icon: "📅" },
+  ].filter(c => c.count > 0) : [];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+        <div className="p-6">
+          {/* Header */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+              <AlertTriangle size={20} className="text-red-500" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-gray-900">{title}</h2>
+              <p className="text-sm text-gray-500">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+            </div>
+          </div>
+
+          {/* Loading state */}
+          {!counts ? (
+            <div className="flex items-center justify-center py-6">
+              <Loader2 size={20} className="animate-spin text-gray-400" />
+              <span className="ml-2 text-sm text-gray-500">Verknüpfte Daten werden geprüft…</span>
+            </div>
+          ) : totalRelated > 0 ? (
+            <>
+              {/* Related data summary */}
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
+                <p className="text-sm font-medium text-amber-800 mb-2">
+                  Folgende Daten sind mit {isSingle ? "diesem Modul" : "diesen Modulen"} verknüpft:
+                </p>
+                <div className="space-y-1.5">
+                  {countItems.map(item => (
+                    <div key={item.label} className="flex items-center gap-2 text-sm text-amber-700">
+                      <span>{item.icon}</span>
+                      <span className="font-medium">{item.count}</span>
+                      <span>{item.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Two delete options */}
+              <div className="space-y-2">
+                <button
+                  onClick={deleteWithAll}
+                  disabled={deleting}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl border-2 border-red-200 bg-red-50 hover:bg-red-100 text-left transition-colors disabled:opacity-50"
+                >
+                  <Trash2 size={18} className="text-red-500 shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-red-700">Alles löschen</p>
+                    <p className="text-xs text-red-500">
+                      {isSingle ? "Modul" : "Module"} und alle {totalRelated} verknüpften Einträge werden gelöscht
+                    </p>
+                  </div>
+                </button>
+
+                <button
+                  onClick={deleteModuleOnly}
+                  disabled={deleting}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-gray-50 hover:bg-gray-100 text-left transition-colors disabled:opacity-50"
+                >
+                  <BookOpen size={18} className="text-gray-500 shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-gray-700">Nur {isSingle ? "Modul" : "Module"} löschen</p>
+                    <p className="text-xs text-gray-500">
+                      Aufgaben, Noten, Wissen etc. bleiben erhalten (ohne Modulzuordnung)
+                    </p>
+                  </div>
+                </button>
+              </div>
+            </>
+          ) : (
+            /* No related data — simple delete */
+            <div className="bg-gray-50 rounded-xl p-4 mb-4">
+              <p className="text-sm text-gray-600">
+                Keine verknüpften Daten vorhanden. {isSingle ? "Das Modul" : "Die Module"} kann sicher gelöscht werden.
+              </p>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex gap-3 mt-4">
+            <button
+              onClick={onClose}
+              disabled={deleting}
+              className="btn-secondary flex-1"
+            >
+              Abbrechen
+            </button>
+            {counts && totalRelated === 0 && (
+              <button
+                onClick={deleteModuleOnly}
+                disabled={deleting}
+                className="flex-1 px-4 py-2 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+              >
+                {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                Löschen
+              </button>
+            )}
+          </div>
+
+          {/* Deleting indicator */}
+          {deleting && (
+            <div className="flex items-center justify-center gap-2 mt-3 text-sm text-gray-500">
+              <Loader2 size={14} className="animate-spin" />
+              Wird gelöscht…
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
