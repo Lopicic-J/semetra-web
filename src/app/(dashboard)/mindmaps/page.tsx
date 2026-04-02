@@ -243,6 +243,7 @@ function MindMapEditor({ map, modules, onBack }: {
   const canvasRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ id: string; startX: number; startY: number; nodeX: number; nodeY: number } | null>(null);
   const panRef = useRef<{ startX: number; startY: number; panX: number; panY: number } | null>(null);
+  const pinchRef = useRef<{ startDist: number; startZoom: number } | null>(null);
 
   const fetchNodes = useCallback(async () => {
     const { data } = await supabase.from("mindmap_nodes").select("*").eq("mindmap_id", map.id).order("sort_order");
@@ -298,28 +299,63 @@ function MindMapEditor({ map, modules, onBack }: {
     return { x: node.pos_x, y: node.pos_y };
   }
 
+  // ── Pointer helpers (mouse + touch) ──
+  function getPointerPos(e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) {
+    if ("touches" in e) {
+      const t = e.touches[0] ?? (e as TouchEvent).changedTouches[0];
+      return { x: t.clientX, y: t.clientY };
+    }
+    return { x: (e as MouseEvent).clientX, y: (e as MouseEvent).clientY };
+  }
+
   // Drag logic (free mode)
-  function handleMouseDown(e: React.MouseEvent, nodeId: string) {
+  function handlePointerDownNode(e: React.MouseEvent | React.TouchEvent, nodeId: string) {
     if (layoutMode !== "free") return;
     e.stopPropagation();
     const node = nodes.find(n => n.id === nodeId);
     if (!node) return;
-    dragRef.current = { id: nodeId, startX: e.clientX, startY: e.clientY, nodeX: node.pos_x, nodeY: node.pos_y };
+    const p = getPointerPos(e);
+    dragRef.current = { id: nodeId, startX: p.x, startY: p.y, nodeX: node.pos_x, nodeY: node.pos_y };
     setSelectedNode(nodeId);
   }
 
-  function handleCanvasMouseDown(e: React.MouseEvent) {
-    if (e.target === canvasRef.current || (e.target as HTMLElement).classList.contains("canvas-bg")) {
-      panRef.current = { startX: e.clientX, startY: e.clientY, panX: pan.x, panY: pan.y };
+  function handlePointerDownCanvas(e: React.MouseEvent | React.TouchEvent) {
+    const target = e.target as HTMLElement;
+    if (target === canvasRef.current || target.classList.contains("canvas-bg")) {
+      // Pinch-to-zoom: if 2 fingers, start pinch instead of pan
+      if ("touches" in e && e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        pinchRef.current = { startDist: Math.hypot(dx, dy), startZoom: zoom };
+        return;
+      }
+      const p = getPointerPos(e);
+      panRef.current = { startX: p.x, startY: p.y, panX: pan.x, panY: pan.y };
       setSelectedNode(null);
     }
   }
 
   useEffect(() => {
-    function handleMouseMove(e: MouseEvent) {
+    function handlePointerMove(e: MouseEvent | TouchEvent) {
+      // Pinch-to-zoom
+      if (pinchRef.current && "touches" in e && e.touches.length === 2) {
+        e.preventDefault();
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.hypot(dx, dy);
+        const scale = dist / pinchRef.current.startDist;
+        setZoom(Math.min(2, Math.max(0.3, pinchRef.current.startZoom * scale)));
+        return;
+      }
+
+      const p = "touches" in e
+        ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+        : { x: e.clientX, y: e.clientY };
+
       if (dragRef.current) {
-        const dx = (e.clientX - dragRef.current.startX) / zoom;
-        const dy = (e.clientY - dragRef.current.startY) / zoom;
+        e.preventDefault();
+        const dx = (p.x - dragRef.current.startX) / zoom;
+        const dy = (p.y - dragRef.current.startY) / zoom;
         setNodes(prev => prev.map(n =>
           n.id === dragRef.current!.id
             ? { ...n, pos_x: dragRef.current!.nodeX + dx, pos_y: dragRef.current!.nodeY + dy }
@@ -327,13 +363,15 @@ function MindMapEditor({ map, modules, onBack }: {
         ));
       }
       if (panRef.current) {
+        e.preventDefault();
         setPan({
-          x: panRef.current.panX + (e.clientX - panRef.current.startX),
-          y: panRef.current.panY + (e.clientY - panRef.current.startY),
+          x: panRef.current.panX + (p.x - panRef.current.startX),
+          y: panRef.current.panY + (p.y - panRef.current.startY),
         });
       }
     }
-    async function handleMouseUp() {
+
+    async function handlePointerUp(e: MouseEvent | TouchEvent) {
       if (dragRef.current) {
         const node = nodes.find(n => n.id === dragRef.current!.id);
         if (node) {
@@ -342,10 +380,21 @@ function MindMapEditor({ map, modules, onBack }: {
         dragRef.current = null;
       }
       panRef.current = null;
+      pinchRef.current = null;
     }
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-    return () => { window.removeEventListener("mousemove", handleMouseMove); window.removeEventListener("mouseup", handleMouseUp); };
+
+    window.addEventListener("mousemove", handlePointerMove);
+    window.addEventListener("mouseup", handlePointerUp);
+    window.addEventListener("touchmove", handlePointerMove, { passive: false });
+    window.addEventListener("touchend", handlePointerUp);
+    window.addEventListener("touchcancel", handlePointerUp);
+    return () => {
+      window.removeEventListener("mousemove", handlePointerMove);
+      window.removeEventListener("mouseup", handlePointerUp);
+      window.removeEventListener("touchmove", handlePointerMove);
+      window.removeEventListener("touchend", handlePointerUp);
+      window.removeEventListener("touchcancel", handlePointerUp);
+    };
   }, [nodes, zoom, supabase]);
 
   async function addChild(parentId: string) {
@@ -385,15 +434,48 @@ function MindMapEditor({ map, modules, onBack }: {
     await supabase.from("mindmaps").update({ layout_mode: newMode }).eq("id", map.id);
   }
 
-  // Canvas size
+  // Canvas size — add padding so nodes at edges are never cut off
   const canvasW = useMemo(() => {
-    const maxX = Math.max(800, ...nodes.map(n => getPos(n).x + 200));
-    return maxX + 100;
+    const maxX = Math.max(800, ...nodes.map(n => getPos(n).x + 240));
+    return maxX + 200;
   }, [nodes, treePositions, layoutMode]);
   const canvasH = useMemo(() => {
-    const maxY = Math.max(500, ...nodes.map(n => getPos(n).y + 60));
-    return maxY + 100;
+    const maxY = Math.max(500, ...nodes.map(n => getPos(n).y + 80));
+    return maxY + 200;
   }, [nodes, treePositions, layoutMode]);
+
+  // Auto-fit: scale mind map to fit viewport on initial load (especially for mobile)
+  const hasAutoFit = useRef(false);
+  useEffect(() => {
+    if (loading || nodes.length === 0 || hasAutoFit.current) return;
+    hasAutoFit.current = true;
+    const container = canvasRef.current;
+    if (!container) return;
+    const cw = container.clientWidth;
+    const ch = container.clientHeight;
+    // Calculate bounding box of all nodes
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const n of nodes) {
+      const p = getPos(n);
+      minX = Math.min(minX, p.x);
+      minY = Math.min(minY, p.y);
+      maxX = Math.max(maxX, p.x + 200); // node width ~200
+      maxY = Math.max(maxY, p.y + 50);  // node height ~50
+    }
+    const contentW = maxX - minX + 60; // padding
+    const contentH = maxY - minY + 60;
+    const fitZoom = Math.min(cw / contentW, ch / contentH, 1);
+    if (fitZoom < 0.95) {
+      // Only auto-fit if content doesn't already fit
+      const clampedZoom = Math.max(0.3, Math.min(1, fitZoom * 0.9));
+      setZoom(clampedZoom);
+      // Center the content
+      setPan({
+        x: (cw - contentW * clampedZoom) / 2 - minX * clampedZoom + 20,
+        y: (ch - contentH * clampedZoom) / 2 - minY * clampedZoom + 20,
+      });
+    }
+  }, [loading, nodes]);
 
   return (
     <div className="flex flex-col h-[calc(100vh-64px)]">
@@ -418,7 +500,13 @@ function MindMapEditor({ map, modules, onBack }: {
       </div>
 
       {/* Canvas */}
-      <div className="flex-1 overflow-hidden bg-gray-50 relative" onMouseDown={handleCanvasMouseDown} ref={canvasRef}>
+      <div
+        className="flex-1 overflow-hidden bg-gray-50 relative"
+        style={{ touchAction: "none" }}
+        onMouseDown={handlePointerDownCanvas}
+        onTouchStart={handlePointerDownCanvas}
+        ref={canvasRef}
+      >
         {loading ? (
           <div className="flex items-center justify-center h-full text-gray-400">Laden…</div>
         ) : (
@@ -465,7 +553,8 @@ function MindMapEditor({ map, modules, onBack }: {
                   key={n.id}
                   className={`absolute select-none transition-shadow ${layoutMode === "free" ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
                   style={{ left: pos.x, top: pos.y, zIndex: isSelected ? 10 : 1 }}
-                  onMouseDown={(e) => handleMouseDown(e, n.id)}
+                  onMouseDown={(e) => handlePointerDownNode(e, n.id)}
+                  onTouchStart={(e) => handlePointerDownNode(e, n.id)}
                   onClick={(e) => { e.stopPropagation(); setSelectedNode(n.id); }}
                   onDoubleClick={(e) => { e.stopPropagation(); setEditNode(n); }}
                 >

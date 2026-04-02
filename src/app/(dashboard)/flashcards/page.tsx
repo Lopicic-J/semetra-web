@@ -289,9 +289,17 @@ export default function FlashcardsPage() {
 
   async function handleSave(data: Partial<Flashcard>) {
     if (editCard) {
-      await supabase.from("flashcards").update(data).eq("id", editCard.id);
+      const { error } = await supabase.from("flashcards").update(data).eq("id", editCard.id);
+      if (error) { console.error("Update error:", error); alert("Fehler beim Speichern."); return; }
     } else {
-      await supabase.from("flashcards").insert({ ...data, source: "user" });
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { alert("Bitte einloggen."); return; }
+      const { error } = await supabase.from("flashcards").insert({
+        ...data,
+        user_id: user.id,
+        source: "user",
+      });
+      if (error) { console.error("Insert error:", error); alert("Fehler beim Erstellen."); return; }
     }
     setShowDialog(false);
     setEditCard(undefined);

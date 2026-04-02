@@ -316,7 +316,7 @@ export default function MathPage() {
   const toolHistory = useMemo(() => history.filter((h) => h.tool === activeTool), [history, activeTool]);
 
   return (
-    <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+    <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 px-3 sm:px-6 overflow-x-hidden">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -507,9 +507,9 @@ function EquationsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <h2 className="text-lg font-semibold text-white">Gleichungslöser & Umsteller</h2>
-        <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-1.5 border border-zinc-700">
+        <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-zinc-700 min-w-0 self-start sm:self-auto">
           <option value="">Kein Modul</option>
           {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
@@ -713,13 +713,13 @@ function MatricesTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r:
   };
 
   const renderMatrix = (mat: number[][], setter: "A" | "B") => (
-    <div className="inline-block">
+    <div className="inline-block max-w-full">
       <div className="text-zinc-400 text-xs mb-1 text-center">Matrix {setter}</div>
-      <div className="border-l-2 border-r-2 border-zinc-600 px-2 py-1">
+      <div className="border-l-2 border-r-2 border-zinc-600 px-1 sm:px-2 py-1 overflow-x-auto">
         {mat.map((row, r) => (
           <div key={r} className="flex gap-1">
             {row.map((v, c) => (
-              <input key={c} value={v || ""} onChange={(e) => updateCell(setter, r, c, e.target.value)} className="w-11 sm:w-14 h-9 sm:h-10 bg-zinc-800 text-white text-center rounded border border-zinc-700 font-mono text-xs sm:text-sm" />
+              <input key={c} value={v || ""} onChange={(e) => updateCell(setter, r, c, e.target.value)} className="w-10 sm:w-14 h-8 sm:h-10 bg-zinc-800 text-white text-center rounded border border-zinc-700 font-mono text-[11px] sm:text-sm shrink-0" />
             ))}
           </div>
         ))}
@@ -729,14 +729,14 @@ function MatricesTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r:
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <h2 className="text-lg font-semibold text-white">Matrizen-Rechner</h2>
-        <div className="flex items-center gap-3">
-          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-1.5 border border-zinc-700">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-zinc-700 min-w-0 flex-1 sm:flex-none">
             <option value="">Kein Modul</option>
             {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
-          <select value={size} onChange={(e) => setSize(Number(e.target.value))} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-1.5 border border-zinc-700">
+          <select value={size} onChange={(e) => setSize(Number(e.target.value))} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-zinc-700">
             <option value={2}>2×2</option>
             <option value={3}>3×3</option>
             <option value={4}>4×4</option>
@@ -754,7 +754,7 @@ function MatricesTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r:
       </div>
 
       {/* Matrix Inputs */}
-      <div className="flex flex-wrap gap-3 sm:gap-6 justify-center mb-4 overflow-x-auto">
+      <div className="flex flex-wrap gap-3 sm:gap-6 justify-center mb-4 overflow-x-auto max-w-full">
         {renderMatrix(matA, "A")}
         {(operation === "multiply" || operation === "add") && renderMatrix(matB, "B")}
       </div>
@@ -922,14 +922,14 @@ function PlotterTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: 
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <h2 className="text-lg font-semibold text-white">Funktions-Plotter</h2>
         <div className="flex items-center gap-2">
-          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-1.5 border border-zinc-700">
+          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-zinc-700 min-w-0 flex-1 sm:flex-none">
             <option value="">Kein Modul</option>
             {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
-          <button onClick={savePlot} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-300 text-sm hover:bg-zinc-700">💾 Speichern</button>
+          <button onClick={savePlot} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-300 text-sm hover:bg-zinc-700 whitespace-nowrap">💾 Speichern</button>
         </div>
       </div>
 
@@ -1066,14 +1066,14 @@ function StatisticsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, 
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <h2 className="text-lg font-semibold text-white">Statistik-Werkzeug</h2>
         <div className="flex items-center gap-2">
-          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-1.5 border border-zinc-700">
+          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-zinc-700 min-w-0 flex-1 sm:flex-none">
             <option value="">Kein Modul</option>
             {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
-          <button onClick={handleSave} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-300 text-sm hover:bg-zinc-700">💾 Speichern</button>
+          <button onClick={handleSave} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-300 text-sm hover:bg-zinc-700 whitespace-nowrap">💾 Speichern</button>
         </div>
       </div>
 
@@ -1159,9 +1159,9 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <h2 className="text-lg font-semibold text-white">Einheiten & Konstanten</h2>
-        <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-3 py-1.5 border border-zinc-700">
+        <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-zinc-800 text-zinc-300 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-zinc-700 min-w-0 self-start sm:self-auto">
           <option value="">Kein Modul</option>
           {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
@@ -1223,9 +1223,9 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
       )}
 
       {tab === "bases" && (
-        <div className="bg-zinc-800 rounded-xl p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <input value={baseInput} onChange={(e) => setBaseInput(e.target.value)} className="flex-1 bg-zinc-900 text-white text-xl rounded-lg px-4 py-3 border border-zinc-700 font-mono" placeholder="Zahl eingeben..." />
+        <div className="bg-zinc-800 rounded-xl p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mb-6">
+            <input value={baseInput} onChange={(e) => setBaseInput(e.target.value)} className="flex-1 bg-zinc-900 text-white text-lg sm:text-xl rounded-lg px-4 py-3 border border-zinc-700 font-mono min-w-0" placeholder="Zahl eingeben..." />
             <select value={baseFrom} onChange={(e) => setBaseFrom(Number(e.target.value))} className="bg-zinc-900 text-zinc-300 rounded-lg px-3 py-3 border border-zinc-700 text-sm">
               <option value={2}>Binär (2)</option>
               <option value={8}>Oktal (8)</option>
@@ -1310,9 +1310,9 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules }: { us
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <h2 className="text-lg font-semibold text-white">Formel-Sammlung</h2>
-        <button onClick={openNew} className="px-4 py-2 rounded-lg bg-violet-600 text-white text-sm font-medium hover:bg-violet-500">+ Eigene Formel</button>
+        <button onClick={openNew} className="px-4 py-2 rounded-lg bg-violet-600 text-white text-sm font-medium hover:bg-violet-500 self-start sm:self-auto whitespace-nowrap">+ Eigene Formel</button>
       </div>
 
       {/* Search + Category filter */}
