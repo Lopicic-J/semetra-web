@@ -970,175 +970,282 @@ function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, 
 
 function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
   const { t } = useTranslation();
-  const [size, setSize] = useState(3);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [tab, setTab] = useState<"operations" | "lgs" | "analysis" | "visualization">("operations");
+  const [rows, setRows] = useState(3);
+  const [cols, setCols] = useState(3);
   const [matA, setMatA] = useState<number[][]>(Array.from({ length: 3 }, () => Array(3).fill(0)));
   const [matB, setMatB] = useState<number[][]>(Array.from({ length: 3 }, () => Array(3).fill(0)));
+  const [scalar, setScalar] = useState(2);
+  const [operation, setOperation] = useState("det");
+  const [showSteps, setShowSteps] = useState(false);
   const [result, setResult] = useState("");
   const [resultMatrix, setResultMatrix] = useState<number[][] | null>(null);
-  const [operation, setOperation] = useState<string>("det");
+  const [steps, setSteps] = useState<{ desc: string; mat: number[][]; pRow?: number; pCol?: number; hRows?: number[] }[]>([]);
+  const [lgsVars, setLgsVars] = useState(3);
+  const [augmentedMat, setAugmentedMat] = useState<number[][]>(Array.from({ length: 3 }, () => Array(4).fill(0)));
+  const [solutionType, setSolutionType] = useState("");
   const [moduleId, setModuleId] = useState<string | null>(null);
+  const [vizAngle, setVizAngle] = useState(45);
 
-  useEffect(() => {
-    setMatA(Array.from({ length: size }, () => Array(size).fill(0)));
-    setMatB(Array.from({ length: size }, () => Array(size).fill(0)));
-    setResult("");
-    setResultMatrix(null);
-  }, [size]);
-
-  const updateCell = (mat: "A" | "B", r: number, c: number, val: string) => {
-    const setter = mat === "A" ? setMatA : setMatB;
-    setter((prev) => {
-      const copy = prev.map((row) => [...row]);
-      copy[r][c] = Number(val) || 0;
-      return copy;
-    });
+  const fmt = (n: number): string => {
+    if (Math.abs(n) < 1e-10) return "0";
+    if (Number.isInteger(n)) return String(n);
+    return n.toFixed(4).replace(/\.?0+$/, "");
   };
 
-  const fmt = (n: number) => Number.isInteger(n) ? String(n) : n.toFixed(4).replace(/\.?0+$/, "");
+  const fractionStr = (num: number, denom: number): string => {
+    if (Math.abs(denom) < 1e-10) return "∞";
+    const val = num / denom;
+    return fmt(val);
+  };
 
-  const compute = () => {
-    let expr = "", res = "";
-    setResultMatrix(null);
+  // Helper: Gauss-Jordan elimination with steps
+  const gaussJordanSteps = (mat: number[][]): { steps: typeof steps; rref: number[][]; type: string } => {
+    const m = mat.map(r => [...r]);
+    const n = m.length;
+    const c = m[0].length;
+    const stepsArr: typeof steps = [];
+    let currentRank = 0;
 
-    if (operation === "det") {
-      const d = matDet(matA);
-      expr = `det(A) [${size}×${size}]`;
-      res = fmt(d);
-      setResult(`${t("math.determinant")} = ${res}`);
-    } else if (operation === "transpose") {
-      const tMat = matTranspose(matA);
-      expr = `Aᵀ [${size}×${size}]`;
-      res = tMat.map((r) => r.map(fmt).join(", ")).join(" | ");
-      setResultMatrix(tMat);
-      setResult(`${t("math.transpose")}:`);
-    } else if (operation === "inverse") {
-      const inv = matInverse2(matA);
-      if (!inv) { setResult(t("math.notInvertible")); return; }
-      expr = `A⁻¹ [${size}×${size}]`;
-      res = inv.map((r) => r.map(fmt).join(", ")).join(" | ");
-      setResultMatrix(inv);
-      setResult(`${t("math.inverse")}:`);
-    } else if (operation === "multiply") {
-      const prod = matMultiply(matA, matB);
-      if (!prod) { setResult(t("math.dimensionError")); return; }
-      expr = `A × B [${size}×${size}]`;
-      res = prod.map((r) => r.map(fmt).join(", ")).join(" | ");
-      setResultMatrix(prod);
-      setResult("A × B =");
-    } else if (operation === "add") {
-      const sum = matA.map((r, i) => r.map((v, j) => v + matB[i][j]));
-      expr = `A + B [${size}×${size}]`;
-      res = sum.map((r) => r.map(fmt).join(", ")).join(" | ");
-      setResultMatrix(sum);
-      setResult("A + B =");
-    } else if (operation === "eigenvalues") {
-      if (size === 2) {
-        const trace = matA[0][0] + matA[1][1];
-        const det = matDet(matA);
-        const disc = trace * trace - 4 * det;
-        if (disc >= 0) {
-          const l1 = (trace + Math.sqrt(disc)) / 2;
-          const l2 = (trace - Math.sqrt(disc)) / 2;
-          res = `λ₁ = ${fmt(l1)}, λ₂ = ${fmt(l2)}`;
-        } else {
-          const re = trace / 2;
-          const im = Math.sqrt(-disc) / 2;
-          res = `λ₁ = ${fmt(re)} + ${fmt(im)}i, λ₂ = ${fmt(re)} − ${fmt(im)}i`;
+    for (let col = 0; col < c - 1; col++) {
+      let pivotRow = -1;
+      for (let row = currentRank; row < n; row++) {
+        if (Math.abs(m[row][col]) > 1e-10) {
+          pivotRow = row;
+          break;
         }
-        expr = `${t("math.eigenvalues")} [2×2]`;
-        setResult(res);
-      } else {
-        setResult(t("math.eigenvaluesFor2x2Only"));
-        return;
       }
-    } else if (operation === "rank") {
-      // Row echelon form to count rank
-      const m = matA.map((r) => [...r]);
-      let rank = 0;
-      for (let col = 0; col < size; col++) {
-        let pivotRow = -1;
-        for (let row = rank; row < size; row++) {
-          if (Math.abs(m[row][col]) > 1e-10) { pivotRow = row; break; }
-        }
-        if (pivotRow === -1) continue;
-        [m[rank], m[pivotRow]] = [m[pivotRow], m[rank]];
-        const scale = m[rank][col];
-        for (let j = col; j < size; j++) m[rank][j] /= scale;
-        for (let row = 0; row < size; row++) {
-          if (row !== rank && Math.abs(m[row][col]) > 1e-10) {
-            const f = m[row][col];
-            for (let j = col; j < size; j++) m[row][j] -= f * m[rank][j];
-          }
-        }
-        rank++;
+      if (pivotRow === -1) continue;
+
+      if (pivotRow !== currentRank) {
+        [m[currentRank], m[pivotRow]] = [m[pivotRow], m[currentRank]];
+        stepsArr.push({
+          desc: `R${currentRank + 1} ← R${currentRank + 1} ↔ R${pivotRow + 1}`,
+          mat: m.map(r => [...r]),
+          pRow: currentRank,
+          hRows: [currentRank, pivotRow]
+        });
       }
-      expr = `${t("math.rank")}(A) [${size}×${size}]`;
-      res = String(rank);
-      setResult(`${t("math.rank")} = ${rank}`);
+
+      const pivot = m[currentRank][col];
+      if (Math.abs(pivot - 1) > 1e-10) {
+        for (let j = col; j < c; j++) m[currentRank][j] /= pivot;
+        stepsArr.push({
+          desc: `R${currentRank + 1} ← R${currentRank + 1} / ${fmt(pivot)}`,
+          mat: m.map(r => [...r]),
+          pRow: currentRank,
+          pCol: col
+        });
+      }
+
+      for (let row = 0; row < n; row++) {
+        if (row !== currentRank && Math.abs(m[row][col]) > 1e-10) {
+          const factor = m[row][col];
+          for (let j = col; j < c; j++) m[row][j] -= factor * m[currentRank][j];
+          stepsArr.push({
+            desc: `R${row + 1} ← R${row + 1} - ${fmt(factor)}·R${currentRank + 1}`,
+            mat: m.map(r => [...r]),
+            pRow: currentRank,
+            hRows: [currentRank, row]
+          });
+        }
+      }
+      currentRank++;
     }
 
-    if (checkLimit && !checkLimit()) return;
-    onSave("matrices", expr, res, moduleId);
+    // Detect solution type
+    let sType = "unique";
+    for (let row = currentRank; row < n; row++) {
+      let allZero = true;
+      for (let col = 0; col < c - 1; col++) {
+        if (Math.abs(m[row][col]) > 1e-10) {
+          allZero = false;
+          break;
+        }
+      }
+      if (allZero && Math.abs(m[row][c - 1]) > 1e-10) {
+        sType = "no";
+        break;
+      }
+      if (allZero && Math.abs(m[row][c - 1]) < 1e-10) {
+        sType = "infinite";
+      }
+    }
+
+    return { steps: stepsArr, rref: m, type: sType };
   };
 
-  const renderMatrix = (mat: number[][], setter: "A" | "B") => (
-    <div className="inline-block max-w-full">
-      <div className="text-surface-500 text-xs mb-1 text-center">Matrix {setter}</div>
-      <div className="border-l-2 border-r-2 border-surface-300 px-1 sm:px-2 py-1 overflow-x-auto">
-        {mat.map((row, r) => (
-          <div key={r} className="flex gap-1">
-            {row.map((v, c) => (
-              <input key={c} value={v || ""} onChange={(e) => updateCell(setter, r, c, e.target.value)} className="w-10 sm:w-14 h-8 sm:h-10 bg-surface-100 text-surface-900 text-center rounded border border-surface-200 font-mono text-[11px] sm:text-sm shrink-0" />
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  // Helper: LU decomposition
+  const luDecomposition = (mat: number[][]): { L: number[][]; U: number[][]; steps: typeof steps } => {
+    const n = mat.length;
+    const A = mat.map(r => [...r]);
+    const L: number[][] = Array.from({ length: n }, (_, i) => Array(n).fill(0).map((_, j) => i === j ? 1 : 0));
+    const U: number[][] = A.map(r => [...r]);
+    const stepsArr: typeof steps = [];
 
-  return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h2 className="text-lg font-semibold text-surface-900">{t("math.matrixCalculator")}</h2>
-        <div className="flex items-center gap-2 sm:gap-3">
-          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 min-w-0 flex-1 sm:flex-none">
-            <option value="">{t("math.noModule")}</option>
-            {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-          </select>
-          <select value={size} onChange={(e) => setSize(Number(e.target.value))} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200">
-            <option value={2}>2×2</option>
-            <option value={3}>3×3</option>
-            <option value={4}>4×4</option>
-          </select>
+    for (let k = 0; k < n - 1; k++) {
+      for (let i = k + 1; i < n; i++) {
+        if (Math.abs(U[k][k]) < 1e-10) continue;
+        const factor = U[i][k] / U[k][k];
+        L[i][k] = factor;
+        for (let j = k; j < n; j++) {
+          U[i][j] -= factor * U[k][j];
+        }
+        stepsArr.push({
+          desc: `L[${i + 1},${k + 1}] = ${fmt(factor)}`,
+          mat: U.map(r => [...r])
+        });
+      }
+    }
+
+    return { L, U, steps: stepsArr };
+  };
+
+  // Tab 1: Operations
+  const renderOperations = () => (
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row gap-3 items-center">
+        <select value={rows} onChange={(e) => { setRows(Number(e.target.value)); setMatA(Array.from({ length: Number(e.target.value) }, () => Array(cols).fill(0))); }} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-3 py-1.5 border border-surface-200">
+          <option value={2}>2×2</option>
+          <option value={3}>3×3</option>
+          <option value={4}>4×4</option>
+          <option value={5}>5×5</option>
+        </select>
+        <select value={cols} onChange={(e) => { setCols(Number(e.target.value)); setMatA(Array.from({ length: rows }, () => Array(Number(e.target.value)).fill(0))); }} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-3 py-1.5 border border-surface-200">
+          <option value={2}>2 cols</option>
+          <option value={3}>3 cols</option>
+          <option value={4}>4 cols</option>
+          <option value={5}>5 cols</option>
+        </select>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={showSteps} onChange={(e) => setShowSteps(e.target.checked)} className="rounded" />
+          {t("math.matStepByStep")}
+        </label>
+      </div>
+
+      <div className="bg-surface-50 rounded-lg p-3 border border-surface-200">
+        <div className="text-sm text-surface-600 mb-2">Matrix A</div>
+        <div className="border-l-2 border-r-2 border-surface-300 px-2 py-1 inline-block">
+          {matA.map((row, r) => (
+            <div key={r} className="flex gap-1">
+              {row.map((v, c) => (
+                <input key={c} type="number" value={v || ""} onChange={(e) => { const copy = matA.map(r => [...r]); copy[r][c] = Number(e.target.value) || 0; setMatA(copy); }} className="w-12 h-9 bg-white text-surface-900 text-center rounded border border-surface-200 text-sm font-mono" />
+              ))}
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Operations */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      {(operation === "multiply" || operation === "add" || operation === "subtract") && (
+        <div className="bg-surface-50 rounded-lg p-3 border border-surface-200">
+          <div className="text-sm text-surface-600 mb-2">Matrix B</div>
+          <div className="border-l-2 border-r-2 border-surface-300 px-2 py-1 inline-block">
+            {matB.map((row, r) => (
+              <div key={r} className="flex gap-1">
+                {row.map((v, c) => (
+                  <input key={c} type="number" value={v || ""} onChange={(e) => { const copy = matB.map(r => [...r]); copy[r][c] = Number(e.target.value) || 0; setMatB(copy); }} className="w-12 h-9 bg-white text-surface-900 text-center rounded border border-surface-200 text-sm font-mono" />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {operation === "scalar_mul" && (
+        <div className="bg-surface-50 rounded-lg p-3 border border-surface-200">
+          <label className="text-sm text-surface-600">{t("math.matScalar")} k</label>
+          <input type="number" value={scalar} onChange={(e) => setScalar(Number(e.target.value))} className="w-20 h-9 bg-white text-surface-900 px-2 rounded border border-surface-200 text-sm font-mono mt-1" />
+        </div>
+      )}
+
+      <div className="flex flex-wrap gap-2">
         {[
-          ["det", t("math.determinant")], ["transpose", t("math.transpose")], ["inverse", t("math.inverse")], ["eigenvalues", t("math.eigenvalues")], ["rank", t("math.rank")], ["multiply", "A × B"], ["add", "A + B"],
+          ["det", t("math.determinant")],
+          ["transpose", t("math.transpose")],
+          ["inverse", t("math.inverse")],
+          ["add", t("math.matAdd")],
+          ["subtract", t("math.matSubtract")],
+          ["scalar_mul", t("math.matScalarMul")],
+          ["multiply", t("math.matMul")],
+          ["power", t("math.matPower")]
         ].map(([k, l]) => (
-          <button key={k} onClick={() => setOperation(k)} className={`px-3 py-1.5 rounded-lg text-sm ${operation === k ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{l}</button>
+          <button key={k} onClick={() => setOperation(k)} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${operation === k ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-600 hover:bg-surface-200"}`}>{l}</button>
         ))}
       </div>
 
-      {/* Matrix Inputs */}
-      <div className="flex flex-wrap gap-3 sm:gap-6 justify-center mb-4 overflow-x-auto max-w-full">
-        {renderMatrix(matA, "A")}
-        {(operation === "multiply" || operation === "add") && renderMatrix(matB, "B")}
-      </div>
-
-      <button onClick={compute} className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors mb-4">{t("math.calculate")}</button>
+      <button onClick={() => {
+        let expr = "", res = "", mat: number[][] | null = null;
+        try {
+          if (operation === "det") {
+            const d = matDet(matA);
+            expr = `det(A)`;
+            res = fmt(d);
+            setResult(`${t("math.determinant")} = ${res}`);
+          } else if (operation === "transpose") {
+            mat = matTranspose(matA);
+            expr = `A^T`;
+            res = mat.map(r => r.map(fmt).join(",")).join("|");
+            setResultMatrix(mat);
+            setResult(`${t("math.transpose")}:`);
+          } else if (operation === "inverse") {
+            mat = matInverse2(matA);
+            if (!mat) return setResult(t("math.notInvertible"));
+            expr = `A^-1`;
+            res = mat.map(r => r.map(fmt).join(",")).join("|");
+            setResultMatrix(mat);
+            setResult(`${t("math.inverse")}:`);
+          } else if (operation === "add") {
+            mat = matA.map((r, i) => r.map((v, j) => v + (matB[i]?.[j] || 0)));
+            expr = `A + B`;
+            res = mat.map(r => r.map(fmt).join(",")).join("|");
+            setResultMatrix(mat);
+            setResult("A + B =");
+          } else if (operation === "subtract") {
+            mat = matA.map((r, i) => r.map((v, j) => v - (matB[i]?.[j] || 0)));
+            expr = `A - B`;
+            res = mat.map(r => r.map(fmt).join(",")).join("|");
+            setResultMatrix(mat);
+            setResult("A - B =");
+          } else if (operation === "scalar_mul") {
+            mat = matA.map(r => r.map(v => v * scalar));
+            expr = `${scalar} * A`;
+            res = mat.map(r => r.map(fmt).join(",")).join("|");
+            setResultMatrix(mat);
+            setResult(`${scalar} * A =`);
+          } else if (operation === "multiply") {
+            mat = matMultiply(matA, matB);
+            if (!mat) return setResult(t("math.dimensionError"));
+            expr = `A × B`;
+            res = mat.map(r => r.map(fmt).join(",")).join("|");
+            setResultMatrix(mat);
+            setResult("A × B =");
+          } else if (operation === "power") {
+            mat = matA;
+            expr = `A^2`;
+            mat = matMultiply(mat, mat);
+            if (!mat) return setResult(t("math.dimensionError"));
+            res = mat.map(r => r.map(fmt).join(",")).join("|");
+            setResultMatrix(mat);
+            setResult("A² =");
+          }
+          setSteps([]);
+          if (checkLimit && !checkLimit()) return;
+          onSave("matrices", expr, res, moduleId);
+        } catch (e) {
+          setResult("Error: " + String(e));
+        }
+      }} className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700">{t("math.calculate")}</button>
 
       {result && (
-        <div className="bg-surface-50 rounded-xl p-4 border border-surface-200">
-          <div className="text-success-600 font-mono text-lg mb-2">{result}</div>
+        <div className="bg-surface-50 rounded-lg p-4 border border-surface-200">
+          <div className="text-success-600 font-mono text-lg mb-3">{result}</div>
           {resultMatrix && (
             <div className="border-l-2 border-r-2 border-success-200 px-2 py-1 inline-block">
               {resultMatrix.map((row, r) => (
                 <div key={r} className="flex gap-2">
                   {row.map((v, c) => (
-                    <div key={c} className="w-16 h-10 flex items-center justify-center text-success-600 font-mono text-sm">{fmt(v)}</div>
+                    <div key={c} className="w-14 h-8 flex items-center justify-center text-success-600 font-mono text-sm">{fmt(v)}</div>
                   ))}
                 </div>
               ))}
@@ -1146,6 +1253,286 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
           )}
         </div>
       )}
+    </div>
+  );
+
+  // Tab 2: Linear Systems (Gauss-Jordan)
+  const renderLGS = () => {
+    const n = lgsVars;
+    return (
+      <div className="space-y-4">
+        <div className="flex gap-3 items-center">
+          <select value={lgsVars} onChange={(e) => { const nv = Number(e.target.value); setLgsVars(nv); setAugmentedMat(Array.from({ length: nv }, () => Array(nv + 1).fill(0))); }} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-3 py-1.5 border border-surface-200">
+            <option value={2}>2 Vars</option>
+            <option value={3}>3 Vars</option>
+            <option value={4}>4 Vars</option>
+          </select>
+          <div className="text-sm text-surface-600">[A|b]</div>
+        </div>
+
+        <div className="bg-surface-50 rounded-lg p-3 border border-surface-200">
+          <div className="border-l-2 border-r-2 border-surface-300 px-2 py-1 inline-block">
+            {augmentedMat.map((row, r) => (
+              <div key={r} className="flex gap-1 items-center">
+                {row.map((v, c) => (
+                  <input key={c} type="number" value={v || ""} onChange={(e) => { const copy = augmentedMat.map(r => [...r]); copy[r][c] = Number(e.target.value) || 0; setAugmentedMat(copy); }} className={`w-12 h-9 bg-white text-surface-900 text-center rounded border ${c === n ? "border-brand-400" : "border-surface-200"} text-sm font-mono`} />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <button onClick={() => {
+          const { steps: s, rref, type } = gaussJordanSteps(augmentedMat);
+          setSteps(s);
+          setSolutionType(type);
+          if (type === "no") setResult(t("math.matNoSolution"));
+          else if (type === "infinite") setResult(t("math.matInfiniteSolutions"));
+          else setResult(t("math.matUniqueSolution"));
+          setResultMatrix(rref);
+          if (checkLimit && !checkLimit()) return;
+          onSave("matrices", "Gauss-Jordan", type, moduleId);
+        }} className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700">{t("math.matGaussElimination")}</button>
+
+        {steps.length > 0 && (
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {steps.map((step, i) => (
+              <div key={i} className="bg-surface-50 rounded-lg p-3 border border-surface-200 text-xs">
+                <div className="font-mono text-brand-600 mb-2">{step.desc}</div>
+                <div className="border-l border-surface-300 px-2 py-1 inline-block">
+                  {step.mat.map((row, r) => (
+                    <div key={r} className={`flex gap-1 ${step.hRows?.includes(r) ? "bg-brand-100 px-1 rounded" : ""}`}>
+                      {row.map((v, c) => (
+                        <div key={c} className={`w-10 h-6 flex items-center justify-center text-surface-700 font-mono text-xs ${step.pCol === c && step.pRow === r ? "bg-yellow-300 rounded" : ""}`}>{fmt(v)}</div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {resultMatrix && (
+          <div className="bg-success-50 rounded-lg p-3 border border-success-200">
+            <div className="text-sm text-success-700 font-semibold mb-2">{t("math.matRREF")}:</div>
+            <div className="border-l-2 border-r-2 border-success-200 px-2 py-1 inline-block">
+              {resultMatrix.map((row, r) => (
+                <div key={r} className="flex gap-2">
+                  {row.map((v, c) => (
+                    <div key={c} className="w-12 h-8 flex items-center justify-center text-success-600 font-mono text-sm">{fmt(v)}</div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Tab 3: Analysis (Eigenvalues, Decompositions, Rank)
+  const renderAnalysis = () => (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <button onClick={() => {
+          const m = matA;
+          const n = m.length;
+          if (n === 2) {
+            const trace = m[0][0] + m[1][1];
+            const det = matDet(m);
+            const disc = trace * trace - 4 * det;
+            let res = "";
+            if (disc >= 0) {
+              const l1 = (trace + Math.sqrt(disc)) / 2;
+              const l2 = (trace - Math.sqrt(disc)) / 2;
+              res = `λ₁ = ${fmt(l1)}, λ₂ = ${fmt(l2)}`;
+            } else {
+              const re = trace / 2;
+              const im = Math.sqrt(-disc) / 2;
+              res = `λ₁ = ${fmt(re)} + ${fmt(im)}i, λ₂ = ${fmt(re)} − ${fmt(im)}i`;
+            }
+            setResult(res);
+            onSave("matrices", "eigenvalues", res, moduleId);
+          } else {
+            setResult(t("math.eigenvaluesFor2x2Only"));
+          }
+        }} className="px-4 py-3 rounded-lg bg-brand-100 text-brand-700 font-semibold hover:bg-brand-200">{t("math.matEigenvalues")}</button>
+
+        <button onClick={() => {
+          const m = matA;
+          let rk = 0;
+          const mCopy = m.map(r => [...r]);
+          for (let col = 0; col < mCopy[0].length; col++) {
+            let pr = -1;
+            for (let row = rk; row < m.length; row++) {
+              if (Math.abs(mCopy[row][col]) > 1e-10) { pr = row; break; }
+            }
+            if (pr === -1) continue;
+            [mCopy[rk], mCopy[pr]] = [mCopy[pr], mCopy[rk]];
+            const pv = mCopy[rk][col];
+            for (let j = col; j < mCopy[0].length; j++) mCopy[rk][j] /= pv;
+            for (let row = rk + 1; row < m.length; row++) {
+              const f = mCopy[row][col];
+              for (let j = col; j < mCopy[0].length; j++) mCopy[row][j] -= f * mCopy[rk][j];
+            }
+            rk++;
+          }
+          setResult(`${t("math.matRank")} = ${rk}`);
+          onSave("matrices", "rank", String(rk), moduleId);
+        }} className="px-4 py-3 rounded-lg bg-brand-100 text-brand-700 font-semibold hover:bg-brand-200">{t("math.matRank")}</button>
+
+        <button onClick={() => {
+          const { L, U, steps: s } = luDecomposition(matA);
+          setSteps(s);
+          setResultMatrix(U);
+          setResult(t("math.matLU"));
+          onSave("matrices", "LU", "decomposed", moduleId);
+        }} className="px-4 py-3 rounded-lg bg-brand-100 text-brand-700 font-semibold hover:bg-brand-200">{t("math.matLU")}</button>
+
+        <button onClick={() => {
+          const trace = matA.reduce((s, r, i) => s + (r[i] || 0), 0);
+          const det = matDet(matA);
+          setResult(`Trace = ${fmt(trace)}, Det = ${fmt(det)}`);
+          onSave("matrices", "trace-det", `Trace = ${fmt(trace)}, Det = ${fmt(det)}`, moduleId);
+        }} className="px-4 py-3 rounded-lg bg-brand-100 text-brand-700 font-semibold hover:bg-brand-200">{t("math.matTraceDet")}</button>
+      </div>
+
+      {steps.length > 0 && (
+        <div className="space-y-2 max-h-80 overflow-y-auto">
+          {steps.map((step, i) => (
+            <div key={i} className="bg-surface-50 rounded-lg p-2 border border-surface-200 text-xs font-mono">
+              {step.desc}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {result && (
+        <div className="bg-success-50 rounded-lg p-3 border border-success-200">
+          <div className="text-success-700 font-semibold text-sm">{result}</div>
+        </div>
+      )}
+    </div>
+  );
+
+  // Tab 4: Visualization (2D Transformations)
+  const renderVisualization = () => (
+    <div className="space-y-4">
+      {rows === 2 && cols === 2 ? (
+        <>
+          <div className="flex gap-3 items-center">
+            <label className="text-sm">{t("math.matRotation")}: {vizAngle}°</label>
+            <input type="range" min="0" max="360" value={vizAngle} onChange={(e) => setVizAngle(Number(e.target.value))} className="flex-1" />
+          </div>
+          <button onClick={() => {
+            const rad = (vizAngle * Math.PI) / 180;
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+            const rot = [[cos, -sin], [sin, cos]];
+            setMatA(rot);
+          }} className="px-4 py-2 rounded-lg bg-surface-200 text-surface-700 text-sm hover:bg-surface-300">{t("math.matApplyRotation")}</button>
+          <canvas ref={canvasRef} width={300} height={300} className="border-2 border-surface-300 rounded-lg bg-surface-50 mx-auto" />
+        </>
+      ) : (
+        <div className="text-surface-600 text-center p-4">{t("math.matViz2x2Only")}</div>
+      )}
+    </div>
+  );
+
+  // Draw transformation on canvas
+  useEffect(() => {
+    if (tab !== "visualization" || !canvasRef.current || rows !== 2 || cols !== 2) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+    const cx = W / 2, cy = H / 2, sc = 50;
+
+    // Grid
+    ctx.strokeStyle = "#e5e7eb"; ctx.lineWidth = 0.5;
+    for (let i = -6; i <= 6; i++) {
+      ctx.beginPath(); ctx.moveTo(cx + i * sc, 0); ctx.lineTo(cx + i * sc, H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, cy + i * sc); ctx.lineTo(W, cy + i * sc); ctx.stroke();
+    }
+    // Axes
+    ctx.strokeStyle = "#9ca3af"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
+
+    const toScreen = (x: number, y: number): [number, number] => [cx + x * sc, cy - y * sc];
+
+    // Unit square (gray dashed)
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = "#9ca3af"; ctx.lineWidth = 1;
+    ctx.beginPath();
+    const u = [[0,0],[1,0],[1,1],[0,1]];
+    u.forEach((p, i) => { const [sx, sy] = toScreen(p[0], p[1]); i === 0 ? ctx.moveTo(sx, sy) : ctx.lineTo(sx, sy); });
+    ctx.closePath(); ctx.stroke();
+    ctx.fillStyle = "rgba(156,163,175,0.08)"; ctx.fill();
+    ctx.setLineDash([]);
+
+    // Transformed parallelogram
+    const a = matA[0][0], b = matA[0][1], c2 = matA[1][0], d = matA[1][1];
+    const tp = [[0,0],[a,c2],[a+b,c2+d],[b,d]];
+    ctx.strokeStyle = "#8b5cf6"; ctx.lineWidth = 2;
+    ctx.beginPath();
+    tp.forEach((p, i) => { const [sx, sy] = toScreen(p[0], p[1]); i === 0 ? ctx.moveTo(sx, sy) : ctx.lineTo(sx, sy); });
+    ctx.closePath(); ctx.stroke();
+    ctx.fillStyle = "rgba(139,92,246,0.12)"; ctx.fill();
+
+    // Draw arrow vector
+    const drawVec = (x: number, y: number, color: string, label: string) => {
+      const [ex, ey] = toScreen(x, y);
+      ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(ex, ey); ctx.stroke();
+      // Arrowhead
+      const angle = Math.atan2(cy - ey, ex - cx);
+      ctx.fillStyle = color; ctx.beginPath();
+      ctx.moveTo(ex, ey);
+      ctx.lineTo(ex - 10 * Math.cos(angle - 0.3), ey + 10 * Math.sin(angle - 0.3));
+      ctx.lineTo(ex - 10 * Math.cos(angle + 0.3), ey + 10 * Math.sin(angle + 0.3));
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = color; ctx.font = "bold 12px monospace";
+      ctx.fillText(label, ex + 8, ey - 8);
+    };
+
+    drawVec(1, 0, "#9ca3af", "e₁");
+    drawVec(0, 1, "#9ca3af", "e₂");
+    drawVec(a, c2, "#8b5cf6", "f₁");
+    drawVec(b, d, "#ec4899", "f₂");
+
+    // Det annotation
+    const det = a * d - b * c2;
+    ctx.fillStyle = "#6b7280"; ctx.font = "12px sans-serif";
+    ctx.fillText(`|det| = ${Math.abs(det).toFixed(2)}`, 8, H - 8);
+  }, [tab, matA, rows, cols]);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        <h2 className="text-lg font-semibold text-surface-900">{t("math.matrices")}</h2>
+        <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-3 py-1.5 border border-surface-200 w-full sm:w-auto">
+          <option value="">{t("math.noModule")}</option>
+          {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+        </select>
+      </div>
+
+      <div className="flex gap-2 border-b border-surface-200 overflow-x-auto">
+        {[
+          ["operations", t("math.matOperations")],
+          ["lgs", t("math.matLGS")],
+          ["analysis", t("math.matAnalysis")],
+          ["visualization", t("math.matVisualization")]
+        ].map(([k, l]) => (
+          <button key={k} onClick={() => setTab(k as typeof tab)} className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${tab === k ? "border-brand-600 text-brand-600" : "border-transparent text-surface-600 hover:text-surface-900"}`}>{l}</button>
+        ))}
+      </div>
+
+      {tab === "operations" && renderOperations()}
+      {tab === "lgs" && renderLGS()}
+      {tab === "analysis" && renderAnalysis()}
+      {tab === "visualization" && renderVisualization()}
     </div>
   );
 }
