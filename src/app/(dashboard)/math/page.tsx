@@ -1544,30 +1544,44 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
 function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
   const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [functions, setFunctions] = useState<{ expr: string; color: string }[]>([
-    { expr: "sin(x)", color: "#8b5cf6" },
-  ]);
+  const [functions, setFunctions] = useState<{ expr: string; color: string }[]>([{ expr: "sin(x)", color: "#8b5cf6" }]);
   const [xMin, setXMin] = useState(-10);
   const [xMax, setXMax] = useState(10);
   const [yMin, setYMin] = useState(-5);
   const [yMax, setYMax] = useState(5);
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
   const [moduleId, setModuleId] = useState<string | null>(null);
+  const [showAnalysis, setShowAnalysis] = useState(true);
+  const [showDerivative, setShowDerivative] = useState(false);
+  const [paramMode, setParamMode] = useState(false);
+  const [params, setParams] = useState({ a: 1, b: 0, c: 0 });
+  const [tangentPoint, setTangentPoint] = useState<{ x: number; y: number; m: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
 
   const COLORS = ["#8b5cf6", "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#ec4899"];
 
-  const evalExpr = useCallback((expr: string, x: number): number => {
-    const e = expr
+  const evalExpr = useCallback((expr: string, x: number, p?: { a: number; b: number; c: number }): number => {
+    let e = expr
+      .replace(/\ba\b/g, p ? `(${p.a})` : "a")
+      .replace(/\bb\b/g, p ? `(${p.b})` : "b")
+      .replace(/\bc\b/g, p ? `(${p.c})` : "c")
       .replace(/\bx\b/g, `(${x})`)
       .replace(/π/g, `(${Math.PI})`)
       .replace(/\be\b/g, `(${Math.E})`)
       .replace(/sin\(/g, "Math.sin(")
       .replace(/cos\(/g, "Math.cos(")
       .replace(/tan\(/g, "Math.tan(")
+      .replace(/asin\(/g, "Math.asin(")
+      .replace(/acos\(/g, "Math.acos(")
+      .replace(/atan\(/g, "Math.atan(")
       .replace(/sqrt\(/g, "Math.sqrt(")
       .replace(/abs\(/g, "Math.abs(")
+      .replace(/floor\(/g, "Math.floor(")
+      .replace(/ceil\(/g, "Math.ceil(")
       .replace(/ln\(/g, "Math.log(")
       .replace(/log\(/g, "Math.log10(")
+      .replace(/exp\(/g, "Math.exp(")
       .replace(/\^/g, "**");
     try {
       return Function(`"use strict"; return (${e})`)();
@@ -1575,6 +1589,94 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
       return NaN;
     }
   }, []);
+
+  const derivative = useCallback((expr: string, x: number, p?: { a: number; b: number; c: number }): number => {
+    const h = 1e-6;
+    const f1 = evalExpr(expr, x + h, p);
+    const f2 = evalExpr(expr, x - h, p);
+    return (f1 - f2) / (2 * h);
+  }, [evalExpr]);
+
+  const findZeros = useCallback((expr: string, xMin: number, xMax: number, p?: { a: number; b: number; c: number }): number[] => {
+    const zeros: number[] = [];
+    const step = (xMax - xMin) / 200;
+    for (let i = 0; i < 200; i++) {
+      const a = xMin + i * step;
+      const b = a + step;
+      const fa = evalExpr(expr, a, p);
+      const fb = evalExpr(expr, b, p);
+      if (!isNaN(fa) && !isNaN(fb) && fa * fb < 0) {
+        let x = a;
+        for (let j = 0; j < 20; j++) {
+          const fx = evalExpr(expr, x, p);
+          if (Math.abs(fx) < 1e-6) break;
+          const dx = derivative(expr, x, p);
+          if (Math.abs(dx) < 1e-10) break;
+          x -= fx / dx;
+        }
+        if (Math.abs(evalExpr(expr, x, p)) < 1e-4 && !zeros.some(z => Math.abs(z - x) < 0.1)) zeros.push(x);
+      }
+    }
+    return zeros;
+  }, [evalExpr, derivative]);
+
+  const findExtrema = useCallback((expr: string, xMin: number, xMax: number, p?: { a: number; b: number; c: number }): { x: number; y: number; type: string }[] => {
+    const extrema: { x: number; y: number; type: string }[] = [];
+    const step = (xMax - xMin) / 100;
+    for (let i = 1; i < 99; i++) {
+      const x = xMin + i * step;
+      const d1 = derivative(expr, x, p);
+      const d2 = derivative(expr, x + 0.0001, p) - d1;
+      if (Math.abs(d1) < 1e-3) {
+        const y = evalExpr(expr, x, p);
+        if (!isNaN(y) && isFinite(y)) {
+          const type = d2 > 0 ? "min" : d2 < 0 ? "max" : "neither";
+          if (type !== "neither" && !extrema.some(e => Math.abs(e.x - x) < 0.2)) extrema.push({ x, y, type });
+        }
+      }
+    }
+    return extrema;
+  }, [evalExpr, derivative]);
+
+  const findInflections = useCallback((expr: string, xMin: number, xMax: number, p?: { a: number; b: number; c: number }): number[] => {
+    const inflections: number[] = [];
+    const step = (xMax - xMin) / 100;
+    for (let i = 1; i < 99; i++) {
+      const x = xMin + i * step;
+      const d2a = derivative(expr, x - 0.0001, p);
+      const d2b = derivative(expr, x + 0.0001, p);
+      if (d2a * d2b < 0 && !isNaN(d2a) && !isNaN(d2b)) {
+        if (!inflections.some(inf => Math.abs(inf - x) < 0.2)) inflections.push(x);
+      }
+    }
+    return inflections;
+  }, [derivative]);
+
+  const findIntersections = useCallback((expr1: string, expr2: string, xMin: number, xMax: number, p?: { a: number; b: number; c: number }): number[] => {
+    const intersections: number[] = [];
+    const step = (xMax - xMin) / 200;
+    for (let i = 0; i < 200; i++) {
+      const a = xMin + i * step;
+      const b = a + step;
+      const diff_a = evalExpr(expr1, a, p) - evalExpr(expr2, a, p);
+      const diff_b = evalExpr(expr1, b, p) - evalExpr(expr2, b, p);
+      if (!isNaN(diff_a) && !isNaN(diff_b) && diff_a * diff_b < 0) {
+        let x = a;
+        for (let j = 0; j < 15; j++) {
+          const v1 = evalExpr(expr1, x, p);
+          const v2 = evalExpr(expr2, x, p);
+          if (isNaN(v1) || isNaN(v2)) break;
+          const diff = v1 - v2;
+          if (Math.abs(diff) < 1e-6) break;
+          const dx = derivative(expr1, x, p) - derivative(expr2, x, p);
+          if (Math.abs(dx) < 1e-10) break;
+          x -= diff / dx;
+        }
+        if (!intersections.some(inter => Math.abs(inter - x) < 0.15)) intersections.push(x);
+      }
+    }
+    return intersections;
+  }, [evalExpr, derivative]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -1587,13 +1689,16 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, W, H);
 
-    // Grid
     const toScreen = (mx: number, my: number): [number, number] => [
       ((mx - xMin) / (xMax - xMin)) * W,
       H - ((my - yMin) / (yMax - yMin)) * H,
     ];
 
-    // Grid lines
+    const fromScreen = (px: number, py: number): [number, number] => [
+      xMin + (px / W) * (xMax - xMin),
+      yMax - (py / H) * (yMax - yMin),
+    ];
+
     ctx.strokeStyle = "#e2e8f0";
     ctx.lineWidth = 1;
     const stepX = Math.pow(10, Math.floor(Math.log10(xMax - xMin)) - 1) * 2;
@@ -1607,14 +1712,12 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
       ctx.beginPath(); ctx.moveTo(0, sy); ctx.lineTo(W, sy); ctx.stroke();
     }
 
-    // Axes
     ctx.strokeStyle = "#94a3b8";
     ctx.lineWidth = 2;
     const [ox, oy] = toScreen(0, 0);
     ctx.beginPath(); ctx.moveTo(0, oy); ctx.lineTo(W, oy); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(ox, 0); ctx.lineTo(ox, H); ctx.stroke();
 
-    // Axis labels
     ctx.fillStyle = "#64748b";
     ctx.font = "11px monospace";
     for (let gx = Math.ceil(xMin / stepX) * stepX; gx <= xMax; gx += stepX) {
@@ -1628,7 +1731,6 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
       ctx.fillText(gy.toFixed(1).replace(/\.0$/, ""), ox + 5, sy + 4);
     }
 
-    // Functions
     functions.forEach((fn) => {
       if (!fn.expr.trim()) return;
       ctx.strokeStyle = fn.color;
@@ -1637,15 +1739,59 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
       let started = false;
       for (let px = 0; px < W; px++) {
         const mx = xMin + (px / W) * (xMax - xMin);
-        const my = evalExpr(fn.expr, mx);
+        const my = evalExpr(fn.expr, mx, paramMode ? params : undefined);
         if (isNaN(my) || !isFinite(my)) { started = false; continue; }
         const [, sy] = toScreen(mx, my);
         if (!started) { ctx.moveTo(px, sy); started = true; } else { ctx.lineTo(px, sy); }
       }
       ctx.stroke();
+
+      if (showDerivative) {
+        ctx.strokeStyle = fn.color + "80";
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        let started = false;
+        for (let px = 0; px < W; px++) {
+          const mx = xMin + (px / W) * (xMax - xMin);
+          const dy = derivative(fn.expr, mx, paramMode ? params : undefined);
+          if (isNaN(dy) || !isFinite(dy)) { started = false; continue; }
+          const [, sy] = toScreen(mx, dy);
+          if (!started) { ctx.moveTo(px, sy); started = true; } else { ctx.lineTo(px, sy); }
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
     });
 
-    // Crosshair
+    if (functions.length > 1) {
+      const valid = functions.filter(f => f.expr.trim());
+      for (let i = 0; i < valid.length - 1; i++) {
+        const inter = findIntersections(valid[i].expr, valid[i + 1].expr, xMin, xMax, paramMode ? params : undefined);
+        inter.forEach(ix => {
+          const iy = evalExpr(valid[i].expr, ix, paramMode ? params : undefined);
+          if (!isNaN(iy) && isFinite(iy)) {
+            const [sx, sy] = toScreen(ix, iy);
+            ctx.fillStyle = "#64748b";
+            ctx.fillRect(sx - 4, sy - 4, 8, 8);
+          }
+        });
+      }
+    }
+
+    if (tangentPoint) {
+      const [sx, sy] = toScreen(tangentPoint.x, tangentPoint.y);
+      ctx.strokeStyle = "#f59e0b";
+      ctx.lineWidth = 1.5;
+      const x1 = xMin, y1 = tangentPoint.y + tangentPoint.m * (x1 - tangentPoint.x);
+      const x2 = xMax, y2 = tangentPoint.y + tangentPoint.m * (x2 - tangentPoint.x);
+      const [sx1, sy1] = toScreen(x1, y1);
+      const [sx2, sy2] = toScreen(x2, y2);
+      ctx.beginPath(); ctx.moveTo(sx1, sy1); ctx.lineTo(sx2, sy2); ctx.stroke();
+      ctx.fillStyle = "#f59e0b";
+      ctx.beginPath(); ctx.arc(sx, sy, 4, 0, Math.PI * 2); ctx.fill();
+    }
+
     if (mousePos) {
       ctx.strokeStyle = "#ffffff30";
       ctx.lineWidth = 1;
@@ -1653,24 +1799,77 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
       ctx.beginPath(); ctx.moveTo(mousePos.x, 0); ctx.lineTo(mousePos.x, H); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(0, mousePos.y); ctx.lineTo(W, mousePos.y); ctx.stroke();
       ctx.setLineDash([]);
-      const mx = xMin + (mousePos.x / W) * (xMax - xMin);
-      const my = yMax - (mousePos.y / H) * (yMax - yMin);
+      const [mx, my] = fromScreen(mousePos.x, mousePos.y);
       ctx.fillStyle = "#475569";
       ctx.font = "12px monospace";
       ctx.fillText(`(${mx.toFixed(2)}, ${my.toFixed(2)})`, mousePos.x + 10, mousePos.y - 10);
     }
-  }, [functions, xMin, xMax, yMin, yMax, mousePos, evalExpr]);
+  }, [functions, xMin, xMax, yMin, yMax, mousePos, evalExpr, derivative, showDerivative, tangentPoint, paramMode, params, findIntersections]);
 
   useEffect(() => { draw(); }, [draw]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setMousePos({ x, y });
+    if (isDragging && dragStart) {
+      const dx = (dragStart.x - x) / rect.width * (xMax - xMin);
+      const dy = (y - dragStart.y) / rect.height * (yMax - yMin);
+      setXMin(xMin + dx);
+      setXMax(xMax + dx);
+      setYMin(yMin + dy);
+      setYMax(yMax + dy);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
+  const handleMouseUp = () => { setIsDragging(false); setDragStart(null); };
+
+  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (isDragging) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
+    const x = xMin + (px / rect.width) * (xMax - xMin);
+    const y = yMax - (py / rect.height) * (yMax - yMin);
+    if (functions.length > 0 && functions[0].expr.trim()) {
+      const m = derivative(functions[0].expr, x, paramMode ? params : undefined);
+      if (!isNaN(m) && isFinite(m)) setTangentPoint({ x, y, m });
+    }
+  };
+
+  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    const factor = e.deltaY > 0 ? 1.2 : 0.8;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const px = e.clientX - rect.left;
+    const cx = xMin + (px / rect.width) * (xMax - xMin);
+    const w = (xMax - xMin) * factor;
+    setXMin(cx - (w * px) / rect.width);
+    setXMax(cx + (w * (rect.width - px)) / rect.width);
   };
 
   const addFunction = () => {
     setFunctions([...functions, { expr: "", color: COLORS[functions.length % COLORS.length] }]);
   };
+
+  const analysis = useMemo(() => {
+    return functions.map((fn, idx) => {
+      if (!fn.expr.trim()) return { idx, zeros: [], extrema: [], inflections: [], yIntercept: null, domain: "" };
+      const p = paramMode ? params : undefined;
+      const zeros = findZeros(fn.expr, xMin, xMax, p);
+      const extrema = findExtrema(fn.expr, xMin, xMax, p);
+      const inflections = findInflections(fn.expr, xMin, xMax, p);
+      const yIntercept = evalExpr(fn.expr, 0, p);
+      return { idx, zeros, extrema, inflections, yIntercept: isNaN(yIntercept) ? null : yIntercept, domain: "" };
+    });
+  }, [functions, xMin, xMax, paramMode, params, findZeros, findExtrema, findInflections, evalExpr]);
 
   const savePlot = () => {
     if (checkLimit && !checkLimit()) return;
@@ -1691,22 +1890,35 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
         </div>
       </div>
 
-      {/* Function inputs */}
       <div className="space-y-2 mb-4">
         {functions.map((fn, i) => (
           <div key={i} className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: fn.color }} />
             <span className="text-surface-500 text-sm font-mono">f{i > 0 ? i + 1 : ""}(x) =</span>
             <input value={fn.expr} onChange={(e) => { const copy = [...functions]; copy[i] = { ...copy[i], expr: e.target.value }; setFunctions(copy); }} placeholder={t("math.exampleFunctions")} className="flex-1 bg-surface-100 text-surface-900 rounded-lg px-3 py-2 border border-surface-200 font-mono text-sm" />
-            {functions.length > 1 && (
-              <button onClick={() => setFunctions(functions.filter((_, j) => j !== i))} className="text-surface-400 hover:text-danger-600">✕</button>
-            )}
+            {functions.length > 1 && <button onClick={() => setFunctions(functions.filter((_, j) => j !== i))} className="text-surface-400 hover:text-danger-600">✕</button>}
           </div>
         ))}
         <button onClick={addFunction} className="text-brand-600 text-sm hover:text-brand-500">+ {t("math.addFunction")}</button>
       </div>
 
-      {/* Range controls */}
+      <div className="flex gap-2 mb-4 flex-wrap text-sm">
+        <button onClick={() => setShowAnalysis(!showAnalysis)} className={`px-3 py-1.5 rounded ${showAnalysis ? "bg-brand-500 text-white" : "bg-surface-100 text-surface-700"}`}>{t("math.plotAnalysis")}</button>
+        <button onClick={() => setShowDerivative(!showDerivative)} className={`px-3 py-1.5 rounded ${showDerivative ? "bg-brand-500 text-white" : "bg-surface-100 text-surface-700"}`}>{t("math.plotDerivative")}</button>
+        <button onClick={() => setParamMode(!paramMode)} className={`px-3 py-1.5 rounded ${paramMode ? "bg-brand-500 text-white" : "bg-surface-100 text-surface-700"}`}>{t("math.plotParameters")}</button>
+      </div>
+
+      {paramMode && (
+        <div className="grid grid-cols-3 gap-3 mb-4 text-sm">
+          {Object.entries(params).map(([key, val]) => (
+            <div key={key}>
+              <label className="text-surface-600 block text-xs mb-1">{key} = {val.toFixed(1)}</label>
+              <input type="range" min="-10" max="10" step="0.1" value={val} onChange={(e) => setParams({ ...params, [key]: parseFloat(e.target.value) })} className="w-full" />
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="flex flex-wrap gap-2 sm:gap-4 mb-4 text-sm">
         <div className="flex items-center gap-1 text-surface-500">
           x: <input value={xMin} onChange={(e) => setXMin(Number(e.target.value))} className="w-12 sm:w-16 bg-surface-100 text-surface-900 rounded px-1 sm:px-2 py-1 border border-surface-200 font-mono text-center text-xs sm:text-sm" />
@@ -1723,15 +1935,29 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
         </div>
       </div>
 
-      {/* Canvas */}
-      <canvas ref={canvasRef} width={800} height={500} onMouseMove={handleMouseMove} onMouseLeave={() => setMousePos(null)} className="w-full rounded-xl border border-surface-200 cursor-crosshair" />
+      <canvas ref={canvasRef} width={800} height={500} onMouseMove={handleMouseMove} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onClick={handleCanvasClick} onWheel={handleWheel} className="w-full rounded-xl border border-surface-200 cursor-crosshair" />
 
-      {/* Quick functions */}
       <div className="mt-4 flex flex-wrap gap-2">
         {["sin(x)", "cos(x)", "tan(x)", "x^2", "x^3", "sqrt(x)", "1/x", "ln(x)", "e^x", "abs(x)"].map((f) => (
           <button key={f} onClick={() => setFunctions([{ expr: f, color: COLORS[0] }])} className="px-2 py-1 bg-surface-100 text-surface-500 rounded text-xs font-mono hover:bg-surface-200 hover:text-surface-900">{f}</button>
         ))}
       </div>
+
+      {showAnalysis && analysis.some(a => a.zeros.length || a.extrema.length || a.inflections.length) && (
+        <div className="mt-4 space-y-3 text-sm border-t border-surface-200 pt-4">
+          {analysis.map((a) => (
+            a.zeros.length || a.extrema.length || a.inflections.length ? (
+              <div key={a.idx} className="p-3 bg-surface-50 rounded-lg border border-surface-200">
+                <h3 className="font-semibold text-surface-900 mb-2">f{a.idx > 0 ? a.idx + 1 : ""}(x)</h3>
+                {a.zeros.length > 0 && <p className="text-surface-600"><span className="font-medium">{t("math.plotZeros")}:</span> {a.zeros.map(z => z.toFixed(3)).join(", ")}</p>}
+                {a.extrema.length > 0 && <p className="text-surface-600"><span className="font-medium">{t("math.plotExtrema")}:</span> {a.extrema.map(e => `(${e.x.toFixed(2)}, ${e.y.toFixed(2)}) ${e.type === "min" ? t("math.plotMin") : t("math.plotMax")}`).join("; ")}</p>}
+                {a.inflections.length > 0 && <p className="text-surface-600"><span className="font-medium">{t("math.plotInflections")}:</span> {a.inflections.map(i => i.toFixed(3)).join(", ")}</p>}
+                {a.yIntercept !== null && <p className="text-surface-600"><span className="font-medium">{t("math.plotYIntercept")}:</span> {a.yIntercept.toFixed(3)}</p>}
+              </div>
+            ) : null
+          ))}
+        </div>
+      )}
     </div>
   );
 }
