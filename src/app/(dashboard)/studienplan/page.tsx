@@ -221,7 +221,7 @@ export default function StudienplanPage() {
                               </span>
                               <span className="text-[10px] text-surface-500">{mod.ects ?? 0} ECTS</span>
                               {mod.exam_date && (
-                                <span className="text-[10px] text-surface-400">Prüfung: {mod.exam_date}</span>
+                                <span className="text-[10px] text-surface-400">{t("studienplan.examLabel", { date: mod.exam_date })}</span>
                               )}
                             </div>
                           </button>

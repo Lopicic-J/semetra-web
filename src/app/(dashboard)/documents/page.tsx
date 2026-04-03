@@ -585,7 +585,7 @@ function DocFlowView({ items, onOpenDoc }: { items: DocFlowItem[]; onOpenDoc: (d
             </span>
           );
         })}
-        <span className="text-xs text-surface-400 ml-auto">{items.length} Einträge</span>
+        <span className="text-xs text-surface-400 ml-auto">{t("documents.entriesCount", { count: items.length })}</span>
       </div>
 
       {/* Grouped by module */}

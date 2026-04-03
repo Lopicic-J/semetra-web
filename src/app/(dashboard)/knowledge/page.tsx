@@ -305,7 +305,7 @@ export default function KnowledgePage() {
         {/* Exam filter */}
         {upcomingExams.length > 0 && (
           <div className="flex gap-2 flex-wrap items-center">
-            <span className="text-xs text-surface-400 font-medium w-14 shrink-0">Prüfung:</span>
+            <span className="text-xs text-surface-400 font-medium w-14 shrink-0">{t("knowledge.examLabel")}</span>
             <button onClick={() => setFilterExam("all")}
               className={`badge cursor-pointer text-xs ${filterExam === "all" ? "bg-brand-600 text-white" : "badge-gray hover:bg-surface-200"}`}>
               {t("grades.filterAll")}
@@ -379,7 +379,7 @@ export default function KnowledgePage() {
         <div className="text-center py-16 text-surface-400">
           <Brain size={40} className="mx-auto mb-3 opacity-30" />
           <p className="font-medium">{t("knowledge.noGoals")}</p>
-          <p className="text-sm mt-1">Füge Themen hinzu und ordne sie einer Prüfung oder Aufgabe zu.</p>
+          <p className="text-sm mt-1">{t("knowledge.addTopicsHint")}</p>
         </div>
       ) : (
         <div className="space-y-1">
@@ -633,7 +633,7 @@ function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; con
         <div className="p-8 text-center min-h-[200px] flex flex-col items-center justify-center">
           <h3 className="text-xl font-bold text-surface-900 mb-2">{current.title}</h3>
           {current.description && !showAnswer && (
-            <p className="text-surface-400 text-sm">Kannst du dieses Thema erklären?</p>
+            <p className="text-surface-400 text-sm">{t("knowledge.canYouExplain")}</p>
           )}
           {showAnswer && current.description && (
             <p className="text-surface-600 mt-3 text-sm bg-surface-50 rounded-xl p-4">{current.description}</p>

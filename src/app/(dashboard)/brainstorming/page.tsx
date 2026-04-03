@@ -814,7 +814,7 @@ function BrainstormEditor({
           >
             Reset
           </button>
-          <span className="text-xs text-surface-500 ml-auto">Schreibe so viele Ideen wie möglich!</span>
+          <span className="text-xs text-surface-500 ml-auto">{t("brainstorming.writeIdeas")}</span>
         </div>
       )}
 
@@ -884,7 +884,7 @@ function BrainstormEditor({
         <div className="text-center py-16">
           <Lightbulb size={48} className="mx-auto mb-4 text-surface-300" />
           <p className="text-surface-500">{t("brainstorming.noSessions")}</p>
-          <p className="text-xs mt-1 text-surface-400">Nutze den Denkanstoß oder KI-Assistent als Inspiration</p>
+          <p className="text-xs mt-1 text-surface-400">{t("brainstorming.usePromptHint")}</p>
         </div>
       ) : viewMode === "board" ? (
         tech.categories ? (
@@ -1034,6 +1034,7 @@ function IdeaCard({
   onDelete: () => void;
   onVote: (delta: number) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       className="p-2 sm:p-3 rounded-lg border border-surface-200 bg-white hover:border-surface-300 group transition"
@@ -1076,7 +1077,7 @@ function IdeaCard({
                 <button onClick={() => onVote(-1)} className="p-1 text-surface-400 hover:text-surface-700 transition" title="Abwerten"><Minus size={12} /></button>
               )}
               <button onClick={onStartEdit} className="p-1 text-surface-400 hover:text-surface-900 transition" title="Bearbeiten"><Pencil size={12} /></button>
-              <button onClick={onDelete} className="p-1 text-surface-400 hover:text-red-400 transition" title="Löschen"><Trash2 size={12} /></button>
+              <button onClick={onDelete} className="p-1 text-surface-400 hover:text-red-400 transition" title={t("common.delete")}><Trash2 size={12} /></button>
             </div>
           </div>
         </>

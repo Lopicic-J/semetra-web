@@ -140,7 +140,7 @@ function UpgradeContent() {
           {PRO_PRICES[selectedTier] && "popular" in PRO_PRICES[selectedTier] && (
             <div className="absolute top-0 right-0 bg-brand-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl flex items-center gap-1">
               <Star size={10} fill="white" />
-              BELIEBTESTE WAHL
+              {t("upgrade.mostPopular")}
             </div>
           )}
           {!("popular" in PRO_PRICES[selectedTier]) && (
@@ -195,10 +195,10 @@ function UpgradeContent() {
           <div className="bg-surface-900 text-white rounded-2xl p-6 flex items-center justify-between gap-6 flex-wrap">
             <div>
               <div className="inline-flex items-center gap-1.5 bg-white/10 text-white/70 text-xs font-semibold px-2.5 py-1 rounded-full mb-2 uppercase tracking-wide">
-                Einmalkauf
+                {t("upgrade.oneTimePurchase")}
               </div>
               <p className="text-lg font-bold">Pro Lifetime — CHF {LIFETIME_PRICE.price.toFixed(2).replace(".", ",")}</p>
-              <p className="text-sm text-white/50 mt-1">Einmalig zahlen, dauerhaft Pro. Kein Abo. Gilt f&uuml;r Desktop, Web &amp; Mobile.</p>
+              <p className="text-sm text-white/50 mt-1">{t("upgrade.oneTimePurchaseDesc")}</p>
             </div>
             <a
               href={LIFETIME_PRICE.paymentLink}

@@ -12,6 +12,7 @@ export default function CalendarPage() {
   const { t } = useTranslation();
   const DOW = t("calendar.dayHeaders").split("|");
   const monthNames = t("calendar.monthNames").split("|");
+  const weekdayNames = t("calendar.weekdayNames").split("|");
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -114,7 +115,7 @@ export default function CalendarPage() {
           <h3 className="font-semibold text-surface-900 mb-3">
             {(() => {
               const d = new Date(selected);
-              const dayName = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"][d.getDay() === 0 ? 6 : d.getDay() - 1];
+              const dayName = weekdayNames[d.getDay() === 0 ? 6 : d.getDay() - 1];
               return `${dayName}, ${d.getDate()}. ${monthNames[d.getMonth()]}`;
             })()}
           </h3>

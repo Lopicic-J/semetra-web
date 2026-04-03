@@ -46,123 +46,129 @@ const CALC_BUTTONS = [
   ["e", "!", "%", "abs"],
 ];
 
-const CONSTANTS: { name: string; symbol: string; value: string; unit: string }[] = [
-  { name: "Lichtgeschwindigkeit", symbol: "c", value: "299 792 458", unit: "m/s" },
-  { name: "Gravitationskonstante", symbol: "G", value: "6.674 × 10⁻¹¹", unit: "m³/(kg·s²)" },
-  { name: "Planck-Konstante", symbol: "h", value: "6.626 × 10⁻³⁴", unit: "J·s" },
-  { name: "Boltzmann-Konstante", symbol: "k_B", value: "1.381 × 10⁻²³", unit: "J/K" },
-  { name: "Elementarladung", symbol: "e", value: "1.602 × 10⁻¹⁹", unit: "C" },
-  { name: "Avogadro-Konstante", symbol: "N_A", value: "6.022 × 10²³", unit: "1/mol" },
-  { name: "Gaskonstante", symbol: "R", value: "8.314", unit: "J/(mol·K)" },
-  { name: "Vakuum-Permittivität", symbol: "ε₀", value: "8.854 × 10⁻¹²", unit: "F/m" },
-  { name: "Euler-Zahl", symbol: "e", value: "2.71828 18284", unit: "" },
-  { name: "Pi", symbol: "π", value: "3.14159 26535", unit: "" },
-  { name: "Goldener Schnitt", symbol: "φ", value: "1.61803 39887", unit: "" },
-  { name: "Erdbeschleunigung", symbol: "g", value: "9.80665", unit: "m/s²" },
-];
+function getConstants(t: (key: string) => string): { name: string; symbol: string; value: string; unit: string }[] {
+  return [
+    { name: t("math.const.lightSpeed"), symbol: "c", value: "299 792 458", unit: "m/s" },
+    { name: t("math.const.gravity"), symbol: "G", value: "6.674 × 10⁻¹¹", unit: "m³/(kg·s²)" },
+    { name: t("math.const.planck"), symbol: "h", value: "6.626 × 10⁻³⁴", unit: "J·s" },
+    { name: t("math.const.boltzmann"), symbol: "k_B", value: "1.381 × 10⁻²³", unit: "J/K" },
+    { name: t("math.const.elemCharge"), symbol: "e", value: "1.602 × 10⁻¹⁹", unit: "C" },
+    { name: t("math.const.avogadro"), symbol: "N_A", value: "6.022 × 10²³", unit: "1/mol" },
+    { name: t("math.const.gasConst"), symbol: "R", value: "8.314", unit: "J/(mol·K)" },
+    { name: t("math.const.vacuumPerm"), symbol: "ε₀", value: "8.854 × 10⁻¹²", unit: "F/m" },
+    { name: t("math.const.euler"), symbol: "e", value: "2.71828 18284", unit: "" },
+    { name: t("math.const.pi"), symbol: "π", value: "3.14159 26535", unit: "" },
+    { name: t("math.const.goldenRatio"), symbol: "φ", value: "1.61803 39887", unit: "" },
+    { name: t("math.const.earthGravity"), symbol: "g", value: "9.80665", unit: "m/s²" },
+  ];
+}
 
-const UNIT_GROUPS: { label: string; units: { name: string; factor: number; symbol: string }[] }[] = [
-  {
-    label: "Länge",
-    units: [
-      { name: "Meter", factor: 1, symbol: "m" },
-      { name: "Kilometer", factor: 1000, symbol: "km" },
-      { name: "Zentimeter", factor: 0.01, symbol: "cm" },
-      { name: "Millimeter", factor: 0.001, symbol: "mm" },
-      { name: "Meile", factor: 1609.344, symbol: "mi" },
-      { name: "Fuss", factor: 0.3048, symbol: "ft" },
-      { name: "Zoll", factor: 0.0254, symbol: "in" },
-    ],
-  },
-  {
-    label: "Gewicht",
-    units: [
-      { name: "Kilogramm", factor: 1, symbol: "kg" },
-      { name: "Gramm", factor: 0.001, symbol: "g" },
-      { name: "Milligramm", factor: 0.000001, symbol: "mg" },
-      { name: "Tonne", factor: 1000, symbol: "t" },
-      { name: "Pfund", factor: 0.453592, symbol: "lb" },
-      { name: "Unze", factor: 0.0283495, symbol: "oz" },
-    ],
-  },
-  {
-    label: "Temperatur",
-    units: [
-      { name: "Celsius", factor: 1, symbol: "°C" },
-      { name: "Fahrenheit", factor: 1, symbol: "°F" },
-      { name: "Kelvin", factor: 1, symbol: "K" },
-    ],
-  },
-  {
-    label: "Fläche",
-    units: [
-      { name: "Quadratmeter", factor: 1, symbol: "m²" },
-      { name: "Quadratkilometer", factor: 1e6, symbol: "km²" },
-      { name: "Hektar", factor: 1e4, symbol: "ha" },
-      { name: "Quadratzentimeter", factor: 1e-4, symbol: "cm²" },
-      { name: "Ar", factor: 100, symbol: "a" },
-    ],
-  },
-  {
-    label: "Volumen",
-    units: [
-      { name: "Liter", factor: 1, symbol: "L" },
-      { name: "Milliliter", factor: 0.001, symbol: "mL" },
-      { name: "Kubikmeter", factor: 1000, symbol: "m³" },
-      { name: "Gallone (US)", factor: 3.78541, symbol: "gal" },
-    ],
-  },
-  {
-    label: "Zeit",
-    units: [
-      { name: "Sekunde", factor: 1, symbol: "s" },
-      { name: "Minute", factor: 60, symbol: "min" },
-      { name: "Stunde", factor: 3600, symbol: "h" },
-      { name: "Tag", factor: 86400, symbol: "d" },
-      { name: "Woche", factor: 604800, symbol: "w" },
-    ],
-  },
-];
+function getUnitGroups(t: (key: string) => string): { label: string; units: { name: string; factor: number; symbol: string }[] }[] {
+  return [
+    {
+      label: t("math.unit.length"),
+      units: [
+        { name: t("math.unit.meter"), factor: 1, symbol: "m" },
+        { name: t("math.unit.kilometer"), factor: 1000, symbol: "km" },
+        { name: t("math.unit.centimeter"), factor: 0.01, symbol: "cm" },
+        { name: t("math.unit.millimeter"), factor: 0.001, symbol: "mm" },
+        { name: t("math.unit.mile"), factor: 1609.344, symbol: "mi" },
+        { name: t("math.unit.foot"), factor: 0.3048, symbol: "ft" },
+        { name: t("math.unit.inch"), factor: 0.0254, symbol: "in" },
+      ],
+    },
+    {
+      label: t("math.unit.weight"),
+      units: [
+        { name: t("math.unit.kilogram"), factor: 1, symbol: "kg" },
+        { name: t("math.unit.gram"), factor: 0.001, symbol: "g" },
+        { name: t("math.unit.milligram"), factor: 0.000001, symbol: "mg" },
+        { name: t("math.unit.ton"), factor: 1000, symbol: "t" },
+        { name: t("math.unit.pound"), factor: 0.453592, symbol: "lb" },
+        { name: t("math.unit.ounce"), factor: 0.0283495, symbol: "oz" },
+      ],
+    },
+    {
+      label: t("math.unit.temperature"),
+      units: [
+        { name: t("math.unit.celsius"), factor: 1, symbol: "°C" },
+        { name: t("math.unit.fahrenheit"), factor: 1, symbol: "°F" },
+        { name: t("math.unit.kelvin"), factor: 1, symbol: "K" },
+      ],
+    },
+    {
+      label: t("math.unit.area"),
+      units: [
+        { name: t("math.unit.sqMeter"), factor: 1, symbol: "m²" },
+        { name: t("math.unit.sqKm"), factor: 1e6, symbol: "km²" },
+        { name: t("math.unit.hectare"), factor: 1e4, symbol: "ha" },
+        { name: t("math.unit.sqCm"), factor: 1e-4, symbol: "cm²" },
+        { name: t("math.unit.are"), factor: 100, symbol: "a" },
+      ],
+    },
+    {
+      label: t("math.unit.volume"),
+      units: [
+        { name: t("math.unit.liter"), factor: 1, symbol: "L" },
+        { name: t("math.unit.milliliter"), factor: 0.001, symbol: "mL" },
+        { name: t("math.unit.cubicMeter"), factor: 1000, symbol: "m³" },
+        { name: t("math.unit.gallon"), factor: 3.78541, symbol: "gal" },
+      ],
+    },
+    {
+      label: t("math.unit.time"),
+      units: [
+        { name: t("math.unit.second"), factor: 1, symbol: "s" },
+        { name: t("math.unit.minute"), factor: 60, symbol: "min" },
+        { name: t("math.unit.hour"), factor: 3600, symbol: "h" },
+        { name: t("math.unit.day"), factor: 86400, symbol: "d" },
+        { name: t("math.unit.week"), factor: 604800, symbol: "w" },
+      ],
+    },
+  ];
+}
 
-const BUILTIN_FORMULAS: { title: string; formula: string; category: FormulaCategory; description: string }[] = [
-  // Analysis
-  { title: "Ableitungsregel (Potenz)", formula: "f(x) = xⁿ  →  f'(x) = n·xⁿ⁻¹", category: "analysis", description: "Potenzregel für Ableitungen" },
-  { title: "Kettenregel", formula: "(f∘g)'(x) = f'(g(x)) · g'(x)", category: "analysis", description: "Ableitung verketteter Funktionen" },
-  { title: "Produktregel", formula: "(f·g)' = f'·g + f·g'", category: "analysis", description: "Ableitung eines Produkts" },
-  { title: "Quotientenregel", formula: "(f/g)' = (f'·g − f·g') / g²", category: "analysis", description: "Ableitung eines Quotienten" },
-  { title: "Integral (Potenz)", formula: "∫ xⁿ dx = xⁿ⁺¹/(n+1) + C", category: "analysis", description: "Stammfunktion der Potenzfunktion" },
-  { title: "Partielle Integration", formula: "∫ u·v' dx = u·v − ∫ u'·v dx", category: "analysis", description: "" },
-  // Lineare Algebra
-  { title: "Determinante 2×2", formula: "det(A) = a·d − b·c", category: "lineare_algebra", description: "Für Matrix [[a,b],[c,d]]" },
-  { title: "Kreuzprodukt", formula: "a × b = |a|·|b|·sin(θ)·n̂", category: "lineare_algebra", description: "Vektorprodukt" },
-  { title: "Skalarprodukt", formula: "a · b = |a|·|b|·cos(θ)", category: "lineare_algebra", description: "Inneres Produkt" },
-  { title: "Inverse 2×2", formula: "A⁻¹ = (1/det(A))·[[d,−b],[−c,a]]", category: "lineare_algebra", description: "" },
-  // Trigonometrie
-  { title: "Sinus-Satz", formula: "a/sin(A) = b/sin(B) = c/sin(C)", category: "trigonometrie", description: "" },
-  { title: "Kosinus-Satz", formula: "c² = a² + b² − 2ab·cos(C)", category: "trigonometrie", description: "" },
-  { title: "Pythagoras", formula: "a² + b² = c²", category: "trigonometrie", description: "Rechtwinkliges Dreieck" },
-  { title: "sin² + cos² = 1", formula: "sin²(x) + cos²(x) = 1", category: "trigonometrie", description: "Trigonometrische Identität" },
-  // Statistik
-  { title: "Mittelwert", formula: "x̄ = (1/n) · Σxᵢ", category: "statistik", description: "Arithmetisches Mittel" },
-  { title: "Standardabweichung", formula: "σ = √[(1/n)·Σ(xᵢ − x̄)²]", category: "statistik", description: "Population" },
-  { title: "Varianz", formula: "σ² = (1/n)·Σ(xᵢ − x̄)²", category: "statistik", description: "" },
-  { title: "Normalverteilung", formula: "f(x) = (1/(σ√(2π)))·e^(−(x−μ)²/(2σ²))", category: "statistik", description: "Gauss-Verteilung" },
-  // Physik
-  { title: "Kraft (Newton)", formula: "F = m · a", category: "physik", description: "Kraft = Masse × Beschleunigung" },
-  { title: "Kinetische Energie", formula: "E_kin = ½·m·v²", category: "physik", description: "" },
-  { title: "Potenzielle Energie", formula: "E_pot = m·g·h", category: "physik", description: "" },
-  { title: "Ohmsches Gesetz", formula: "U = R · I", category: "physik", description: "Spannung = Widerstand × Strom" },
-  // Finanzen
-  { title: "Zinseszins", formula: "K_n = K₀ · (1 + p/100)ⁿ", category: "finanzen", description: "Kapital nach n Perioden" },
-  { title: "Barwert", formula: "BW = K_n / (1 + i)ⁿ", category: "finanzen", description: "Abgezinster Wert" },
-  // Informatik
-  { title: "Big-O Notation", formula: "O(1) < O(log n) < O(n) < O(n log n) < O(n²)", category: "informatik", description: "Laufzeitkomplexität" },
-  { title: "Binär → Dezimal", formula: "Σ bᵢ · 2ⁱ", category: "informatik", description: "Zahlensystem-Umrechnung" },
-];
+function getBuiltinFormulas(t: (key: string) => string): { title: string; formula: string; category: FormulaCategory; description: string }[] {
+  return [
+    // Analysis
+    { title: "Ableitungsregel (Potenz)", formula: "f(x) = xⁿ  →  f'(x) = n·xⁿ⁻¹", category: "analysis", description: "Potenzregel für Ableitungen" },
+    { title: "Kettenregel", formula: "(f∘g)'(x) = f'(g(x)) · g'(x)", category: "analysis", description: "Ableitung verketteter Funktionen" },
+    { title: "Produktregel", formula: "(f·g)' = f'·g + f·g'", category: "analysis", description: "Ableitung eines Produkts" },
+    { title: "Quotientenregel", formula: "(f/g)' = (f'·g − f·g') / g²", category: "analysis", description: "Ableitung eines Quotienten" },
+    { title: "Integral (Potenz)", formula: "∫ xⁿ dx = xⁿ⁺¹/(n+1) + C", category: "analysis", description: "Stammfunktion der Potenzfunktion" },
+    { title: "Partielle Integration", formula: "∫ u·v' dx = u·v − ∫ u'·v dx", category: "analysis", description: "" },
+    // Lineare Algebra
+    { title: "Determinante 2×2", formula: "det(A) = a·d − b·c", category: "lineare_algebra", description: "Für Matrix [[a,b],[c,d]]" },
+    { title: "Kreuzprodukt", formula: "a × b = |a|·|b|·sin(θ)·n̂", category: "lineare_algebra", description: "Vektorprodukt" },
+    { title: "Skalarprodukt", formula: "a · b = |a|·|b|·cos(θ)", category: "lineare_algebra", description: "Inneres Produkt" },
+    { title: "Inverse 2×2", formula: "A⁻¹ = (1/det(A))·[[d,−b],[−c,a]]", category: "lineare_algebra", description: "" },
+    // Trigonometrie
+    { title: "Sinus-Satz", formula: "a/sin(A) = b/sin(B) = c/sin(C)", category: "trigonometrie", description: "" },
+    { title: "Kosinus-Satz", formula: "c² = a² + b² − 2ab·cos(C)", category: "trigonometrie", description: "" },
+    { title: "Pythagoras", formula: "a² + b² = c²", category: "trigonometrie", description: "Rechtwinkliges Dreieck" },
+    { title: "sin² + cos² = 1", formula: "sin²(x) + cos²(x) = 1", category: "trigonometrie", description: "Trigonometrische Identität" },
+    // Statistik
+    { title: "Mittelwert", formula: "x̄ = (1/n) · Σxᵢ", category: "statistik", description: "Arithmetisches Mittel" },
+    { title: "Standardabweichung", formula: "σ = √[(1/n)·Σ(xᵢ − x̄)²]", category: "statistik", description: "Population" },
+    { title: "Varianz", formula: "σ² = (1/n)·Σ(xᵢ − x̄)²", category: "statistik", description: "" },
+    { title: "Normalverteilung", formula: "f(x) = (1/(σ√(2π)))·e^(−(x−μ)²/(2σ²))", category: "statistik", description: "Gauss-Verteilung" },
+    // Physik
+    { title: "Kraft (Newton)", formula: "F = m · a", category: "physik", description: "Kraft = Masse × Beschleunigung" },
+    { title: "Kinetische Energie", formula: "E_kin = ½·m·v²", category: "physik", description: "" },
+    { title: "Potenzielle Energie", formula: "E_pot = m·g·h", category: "physik", description: "" },
+    { title: "Ohmsches Gesetz", formula: "U = R · I", category: "physik", description: "Spannung = Widerstand × Strom" },
+    // Finanzen
+    { title: "Zinseszins", formula: "K_n = K₀ · (1 + p/100)ⁿ", category: "finanzen", description: "Kapital nach n Perioden" },
+    { title: "Barwert", formula: "BW = K_n / (1 + i)ⁿ", category: "finanzen", description: "Abgezinster Wert" },
+    // Informatik
+    { title: "Big-O Notation", formula: "O(1) < O(log n) < O(n) < O(n log n) < O(n²)", category: "informatik", description: "Laufzeitkomplexität" },
+    { title: "Binär → Dezimal", formula: "Σ bᵢ · 2ⁱ", category: "informatik", description: "Zahlensystem-Umrechnung" },
+  ];
+}
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────── */
 
-function safeEval(expr: string): string {
+function safeEval(expr: string, t?: (key: string) => string): string {
   try {
     let e = expr
       .replace(/π/g, `(${Math.PI})`)
@@ -189,7 +195,7 @@ function safeEval(expr: string): string {
       .replace(/e(?!\w)/g, `(${Math.E})`);
     // safety: only allow math
     if (/[a-zA-Z_$]/.test(e.replace(/Math\.\w+/g, "").replace(/Infinity|NaN/g, ""))) {
-      return "Fehler: Ungültiger Ausdruck";
+      return t ? t("math.invalidExpression") : "Fehler: Ungültiger Ausdruck";
     }
     const result = Function(`"use strict"; return (${e})`)();
     if (typeof result === "number") {
@@ -199,17 +205,17 @@ function safeEval(expr: string): string {
     }
     return String(result);
   } catch {
-    return "Fehler";
+    return t ? t("math.error") : "Fehler";
   }
 }
 
-function solveLinear(a: number, b: number): string {
-  if (a === 0) return b === 0 ? "Unendlich viele Lösungen" : "Keine Lösung";
+function solveLinear(a: number, b: number, t?: (key: string) => string): string {
+  if (a === 0) return b === 0 ? (t ? t("math.infiniteSolutions") : "Unendlich viele Lösungen") : (t ? t("math.noSolution") : "Keine Lösung");
   return `x = ${(-b / a).toPrecision(10).replace(/\.?0+$/, "")}`;
 }
 
-function solveQuadratic(a: number, b: number, c: number): string {
-  if (a === 0) return solveLinear(b, c);
+function solveQuadratic(a: number, b: number, c: number, t?: (key: string) => string): string {
+  if (a === 0) return solveLinear(b, c, t);
   const disc = b * b - 4 * a * c;
   if (disc < 0) {
     const re = (-b / (2 * a)).toPrecision(6).replace(/\.?0+$/, "");
@@ -219,13 +225,13 @@ function solveQuadratic(a: number, b: number, c: number): string {
   const x1 = (-b + Math.sqrt(disc)) / (2 * a);
   const x2 = (-b - Math.sqrt(disc)) / (2 * a);
   const f = (n: number) => n.toPrecision(10).replace(/\.?0+$/, "");
-  if (disc === 0) return `x = ${f(x1)} (Doppelte Nullstelle)`;
+  if (disc === 0) return `x = ${f(x1)} (${t ? t("math.doubleSolution") : "Doppelte Nullstelle"})`;
   return `x₁ = ${f(x1)}\nx₂ = ${f(x2)}`;
 }
 
-function solveSystem2(a1: number, b1: number, c1: number, a2: number, b2: number, c2: number): string {
+function solveSystem2(a1: number, b1: number, c1: number, a2: number, b2: number, c2: number, t?: (key: string) => string): string {
   const det = a1 * b2 - a2 * b1;
-  if (det === 0) return "Keine eindeutige Lösung (det = 0)";
+  if (det === 0) return t ? t("math.noUniqueSolution") : "Keine eindeutige Lösung (det = 0)";
   const x = (c1 * b2 - c2 * b1) / det;
   const y = (a1 * c2 - a2 * c1) / det;
   const f = (n: number) => n.toPrecision(10).replace(/\.?0+$/, "");
@@ -286,8 +292,8 @@ function convertTemp(val: number, from: string, to: string): number {
   return celsius + 273.15; // K
 }
 
-function numberToBase(num: number, base: number): string {
-  if (!Number.isInteger(num)) return "Nur ganze Zahlen";
+function numberToBase(num: number, base: number, t?: (key: string) => string): string {
+  if (!Number.isInteger(num)) return t ? t("math.integerOnly") : "Nur ganze Zahlen";
   return num.toString(base).toUpperCase();
 }
 
@@ -308,6 +314,9 @@ export default function MathPage() {
 
   const tools = useMemo(() => getTools(t), [t]);
   const formulaCategories = useMemo(() => getFormulaCategories(t), [t]);
+  const constants = useMemo(() => getConstants(t), [t]);
+  const unitGroups = useMemo(() => getUnitGroups(t), [t]);
+  const builtinFormulas = useMemo(() => getBuiltinFormulas(t), [t]);
 
   /* Auth + data */
   useEffect(() => {
@@ -419,7 +428,7 @@ export default function MathPage() {
         {activeTool === "plotter" && <PlotterTool onSave={saveToHistory} modules={modules} checkLimit={() => checkMathLimit("plotter")} />}
         {activeTool === "statistics" && <StatisticsTool onSave={saveToHistory} modules={modules} checkLimit={() => checkMathLimit("statistics")} />}
         {activeTool === "units" && <UnitsTool onSave={saveToHistory} modules={modules} />}
-        {activeTool === "formulas" && <FormulasTool userId={userId} supabase={supabase} formulas={formulas} setFormulas={setFormulas} modules={modules} />}
+        {activeTool === "formulas" && <FormulasTool userId={userId} supabase={supabase} formulas={formulas} setFormulas={setFormulas} modules={modules} builtinFormulas={builtinFormulas} formulaCategories={formulaCategories} />}
       </div>
     </div>
   );
@@ -448,7 +457,7 @@ function CalculatorTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
         expr = expr.replace(/tan\(([^)]+)\)/g, `tan(($1)*${Math.PI}/180)`);
       }
       if (checkLimit && !checkLimit()) return;
-      const r = safeEval(expr);
+      const r = safeEval(expr, t);
       setResult(r);
       onSave("calculator", display, r, moduleId);
       return;
@@ -521,23 +530,23 @@ function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, 
     let expr = "", res = "";
     if (mode === "linear") {
       expr = `${a}x + ${b} = 0`;
-      res = solveLinear(Number(a), Number(b));
+      res = solveLinear(Number(a), Number(b), t);
     } else if (mode === "quadratic") {
       expr = `${a}x² + ${b}x + ${c} = 0`;
-      res = solveQuadratic(Number(a), Number(b), Number(c));
+      res = solveQuadratic(Number(a), Number(b), Number(c), t);
     } else if (mode === "system") {
       expr = `${a}x + ${b}y = ${c}\n${a2}x + ${b2}y = ${c2}`;
-      res = solveSystem2(Number(a), Number(b), Number(c), Number(a2), Number(b2), Number(c2));
+      res = solveSystem2(Number(a), Number(b), Number(c), Number(a2), Number(b2), Number(c2), t);
     } else {
       expr = customExpr;
       // Simple variable isolation for ax + b = c pattern
-      res = "Bitte verwende die Standard-Modi für exakte Lösungen";
+      res = t("math.useStandardModes");
       try {
         // Try numeric approximation via bisection for f(x) = 0
         const fn = customExpr.replace(/=/g, "-(") + ")";
         const evalFn = (x: number) => {
           const e = fn.replace(new RegExp(customVar, "g"), `(${x})`);
-          return Number(safeEval(e));
+          return Number(safeEval(e, t));
         };
         // Simple Newton-like search
         let lo = -100, hi = 100;
@@ -561,16 +570,16 @@ function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, 
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h2 className="text-lg font-semibold text-surface-900">Gleichungslöser & Umsteller</h2>
+        <h2 className="text-lg font-semibold text-surface-900">{t("math.equationSolver")}</h2>
         <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 min-w-0 self-start sm:self-auto">
-          <option value="">Kein Modul</option>
+          <option value="">{t("math.noModule")}</option>
           {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
       </div>
 
       {/* Mode Tabs */}
       <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6">
-        {([ ["linear", "Linear"], ["quadratic", "Quadratisch"], ["system", "System (2×2)"], ["custom", "Custom"] ] as [string, string][]).map(([k, l]) => (
+        {([ ["linear", t("math.linearMode")], ["quadratic", t("math.quadraticMode")], ["system", t("math.systemMode")], ["custom", t("math.customMode")] ] as [string, string][]).map(([k, l]) => (
           <button key={k} onClick={() => setMode(k as typeof mode)} className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm ${mode === k ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{l}</button>
         ))}
       </div>
@@ -611,36 +620,36 @@ function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, 
         )}
         {mode === "custom" && (
           <div className="space-y-3">
-            <input value={customExpr} onChange={(e) => setCustomExpr(e.target.value)} placeholder="z.B. 2*x^2 + 3*x - 5 = 0" className="w-full bg-white text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono" />
+            <input value={customExpr} onChange={(e) => setCustomExpr(e.target.value)} placeholder={t("math.customExprExample")} className="w-full bg-white text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono" />
             <div className="flex items-center gap-2 text-sm text-surface-500">
-              <span>Variable:</span>
+              <span>{t("math.variable")}:</span>
               <input value={customVar} onChange={(e) => setCustomVar(e.target.value)} className="bg-white text-surface-900 rounded px-2 py-1 border border-surface-200 font-mono w-12 text-center" />
             </div>
           </div>
         )}
       </div>
 
-      <button onClick={solve} className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors mb-4">Lösen</button>
+      <button onClick={solve} className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors mb-4">{t("math.solve")}</button>
 
       {result && (
         <div className="bg-surface-50 rounded-xl p-4 border border-surface-200">
-          <div className="text-surface-500 text-sm mb-1">Ergebnis:</div>
+          <div className="text-surface-500 text-sm mb-1">{t("math.result")}</div>
           <div className="text-success-600 text-xl font-mono whitespace-pre-line">{result}</div>
         </div>
       )}
 
       {/* Quick formulas */}
       <div className="mt-6">
-        <h3 className="text-surface-500 text-sm font-semibold mb-2">Schnell-Referenz</h3>
+        <h3 className="text-surface-500 text-sm font-semibold mb-2">{t("math.quickRef")}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {[
-            ["pq-Formel", "x = −p/2 ± √((p/2)² − q)"],
-            ["abc-Formel", "x = (−b ± √(b²−4ac)) / 2a"],
-            ["Vieta", "x₁+x₂ = −b/a,  x₁·x₂ = c/a"],
-            ["Cramersche Regel", "x = det(Aₓ)/det(A)"],
-          ].map(([t, f]) => (
-            <div key={t} className="bg-surface-100 rounded-lg px-3 py-2">
-              <div className="text-surface-500 text-xs">{t}</div>
+            [t("math.pqFormula"), "x = −p/2 ± √((p/2)² − q)"],
+            [t("math.abcFormula"), "x = (−b ± √(b²−4ac)) / 2a"],
+            [t("math.vieta"), "x₁+x₂ = −b/a,  x₁·x₂ = c/a"],
+            [t("math.cramersRule"), "x = det(Aₓ)/det(A)"],
+          ].map(([label, f]) => (
+            <div key={label} className="bg-surface-100 rounded-lg px-3 py-2">
+              <div className="text-surface-500 text-xs">{label}</div>
               <div className="text-surface-800 text-sm font-mono">{f}</div>
             </div>
           ))}
@@ -690,23 +699,23 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
       const d = matDet(matA);
       expr = `det(A) [${size}×${size}]`;
       res = fmt(d);
-      setResult(`Determinante = ${res}`);
+      setResult(`${t("math.determinant")} = ${res}`);
     } else if (operation === "transpose") {
-      const t = matTranspose(matA);
+      const tMat = matTranspose(matA);
       expr = `Aᵀ [${size}×${size}]`;
-      res = t.map((r) => r.map(fmt).join(", ")).join(" | ");
-      setResultMatrix(t);
-      setResult("Transponierte:");
+      res = tMat.map((r) => r.map(fmt).join(", ")).join(" | ");
+      setResultMatrix(tMat);
+      setResult(`${t("math.transpose")}:`);
     } else if (operation === "inverse") {
       const inv = matInverse2(matA);
-      if (!inv) { setResult("Nicht invertierbar (det = 0)"); return; }
+      if (!inv) { setResult(t("math.notInvertible")); return; }
       expr = `A⁻¹ [${size}×${size}]`;
       res = inv.map((r) => r.map(fmt).join(", ")).join(" | ");
       setResultMatrix(inv);
-      setResult("Inverse:");
+      setResult(`${t("math.inverse")}:`);
     } else if (operation === "multiply") {
       const prod = matMultiply(matA, matB);
-      if (!prod) { setResult("Fehler: Dimensionen passen nicht"); return; }
+      if (!prod) { setResult(t("math.dimensionError")); return; }
       expr = `A × B [${size}×${size}]`;
       res = prod.map((r) => r.map(fmt).join(", ")).join(" | ");
       setResultMatrix(prod);
@@ -731,10 +740,10 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
           const im = Math.sqrt(-disc) / 2;
           res = `λ₁ = ${fmt(re)} + ${fmt(im)}i, λ₂ = ${fmt(re)} − ${fmt(im)}i`;
         }
-        expr = `Eigenwerte [2×2]`;
+        expr = `${t("math.eigenvalues")} [2×2]`;
         setResult(res);
       } else {
-        setResult("Eigenwerte nur für 2×2 implementiert");
+        setResult(t("math.eigenvaluesFor2x2Only"));
         return;
       }
     } else if (operation === "rank") {
@@ -758,9 +767,9 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
         }
         rank++;
       }
-      expr = `Rang(A) [${size}×${size}]`;
+      expr = `${t("math.rank")}(A) [${size}×${size}]`;
       res = String(rank);
-      setResult(`Rang = ${rank}`);
+      setResult(`${t("math.rank")} = ${rank}`);
     }
 
     if (checkLimit && !checkLimit()) return;
@@ -1189,8 +1198,10 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
   const [baseFrom, setBaseFrom] = useState(10);
   const [moduleId, setModuleId] = useState<string | null>(null);
 
-  const currentGroup = UNIT_GROUPS[group];
-  const isTemp = currentGroup.label === "Temperatur";
+  const unitGroups = useMemo(() => getUnitGroups(t), [t]);
+  const constants = useMemo(() => getConstants(t), [t]);
+  const currentGroup = unitGroups[group];
+  const isTemp = currentGroup.label === t("math.unit.temperature");
 
   const convertResult = useMemo(() => {
     const v = Number(value);
@@ -1208,8 +1219,8 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
   const baseResults = useMemo(() => {
     const num = parseInt(baseInput, baseFrom);
     if (isNaN(num)) return null;
-    return { bin: numberToBase(num, 2), oct: numberToBase(num, 8), dec: numberToBase(num, 10), hex: numberToBase(num, 16) };
-  }, [baseInput, baseFrom]);
+    return { bin: numberToBase(num, 2, t), oct: numberToBase(num, 8, t), dec: numberToBase(num, 10, t), hex: numberToBase(num, 16, t) };
+  }, [baseInput, baseFrom, t]);
 
   const handleSaveConvert = () => {
     const from = currentGroup.units[fromUnit];
@@ -1237,7 +1248,7 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
         <div>
           {/* Group selector */}
           <div className="flex flex-wrap gap-2 mb-4">
-            {UNIT_GROUPS.map((g, i) => (
+            {unitGroups.map((g, i) => (
               <button key={g.label} onClick={() => { setGroup(i); setFromUnit(0); setToUnit(1); }} className={`px-3 py-1.5 rounded-lg text-sm ${group === i ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{g.label}</button>
             ))}
           </div>
@@ -1267,7 +1278,7 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
 
       {tab === "constants" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3">
-          {CONSTANTS.map((c) => (
+          {constants.map((c) => (
             <div key={c.name} className="bg-surface-100 rounded-lg px-4 py-3 flex items-center justify-between">
               <div>
                 <div className="text-surface-900 text-sm font-medium">{c.name}</div>
@@ -1321,7 +1332,7 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
 /* TOOL 7: Formula Collection                                                 */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
-function FormulasTool({ userId, supabase, formulas, setFormulas, modules }: { userId: string | null; supabase: ReturnType<typeof createClient>; formulas: MathFormula[]; setFormulas: React.Dispatch<React.SetStateAction<MathFormula[]>>; modules: Module[] }) {
+function FormulasTool({ userId, supabase, formulas, setFormulas, modules, builtinFormulas, formulaCategories }: { userId: string | null; supabase: ReturnType<typeof createClient>; formulas: MathFormula[]; setFormulas: React.Dispatch<React.SetStateAction<MathFormula[]>>; modules: Module[]; builtinFormulas: { title: string; formula: string; category: FormulaCategory; description: string }[]; formulaCategories: { key: FormulaCategory; label: string }[] }) {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<FormulaCategory | "all">("all");
@@ -1336,7 +1347,7 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules }: { us
 
   const allFormulas = useMemo(() => {
     const custom = formulas.map((f) => ({ ...f, isCustom: true }));
-    const builtin = BUILTIN_FORMULAS.map((f, i) => ({
+    const builtin = builtinFormulas.map((f, i) => ({
       id: `builtin-${i}`, user_id: "", title: f.title, formula: f.formula, category: f.category, description: f.description, module_id: null, tags: [] as string[], pinned: false, created_at: "", updated_at: "", isCustom: false,
     }));
     let all = [...custom, ...builtin];
@@ -1346,7 +1357,7 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules }: { us
       all = all.filter((f) => f.title.toLowerCase().includes(q) || f.formula.toLowerCase().includes(q) || f.description.toLowerCase().includes(q));
     }
     return all;
-  }, [formulas, category, search]);
+  }, [formulas, category, search, builtinFormulas]);
 
   const openNew = () => { setEditId(null); setTitle(""); setFormula(""); setDesc(""); setCat("allgemein"); setModuleId(null); setTags(""); setShowModal(true); };
   const openEdit = (f: MathFormula) => { setEditId(f.id); setTitle(f.title); setFormula(f.formula); setDesc(f.description); setCat(f.category); setModuleId(f.module_id); setTags(f.tags.join(", ")); setShowModal(true); };
@@ -1368,8 +1379,6 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules }: { us
     await supabase.from("math_formulas").delete().eq("id", id);
     setFormulas((prev) => prev.filter((f) => f.id !== id));
   };
-
-  const formulaCategories = useMemo(() => getFormulaCategories(t), [t]);
 
   return (
     <div>

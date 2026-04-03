@@ -196,7 +196,7 @@ function CreateMapModal({ modules, exams, tasks, onClose, onCreated }: {
         <form onSubmit={handleCreate} className="p-5 space-y-4">
           <div>
             <label className="block text-sm font-medium text-surface-700 mb-1">Titel</label>
-            <input className="input" value={title} onChange={e => setTitle(e.target.value)} placeholder="z.B. Mathematik Übersicht" autoFocus />
+            <input className="input" value={title} onChange={e => setTitle(e.target.value)} placeholder={t("mindmaps.titlePlaceholder")} autoFocus />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>

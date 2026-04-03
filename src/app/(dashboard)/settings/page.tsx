@@ -28,11 +28,11 @@ export default function SettingsPage() {
   }
 
   const tabs = [
-    { id: "account",       label: "Konto",              icon: User },
-    { id: "plan",          label: "Abo & Lizenz",        icon: CreditCard },
-    { id: "appearance",    label: "Darstellung",         icon: Palette },
-    { id: "notifications", label: "Benachrichtigungen",  icon: Bell },
-    { id: "privacy",       label: "Datenschutz",         icon: Shield },
+    { id: "account",       label: t("settings.accountTab"),       icon: User },
+    { id: "plan",          label: t("settings.planTab"),          icon: CreditCard },
+    { id: "appearance",    label: t("settings.appearanceTab"),    icon: Palette },
+    { id: "notifications", label: t("settings.notificationsTab"), icon: Bell },
+    { id: "privacy",       label: t("settings.privacyTab"),       icon: Shield },
   ];
 
   return (
@@ -73,7 +73,7 @@ export default function SettingsPage() {
 }
 
 function AccountTab({ user, profile }: { user: { email?: string; created_at?: string } | null; profile: { country?: string | null } | null }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const supabase = createClient();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -90,13 +90,13 @@ function AccountTab({ user, profile }: { user: { email?: string; created_at?: st
 
   async function handlePasswordChange(e: React.FormEvent) {
     e.preventDefault();
-    if (newPassword !== confirmPassword) { setMsg({ type: "error", text: "Passwörter stimmen nicht überein." }); return; }
-    if (newPassword.length < 8) { setMsg({ type: "error", text: "Mindestens 8 Zeichen erforderlich." }); return; }
+    if (newPassword !== confirmPassword) { setMsg({ type: "error", text: t("settings.passwordMismatch") }); return; }
+    if (newPassword.length < 8) { setMsg({ type: "error", text: t("settings.minPasswordLength") }); return; }
     setSaving(true);
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     setSaving(false);
     if (error) setMsg({ type: "error", text: error.message });
-    else { setMsg({ type: "success", text: "Passwort erfolgreich geändert." }); setNewPassword(""); setConfirmPassword(""); }
+    else { setMsg({ type: "success", text: t("settings.passwordChanged") }); setNewPassword(""); setConfirmPassword(""); }
   }
 
   async function handleCountryChange() {
@@ -107,7 +107,7 @@ function AccountTab({ user, profile }: { user: { email?: string; created_at?: st
     const { error } = await supabase.from("profiles").update({ country: selectedCountry }).eq("id", authUser.id);
     setCountrySaving(false);
     if (error) setCountryMsg({ type: "error", text: error.message });
-    else setCountryMsg({ type: "success", text: "Notensystem aktualisiert." });
+    else setCountryMsg({ type: "success", text: t("settings.gradingSystemUpdated") });
   }
 
   const currentSystem = GRADING_SYSTEMS[selectedCountry as CountryCode] ?? GRADING_SYSTEMS.CH;
@@ -115,16 +115,16 @@ function AccountTab({ user, profile }: { user: { email?: string; created_at?: st
   return (
     <div className="space-y-5">
       <div className="card">
-        <h2 className="font-semibold text-surface-900 mb-4">Kontoinformationen</h2>
+        <h2 className="font-semibold text-surface-900 mb-4">{t("settings.accountInfo")}</h2>
         <div className="space-y-3">
           <div>
             <label className="block text-xs font-medium text-surface-500 uppercase tracking-wider mb-1">E-Mail</label>
             <p className="text-sm text-surface-800 bg-surface-50 px-3 py-2.5 rounded-xl">{user?.email ?? "—"}</p>
           </div>
           <div>
-            <label className="block text-xs font-medium text-surface-500 uppercase tracking-wider mb-1">Konto erstellt</label>
+            <label className="block text-xs font-medium text-surface-500 uppercase tracking-wider mb-1">{t("settings.accountCreated")}</label>
             <p className="text-sm text-surface-800 bg-surface-50 px-3 py-2.5 rounded-xl">
-              {user?.created_at ? new Date(user.created_at).toLocaleDateString("de-CH", { day: "2-digit", month: "long", year: "numeric" }) : "—"}
+              {user?.created_at ? new Date(user.created_at).toLocaleDateString(locale === "de" ? "de-CH" : "en-US", { day: "2-digit", month: "long", year: "numeric" }) : "—"}
             </p>
           </div>
         </div>
@@ -171,15 +171,15 @@ function AccountTab({ user, profile }: { user: { email?: string; created_at?: st
       <LanguageCard />
 
       <div className="card">
-        <h2 className="font-semibold text-surface-900 mb-4">Passwort ändern</h2>
+        <h2 className="font-semibold text-surface-900 mb-4">{t("settings.passwordTitle")}</h2>
         <form onSubmit={handlePasswordChange} className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Neues Passwort</label>
-            <input className="input" type="password" minLength={8} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Min. 8 Zeichen" />
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("settings.newPassword")}</label>
+            <input className="input" type="password" minLength={8} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder={t("settings.minChars")} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Passwort bestätigen</label>
-            <input className="input" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Wiederholen…" />
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("settings.confirmPassword")}</label>
+            <input className="input" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder={t("settings.confirmPlaceholder")} />
           </div>
           {msg && (
             <p className={`text-sm px-3 py-2 rounded-lg ${msg.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>
@@ -187,16 +187,16 @@ function AccountTab({ user, profile }: { user: { email?: string; created_at?: st
             </p>
           )}
           <button type="submit" disabled={saving} className="btn-primary">
-            {saving ? "Speichern…" : "Passwort ändern"}
+            {saving ? t("common.saving") : t("settings.changePassword")}
           </button>
         </form>
       </div>
 
       <div className="card border-red-100">
         <h2 className="font-semibold text-red-700 mb-2">Gefahrenzone</h2>
-        <p className="text-sm text-surface-500 mb-3">Das Löschen deines Kontos ist permanent und kann nicht rückgängig gemacht werden.</p>
+        <p className="text-sm text-surface-500 mb-3">{t("settings.deleteAccountWarning")}</p>
         <button className="px-4 py-2 rounded-xl border border-red-200 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors">
-          Konto löschen
+          {t("settings.deleteAccount")}
         </button>
       </div>
     </div>
@@ -204,7 +204,7 @@ function AccountTab({ user, profile }: { user: { email?: string; created_at?: st
 }
 
 function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: boolean; profile: { stripe_subscription_status?: string | null; plan_expires_at?: string | null; plan_type?: string | null } | null }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const [loading, setLoading] = useState(false);
 
   async function handlePortal() {
@@ -230,7 +230,7 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
     aboExpired = remainingDays <= 0;
 
     if (aboExpired) {
-      remainingLabel = "Abgelaufen";
+      remainingLabel = t("settings.expired");
     } else if (remainingDays > 365) {
       const years = Math.floor(remainingDays / 365);
       const months = Math.floor((remainingDays % 365) / 30);
@@ -255,10 +255,10 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
         <div className="flex items-start justify-between mb-4">
           <div>
             <h2 className="font-semibold text-surface-900">
-              {isLifetime ? "Pro Lifetime" : isPro ? "Pro Abo" : "Dein Plan"}
+              {isLifetime ? t("settings.proLifetime") : isPro ? t("settings.proSubscription") : t("settings.yourPlan")}
             </h2>
             <p className="text-xs text-surface-400 mt-0.5">
-              {isLifetime ? "Einmalkauf — gilt dauerhaft" : isPro ? "Monatlich oder jährlich kündbar" : "Kostenloser Plan"}
+              {isLifetime ? t("settings.lifetimeDesc") : isPro ? t("settings.monthlyDesc") : t("settings.freeDesc")}
             </p>
           </div>
           <span className={`px-3 py-1 rounded-full text-xs font-bold ${
@@ -274,11 +274,11 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-sm text-surface-600">
               <CheckCircle size={15} className="text-green-500" />
-              Lifetime Pro aktiv — kein Ablaufdatum
+              {t("settings.lifetimeActive")}
             </div>
             <div className="bg-surface-50 rounded-xl p-4">
               <p className="text-sm text-surface-600">
-                Dein Pro-Zugang gilt dauerhaft auf allen Plattformen: Web, Desktop und zukünftige Mobile-App. Kein Abo, keine Verlängerung nötig.
+                {t("settings.proInfo")}
               </p>
             </div>
           </div>
@@ -286,7 +286,7 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-sm text-surface-600">
               <CheckCircle size={15} className="text-green-500" />
-              Abo aktiv · {profile?.stripe_subscription_status === "trialing" ? "Testphase" : "bezahlt"}
+              {t("settings.subscriptionActive")} · {profile?.stripe_subscription_status === "trialing" ? t("settings.trialPhase") : t("settings.paid")}
             </div>
 
             {/* Subscription duration card */}
@@ -303,7 +303,7 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
                     isCanceling ? "bg-amber-100 text-amber-700" :
                     "bg-brand-100 text-brand-700"
                   }`}>
-                    {aboExpired ? "Abgelaufen" : `Noch ${remainingLabel}`}
+                    {aboExpired ? t("settings.expired") : `${t("settings.remaining")} ${remainingLabel}`}
                   </span>
                 </div>
 
@@ -322,8 +322,8 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
                 <div className="flex items-center justify-between text-xs">
                   <span className={aboExpired ? "text-red-600" : "text-surface-500"}>
                     {aboExpired
-                      ? `Abgelaufen am ${expiresAt.toLocaleDateString("de-CH", { day: "2-digit", month: "long", year: "numeric" })}`
-                      : `Gültig bis ${expiresAt.toLocaleDateString("de-CH", { day: "2-digit", month: "long", year: "numeric" })}`
+                      ? `${t("settings.expiredOn")} ${expiresAt.toLocaleDateString(locale === "de" ? "de-CH" : "en-US", { day: "2-digit", month: "long", year: "numeric" })}`
+                      : `${t("settings.validUntil")} ${expiresAt.toLocaleDateString(locale === "de" ? "de-CH" : "en-US", { day: "2-digit", month: "long", year: "numeric" })}`
                     }
                   </span>
                   {!aboExpired && (
@@ -339,18 +339,18 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
               className="btn-secondary gap-2"
             >
               <CreditCard size={14} />
-              {loading ? "Öffne Stripe…" : "Abo verwalten / kündigen"}
+              {loading ? t("settings.openStripe") : t("settings.manageSubscription")}
             </button>
           </div>
         ) : (
           <div>
             <p className="text-sm text-surface-500 mb-3">
-              Du nutzt Semetra Free. Upgrade auf Pro für KI-Features, unbegrenzte Module und Sync.
+              {t("settings.freeUsing")}
             </p>
             <div className="flex flex-wrap gap-2">
               <Link href="/upgrade" className="btn-primary gap-2 inline-flex">
                 <Zap size={14} />
-                Pläne vergleichen & upgraden
+                {t("settings.comparePlans")}
               </Link>
             </div>
           </div>
@@ -359,16 +359,16 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
 
       {/* Desktop ↔ Web Sync */}
       <div className="card">
-        <h2 className="font-semibold text-surface-900 mb-3">Desktop ↔ Web Sync</h2>
+        <h2 className="font-semibold text-surface-900 mb-3">{t("settings.desktopWebSync")}</h2>
         <p className="text-sm text-surface-600 mb-2">
-          Melde dich in der Desktop-App mit denselben Zugangsdaten an (E-Mail + Passwort). Deine Daten werden automatisch synchronisiert — über Supabase, in Echtzeit.
+          {t("settings.syncInfo")}
         </p>
         <div className="bg-surface-50 rounded-xl p-3 text-xs text-surface-500 font-mono">
           Supabase URL: {process.env.NEXT_PUBLIC_SUPABASE_URL ?? "—"}
         </div>
         {!isPro && (
           <p className="text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded-xl mt-3">
-            Desktop-Sync erfordert ein aktives Semetra Pro Abo.
+            {t("settings.syncProRequired")}
           </p>
         )}
       </div>
@@ -380,32 +380,32 @@ function AppearanceTab() {
   const { t } = useTranslation();
   return (
     <div className="card">
-      <h2 className="font-semibold text-surface-900 mb-4">Darstellung</h2>
+      <h2 className="font-semibold text-surface-900 mb-4">{t("settings.appearance")}</h2>
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-surface-700 mb-2">Farbschema</label>
+          <label className="block text-sm font-medium text-surface-700 mb-2">{t("settings.colorScheme")}</label>
           <div className="flex gap-3">
             {[
-              { id: "light", label: "Hell", emoji: "☀️" },
-              { id: "dark", label: "Dunkel", emoji: "🌙" },
-              { id: "system", label: "System", emoji: "💻" },
-            ].map(t => (
-              <button key={t.id} className="flex flex-col items-center gap-1 p-3 rounded-xl border-2 border-brand-200 bg-brand-50 text-brand-700 text-sm font-medium">
-                <span className="text-xl">{t.emoji}</span>
-                {t.label}
+              { id: "light", label: t("settings.light"), emoji: "☀️" },
+              { id: "dark", label: t("settings.dark"), emoji: "🌙" },
+              { id: "system", label: t("settings.system"), emoji: "💻" },
+            ].map(item => (
+              <button key={item.id} className="flex flex-col items-center gap-1 p-3 rounded-xl border-2 border-brand-200 bg-brand-50 text-brand-700 text-sm font-medium">
+                <span className="text-xl">{item.emoji}</span>
+                {item.label}
               </button>
             ))}
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-surface-700 mb-1">Akzentfarbe</label>
+          <label className="block text-sm font-medium text-surface-700 mb-1">{t("settings.accentColor")}</label>
           <div className="flex gap-2">
             {["#6d28d9","#2563eb","#059669","#dc2626","#d97706"].map(c => (
               <button key={c} className="w-8 h-8 rounded-full border-2 border-transparent hover:scale-110 transition-transform" style={{ background: c }} />
             ))}
           </div>
         </div>
-        <p className="text-xs text-surface-400">Weitere Darstellungsoptionen folgen in einem Update.</p>
+        <p className="text-xs text-surface-400">{t("settings.moreAppearance")}</p>
       </div>
     </div>
   );
@@ -422,13 +422,13 @@ function NotificationsTab() {
 
   return (
     <div className="card">
-      <h2 className="font-semibold text-surface-900 mb-4">Benachrichtigungen</h2>
+      <h2 className="font-semibold text-surface-900 mb-4">{t("settings.notifications")}</h2>
       <div className="space-y-4">
         {[
-          { key: "exam_reminder" as const, label: "Prüfungserinnerungen", description: "7 und 1 Tag vor einer Prüfung" },
-          { key: "task_deadline" as const, label: "Aufgaben-Deadlines", description: "1 Tag vor Fälligkeit" },
-          { key: "weekly_summary" as const, label: "Wochenzusammenfassung", description: "Jeden Montag eine Übersicht" },
-          { key: "push" as const, label: "Push-Benachrichtigungen", description: "Browser-Benachrichtigungen aktivieren" },
+          { key: "exam_reminder" as const, label: t("settings.examReminders"), description: t("settings.examRemindersDesc") },
+          { key: "task_deadline" as const, label: t("settings.taskDeadlines"), description: t("settings.taskDeadlinesDesc") },
+          { key: "weekly_summary" as const, label: t("settings.weeklySummary"), description: t("settings.weeklySummaryDesc") },
+          { key: "push" as const, label: t("settings.pushNotifications"), description: t("settings.pushNotificationsDesc") },
         ].map(item => (
           <div key={item.key} className="flex items-center justify-between py-2">
             <div>
@@ -441,7 +441,7 @@ function NotificationsTab() {
             </button>
           </div>
         ))}
-        <p className="text-xs text-surface-400 pt-2">Einstellungen werden lokal gespeichert. Cloud-Sync kommt mit Semetra Pro.</p>
+        <p className="text-xs text-surface-400 pt-2">{t("settings.settingsSavedLocally")}</p>
       </div>
     </div>
   );
@@ -456,7 +456,7 @@ function PrivacyTab() {
 
   async function fetchAllData() {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("Nicht eingeloggt");
+    if (!user) throw new Error(t("settings.notLoggedIn"));
 
     const [modules, tasks, events, grades, topics, timeLogs, stundenplan, taskAtt, examAtt] = await Promise.all([
       supabase.from("modules").select("*").eq("user_id", user.id),
@@ -718,7 +718,7 @@ function PrivacyTab() {
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 disabled:opacity-50 transition-colors"
         >
           {exporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
-          {exporting ? "Exportiere…" : "Daten exportieren"}
+          {exporting ? t("settings.exporting") : t("settings.exportData")}
         </button>
 
         {/* Result message */}
@@ -733,9 +733,7 @@ function PrivacyTab() {
         {/* Info box */}
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-4">
           <p className="text-xs text-amber-700">
-            <strong>Tipp:</strong> Wenn die Cloud-Synchronisation nicht funktioniert, exportiere deine Daten hier
-            und importiere sie in der Desktop-App unter Einstellungen → Daten importieren.
-            Dateianhänge (PDFs etc.) werden als Links exportiert — die Dateien selbst müssen separat gesichert werden.
+            {t("settings.exportTip")}
           </p>
         </div>
       </div>
@@ -772,12 +770,12 @@ function LanguageCard() {
     <div className="card">
       <div className="flex items-center gap-2 mb-1">
         <Languages size={16} className="text-brand-600" />
-        <h2 className="font-semibold text-surface-900">Sprache</h2>
+        <h2 className="font-semibold text-surface-900">{t("settings.language")}</h2>
       </div>
-      <p className="text-xs text-surface-400 mb-4">Bestimmt die Sprache der gesamten App-Oberfläche.</p>
+      <p className="text-xs text-surface-400 mb-4">{t("settings.languageDesc2")}</p>
       <div className="flex items-end gap-3">
         <div className="flex-1">
-          <label className="block text-sm font-medium text-surface-700 mb-1">Sprache</label>
+          <label className="block text-sm font-medium text-surface-700 mb-1">{t("settings.language")}</label>
           <select
             value={selectedLang}
             onChange={e => setSelectedLang(e.target.value as Locale)}
@@ -793,7 +791,7 @@ function LanguageCard() {
           disabled={saving || selectedLang === locale}
           className="btn-primary shrink-0"
         >
-          {saving ? "Speichern…" : "Speichern"}
+          {saving ? t("common.saving") : t("settings.save")}
         </button>
       </div>
       {msg && (

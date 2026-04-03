@@ -113,14 +113,14 @@ export default function ModulesPage() {
               className={`btn-secondary gap-2 text-sm ${selectMode ? "bg-brand-50 text-brand-700 border-brand-200" : ""}`}
             >
               {selectMode ? <XSquare size={15} /> : <CheckSquare size={15} />}
-              {selectMode ? t("common.cancel") : "Auswählen"}
+              {selectMode ? t("common.cancel") : t("modules.select")}
             </button>
           )}
           <button onClick={() => setShowFhImport(true)} className="btn-secondary gap-2 text-sm">
-            <GraduationCap size={15} /> FH-Import
+            <GraduationCap size={15} /> {t("modules.newModule")}
           </button>
           <button onClick={openNew} className="btn-primary gap-2">
-            <Plus size={16} /> Modul hinzufügen
+            <Plus size={16} /> {t("modules.moduleName")}
           </button>
         </div>
       </div>
@@ -132,9 +132,9 @@ export default function ModulesPage() {
             onClick={selectAll}
             className="text-sm font-medium text-brand-600 hover:text-brand-800"
           >
-            {selected.size === filtered.length ? "Alle abwählen" : "Alle auswählen"}
+            {selected.size === filtered.length ? t("common.cancel") : t("modules.select")}
           </button>
-          <span className="text-xs text-surface-500">{selected.size} ausgewählt</span>
+          <span className="text-xs text-surface-500">{t("modules.selected", { count: selected.size })}</span>
           <div className="flex-1" />
           <button
             onClick={handleBulkDelete}
@@ -315,7 +315,7 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
     { label: "Aufgaben", count: counts.tasks, icon: "📋" },
     { label: "Noten", count: counts.grades, icon: "📊" },
     { label: "Wissensthemen", count: counts.topics, icon: "🧠" },
-    { label: "Zeiteinträge", count: counts.timeLogs, icon: "⏱️" },
+    { label: t("modules.timeLogs"), count: counts.timeLogs, icon: "⏱️" },
     { label: "Stundenplan", count: counts.stundenplan, icon: "📅" },
   ].filter(c => c.count > 0) : [];
 
@@ -330,7 +330,7 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
             </div>
             <div>
               <h2 className="font-semibold text-surface-900">{title}</h2>
-              <p className="text-sm text-surface-500">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+              <p className="text-sm text-surface-500">{t("modules.cannotBeUndone")}</p>
             </div>
           </div>
 
@@ -338,14 +338,14 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
           {!counts ? (
             <div className="flex items-center justify-center py-6">
               <Loader2 size={20} className="animate-spin text-surface-400" />
-              <span className="ml-2 text-sm text-surface-500">Verknüpfte Daten werden geprüft…</span>
+              <span className="ml-2 text-sm text-surface-500">{t("modules.checkingLinked")}</span>
             </div>
           ) : totalRelated > 0 ? (
             <>
               {/* Related data summary */}
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
                 <p className="text-sm font-medium text-amber-800 mb-2">
-                  Folgende Daten sind mit {isSingle ? "diesem Modul" : "diesen Modulen"} verknüpft:
+                  {t("modules.linkedDataLabel")}
                 </p>
                 <div className="space-y-1.5">
                   {countItems.map(item => (
@@ -367,9 +367,9 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
                 >
                   <Trash2 size={18} className="text-red-500 shrink-0" />
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-red-700">Alles löschen</p>
+                    <p className="text-sm font-semibold text-red-700">{t("modules.deleteAll")}</p>
                     <p className="text-xs text-red-500">
-                      {isSingle ? "Modul" : "Module"} und alle {totalRelated} verknüpften Einträge werden gelöscht
+                      {t("modules.linkedWillBeDeleted")}
                     </p>
                   </div>
                 </button>
@@ -381,9 +381,9 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
                 >
                   <BookOpen size={18} className="text-surface-500 shrink-0" />
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-surface-700">Nur {isSingle ? "Modul" : "Module"} löschen</p>
+                    <p className="text-sm font-semibold text-surface-700">{t("modules.deleteModuleOnly")}</p>
                     <p className="text-xs text-surface-500">
-                      Aufgaben, Noten, Wissen etc. bleiben erhalten (ohne Modulzuordnung)
+                      {t("modules.dataPreserved")}
                     </p>
                   </div>
                 </button>
@@ -393,7 +393,7 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
             /* No related data — simple delete */
             <div className="bg-surface-50 rounded-xl p-4 mb-4">
               <p className="text-sm text-surface-600">
-                Keine verknüpften Daten vorhanden. {isSingle ? "Das Modul" : "Die Module"} kann sicher gelöscht werden.
+                {t("modules.noLinkedData")}
               </p>
             </div>
           )}
@@ -405,7 +405,7 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
               disabled={deleting}
               className="btn-secondary flex-1"
             >
-              Abbrechen
+              {t("common.cancel")}
             </button>
             {counts && totalRelated === 0 && (
               <button
@@ -483,7 +483,7 @@ function ModuleCard({ mod, onEdit, onDelete, selectMode, isSelected, onToggleSel
       <h3 className="font-semibold text-surface-900 leading-snug mb-1">{mod.name}</h3>
       {mod.professor && <p className="text-xs text-surface-500 mb-1">{mod.professor}</p>}
       {mod.exam_date && (
-        <p className="text-xs text-red-500 mb-1">Prüfung: {mod.exam_date}</p>
+        <p className="text-xs text-red-500 mb-1">{t("modules.examDate", { date: mod.exam_date })}</p>
       )}
 
       <div className="flex flex-wrap gap-1.5 mt-2">
@@ -623,7 +623,7 @@ function ModuleModal({ initial, onClose, onSaved }: {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto mx-4">
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-surface-100">
-          <h2 className="font-semibold text-surface-900">{initial ? "Modul bearbeiten" : "Neues Modul"}</h2>
+          <h2 className="font-semibold text-surface-900">{initial ? t("modules.moduleEdit") : t("modules.newModule")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
         </div>
 
@@ -733,7 +733,7 @@ function ModuleModal({ initial, onClose, onSaved }: {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-surface-700 mb-1">Prüfungsdatum</label>
+                  <label className="block text-sm font-medium text-surface-700 mb-1">{t("modules.examDateLabel")}</label>
                   <input className="input" type="date" value={form.exam_date} onChange={e => set("exam_date", e.target.value)} />
                 </div>
                 <div>
@@ -744,7 +744,7 @@ function ModuleModal({ initial, onClose, onSaved }: {
               <div>
                 <label className="block text-sm font-medium text-surface-700 mb-1">Gewichtung</label>
                 <input className="input" type="number" min="0.1" max="10" step="0.1" value={form.weighting} onChange={e => set("weighting", e.target.value)} placeholder="1" />
-                <p className="text-xs text-surface-400 mt-1">Für den gewichteten Notendurchschnitt</p>
+                <p className="text-xs text-surface-400 mt-1">{t("modules.weightedGradeAverage")}</p>
               </div>
               <div className="flex items-center gap-3 p-3 bg-surface-50 rounded-xl">
                 <input
@@ -756,7 +756,7 @@ function ModuleModal({ initial, onClose, onSaved }: {
                 />
                 <label htmlFor="in_plan" className="text-sm text-surface-700 cursor-pointer">
                   <span className="font-medium">Im Studienplan</span>
-                  <span className="text-surface-500 ml-1">— erscheint in der Semesterübersicht</span>
+                  <span className="text-surface-500 ml-1">{t("modules.semesterOverview")}</span>
                 </label>
               </div>
             </>
@@ -950,7 +950,7 @@ function FhImportModal({ isPro, onClose, onImported }: {
             </div>
             <div>
               <h2 className="font-semibold text-surface-900">Studiengang importieren</h2>
-              <p className="text-xs text-surface-500">Wähle dein Land, deine Hochschule und deinen Studiengang</p>
+              <p className="text-xs text-surface-500">{t("modules.selectCountry")}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400"><X size={16} /></button>
@@ -1047,7 +1047,7 @@ function FhImportModal({ isPro, onClose, onImported }: {
               {programmes.length === 0 && (
                 <div className="text-center py-8 text-surface-400">
                   <Loader2 size={24} className="mx-auto mb-2 animate-spin" />
-                  <p className="text-sm">Studiengänge werden geladen…</p>
+                  <p className="text-sm">{t("modules.loadingProgrammes")}</p>
                 </div>
               )}
 

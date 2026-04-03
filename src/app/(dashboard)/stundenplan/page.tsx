@@ -9,7 +9,6 @@ import { UpgradeModal } from "@/components/ui/ProGate";
 import { Plus, X, Trash2, ChevronLeft, ChevronRight, Copy } from "lucide-react";
 import type { StundenplanEntry } from "@/types/database";
 
-const DAYS = ["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
 const DAYS_SHORT = ["Mo","Di","Mi","Do","Fr","Sa"];
 const HOURS = Array.from({ length: 14 }, (_, i) => i + 7); // 7:00 – 20:00
 const SEMESTERS = ["Semester 1","Semester 2","Semester 3","Semester 4","Semester 5","Semester 6","Semester 7","Semester 8","Semester 9"];
@@ -21,6 +20,7 @@ function formatWeeks(t: ReturnType<typeof useTranslation>["t"], count: number) {
 
 export default function StundenplanPage() {
   const { t } = useTranslation();
+  const DAYS = t("stundenplan.dayNames").split("|");
   const [entries, setEntries] = useState<StundenplanEntry[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
