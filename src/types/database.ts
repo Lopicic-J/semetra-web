@@ -170,11 +170,17 @@ export interface Flashcard {
   deck_name: string;
   front: string;
   back: string;
+  card_type: "basic" | "cloze" | "mc";
   source: "user" | "ai";
   source_document: string | null;
+  tags: string[];
+  choices: string[] | null;
   ease_factor: number;
   interval_days: number;
   repetitions: number;
+  streak: number;
+  total_reviews: number;
+  correct_count: number;
   next_review: string | null;
   last_reviewed: string | null;
   created_at: string;
