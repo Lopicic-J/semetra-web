@@ -457,7 +457,7 @@ function StudyPlanCard({ item }: { item: StudyPlanItem }) {
 
       {/* Start timer link */}
       <Link
-        href={`/timer?exam=${item.examId}&topic=${item.topic.id}`}
+        href={`/timer?exam=${item.examId}&topic=${item.topic.id}${item.topic.module_id ? `&module=${item.topic.module_id}` : ""}`}
         className="p-1.5 rounded-lg text-brand-600 hover:bg-brand-50 transition-colors shrink-0"
         title={t("exams.startTimer")}
       >

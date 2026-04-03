@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
 import { useTimeLogs } from "@/lib/hooks/useTimeLogs";
@@ -62,6 +63,13 @@ export default function TimerPage() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const pausedAtRef = useRef(0);
 
+  // URL params for deep-linking from study plan
+  const searchParams = useSearchParams();
+  const paramExam = searchParams.get("exam");
+  const paramTopic = searchParams.get("topic");
+  const paramModule = searchParams.get("module");
+  const prefilledRef = useRef(false);
+
   // Fetch exams, topics, tasks
   useEffect(() => {
     async function load() {
@@ -71,11 +79,30 @@ export default function TimerPage() {
         supabase.from("topics").select("*").order("title"),
         supabase.from("tasks").select("*").neq("status", "done").order("due_date"),
       ]);
-      setExams(examRes.data ?? []);
-      setTopics(topicRes.data ?? []);
+      const loadedExams = examRes.data ?? [];
+      const loadedTopics = topicRes.data ?? [];
+      setExams(loadedExams);
+      setTopics(loadedTopics);
       setTasks(taskRes.data ?? []);
+
+      // Pre-select from URL params (study plan deep link)
+      if (!prefilledRef.current && (paramExam || paramTopic || paramModule)) {
+        prefilledRef.current = true;
+
+        // Find topic first to resolve module
+        const topic = paramTopic ? loadedTopics.find(tp => tp.id === paramTopic) : null;
+        const moduleId = paramModule || topic?.module_id || "";
+
+        if (moduleId) setSelectedModule(moduleId);
+        if (paramExam) setSelectedExam(paramExam);
+        if (paramTopic) setSelectedTopic(paramTopic);
+
+        // Auto-open context panel so user sees what's selected
+        setShowContext(true);
+      }
     }
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase]);
 
   // Filter context by module
@@ -94,8 +121,12 @@ export default function TimerPage() {
     ? tasks.filter(t => t.module_id === selectedModule)
     : tasks;
 
-  // Reset sub-selections when module changes
+  // Reset sub-selections when module changes (skip on initial prefill from URL)
+  const moduleChangeCount = useRef(0);
   useEffect(() => {
+    moduleChangeCount.current++;
+    // Skip the first change if it came from URL prefill
+    if (moduleChangeCount.current <= 1 && prefilledRef.current) return;
     setSelectedExam("");
     setSelectedTopic("");
     setSelectedTask("");
