@@ -144,6 +144,7 @@ export interface Studiengang {
   id: string;
   name: string;
   fh: string;
+  country: string;
   abschluss: string;
   semester_count: number;
   ects_total: number;

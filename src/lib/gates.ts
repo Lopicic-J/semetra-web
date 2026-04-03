@@ -49,7 +49,7 @@ export const PRO_FEATURES = {
   gradeAnalytics:      "Notenprognosen & Trends",
   gradeExport:         "Semester-Report Export",
   desktopSync:         "Desktop ↔ Web Sync",
-  fhImportAll:         "Alle FH-Module importieren",
+  fhImportAll:         "Alle Studiengang-Module importieren",
   spacedRepetition:    "Smart Spaced Repetition",
   themes:              "Benutzerdefinierte Themes",
   prioritySupport:     "Prioritäts-Support",

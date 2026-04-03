@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
+import { useGradingSystem } from "@/lib/hooks/useGradingSystem";
 import { createClient } from "@/lib/supabase/client";
 import { MODULE_COLORS } from "@/lib/utils";
 import { FREE_LIMITS, withinFreeLimit } from "@/lib/gates";
@@ -797,14 +798,55 @@ function ModuleModal({ initial, onClose, onSaved }: {
 /* FH Import Modal                                                            */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
-const FH_INFO: Record<string, { full: string; color: string }> = {
-  "FFHS":   { full: "Fernfachhochschule Schweiz",                       color: "#6d28d9" },
-  "ZHAW":   { full: "Zürcher Hochschule für Angewandte Wissenschaften", color: "#2563eb" },
-  "FHNW":   { full: "Fachhochschule Nordwestschweiz",                   color: "#dc2626" },
-  "BFH":    { full: "Berner Fachhochschule",                            color: "#059669" },
-  "OST":    { full: "Ostschweizer Fachhochschule",                      color: "#d97706" },
-  "HES-SO": { full: "Haute École Spécialisée de Suisse Occidentale",    color: "#0891b2" },
+const FH_INFO: Record<string, { full: string; color: string; country: string }> = {
+  // Schweiz
+  "FFHS":   { full: "Fernfachhochschule Schweiz",                       color: "#6d28d9", country: "CH" },
+  "ZHAW":   { full: "Zürcher Hochschule für Angewandte Wissenschaften", color: "#2563eb", country: "CH" },
+  "FHNW":   { full: "Fachhochschule Nordwestschweiz",                   color: "#dc2626", country: "CH" },
+  "BFH":    { full: "Berner Fachhochschule",                            color: "#059669", country: "CH" },
+  "OST":    { full: "Ostschweizer Fachhochschule",                      color: "#d97706", country: "CH" },
+  "HES-SO": { full: "Haute École Spécialisée de Suisse Occidentale",    color: "#0891b2", country: "CH" },
+  "HSLU":   { full: "Hochschule Luzern",                                color: "#7c3aed", country: "CH" },
+  "FHGR":   { full: "Fachhochschule Graubünden",                        color: "#0d9488", country: "CH" },
+  "SUPSI":  { full: "Scuola Universitaria della Svizzera Italiana",     color: "#ea580c", country: "CH" },
+  // Deutschland
+  "TH Köln":     { full: "Technische Hochschule Köln",                  color: "#e11d48", country: "DE" },
+  "HAW Hamburg":  { full: "Hochschule für Angewandte Wissenschaften Hamburg", color: "#1d4ed8", country: "DE" },
+  "DHBW":         { full: "Duale Hochschule Baden-Württemberg",         color: "#b91c1c", country: "DE" },
+  "FH Aachen":    { full: "Fachhochschule Aachen",                      color: "#15803d", country: "DE" },
+  // Österreich
+  "FH Technikum Wien": { full: "FH Technikum Wien",                     color: "#7c2d12", country: "AT" },
+  "FH Campus Wien":    { full: "FH Campus Wien",                        color: "#4338ca", country: "AT" },
+  "FH Joanneum":       { full: "FH Joanneum Graz",                      color: "#0f766e", country: "AT" },
+  // Frankreich
+  "IUT Paris":   { full: "Institut Universitaire de Technologie Paris",  color: "#1e40af", country: "FR" },
+  "INSA Lyon":   { full: "Institut National des Sciences Appliquées Lyon", color: "#9f1239", country: "FR" },
+  "École 42":    { full: "École 42 Paris",                               color: "#171717", country: "FR" },
+  // Italien
+  "Politecnico di Milano": { full: "Politecnico di Milano",             color: "#1e3a5f", country: "IT" },
+  "Sapienza Roma":         { full: "Sapienza Università di Roma",       color: "#7f1d1d", country: "IT" },
+  "Università di Bologna": { full: "Alma Mater Studiorum Bologna",     color: "#92400e", country: "IT" },
+  // Niederlande
+  "HvA Amsterdam": { full: "Hogeschool van Amsterdam",                  color: "#ea580c", country: "NL" },
+  "Fontys":        { full: "Fontys Hogescholen",                        color: "#7c3aed", country: "NL" },
+  // Spanien
+  "UPM Madrid":   { full: "Universidad Politécnica de Madrid",          color: "#1e3a5f", country: "ES" },
+  "UPC Barcelona": { full: "Universitat Politècnica de Catalunya",      color: "#0369a1", country: "ES" },
+  // UK
+  "Imperial College":          { full: "Imperial College London",       color: "#1e3a5f", country: "UK" },
+  "University of Manchester":  { full: "University of Manchester",      color: "#7c2d12", country: "UK" },
 };
+
+const COUNTRY_TABS: { code: string; flag: string; label: string }[] = [
+  { code: "CH", flag: "🇨🇭", label: "Schweiz" },
+  { code: "DE", flag: "🇩🇪", label: "Deutschland" },
+  { code: "AT", flag: "🇦🇹", label: "Österreich" },
+  { code: "FR", flag: "🇫🇷", label: "France" },
+  { code: "IT", flag: "🇮🇹", label: "Italia" },
+  { code: "NL", flag: "🇳🇱", label: "Nederland" },
+  { code: "ES", flag: "🇪🇸", label: "España" },
+  { code: "UK", flag: "🇬🇧", label: "UK" },
+];
 
 function FhImportModal({ isPro, onClose, onImported }: {
   isPro: boolean;
@@ -812,26 +854,34 @@ function FhImportModal({ isPro, onClose, onImported }: {
   onImported: () => void;
 }) {
   const supabase = createClient();
+  const gs = useGradingSystem();
   const [programmes, setProgrammes] = useState<Studiengang[]>([]);
   const [selected, setSelected] = useState<Studiengang | null>(null);
   const [importing, setImporting] = useState(false);
   const [customSemester, setCustomSemester] = useState<Record<string, string>>({});
   const [step, setStep] = useState<"choose" | "preview" | "done">("choose");
   const [activeFh, setActiveFh] = useState<string | null>(null);
+  const [activeCountry, setActiveCountry] = useState<string>(gs.country);
 
   useEffect(() => {
     supabase.from("studiengaenge").select("*").order("fh").order("name")
       .then(({ data }) => setProgrammes(data ?? []));
   }, [supabase]);
 
+  // Filter by country first, then group by FH
+  const countryProgrammes = useMemo(() =>
+    programmes.filter(p => (p.country ?? "CH") === activeCountry),
+    [programmes, activeCountry]
+  );
+
   const fhList = useMemo(() => {
     const map = new Map<string, Studiengang[]>();
-    for (const p of programmes) {
+    for (const p of countryProgrammes) {
       if (!map.has(p.fh)) map.set(p.fh, []);
       map.get(p.fh)!.push(p);
     }
     return Array.from(map.entries());
-  }, [programmes]);
+  }, [countryProgrammes]);
 
   const visibleFhs = activeFh ? fhList.filter(([fh]) => fh === activeFh) : fhList;
 
@@ -893,8 +943,8 @@ function FhImportModal({ isPro, onClose, onImported }: {
               <GraduationCap size={18} className="text-brand-600" />
             </div>
             <div>
-              <h2 className="font-semibold text-surface-900">FH-Module importieren</h2>
-              <p className="text-xs text-surface-500">Wähle deine Fachhochschule und deinen Studiengang</p>
+              <h2 className="font-semibold text-surface-900">Studiengang importieren</h2>
+              <p className="text-xs text-surface-500">Wähle dein Land, deine Hochschule und deinen Studiengang</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400"><X size={16} /></button>
@@ -904,6 +954,23 @@ function FhImportModal({ isPro, onClose, onImported }: {
         <div className="flex-1 overflow-y-auto p-4 sm:p-5">
           {step === "choose" ? (
             <>
+              {/* Country Tabs */}
+              <div className="flex flex-wrap gap-1.5 mb-4 pb-3 border-b border-surface-100">
+                {COUNTRY_TABS.map(ct => (
+                  <button
+                    key={ct.code}
+                    onClick={() => { setActiveCountry(ct.code); setActiveFh(null); }}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      activeCountry === ct.code
+                        ? "bg-brand-600 text-white"
+                        : "bg-surface-50 text-surface-600 hover:bg-surface-100"
+                    }`}
+                  >
+                    {ct.flag} {ct.label}
+                  </button>
+                ))}
+              </div>
+
               {/* FH Filter Chips */}
               <div className="flex flex-wrap gap-2 mb-5">
                 <button
@@ -912,7 +979,7 @@ function FhImportModal({ isPro, onClose, onImported }: {
                     activeFh === null ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-600 hover:bg-surface-200"
                   }`}
                 >
-                  Alle FHs ({programmes.length})
+                  Alle ({countryProgrammes.length})
                 </button>
                 {fhList.map(([fh, progs]) => (
                   <button
@@ -960,7 +1027,7 @@ function FhImportModal({ isPro, onClose, onImported }: {
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="font-medium text-surface-900 text-sm truncate">{p.name}</p>
-                              <p className="text-xs text-surface-500">{p.abschluss} · {p.semester_count} Sem. · {p.ects_total} ECTS · {(p.modules_json ?? []).length} Module</p>
+                              <p className="text-xs text-surface-500">{p.abschluss} · {p.semester_count} Sem. · {p.ects_total} {gs.creditLabel} · {(p.modules_json ?? []).length} Module</p>
                             </div>
                             <ChevronRight size={14} className="text-surface-300 group-hover:text-brand-500 shrink-0 transition-colors" />
                           </div>
@@ -977,6 +1044,12 @@ function FhImportModal({ isPro, onClose, onImported }: {
                   <p className="text-sm">Studiengänge werden geladen…</p>
                 </div>
               )}
+
+              {/* Disclaimer */}
+              <p className="text-[10px] text-surface-400 mt-5 leading-relaxed">
+                Kein offizielles Angebot der genannten Hochschulen. Basiert auf öffentlich zugänglichen Informationen.
+                Verbindlich sind die Angaben der jeweiligen Institution.
+              </p>
             </>
           ) : step === "preview" && selected ? (
             <>
@@ -995,7 +1068,7 @@ function FhImportModal({ isPro, onClose, onImported }: {
                 <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-surface-50 text-[10px] sm:text-xs font-semibold text-surface-500 border-b border-surface-100">
                   <div className="col-span-5 sm:col-span-4">Modul</div>
                   <div className="col-span-2 hidden sm:block">Code</div>
-                  <div className="col-span-2">ECTS</div>
+                  <div className="col-span-2">{gs.creditLabel}</div>
                   <div className="col-span-2 hidden sm:block">Typ</div>
                   <div className="col-span-3 sm:col-span-2">Semester</div>
                 </div>
@@ -1053,7 +1126,7 @@ function FhImportModal({ isPro, onClose, onImported }: {
               <div className="flex items-center justify-between">
                 <p className="text-sm text-surface-500">
                   {isPro
-                    ? `${(selected.modules_json ?? []).length} Module · ${selected.ects_total} ECTS`
+                    ? `${(selected.modules_json ?? []).length} Module · ${selected.ects_total} ${gs.creditLabel}`
                     : `${Math.min((selected.modules_json ?? []).length, FREE_LIMITS.modules)} von ${(selected.modules_json ?? []).length} Modulen`
                   }
                 </p>

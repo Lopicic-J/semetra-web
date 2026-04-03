@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useProfile } from "@/lib/hooks/useProfile";
+import { useGradingSystem } from "@/lib/hooks/useGradingSystem";
 import { GraduationCap, BookOpen, CheckCircle, ChevronRight, Plus, Loader2, X, Building2, Lock } from "lucide-react";
 import { ProGate } from "@/components/ui/ProGate";
 import type { Studiengang, StudiengangModuleTemplate } from "@/types/database";
@@ -11,17 +12,59 @@ const MODULE_COLORS = [
 ];
 
 const FH_INFO: Record<string, { full: string; color: string }> = {
+  // CH
   "FFHS":   { full: "Fernfachhochschule Schweiz",                       color: "#6d28d9" },
   "ZHAW":   { full: "Zürcher Hochschule für Angewandte Wissenschaften", color: "#2563eb" },
   "FHNW":   { full: "Fachhochschule Nordwestschweiz",                   color: "#dc2626" },
   "BFH":    { full: "Berner Fachhochschule",                            color: "#059669" },
   "OST":    { full: "Ostschweizer Fachhochschule",                      color: "#d97706" },
   "HES-SO": { full: "Haute École Spécialisée de Suisse Occidentale",    color: "#0891b2" },
+  "HSLU":   { full: "Hochschule Luzern",                                color: "#7c3aed" },
+  "FHGR":   { full: "Fachhochschule Graubünden",                        color: "#0d9488" },
+  "SUPSI":  { full: "Scuola Universitaria della Svizzera Italiana",     color: "#ea580c" },
+  // DE
+  "TH Köln":     { full: "Technische Hochschule Köln",                  color: "#e11d48" },
+  "HAW Hamburg":  { full: "Hochschule für Angewandte Wissenschaften Hamburg", color: "#1d4ed8" },
+  "DHBW":         { full: "Duale Hochschule Baden-Württemberg",         color: "#b91c1c" },
+  "FH Aachen":    { full: "Fachhochschule Aachen",                      color: "#15803d" },
+  // AT
+  "FH Technikum Wien": { full: "FH Technikum Wien",                     color: "#7c2d12" },
+  "FH Campus Wien":    { full: "FH Campus Wien",                        color: "#4338ca" },
+  "FH Joanneum":       { full: "FH Joanneum Graz",                      color: "#0f766e" },
+  // FR
+  "IUT Paris":   { full: "Institut Universitaire de Technologie Paris",  color: "#1e40af" },
+  "INSA Lyon":   { full: "Institut National des Sciences Appliquées Lyon", color: "#9f1239" },
+  "École 42":    { full: "École 42 Paris",                               color: "#171717" },
+  // IT
+  "Politecnico di Milano": { full: "Politecnico di Milano",             color: "#1e3a5f" },
+  "Sapienza Roma":         { full: "Sapienza Università di Roma",       color: "#7f1d1d" },
+  "Università di Bologna": { full: "Alma Mater Studiorum Bologna",     color: "#92400e" },
+  // NL
+  "HvA Amsterdam": { full: "Hogeschool van Amsterdam",                  color: "#ea580c" },
+  "Fontys":        { full: "Fontys Hogescholen",                        color: "#7c3aed" },
+  // ES
+  "UPM Madrid":   { full: "Universidad Politécnica de Madrid",          color: "#1e3a5f" },
+  "UPC Barcelona": { full: "Universitat Politècnica de Catalunya",      color: "#0369a1" },
+  // UK
+  "Imperial College":          { full: "Imperial College London",       color: "#1e3a5f" },
+  "University of Manchester":  { full: "University of Manchester",      color: "#7c2d12" },
 };
+
+const COUNTRY_TABS: { code: string; flag: string; label: string }[] = [
+  { code: "CH", flag: "🇨🇭", label: "Schweiz" },
+  { code: "DE", flag: "🇩🇪", label: "Deutschland" },
+  { code: "AT", flag: "🇦🇹", label: "Österreich" },
+  { code: "FR", flag: "🇫🇷", label: "France" },
+  { code: "IT", flag: "🇮🇹", label: "Italia" },
+  { code: "NL", flag: "🇳🇱", label: "Nederland" },
+  { code: "ES", flag: "🇪🇸", label: "España" },
+  { code: "UK", flag: "🇬🇧", label: "UK" },
+];
 
 export default function StudiengaengePage() {
   const supabase = createClient();
   const { isPro } = useProfile();
+  const gs = useGradingSystem();
   const [programmes, setProgrammes] = useState<Studiengang[]>([]);
   const [selected, setSelected] = useState<Studiengang | null>(null);
   const [importing, setImporting] = useState(false);
@@ -29,6 +72,7 @@ export default function StudiengaengePage() {
   const [customSemester, setCustomSemester] = useState<Record<string, string>>({});
   const [step, setStep] = useState<"choose" | "preview" | "done">("choose");
   const [activeFh, setActiveFh] = useState<string | null>(null);
+  const [activeCountry, setActiveCountry] = useState<string>(gs.country);
 
   const load = useCallback(async () => {
     const { data } = await supabase.from("studiengaenge").select("*").order("fh").order("name");
@@ -37,15 +81,21 @@ export default function StudiengaengePage() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Filter by country first
+  const countryProgrammes = useMemo(() =>
+    programmes.filter(p => (p.country ?? "CH") === activeCountry),
+    [programmes, activeCountry]
+  );
+
   // Group programmes by FH
   const fhList = useMemo(() => {
     const map = new Map<string, Studiengang[]>();
-    for (const p of programmes) {
+    for (const p of countryProgrammes) {
       if (!map.has(p.fh)) map.set(p.fh, []);
       map.get(p.fh)!.push(p);
     }
     return Array.from(map.entries());
-  }, [programmes]);
+  }, [countryProgrammes]);
 
   // Filtered list
   const visibleFhs = activeFh ? fhList.filter(([fh]) => fh === activeFh) : fhList;
@@ -108,10 +158,10 @@ export default function StudiengaengePage() {
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
             <GraduationCap className="text-brand-600" size={26} />
-            FH-Voreinstellungen
+            Studiengänge importieren
           </h1>
           <p className="text-surface-500 text-sm mt-1">
-            Importiere alle Module deiner Fachhochschule automatisch.
+            Importiere alle Module deiner Hochschule automatisch.
           </p>
         </div>
         <ProGate feature="fhImportAll" isPro={false}>
@@ -126,15 +176,32 @@ export default function StudiengaengePage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
           <GraduationCap className="text-brand-600" size={26} />
-          FH-Voreinstellungen
+          Studiengänge importieren
         </h1>
         <p className="text-surface-500 text-sm mt-1">
-          Wähle deine Fachhochschule und deinen Studiengang — alle Module werden als Voreinstellung importiert.
+          Wähle dein Land und deinen Studiengang — alle Module werden als Voreinstellung importiert.
         </p>
       </div>
 
       {step === "choose" && (
         <>
+          {/* Country Tabs */}
+          <div className="flex flex-wrap gap-1.5 mb-5 pb-3 border-b border-surface-100">
+            {COUNTRY_TABS.map(ct => (
+              <button
+                key={ct.code}
+                onClick={() => { setActiveCountry(ct.code); setActiveFh(null); }}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  activeCountry === ct.code
+                    ? "bg-brand-600 text-white"
+                    : "bg-surface-50 text-surface-600 hover:bg-surface-100"
+                }`}
+              >
+                {ct.flag} {ct.label}
+              </button>
+            ))}
+          </div>
+
           {/* FH Filter Chips */}
           <div className="flex flex-wrap gap-2 mb-6">
             <button
@@ -145,7 +212,7 @@ export default function StudiengaengePage() {
                   : "bg-surface-100 text-surface-600 hover:bg-surface-200"
               }`}
             >
-              Alle FHs ({programmes.length})
+              Alle ({countryProgrammes.length})
             </button>
             {fhList.map(([fh, progs]) => (
               <button
@@ -197,7 +264,7 @@ export default function StudiengaengePage() {
                           <p className="font-semibold text-surface-900 text-sm truncate">{p.name}</p>
                           <p className="text-xs text-surface-500 mt-0.5">{p.abschluss} · {p.semester_count} Semester</p>
                           <p className="text-xs font-medium mt-1" style={{ color: FH_INFO[fh]?.color ?? "#6d28d9" }}>
-                            {p.ects_total} ECTS · {(p.modules_json ?? []).length} Module
+                            {p.ects_total} {gs.creditLabel} · {(p.modules_json ?? []).length} Module
                           </p>
                         </div>
                         <ChevronRight size={16} className="text-surface-300 group-hover:text-brand-500 mt-1 transition-colors shrink-0" />
@@ -209,12 +276,29 @@ export default function StudiengaengePage() {
             ))}
           </div>
 
+          {countryProgrammes.length === 0 && programmes.length > 0 && (
+            <div className="text-center py-12 text-surface-400">
+              <GraduationCap size={40} className="mx-auto mb-3 opacity-30" />
+              <p>Keine Studiengänge für dieses Land. Bitte Migration 022 ausführen.</p>
+            </div>
+          )}
+
           {programmes.length === 0 && (
             <div className="text-center py-12 text-surface-400">
               <GraduationCap size={40} className="mx-auto mb-3 opacity-30" />
-              <p>Keine Studiengänge gefunden. Bitte Migration 005 ausführen.</p>
+              <p>Keine Studiengänge gefunden. Bitte Migrationen ausführen.</p>
             </div>
           )}
+
+          {/* Legal Disclaimer */}
+          <div className="mt-8 pt-6 border-t border-surface-100">
+            <p className="text-[11px] text-surface-400 leading-relaxed">
+              Semetra Workspace steht in keiner Verbindung zu den genannten Hochschulen und ist kein offizielles Angebot
+              dieser Institutionen. Die Studiengang-Daten basieren auf öffentlich zugänglichen Informationen und dienen
+              ausschliesslich als Orientierungshilfe. Alle Angaben ohne Gewähr — verbindlich sind ausschliesslich die
+              offiziellen Informationen der jeweiligen Hochschule. Stand: April 2026.
+            </p>
+          </div>
         </>
       )}
 
@@ -234,7 +318,7 @@ export default function StudiengaengePage() {
             <div className="grid grid-cols-12 gap-2 px-4 py-2.5 bg-surface-50 text-xs font-semibold text-surface-500 border-b border-surface-100">
               <div className="col-span-4">Modul</div>
               <div className="col-span-2">Code</div>
-              <div className="col-span-2">ECTS</div>
+              <div className="col-span-2">{gs.creditLabel}</div>
               <div className="col-span-2">Typ</div>
               <div className="col-span-2">Semester</div>
             </div>
@@ -249,7 +333,7 @@ export default function StudiengaengePage() {
                     <span className="text-xs font-mono bg-surface-100 text-surface-600 px-1.5 py-0.5 rounded">{m.code}</span>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-sm text-surface-600">{m.ects} ECTS</span>
+                    <span className="text-sm text-surface-600">{m.ects}</span>
                   </div>
                   <div className="col-span-2">
                     <span className={`badge text-[10px] ${m.module_type === "pflicht" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}>
@@ -274,7 +358,7 @@ export default function StudiengaengePage() {
 
           <div className="flex items-center justify-between">
             <div className="text-sm text-surface-500">
-              {(selected.modules_json ?? []).length} Module · {selected.ects_total} ECTS total
+              {(selected.modules_json ?? []).length} Module · {selected.ects_total} {gs.creditLabel} total
             </div>
             <button
               onClick={doImport}
