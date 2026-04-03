@@ -35,15 +35,21 @@ function getFormulaCategories(t: (key: string) => string): { key: FormulaCategor
   ];
 }
 
-const CALC_BUTTONS = [
-  ["C", "(", ")", "⌫"],
-  ["sin", "cos", "tan", "÷"],
-  ["7", "8", "9", "×"],
-  ["4", "5", "6", "−"],
-  ["1", "2", "3", "+"],
-  ["0", ".", "π", "="],
-  ["√", "^", "ln", "log"],
-  ["e", "!", "%", "abs"],
+const CALC_BASIC = [
+  ["C", "(", ")", "\u232b"],
+  ["7", "8", "9", "\u00f7"],
+  ["4", "5", "6", "\u00d7"],
+  ["1", "2", "3", "\u2212"],
+  ["0", ".", "Ans", "+"],
+  ["\u03c0", "e", "%", "="],
+];
+const CALC_SCI = [
+  ["sin", "cos", "tan", "^"],
+  ["asin", "acos", "atan", "\u221a"],
+  ["sinh", "cosh", "tanh", "!"],
+  ["ln", "log", "log\u2082", "mod"],
+  ["e\u02e3", "10\u02e3", "|x|", "1/x"],
+  ["(", ")", ",", "EE"],
 ];
 
 /* getConstants and getUnitGroups moved into UnitsTool component */
@@ -586,66 +592,260 @@ function CalculatorTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
   const [result, setResult] = useState("");
   const [angleMode, setAngleMode] = useState<"deg" | "rad">("deg");
   const [moduleId, setModuleId] = useState<string | null>(null);
+  const [showSci, setShowSci] = useState(true);
+  const [lastAns, setLastAns] = useState("0");
+  const [history, setHistory] = useState<{ expr: string; result: string }[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [vars, setVars] = useState<Record<string, string>>({});
+  const [showVars, setShowVars] = useState(false);
+  const [varName, setVarName] = useState("");
+  const [showSteps, setShowSteps] = useState(false);
+  const [steps, setSteps] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleButton = (btn: string) => {
-    if (btn === "C") { setDisplay(""); setResult(""); return; }
-    if (btn === "⌫") { setDisplay((p) => p.slice(0, -1)); return; }
-    if (btn === "=") {
-      let expr = display;
-      if (angleMode === "deg") {
-        expr = expr.replace(/sin\(([^)]+)\)/g, `sin(($1)*${Math.PI}/180)`);
-        expr = expr.replace(/cos\(([^)]+)\)/g, `cos(($1)*${Math.PI}/180)`);
-        expr = expr.replace(/tan\(([^)]+)\)/g, `tan(($1)*${Math.PI}/180)`);
+  /* ── Enhanced eval with more functions ── */
+  const evalExpr = useCallback((raw: string): string => {
+    try {
+      let expr = raw;
+      // Replace stored variables
+      for (const [vn, vv] of Object.entries(vars)) {
+        expr = expr.replace(new RegExp(`\\b${vn}\\b`, "g"), `(${vv})`);
       }
+      // Replace Ans
+      expr = expr.replace(/\bAns\b/g, `(${lastAns})`);
+      // Scientific notation: 3.2EE-5 → 3.2e-5
+      expr = expr.replace(/EE/g, "e");
+      // Constants
+      expr = expr.replace(/\u03c0/g, `(${Math.PI})`);
+      expr = expr.replace(/\be\b(?!\w)/g, `(${Math.E})`);
+      // Functions
+      expr = expr.replace(/\u221a\(([^)]+)\)/g, "Math.sqrt($1)");
+      expr = expr.replace(/\u221a(\d+)/g, "Math.sqrt($1)");
+      const degWrap = (fn: string) => angleMode === "deg"
+        ? `Math.${fn}(($1)*${Math.PI}/180)` : `Math.${fn}($1)`;
+      const invDegWrap = (fn: string) => angleMode === "deg"
+        ? `(Math.${fn}($1)*180/${Math.PI})` : `Math.${fn}($1)`;
+      expr = expr.replace(/\bsin\(([^)]+)\)/g, degWrap("sin"));
+      expr = expr.replace(/\bcos\(([^)]+)\)/g, degWrap("cos"));
+      expr = expr.replace(/\btan\(([^)]+)\)/g, degWrap("tan"));
+      expr = expr.replace(/\basin\(([^)]+)\)/g, invDegWrap("asin"));
+      expr = expr.replace(/\bacos\(([^)]+)\)/g, invDegWrap("acos"));
+      expr = expr.replace(/\batan\(([^)]+)\)/g, invDegWrap("atan"));
+      expr = expr.replace(/\bsinh\(([^)]+)\)/g, "Math.sinh($1)");
+      expr = expr.replace(/\bcosh\(([^)]+)\)/g, "Math.cosh($1)");
+      expr = expr.replace(/\btanh\(([^)]+)\)/g, "Math.tanh($1)");
+      expr = expr.replace(/\bln\(([^)]+)\)/g, "Math.log($1)");
+      expr = expr.replace(/\blog\(([^)]+)\)/g, "Math.log10($1)");
+      expr = expr.replace(/\blog\u2082\(([^)]+)\)/g, "(Math.log($1)/Math.LN2)");
+      expr = expr.replace(/\babs\(([^)]+)\)/g, "Math.abs($1)");
+      expr = expr.replace(/\|([^|]+)\|/g, "Math.abs($1)");
+      // Operators
+      expr = expr.replace(/\u00d7/g, "*").replace(/\u00f7/g, "/").replace(/\u2212/g, "-");
+      expr = expr.replace(/\^/g, "**");
+      // e^x and 10^x buttons
+      expr = expr.replace(/e\u02e3\(([^)]+)\)/g, "Math.exp($1)");
+      expr = expr.replace(/10\u02e3\(([^)]+)\)/g, "Math.pow(10,$1)");
+      // 1/x
+      expr = expr.replace(/1\/x\(([^)]+)\)/g, "(1/($1))");
+      // Factorial
+      expr = expr.replace(/(\d+)!/g, (_: string, n: string) => {
+        let f = 1;
+        for (let i = 2; i <= Number(n); i++) f *= i;
+        return String(f);
+      });
+      // Modulo
+      expr = expr.replace(/\bmod\b/g, "%");
+      // Percentage: handle patterns like 200+10% → 200*(1+10/100)
+      // Simple: just replace standalone % with /100
+      expr = expr.replace(/(\d+\.?\d*)%/g, "($1/100)");
+      // Safety check
+      if (/[a-zA-Z_$]/.test(expr.replace(/Math\.\w+/g, "").replace(/Infinity|NaN/g, ""))) {
+        return t("math.invalidExpression");
+      }
+      const res = Function(`"use strict"; return (${expr})`)();
+      if (typeof res === "number") {
+        if (Number.isNaN(res)) return "NaN";
+        if (!Number.isFinite(res)) return "\u221e";
+        return Number.isInteger(res) ? String(res) : res.toPrecision(12).replace(/\.?0+$/, "");
+      }
+      return String(res);
+    } catch {
+      return t("math.error");
+    }
+  }, [angleMode, lastAns, vars, t]);
+
+  /* ── Generate steps for basic arithmetic ── */
+  const generateSteps = useCallback((expr: string, res: string): string[] => {
+    const stepsArr: string[] = [];
+    stepsArr.push(`${t("math.calc.input")}: ${expr}`);
+    // Show substitutions if variables were used
+    let sub = expr;
+    for (const [vn, vv] of Object.entries(vars)) {
+      if (expr.includes(vn)) {
+        sub = sub.replace(new RegExp(`\\b${vn}\\b`, "g"), vv);
+        stepsArr.push(`${vn} = ${vv} ${t("math.calc.substituted")}`);
+      }
+    }
+    if (expr.includes("Ans")) {
+      sub = sub.replace(/\bAns\b/g, lastAns);
+      stepsArr.push(`Ans = ${lastAns}`);
+    }
+    if (sub !== expr) stepsArr.push(`= ${sub}`);
+    stepsArr.push(`= ${res}`);
+    return stepsArr;
+  }, [vars, lastAns, t]);
+
+  const handleButton = (btn: string) => {
+    if (btn === "C") { setDisplay(""); setResult(""); setSteps([]); return; }
+    if (btn === "\u232b") { setDisplay(p => p.slice(0, -1)); return; }
+    if (btn === "=") {
+      if (!display.trim()) return;
       if (checkLimit && !checkLimit()) return;
-      const r = safeEval(expr, t);
+      const r = evalExpr(display);
       setResult(r);
+      if (r !== t("math.error") && r !== t("math.invalidExpression")) {
+        setLastAns(r);
+        setHistory(prev => [{ expr: display, result: r }, ...prev].slice(0, 50));
+        setSteps(generateSteps(display, r));
+      }
       onSave("calculator", display, r, moduleId);
       return;
     }
-    const fnBtns = ["sin", "cos", "tan", "ln", "log", "abs", "√"];
+    // Function buttons that need opening paren
+    const fnBtns = ["sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh",
+      "ln", "log", "log\u2082", "abs", "\u221a", "e\u02e3", "10\u02e3", "1/x"];
     if (fnBtns.includes(btn)) {
-      setDisplay((p) => p + (btn === "√" ? "√(" : btn + "("));
+      setDisplay(p => p + (btn === "\u221a" ? "\u221a(" : btn + "("));
       return;
     }
-    setDisplay((p) => p + btn);
+    if (btn === "EE") { setDisplay(p => p + "e"); return; }
+    if (btn === "|x|") { setDisplay(p => p + "|"); return; }
+    setDisplay(p => p + btn);
+  };
+
+  /* ── Save variable ── */
+  const saveVar = () => {
+    if (varName && result && result !== t("math.error")) {
+      setVars(prev => ({ ...prev, [varName]: result }));
+      setVarName("");
+    }
+  };
+
+  /* ── Button style helper ── */
+  const btnStyle = (btn: string) => {
+    if (btn === "=") return "bg-brand-600 text-white hover:bg-brand-700";
+    if (btn === "C" || btn === "\u232b") return "bg-danger-600/10 text-danger-600 hover:bg-danger-600/20";
+    if (["\u00f7", "\u00d7", "\u2212", "+", "^", "mod"].includes(btn)) return "bg-surface-200 text-brand-600 hover:bg-surface-300";
+    if (btn.length > 1 || ["\u221a", "\u03c0", "!", "%", "|x|", "EE"].includes(btn)) return "bg-surface-50 text-brand-600 hover:bg-surface-100";
+    return "bg-surface-100 text-surface-900 hover:bg-surface-200";
   };
 
   return (
     <div>
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <h2 className="text-base sm:text-lg font-semibold text-surface-900">{t("math.scientificCalculator")}</h2>
-        <div className="flex items-center gap-2 sm:gap-3">
-          <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-xs sm:text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 flex-1 sm:flex-none">
+        <div className="flex items-center gap-2">
+          <select value={moduleId || ""} onChange={e => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-xs rounded-lg px-2 py-1.5 border border-surface-200">
             <option value="">{t("math.noModule")}</option>
-            {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+            {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
-          <button onClick={() => setAngleMode(angleMode === "deg" ? "rad" : "deg")} className="px-3 py-1.5 rounded-lg bg-surface-100 text-surface-700 text-sm border border-surface-200 hover:bg-surface-200">
+          <button onClick={() => setAngleMode(angleMode === "deg" ? "rad" : "deg")} className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold border transition ${angleMode === "deg" ? "bg-brand-600 text-white border-brand-600" : "bg-surface-100 text-surface-700 border-surface-200"}`}>
             {angleMode === "deg" ? "DEG" : "RAD"}
+          </button>
+          <button onClick={() => setShowSci(!showSci)} className="px-2.5 py-1.5 rounded-lg bg-surface-100 text-surface-700 text-xs border border-surface-200 hover:bg-surface-200">
+            {showSci ? t("math.calc.basic") : t("math.calc.scientific")}
           </button>
         </div>
       </div>
 
       {/* Display */}
-      <div className="bg-surface-50 rounded-xl p-4 mb-4 border border-surface-200">
-        <input ref={inputRef} value={display} onChange={(e) => setDisplay(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleButton("="); }} placeholder={t("math.enterExpression")} className="w-full bg-transparent text-surface-900 text-base sm:text-xl font-mono outline-none text-right" />
+      <div className="bg-surface-50 rounded-xl p-4 mb-3 border border-surface-200">
+        <input ref={inputRef} value={display} onChange={e => setDisplay(e.target.value)} onKeyDown={e => { if (e.key === "Enter") handleButton("="); }} placeholder={t("math.enterExpression")} className="w-full bg-transparent text-surface-900 text-lg sm:text-xl font-mono outline-none text-right" />
         {result && <div className="text-right text-success-600 text-xl sm:text-2xl font-mono mt-2 font-bold break-all">= {result}</div>}
       </div>
 
-      {/* Buttons */}
-      <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-        {CALC_BUTTONS.flat().map((btn, i) => {
-          const isOp = ["÷", "×", "−", "+", "="].includes(btn);
-          const isFn = ["sin", "cos", "tan", "ln", "log", "√", "^", "!", "%", "abs", "e", "π"].includes(btn);
-          const isClear = btn === "C" || btn === "⌫";
-          return (
-            <button key={i} onClick={() => handleButton(btn)} className={`py-2.5 sm:py-3 rounded-lg font-mono text-sm sm:text-base font-semibold transition-all active:scale-95 sm:hover:scale-105 ${btn === "=" ? "bg-brand-600 text-white hover:bg-brand-700" : isClear ? "bg-danger-50 text-danger-600 hover:bg-danger-100" : isOp ? "bg-surface-200 text-brand-500 hover:bg-surface-200" : isFn ? "bg-surface-100 text-info-600 hover:bg-surface-200" : "bg-surface-100 text-surface-900 hover:bg-surface-200"}`}>
-              {btn}
-            </button>
-          );
-        })}
+      {/* Quick actions bar */}
+      <div className="flex gap-2 mb-3 overflow-x-auto">
+        <button onClick={() => setShowHistory(!showHistory)} className={`px-3 py-1.5 rounded-lg text-xs whitespace-nowrap transition ${showHistory ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-700 hover:bg-surface-200"}`}>
+          {t("math.calc.history")} ({history.length})
+        </button>
+        <button onClick={() => setShowVars(!showVars)} className={`px-3 py-1.5 rounded-lg text-xs whitespace-nowrap transition ${showVars ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-700 hover:bg-surface-200"}`}>
+          {t("math.calc.variables")} ({Object.keys(vars).length})
+        </button>
+        <button onClick={() => setShowSteps(!showSteps)} className={`px-3 py-1.5 rounded-lg text-xs whitespace-nowrap transition ${showSteps ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-700 hover:bg-surface-200"}`}>
+          {t("math.calc.steps")}
+        </button>
       </div>
+
+      {/* Steps display */}
+      {showSteps && steps.length > 0 && (
+        <div className="bg-surface-50 rounded-lg p-3 mb-3 border border-surface-200">
+          <p className="text-xs font-medium text-surface-700 mb-1">{t("math.calc.stepByStep")}</p>
+          {steps.map((s, i) => (
+            <div key={i} className="text-xs font-mono text-surface-600 py-0.5">{s}</div>
+          ))}
+        </div>
+      )}
+
+      {/* History panel */}
+      {showHistory && (
+        <div className="bg-surface-50 rounded-lg p-3 mb-3 border border-surface-200 max-h-40 overflow-y-auto">
+          <p className="text-xs font-medium text-surface-700 mb-2">{t("math.calc.history")}</p>
+          {history.length === 0 && <p className="text-xs text-surface-400">{t("math.calc.noHistory")}</p>}
+          {history.map((h, i) => (
+            <div key={i} className="flex items-center justify-between py-1 border-b border-surface-100 last:border-0 cursor-pointer hover:bg-surface-100 rounded px-1" onClick={() => { setDisplay(h.expr); setResult(h.result); setShowHistory(false); }}>
+              <span className="text-xs font-mono text-surface-600 truncate">{h.expr}</span>
+              <span className="text-xs font-mono text-success-600 ml-2 shrink-0">= {h.result}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Variables panel */}
+      {showVars && (
+        <div className="bg-surface-50 rounded-lg p-3 mb-3 border border-surface-200">
+          <p className="text-xs font-medium text-surface-700 mb-2">{t("math.calc.variables")}</p>
+          <div className="flex gap-2 mb-2">
+            <input value={varName} onChange={e => setVarName(e.target.value.replace(/[^a-zA-Z]/g, ""))} placeholder={t("math.calc.varName")} className="flex-1 bg-white text-surface-900 rounded px-2 py-1.5 border border-surface-200 text-xs font-mono" maxLength={5} />
+            <span className="text-xs text-surface-400 self-center">= {result || "?"}</span>
+            <button onClick={saveVar} disabled={!varName || !result} className="px-3 py-1.5 rounded bg-brand-600 text-white text-xs disabled:opacity-40">{t("math.save")}</button>
+          </div>
+          {Object.keys(vars).length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(vars).map(([vn, vv]) => (
+                <div key={vn} className="flex items-center gap-1 bg-white rounded px-2 py-1 border border-surface-200">
+                  <span className="text-xs font-mono text-brand-600 cursor-pointer" onClick={() => setDisplay(p => p + vn)}>{vn}={vv}</span>
+                  <button onClick={() => setVars(prev => { const n = { ...prev }; delete n[vn]; return n; })} className="text-surface-400 hover:text-danger-600 text-xs ml-1">\u00d7</button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Button Grid */}
+      <div className={`grid gap-1.5 ${showSci ? "grid-cols-10" : "grid-cols-4"}`}>
+        {showSci && (
+          <>
+            {/* Scientific buttons (left 6 cols) */}
+            {CALC_SCI.flat().map((btn, i) => (
+              <button key={`sci-${i}`} onClick={() => handleButton(btn)} className={`py-2 sm:py-2.5 rounded-lg font-mono text-xs font-medium transition-all active:scale-95 col-span-1 ${btnStyle(btn)}`}>
+                {btn}
+              </button>
+            ))}
+          </>
+        )}
+        {/* Basic buttons (right 4 cols or full width) */}
+        {CALC_BASIC.flat().map((btn, i) => (
+          <button key={`basic-${i}`} onClick={() => handleButton(btn)} className={`py-2.5 sm:py-3 rounded-lg font-mono text-sm sm:text-base font-semibold transition-all active:scale-95 ${showSci ? "col-span-1" : ""} ${btnStyle(btn)}`}>
+            {btn}
+          </button>
+        ))}
+      </div>
+
+      {/* Keyboard hint */}
+      <p className="text-surface-400 text-xs mt-2 text-center">{t("math.calc.keyboardHint")}</p>
     </div>
   );
 }
