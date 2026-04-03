@@ -29,7 +29,8 @@ export const FREE_LIMITS = {
   // Mathe-Raum — alle Tools zugänglich, aber mit Tageslimit
   mathDailyCalculations: 5,     // 5 Berechnungen pro Tag pro Tool
 
-  // KI = Beta, free for all (kein Limit)
+  // KI-Lernassistent — Free: 5 Aktionen/Tag, Pro: Unbegrenzt
+  aiActionsDaily: 5,
 
   // Analyse — das ist der echte Pro-Upsell
   gradeExport: false,           // PDF Export nur Pro
@@ -52,6 +53,7 @@ export const PRO_FEATURES = {
   fhImportAll:         "Alle Studiengang-Module importieren",
   spacedRepetition:    "Smart Spaced Repetition",
   studyPlanGenerator:  "Lernplan-Generator",
+  aiAssistant:         "KI-Lernassistent (unbegrenzt)",
   themes:              "Benutzerdefinierte Themes",
   prioritySupport:     "Prioritäts-Support",
 } as const;
@@ -104,6 +106,38 @@ export function mathUsageToday(toolId: string, isPro: boolean): {
     used,
     max: FREE_LIMITS.mathDailyCalculations,
   };
+}
+
+/** Check AI assistant daily usage */
+export function aiUsageToday(isPro: boolean): {
+  allowed: boolean;
+  used: number;
+  max: number;
+  remaining: number;
+} {
+  if (isPro) return { allowed: true, used: 0, max: Infinity, remaining: Infinity };
+
+  const today = new Date().toISOString().slice(0, 10);
+  const key = `semetra_ai_usage_${today}`;
+
+  if (typeof window === "undefined") return { allowed: true, used: 0, max: FREE_LIMITS.aiActionsDaily, remaining: FREE_LIMITS.aiActionsDaily };
+
+  const used = parseInt(localStorage.getItem(key) ?? "0", 10);
+  return {
+    allowed: used < FREE_LIMITS.aiActionsDaily,
+    used,
+    max: FREE_LIMITS.aiActionsDaily,
+    remaining: Math.max(0, FREE_LIMITS.aiActionsDaily - used),
+  };
+}
+
+/** Increment AI assistant daily usage counter */
+export function aiUsageIncrement(): void {
+  if (typeof window === "undefined") return;
+  const today = new Date().toISOString().slice(0, 10);
+  const key = `semetra_ai_usage_${today}`;
+  const used = parseInt(localStorage.getItem(key) ?? "0", 10);
+  localStorage.setItem(key, String(used + 1));
 }
 
 /** Increment math tool daily usage counter */

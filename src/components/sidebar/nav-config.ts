@@ -2,7 +2,7 @@ import {
   LayoutDashboard, Compass, BookOpen, CheckSquare,
   Target, Calendar, BarChart3, Clock3, Award,
   FileText, FolderOpen, Brain, Network, Lightbulb, Layers, Calculator, Timer,
-  TrendingUp, Medal,
+  TrendingUp, Medal, Sparkles,
   Settings, Info,
   type LucideIcon,
 } from "lucide-react";
@@ -46,6 +46,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/notes",         icon: FileText,    labelKey: "nav.notes",         pro: false },
       { href: "/documents",     icon: FolderOpen,  labelKey: "nav.documents",     pro: false },
+      { href: "/ai-assistant",   icon: Sparkles,    labelKey: "nav.aiAssistant",   pro: false },
       { href: "/knowledge",     icon: Brain,       labelKey: "nav.knowledge",     pro: false },
       { href: "/mindmaps",      icon: Network,     labelKey: "nav.mindmaps",      pro: false },
       { href: "/brainstorming", icon: Lightbulb,   labelKey: "nav.brainstorming", pro: false },
