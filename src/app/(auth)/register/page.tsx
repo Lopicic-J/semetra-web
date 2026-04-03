@@ -3,12 +3,14 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Gem, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
+import { Gem, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, Globe } from "lucide-react";
 import { getEnabledProviders } from "@/lib/oauth-providers";
+import { COUNTRY_LIST, DEFAULT_COUNTRY, type CountryCode } from "@/lib/grading-systems";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [country, setCountry] = useState<CountryCode>(DEFAULT_COUNTRY);
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -34,11 +36,18 @@ export default function RegisterPage() {
     if (password.length < 8) { setError("Passwort muss mind. 8 Zeichen haben"); return; }
     setLoading(true);
     setError(null);
-    const { error } = await supabase.auth.signUp({
+    const { error, data } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        data: { country },
+      },
     });
+    // Also save country to profile directly (in case trigger doesn't pass metadata)
+    if (data?.user?.id) {
+      await supabase.from("profiles").update({ country }).eq("id", data.user.id);
+    }
     if (error) {
       setError(error.message);
       setLoading(false);
@@ -171,6 +180,24 @@ export default function RegisterPage() {
                   </p>
                 </div>
               )}
+            </div>
+
+            {/* Country / Grading system */}
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1.5">Land / Notensystem</label>
+              <div className="relative">
+                <Globe size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                <select
+                  value={country}
+                  onChange={e => setCountry(e.target.value as CountryCode)}
+                  className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition appearance-none"
+                >
+                  {COUNTRY_LIST.map(c => (
+                    <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
+                  ))}
+                </select>
+              </div>
+              <p className="text-[10px] text-surface-400 mt-1">Bestimmt dein Notensystem. Kann sp&auml;ter ge&auml;ndert werden.</p>
             </div>
 
             {error && (

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import type { CountryCode } from "@/lib/grading-systems";
 
 export type Plan = "free" | "pro";
 export type PlanType = "free" | "subscription" | "lifetime";
@@ -12,6 +13,7 @@ export interface Profile {
   avatar_url: string | null;
   plan: Plan;
   plan_type: PlanType | null;
+  country: CountryCode | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
   stripe_subscription_status: string | null;

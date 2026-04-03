@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Settings, User, Bell, Palette, Shield, LogOut, Zap, CreditCard, CheckCircle, Monitor, ExternalLink, Download, Loader2, FileJson, HardDrive, Database } from "lucide-react";
+import { Settings, User, Bell, Palette, Shield, LogOut, Zap, CreditCard, CheckCircle, Monitor, ExternalLink, Download, Loader2, FileJson, HardDrive, Database, Globe } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useProfile } from "@/lib/hooks/useProfile";
+import { COUNTRY_LIST, GRADING_SYSTEMS, type CountryCode } from "@/lib/grading-systems";
 import Link from "next/link";
 
 export default function SettingsPage() {
@@ -58,7 +59,7 @@ export default function SettingsPage() {
 
         {/* Content */}
         <div className="flex-1">
-          {activeTab === "account"       && <AccountTab user={user} />}
+          {activeTab === "account"       && <AccountTab user={user} profile={profile} />}
           {activeTab === "plan"          && <PlanTab isPro={isPro} isLifetime={isLifetime} profile={profile} />}
           {activeTab === "appearance"    && <AppearanceTab />}
           {activeTab === "notifications" && <NotificationsTab />}
@@ -69,12 +70,20 @@ export default function SettingsPage() {
   );
 }
 
-function AccountTab({ user }: { user: { email?: string; created_at?: string } | null }) {
+function AccountTab({ user, profile }: { user: { email?: string; created_at?: string } | null; profile: { country?: string | null } | null }) {
   const supabase = createClient();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<string>(profile?.country ?? "CH");
+  const [countrySaving, setCountrySaving] = useState(false);
+  const [countryMsg, setCountryMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  // Sync when profile loads
+  useEffect(() => {
+    if (profile?.country) setSelectedCountry(profile.country);
+  }, [profile?.country]);
 
   async function handlePasswordChange(e: React.FormEvent) {
     e.preventDefault();
@@ -86,6 +95,19 @@ function AccountTab({ user }: { user: { email?: string; created_at?: string } | 
     if (error) setMsg({ type: "error", text: error.message });
     else { setMsg({ type: "success", text: "Passwort erfolgreich geändert." }); setNewPassword(""); setConfirmPassword(""); }
   }
+
+  async function handleCountryChange() {
+    setCountrySaving(true);
+    setCountryMsg(null);
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) { setCountrySaving(false); return; }
+    const { error } = await supabase.from("profiles").update({ country: selectedCountry }).eq("id", authUser.id);
+    setCountrySaving(false);
+    if (error) setCountryMsg({ type: "error", text: error.message });
+    else setCountryMsg({ type: "success", text: "Notensystem aktualisiert." });
+  }
+
+  const currentSystem = GRADING_SYSTEMS[selectedCountry as CountryCode] ?? GRADING_SYSTEMS.CH;
 
   return (
     <div className="space-y-5">
@@ -103,6 +125,43 @@ function AccountTab({ user }: { user: { email?: string; created_at?: string } | 
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Country / Grading System */}
+      <div className="card">
+        <h2 className="font-semibold text-surface-900 mb-1">Land & Notensystem</h2>
+        <p className="text-xs text-surface-400 mb-4">Bestimmt die Notenskala, Bestehensgrenze und Labels in der gesamten App.</p>
+        <div className="flex items-end gap-3">
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-surface-700 mb-1">Land</label>
+            <select
+              value={selectedCountry}
+              onChange={e => setSelectedCountry(e.target.value)}
+              className="input w-full"
+            >
+              {COUNTRY_LIST.map(c => (
+                <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
+              ))}
+            </select>
+          </div>
+          <button
+            onClick={handleCountryChange}
+            disabled={countrySaving || selectedCountry === (profile?.country ?? "CH")}
+            className="btn-primary shrink-0"
+          >
+            {countrySaving ? "Speichern…" : "Speichern"}
+          </button>
+        </div>
+        {/* Preview of selected system */}
+        <div className="mt-3 bg-surface-50 rounded-xl p-3 text-xs text-surface-500 space-y-1">
+          <p>Skala: <strong className="text-surface-700">{currentSystem.scaleLabel}</strong></p>
+          <p>Bestanden ab: <strong className="text-surface-700">{currentSystem.passingGrade}</strong> · Credits: <strong className="text-surface-700">{currentSystem.creditLabel}</strong></p>
+        </div>
+        {countryMsg && (
+          <p className={`text-sm px-3 py-2 rounded-lg mt-3 ${countryMsg.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>
+            {countryMsg.text}
+          </p>
+        )}
       </div>
 
       <div className="card">

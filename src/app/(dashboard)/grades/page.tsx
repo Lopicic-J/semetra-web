@@ -3,8 +3,11 @@ import { useState, useEffect, useCallback } from "react";
 import { useGrades } from "@/lib/hooks/useGrades";
 import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
+import { useGradingSystem } from "@/lib/hooks/useGradingSystem";
 import { createClient } from "@/lib/supabase/client";
-import { formatDate, gradeAvg, gradeColor, gradeLabel, roundGrade, ectsWeightedAvg } from "@/lib/utils";
+import { formatDate, gradeAvg, ectsWeightedAvg } from "@/lib/utils";
+import { getGradeColor, getGradeLabelText, formatGrade } from "@/lib/grading-systems";
+import type { GradingSystem } from "@/lib/grading-systems";
 import { FREE_LIMITS } from "@/lib/gates";
 import { UpgradeModal } from "@/components/ui/ProGate";
 import { Plus, X, Trash2, Pencil, BarChart2, TrendingUp, AlertTriangle, Award, Target, GraduationCap, RotateCcw } from "lucide-react";
@@ -20,11 +23,15 @@ function displaySemester(raw: string | null | undefined): string {
   return raw;
 }
 
-/** Best (highest) grade per module – determines if ECTS are earned */
-function bestGradeForModule(moduleId: string, grades: Grade[]): number | null {
+/** Best grade per module – determines if ECTS are earned.
+ *  For "higher_better" systems (CH, FR, IT…) this is Math.max,
+ *  for "lower_better" systems (DE, AT) this is Math.min. */
+function bestGradeForModule(moduleId: string, grades: Grade[], direction: "higher_better" | "lower_better" = "higher_better"): number | null {
   const mg = grades.filter(g => g.module_id === moduleId && g.grade != null);
   if (mg.length === 0) return null;
-  return Math.max(...mg.map(g => g.grade!));
+  return direction === "higher_better"
+    ? Math.max(...mg.map(g => g.grade!))
+    : Math.min(...mg.map(g => g.grade!));
 }
 
 /** Safe grade average that handles null grades */
@@ -37,6 +44,7 @@ export default function GradesPage() {
   const { grades, loading, refetch } = useGrades();
   const { modules } = useModules();
   const { isPro } = useProfile();
+  const gs = useGradingSystem();
   const [exams, setExams] = useState<Exam[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Grade | null>(null);
@@ -67,11 +75,11 @@ export default function GradesPage() {
 
   const avg = safeGradeAvg(filtered);
 
-  // ECTS calculations
+  // ECTS calculations (dynamic per grading system)
   const totalEcts = modules.reduce((s, m) => s + (m.ects ?? 0), 0);
   const earnedEcts = modules.reduce((s, m) => {
-    const best = bestGradeForModule(m.id, grades);
-    if (best !== null && best >= 4.0) return s + (m.ects ?? 0);
+    const best = bestGradeForModule(m.id, grades, gs.direction);
+    if (best !== null && gs.isPassing(best)) return s + (m.ects ?? 0);
     return s;
   }, 0);
   // Also count manually entered ECTS from grades
@@ -79,8 +87,8 @@ export default function GradesPage() {
   const totalEarnedEcts = earnedEcts + manualEcts;
 
   const failedModules = modules.filter(m => {
-    const best = bestGradeForModule(m.id, grades);
-    return best !== null && best < 4.0;
+    const best = bestGradeForModule(m.id, grades, gs.direction);
+    return best !== null && !gs.isPassing(best);
   });
   const gradedModules = modules.filter(m => bestGradeForModule(m.id, grades) !== null);
   const ungradedModules = modules.filter(m => bestGradeForModule(m.id, grades) === null);
@@ -100,8 +108,8 @@ export default function GradesPage() {
   // Group by module with ECTS info
   const byModule = modules.map(m => {
     const mGrades = grades.filter(g => g.module_id === m.id);
-    const best = mGrades.filter(g => g.grade != null).length > 0 ? Math.max(...mGrades.filter(g => g.grade != null).map(g => g.grade!)) : null;
-    return { module: m, grades: mGrades, bestGrade: best, passed: best !== null && best >= 4.0 };
+    const best = bestGradeForModule(m.id, grades, gs.direction);
+    return { module: m, grades: mGrades, bestGrade: best, passed: best !== null && gs.isPassing(best) };
   }).filter(x => x.grades.length > 0);
 
   // Exams with grades (for filter)
@@ -111,8 +119,9 @@ export default function GradesPage() {
   const examStatus = exams.map(e => {
     const examGrades = grades.filter(g => g.exam_id === e.id && g.grade != null);
     if (examGrades.length === 0) return { exam: e, status: "pending" as const };
-    const best = Math.max(...examGrades.map(g => g.grade!));
-    return { exam: e, status: best >= 4.0 ? "passed" as const : "failed" as const, bestGrade: best };
+    const gradeValues = examGrades.map(g => g.grade!);
+    const best = gs.direction === "higher_better" ? Math.max(...gradeValues) : Math.min(...gradeValues);
+    return { exam: e, status: gs.isPassing(best) ? "passed" as const : "failed" as const, bestGrade: best };
   });
 
   async function handleDelete(id: string) {
@@ -125,9 +134,9 @@ export default function GradesPage() {
     <div className="p-4 md:p-6 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-surface-900">Noten & ECTS</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-surface-900">Noten & {gs.creditLabel}</h1>
           <p className="text-surface-500 text-sm mt-0.5">
-            {grades.length} Noten · {totalEarnedEcts}/{totalEcts} ECTS erlangt
+            {grades.length} Noten · {totalEarnedEcts}/{totalEcts} {gs.creditLabel} erlangt
           </p>
         </div>
         <button onClick={() => {
@@ -141,8 +150,8 @@ export default function GradesPage() {
       {totalEcts > 0 && (
         <div className="card mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-surface-700">ECTS-Fortschritt</span>
-            <span className="text-sm font-bold text-brand-600">{totalEarnedEcts} / {totalEcts} ECTS</span>
+            <span className="text-sm font-medium text-surface-700">{gs.creditLabel}-Fortschritt</span>
+            <span className="text-sm font-bold text-brand-600">{totalEarnedEcts} / {totalEcts} {gs.creditLabel}</span>
           </div>
           <div className="w-full bg-surface-100 rounded-full h-3 overflow-hidden">
             <div
@@ -164,18 +173,18 @@ export default function GradesPage() {
       {ectsAvg > 0 && gradedModules.length > 1 && (
         <div className="card mb-6 bg-brand-50/50 border-brand-200">
           <h3 className="text-xs font-semibold text-brand-700 mb-2 flex items-center gap-1.5">
-            <TrendingUp size={12} /> ECTS-gewichteter Durchschnitt (Schweizer Berechnung)
+            <TrendingUp size={12} /> ECTS-gewichteter Durchschnitt ({gs.name})
           </h3>
           <div className="text-xs text-surface-600 space-y-1">
             <p className="font-mono text-[11px]">
-              = Σ(Modulnote × ECTS) / Σ(ECTS) ={" "}
-              <span className={`font-bold ${gradeColor(ectsAvg)}`}>{roundGrade(ectsAvg).toFixed(2)}</span>
+              = Σ(Modulnote × {gs.creditLabel}) / Σ({gs.creditLabel}) ={" "}
+              <span className={`font-bold ${getGradeColor(ectsAvg, gs.country)}`}>{formatGrade(ectsAvg, gs.country)}</span>
             </p>
             <div className="flex flex-wrap gap-1.5 mt-1.5">
               {byModule.filter(x => x.bestGrade !== null).map(({ module: m, bestGrade }) => (
                 <span key={m.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-surface-200 text-[10px]">
                   <span className="w-1.5 h-1.5 rounded-full" style={{ background: m.color ?? "#6d28d9" }} />
-                  {m.name}: {bestGrade!.toFixed(1)} × {m.ects ?? 0}
+                  {m.name}: {formatGrade(bestGrade!, gs.country)} × {m.ects ?? 0}
                 </span>
               ))}
             </div>
@@ -188,23 +197,23 @@ export default function GradesPage() {
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
           <div className="card text-center py-4 col-span-2 sm:col-span-1 sm:row-span-1 relative">
             <TrendingUp size={18} className="mx-auto mb-1.5 text-brand-500" />
-            <p className={`text-2xl font-bold ${ectsAvg ? gradeColor(ectsAvg) : "text-surface-300"}`}>
-              {ectsAvg ? roundGrade(ectsAvg).toFixed(2) : "—"}
+            <p className={`text-2xl font-bold ${ectsAvg ? getGradeColor(ectsAvg, gs.country) : "text-surface-300"}`}>
+              {ectsAvg ? formatGrade(ectsAvg, gs.country) : "—"}
             </p>
-            <p className="text-xs text-surface-500 mt-0.5">ECTS-Durchschnitt</p>
+            <p className="text-xs text-surface-500 mt-0.5">{gs.creditLabel}-Durchschnitt</p>
             {ectsAvg > 0 && (
-              <p className={`text-[10px] mt-0.5 ${gradeColor(ectsAvg)}`}>{gradeLabel(ectsAvg)}</p>
+              <p className={`text-[10px] mt-0.5 ${getGradeColor(ectsAvg, gs.country)}`}>{getGradeLabelText(ectsAvg, gs.country)}</p>
             )}
           </div>
           <div className="card text-center py-4">
             <BarChart2 size={18} className="mx-auto mb-1.5 text-surface-400" />
-            <p className={`text-2xl font-bold ${avg ? gradeColor(avg) : "text-surface-300"}`}>{avg ? roundGrade(avg).toFixed(2) : "—"}</p>
+            <p className={`text-2xl font-bold ${avg ? getGradeColor(avg, gs.country) : "text-surface-300"}`}>{avg ? formatGrade(avg, gs.country) : "—"}</p>
             <p className="text-xs text-surface-500 mt-0.5">Einfacher ⌀</p>
           </div>
           <div className="card text-center py-4">
             <Award size={18} className="mx-auto mb-1.5 text-green-500" />
             <p className="text-2xl font-bold text-green-600">{totalEarnedEcts}</p>
-            <p className="text-xs text-surface-500 mt-0.5">ECTS erlangt</p>
+            <p className="text-xs text-surface-500 mt-0.5">{gs.creditLabel} erlangt</p>
           </div>
           <div className="card text-center py-4">
             <Target size={18} className="mx-auto mb-1.5 text-blue-500" />
@@ -304,7 +313,7 @@ export default function GradesPage() {
         <div className="text-center py-16 text-surface-400">
           <BarChart2 size={40} className="mx-auto mb-3 opacity-30" />
           <p className="font-medium">Noch keine Noten erfasst</p>
-          <p className="text-sm mt-1">Erfasse Noten für deine Module — ECTS werden automatisch gutgeschrieben bei Note ≥ 4.0</p>
+          <p className="text-sm mt-1">Erfasse Noten für deine Module — {gs.creditLabel} werden automatisch gutgeschrieben bei bestandener Note</p>
         </div>
       ) : filterModule === "all" && filterExam === "all" ? (
         // Grouped view
@@ -322,20 +331,20 @@ export default function GradesPage() {
                   <div className="flex items-center gap-3">
                     {m.ects && (
                       <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${passed ? "bg-green-100 text-green-700" : bestGrade !== null ? "bg-red-100 text-red-700" : "bg-surface-100 text-surface-500"}`}>
-                        {passed ? `${m.ects} ECTS ✓` : bestGrade !== null ? `${m.ects} ECTS ✗` : `${m.ects} ECTS`}
+                        {passed ? `${m.ects} ${gs.creditLabel} ✓` : bestGrade !== null ? `${m.ects} ${gs.creditLabel} ✗` : `${m.ects} ${gs.creditLabel}`}
                       </span>
                     )}
                     {mAvg > 0 && (
                       <div className="text-right">
-                        <span className={`text-lg font-bold ${gradeColor(mAvg)}`}>{roundGrade(mAvg).toFixed(2)}</span>
-                        <p className={`text-[10px] ${gradeColor(mAvg)}`}>{gradeLabel(mAvg)}</p>
+                        <span className={`text-lg font-bold ${getGradeColor(mAvg, gs.country)}`}>{formatGrade(mAvg, gs.country)}</span>
+                        <p className={`text-[10px] ${getGradeColor(mAvg, gs.country)}`}>{getGradeLabelText(mAvg, gs.country)}</p>
                       </div>
                     )}
                   </div>
                 </div>
                 <div className="divide-y divide-surface-50">
                   {mGrades.map(g => (
-                    <GradeRow key={g.id} grade={g} exams={exams} onEdit={e => { setEditing(e); setShowForm(true); }} onDelete={handleDelete} />
+                    <GradeRow key={g.id} grade={g} exams={exams} gs={gs} onEdit={e => { setEditing(e); setShowForm(true); }} onDelete={handleDelete} />
                   ))}
                 </div>
               </div>
@@ -345,7 +354,7 @@ export default function GradesPage() {
       ) : (
         <div className="card p-0 overflow-hidden divide-y divide-surface-50">
           {filtered.map(g => (
-            <GradeRow key={g.id} grade={g} exams={exams} onEdit={e => { setEditing(e); setShowForm(true); }} onDelete={handleDelete} />
+            <GradeRow key={g.id} grade={g} exams={exams} gs={gs} onEdit={e => { setEditing(e); setShowForm(true); }} onDelete={handleDelete} />
           ))}
         </div>
       )}
@@ -355,6 +364,7 @@ export default function GradesPage() {
           initial={editing}
           modules={modules}
           exams={exams}
+          gs={gs}
           onClose={() => setShowForm(false)}
           onSaved={() => { setShowForm(false); refetch(); fetchExams(); }}
         />
@@ -367,13 +377,14 @@ export default function GradesPage() {
   );
 }
 
-function GradeRow({ grade, exams, onEdit, onDelete }: {
+function GradeRow({ grade, exams, gs, onEdit, onDelete }: {
   grade: Grade & { modules?: { name: string; color: string } | null };
   exams: Exam[];
+  gs: GradingSystem;
   onEdit: (g: Grade) => void;
   onDelete: (id: string) => void;
 }) {
-  const passed = grade.grade != null && grade.grade >= 4.0;
+  const passed = grade.grade != null && gs.isPassing(grade.grade);
   const linkedExam = grade.exam_id ? exams.find(e => e.id === grade.exam_id) : null;
 
   return (
@@ -391,13 +402,13 @@ function GradeRow({ grade, exams, onEdit, onDelete }: {
           {formatDate(grade.date)}
           {grade.weight && grade.weight !== 1 ? ` · Gewicht: ${grade.weight}` : ""}
           {grade.exam_type && ` · ${grade.exam_type}`}
-          {grade.ects_earned != null && ` · ${grade.ects_earned} ECTS`}
+          {grade.ects_earned != null && ` · ${grade.ects_earned} ${gs.creditLabel}`}
         </p>
       </div>
       <div className="flex items-center gap-2">
         {grade.ects_earned != null && (
           <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-blue-50 text-blue-600">
-            {grade.ects_earned} ECTS
+            {grade.ects_earned} {gs.creditLabel}
           </span>
         )}
         {grade.grade != null && (
@@ -405,13 +416,13 @@ function GradeRow({ grade, exams, onEdit, onDelete }: {
             <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${passed ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"}`}>
               {passed ? "bestanden" : "n. best."}
             </span>
-            <div className={`text-xl font-bold w-14 text-right ${gradeColor(grade.grade)}`} title={gradeLabel(grade.grade)}>
-              {grade.grade.toFixed(1)}
+            <div className={`text-xl font-bold w-14 text-right ${getGradeColor(grade.grade, gs.country)}`} title={getGradeLabelText(grade.grade, gs.country)}>
+              {formatGrade(grade.grade, gs.country)}
             </div>
           </>
         )}
         {grade.grade == null && grade.ects_earned != null && (
-          <span className="text-sm font-medium text-blue-600">nur ECTS</span>
+          <span className="text-sm font-medium text-blue-600">nur {gs.creditLabel}</span>
         )}
       </div>
       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -422,10 +433,11 @@ function GradeRow({ grade, exams, onEdit, onDelete }: {
   );
 }
 
-function GradeModal({ initial, modules, exams, onClose, onSaved }: {
+function GradeModal({ initial, modules, exams, gs, onClose, onSaved }: {
   initial: Grade | null;
   modules: Module[];
   exams: Exam[];
+  gs: GradingSystem;
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -447,7 +459,7 @@ function GradeModal({ initial, modules, exams, onClose, onSaved }: {
 
   const gradeNum = form.grade ? parseFloat(form.grade) : null;
   const ectsNum = form.ects_earned ? parseFloat(form.ects_earned) : null;
-  const isGradeValid = gradeNum === null || (!isNaN(gradeNum) && gradeNum >= 1 && gradeNum <= 6);
+  const isGradeValid = gradeNum === null || (!isNaN(gradeNum) && gs.isValid(gradeNum));
   const hasValue = (gradeNum !== null && isGradeValid) || (ectsNum !== null && ectsNum > 0);
   const selectedModule = modules.find(m => m.id === form.module_id);
 
@@ -481,9 +493,11 @@ function GradeModal({ initial, modules, exams, onClose, onSaved }: {
 
     // If linked to an exam, update exam description with status
     if (form.exam_id && gradeNum !== null) {
-      const statusText = gradeNum >= 4.0
-        ? `✓ Bestanden (${gradeNum.toFixed(1)})`
-        : `✗ Nicht bestanden (${gradeNum.toFixed(1)}) — Wiederholung nötig`;
+      const passed = gs.isPassing(gradeNum);
+      const formatted = formatGrade(gradeNum, gs.country);
+      const statusText = passed
+        ? `✓ Bestanden (${formatted})`
+        : `✗ Nicht bestanden (${formatted}) — Wiederholung nötig`;
       await supabase.from("events").update({
         description: statusText,
       }).eq("id", form.exam_id);
@@ -505,7 +519,7 @@ function GradeModal({ initial, modules, exams, onClose, onSaved }: {
             <label className="block text-sm font-medium text-surface-700 mb-1">Modul</label>
             <select className="input" value={form.module_id} onChange={e => set("module_id", e.target.value)}>
               <option value="">— Modul wählen —</option>
-              {modules.map(m => <option key={m.id} value={m.id}>{m.name} {m.ects ? `(${m.ects} ECTS)` : ""}</option>)}
+              {modules.map(m => <option key={m.id} value={m.id}>{m.name} {m.ects ? `(${m.ects} ${gs.creditLabel})` : ""}</option>)}
             </select>
           </div>
 
@@ -530,14 +544,14 @@ function GradeModal({ initial, modules, exams, onClose, onSaved }: {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Note (1–6)</label>
-              <input className="input" type="number" step="0.25" min="1" max="6" value={form.grade} onChange={e => set("grade", e.target.value)} placeholder="z.B. 5.5" />
-              <p className="text-[10px] text-surface-400 mt-0.5">Optional — Note oder ECTS oder beides</p>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{gs.inputPlaceholder}</label>
+              <input className="input" type="number" step={gs.step} min={gs.min} max={gs.max} value={form.grade} onChange={e => set("grade", e.target.value)} placeholder={`z.B. ${gs.passingGrade}`} />
+              <p className="text-[10px] text-surface-400 mt-0.5">Optional — Note oder {gs.creditLabel} oder beides</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">ECTS-Punkte</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{gs.creditLabel}-Punkte</label>
               <input className="input" type="number" step="0.5" min="0" max="30" value={form.ects_earned} onChange={e => set("ects_earned", e.target.value)} placeholder="z.B. 5" />
-              <p className="text-[10px] text-surface-400 mt-0.5">Direkt erlangte ECTS</p>
+              <p className="text-[10px] text-surface-400 mt-0.5">Direkt erlangte {gs.creditLabel}</p>
             </div>
           </div>
 
@@ -556,18 +570,18 @@ function GradeModal({ initial, modules, exams, onClose, onSaved }: {
           {/* Status Preview */}
           {(gradeNum !== null || ectsNum !== null) && (
             <div className={`p-3 rounded-xl text-sm ${
-              gradeNum !== null && gradeNum >= 4.0 ? "bg-green-50 text-green-700" :
-              gradeNum !== null && gradeNum < 4.0 ? "bg-red-50 text-red-700" :
+              gradeNum !== null && gs.isPassing(gradeNum) ? "bg-green-50 text-green-700" :
+              gradeNum !== null && !gs.isPassing(gradeNum) ? "bg-red-50 text-red-700" :
               "bg-blue-50 text-blue-700"
             }`}>
-              {gradeNum !== null && gradeNum >= 4.0 && (
-                <>✓ Bestanden — {gradeLabel(gradeNum)}{selectedModule?.ects ? <> — <strong>{selectedModule.ects} ECTS</strong> werden gutgeschrieben</> : ""}{form.exam_id && " · Prüfung wird als abgehakt markiert"}</>
+              {gradeNum !== null && gs.isPassing(gradeNum) && (
+                <>✓ Bestanden — {getGradeLabelText(gradeNum, gs.country)}{selectedModule?.ects ? <> — <strong>{selectedModule.ects} {gs.creditLabel}</strong> werden gutgeschrieben</> : ""}{form.exam_id && " · Prüfung wird als abgehakt markiert"}</>
               )}
-              {gradeNum !== null && gradeNum < 4.0 && (
-                <>✗ Nicht bestanden — {gradeLabel(gradeNum)} (Note &lt; 4.0){form.exam_id && " · Prüfung wird als zu wiederholen markiert"}</>
+              {gradeNum !== null && !gs.isPassing(gradeNum) && (
+                <>✗ Nicht bestanden — {getGradeLabelText(gradeNum, gs.country)}{form.exam_id && " · Prüfung wird als zu wiederholen markiert"}</>
               )}
               {gradeNum === null && ectsNum !== null && (
-                <>📊 {ectsNum} ECTS werden direkt gutgeschrieben</>
+                <>📊 {ectsNum} {gs.creditLabel} werden direkt gutgeschrieben</>
               )}
             </div>
           )}
