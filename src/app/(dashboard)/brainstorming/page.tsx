@@ -1,16 +1,17 @@
 "use client";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, KeyboardEvent } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { FREE_LIMITS, withinFreeLimit } from "@/lib/gates";
 import { LimitNudge, LimitCounter, UpgradeModal } from "@/components/ui/ProGate";
 import {
-  Plus, Trash2, Pencil, X, ArrowLeft, Save, Lightbulb,
-  ThumbsUp, Sparkles, LayoutGrid, List,
-  Target, BookOpen, Shuffle,
-  Minus, RefreshCw, Zap, MessageSquare, Star,
-  Bot, Send, Loader2, Copy, Check
+  Plus, Trash2, X, ArrowLeft, Lightbulb,
+  Sparkles, List, ChevronRight, ChevronDown,
+  BookOpen, Shuffle, Minus, RefreshCw, Zap, MessageSquare, Star,
+  Bot, Copy, Check, Search, Download, Undo2, Hash,
+  ArrowUpRight, GripVertical, AlertCircle, FileText, Code,
+  Keyboard,
 } from "lucide-react";
 import type {
   BrainstormSession, BrainstormIdea, BrainstormTechnique,
@@ -18,7 +19,22 @@ import type {
 } from "@/types/database";
 import { useTranslation } from "@/lib/i18n";
 
-/* ── Technique definitions (vollständig Deutsch) ────────────────────── */
+/* ── Types ─────────────────────────────────────────────────────────── */
+interface LocalIdea {
+  id: string;
+  content: string;
+  indent_level: number;
+  color: string;
+  category: string;
+  notes: string;
+  priority: string;
+  votes: number;
+  sort_order: number;
+  collapsed: boolean;
+  isNew?: boolean; // not yet saved
+}
+
+/* ── Technique definitions ─────────────────────────────────────────── */
 interface TechniqueDef {
   key: BrainstormTechnique;
   label: string;
@@ -98,7 +114,6 @@ function getTechniques(t: (key: string) => string): TechniqueDef[] {
         t("brainstorming.methodWhyWhy"),
         t("brainstorming.methodWhyHow"),
       ],
-      categories: ["Wer", "Was", "Wo", "Wann", "Warum", "Wie"],
     },
     {
       key: "brainwriting",
@@ -145,64 +160,46 @@ function getTechniques(t: (key: string) => string): TechniqueDef[] {
 const IDEA_COLORS = [
   "#a78bfa","#60a5fa","#34d399","#f87171","#fbbf24",
   "#f472b6","#22d3ee","#c084fc","#4ade80","#fb923c",
-  "#818cf8","#2dd4bf","#facc15","#fb7185","#a78bfa",
 ];
 
-/* ── KI-Assistent (lokale Prompt-basierte Vorschläge) ───────────────── */
-function getAISuggestionTemplates(t: (key: string) => string): Record<string, (topic: string, existingIdeas: string[]) => string[]> {
-  return {
-    freeform: (topic, ideas) => [
-      `Hast du schon an die technische Seite von "${topic}" gedacht?`,
-      `Was würde jemand aus einer komplett anderen Fachrichtung zu "${topic}" sagen?`,
-      `Stelle dir vor "${topic}" existiert in 10 Jahren — wie sieht es aus?`,
-      ideas.length > 2 ? `Kannst du Idee "${ideas[0]}" mit "${ideas[1]}" kombinieren?` : `Welche Emotion verbindest du mit "${topic}"?`,
-      `Was ist das Minimum Viable Product für "${topic}"?`,
-    ],
-    scamper: (topic, ideas) => [
-      `Ersetzen: Was wäre, wenn du "${topic}" mit einer komplett anderen Methode umsetzt?`,
-      `Kombinieren: Wie liesse sich "${topic}" mit einem aktuellen Trend verbinden?`,
-      `Anpassen: Welche Lösung aus der Natur könnte auf "${topic}" angewendet werden?`,
-      `Verändern: Was wenn "${topic}" 10x grösser oder 10x kleiner wäre?`,
-      `Entfernen: Was passiert wenn du den wichtigsten Teil von "${topic}" weglässt?`,
-    ],
-    pro_contra: (topic, ideas) => [
-      `Welchen finanziellen Einfluss hat "${topic}"?`,
-      `Wie wirkt sich "${topic}" auf deine Zeitplanung aus?`,
-      `Was sagen Kritiker zu "${topic}" — und haben sie recht?`,
-      `Gibt es einen Mittelweg der die Nachteile minimiert?`,
-    ],
-    starbursting: (topic, ideas) => [
-      `Wer profitiert am meisten wenn "${topic}" umgesetzt wird?`,
-      `Was ist das grösste ungelöste Problem bei "${topic}"?`,
-      `Wie misst man den Erfolg von "${topic}"?`,
-      `Warum wurde "${topic}" bisher noch nicht anders gelöst?`,
-    ],
-    brainwriting: (topic, ideas) => {
-      if (ideas.length === 0) return [`Beginne mit 3 schnellen Ideen zu "${topic}" — ohne Nachdenken!`];
-      return [
-        `Wie könnte "${ideas[ideas.length - 1]}" noch besser werden?`,
-        `Was ist das Gegenteil von "${ideas[0]}"?`,
-        `Welche zwei bestehenden Ideen ergeben zusammen etwas Neues?`,
-      ];
-    },
-    reverse: (topic, ideas) => [
-      `Was wäre der sicherste Weg "${topic}" zum Scheitern zu bringen?`,
-      `Welcher Fehler wäre so offensichtlich, dass ihn niemand machen würde?`,
-      `Jetzt dreh es um: Was ist die perfekte Lösung die sich daraus ergibt?`,
-    ],
-    minddump: (topic, ideas) => [
-      `Schnell — was kommt dir als erstes in den Sinn?`,
-      `Noch mehr! Denk nicht nach, schreib einfach!`,
-      `Was hast du vergessen? Es wartet noch eine Idee!`,
-    ],
-  };
+const PRIORITY_COLORS: Record<string, string> = {
+  high: "#f87171",
+  medium: "#fbbf24",
+  low: "#60a5fa",
+  none: "transparent",
+};
+
+/* ── Helpers ──────────────────────────────────────────────────────── */
+function extractTags(content: string): string[] {
+  const matches = content.match(/#[\w\u00C0-\u024F]+/g);
+  return matches ? matches.map(m => m.slice(1)) : [];
 }
 
-function getAiSuggestions(t: (key: string) => string, technique: string, topic: string, ideas: BrainstormIdea[]): string[] {
-  const templates = getAISuggestionTemplates(t);
-  const fn = templates[technique] ?? templates.freeform;
-  const ideaTexts = ideas.map(i => i.content);
-  return fn(topic, ideaTexts);
+function getVisibleChildren(ideas: LocalIdea[], parentIdx: number): number[] {
+  const parentLevel = ideas[parentIdx].indent_level;
+  const children: number[] = [];
+  for (let i = parentIdx + 1; i < ideas.length; i++) {
+    if (ideas[i].indent_level <= parentLevel) break;
+    children.push(i);
+  }
+  return children;
+}
+
+function hasChildren(ideas: LocalIdea[], idx: number): boolean {
+  if (idx >= ideas.length - 1) return false;
+  return ideas[idx + 1].indent_level > ideas[idx].indent_level;
+}
+
+function isVisible(ideas: LocalIdea[], idx: number): boolean {
+  // Check all ancestors — if any are collapsed, this node is hidden
+  for (let i = idx - 1; i >= 0; i--) {
+    if (ideas[i].indent_level < ideas[idx].indent_level) {
+      if (ideas[i].collapsed) return false;
+      // Check further up
+      if (ideas[i].indent_level === 0) return true;
+    }
+  }
+  return true;
 }
 
 /* ── Main Page ──────────────────────────────────────────────────────── */
@@ -240,6 +237,9 @@ export default function BrainstormingPage() {
       <BrainstormEditor
         session={activeSession}
         modules={modules}
+        exams={exams}
+        tasks={tasks}
+        isPro={isPro}
         onBack={() => { setActiveSession(null); fetchSessions(); }}
       />
     );
@@ -272,16 +272,13 @@ export default function BrainstormingPage() {
       </div>
 
       <LimitNudge current={sessions.length} max={FREE_LIMITS.brainstormSessions} isPro={isPro} label={t("brainstorming.title")} />
-
-      {showUpgrade && (
-        <UpgradeModal feature="unlimitedBrainstorm" onClose={() => setShowUpgrade(false)} />
-      )}
+      {showUpgrade && <UpgradeModal feature="unlimitedBrainstorm" onClose={() => setShowUpgrade(false)} />}
 
       {/* Technique overview cards */}
       <div className="mb-8">
-        <h2 className="text-sm font-semibold text-surface-700 uppercase tracking-wider mb-3">{t("nav.brainstorming")}</h2>
+        <h2 className="text-sm font-semibold text-surface-700 uppercase tracking-wider mb-3">{t("brainstorming.techniques")}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-          {getTechniques(t).map(tech => (
+          {TECHNIQUES.map(tech => (
             <button
               key={tech.key}
               onClick={() => { setPreselectedTech(tech.key); setShowCreate(true); }}
@@ -298,7 +295,7 @@ export default function BrainstormingPage() {
       </div>
 
       {/* Session list */}
-      <h2 className="text-sm font-semibold text-surface-700 uppercase tracking-wider mb-3">{t("brainstorming.title")}</h2>
+      <h2 className="text-sm font-semibold text-surface-700 uppercase tracking-wider mb-3">{t("brainstorming.yourSessions")}</h2>
       {loading ? (
         <p className="text-surface-500 text-sm">{t("brainstorming.noSessions")}</p>
       ) : sessions.length === 0 ? (
@@ -310,7 +307,7 @@ export default function BrainstormingPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
           {sessions.map(s => {
-            const tech = getTechniques(t).find(tech => tech.key === s.technique);
+            const tech = TECHNIQUES.find(tech => tech.key === s.technique);
             const mod = modules.find((m: any) => m.id === s.module_id);
             return (
               <button
@@ -322,10 +319,7 @@ export default function BrainstormingPage() {
                   <h3 className="font-semibold text-surface-800 text-sm group-hover:text-brand-300 transition line-clamp-1">
                     {s.title}
                   </h3>
-                  <span
-                    className="w-3 h-3 rounded-full flex-shrink-0 mt-1"
-                    style={{ backgroundColor: s.color }}
-                  />
+                  <span className="w-3 h-3 rounded-full flex-shrink-0 mt-1" style={{ backgroundColor: s.color }} />
                 </div>
                 {tech && (
                   <span
@@ -382,16 +376,11 @@ function CreateSessionModal({
   const [title, setTitle] = useState("");
   const [technique, setTechnique] = useState<BrainstormTechnique>(initialTechnique ?? "freeform");
   const [moduleId, setModuleId] = useState("");
-  const [examId, setExamId] = useState("");
-  const [taskId, setTaskId] = useState("");
   const [color, setColor] = useState("#a78bfa");
   const [saving, setSaving] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const filteredExams = moduleId ? exams.filter(e => e.title?.toLowerCase().includes(
-    modules.find(m => m.id === moduleId)?.name?.toLowerCase().slice(0, 5) ?? "---"
-  )) : exams;
-
-  const filteredTasks = moduleId ? tasks.filter((t: any) => t.module_id === moduleId) : tasks;
+  useEffect(() => { inputRef.current?.focus(); }, []);
 
   const selectedTech = getTechniques(t).find(tech => tech.key === technique)!;
 
@@ -399,17 +388,15 @@ function CreateSessionModal({
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-
     const { data, error } = await supabase.from("brainstorm_sessions").insert({
       user_id: user.id,
       title: title || selectedTech.label,
       technique,
       module_id: moduleId || null,
-      exam_id: examId || null,
-      task_id: taskId || null,
+      exam_id: null,
+      task_id: null,
       color,
     }).select().single();
-
     if (data && !error) onCreated(data as BrainstormSession);
     setSaving(false);
   }
@@ -425,15 +412,17 @@ function CreateSessionModal({
           <button onClick={onClose} className="text-surface-500 hover:text-surface-900 transition"><X size={20} /></button>
         </div>
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("tasks.modal.titleLabel")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("brainstorming.sessionTitle")}</label>
         <input
+          ref={inputRef}
           value={title}
           onChange={e => setTitle(e.target.value)}
+          onKeyDown={e => { if (e.key === "Enter") handleCreate(); }}
           placeholder={selectedTech.label}
           className="w-full bg-surface-50 border border-surface-200 rounded-lg px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 mb-4 focus:border-brand-500 focus:outline-none transition"
         />
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-2">{t("brainstorming.title")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-2">{t("brainstorming.techniques")}</label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
           {getTechniques(t).map(tech => (
             <button
@@ -442,7 +431,7 @@ function CreateSessionModal({
               className={`flex items-center gap-2 p-1.5 sm:p-2.5 rounded-lg border text-xs text-left transition ${
                 technique === tech.key
                   ? "border-brand-500 bg-brand-500/15 text-surface-900"
-                  : "border-surface-200 bg-surface-50 text-surface-700 hover:border-surface-300 hover:text-surface-900"
+                  : "border-surface-200 bg-surface-50 text-surface-700 hover:border-surface-300"
               }`}
             >
               <span style={{ color: tech.color }}>{tech.icon}</span>
@@ -451,45 +440,19 @@ function CreateSessionModal({
           ))}
         </div>
 
-        <div className="text-xs text-surface-700 mb-4 p-3 bg-surface-50 border border-surface-200 rounded-lg flex items-start gap-2">
-          <span className="mt-0.5" style={{ color: selectedTech.color }}>{selectedTech.icon}</span>
-          <span>{selectedTech.description}</span>
-        </div>
-
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("tasks.modal.modulLabel")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("brainstorming.moduleLink")}</label>
         <select
           value={moduleId}
-          onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); }}
-          className="w-full bg-surface-50 border border-surface-200 rounded-lg px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 mb-2"
+          onChange={e => setModuleId(e.target.value)}
+          className="w-full bg-surface-50 border border-surface-200 rounded-lg px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 mb-4"
         >
-          <option value="">Allgemein (kein Modul)</option>
+          <option value="">{t("brainstorming.noModuleLink")}</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
 
-        {moduleId && (
-          <div className="flex flex-col sm:flex-row gap-2 mb-2">
-            <select
-              value={examId}
-              onChange={e => setExamId(e.target.value)}
-              className="flex-1 bg-surface-50 border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900"
-            >
-              <option value="">— keine Prüfung —</option>
-              {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
-            </select>
-            <select
-              value={taskId}
-              onChange={e => setTaskId(e.target.value)}
-              className="flex-1 bg-surface-50 border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900"
-            >
-              <option value="">— keine Aufgabe —</option>
-              {filteredTasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
-            </select>
-          </div>
-        )}
-
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5 mt-3">{t("grades.modal.typeDefault")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("mindmaps.color")}</label>
         <div className="flex gap-2 mb-5 flex-wrap">
-          {IDEA_COLORS.slice(0, 10).map(c => (
+          {IDEA_COLORS.map(c => (
             <button
               key={c}
               onClick={() => setColor(c)}
@@ -504,160 +467,540 @@ function CreateSessionModal({
           disabled={saving}
           className="w-full bg-brand-600 hover:bg-brand-500 text-white py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50"
         >
-          {saving ? t("flashcards.creating") : t("brainstorming.start")}
+          {saving ? t("brainstorming.creating") : t("brainstorming.startSession")}
         </button>
       </div>
     </div>
   );
 }
 
-/* ── Brainstorm Editor ──────────────────────────────────────────────── */
+/* ── Brainstorm Editor (Complete Rewrite) ──────────────────────────── */
 function BrainstormEditor({
-  session, modules, onBack,
+  session, modules, exams, tasks, isPro, onBack,
 }: {
   session: BrainstormSession;
   modules: Module[];
+  exams: CalendarEvent[];
+  tasks: Task[];
+  isPro: boolean;
   onBack: () => void;
 }) {
   const { t } = useTranslation();
   const supabase = createClient();
-  const [ideas, setIdeas] = useState<BrainstormIdea[]>([]);
+
+  // Core state
+  const [ideas, setIdeas] = useState<LocalIdea[]>([]);
   const [loading, setLoading] = useState(true);
-  const [newContent, setNewContent] = useState("");
-  const [newCategory, setNewCategory] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editContent, setEditContent] = useState("");
-  const [viewMode, setViewMode] = useState<"board" | "list">("board");
-  const [promptIndex, setPromptIndex] = useState(0);
-  const [showPrompt, setShowPrompt] = useState(true);
-  const [filterCat, setFilterCat] = useState("");
-  const [timerActive, setTimerActive] = useState(false);
-  const [timerSec, setTimerSec] = useState(300);
+  const [focusIdx, setFocusIdx] = useState(-1);
+  const [editIdx, setEditIdx] = useState(-1);
+  const [editText, setEditText] = useState("");
+
+  // UI state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showExport, setShowExport] = useState(false);
   const [showAi, setShowAi] = useState(false);
-  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
-  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  // Undo
+  const [undoStack, setUndoStack] = useState<LocalIdea[][]>([]);
+
+  // Refs
+  const inputRefs = useRef<Map<number, HTMLInputElement>>(new Map());
+  const newInputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const tech = getTechniques(t).find(tech => tech.key === session.technique)!;
   const mod = modules.find((m: any) => m.id === session.module_id);
 
+  /* ── Load ideas ─────────────────────────────────────────────────── */
   const fetchIdeas = useCallback(async () => {
     const { data } = await supabase
       .from("brainstorm_ideas")
       .select("*")
       .eq("session_id", session.id)
       .order("sort_order", { ascending: true });
-    setIdeas(data ?? []);
+
+    const loaded: LocalIdea[] = (data ?? []).map((d: any) => ({
+      id: d.id,
+      content: d.content,
+      indent_level: d.indent_level ?? 0,
+      color: d.color,
+      category: d.category ?? "",
+      notes: d.notes ?? "",
+      priority: d.priority ?? "none",
+      votes: d.votes ?? 0,
+      sort_order: d.sort_order ?? 0,
+      collapsed: false,
+    }));
+    setIdeas(loaded);
     setLoading(false);
   }, [supabase, session.id]);
 
   useEffect(() => { fetchIdeas(); }, [fetchIdeas]);
 
-  // Timer for Mind Dump technique
-  useEffect(() => {
-    if (timerActive && timerSec > 0) {
-      timerRef.current = setTimeout(() => setTimerSec(s => s - 1), 1000);
-    } else if (timerSec === 0) {
-      setTimerActive(false);
+  /* ── Autosave (debounced) ───────────────────────────────────────── */
+  const saveIdeas = useCallback(async (newIdeas: LocalIdea[]) => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Upsert all ideas
+      for (let i = 0; i < newIdeas.length; i++) {
+        const idea = newIdeas[i];
+        if (idea.isNew) {
+          await supabase.from("brainstorm_ideas").insert({
+            id: idea.id,
+            user_id: user.id,
+            session_id: session.id,
+            content: idea.content,
+            indent_level: idea.indent_level,
+            color: idea.color,
+            category: idea.category,
+            notes: idea.notes,
+            priority: idea.priority,
+            votes: idea.votes,
+            sort_order: i,
+          });
+        } else {
+          await supabase.from("brainstorm_ideas").update({
+            content: idea.content,
+            indent_level: idea.indent_level,
+            color: idea.color,
+            category: idea.category,
+            notes: idea.notes,
+            priority: idea.priority,
+            votes: idea.votes,
+            sort_order: i,
+          }).eq("id", idea.id);
+        }
+      }
+
+      // Delete removed ideas
+      const currentIds = newIdeas.map(i => i.id);
+      const { data: dbIdeas } = await supabase
+        .from("brainstorm_ideas")
+        .select("id")
+        .eq("session_id", session.id);
+      if (dbIdeas) {
+        for (const dbIdea of dbIdeas) {
+          if (!currentIds.includes(dbIdea.id)) {
+            await supabase.from("brainstorm_ideas").delete().eq("id", dbIdea.id);
+          }
+        }
+      }
+
+      await supabase.from("brainstorm_sessions")
+        .update({ updated_at: new Date().toISOString() })
+        .eq("id", session.id);
+    }, 800);
+  }, [supabase, session.id]);
+
+  /* ── Undo ───────────────────────────────────────────────────────── */
+  function pushUndo() {
+    setUndoStack(prev => [...prev.slice(-19), ideas.map(i => ({ ...i }))]);
+  }
+
+  function undo() {
+    if (undoStack.length === 0) return;
+    const prev = undoStack[undoStack.length - 1];
+    setUndoStack(s => s.slice(0, -1));
+    setIdeas(prev);
+    saveIdeas(prev);
+  }
+
+  /* ── Idea operations ────────────────────────────────────────────── */
+  function updateIdeas(newIdeas: LocalIdea[]) {
+    pushUndo();
+    setIdeas(newIdeas);
+    saveIdeas(newIdeas);
+  }
+
+  function addIdea(afterIdx: number, indent: number, content = "") {
+    pushUndo();
+    const newIdea: LocalIdea = {
+      id: crypto.randomUUID(),
+      content,
+      indent_level: indent,
+      color: IDEA_COLORS[(ideas.length) % IDEA_COLORS.length],
+      category: "",
+      notes: "",
+      priority: "none",
+      votes: 0,
+      sort_order: afterIdx + 1,
+      collapsed: false,
+      isNew: true,
+    };
+    const updated = [...ideas];
+    updated.splice(afterIdx + 1, 0, newIdea);
+    // Reorder
+    updated.forEach((idea, i) => { idea.sort_order = i; });
+    setIdeas(updated);
+    saveIdeas(updated);
+    // Focus the new row
+    setTimeout(() => {
+      setEditIdx(afterIdx + 1);
+      setEditText("");
+      const inp = inputRefs.current.get(afterIdx + 1);
+      inp?.focus();
+    }, 50);
+  }
+
+  function addIdeaAtEnd(content: string) {
+    if (!content.trim()) return;
+    pushUndo();
+    const newIdea: LocalIdea = {
+      id: crypto.randomUUID(),
+      content: content.trim(),
+      indent_level: 0,
+      color: IDEA_COLORS[ideas.length % IDEA_COLORS.length],
+      category: "",
+      notes: "",
+      priority: "none",
+      votes: 0,
+      sort_order: ideas.length,
+      collapsed: false,
+      isNew: true,
+    };
+    const updated = [...ideas, newIdea];
+    setIdeas(updated);
+    saveIdeas(updated);
+  }
+
+  function deleteIdea(idx: number) {
+    if (idx < 0 || idx >= ideas.length) return;
+    pushUndo();
+    // Delete this idea and all its children
+    const level = ideas[idx].indent_level;
+    let endIdx = idx + 1;
+    while (endIdx < ideas.length && ideas[endIdx].indent_level > level) {
+      endIdx++;
     }
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [timerActive, timerSec]);
-
-  async function addIdea(content?: string) {
-    const text = content ?? newContent;
-    if (!text.trim()) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const category = newCategory || (tech.categories?.[0] ?? "");
-    const sortOrder = ideas.length;
-    const color = IDEA_COLORS[sortOrder % IDEA_COLORS.length];
-
-    await supabase.from("brainstorm_ideas").insert({
-      user_id: user.id,
-      session_id: session.id,
-      content: text.trim(),
-      category,
-      color,
-      sort_order: sortOrder,
-    });
-
-    await supabase.from("brainstorm_sessions").update({ updated_at: new Date().toISOString() }).eq("id", session.id);
-
-    if (!content) setNewContent("");
-    fetchIdeas();
-    inputRef.current?.focus();
+    const updated = [...ideas];
+    updated.splice(idx, endIdx - idx);
+    updated.forEach((idea, i) => { idea.sort_order = i; });
+    setIdeas(updated);
+    saveIdeas(updated);
   }
 
-  async function deleteIdea(id: string) {
-    await supabase.from("brainstorm_ideas").delete().eq("id", id);
-    fetchIdeas();
+  function indentIdea(idx: number) {
+    if (idx <= 0) return; // Can't indent first item
+    const maxIndent = ideas[idx - 1].indent_level + 1;
+    if (ideas[idx].indent_level >= maxIndent) return;
+    pushUndo();
+    const updated = [...ideas];
+    updated[idx] = { ...updated[idx], indent_level: updated[idx].indent_level + 1 };
+    setIdeas(updated);
+    saveIdeas(updated);
   }
 
-  async function updateIdea(id: string, content: string) {
-    await supabase.from("brainstorm_ideas").update({ content }).eq("id", id);
-    setEditingId(null);
-    fetchIdeas();
+  function outdentIdea(idx: number) {
+    if (ideas[idx].indent_level <= 0) return;
+    pushUndo();
+    const updated = [...ideas];
+    updated[idx] = { ...updated[idx], indent_level: updated[idx].indent_level - 1 };
+    setIdeas(updated);
+    saveIdeas(updated);
   }
 
-  async function voteIdea(id: string, delta: number) {
-    const idea = ideas.find(i => i.id === id);
-    if (!idea) return;
-    await supabase.from("brainstorm_ideas").update({ votes: Math.max(0, idea.votes + delta) }).eq("id", id);
-    fetchIdeas();
+  function toggleCollapse(idx: number) {
+    const updated = [...ideas];
+    updated[idx] = { ...updated[idx], collapsed: !updated[idx].collapsed };
+    setIdeas(updated);
   }
 
-  async function deleteSession() {
+  function cyclePriority(idx: number) {
+    const order = ["none", "low", "medium", "high"];
+    const curr = order.indexOf(ideas[idx].priority);
+    const next = order[(curr + 1) % order.length];
+    pushUndo();
+    const updated = [...ideas];
+    updated[idx] = { ...updated[idx], priority: next };
+    setIdeas(updated);
+    saveIdeas(updated);
+  }
+
+  function updateIdeaContent(idx: number, content: string) {
+    const updated = [...ideas];
+    updated[idx] = { ...updated[idx], content };
+    setIdeas(updated);
+    saveIdeas(updated);
+  }
+
+  function moveIdea(idx: number, direction: "up" | "down") {
+    if (direction === "up" && idx <= 0) return;
+    if (direction === "down" && idx >= ideas.length - 1) return;
+    pushUndo();
+    const updated = [...ideas];
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    [updated[idx], updated[swapIdx]] = [updated[swapIdx], updated[idx]];
+    updated.forEach((idea, i) => { idea.sort_order = i; });
+    setIdeas(updated);
+    saveIdeas(updated);
+    setFocusIdx(swapIdx);
+  }
+
+  /* ── Keyboard handler for outliner rows ─────────────────────────── */
+  function handleRowKey(e: KeyboardEvent<HTMLInputElement>, idx: number) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      // Save current edit
+      if (editIdx === idx) {
+        updateIdeaContent(idx, editText);
+      }
+      // Add sibling after current
+      addIdea(idx, ideas[idx].indent_level);
+    } else if (e.key === "Tab" && !e.shiftKey) {
+      e.preventDefault();
+      indentIdea(idx);
+    } else if (e.key === "Tab" && e.shiftKey) {
+      e.preventDefault();
+      outdentIdea(idx);
+    } else if (e.key === "Backspace" && editText === "") {
+      e.preventDefault();
+      if (ideas.length > 0) {
+        deleteIdea(idx);
+        if (idx > 0) {
+          setTimeout(() => {
+            setEditIdx(idx - 1);
+            setEditText(ideas[idx - 1]?.content ?? "");
+            inputRefs.current.get(idx - 1)?.focus();
+          }, 50);
+        }
+      }
+    } else if (e.key === "ArrowUp" && (e.altKey || e.metaKey)) {
+      e.preventDefault();
+      moveIdea(idx, "up");
+    } else if (e.key === "ArrowDown" && (e.altKey || e.metaKey)) {
+      e.preventDefault();
+      moveIdea(idx, "down");
+    } else if (e.key === "ArrowUp" && !e.altKey) {
+      e.preventDefault();
+      // Navigate to previous visible row
+      for (let i = idx - 1; i >= 0; i--) {
+        if (isVisible(ideas, i)) {
+          setEditIdx(i);
+          setEditText(ideas[i].content);
+          setTimeout(() => inputRefs.current.get(i)?.focus(), 30);
+          break;
+        }
+      }
+    } else if (e.key === "ArrowDown" && !e.altKey) {
+      e.preventDefault();
+      for (let i = idx + 1; i < ideas.length; i++) {
+        if (isVisible(ideas, i)) {
+          setEditIdx(i);
+          setEditText(ideas[i].content);
+          setTimeout(() => inputRefs.current.get(i)?.focus(), 30);
+          break;
+        }
+      }
+    } else if (e.key === "Escape") {
+      setEditIdx(-1);
+      setEditText("");
+    } else if (e.key === "p" && e.ctrlKey) {
+      e.preventDefault();
+      cyclePriority(idx);
+    } else if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      undo();
+    } else if (e.key === "f" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      setShowSearch(true);
+    }
+  }
+
+  /* ── Global keyboard shortcuts ──────────────────────────────────── */
+  useEffect(() => {
+    function handleGlobal(e: globalThis.KeyboardEvent) {
+      if (e.key === "z" && (e.ctrlKey || e.metaKey) && editIdx === -1) {
+        e.preventDefault();
+        undo();
+      }
+      if (e.key === "f" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        setShowSearch(s => !s);
+      }
+      if (e.key === "?" && e.shiftKey && editIdx === -1) {
+        setShowShortcuts(s => !s);
+      }
+      if (e.key === "Escape") {
+        setShowSearch(false);
+        setShowShortcuts(false);
+        setShowExport(false);
+        setShowAi(false);
+      }
+    }
+    window.addEventListener("keydown", handleGlobal);
+    return () => window.removeEventListener("keydown", handleGlobal);
+  }, [editIdx, undoStack]);
+
+  /* ── Search ─────────────────────────────────────────────────────── */
+  const searchMatches = useMemo(() => {
+    if (!searchQuery.trim()) return new Set<string>();
+    const q = searchQuery.toLowerCase();
+    return new Set(ideas.filter(i => i.content.toLowerCase().includes(q)).map(i => i.id));
+  }, [searchQuery, ideas]);
+
+  /* ── Export functions ────────────────────────────────────────────── */
+  function exportMarkdown(): string {
+    let md = `# ${session.title}\n\n`;
+    for (const idea of ideas) {
+      const prefix = "  ".repeat(idea.indent_level) + "- ";
+      const tags = extractTags(idea.content);
+      const priority = idea.priority !== "none" ? ` [${idea.priority}]` : "";
+      md += `${prefix}${idea.content}${priority}\n`;
+      if (idea.notes) {
+        md += `${"  ".repeat(idea.indent_level + 1)}> ${idea.notes}\n`;
+      }
+    }
+    return md;
+  }
+
+  function exportJSON(): string {
+    return JSON.stringify({
+      session: { title: session.title, technique: session.technique },
+      ideas: ideas.map(i => ({
+        content: i.content,
+        indent_level: i.indent_level,
+        priority: i.priority,
+        notes: i.notes,
+        tags: extractTags(i.content),
+      })),
+    }, null, 2);
+  }
+
+  async function copyToClipboard(text: string) {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  function downloadFile(content: string, filename: string, type: string) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  /* ── KI expand idea ─────────────────────────────────────────────── */
+  async function aiExpandIdeas(mode: "expand" | "structure" | "summarize" | "gaps") {
+    setAiLoading(true);
+    setAiResult("");
+    try {
+      const { data: { session: authSession } } = await supabase.auth.getSession();
+      const token = authSession?.access_token;
+      if (!token) throw new Error("Auth");
+
+      const ideaTexts = ideas.map(i => `${"  ".repeat(i.indent_level)}- ${i.content}`).join("\n");
+      const prompts: Record<string, string> = {
+        expand: `Erweitere diese Brainstorming-Ideen mit neuen Perspektiven und Unterpunkten:\n\n${ideaTexts}\n\nGib 5-8 neue Ideen als Aufzählung zurück.`,
+        structure: `Analysiere diese Brainstorming-Ideen und schlage eine bessere Struktur/Gruppierung vor:\n\n${ideaTexts}\n\nGib eine strukturierte Gliederung zurück.`,
+        summarize: `Fasse diese Brainstorming-Ideen in 3-5 Kernaussagen zusammen:\n\n${ideaTexts}`,
+        gaps: `Analysiere diese Brainstorming-Ideen und identifiziere Lücken — was fehlt noch?\n\n${ideaTexts}\n\nGib fehlende Aspekte als Aufzählung zurück.`,
+      };
+
+      const res = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: prompts[mode] }],
+          mode: "chat",
+          context: { moduleName: mod?.name, topicTitle: session.title },
+        }),
+      });
+
+      if (!res.ok) throw new Error("API");
+
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+      let result = "";
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split("\n");
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              try {
+                const parsed = JSON.parse(line.slice(6));
+                if (parsed.text) {
+                  result += parsed.text;
+                  setAiResult(result);
+                }
+              } catch {}
+            }
+          }
+        }
+      }
+    } catch {
+      setAiResult(t("brainstorming.aiError"));
+    }
+    setAiLoading(false);
+  }
+
+  /* ── Delete session ─────────────────────────────────────────────── */
+  async function handleDeleteSession() {
     if (!confirm(t("brainstorming.deleteConfirm"))) return;
     await supabase.from("brainstorm_ideas").delete().eq("session_id", session.id);
     await supabase.from("brainstorm_sessions").delete().eq("id", session.id);
     onBack();
   }
 
-  function nextPrompt() {
-    setPromptIndex(i => (i + 1) % tech.prompts.length);
+  /* ── Convert to task ────────────────────────────────────────────── */
+  async function convertToTask(idea: LocalIdea) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from("tasks").insert({
+      user_id: user.id,
+      title: idea.content.replace(/#[\w\u00C0-\u024F]+/g, "").trim(),
+      module_id: session.module_id || null,
+      status: "todo",
+      priority: idea.priority === "high" ? "high" : idea.priority === "medium" ? "medium" : "low",
+    });
+    // Visual feedback — brief flash
+    alert(t("brainstorming.taskCreated"));
   }
 
-  function generateAiSuggestions() {
-    const topic = session.title || mod?.name || "dein Thema";
-    const suggestions = getAiSuggestions(t, session.technique, topic, ideas);
-    setAiSuggestions(suggestions);
-    setShowAi(true);
+  /* ── Visible ideas (respecting collapsed state) ─────────────────── */
+  const visibleIdeas = useMemo(() => {
+    const result: { idea: LocalIdea; idx: number }[] = [];
+    for (let i = 0; i < ideas.length; i++) {
+      if (isVisible(ideas, i)) {
+        result.push({ idea: ideas[i], idx: i });
+      }
+    }
+    return result;
+  }, [ideas]);
+
+  if (loading) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-surface-500">{t("brainstorming.loading")}</p>
+      </div>
+    );
   }
-
-  function copyToInput(text: string, idx: number) {
-    setNewContent(text);
-    setCopiedIdx(idx);
-    setTimeout(() => setCopiedIdx(null), 1500);
-    inputRef.current?.focus();
-  }
-
-  // Group ideas by category
-  const categories = tech.categories ?? Array.from(new Set(ideas.map(i => i.category).filter(Boolean)));
-  const allCats = categories.length > 0 ? categories : ["Ideen"];
-  const grouped: Record<string, BrainstormIdea[]> = {};
-  allCats.forEach(c => { grouped[c] = []; });
-  ideas.forEach(idea => {
-    const cat = idea.category || allCats[0];
-    if (!grouped[cat]) grouped[cat] = [];
-    grouped[cat].push(idea);
-  });
-
-  const filteredIdeas = filterCat ? ideas.filter(i => (i.category || allCats[0]) === filterCat) : ideas;
-
-  const fmtTimer = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
   return (
-    <div className="p-3 sm:p-6 max-w-6xl mx-auto space-y-4 sm:space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 sm:mb-4 mb-4">
+    <div ref={containerRef} className="p-3 sm:p-6 max-w-5xl mx-auto">
+      {/* ── Header ─────────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-2 sm:gap-3">
           <button onClick={onBack} className="text-surface-500 hover:text-surface-900 transition p-1">
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-surface-900 flex items-center gap-2">
+            <h1 className="text-lg sm:text-xl font-bold text-surface-900 flex items-center gap-2">
               <span style={{ color: tech.color }}>{tech.icon}</span>
               {session.title}
             </h1>
@@ -670,417 +1013,311 @@ function BrainstormEditor({
                   <BookOpen size={10} className="inline mr-1" />{mod.name}
                 </span>
               )}
-              <span className="text-xs text-surface-500">{ideas.length} Ideen</span>
+              <span className="text-xs text-surface-500">{ideas.length} {t("brainstorming.ideas")}</span>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap">
-          <button
-            onClick={generateAiSuggestions}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-brand-600 border border-brand-500 text-white hover:bg-brand-500 text-xs sm:text-sm font-medium transition"
-            title="KI-Vorschläge generieren"
-          >
-            <Bot size={16} /> KI-Assistent
+
+        {/* Toolbar */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <button onClick={() => setShowSearch(s => !s)} className="p-2 rounded-lg bg-surface-100 border border-surface-200 text-surface-700 hover:text-surface-900 hover:border-surface-300 transition" title="Ctrl+F">
+            <Search size={16} />
           </button>
-          <button
-            onClick={() => setViewMode(viewMode === "board" ? "list" : "board")}
-            className="p-2 rounded-lg bg-surface-100 border border-surface-200 text-surface-700 hover:text-surface-900 hover:border-surface-300 transition"
-            title={viewMode === "board" ? t("brainstorming.viewList") : t("brainstorming.viewBoard")}
-          >
-            {viewMode === "board" ? <List size={16} /> : <LayoutGrid size={16} />}
+          <button onClick={undo} disabled={undoStack.length === 0} className="p-2 rounded-lg bg-surface-100 border border-surface-200 text-surface-700 hover:text-surface-900 hover:border-surface-300 transition disabled:opacity-30" title="Ctrl+Z">
+            <Undo2 size={16} />
           </button>
-          <button
-            onClick={deleteSession}
-            className="p-2 rounded-lg bg-surface-100 border border-surface-200 text-red-400 hover:text-red-300 hover:border-red-500/40 transition"
-            title={t("brainstorming.deleteSession")}
-          >
+          <button onClick={() => setShowAi(s => !s)} className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-brand-600 border border-brand-500 text-white hover:bg-brand-500 text-xs font-medium transition">
+            <Bot size={16} /> KI
+          </button>
+          <button onClick={() => setShowExport(s => !s)} className="p-2 rounded-lg bg-surface-100 border border-surface-200 text-surface-700 hover:text-surface-900 hover:border-surface-300 transition">
+            <Download size={16} />
+          </button>
+          <button onClick={() => setShowShortcuts(s => !s)} className="p-2 rounded-lg bg-surface-100 border border-surface-200 text-surface-700 hover:text-surface-900 hover:border-surface-300 transition" title="?">
+            <Keyboard size={16} />
+          </button>
+          <button onClick={handleDeleteSession} className="p-2 rounded-lg bg-surface-100 border border-surface-200 text-red-400 hover:text-red-300 hover:border-red-500/40 transition">
             <Trash2 size={16} />
           </button>
         </div>
       </div>
 
-      {/* KI-Assistent Panel */}
-      {showAi && aiSuggestions.length > 0 && (
-        <div className="mb-4 p-3 sm:p-4 rounded-xl border border-surface-200 bg-surface-50">
-          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-            <h3 className="text-xs sm:text-sm font-semibold text-brand-400 flex items-center gap-2">
-              <Bot size={16} /> {t("brainstorming.newSuggestions")}
-            </h3>
-            <div className="flex gap-1">
-              <button
-                onClick={generateAiSuggestions}
-                className="p-1.5 rounded text-surface-500 hover:text-surface-900 hover:bg-surface-200 transition"
-                title={t("brainstorming.newSuggestions")}
-              >
-                <RefreshCw size={14} />
-              </button>
-              <button
-                onClick={() => setShowAi(false)}
-                className="p-1.5 rounded text-surface-500 hover:text-surface-900 hover:bg-surface-200 transition"
-              >
-                <X size={14} />
-              </button>
-            </div>
-          </div>
-          <div className="space-y-2.5">
-            {aiSuggestions.map((s, idx) => (
-              <div key={idx} className="flex items-start gap-2.5 group">
-                <Sparkles size={12} className="text-brand-400 mt-1.5 flex-shrink-0" />
-                <p className="text-xs sm:text-sm text-surface-900 flex-1 leading-relaxed">{s}</p>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
-                  <button
-                    onClick={() => copyToInput(s, idx)}
-                    className="p-1.5 text-surface-500 hover:text-surface-900 hover:bg-surface-200 rounded transition"
-                    title={t("brainstorming.copyToInput")}
-                  >
-                    {copiedIdx === idx ? <Check size={14} /> : <Copy size={14} />}
-                  </button>
-                  <button
-                    onClick={() => addIdea(s)}
-                    className="p-1.5 text-surface-500 hover:text-green-400 hover:bg-surface-200 rounded transition"
-                    title={t("brainstorming.addAsIdea")}
-                  >
-                    <Plus size={14} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Inspiration / Prompt Card */}
-      {showPrompt && (
-        <div className="mb-4 p-3 sm:p-4 rounded-xl border border-surface-200 bg-surface-50 flex flex-col sm:flex-row items-start gap-2 sm:gap-3">
-          <Sparkles size={16} className="flex-shrink-0 mt-0.5 sm:mt-0.5" style={{ color: tech.color }} />
-          <div className="flex-1">
-            <p className="text-xs sm:text-sm text-surface-900 font-medium leading-relaxed">{tech.prompts[promptIndex]}</p>
-            {mod && (
-              <p className="text-xs text-surface-500 mt-1">
-                Kontext: {mod.name}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={nextPrompt}
-              className="p-1.5 rounded-lg text-surface-500 hover:text-surface-900 hover:bg-surface-200 transition"
-              title={t("brainstorming.nextPrompt")}
-            >
-              <RefreshCw size={14} />
-            </button>
-            <button
-              onClick={() => setShowPrompt(false)}
-              className="p-1.5 rounded-lg text-surface-500 hover:text-surface-900 hover:bg-surface-200 transition"
-              title={t("brainstorming.hide")}
-            >
-              <X size={14} />
-            </button>
-          </div>
-        </div>
-      )}
-      {!showPrompt && (
-        <button
-          onClick={() => setShowPrompt(true)}
-          className="mb-4 text-xs text-surface-700 hover:text-surface-900 flex items-center gap-1 transition"
-        >
-          <Sparkles size={12} /> {t("brainstorming.methodRapid")}
-        </button>
-      )}
-
-      {/* Mind Dump Timer */}
-      {session.technique === "minddump" && (
-        <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-surface-50 border border-surface-200 rounded-xl">
-          <Zap size={16} className="text-cyan-400 sm:size-[18px]" />
-          <span className="text-lg sm:text-2xl font-mono text-surface-900 font-bold tracking-wider">{fmtTimer(timerSec)}</span>
-          {!timerActive ? (
-            <button
-              onClick={() => { setTimerActive(true); if (timerSec === 0) setTimerSec(300); }}
-              className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs sm:text-sm font-medium transition"
-            >
-              {timerSec === 300 ? t("brainstorming.start") : "Weiter"}
-            </button>
-          ) : (
-            <button
-              onClick={() => setTimerActive(false)}
-              className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-surface-200 hover:bg-surface-300 text-surface-900 rounded-lg text-xs sm:text-sm font-medium transition"
-            >
-              Pause
-            </button>
-          )}
-          <button
-            onClick={() => { setTimerActive(false); setTimerSec(300); }}
-            className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 rounded-lg text-xs sm:text-sm transition"
-          >
-            Reset
-          </button>
-          <span className="text-xs text-surface-500 ml-auto">{t("brainstorming.writeIdeas")}</span>
-        </div>
-      )}
-
-      {/* Input bar */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-2">
-        <div className="flex-1 flex gap-2">
+      {/* ── Search bar ─────────────────────────────────────────────── */}
+      {showSearch && (
+        <div className="mb-4 flex items-center gap-2 p-2 bg-surface-50 border border-surface-200 rounded-lg">
+          <Search size={14} className="text-surface-500" />
           <input
-            ref={inputRef}
-            value={newContent}
-            onChange={e => setNewContent(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addIdea(); } }}
-            placeholder={t("brainstorming.title")}
-            className="flex-1 bg-surface-50 border border-surface-200 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none transition"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder={t("brainstorming.searchPlaceholder")}
+            className="flex-1 bg-transparent text-sm text-surface-900 placeholder:text-surface-400 focus:outline-none"
             autoFocus
           />
-          {tech.categories && (
-            <select
-              value={newCategory}
-              onChange={e => setNewCategory(e.target.value)}
-              className="bg-surface-50 border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 w-full sm:w-auto sm:min-w-[130px]"
-            >
-              {tech.categories.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+          {searchQuery && (
+            <span className="text-xs text-surface-500">{searchMatches.size} {t("mindmaps.found")}</span>
+          )}
+          <button onClick={() => { setShowSearch(false); setSearchQuery(""); }} className="text-surface-500 hover:text-surface-900"><X size={14} /></button>
+        </div>
+      )}
+
+      {/* ── KI Panel ───────────────────────────────────────────────── */}
+      {showAi && (
+        <div className="mb-4 p-4 rounded-xl border border-surface-200 bg-surface-50">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-brand-400 flex items-center gap-2">
+              <Bot size={16} /> {t("brainstorming.aiAssistant")}
+            </h3>
+            <button onClick={() => setShowAi(false)} className="text-surface-500 hover:text-surface-900"><X size={14} /></button>
+          </div>
+          <div className="flex gap-2 mb-3 flex-wrap">
+            <button onClick={() => aiExpandIdeas("expand")} disabled={aiLoading || ideas.length === 0}
+              className="px-3 py-1.5 rounded-lg bg-brand-600 text-white text-xs font-medium hover:bg-brand-500 disabled:opacity-40 transition">
+              <Sparkles size={12} className="inline mr-1" /> {t("brainstorming.aiExpand")}
+            </button>
+            <button onClick={() => aiExpandIdeas("structure")} disabled={aiLoading || ideas.length === 0}
+              className="px-3 py-1.5 rounded-lg bg-surface-200 text-surface-800 text-xs font-medium hover:bg-surface-300 disabled:opacity-40 transition">
+              {t("brainstorming.aiStructure")}
+            </button>
+            <button onClick={() => aiExpandIdeas("summarize")} disabled={aiLoading || ideas.length === 0}
+              className="px-3 py-1.5 rounded-lg bg-surface-200 text-surface-800 text-xs font-medium hover:bg-surface-300 disabled:opacity-40 transition">
+              {t("brainstorming.aiSummarize")}
+            </button>
+            <button onClick={() => aiExpandIdeas("gaps")} disabled={aiLoading || ideas.length === 0}
+              className="px-3 py-1.5 rounded-lg bg-surface-200 text-surface-800 text-xs font-medium hover:bg-surface-300 disabled:opacity-40 transition">
+              {t("brainstorming.aiGaps")}
+            </button>
+          </div>
+          {aiLoading && (
+            <div className="flex items-center gap-2 text-sm text-surface-500">
+              <span className="animate-pulse">...</span> {t("brainstorming.aiThinking")}
+            </div>
+          )}
+          {aiResult && (
+            <div className="mt-2 p-3 bg-white rounded-lg border border-surface-200">
+              <pre className="text-xs sm:text-sm text-surface-800 whitespace-pre-wrap font-sans leading-relaxed">{aiResult}</pre>
+              <button
+                onClick={() => copyToClipboard(aiResult)}
+                className="mt-2 text-xs text-surface-500 hover:text-surface-900 flex items-center gap-1"
+              >
+                {copied ? <Check size={12} /> : <Copy size={12} />} {copied ? t("brainstorming.copied") : t("brainstorming.copyResult")}
+              </button>
+            </div>
           )}
         </div>
-        <button
-          onClick={() => addIdea()}
-          disabled={!newContent.trim()}
-          className="bg-brand-600 hover:bg-brand-500 disabled:opacity-40 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 w-full sm:w-auto justify-center sm:justify-start"
-        >
-          <Plus size={16} /> {t("tasks.modal.add")}
-        </button>
-      </div>
+      )}
 
-      {/* Category filter */}
-      {tech.categories && tech.categories.length > 1 && (
-        <div className="flex gap-1 sm:gap-1.5 mb-4 flex-wrap overflow-x-auto pb-2">
-          <button
-            onClick={() => setFilterCat("")}
-            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-medium transition whitespace-nowrap ${
-              !filterCat ? "bg-brand-600 text-white" : "bg-surface-100 border border-surface-200 text-surface-700 hover:bg-surface-200 hover:text-surface-900"
-            }`}
-          >
-            {t("grades.filterAll")}
-          </button>
-          {tech.categories.map(cat => {
-            const count = (grouped[cat] ?? []).length;
-            return (
-              <button
-                key={cat}
-                onClick={() => setFilterCat(filterCat === cat ? "" : cat)}
-                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-medium transition whitespace-nowrap ${
-                  filterCat === cat ? "bg-brand-600 text-white" : "bg-surface-100 border border-surface-200 text-surface-700 hover:bg-surface-200 hover:text-surface-900"
-                }`}
-              >
-                {cat} ({count})
-              </button>
-            );
-          })}
+      {/* ── Export Panel ───────────────────────────────────────────── */}
+      {showExport && (
+        <div className="mb-4 p-4 rounded-xl border border-surface-200 bg-surface-50">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-surface-800 flex items-center gap-2">
+              <Download size={16} /> {t("brainstorming.export")}
+            </h3>
+            <button onClick={() => setShowExport(false)} className="text-surface-500 hover:text-surface-900"><X size={14} /></button>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <button onClick={() => { downloadFile(exportMarkdown(), `${session.title}.md`, "text/markdown"); }}
+              className="px-3 py-1.5 rounded-lg bg-surface-200 text-surface-800 text-xs font-medium hover:bg-surface-300 transition flex items-center gap-1.5">
+              <FileText size={14} /> Markdown
+            </button>
+            <button onClick={() => { downloadFile(exportJSON(), `${session.title}.json`, "application/json"); }}
+              className="px-3 py-1.5 rounded-lg bg-surface-200 text-surface-800 text-xs font-medium hover:bg-surface-300 transition flex items-center gap-1.5">
+              <Code size={14} /> JSON
+            </button>
+            <button onClick={() => copyToClipboard(exportMarkdown())}
+              className="px-3 py-1.5 rounded-lg bg-surface-200 text-surface-800 text-xs font-medium hover:bg-surface-300 transition flex items-center gap-1.5">
+              {copied ? <Check size={14} /> : <Copy size={14} />} {t("brainstorming.copyClipboard")}
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Ideas display */}
-      {loading ? (
-        <p className="text-surface-500 text-sm">{t("brainstorming.noSessions")}</p>
-      ) : ideas.length === 0 ? (
-        <div className="text-center py-16">
-          <Lightbulb size={48} className="mx-auto mb-4 text-surface-300" />
-          <p className="text-surface-500">{t("brainstorming.noSessions")}</p>
-          <p className="text-xs mt-1 text-surface-400">{t("brainstorming.usePromptHint")}</p>
-        </div>
-      ) : viewMode === "board" ? (
-        tech.categories ? (
-          <div className="grid gap-2 sm:gap-4" style={{ gridTemplateColumns: `repeat(${Math.min(allCats.length, 4)}, 1fr)` }}>
-            {allCats.filter((c: any) => !filterCat || c === filterCat).map(cat => (
-              <div key={cat} className="bg-white border border-surface-200 rounded-xl p-2 sm:p-3">
-                <h3 className="text-xs sm:text-sm font-semibold text-surface-800 mb-3 flex items-center justify-between">
-                  {cat}
-                  <span className="text-xs text-surface-500 font-normal bg-surface-100 px-2 py-0.5 rounded-full">{(grouped[cat] ?? []).length}</span>
-                </h3>
-                <div className="space-y-2">
-                  {(grouped[cat] ?? []).map(idea => (
-                    <IdeaCard
-                      key={idea.id}
-                      idea={idea}
-                      editing={editingId === idea.id}
-                      editContent={editContent}
-                      onStartEdit={() => { setEditingId(idea.id); setEditContent(idea.content); }}
-                      onSaveEdit={() => updateIdea(idea.id, editContent)}
-                      onCancelEdit={() => setEditingId(null)}
-                      onEditChange={setEditContent}
-                      onDelete={() => deleteIdea(idea.id)}
-                      onVote={(d) => voteIdea(idea.id, d)}
-                    />
-                  ))}
+      {/* ── Shortcuts Modal ────────────────────────────────────────── */}
+      {showShortcuts && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setShowShortcuts(false)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold text-surface-900">{t("brainstorming.shortcuts")}</h2>
+              <button onClick={() => setShowShortcuts(false)} className="text-surface-500 hover:text-surface-900"><X size={20} /></button>
+            </div>
+            <div className="space-y-2 text-sm">
+              {[
+                ["Enter", t("brainstorming.shortcutEnter")],
+                ["Tab", t("brainstorming.shortcutTab")],
+                ["Shift + Tab", t("brainstorming.shortcutShiftTab")],
+                ["Backspace", t("brainstorming.shortcutBackspace")],
+                ["\u2191 / \u2193", t("brainstorming.shortcutNavigate")],
+                ["Alt + \u2191/\u2193", t("brainstorming.shortcutMove")],
+                ["Ctrl + P", t("brainstorming.shortcutPriority")],
+                ["Ctrl + Z", t("brainstorming.shortcutUndo")],
+                ["Ctrl + F", t("brainstorming.shortcutSearch")],
+                ["Escape", t("brainstorming.shortcutEscape")],
+              ].map(([key, desc]) => (
+                <div key={key} className="flex justify-between items-center py-1.5 border-b border-surface-100">
+                  <kbd className="px-2 py-0.5 bg-surface-100 rounded text-xs font-mono text-surface-700">{key}</kbd>
+                  <span className="text-surface-600 text-xs">{desc}</span>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-            {filteredIdeas.map(idea => (
-              <IdeaCard
-                key={idea.id}
-                idea={idea}
-                editing={editingId === idea.id}
-                editContent={editContent}
-                onStartEdit={() => { setEditingId(idea.id); setEditContent(idea.content); }}
-                onSaveEdit={() => updateIdea(idea.id, editContent)}
-                onCancelEdit={() => setEditingId(null)}
-                onEditChange={setEditContent}
-                onDelete={() => deleteIdea(idea.id)}
-                onVote={(d) => voteIdea(idea.id, d)}
-              />
-            ))}
+        </div>
+      )}
+
+      {/* ── Inspiration prompt ─────────────────────────────────────── */}
+      {ideas.length === 0 && (
+        <div className="mb-6 p-4 rounded-xl border border-surface-200 bg-surface-50 flex items-start gap-3">
+          <Sparkles size={16} className="flex-shrink-0 mt-0.5" style={{ color: tech.color }} />
+          <div>
+            <p className="text-sm text-surface-900 font-medium leading-relaxed">{tech.prompts[0]}</p>
+            <p className="text-xs text-surface-500 mt-1.5">{t("brainstorming.startTyping")}</p>
           </div>
-        )
-      ) : (
-        <div className="space-y-1.5 sm:space-y-2">
-          {filteredIdeas.map((idea, idx) => (
+        </div>
+      )}
+
+      {/* ── Outliner ───────────────────────────────────────────────── */}
+      <div className="space-y-0.5 mb-4">
+        {visibleIdeas.map(({ idea, idx }) => {
+          const tags = extractTags(idea.content);
+          const childCount = getVisibleChildren(ideas, idx).length;
+          const hasKids = hasChildren(ideas, idx);
+          const isEditing = editIdx === idx;
+          const isSearchMatch = searchQuery && searchMatches.has(idea.id);
+          const isSearchDim = searchQuery && !searchMatches.has(idea.id);
+
+          return (
             <div
               key={idea.id}
-              className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-white border border-surface-200 rounded-lg group hover:border-surface-300 transition text-xs sm:text-sm"
+              className={`group flex items-start gap-1 py-1 px-1 rounded-lg transition-all ${
+                isEditing ? "bg-brand-500/5 border border-brand-500/20" : "hover:bg-surface-50 border border-transparent"
+              } ${isSearchDim ? "opacity-30" : ""} ${isSearchMatch ? "bg-yellow-50 border-yellow-200" : ""}`}
+              style={{ paddingLeft: `${idea.indent_level * 24 + 4}px` }}
             >
-              <span className="text-xs text-surface-400 font-mono mt-1 w-6 text-right">{idx + 1}</span>
-              <div className="w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: idea.color }} />
+              {/* Collapse toggle */}
+              <button
+                onClick={() => toggleCollapse(idx)}
+                className={`w-5 h-5 flex items-center justify-center text-surface-400 hover:text-surface-700 transition flex-shrink-0 mt-0.5 ${
+                  hasKids ? "visible" : "invisible"
+                }`}
+              >
+                {idea.collapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+              </button>
+
+              {/* Priority dot */}
+              {idea.priority !== "none" && (
+                <span
+                  className="w-2 h-2 rounded-full flex-shrink-0 mt-2"
+                  style={{ backgroundColor: PRIORITY_COLORS[idea.priority] }}
+                  title={idea.priority}
+                />
+              )}
+
+              {/* Content */}
               <div className="flex-1 min-w-0">
-                {editingId === idea.id ? (
-                  <div className="flex gap-1 sm:gap-2 w-full">
-                    <input
-                      value={editContent}
-                      onChange={e => setEditContent(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === "Enter") updateIdea(idea.id, editContent);
-                        if (e.key === "Escape") setEditingId(null);
-                      }}
-                      className="flex-1 bg-surface-50 border border-surface-300 rounded px-2 py-1 text-xs sm:text-sm text-surface-900 focus:border-brand-500 focus:outline-none"
-                      autoFocus
-                    />
-                    <button onClick={() => updateIdea(idea.id, editContent)} className="text-green-400 hover:text-green-300"><Save size={14} /></button>
-                    <button onClick={() => setEditingId(null)} className="text-surface-500 hover:text-surface-900"><X size={14} /></button>
-                  </div>
+                {isEditing ? (
+                  <input
+                    ref={el => { if (el) inputRefs.current.set(idx, el); }}
+                    value={editText}
+                    onChange={e => setEditText(e.target.value)}
+                    onBlur={() => {
+                      if (editText !== idea.content) updateIdeaContent(idx, editText);
+                      setEditIdx(-1);
+                    }}
+                    onKeyDown={e => handleRowKey(e, idx)}
+                    className="w-full bg-transparent text-sm text-surface-900 focus:outline-none py-0.5"
+                    autoFocus
+                  />
                 ) : (
-                  <p className="text-xs sm:text-sm text-surface-800">{idea.content}</p>
+                  <div
+                    className="text-sm text-surface-800 py-0.5 cursor-text min-h-[24px]"
+                    onClick={() => { setEditIdx(idx); setEditText(idea.content); }}
+                  >
+                    {idea.content ? (
+                      <span>
+                        {idea.content.split(/(#[\w\u00C0-\u024F]+)/g).map((part, pi) =>
+                          part.startsWith("#") ? (
+                            <span key={pi} className="text-brand-400 font-medium">{part}</span>
+                          ) : (
+                            <span key={pi}>{part}</span>
+                          )
+                        )}
+                      </span>
+                    ) : (
+                      <span className="text-surface-300 italic">{t("brainstorming.emptyIdea")}</span>
+                    )}
+                    {idea.collapsed && childCount > 0 && (
+                      <span className="ml-2 text-xs text-surface-400 bg-surface-100 px-1.5 py-0.5 rounded-full">
+                        +{childCount}
+                      </span>
+                    )}
+                  </div>
                 )}
-                {idea.category && (
-                  <span className="text-xs text-surface-400 mt-0.5 inline-block">{idea.category}</span>
+
+                {/* Notes preview */}
+                {idea.notes && !isEditing && (
+                  <p className="text-xs text-surface-400 mt-0.5 line-clamp-1">{idea.notes}</p>
                 )}
               </div>
-              <div className="flex items-center gap-0.5 sm:gap-1 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
-                {idea.votes > 0 && <span className="text-xs text-yellow-400 mr-1 font-medium">{idea.votes}</span>}
-                <button onClick={() => voteIdea(idea.id, 1)} className="p-1 text-surface-400 hover:text-yellow-400 transition"><ThumbsUp size={12} /></button>
-                <button onClick={() => { setEditingId(idea.id); setEditContent(idea.content); }} className="p-1 text-surface-400 hover:text-surface-900 transition"><Pencil size={12} /></button>
-                <button onClick={() => deleteIdea(idea.id)} className="p-1 text-surface-400 hover:text-red-400 transition"><Trash2 size={12} /></button>
+
+              {/* Actions (on hover) */}
+              <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
+                <button onClick={() => cyclePriority(idx)} className="p-1 text-surface-400 hover:text-yellow-500 transition" title={t("brainstorming.priority")}>
+                  <AlertCircle size={12} />
+                </button>
+                <button onClick={() => convertToTask(idea)} className="p-1 text-surface-400 hover:text-green-500 transition" title={t("brainstorming.convertToTask")}>
+                  <ArrowUpRight size={12} />
+                </button>
+                <button onClick={() => deleteIdea(idx)} className="p-1 text-surface-400 hover:text-red-400 transition" title={t("brainstorming.deleteIdea")}>
+                  <Trash2 size={12} />
+                </button>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
 
-      {/* Summary stats */}
+      {/* ── New idea input (always visible at bottom) ──────────────── */}
+      <div className="flex items-center gap-2 py-2 px-2 border border-dashed border-surface-200 rounded-lg hover:border-surface-300 transition">
+        <Plus size={14} className="text-surface-400" />
+        <input
+          ref={newInputRef}
+          placeholder={t("brainstorming.newIdeaPlaceholder")}
+          className="flex-1 bg-transparent text-sm text-surface-900 placeholder:text-surface-400 focus:outline-none"
+          onKeyDown={e => {
+            if (e.key === "Enter" && (e.target as HTMLInputElement).value.trim()) {
+              addIdeaAtEnd((e.target as HTMLInputElement).value);
+              (e.target as HTMLInputElement).value = "";
+            }
+          }}
+        />
+      </div>
+
+      {/* ── Summary stats ──────────────────────────────────────────── */}
       {ideas.length > 0 && (
         <div className="mt-6 p-3 sm:p-4 bg-white border border-surface-200 rounded-xl">
-          <h3 className="text-xs sm:text-sm font-semibold text-surface-800 mb-3 flex items-center gap-2">
-            <Target size={14} className="text-brand-400" /> Zusammenfassung
-          </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-center">
             <div>
               <p className="text-lg sm:text-2xl font-bold text-surface-900">{ideas.length}</p>
-              <p className="text-xs text-surface-500">Ideen</p>
-            </div>
-            <div>
-              <p className="text-lg sm:text-2xl font-bold text-yellow-400">{ideas.filter(i => i.votes > 0).length}</p>
-              <p className="text-xs text-surface-500">Bewertet</p>
+              <p className="text-xs text-surface-500">{t("brainstorming.ideas")}</p>
             </div>
             <div>
               <p className="text-lg sm:text-2xl font-bold text-brand-400">
-                {tech.categories ? new Set(ideas.map(i => i.category).filter(Boolean)).size : "\u2014"}
+                {new Set(ideas.flatMap(i => extractTags(i.content))).size}
               </p>
-              <p className="text-xs text-surface-500">Kategorien</p>
+              <p className="text-xs text-surface-500">Tags</p>
+            </div>
+            <div>
+              <p className="text-lg sm:text-2xl font-bold text-yellow-400">
+                {ideas.filter(i => i.priority !== "none").length}
+              </p>
+              <p className="text-xs text-surface-500">{t("brainstorming.prioritized")}</p>
             </div>
             <div>
               <p className="text-lg sm:text-2xl font-bold text-cyan-400">
-                {ideas.reduce((max, i) => Math.max(max, i.votes), 0)}
+                {Math.max(...ideas.map(i => i.indent_level), 0) + 1}
               </p>
-              <p className="text-xs text-surface-500">Top Wertung</p>
+              <p className="text-xs text-surface-500">{t("brainstorming.depthLevels")}</p>
             </div>
-          </div>
-          {ideas.filter(i => i.votes > 0).length > 0 && (
-            <div className="mt-3 pt-3 border-t border-surface-200">
-              <p className="text-xs text-surface-500 mb-2 font-medium">Top Ideen:</p>
-              {[...ideas].sort((a, b) => b.votes - a.votes).slice(0, 3).map((idea) => (
-                <p key={idea.id} className="text-xs sm:text-sm text-surface-800 flex items-center gap-2 py-0.5">
-                  <span className="text-yellow-400 text-xs font-medium min-w-[20px]">{idea.votes}x</span>
-                  <span className="line-clamp-1">{idea.content}</span>
-                </p>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ── Idea Card Component ────────────────────────────────────────────── */
-function IdeaCard({
-  idea, editing, editContent, onStartEdit, onSaveEdit, onCancelEdit, onEditChange, onDelete, onVote,
-}: {
-  idea: BrainstormIdea;
-  editing: boolean;
-  editContent: string;
-  onStartEdit: () => void;
-  onSaveEdit: () => void;
-  onCancelEdit: () => void;
-  onEditChange: (v: string) => void;
-  onDelete: () => void;
-  onVote: (delta: number) => void;
-}) {
-  const { t } = useTranslation();
-  return (
-    <div
-      className="p-2 sm:p-3 rounded-lg border border-surface-200 bg-white hover:border-surface-300 group transition"
-      style={{ borderLeftWidth: 3, borderLeftColor: idea.color }}
-    >
-      {editing ? (
-        <div>
-          <textarea
-            value={editContent}
-            onChange={e => onEditChange(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === "Enter" && e.ctrlKey) onSaveEdit();
-              if (e.key === "Escape") onCancelEdit();
-            }}
-            className="w-full bg-surface-50 border border-surface-300 rounded px-2 py-1 sm:py-1.5 text-xs sm:text-sm text-surface-900 resize-none focus:border-brand-500 focus:outline-none"
-            rows={3}
-            autoFocus
-          />
-          <div className="flex gap-1.5 sm:gap-2 mt-1.5">
-            <button onClick={onSaveEdit} className="text-xs text-green-400 hover:text-green-300 flex items-center gap-1 font-medium transition">
-              <Save size={12} /> Speichern
-            </button>
-            <button onClick={onCancelEdit} className="text-xs text-surface-500 hover:text-surface-900 transition">Abbrechen</button>
           </div>
         </div>
-      ) : (
-        <>
-          <p className="text-xs sm:text-sm text-surface-800 mb-2 leading-relaxed">{idea.content}</p>
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-1">
-              {idea.votes > 0 && (
-                <span className="text-xs text-yellow-400 flex items-center gap-0.5 font-medium">
-                  <ThumbsUp size={10} /> {idea.votes}
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
-              <button onClick={() => onVote(1)} className="p-1 text-surface-400 hover:text-yellow-400 transition" title="Bewerten"><ThumbsUp size={12} /></button>
-              {idea.votes > 0 && (
-                <button onClick={() => onVote(-1)} className="p-1 text-surface-400 hover:text-surface-700 transition" title="Abwerten"><Minus size={12} /></button>
-              )}
-              <button onClick={onStartEdit} className="p-1 text-surface-400 hover:text-surface-900 transition" title="Bearbeiten"><Pencil size={12} /></button>
-              <button onClick={onDelete} className="p-1 text-surface-400 hover:text-red-400 transition" title={t("common.delete")}><Trash2 size={12} /></button>
-            </div>
-          </div>
-        </>
       )}
     </div>
   );

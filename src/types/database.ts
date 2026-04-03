@@ -310,6 +310,9 @@ export interface BrainstormIdea {
   pos_y: number;
   votes: number;
   sort_order: number;
+  indent_level: number;
+  notes: string;
+  priority: string;
   created_at: string;
 }
 
