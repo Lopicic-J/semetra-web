@@ -42,7 +42,7 @@ export default function MobileHeader() {
           <div className="flex items-center justify-center w-6 h-6 rounded-md bg-brand-600 text-white">
             <Gem size={12} strokeWidth={2.2} />
           </div>
-          <span className="font-bold text-surface-900 text-sm tracking-tight">Semetra</span>
+          <span className="font-bold text-surface-900 text-sm tracking-tight">Semetra Workspace</span>
           <span className={clsx(
             "text-[9px] font-bold px-1.5 py-0.5 rounded-md",
             isPro ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500"
@@ -76,7 +76,7 @@ export default function MobileHeader() {
               <Gem size={16} strokeWidth={2.2} />
             </div>
             <div>
-              <p className="font-bold text-surface-900 text-sm leading-tight tracking-tight">Semetra</p>
+              <p className="font-bold text-surface-900 text-sm leading-tight tracking-tight">Semetra Workspace</p>
               <p className="text-[10px] text-surface-400 leading-tight">Study Organizer</p>
             </div>
           </div>

@@ -147,8 +147,8 @@ const FEATURES: Feature[] = [
     color: "#525252", pro: false,
   },
   {
-    href: "/about", emoji: "ℹ️", label: "Über Semetra", group: "System",
-    description: "Informationen zu Semetra, Version, Changelog und Kontakt.",
+    href: "/about", emoji: "ℹ️", label: "Über Semetra Workspace", group: "System",
+    description: "Informationen zu Semetra Workspace, Version, Changelog und Kontakt.",
     keywords: ["über", "info", "version", "about", "kontakt", "hilfe"],
     color: "#525252", pro: false,
   },
@@ -319,7 +319,7 @@ export default function NavigatorPage() {
       {!search && !activeGroup && (
         <div className="bg-white rounded-xl border border-surface-200 p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm gap-1">
           <span className="text-surface-400">{FEATURES.length} Funktionen in {GROUPS.length} Kategorien</span>
-          <span className="text-surface-300">Semetra — Dein Studienbegleiter</span>
+          <span className="text-surface-300">Semetra Workspace — Dein Studienbegleiter</span>
         </div>
       )}
     </div>

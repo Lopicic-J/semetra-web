@@ -94,7 +94,7 @@ export default function RegisterPage() {
             <Gem size={28} />
           </div>
           <h1 className="text-2xl font-bold text-surface-900">Konto erstellen</h1>
-          <p className="text-surface-500 text-sm mt-1">Starte kostenlos mit Semetra</p>
+          <p className="text-surface-500 text-sm mt-1">Starte kostenlos mit Semetra Workspace</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl shadow-surface-200/50 border border-surface-200/60 p-6 sm:p-8">
@@ -197,7 +197,7 @@ export default function RegisterPage() {
         </div>
 
         <p className="text-center text-[11px] text-surface-400 mt-6">
-          &copy; {new Date().getFullYear()} Lopicic Technologies &middot; Semetra
+          &copy; {new Date().getFullYear()} Lopicic Technologies &middot; Semetra Workspace
         </p>
       </div>
     </div>

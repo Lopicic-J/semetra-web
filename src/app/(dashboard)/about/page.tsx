@@ -26,7 +26,7 @@ export default function AboutPage() {
 
           {/* App Name & Tagline */}
           <h1 className="text-5xl sm:text-6xl font-bold text-surface-900 mb-4">
-            Semetra
+            Semetra Workspace
           </h1>
           <p className="text-xl sm:text-2xl text-surface-600 font-medium mb-3">
             Dein intelligenter Studienbegleiter
@@ -42,7 +42,7 @@ export default function AboutPage() {
       {/* Mission Statement */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
         <p className="text-lg text-surface-600 leading-relaxed">
-          Semetra unterstützt Studierende an Fachhochschulen und Universitäten in Europa dabei, ihre
+          Semetra Workspace unterstützt Studierende an Fachhochschulen und Universitäten in Europa dabei, ihre
           Lernziele effizient zu organisieren und zu erreichen. Mit intelligenter KI-Unterstützung,
           flexiblem Offline-Zugang und europäischem Datenschutz gestalten wir das Studium produktiver
           und stressfreier.
@@ -52,7 +52,7 @@ export default function AboutPage() {
       {/* Feature Highlights */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h2 className="text-3xl font-bold text-surface-900 text-center mb-12">
-          Warum Semetra?
+          Warum Semetra Workspace?
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -91,7 +91,7 @@ export default function AboutPage() {
               Plattformübergreifend
             </h3>
             <p className="text-surface-600 text-sm leading-relaxed">
-              Nutze Semetra im Browser, als Desktop-App oder mobil — deine Daten synchro nisieren nahtlos und offline funktioniert es auch.
+              Nutze Semetra Workspace im Browser, als Desktop-App oder mobil — deine Daten synchronisieren nahtlos und offline funktioniert es auch.
             </p>
           </div>
 
@@ -133,7 +133,7 @@ export default function AboutPage() {
                 Web App
               </h3>
               <p className="text-surface-600 text-sm mb-4">
-                Zugänglich von überall. Nutze Semetra direkt im Browser — kein Download nötig.
+                Zugänglich von überall. Nutze Semetra Workspace direkt im Browser — kein Download nötig.
               </p>
               <p className="text-xs text-surface-500">
                 app.semetra.ch

@@ -63,7 +63,7 @@ export const NAV_GROUPS: NavGroup[] = [
 
 export const BOTTOM_ITEMS: NavItem[] = [
   { href: "/settings", icon: Settings, label: "Einstellungen", pro: false },
-  { href: "/about",    icon: Info,     label: "Über Semetra",  pro: false },
+  { href: "/about",    icon: Info,     label: "Über Semetra Workspace",  pro: false },
 ];
 
 export function getAllNavItems(): NavItem[] {

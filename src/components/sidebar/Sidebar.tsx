@@ -49,7 +49,7 @@ export default function Sidebar() {
           <Gem size={16} strokeWidth={2.2} />
         </div>
         <div className="min-w-0">
-          <p className="font-bold text-surface-900 text-sm leading-tight tracking-tight">Semetra</p>
+          <p className="font-bold text-surface-900 text-sm leading-tight tracking-tight">Semetra Workspace</p>
           <p className="text-[10px] text-surface-400 leading-tight">Study Organizer</p>
         </div>
         <span className={clsx(

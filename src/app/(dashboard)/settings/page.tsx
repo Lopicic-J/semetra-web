@@ -584,7 +584,7 @@ function PrivacyTab() {
       <div className="card">
         <h2 className="font-semibold text-surface-900 mb-3">Datenschutz</h2>
         <p className="text-sm text-surface-600 leading-relaxed">
-          Semetra speichert deine Daten sicher in der Cloud über Supabase (PostgreSQL). Alle Daten sind mit Row Level Security (RLS) geschützt — nur du hast Zugriff auf deine eigenen Daten.
+          Semetra Workspace speichert deine Daten sicher in der Cloud über Supabase (PostgreSQL). Alle Daten sind mit Row Level Security (RLS) geschützt — nur du hast Zugriff auf deine eigenen Daten.
         </p>
       </div>
 
@@ -609,7 +609,7 @@ function PrivacyTab() {
             <div className="flex-1">
               <p className="text-sm font-semibold text-surface-800">Desktop-kompatibel (empfohlen)</p>
               <p className="text-xs text-surface-500">
-                Kann direkt in die Semetra Desktop-App importiert werden. Auch als Backup geeignet.
+                Kann direkt in die Semetra Workspace Desktop-App importiert werden. Auch als Backup geeignet.
               </p>
             </div>
             <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
