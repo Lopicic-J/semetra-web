@@ -5,13 +5,13 @@ import { useTranslation } from "@/lib/i18n";
 import { ChevronLeft, ChevronRight, Plus, X, Trash2 } from "lucide-react";
 import type { CalendarEvent } from "@/types/database";
 
-const DOW = ["Mo","Di","Mi","Do","Fr","Sa","So"];
-
 function startOfMonth(y: number, m: number) { return new Date(y, m, 1); }
 function daysInMonth(y: number, m: number) { return new Date(y, m + 1, 0).getDate(); }
 
 export default function CalendarPage() {
   const { t } = useTranslation();
+  const DOW = t("calendar.dayHeaders").split("|");
+  const monthNames = t("calendar.monthNames").split("|");
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -58,7 +58,7 @@ export default function CalendarPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-surface-900">{t("nav.calendar")}</h1>
-          <p className="text-surface-500 text-sm mt-0.5">{t("calendar.monthNames", { index: month })} {year}</p>
+          <p className="text-surface-500 text-sm mt-0.5">{monthNames[month]} {year}</p>
         </div>
         <div className="flex gap-2">
           <div className="flex bg-surface-100 rounded-xl overflow-hidden">
@@ -98,7 +98,7 @@ export default function CalendarPage() {
                           {ev.title}
                         </div>
                       ))}
-                      {dayEvs.length > 3 && <div className="text-[10px] text-surface-400">+{dayEvs.length - 3} mehr</div>}
+                      {dayEvs.length > 3 && <div className="text-[10px] text-surface-400">+{dayEvs.length - 3} {t("calendar.moreEvents")}</div>}
                     </div>
                   </>
                 )}
@@ -112,7 +112,11 @@ export default function CalendarPage() {
       {selected && (
         <div className="mt-4 card">
           <h3 className="font-semibold text-surface-900 mb-3">
-            {new Date(selected).toLocaleDateString("de-CH", { weekday: "long", day: "numeric", month: "long" })}
+            {(() => {
+              const d = new Date(selected);
+              const dayName = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"][d.getDay() === 0 ? 6 : d.getDay() - 1];
+              return `${dayName}, ${d.getDate()}. ${monthNames[d.getMonth()]}`;
+            })()}
           </h3>
           {events.filter(e => e.start_dt.startsWith(selected)).length === 0 ? (
             <p className="text-sm text-surface-400">{t("calendar.noEvents")}</p>

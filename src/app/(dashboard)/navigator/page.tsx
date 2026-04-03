@@ -17,163 +17,178 @@ interface Feature {
   pro: boolean;
 }
 
-const FEATURES: Feature[] = [
-  // ── Übersicht ──
-  {
-    href: "/dashboard", emoji: "🏠", label: "Dashboard", group: "Übersicht",
-    description: "Deine Startseite mit Statistiken, anstehenden Prüfungen, offenen Aufgaben und Lernzeit-Übersicht.",
-    keywords: ["start", "übersicht", "home", "statistik", "zusammenfassung"],
-    color: "#6d28d9", pro: false,
-  },
-  {
-    href: "/modules", emoji: "📚", label: "Module", group: "Übersicht",
-    description: "Verwalte alle deine Studienmodule — Dozenten, ECTS, Zeitplan, Links und Materialien.",
-    keywords: ["fach", "kurs", "vorlesung", "semester", "dozent", "ects", "modul"],
-    color: "#2563eb", pro: false,
-  },
-  {
-    href: "/tasks", emoji: "✅", label: "Aufgaben", group: "Übersicht",
-    description: "To-Do-Liste mit Prioritäten, Status-Tracking, Modul-Zuordnung und Anhängen.",
-    keywords: ["todo", "aufgabe", "task", "erledigen", "abgabe", "deadline", "priorität"],
-    color: "#059669", pro: false,
-  },
-  {
-    href: "/studiengaenge", emoji: "🎓", label: "FH-Voreinstellungen", group: "Übersicht",
-    description: "Wähle deinen Studiengang aus vorgefertigten Schweizer FH-Programmen mit allen Modulen.",
-    keywords: ["studiengang", "fh", "fachhochschule", "voreinstellung", "programm", "template"],
-    color: "#7c3aed", pro: true,
-  },
+function getFeatures(t: (key: string, vars?: Record<string, string | number>) => string): Feature[] {
+  return [
+    // ── Übersicht ──
+    {
+      href: "/dashboard", emoji: "🏠", label: t("nav.dashboard"), group: t("navigator.overviewSection"),
+      description: t("navigator.dashboardDesc"),
+      keywords: ["start", "übersicht", "home", "statistik", "zusammenfassung"],
+      color: "#6d28d9", pro: false,
+    },
+    {
+      href: "/modules", emoji: "📚", label: t("nav.modules"), group: t("navigator.overviewSection"),
+      description: t("navigator.modulesDesc"),
+      keywords: ["fach", "kurs", "vorlesung", "semester", "dozent", "ects", "modul"],
+      color: "#2563eb", pro: false,
+    },
+    {
+      href: "/tasks", emoji: "✅", label: t("nav.tasks"), group: t("navigator.overviewSection"),
+      description: t("navigator.tasksDesc"),
+      keywords: ["todo", "aufgabe", "task", "erledigen", "abgabe", "deadline", "priorität"],
+      color: "#059669", pro: false,
+    },
+    {
+      href: "/studiengaenge", emoji: "🎓", label: t("studiengaenge.title"), group: t("navigator.overviewSection"),
+      description: t("navigator.fhSettingsDesc"),
+      keywords: ["studiengang", "fh", "fachhochschule", "voreinstellung", "programm", "template"],
+      color: "#7c3aed", pro: true,
+    },
 
-  // ── Planung ──
-  {
-    href: "/studienplan", emoji: "🎯", label: "Studienplan", group: "Planung",
-    description: "Langfristige Semesterplanung mit Meilensteinen und Zielen für dein gesamtes Studium.",
-    keywords: ["plan", "semester", "langzeit", "ziel", "meilenstein", "strategie"],
-    color: "#dc2626", pro: false,
-  },
-  {
-    href: "/calendar", emoji: "📅", label: "Kalender", group: "Planung",
-    description: "Monats- und Wochenansicht aller Termine, Prüfungen und Abgaben auf einen Blick.",
-    keywords: ["kalender", "termin", "datum", "woche", "monat", "terminplan"],
-    color: "#ea580c", pro: false,
-  },
-  {
-    href: "/timeline", emoji: "📊", label: "Timeline", group: "Planung",
-    description: "Visueller Zeitstrahl deines Semesters mit allen wichtigen Meilensteinen und Deadlines.",
-    keywords: ["zeitstrahl", "timeline", "gantt", "verlauf", "chronologisch"],
-    color: "#0891b2", pro: false,
-  },
-  {
-    href: "/stundenplan", emoji: "📋", label: "Stundenplan", group: "Planung",
-    description: "Dein wöchentlicher Stundenplan mit Räumen, Zeiten und Modulen — automatisch aus deinen Modulen.",
-    keywords: ["stundenplan", "wochenplan", "raum", "zeit", "vorlesung", "stunde"],
-    color: "#4f46e5", pro: false,
-  },
-  {
-    href: "/exams", emoji: "🎓", label: "Prüfungen", group: "Planung",
-    description: "Alle Prüfungstermine verwalten — mit Typ, Gewichtung, Hilfsmitteln und Anhängen.",
-    keywords: ["prüfung", "exam", "klausur", "test", "bewertung", "hilfsmittel"],
-    color: "#be123c", pro: false,
-  },
+    // ── Planung ──
+    {
+      href: "/studienplan", emoji: "🎯", label: t("nav.studienplan"), group: t("navigator.planningSection"),
+      description: t("navigator.studienplanDesc"),
+      keywords: ["plan", "semester", "langzeit", "ziel", "meilenstein", "strategie"],
+      color: "#dc2626", pro: false,
+    },
+    {
+      href: "/calendar", emoji: "📅", label: t("nav.calendar"), group: t("navigator.planningSection"),
+      description: t("navigator.calendarDesc"),
+      keywords: ["kalender", "termin", "datum", "woche", "monat", "terminplan"],
+      color: "#ea580c", pro: false,
+    },
+    {
+      href: "/timeline", emoji: "📊", label: t("nav.timeline"), group: t("navigator.planningSection"),
+      description: t("navigator.timelineDesc"),
+      keywords: ["zeitstrahl", "timeline", "gantt", "verlauf", "chronologisch"],
+      color: "#0891b2", pro: false,
+    },
+    {
+      href: "/stundenplan", emoji: "📋", label: t("nav.stundenplan"), group: t("navigator.planningSection"),
+      description: t("navigator.stundenplanDesc"),
+      keywords: ["stundenplan", "wochenplan", "raum", "zeit", "vorlesung", "stunde"],
+      color: "#4f46e5", pro: false,
+    },
+    {
+      href: "/exams", emoji: "🎓", label: t("nav.exams"), group: t("navigator.planningSection"),
+      description: t("navigator.examsDesc"),
+      keywords: ["prüfung", "exam", "klausur", "test", "bewertung", "hilfsmittel"],
+      color: "#be123c", pro: false,
+    },
 
-  // ── Wissen ──
-  {
-    href: "/notes", emoji: "📝", label: "Notizen", group: "Wissen",
-    description: "Rich-Text-Notizen mit Checklisten, Modul-Zuordnung und Flow-Ansicht aller Notiz-Quellen.",
-    keywords: ["notiz", "notizen", "schreiben", "mitschrift", "text", "checklist"],
-    color: "#ca8a04", pro: false,
-  },
-  {
-    href: "/documents", emoji: "📂", label: "Dokumente", group: "Wissen",
-    description: "Zentrales Verzeichnis aller Dokumente, Links und Anhänge — nach Modul, Aufgabe und Prüfung.",
-    keywords: ["dokument", "datei", "link", "anhang", "pdf", "download", "material"],
-    color: "#0d9488", pro: false,
-  },
-  {
-    href: "/knowledge", emoji: "🧠", label: "Lernziele", group: "Wissen",
-    description: "Definiere Lernziele pro Modul und tracke deinen Wissensstand für gezielte Prüfungsvorbereitung.",
-    keywords: ["lernziel", "wissen", "kompetenz", "fortschritt", "verstehen", "lernen"],
-    color: "#db2777", pro: false,
-  },
-  {
-    href: "/mindmaps", emoji: "🗺️", label: "Mind Maps", group: "Wissen",
-    description: "Erstelle visuelle Gedankenkarten um Zusammenhänge zu erkennen und Themen zu strukturieren.",
-    keywords: ["mindmap", "gedankenkarte", "struktur", "übersicht", "verbindung", "diagramm"],
-    color: "#7c3aed", pro: false,
-  },
-  {
-    href: "/brainstorming", emoji: "💡", label: "Brainstorming", group: "Wissen",
-    description: "7 Kreativtechniken (SCAMPER, Pro & Contra, etc.) mit Ideen-Board, Voting und KI-Assistent.",
-    keywords: ["brainstorming", "idee", "kreativ", "scamper", "kreativität", "innovation"],
-    color: "#f59e0b", pro: false,
-  },
-  {
-    href: "/flashcards", emoji: "🗃️", label: "Karteikarten", group: "Wissen",
-    description: "Lernkarten erstellen und mit Spaced Repetition effektiv auswendig lernen.",
-    keywords: ["karteikarte", "flashcard", "lernen", "wiederholen", "auswendig", "abfragen"],
-    color: "#8b5cf6", pro: false,
-  },
-  {
-    href: "/math", emoji: "🧮", label: "Mathe-Raum", group: "Wissen",
-    description: "7 Mathe-Werkzeuge: Taschenrechner, Gleichungslöser, Matrizen, Plotter, Statistik, Einheiten, Formeln.",
-    keywords: ["mathe", "rechner", "gleichung", "matrix", "statistik", "formel", "plotter", "berechnung"],
-    color: "#6366f1", pro: false,
-  },
-  {
-    href: "/timer", emoji: "⏱️", label: "Timer", group: "Wissen",
-    description: "Pomodoro-Timer und Stoppuhr — tracke deine Lernzeit pro Modul mit Notizen.",
-    keywords: ["timer", "pomodoro", "stoppuhr", "lernzeit", "fokus", "konzentration", "zeit"],
-    color: "#16a34a", pro: false,
-  },
+    // ── Wissen ──
+    {
+      href: "/notes", emoji: "📝", label: t("nav.notes"), group: t("navigator.knowledgeSection"),
+      description: t("navigator.notesDesc"),
+      keywords: ["notiz", "notizen", "schreiben", "mitschrift", "text", "checklist"],
+      color: "#ca8a04", pro: false,
+    },
+    {
+      href: "/documents", emoji: "📂", label: t("nav.documents"), group: t("navigator.knowledgeSection"),
+      description: t("navigator.documentsDesc"),
+      keywords: ["dokument", "datei", "link", "anhang", "pdf", "download", "material"],
+      color: "#0d9488", pro: false,
+    },
+    {
+      href: "/knowledge", emoji: "🧠", label: t("nav.knowledge"), group: t("navigator.knowledgeSection"),
+      description: t("navigator.knowledgeDesc"),
+      keywords: ["lernziel", "wissen", "kompetenz", "fortschritt", "verstehen", "lernen"],
+      color: "#db2777", pro: false,
+    },
+    {
+      href: "/mindmaps", emoji: "🗺️", label: t("nav.mindmaps"), group: t("navigator.knowledgeSection"),
+      description: t("navigator.mindmapsDesc"),
+      keywords: ["mindmap", "gedankenkarte", "struktur", "übersicht", "verbindung", "diagramm"],
+      color: "#7c3aed", pro: false,
+    },
+    {
+      href: "/brainstorming", emoji: "💡", label: t("nav.brainstorming"), group: t("navigator.knowledgeSection"),
+      description: t("navigator.brainstormingDesc"),
+      keywords: ["brainstorming", "idee", "kreativ", "scamper", "kreativität", "innovation"],
+      color: "#f59e0b", pro: false,
+    },
+    {
+      href: "/flashcards", emoji: "🗃️", label: t("nav.flashcards"), group: t("navigator.knowledgeSection"),
+      description: t("navigator.flashcardsDesc"),
+      keywords: ["karteikarte", "flashcard", "lernen", "wiederholen", "auswendig", "abfragen"],
+      color: "#8b5cf6", pro: false,
+    },
+    {
+      href: "/math", emoji: "🧮", label: t("nav.math"), group: t("navigator.knowledgeSection"),
+      description: t("navigator.mathDesc"),
+      keywords: ["mathe", "rechner", "gleichung", "matrix", "statistik", "formel", "plotter", "berechnung"],
+      color: "#6366f1", pro: false,
+    },
+    {
+      href: "/timer", emoji: "⏱️", label: t("nav.timer"), group: t("navigator.knowledgeSection"),
+      description: t("navigator.timerDesc"),
+      keywords: ["timer", "pomodoro", "stoppuhr", "lernzeit", "fokus", "konzentration", "zeit"],
+      color: "#16a34a", pro: false,
+    },
 
-  // ── Analyse ──
-  {
-    href: "/grades", emoji: "📈", label: "Noten", group: "Analyse",
-    description: "Notenübersicht mit Durchschnitt, Bestanden/Nicht-Bestanden und Modul-Aufschlüsselung.",
-    keywords: ["note", "noten", "durchschnitt", "bestanden", "bewertung", "ergebnis"],
-    color: "#059669", pro: false,
-  },
-  {
-    href: "/credits", emoji: "🏆", label: "Credits & ECTS", group: "Analyse",
-    description: "ECTS-Fortschritt verfolgen — wie viele Credits du bereits erreicht hast und was noch fehlt.",
-    keywords: ["ects", "credits", "fortschritt", "punkte", "leistungspunkte", "abschluss"],
-    color: "#d97706", pro: false,
-  },
+    // ── Analyse ──
+    {
+      href: "/grades", emoji: "📈", label: t("nav.grades"), group: t("navigator.analyticsSection"),
+      description: t("navigator.gradesDesc"),
+      keywords: ["note", "noten", "durchschnitt", "bestanden", "bewertung", "ergebnis"],
+      color: "#059669", pro: false,
+    },
+    {
+      href: "/credits", emoji: "🏆", label: t("nav.credits"), group: t("navigator.analyticsSection"),
+      description: t("navigator.creditsDesc"),
+      keywords: ["ects", "credits", "fortschritt", "punkte", "leistungspunkte", "abschluss"],
+      color: "#d97706", pro: false,
+    },
 
-  // ── System ──
-  {
-    href: "/settings", emoji: "⚙️", label: "Einstellungen", group: "System",
-    description: "Profil, Konto, Benachrichtigungen und App-Einstellungen verwalten.",
-    keywords: ["einstellung", "profil", "konto", "einstellungen", "account", "setting"],
-    color: "#525252", pro: false,
-  },
-  {
-    href: "/about", emoji: "ℹ️", label: "Über Semetra Workspace", group: "System",
-    description: "Informationen zu Semetra Workspace, Version, Changelog und Kontakt.",
-    keywords: ["über", "info", "version", "about", "kontakt", "hilfe"],
-    color: "#525252", pro: false,
-  },
-];
+    // ── System ──
+    {
+      href: "/settings", emoji: "⚙️", label: t("nav.settings"), group: t("navigator.systemSection"),
+      description: t("navigator.settingsDesc"),
+      keywords: ["einstellung", "profil", "konto", "einstellungen", "account", "setting"],
+      color: "#525252", pro: false,
+    },
+    {
+      href: "/about", emoji: "ℹ️", label: t("nav.about"), group: t("navigator.systemSection"),
+      description: t("navigator.aboutDesc"),
+      keywords: ["über", "info", "version", "about", "kontakt", "hilfe"],
+      color: "#525252", pro: false,
+    },
+  ];
+}
 
-const GROUPS = ["Übersicht", "Planung", "Wissen", "Analyse", "System"];
-const GROUP_EMOJIS: Record<string, string> = {
-  "Übersicht": "🏠",
-  "Planung": "📅",
-  "Wissen": "📖",
-  "Analyse": "📊",
-  "System": "⚙️",
-};
+function getGroupKeys(t: (key: string, vars?: Record<string, string | number>) => string): string[] {
+  return [
+    t("navigator.overviewSection"),
+    t("navigator.planningSection"),
+    t("navigator.knowledgeSection"),
+    t("navigator.analyticsSection"),
+    t("navigator.systemSection"),
+  ];
+}
+
+function getGroupEmojis(t: (key: string, vars?: Record<string, string | number>) => string): Record<string, string> {
+  return {
+    [t("navigator.overviewSection")]: "🏠",
+    [t("navigator.planningSection")]: "📅",
+    [t("navigator.knowledgeSection")]: "📖",
+    [t("navigator.analyticsSection")]: "📊",
+    [t("navigator.systemSection")]: "⚙️",
+  };
+}
 
 /* ─── Recommendations for common student tasks ────────────────────────────── */
 
-const QUICK_ACTIONS: { label: string; description: string; href: string; emoji: string; color: string }[] = [
-  { label: "Prüfung vorbereiten", description: "Lernziele checken, Karteikarten lernen, Notizen durchgehen", href: "/knowledge", emoji: "📖", color: "#7c3aed" },
-  { label: "Aufgabe erledigen", description: "Offene Tasks ansehen und abhaken", href: "/tasks", emoji: "✏️", color: "#059669" },
-  { label: "Lernzeit starten", description: "Timer starten und fokussiert lernen", href: "/timer", emoji: "⏱️", color: "#16a34a" },
-  { label: "Mathe lösen", description: "Gleichungen, Matrizen oder Funktionen berechnen", href: "/math", emoji: "🧮", color: "#6366f1" },
-  { label: "Ideen sammeln", description: "Brainstorming-Session mit Kreativtechniken starten", href: "/brainstorming", emoji: "💡", color: "#f59e0b" },
-  { label: "Notizen schreiben", description: "Neue Notiz erstellen oder bestehende finden", href: "/notes", emoji: "📝", color: "#ca8a04" },
-];
+function getQuickActions(t: (key: string, vars?: Record<string, string | number>) => string): { label: string; description: string; href: string; emoji: string; color: string }[] {
+  return [
+    { label: t("navigator.prepareExam"), description: "Lernziele checken, Karteikarten lernen, Notizen durchgehen", href: "/knowledge", emoji: "📖", color: "#7c3aed" },
+    { label: t("navigator.completeTask"), description: "Offene Tasks ansehen und abhaken", href: "/tasks", emoji: "✏️", color: "#059669" },
+    { label: t("navigator.startLearning"), description: "Timer starten und fokussiert lernen", href: "/timer", emoji: "⏱️", color: "#16a34a" },
+    { label: t("navigator.solveMath"), description: "Gleichungen, Matrizen oder Funktionen berechnen", href: "/math", emoji: "🧮", color: "#6366f1" },
+    { label: t("navigator.brainstormIdeas"), description: "Brainstorming-Session mit Kreativtechniken starten", href: "/brainstorming", emoji: "💡", color: "#f59e0b" },
+    { label: t("navigator.writeNotes"), description: "Neue Notiz erstellen oder bestehende finden", href: "/notes", emoji: "📝", color: "#ca8a04" },
+  ];
+}
 
 /* ─── Page ────────────────────────────────────────────────────────────────── */
 
@@ -181,6 +196,11 @@ export default function NavigatorPage() {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [activeGroup, setActiveGroup] = useState<string | null>(null);
+
+  const FEATURES = useMemo(() => getFeatures(t), [t]);
+  const GROUPS = useMemo(() => getGroupKeys(t), [t]);
+  const GROUP_EMOJIS = useMemo(() => getGroupEmojis(t), [t]);
+  const QUICK_ACTIONS = useMemo(() => getQuickActions(t), [t]);
 
   const filtered = useMemo(() => {
     let items = FEATURES;
@@ -195,7 +215,7 @@ export default function NavigatorPage() {
       );
     }
     return items;
-  }, [search, activeGroup]);
+  }, [search, activeGroup, FEATURES]);
 
   const grouped = useMemo(() => {
     const map: Record<string, Feature[]> = {};
@@ -210,8 +230,8 @@ export default function NavigatorPage() {
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-surface-900 flex items-center gap-2">🧭 Navigator</h1>
-        <p className="text-surface-500 text-xs sm:text-sm mt-1">Finde schnell die richtige Funktion für dein Anliegen</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-surface-900 flex items-center gap-2">🧭 {t("navigator.title")}</h1>
+        <p className="text-surface-500 text-xs sm:text-sm mt-1">{t("navigator.subtitle")}</p>
       </div>
 
       {/* Search */}
@@ -219,7 +239,7 @@ export default function NavigatorPage() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Was möchtest du tun? z.B. &quot;Prüfung&quot;, &quot;Notizen&quot;, &quot;Mathe&quot;..."
+          placeholder={t("navigator.searchPlaceholder")}
           className="w-full bg-white text-surface-900 rounded-xl px-5 py-4 pl-12 border border-surface-200 text-base focus:outline-none focus:border-brand-600 transition-colors"
         />
         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl">🔍</span>
@@ -231,7 +251,7 @@ export default function NavigatorPage() {
       {/* Quick Actions */}
       {!search && !activeGroup && (
         <div>
-          <h2 className="text-sm font-semibold text-surface-400 uppercase tracking-wider mb-3">Schnellaktionen</h2>
+          <h2 className="text-sm font-semibold text-surface-400 uppercase tracking-wider mb-3">{t("navigator.quickActions")}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
             {QUICK_ACTIONS.map((qa) => (
               <Link key={qa.href} href={qa.href} className="bg-white rounded-xl border border-surface-200 p-4 hover:border-brand-600 hover:bg-surface-100 transition-all group">
@@ -252,7 +272,7 @@ export default function NavigatorPage() {
           onClick={() => setActiveGroup(null)}
           className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${!activeGroup ? "bg-brand-600 text-white" : "bg-surface-200 text-surface-500 hover:bg-surface-300"}`}
         >
-          Alle ({FEATURES.length})
+          {t("navigator.all")} ({FEATURES.length})
         </button>
         {GROUPS.map((g) => {
           const count = FEATURES.filter((f) => f.group === g).length;
@@ -312,16 +332,16 @@ export default function NavigatorPage() {
       {filtered.length === 0 && (
         <div className="text-center py-16">
           <div className="text-4xl mb-3">🔍</div>
-          <p className="text-surface-500 text-sm">Keine Funktionen gefunden für &quot;{search}&quot;</p>
-          <button onClick={() => { setSearch(""); setActiveGroup(null); }} className="mt-3 text-brand-600 text-sm hover:text-brand-700">Filter zurücksetzen</button>
+          <p className="text-surface-500 text-sm">{t("navigator.noResults", { query: search })}</p>
+          <button onClick={() => { setSearch(""); setActiveGroup(null); }} className="mt-3 text-brand-600 text-sm hover:text-brand-700">{t("navigator.resetFilters")}</button>
         </div>
       )}
 
       {/* Stats footer */}
       {!search && !activeGroup && (
         <div className="bg-white rounded-xl border border-surface-200 p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm gap-1">
-          <span className="text-surface-400">{FEATURES.length} Funktionen in {GROUPS.length} Kategorien</span>
-          <span className="text-surface-300">Semetra Workspace — Dein Studienbegleiter</span>
+          <span className="text-surface-400">{t("navigator.stats", { features: FEATURES.length, categories: GROUPS.length })}</span>
+          <span className="text-surface-300">{t("navigator.footer")}</span>
         </div>
       )}
     </div>

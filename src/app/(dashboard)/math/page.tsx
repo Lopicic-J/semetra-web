@@ -10,26 +10,30 @@ import { useTranslation } from "@/lib/i18n";
 
 /* ─── Constants ───────────────────────────────────────────────────────────── */
 
-const TOOLS: { key: MathTool; label: string; icon: string; desc: string }[] = [
-  { key: "calculator",  label: "Taschenrechner",   icon: "🧮", desc: "Wissenschaftlicher Rechner" },
-  { key: "equations",   label: "Gleichungen",       icon: "⚖️", desc: "Löser & Umsteller" },
-  { key: "matrices",    label: "Matrizen",          icon: "📐", desc: "Matrizen-Rechner" },
-  { key: "plotter",     label: "Plotter",           icon: "📈", desc: "Funktions-Graphen" },
-  { key: "statistics",  label: "Statistik",         icon: "📊", desc: "Analyse-Werkzeug" },
-  { key: "units",       label: "Einheiten",         icon: "🔄", desc: "Umrechner & Konstanten" },
-  { key: "formulas",    label: "Formeln",           icon: "📋", desc: "Formel-Sammlung" },
-];
+function getTools(t: (key: string) => string): { key: MathTool; label: string; icon: string; desc: string }[] {
+  return [
+    { key: "calculator",  label: t("math.calculator"),    icon: "🧮", desc: t("math.scientific") },
+    { key: "equations",   label: t("math.equations"),     icon: "⚖️", desc: t("math.solver") },
+    { key: "matrices",    label: t("math.matrices"),      icon: "📐", desc: t("math.matricesCalc") },
+    { key: "plotter",     label: t("math.plotter"),       icon: "📈", desc: t("math.functionGraphs") },
+    { key: "statistics",  label: t("math.statistics"),    icon: "📊", desc: t("math.analysis") },
+    { key: "units",       label: t("math.units"),         icon: "🔄", desc: t("math.converter") },
+    { key: "formulas",    label: t("math.formulas"),      icon: "📋", desc: t("math.formulas") },
+  ];
+}
 
-const FORMULA_CATEGORIES: { key: FormulaCategory; label: string }[] = [
-  { key: "allgemein",       label: "Allgemein" },
-  { key: "analysis",        label: "Analysis" },
-  { key: "lineare_algebra", label: "Lineare Algebra" },
-  { key: "statistik",       label: "Statistik" },
-  { key: "trigonometrie",   label: "Trigonometrie" },
-  { key: "physik",          label: "Physik" },
-  { key: "finanzen",        label: "Finanzen" },
-  { key: "informatik",      label: "Informatik" },
-];
+function getFormulaCategories(t: (key: string) => string): { key: FormulaCategory; label: string }[] {
+  return [
+    { key: "allgemein",       label: t("math.formulasGeneral") },
+    { key: "analysis",        label: t("math.formulasAnalysis") },
+    { key: "lineare_algebra", label: t("math.formulasLinearAlgebra") },
+    { key: "statistik",       label: t("math.formulasStatistics") },
+    { key: "trigonometrie",   label: t("math.formulasTrigonometry") },
+    { key: "physik",          label: t("math.formulasPhysics") },
+    { key: "finanzen",        label: t("math.formulasFinance") },
+    { key: "informatik",      label: t("math.formulasComputerScience") },
+  ];
+}
 
 const CALC_BUTTONS = [
   ["C", "(", ")", "⌫"],
@@ -302,6 +306,9 @@ export default function MathPage() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [mathLimitHit, setMathLimitHit] = useState(false);
 
+  const tools = useMemo(() => getTools(t), [t]);
+  const formulaCategories = useMemo(() => getFormulaCategories(t), [t]);
+
   /* Auth + data */
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -342,19 +349,19 @@ export default function MathPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-surface-900 flex items-center gap-2">🧮 {t("math.title")}</h1>
-          <p className="text-surface-500 text-xs sm:text-sm mt-1">Dein wissenschaftlicher Arbeitsplatz für Mathematik</p>
+          <p className="text-surface-500 text-xs sm:text-sm mt-1">{t("math.subtitle")}</p>
         </div>
         <button onClick={() => setShowHistory(!showHistory)} className="px-3 sm:px-4 py-2 rounded-lg bg-surface-100 text-surface-700 hover:bg-surface-200 text-sm flex items-center gap-2 self-start sm:self-auto">
-          📜 Verlauf {history.length > 0 && <span className="bg-brand-600 text-white text-xs rounded-full px-2">{history.length}</span>}
+          📜 {t("math.history")} {history.length > 0 && <span className="bg-brand-600 text-white text-xs rounded-full px-2">{history.length}</span>}
         </button>
       </div>
 
       {/* Tool Tabs */}
       <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 -mx-1 px-1">
-        {TOOLS.map((t) => (
-          <button key={t.key} onClick={() => setActiveTool(t.key)} className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${activeTool === t.key ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200 hover:text-surface-800"}`}>
-            <span>{t.icon}</span>
-            <span className="hidden sm:inline">{t.label}</span>
+        {tools.map((tool) => (
+          <button key={tool.key} onClick={() => setActiveTool(tool.key)} className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${activeTool === tool.key ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200 hover:text-surface-800"}`}>
+            <span>{tool.icon}</span>
+            <span className="hidden sm:inline">{tool.label}</span>
           </button>
         ))}
       </div>
@@ -362,15 +369,15 @@ export default function MathPage() {
       {/* History Sidebar */}
       {showHistory && (
         <div className="bg-white rounded-xl border border-surface-200 p-4">
-          <h3 className="text-surface-900 font-semibold mb-3">Berechnungsverlauf</h3>
+          <h3 className="text-surface-900 font-semibold mb-3">{t("math.historyTitle")}</h3>
           {history.length === 0 ? (
-            <p className="text-surface-400 text-sm">Noch keine Berechnungen gespeichert.</p>
+            <p className="text-surface-400 text-sm">{t("math.noHistoryYet")}</p>
           ) : (
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {history.slice(0, 30).map((h) => (
                 <div key={h.id} className="flex items-center justify-between bg-surface-100 rounded-lg px-3 py-2">
                   <div className="min-w-0">
-                    <span className="text-xs text-brand-600 mr-2">{TOOLS.find((t) => t.key === h.tool)?.icon}</span>
+                    <span className="text-xs text-brand-600 mr-2">{tools.find((t) => t.key === h.tool)?.icon}</span>
                     <span className="text-surface-700 text-sm font-mono truncate">{h.expression}</span>
                     <span className="text-surface-400 mx-2">=</span>
                     <span className="text-success-600 text-sm font-mono">{h.result}</span>
@@ -386,17 +393,17 @@ export default function MathPage() {
       {/* Daily usage info for free users */}
       {!isPro && (
         <div className="flex items-center gap-2 text-xs text-surface-500 bg-surface-50 rounded-lg px-3 py-2">
-          <span>Tageslimit:</span>
+          <span>{t("math.dailyLimit")}:</span>
           {(() => {
             const usage = mathUsageToday(activeTool, isPro);
             return (
               <span className={usage.used >= usage.max ? "text-red-600 font-medium" : usage.used >= usage.max - 1 ? "text-amber-600 font-medium" : ""}>
-                {usage.used}/{usage.max} Berechnungen heute
+                {usage.used}/{usage.max} {t("math.calculationsToday")}
               </span>
             );
           })()}
           <span className="text-surface-400">·</span>
-          <a href="/upgrade" className="text-brand-600 hover:text-brand-500 font-medium">Pro = unbegrenzt</a>
+          <a href="/upgrade" className="text-brand-600 hover:text-brand-500 font-medium">{t("math.proUnlimited")}</a>
         </div>
       )}
 
@@ -457,10 +464,10 @@ function CalculatorTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h2 className="text-base sm:text-lg font-semibold text-surface-900">Wissenschaftlicher Taschenrechner</h2>
+        <h2 className="text-base sm:text-lg font-semibold text-surface-900">{t("math.scientificCalculator")}</h2>
         <div className="flex items-center gap-2 sm:gap-3">
           <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-xs sm:text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 flex-1 sm:flex-none">
-            <option value="">Kein Modul</option>
+            <option value="">{t("math.noModule")}</option>
             {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
           <button onClick={() => setAngleMode(angleMode === "deg" ? "rad" : "deg")} className="px-3 py-1.5 rounded-lg bg-surface-100 text-surface-700 text-sm border border-surface-200 hover:bg-surface-200">
@@ -471,7 +478,7 @@ function CalculatorTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
 
       {/* Display */}
       <div className="bg-surface-50 rounded-xl p-4 mb-4 border border-surface-200">
-        <input ref={inputRef} value={display} onChange={(e) => setDisplay(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleButton("="); }} placeholder="Ausdruck eingeben..." className="w-full bg-transparent text-surface-900 text-base sm:text-xl font-mono outline-none text-right" />
+        <input ref={inputRef} value={display} onChange={(e) => setDisplay(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleButton("="); }} placeholder={t("math.enterExpression")} className="w-full bg-transparent text-surface-900 text-base sm:text-xl font-mono outline-none text-right" />
         {result && <div className="text-right text-success-600 text-xl sm:text-2xl font-mono mt-2 font-bold break-all">= {result}</div>}
       </div>
 
@@ -778,10 +785,10 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h2 className="text-lg font-semibold text-surface-900">Matrizen-Rechner</h2>
+        <h2 className="text-lg font-semibold text-surface-900">{t("math.matrixCalculator")}</h2>
         <div className="flex items-center gap-2 sm:gap-3">
           <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 min-w-0 flex-1 sm:flex-none">
-            <option value="">Kein Modul</option>
+            <option value="">{t("math.noModule")}</option>
             {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
           <select value={size} onChange={(e) => setSize(Number(e.target.value))} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200">
@@ -795,7 +802,7 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
       {/* Operations */}
       <div className="flex flex-wrap gap-2 mb-4">
         {[
-          ["det", "Determinante"], ["transpose", "Transponierte"], ["inverse", "Inverse"], ["eigenvalues", "Eigenwerte"], ["rank", "Rang"], ["multiply", "A × B"], ["add", "A + B"],
+          ["det", t("math.determinant")], ["transpose", t("math.transpose")], ["inverse", t("math.inverse")], ["eigenvalues", t("math.eigenvalues")], ["rank", t("math.rank")], ["multiply", "A × B"], ["add", "A + B"],
         ].map(([k, l]) => (
           <button key={k} onClick={() => setOperation(k)} className={`px-3 py-1.5 rounded-lg text-sm ${operation === k ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{l}</button>
         ))}
@@ -807,7 +814,7 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
         {(operation === "multiply" || operation === "add") && renderMatrix(matB, "B")}
       </div>
 
-      <button onClick={compute} className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors mb-4">Berechnen</button>
+      <button onClick={compute} className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors mb-4">{t("math.calculate")}</button>
 
       {result && (
         <div className="bg-surface-50 rounded-xl p-4 border border-surface-200">
@@ -973,13 +980,13 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h2 className="text-lg font-semibold text-surface-900">Funktions-Plotter</h2>
+        <h2 className="text-lg font-semibold text-surface-900">{t("math.functionPlotter")}</h2>
         <div className="flex items-center gap-2">
           <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 min-w-0 flex-1 sm:flex-none">
-            <option value="">Kein Modul</option>
+            <option value="">{t("math.noModule")}</option>
             {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
-          <button onClick={savePlot} className="px-3 py-1.5 rounded-lg bg-surface-100 text-surface-700 text-sm hover:bg-surface-200 whitespace-nowrap">💾 Speichern</button>
+          <button onClick={savePlot} className="px-3 py-1.5 rounded-lg bg-surface-100 text-surface-700 text-sm hover:bg-surface-200 whitespace-nowrap">💾 {t("math.save")}</button>
         </div>
       </div>
 
@@ -989,24 +996,24 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
           <div key={i} className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: fn.color }} />
             <span className="text-surface-500 text-sm font-mono">f{i > 0 ? i + 1 : ""}(x) =</span>
-            <input value={fn.expr} onChange={(e) => { const copy = [...functions]; copy[i] = { ...copy[i], expr: e.target.value }; setFunctions(copy); }} placeholder="z.B. sin(x), x^2, 2*x+1" className="flex-1 bg-surface-100 text-surface-900 rounded-lg px-3 py-2 border border-surface-200 font-mono text-sm" />
+            <input value={fn.expr} onChange={(e) => { const copy = [...functions]; copy[i] = { ...copy[i], expr: e.target.value }; setFunctions(copy); }} placeholder={t("math.exampleFunctions")} className="flex-1 bg-surface-100 text-surface-900 rounded-lg px-3 py-2 border border-surface-200 font-mono text-sm" />
             {functions.length > 1 && (
               <button onClick={() => setFunctions(functions.filter((_, j) => j !== i))} className="text-surface-400 hover:text-danger-600">✕</button>
             )}
           </div>
         ))}
-        <button onClick={addFunction} className="text-brand-600 text-sm hover:text-brand-500">+ Funktion hinzufügen</button>
+        <button onClick={addFunction} className="text-brand-600 text-sm hover:text-brand-500">+ {t("math.addFunction")}</button>
       </div>
 
       {/* Range controls */}
       <div className="flex flex-wrap gap-2 sm:gap-4 mb-4 text-sm">
         <div className="flex items-center gap-1 text-surface-500">
           x: <input value={xMin} onChange={(e) => setXMin(Number(e.target.value))} className="w-12 sm:w-16 bg-surface-100 text-surface-900 rounded px-1 sm:px-2 py-1 border border-surface-200 font-mono text-center text-xs sm:text-sm" />
-          bis <input value={xMax} onChange={(e) => setXMax(Number(e.target.value))} className="w-12 sm:w-16 bg-surface-100 text-surface-900 rounded px-1 sm:px-2 py-1 border border-surface-200 font-mono text-center text-xs sm:text-sm" />
+          {t("math.to")} <input value={xMax} onChange={(e) => setXMax(Number(e.target.value))} className="w-12 sm:w-16 bg-surface-100 text-surface-900 rounded px-1 sm:px-2 py-1 border border-surface-200 font-mono text-center text-xs sm:text-sm" />
         </div>
         <div className="flex items-center gap-1 text-surface-500">
           y: <input value={yMin} onChange={(e) => setYMin(Number(e.target.value))} className="w-12 sm:w-16 bg-surface-100 text-surface-900 rounded px-1 sm:px-2 py-1 border border-surface-200 font-mono text-center text-xs sm:text-sm" />
-          bis <input value={yMax} onChange={(e) => setYMax(Number(e.target.value))} className="w-12 sm:w-16 bg-surface-100 text-surface-900 rounded px-1 sm:px-2 py-1 border border-surface-200 font-mono text-center text-xs sm:text-sm" />
+          {t("math.to")} <input value={yMax} onChange={(e) => setYMax(Number(e.target.value))} className="w-12 sm:w-16 bg-surface-100 text-surface-900 rounded px-1 sm:px-2 py-1 border border-surface-200 font-mono text-center text-xs sm:text-sm" />
         </div>
         <div className="flex items-center gap-1">
           <button onClick={() => { setXMin(xMin * 0.5); setXMax(xMax * 0.5); setYMin(yMin * 0.5); setYMax(yMax * 0.5); }} className="px-2 py-1 bg-surface-100 text-surface-700 rounded hover:bg-surface-200 text-xs">🔍+</button>
@@ -1119,17 +1126,17 @@ function StatisticsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h2 className="text-lg font-semibold text-surface-900">Statistik-Werkzeug</h2>
+        <h2 className="text-lg font-semibold text-surface-900">{t("math.statisticsTool")}</h2>
         <div className="flex items-center gap-2">
           <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 min-w-0 flex-1 sm:flex-none">
-            <option value="">Kein Modul</option>
+            <option value="">{t("math.noModule")}</option>
             {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
-          <button onClick={handleSave} className="px-3 py-1.5 rounded-lg bg-surface-100 text-surface-700 text-sm hover:bg-surface-200 whitespace-nowrap">💾 Speichern</button>
+          <button onClick={handleSave} className="px-3 py-1.5 rounded-lg bg-surface-100 text-surface-700 text-sm hover:bg-surface-200 whitespace-nowrap">💾 {t("math.save")}</button>
         </div>
       </div>
 
-      <textarea value={data} onChange={(e) => setData(e.target.value)} placeholder="Daten eingeben (komma- oder leerzeichen-getrennt)..." className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-sm mb-4 h-20 resize-none" />
+      <textarea value={data} onChange={(e) => setData(e.target.value)} placeholder={t("math.enterDataPlaceholder")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-sm mb-4 h-20 resize-none" />
 
       {stats && (
         <>
@@ -1213,15 +1220,15 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h2 className="text-lg font-semibold text-surface-900">Einheiten & Konstanten</h2>
+        <h2 className="text-lg font-semibold text-surface-900">{t("math.unitsConstants")}</h2>
         <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 min-w-0 self-start sm:self-auto">
-          <option value="">Kein Modul</option>
+          <option value="">{t("math.noModule")}</option>
           {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
       </div>
 
       <div className="flex gap-2 mb-6">
-        {([["convert", "Umrechner"], ["constants", "Konstanten"], ["bases", "Zahlensysteme"]] as [string, string][]).map(([k, l]) => (
+        {([["convert", t("math.converter")], ["constants", t("math.constants")], ["bases", t("math.numberSystems")]] as [string, string][]).map(([k, l]) => (
           <button key={k} onClick={() => setTab(k as typeof tab)} className={`px-4 py-2 rounded-lg text-sm ${tab === k ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{l}</button>
         ))}
       </div>
@@ -1252,7 +1259,7 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
               </div>
             </div>
             <div className="text-center mt-4">
-              <button onClick={handleSaveConvert} className="text-brand-600 text-sm hover:text-brand-500">💾 Im Verlauf speichern</button>
+              <button onClick={handleSaveConvert} className="text-brand-600 text-sm hover:text-brand-500">💾 {t("math.saveToHistory")}</button>
             </div>
           </div>
         </div>
@@ -1278,21 +1285,21 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
       {tab === "bases" && (
         <div className="bg-surface-100 rounded-xl p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mb-6">
-            <input value={baseInput} onChange={(e) => setBaseInput(e.target.value)} className="flex-1 bg-white text-surface-900 text-lg sm:text-xl rounded-lg px-4 py-3 border border-surface-200 font-mono min-w-0" placeholder="Zahl eingeben..." />
+            <input value={baseInput} onChange={(e) => setBaseInput(e.target.value)} className="flex-1 bg-white text-surface-900 text-lg sm:text-xl rounded-lg px-4 py-3 border border-surface-200 font-mono min-w-0" placeholder={t("math.enterNumber")} />
             <select value={baseFrom} onChange={(e) => setBaseFrom(Number(e.target.value))} className="bg-white text-surface-700 rounded-lg px-3 py-3 border border-surface-200 text-sm">
-              <option value={2}>Binär (2)</option>
-              <option value={8}>Oktal (8)</option>
-              <option value={10}>Dezimal (10)</option>
-              <option value={16}>Hexadezimal (16)</option>
+              <option value={2}>{t("math.binary")} (2)</option>
+              <option value={8}>{t("math.octal")} (8)</option>
+              <option value={10}>{t("math.decimal")} (10)</option>
+              <option value={16}>{t("math.hexadecimal")} (16)</option>
             </select>
           </div>
           {baseResults && (
             <div className="grid grid-cols-2 gap-3">
               {[
-                ["Binär (2)", baseResults.bin, "BIN"],
-                ["Oktal (8)", baseResults.oct, "OCT"],
-                ["Dezimal (10)", baseResults.dec, "DEC"],
-                ["Hexadezimal (16)", baseResults.hex, "HEX"],
+                [t("math.binary") + " (2)", baseResults.bin, "BIN"],
+                [t("math.octal") + " (8)", baseResults.oct, "OCT"],
+                [t("math.decimal") + " (10)", baseResults.dec, "DEC"],
+                [t("math.hexadecimal") + " (16)", baseResults.hex, "HEX"],
               ].map(([label, val, tag]) => (
                 <div key={label} className="bg-white rounded-lg px-4 py-3">
                   <div className="flex items-center justify-between mb-1">
@@ -1362,20 +1369,22 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules }: { us
     setFormulas((prev) => prev.filter((f) => f.id !== id));
   };
 
+  const formulaCategories = useMemo(() => getFormulaCategories(t), [t]);
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h2 className="text-lg font-semibold text-surface-900">Formel-Sammlung</h2>
-        <button onClick={openNew} className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 self-start sm:self-auto whitespace-nowrap">+ Eigene Formel</button>
+        <h2 className="text-lg font-semibold text-surface-900">{t("math.formulaCollection")}</h2>
+        <button onClick={openNew} className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 self-start sm:self-auto whitespace-nowrap">+ {t("math.ownFormula")}</button>
       </div>
 
       {/* Search + Category filter */}
       <div className="flex gap-3 mb-4">
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Formeln durchsuchen..." className="flex-1 bg-surface-100 text-surface-900 rounded-lg px-4 py-2 border border-surface-200 text-sm" />
+        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("math.searchFormulas")} className="flex-1 bg-surface-100 text-surface-900 rounded-lg px-4 py-2 border border-surface-200 text-sm" />
       </div>
       <div className="flex flex-wrap gap-2 mb-4">
-        <button onClick={() => setCategory("all")} className={`px-3 py-1.5 rounded-lg text-xs ${category === "all" ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>Alle</button>
-        {FORMULA_CATEGORIES.map((c) => (
+        <button onClick={() => setCategory("all")} className={`px-3 py-1.5 rounded-lg text-xs ${category === "all" ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{t("math.all")}</button>
+        {formulaCategories.map((c) => (
           <button key={c.key} onClick={() => setCategory(c.key)} className={`px-3 py-1.5 rounded-lg text-xs ${category === c.key ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{c.label}</button>
         ))}
       </div>
@@ -1387,8 +1396,8 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules }: { us
             <div className="flex items-start justify-between">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  {(f as { isCustom?: boolean }).isCustom && <span className="text-xs bg-brand-50 text-brand-500 px-1.5 py-0.5 rounded">Eigene</span>}
-                  <span className="text-xs bg-surface-200 text-surface-700 px-1.5 py-0.5 rounded">{FORMULA_CATEGORIES.find((c) => c.key === f.category)?.label}</span>
+                  {(f as { isCustom?: boolean }).isCustom && <span className="text-xs bg-brand-50 text-brand-500 px-1.5 py-0.5 rounded">{t("math.custom")}</span>}
+                  <span className="text-xs bg-surface-200 text-surface-700 px-1.5 py-0.5 rounded">{formulaCategories.find((c) => c.key === f.category)?.label}</span>
                 </div>
                 <div className="text-surface-900 font-medium text-sm mt-1">{f.title}</div>
                 <div className="text-success-600 font-mono text-sm mt-1">{f.formula}</div>
@@ -1405,29 +1414,29 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules }: { us
         ))}
       </div>
 
-      {allFormulas.length === 0 && <p className="text-surface-400 text-sm text-center py-8">Keine Formeln gefunden.</p>}
+      {allFormulas.length === 0 && <p className="text-surface-400 text-sm text-center py-8">{t("math.noFormulasFound")}</p>}
 
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowModal(false)}>
           <div className="bg-white rounded-2xl p-6 w-full max-w-lg border border-surface-200" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold text-surface-900 mb-4">{editId ? "Formel bearbeiten" : "Neue Formel"}</h3>
+            <h3 className="text-lg font-semibold text-surface-900 mb-4">{editId ? t("math.editFormula") : t("math.newFormula")}</h3>
             <div className="space-y-3">
-              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titel *" className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />
-              <input value={formula} onChange={(e) => setFormula(e.target.value)} placeholder="Formel * (z.B. a² + b² = c²)" className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 font-mono text-sm" />
-              <input value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Beschreibung (optional)" className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />
+              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t("math.title")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />
+              <input value={formula} onChange={(e) => setFormula(e.target.value)} placeholder={t("math.formulaPlaceholder")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 font-mono text-sm" />
+              <input value={desc} onChange={(e) => setDesc(e.target.value)} placeholder={t("math.description")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />
               <select value={cat} onChange={(e) => setCat(e.target.value as FormulaCategory)} className="w-full bg-surface-100 text-surface-700 rounded-lg px-4 py-2.5 border border-surface-200 text-sm">
-                {FORMULA_CATEGORIES.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
+                {formulaCategories.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
               </select>
               <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="w-full bg-surface-100 text-surface-700 rounded-lg px-4 py-2.5 border border-surface-200 text-sm">
-                <option value="">Kein Modul</option>
+                <option value="">{t("math.noModule")}</option>
                 {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
               </select>
-              <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Tags (komma-getrennt)" className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />
+              <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder={t("math.tagsPlaceholder")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowModal(false)} className="flex-1 py-2.5 rounded-xl bg-surface-100 text-surface-700 hover:bg-surface-200">Abbrechen</button>
-              <button onClick={save} className="flex-1 py-2.5 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700">Speichern</button>
+              <button onClick={() => setShowModal(false)} className="flex-1 py-2.5 rounded-xl bg-surface-100 text-surface-700 hover:bg-surface-200">{t("math.cancel")}</button>
+              <button onClick={save} className="flex-1 py-2.5 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700">{t("math.save")}</button>
             </div>
           </div>
         </div>

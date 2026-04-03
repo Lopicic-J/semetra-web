@@ -36,11 +36,11 @@ interface FlowItem {
   original?: Note;
 }
 
-const STATUS_CONFIG: Record<NoteStatus, { label: string; color: string; icon: React.ReactNode }> = {
-  draft:       { label: "Entwurf",    color: "#a1a1aa", icon: <FileEdit size={12} /> },
-  in_progress: { label: "In Arbeit",  color: "#f59e0b", icon: <Clock size={12} /> },
-  done:        { label: "Fertig",     color: "#22c55e", icon: <CheckCircle2 size={12} /> },
-};
+const getStatusConfig = (t: (key: string) => string): Record<NoteStatus, { label: string; color: string; icon: React.ReactNode }> => ({
+  draft:       { label: t("notes.statusDraft"),       color: "#a1a1aa", icon: <FileEdit size={12} /> },
+  in_progress: { label: t("notes.statusInProgress"),  color: "#f59e0b", icon: <Clock size={12} /> },
+  done:        { label: t("notes.statusDone"),        color: "#22c55e", icon: <CheckCircle2 size={12} /> },
+});
 
 const NOTE_COLORS = [
   "#6d28d9","#2563eb","#059669","#dc2626","#d97706",
@@ -64,9 +64,11 @@ const FLOW_TYPE_COLORS: Record<string, string> = {
 /* ── Main Page ──────────────────────────────────────────────────────── */
 export default function NotesPage() {
 
-  const { t } = useTranslation();  const supabase = createClient();
+  const { t } = useTranslation();
+  const supabase = createClient();
   const { modules } = useModules();
   const { isPro } = useProfile();
+  const STATUS_CONFIG = getStatusConfig(t);
   const [notes, setNotes] = useState<Note[]>([]);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -121,7 +123,7 @@ export default function NotesPage() {
         module_color: n.module?.color,
         color: n.color ?? "#6d28d9",
         status: n.status,
-        source_label: "Notiz",
+        source_label: "Notizen",
         pinned: n.pinned,
         original: n as Note,
       });
@@ -251,7 +253,7 @@ export default function NotesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 sm:justify-between">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-surface-900 flex items-center gap-2">
-            <FileText className="text-amber-400" /> Notizen
+            <FileText className="text-amber-400" /> {t("notes.title")}
           </h1>
           <p className="text-surface-500 text-xs sm:text-sm mt-1">Alle Notizen an einem Ort — geordnet nach Modul, Aufgabe & Prüfung</p>
         </div>
@@ -291,21 +293,21 @@ export default function NotesPage() {
           className={`bg-white border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "draft" ? "border-surface-300" : "border-surface-200 hover:border-surface-300"}`}
         >
           <p className="text-lg sm:text-2xl font-bold text-surface-500">{stats.draft}</p>
-          <p className="text-xs text-surface-500">Entwürfe</p>
+          <p className="text-xs text-surface-500">{t("notes.statusDraft")}</p>
         </button>
         <button
           onClick={() => setFilterStatus(filterStatus === "in_progress" ? "" : "in_progress")}
           className={`bg-white border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "in_progress" ? "border-amber-500" : "border-surface-200 hover:border-surface-300"}`}
         >
           <p className="text-lg sm:text-2xl font-bold text-amber-400">{stats.inProgress}</p>
-          <p className="text-xs text-surface-500">In Arbeit</p>
+          <p className="text-xs text-surface-500">{t("notes.statusInProgress")}</p>
         </button>
         <button
           onClick={() => setFilterStatus(filterStatus === "done" ? "" : "done")}
           className={`bg-white border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "done" ? "border-green-500" : "border-surface-200 hover:border-surface-300"}`}
         >
           <p className="text-lg sm:text-2xl font-bold text-green-400">{stats.done}</p>
-          <p className="text-xs text-surface-500">Fertig</p>
+          <p className="text-xs text-surface-500">{t("notes.statusDone")}</p>
         </button>
       </div>
 
@@ -325,7 +327,7 @@ export default function NotesPage() {
           <div className="flex rounded-lg overflow-hidden border border-surface-200">
             {(["flow", "grid", "list"] as const).map(mode => {
               const icons = { flow: <Workflow size={15} />, grid: <LayoutGrid size={15} />, list: <ListIcon size={15} /> };
-              const titles = { flow: "Flow", grid: "Karten", list: "Liste" };
+              const titles = { flow: t("notes.viewFlow"), grid: t("notes.viewCards"), list: t("notes.viewList") };
               return (
                 <button
                   key={mode}
@@ -517,6 +519,7 @@ export default function NotesPage() {
 /* ── Flow View ──────────────────────────────────────────────────────── */
 function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: Note) => void }) {
   const { t } = useTranslation();
+  const STATUS_CONFIG = getStatusConfig(t);
   // Group by date
   const grouped: Record<string, FlowItem[]> = {};
   items.forEach(item => {
@@ -654,6 +657,7 @@ function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: No
 /* ── Note Card (Grid) ───────────────────────────────────────────────── */
 function NoteCard({ note, modules, onClick }: { note: Note; modules: Module[]; onClick: () => void }) {
   const { t } = useTranslation();
+  const STATUS_CONFIG = getStatusConfig(t);
   const mod = note.module ?? modules.find(m => m.id === note.module_id);
   const st = STATUS_CONFIG[note.status as NoteStatus] ?? STATUS_CONFIG.draft;
   const preview = note.content.replace(/<[^>]*>/g, "").slice(0, 120);
@@ -701,6 +705,7 @@ function NoteCard({ note, modules, onClick }: { note: Note; modules: Module[]; o
 /* ── Note List Row ──────────────────────────────────────────────────── */
 function NoteListRow({ note, modules, onClick }: { note: Note; modules: Module[]; onClick: () => void }) {
   const { t } = useTranslation();
+  const STATUS_CONFIG = getStatusConfig(t);
   const mod = note.module ?? modules.find(m => m.id === note.module_id);
   const st = STATUS_CONFIG[note.status as NoteStatus] ?? STATUS_CONFIG.draft;
 
@@ -781,7 +786,7 @@ function CreateNoteModal({
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
       <div className="bg-white border border-surface-300 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-4 sm:mb-5">
-          <h2 className="text-base sm:text-lg font-bold text-surface-900">Neue Notiz</h2>
+          <h2 className="text-base sm:text-lg font-bold text-surface-900">{t("notes.newNote")}</h2>
           <button onClick={onClose} className="text-surface-500 hover:text-surface-900 transition"><X size={20} /></button>
         </div>
 
@@ -852,7 +857,7 @@ function CreateNoteModal({
           disabled={saving}
           className="w-full bg-brand-600 hover:bg-brand-500 text-white py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50"
         >
-          {saving ? "Erstellen..." : "Notiz erstellen"}
+          {saving ? t("notes.creating_progress") : t("notes.newNote")}
         </button>
       </div>
     </div>
@@ -885,6 +890,7 @@ function NoteEditor({
   onBack: () => void;
 }) {
   const { t } = useTranslation();
+  const STATUS_CONFIG = getStatusConfig(t);
   const supabase = createClient();
   const editorRef = useRef<HTMLDivElement>(null);
   const [title, setTitle] = useState(note.title);
@@ -1034,13 +1040,13 @@ function NoteEditor({
                   setStatus(next);
                   scheduleAutoSave();
                 }}
-                title="Klicken zum Status wechseln"
+                title={t("notes.clickToToggleStatus")}
               >
                 {st.icon} {st.label}
               </span>
               {lastSaved && (
                 <span className="text-xs text-surface-400 flex-shrink-0">
-                  {saving ? "Speichern..." : `Gespeichert ${lastSaved.toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}`}
+                  {saving ? t("notes.saving") : `Gespeichert ${lastSaved.toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}`}
                 </span>
               )}
             </div>
@@ -1051,7 +1057,7 @@ function NoteEditor({
             {pinned ? <PinOff size={16} /> : <Pin size={16} />}
           </button>
           <button onClick={saveNote} className="flex items-center gap-1.5 px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-sm font-medium transition">
-            <Save size={14} /> Speichern
+            <Save size={14} /> {t("notes.save")}
           </button>
           <button onClick={deleteNote} className="p-2 rounded-lg bg-surface-100 border border-surface-200 text-red-400 hover:text-red-300 hover:border-red-500/40 transition">
             <Trash2 size={16} />
@@ -1101,23 +1107,23 @@ function NoteEditor({
 
       {/* Rich Text Toolbar */}
       <div className="flex items-center gap-0.5 p-1.5 sm:p-2 bg-white border border-surface-200 rounded-t-xl flex-wrap overflow-x-auto">
-        <TBtn onClick={() => execCmd("bold")} title="Fett"><Bold size={14} /></TBtn>
-        <TBtn onClick={() => execCmd("italic")} title="Kursiv"><Italic size={14} /></TBtn>
-        <TBtn onClick={() => execCmd("underline")} title="Unterstrichen"><Underline size={14} /></TBtn>
-        <TBtn onClick={() => execCmd("strikeThrough")} title="Durchgestrichen"><Strikethrough size={14} /></TBtn>
+        <TBtn onClick={() => execCmd("bold")} title={t("notes.bold")}><Bold size={14} /></TBtn>
+        <TBtn onClick={() => execCmd("italic")} title={t("notes.italic")}><Italic size={14} /></TBtn>
+        <TBtn onClick={() => execCmd("underline")} title={t("notes.underline")}><Underline size={14} /></TBtn>
+        <TBtn onClick={() => execCmd("strikeThrough")} title={t("notes.strikethrough")}><Strikethrough size={14} /></TBtn>
         <div className="w-px h-4 sm:h-5 bg-surface-200 mx-0.5 sm:mx-1" />
         <TBtn onClick={() => execCmd("formatBlock", "h1")} title={t("notes.heading1")}><Heading1 size={14} /></TBtn>
         <TBtn onClick={() => execCmd("formatBlock", "h2")} title={t("notes.heading2")}><Heading2 size={14} /></TBtn>
-        <TBtn onClick={() => execCmd("formatBlock", "p")} title="Absatz"><AlignLeft size={14} /></TBtn>
+        <TBtn onClick={() => execCmd("formatBlock", "p")} title={t("notes.paragraph")}><AlignLeft size={14} /></TBtn>
         <div className="w-px h-4 sm:h-5 bg-surface-200 mx-0.5 sm:mx-1" />
         <TBtn onClick={() => execCmd("insertUnorderedList")} title={t("notes.bullet")}><List size={14} /></TBtn>
-        <TBtn onClick={() => execCmd("insertOrderedList")} title="Nummerierung"><ListOrdered size={14} /></TBtn>
+        <TBtn onClick={() => execCmd("insertOrderedList")} title={t("notes.numbering")}><ListOrdered size={14} /></TBtn>
         <div className="w-px h-4 sm:h-5 bg-surface-200 mx-0.5 sm:mx-1" />
         <TBtn onClick={() => {
-          const url = prompt("Link-URL:");
+          const url = prompt(t("notes.linkUrl"));
           if (url) execCmd("createLink", url);
         }} title={t("notes.insertLink")}><Link2 size={14} /></TBtn>
-        <TBtn onClick={() => execCmd("justifyCenter")} title="Zentriert"><AlignCenter size={14} /></TBtn>
+        <TBtn onClick={() => execCmd("justifyCenter")} title={t("notes.centered")}><AlignCenter size={14} /></TBtn>
       </div>
 
       {/* Editor */}
@@ -1126,7 +1132,7 @@ function NoteEditor({
         contentEditable
         onInput={scheduleAutoSave}
         className="min-h-[300px] bg-white border-x border-b border-surface-200 rounded-b-xl p-3 sm:p-4 text-xs sm:text-sm text-surface-900 focus:outline-none prose prose-sm max-w-none [&_h1]:text-lg sm:[&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-surface-900 [&_h1]:mt-3 sm:[&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-base sm:[&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-surface-200 [&_h2]:mt-2 sm:[&_h2]:mt-3 [&_h2]:mb-1.5 [&_ul]:list-disc [&_ul]:pl-4 sm:[&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-4 sm:[&_ol]:pl-5 [&_a]:text-brand-400 [&_a]:underline [&_li]:text-surface-800 [&_p]:text-surface-800 [&_p]:leading-relaxed"
-        data-placeholder="Beginne hier zu schreiben..."
+        data-placeholder={t("notes.startTyping")}
         suppressContentEditableWarning
       />
 
@@ -1192,7 +1198,7 @@ function NoteEditor({
                 value={newCheckItem}
                 onChange={e => setNewCheckItem(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter") addCheckItem(); }}
-                placeholder="Neuer Punkt..."
+                placeholder={t("notes.newPoint")}
                 className="flex-1 bg-surface-100 border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none transition min-w-[120px]"
               />
               <button
@@ -1264,7 +1270,7 @@ function RubrikCreateModal({ onClose, onCreated }: { onClose: () => void; onCrea
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose} className="flex-1 px-4 py-2 rounded-lg border border-surface-200 text-sm font-medium text-surface-600 hover:bg-surface-50 transition">Abbrechen</button>
             <button type="submit" disabled={saving || !name.trim()} className="flex-1 px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-500 transition disabled:opacity-50">
-              {saving ? "Erstellen…" : "Erstellen"}
+              {saving ? t("notes.creating_progress") : "Erstellen"}
             </button>
           </div>
         </form>

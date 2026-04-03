@@ -284,7 +284,7 @@ export default function TimerPage() {
       const tk = tasks.find(t => t.id === log.task_id);
       if (tk) parts.push(`📋 ${tk.title}`);
     }
-    return parts.length > 0 ? parts.join(" · ") : "Freie Sitzung";
+    return parts.length > 0 ? parts.join(" · ") : t("timer.freeSession");
   }
 
   return (
@@ -298,11 +298,11 @@ export default function TimerPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="card text-center">
           <p className="text-3xl font-bold text-brand-600">{formatDuration(todaySecs)}</p>
-          <p className="text-sm text-surface-500 mt-1">Heute gelernt</p>
+          <p className="text-sm text-surface-500 mt-1">{t("timer.todayLearned")}</p>
         </div>
         <div className="card text-center">
           <p className="text-3xl font-bold text-brand-700">{formatDuration(weekSecs)}</p>
-          <p className="text-sm text-surface-500 mt-1">Diese Woche</p>
+          <p className="text-sm text-surface-500 mt-1">{t("timer.thisWeek")}</p>
         </div>
         <div className="card text-center">
           <div className="flex items-center justify-center gap-1">
@@ -359,7 +359,7 @@ export default function TimerPage() {
                   : "bg-surface-50 text-surface-500 hover:bg-surface-100"
               }`}
             >
-              <SlidersHorizontal size={12} /> Individuell
+              <SlidersHorizontal size={12} /> {t("timer.custom")}
             </button>
           ) : (
             <div className="flex items-center gap-1.5">
@@ -454,7 +454,7 @@ export default function TimerPage() {
                 <div className="flex items-center gap-2">
                   <GraduationCap size={14} className="text-red-400 shrink-0" />
                   <select className="input flex-1 text-sm" value={selectedExam} onChange={e => setSelectedExam(e.target.value)}>
-                    <option value="">— Prüfung —</option>
+                    <option value="">— {t("timer.exam")} —</option>
                     {filteredExams.map(e => (
                       <option key={e.id} value={e.id}>
                         {e.title} ({new Date(e.start_dt).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" })})
@@ -467,7 +467,7 @@ export default function TimerPage() {
                 <div className="flex items-center gap-2">
                   <Brain size={14} className="text-purple-400 shrink-0" />
                   <select className="input flex-1 text-sm" value={selectedTopic} onChange={e => setSelectedTopic(e.target.value)}>
-                    <option value="">— Wissensthema —</option>
+                    <option value="">— {t("timer.topic")} —</option>
                     {filteredTopics.map(t => (
                       <option key={t.id} value={t.id}>{t.title}</option>
                     ))}
@@ -488,7 +488,7 @@ export default function TimerPage() {
                 {/* Context summary */}
                 {contextLabel && (
                   <p className="text-[10px] text-surface-400 mt-1 text-center truncate">
-                    Lernkontext: {contextLabel}
+                    {t("timer.learningContext")} {contextLabel}
                   </p>
                 )}
               </div>
@@ -500,18 +500,18 @@ export default function TimerPage() {
         <div className="flex justify-center gap-3">
           {!running ? (
             <button onClick={start} className="btn-primary gap-2 px-8 py-3 text-base">
-              <Play size={18} /> Starten
+              <Play size={18} /> {t("timer.start")}
             </button>
           ) : (
             <>
               <button onClick={paused ? resume : pause} className="btn-secondary gap-2 px-6 py-2.5">
-                {paused ? <><Play size={16} /> Weiter</> : <><Pause size={16} /> Pause</>}
+                {paused ? <><Play size={16} /> {t("timer.resume")}</> : <><Pause size={16} /> {t("timer.pauseLabel")}</>}
               </button>
               <button onClick={reset} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface-100 hover:bg-surface-200 text-surface-600 font-medium transition-colors">
-                <RotateCcw size={16} /> Reset
+                <RotateCcw size={16} /> {t("timer.reset")}
               </button>
               <button onClick={stop} className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-medium transition-colors">
-                <Square size={16} /> Stopp
+                <Square size={16} /> {t("timer.stop")}
               </button>
             </>
           )}
@@ -523,12 +523,12 @@ export default function TimerPage() {
             <label className="flex items-center gap-2 text-sm text-surface-600 cursor-pointer">
               <input type="checkbox" checked={autoBreak} onChange={e => setAutoBreak(e.target.checked)}
                 className="rounded border-surface-300 text-brand-600 focus:ring-brand-500" />
-              Auto-Pause
+              {t("timer.autoPause")}
             </label>
             <label className="flex items-center gap-2 text-sm text-surface-600 cursor-pointer">
               <input type="checkbox" checked={useCountdown} onChange={e => setUseCountdown(e.target.checked)}
                 className="rounded border-surface-300 text-brand-600 focus:ring-brand-500" />
-              Countdown
+              {t("timer.countdownLabel")}
             </label>
           </div>
         )}
@@ -536,11 +536,11 @@ export default function TimerPage() {
 
       {/* Logs */}
       <div>
-        <h2 className="font-semibold text-surface-900 mb-3">Letzte Sitzungen</h2>
+        <h2 className="font-semibold text-surface-900 mb-3">{t("timer.lastSessions")}</h2>
         {logs.length === 0 ? (
           <div className="text-center py-10 text-surface-400">
             <Timer size={32} className="mx-auto mb-2 opacity-30" />
-            <p className="text-sm">Noch keine Sitzungen aufgezeichnet.</p>
+            <p className="text-sm">{t("timer.noSessions")}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -640,20 +640,20 @@ function SessionLogRow({ log, contextLabel, onDelete, onNoteUpdated }: {
                 onClick={saveNote}
                 disabled={saving}
                 className="p-1.5 rounded-lg bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50"
-                title="Speichern (Ctrl+Enter)"
+                title={t("timer.saveNote")}
               >
                 {saving ? <span className="w-3 h-3 block border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save size={13} />}
               </button>
               <button
                 onClick={cancelEdit}
                 className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400"
-                title="Abbrechen (Esc)"
+                title={t("timer.cancelEdit")}
               >
                 <X size={13} />
               </button>
             </div>
           </div>
-          <p className="text-[10px] text-surface-400 mt-1">Ctrl+Enter zum Speichern · Esc zum Abbrechen</p>
+          <p className="text-[10px] text-surface-400 mt-1">{t("timer.ctrlSaveEscCancel")}</p>
         </div>
       )}
     </div>

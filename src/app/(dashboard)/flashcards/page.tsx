@@ -81,12 +81,12 @@ function CardDialog({
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-surface-500 mb-1 block">Deck</label>
+              <label className="text-xs font-medium text-surface-500 mb-1 block">{t("flashcards.deck")}</label>
               <input
                 className="input w-full"
                 value={deckName}
                 onChange={(e) => setDeckName(e.target.value)}
-                placeholder="z.B. Kapitel 3"
+                placeholder={t("flashcards.deckPlaceholder")}
               />
             </div>
           </div>
@@ -192,7 +192,7 @@ function StudyMode({
           </p>
           {!flipped && (
             <p className="text-xs text-surface-400 mt-4 flex items-center justify-center gap-1">
-              <Eye size={12} /> Tippe zum Aufdecken
+              <Eye size={12} /> {t("flashcards.tapToReveal")}
             </p>
           )}
         </div>
@@ -297,16 +297,16 @@ export default function FlashcardsPage() {
   async function handleSave(data: Partial<Flashcard>) {
     if (editCard) {
       const { error } = await supabase.from("flashcards").update(data).eq("id", editCard.id);
-      if (error) { console.error("Update error:", error); alert("Fehler beim Speichern."); return; }
+      if (error) { console.error("Update error:", error); alert(t("flashcards.saveError")); return; }
     } else {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { alert("Bitte einloggen."); return; }
+      if (!user) { alert(t("flashcards.loginRequired")); return; }
       const { error } = await supabase.from("flashcards").insert({
         ...data,
         user_id: user.id,
         source: "user",
       });
-      if (error) { console.error("Insert error:", error); alert("Fehler beim Erstellen."); return; }
+      if (error) { console.error("Insert error:", error); alert(t("flashcards.createError")); return; }
     }
     setShowDialog(false);
     setEditCard(undefined);
@@ -333,14 +333,14 @@ export default function FlashcardsPage() {
       // Read file as text
       const text = await file.text();
       if (text.length < 50) {
-        alert("Das Dokument ist zu kurz (min. 50 Zeichen).");
+        alert(t("flashcards.minCharacters"));
         return;
       }
 
       // Get auth token
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        alert("Bitte einloggen.");
+        alert(t("flashcards.loginRequired"));
         return;
       }
 
@@ -359,14 +359,14 @@ export default function FlashcardsPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        alert(data.error || "Fehler bei der KI-Generierung.");
+        alert(data.error || t("flashcards.aiGenerationError"));
         return;
       }
 
       load();
-      alert(`${data.count} Karteikarten aus "${file.name}" erstellt!`);
+      alert(t("flashcards.cardsCreated", { count: data.count, filename: file.name }));
     } catch (err) {
-      alert("Fehler beim Hochladen.");
+      alert(t("flashcards.uploadError"));
     } finally {
       setGenerating(false);
     }
@@ -401,9 +401,9 @@ export default function FlashcardsPage() {
             {t("flashcards.title")}
           </h1>
           <p className="text-surface-500 text-sm mt-1">
-            {cards.length} Karten · {userCount} eigene · {aiCount} KI-generiert
+            {t("flashcards.summary", { total: cards.length, user: userCount, ai: aiCount })}
             {dueCards.length > 0 && (
-              <span className="text-brand-600 font-medium"> · {dueCards.length} fällig</span>
+              <span className="text-brand-600 font-medium"> · {t("flashcards.due", { count: dueCards.length })}</span>
             )}
           </p>
         </div>
@@ -469,7 +469,7 @@ export default function FlashcardsPage() {
         >
           <option value="all">— {t("grades.filterAll")} —</option>
           <option value="user">{t("documents.typeDocument")}</option>
-          <option value="ai">KI-generiert</option>
+          <option value="ai">{t("flashcards.sourceAi")}</option>
         </select>
 
         {decks.length > 1 && (
@@ -539,11 +539,11 @@ export default function FlashcardsPage() {
               <div className="flex items-center gap-2 mb-2">
                 {card.source === "ai" ? (
                   <span className="inline-flex items-center gap-1 text-[10px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
-                    <Sparkles size={10} /> KI
+                    <Sparkles size={10} /> {t("flashcards.sourceAi")}
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 text-[10px] font-bold text-surface-500 bg-surface-50 px-2 py-0.5 rounded-full">
-                    Eigene
+                    {t("flashcards.sourceUser")}
                   </span>
                 )}
                 {card.module && (
@@ -582,10 +582,10 @@ export default function FlashcardsPage() {
               {/* Review status */}
               {card.next_review && new Date(card.next_review) > new Date() ? (
                 <p className="text-[10px] text-green-600 mt-2">
-                  Nächste Wiederholung: {new Date(card.next_review).toLocaleDateString("de-CH")}
+                  {t("flashcards.nextReview", { date: new Date(card.next_review).toLocaleDateString("de-CH") })}
                 </p>
               ) : (
-                <p className="text-[10px] text-amber-600 mt-2 font-medium">Fällig</p>
+                <p className="text-[10px] text-amber-600 mt-2 font-medium">{t("flashcards.dueLabel")}</p>
               )}
             </div>
           ))}
