@@ -1968,11 +1968,40 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
 
 function StatisticsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
   const { t } = useTranslation();
+  const [tab, setTab] = useState<"deskriptiv" | "verteilungen" | "tests" | "regression" | "visualisierung">("deskriptiv");
   const [data, setData] = useState("5, 8, 12, 7, 9, 15, 6, 11, 10, 8");
+  const [xData, setXData] = useState("");
+  const [yData, setYData] = useState("");
   const [moduleId, setModuleId] = useState<string | null>(null);
+  const [showSteps, setShowSteps] = useState(false);
+  const [chartType, setChartType] = useState<"histogram" | "boxplot">("histogram");
+
+  // Distribution params
+  const [distMode, setDistMode] = useState<"binomial" | "normal" | "poisson">("binomial");
+  const [binN, setBinN] = useState("10");
+  const [binP, setBinP] = useState("0.5");
+  const [binK, setBinK] = useState("5");
+  const [normMu, setNormMu] = useState("0");
+  const [normSigma, setNormSigma] = useState("1");
+  const [normX, setNormX] = useState("0");
+  const [poisLambda, setPoisLambda] = useState("3");
+  const [poisK, setPoisK] = useState("2");
+
+  // Test params
+  const [testMode, setTestMode] = useState<"z" | "t" | "chi2">("z");
+  const [testSampleMean, setTestSampleMean] = useState("");
+  const [testPopMean, setTestPopMean] = useState("");
+  const [testSigma, setTestSigma] = useState("");
+  const [testN, setTestN] = useState("");
+  const [testAlpha, setTestAlpha] = useState("0.05");
+  const [testTailed, setTestTailed] = useState<"two" | "one">("two");
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const normCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const numbers = useMemo(() => data.split(/[,;\s]+/).map(Number).filter((n) => !isNaN(n)), [data]);
+  const xNumbers = useMemo(() => xData.split(/[,;\s]+/).map(Number).filter((n) => !isNaN(n)), [xData]);
+  const yNumbers = useMemo(() => yData.split(/[,;\s]+/).map(Number).filter((n) => !isNaN(n)), [yData]);
 
   const stats = useMemo(() => {
     if (numbers.length === 0) return null;
@@ -1983,21 +2012,74 @@ function StatisticsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
     const variance = numbers.reduce((s, v) => s + (v - mean) ** 2, 0) / n;
     const stddev = Math.sqrt(variance);
     const sampleVar = n > 1 ? numbers.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1) : 0;
+    const sampleStddev = Math.sqrt(sampleVar);
     const median = n % 2 === 0 ? (sorted[n / 2 - 1] + sorted[n / 2]) / 2 : sorted[Math.floor(n / 2)];
-    const q1 = sorted[Math.floor(n * 0.25)];
-    const q3 = sorted[Math.floor(n * 0.75)];
+    const q1Idx = Math.floor(n * 0.25);
+    const q3Idx = Math.floor(n * 0.75);
+    const q1 = sorted[q1Idx];
+    const q3 = sorted[q3Idx];
     const min = sorted[0];
     const max = sorted[n - 1];
     const range = max - min;
+    const iqr = q3 - q1;
 
-    // Mode
+    // Frequency table
     const freq: Record<number, number> = {};
     numbers.forEach((v) => { freq[v] = (freq[v] || 0) + 1; });
     const maxFreq = Math.max(...Object.values(freq));
     const modes = Object.entries(freq).filter(([, f]) => f === maxFreq).map(([v]) => Number(v));
+    const freqTable = sorted.filter((v, i) => i === 0 || v !== sorted[i - 1]).map(val => {
+      const absFreq = freq[val];
+      return { value: val, absFreq, relFreq: absFreq / n, cumFreq: sorted.filter(v => v <= val).length / n };
+    });
 
-    return { n, sum, mean, median, variance, sampleVariance: sampleVar, stddev, sampleStddev: Math.sqrt(sampleVar), min, max, range, q1, q3, iqr: q3 - q1, modes, sorted };
+    // Enhanced stats
+    const geoMean = numbers.every(v => v > 0) ? Math.pow(numbers.reduce((p, v) => p * v, 1), 1 / n) : null;
+    const harMean = numbers.every(v => v !== 0) ? n / numbers.reduce((s, v) => s + 1 / v, 0) : null;
+    const cv = mean !== 0 ? (stddev / Math.abs(mean)) * 100 : null;
+    const skewness = stddev > 0 ? numbers.reduce((s, v) => s + Math.pow((v - mean) / stddev, 3), 0) / n : null;
+    const kurtosis = stddev > 0 ? numbers.reduce((s, v) => s + Math.pow((v - mean) / stddev, 4), 0) / n - 3 : null;
+
+    return { n, sum, mean, median, variance, sampleVariance: sampleVar, stddev, sampleStddev, min, max, range, q1, q3, iqr, modes, sorted, freqTable, geoMean, harMean, cv, skewness, kurtosis };
   }, [numbers]);
+
+  const regressionStats = useMemo(() => {
+    if (xNumbers.length === 0 || yNumbers.length === 0 || xNumbers.length !== yNumbers.length) return null;
+    const n = xNumbers.length;
+    const xMean = xNumbers.reduce((s, v) => s + v, 0) / n;
+    const yMean = yNumbers.reduce((s, v) => s + v, 0) / n;
+    const ssXY = xNumbers.reduce((s, x, i) => s + (x - xMean) * (yNumbers[i] - yMean), 0);
+    const ssXX = xNumbers.reduce((s, x) => s + (x - xMean) ** 2, 0);
+    const ssYY = yNumbers.reduce((s, y) => s + (y - yMean) ** 2, 0);
+    if (ssXX === 0) return null;
+    const b = ssXY / ssXX;
+    const a = yMean - b * xMean;
+    const r = ssXX > 0 && ssYY > 0 ? ssXY / Math.sqrt(ssXX * ssYY) : 0;
+    const r2 = r * r;
+    return { a, b, r, r2, xMean, yMean, ssXX, ssYY, ssXY };
+  }, [xNumbers, yNumbers]);
+
+  // Helpers
+  const fmt = (n: number | null) => n === null ? "—" : n.toFixed(4).replace(/\.?0+$/, "");
+  const normalCDF = (z: number) => {
+    if (z < -8) return 0;
+    if (z > 8) return 1;
+    const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
+    const a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+    const sign = z < 0 ? -1 : 1;
+    const x = Math.abs(z) / Math.sqrt(2);
+    const t = 1 / (1 + p * x);
+    const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    return 0.5 * (1 + sign * y);
+  };
+
+  const binomial = (n: number, k: number, p: number) => {
+    let c = 1;
+    for (let i = 0; i < k; i++) c *= (n - i) / (i + 1);
+    return c * Math.pow(p, k) * Math.pow(1 - p, n - k);
+  };
+
+  const factorial = (n: number): number => n <= 1 ? 1 : n * factorial(n - 1);
 
   // Draw histogram
   useEffect(() => {
@@ -2005,42 +2087,146 @@ function StatisticsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
     if (!canvas || !stats) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+
+    if (chartType === "histogram") {
+      const W = canvas.width, H = canvas.height;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, W, H);
+
+      const bins = Math.min(10, Math.ceil(stats.range / 2 || 1));
+      const binWidth = (stats.range + 1) / bins;
+      const counts = Array(bins).fill(0);
+      numbers.forEach((v) => {
+        const idx = Math.min(Math.floor((v - stats.min) / binWidth), bins - 1);
+        counts[idx]++;
+      });
+      const maxCount = Math.max(...counts);
+      const barW = (W - 60) / bins;
+      const barArea = H - 50;
+
+      counts.forEach((c, i) => {
+        const barH = maxCount > 0 ? (c / maxCount) * barArea : 0;
+        ctx.fillStyle = "#4f46e5";
+        ctx.fillRect(40 + i * barW + 2, H - 30 - barH, barW - 4, barH);
+        ctx.fillStyle = "#475569";
+        ctx.font = "10px monospace";
+        ctx.fillText(String(c), 40 + i * barW + barW / 2 - 4, H - 30 - barH - 5);
+      });
+
+      // Mean line
+      const meanX = 40 + ((stats.mean - stats.min) / (stats.range || 1)) * (W - 60);
+      ctx.strokeStyle = "#ef4444";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(meanX, 0); ctx.lineTo(meanX, H - 30); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#ef4444";
+      ctx.font = "11px monospace";
+      ctx.fillText(`x̄=${stats.mean.toFixed(2)}`, meanX + 5, 15);
+    } else {
+      // Boxplot
+      const W = canvas.width, H = canvas.height;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, W, H);
+
+      const plotH = 80;
+      const y = H / 2;
+      const dataRange = stats.max - stats.min || 1;
+      const scale = (W - 80) / dataRange;
+      const plot = (v: number) => 40 + (v - stats.min) * scale;
+
+      // Box
+      ctx.fillStyle = "#4f46e5";
+      ctx.fillRect(plot(stats.q1), y - plotH / 2, plot(stats.q3) - plot(stats.q1), plotH);
+
+      // Median line
+      ctx.fillStyle = "#ef4444";
+      ctx.fillRect(plot(stats.median) - 2, y - plotH / 2, 4, plotH);
+
+      // Whiskers
+      ctx.strokeStyle = "#475569";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(plot(stats.min), y); ctx.lineTo(plot(stats.q1), y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(plot(stats.q3), y); ctx.lineTo(plot(stats.max), y); ctx.stroke();
+
+      // Outliers
+      const iqr = stats.q3 - stats.q1;
+      const lowerBound = stats.q1 - 1.5 * iqr;
+      const upperBound = stats.q3 + 1.5 * iqr;
+      ctx.fillStyle = "#ef4444";
+      numbers.forEach(v => {
+        if (v < lowerBound || v > upperBound) {
+          ctx.beginPath();
+          ctx.arc(plot(v), y, 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      // Labels
+      ctx.fillStyle = "#475569";
+      ctx.font = "10px monospace";
+      ctx.fillText(stats.min.toFixed(1), plot(stats.min) - 15, y + 25);
+      ctx.fillText(stats.median.toFixed(1), plot(stats.median) - 15, y - 25);
+      ctx.fillText(stats.max.toFixed(1), plot(stats.max) - 15, y + 25);
+    }
+  }, [stats, numbers, chartType]);
+
+  // Draw normal curve
+  useEffect(() => {
+    const canvas = normCanvasRef.current;
+    if (!canvas || distMode !== "normal") return;
+    const mu = Number(normMu), sigma = Number(normSigma), x = Number(normX);
+    if (isNaN(mu) || isNaN(sigma) || sigma <= 0 || isNaN(x)) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
     const W = canvas.width, H = canvas.height;
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, W, H);
 
-    const bins = 10;
-    const binWidth = (stats.max - stats.min) / bins || 1;
-    const counts = Array(bins).fill(0);
-    numbers.forEach((v) => {
-      const idx = Math.min(Math.floor((v - stats.min) / binWidth), bins - 1);
-      counts[idx]++;
-    });
-    const maxCount = Math.max(...counts);
-    const barW = (W - 60) / bins;
-    const barArea = H - 50;
+    const xMin = mu - 4 * sigma, xMax = mu + 4 * sigma;
+    const scale = (W - 80) / (xMax - xMin);
+    const plot = (v: number) => 40 + (v - xMin) * scale;
 
-    counts.forEach((c, i) => {
-      const barH = maxCount > 0 ? (c / maxCount) * barArea : 0;
-      ctx.fillStyle = "#4f46e5";
-      ctx.fillRect(40 + i * barW + 2, H - 30 - barH, barW - 4, barH);
-      ctx.fillStyle = "#475569";
-      ctx.font = "10px monospace";
-      ctx.fillText(String(c), 40 + i * barW + barW / 2 - 4, H - 30 - barH - 5);
-      ctx.fillText((stats.min + i * binWidth).toFixed(1), 40 + i * barW, H - 15);
-    });
-
-    // Mean line
-    const meanX = 40 + ((stats.mean - stats.min) / (stats.range || 1)) * (W - 60);
-    ctx.strokeStyle = "#ef4444";
+    // Draw curve
+    ctx.strokeStyle = "#4f46e5";
     ctx.lineWidth = 2;
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath(); ctx.moveTo(meanX, 0); ctx.lineTo(meanX, H - 30); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = "#ef4444";
-    ctx.font = "11px monospace";
-    ctx.fillText(`x̄=${stats.mean.toFixed(2)}`, meanX + 5, 15);
-  }, [stats, numbers]);
+    ctx.beginPath();
+    for (let px = 0; px <= W - 80; px += 2) {
+      const xx = xMin + (px / (W - 80)) * (xMax - xMin);
+      const z = (xx - mu) / sigma;
+      const pdfVal = (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-z * z / 2);
+      const py = H - 30 - pdfVal * (H - 60) * sigma * Math.sqrt(2 * Math.PI);
+      if (px === 0) ctx.moveTo(40 + px, py);
+      else ctx.lineTo(40 + px, py);
+    }
+    ctx.stroke();
+
+    // Shade area
+    const zX = (x - mu) / sigma;
+    const phiX = normalCDF(zX);
+    ctx.fillStyle = "rgba(79, 70, 229, 0.3)";
+    ctx.beginPath();
+    ctx.moveTo(40, H - 30);
+    for (let px = 0; px <= Math.min((x - xMin) * scale, W - 80); px += 2) {
+      const xx = xMin + (px / (W - 80)) * (xMax - xMin);
+      const z = (xx - mu) / sigma;
+      const pdfVal = (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-z * z / 2);
+      const py = H - 30 - pdfVal * (H - 60) * sigma * Math.sqrt(2 * Math.PI);
+      if (px === 0) ctx.moveTo(40 + px, py);
+      else ctx.lineTo(40 + px, py);
+    }
+    ctx.lineTo(plot(x), H - 30);
+    ctx.fill();
+
+    // Axes
+    ctx.strokeStyle = "#475569";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(40, H - 30);
+    ctx.lineTo(W - 20, H - 30);
+    ctx.stroke();
+  }, [distMode, normMu, normSigma, normX]);
 
   const handleSave = () => {
     if (checkLimit && !checkLimit()) return;
@@ -2048,7 +2234,14 @@ function StatisticsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
     onSave("statistics", t("math.statSaveLabel", { n: String(stats.n) }), t("math.statSaveResult", { mean: stats.mean.toFixed(4), stddev: stats.stddev.toFixed(4), median: String(stats.median) }), moduleId);
   };
 
-  const fmt = (n: number) => n.toFixed(4).replace(/\.?0+$/, "");
+  const interpretation = () => {
+    if (!stats) return "";
+    let hints = [];
+    if (stats.cv !== null && stats.cv > 30) hints.push(t("math.statHighSpread"));
+    if (stats.skewness !== null && stats.skewness > 0.5) hints.push(t("math.statRightSkew"));
+    if (stats.skewness !== null && stats.skewness < -0.5) hints.push(t("math.statLeftSkew"));
+    return hints.join(" | ");
+  };
 
   return (
     <div>
@@ -2063,39 +2256,249 @@ function StatisticsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
         </div>
       </div>
 
-      <textarea value={data} onChange={(e) => setData(e.target.value)} placeholder={t("math.enterDataPlaceholder")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-sm mb-4 h-20 resize-none" />
+      {/* Tab Bar */}
+      <div className="flex gap-1 mb-4 border-b border-surface-200">
+        {[
+          { key: "deskriptiv", label: t("math.statDescriptive") },
+          { key: "verteilungen", label: t("math.statDistributions") },
+          { key: "tests", label: t("math.statTests") },
+          { key: "regression", label: t("math.statRegression") },
+          { key: "visualisierung", label: t("math.statVisualization") },
+        ].map((t_) => (
+          <button key={t_.key} onClick={() => setTab(t_.key as any)} className={`px-3 py-2 text-sm font-medium border-b-2 transition ${tab === t_.key ? "border-brand-500 text-brand-600" : "border-transparent text-surface-600 hover:text-surface-900"}`}>
+            {t_.label}
+          </button>
+        ))}
+      </div>
 
-      {stats && (
-        <>
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 mb-4">
-            {[
-              [t("math.statCount"), String(stats.n)],
-              [t("math.statSum"), fmt(stats.sum)],
-              [t("math.statMean"), fmt(stats.mean)],
-              [t("math.statMedian"), fmt(stats.median)],
-              [t("math.statVariance"), fmt(stats.variance)],
-              [t("math.statSampleVariance"), fmt(stats.sampleVariance)],
-              [t("math.statStddev"), fmt(stats.stddev)],
-              [t("math.statSampleStddev"), fmt(stats.sampleStddev)],
-              [t("math.statMin"), fmt(stats.min)],
-              [t("math.statMax"), fmt(stats.max)],
-              [t("math.statRange"), fmt(stats.range)],
-              [t("math.statIqr"), fmt(stats.iqr)],
-              [t("math.statQ1"), fmt(stats.q1)],
-              [t("math.statQ3"), fmt(stats.q3)],
-              [t("math.statMode"), stats.modes.join(", ")],
-            ].map(([label, val]) => (
-              <div key={label} className="bg-surface-100 rounded-lg px-3 py-2">
-                <div className="text-surface-400 text-xs">{label}</div>
-                <div className="text-surface-900 font-mono text-sm">{val}</div>
+      {/* Tab: Deskriptiv */}
+      {tab === "deskriptiv" && (
+        <div className="space-y-4">
+          <textarea value={data} onChange={(e) => setData(e.target.value)} placeholder={t("math.enterDataPlaceholder")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-sm h-20 resize-none" />
+
+          {stats && (
+            <>
+              <div className="flex gap-2">
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={showSteps} onChange={(e) => setShowSteps(e.target.checked)} className="rounded" />
+                  Schritte anzeigen
+                </label>
               </div>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+                {[
+                  [t("math.statCount"), String(stats.n)],
+                  [t("math.statSum"), fmt(stats.sum)],
+                  [t("math.statMean"), fmt(stats.mean)],
+                  [t("math.statMedian"), fmt(stats.median)],
+                  [t("math.statVariance"), fmt(stats.variance)],
+                  [t("math.statSampleVariance"), fmt(stats.sampleVariance)],
+                  [t("math.statStddev"), fmt(stats.stddev)],
+                  [t("math.statSampleStddev"), fmt(stats.sampleStddev)],
+                  [t("math.statMin"), fmt(stats.min)],
+                  [t("math.statMax"), fmt(stats.max)],
+                  [t("math.statRange"), fmt(stats.range)],
+                  [t("math.statIqr"), fmt(stats.iqr)],
+                  [t("math.statQ1"), fmt(stats.q1)],
+                  [t("math.statQ3"), fmt(stats.q3)],
+                  [t("math.statMode"), stats.modes.join(", ")],
+                  ...(stats.geoMean ? [[t("math.statGeoMean"), fmt(stats.geoMean)]] : []),
+                  ...(stats.harMean ? [[t("math.statHarMean"), fmt(stats.harMean)]] : []),
+                  ...(stats.cv !== null ? [[t("math.statCV"), fmt(stats.cv) + "%"]] : []),
+                  ...(stats.skewness !== null ? [[t("math.statSkewness"), fmt(stats.skewness)]] : []),
+                  ...(stats.kurtosis !== null ? [[t("math.statKurtosis"), fmt(stats.kurtosis)]] : []),
+                ].map(([label, val]) => (
+                  <div key={label as string} className="bg-surface-100 rounded-lg px-3 py-2">
+                    <div className="text-surface-400 text-xs">{label}</div>
+                    <div className="text-surface-900 font-mono text-sm">{val}</div>
+                  </div>
+                ))}
+              </div>
+
+              {showSteps && (
+                <div className="bg-surface-50 rounded-lg p-3 text-sm space-y-1 font-mono text-surface-700">
+                  <div>Schritt 1: Σxᵢ = {numbers.join("+")} = {stats.sum.toFixed(2)}</div>
+                  <div>Schritt 2: x̄ = {stats.sum.toFixed(2)} / {stats.n} = {stats.mean.toFixed(2)}</div>
+                  <div>Schritt 3: Σ(xᵢ-x̄)² = {(numbers.map(v => `(${v}-${stats.mean.toFixed(2)})²`).join("+")).substring(0, 40)}... = {(stats.variance * stats.n).toFixed(2)}</div>
+                  <div>Schritt 4: σ² = {(stats.variance * stats.n).toFixed(2)} / {stats.n} = {stats.variance.toFixed(2)}</div>
+                  <div>Schritt 5: σ = √{stats.variance.toFixed(2)} = {stats.stddev.toFixed(2)}</div>
+                </div>
+              )}
+
+              {interpretation() && <div className="text-sm text-surface-600">Interpretation: {interpretation()}</div>}
+
+              {/* Frequency Table */}
+              <div className="bg-surface-50 rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-surface-200">
+                    <tr><th className="px-3 py-2 text-left">Wert</th><th className="px-3 py-2 text-left">Abs. Freq</th><th className="px-3 py-2 text-left">Rel. Freq</th><th className="px-3 py-2 text-left">Kum. Freq</th></tr>
+                  </thead>
+                  <tbody>
+                    {stats.freqTable.slice(0, 10).map((row, i) => (
+                      <tr key={i} className="border-t border-surface-200">
+                        <td className="px-3 py-2 font-mono">{row.value}</td>
+                        <td className="px-3 py-2">{row.absFreq}</td>
+                        <td className="px-3 py-2 font-mono">{(row.relFreq * 100).toFixed(1)}%</td>
+                        <td className="px-3 py-2 font-mono">{(row.cumFreq * 100).toFixed(1)}%</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Histogram */}
+              <canvas ref={canvasRef} width={700} height={250} className="w-full rounded-xl border border-surface-200" />
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Tab: Verteilungen */}
+      {tab === "verteilungen" && (
+        <div className="space-y-4">
+          <div className="flex gap-2">
+            {(["binomial", "normal", "poisson"] as const).map((m) => (
+              <button key={m} onClick={() => setDistMode(m)} className={`px-3 py-2 rounded-lg text-sm ${distMode === m ? "bg-brand-500 text-white" : "bg-surface-100 text-surface-700"}`}>
+                {m === "binomial" ? t("math.statBinomial") : m === "normal" ? t("math.statNormal") : t("math.statPoisson")}
+              </button>
             ))}
           </div>
 
-          {/* Histogram */}
-          <canvas ref={canvasRef} width={700} height={250} className="w-full rounded-xl border border-surface-200" />
-        </>
+          {distMode === "binomial" && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
+                <div><label className="block text-sm text-surface-600 mb-1">n (Versuche)</label><input type="number" value={binN} onChange={(e) => setBinN(e.target.value)} className="w-full bg-surface-100 rounded-lg px-2 py-1.5 border border-surface-200" /></div>
+                <div><label className="block text-sm text-surface-600 mb-1">p (Wahrscheinlichkeit)</label><input type="number" value={binP} onChange={(e) => setBinP(e.target.value)} step="0.01" min="0" max="1" className="w-full bg-surface-100 rounded-lg px-2 py-1.5 border border-surface-200" /></div>
+                <div><label className="block text-sm text-surface-600 mb-1">k (Erfolge)</label><input type="number" value={binK} onChange={(e) => setBinK(e.target.value)} className="w-full bg-surface-100 rounded-lg px-2 py-1.5 border border-surface-200" /></div>
+              </div>
+              {Number(binN) > 0 && Number(binP) > 0 && Number(binK) >= 0 && (
+                <div className="bg-surface-50 rounded-lg p-3 text-sm space-y-1 font-mono text-surface-700">
+                  <div>P(X={binK}) = C({binN},{binK}) · {binP}^{binK} · (1-{binP})^{Number(binN)-Number(binK)}</div>
+                  <div>P(X={binK}) = {binomial(Number(binN), Number(binK), Number(binP)).toFixed(6)}</div>
+                  <div>E(X) = np = {(Number(binN) * Number(binP)).toFixed(2)}</div>
+                  <div>Var(X) = np(1-p) = {(Number(binN) * Number(binP) * (1 - Number(binP))).toFixed(2)}</div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {distMode === "normal" && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
+                <div><label className="block text-sm text-surface-600 mb-1">μ (Mittelwert)</label><input type="number" value={normMu} onChange={(e) => setNormMu(e.target.value)} className="w-full bg-surface-100 rounded-lg px-2 py-1.5 border border-surface-200" /></div>
+                <div><label className="block text-sm text-surface-600 mb-1">σ (Std. Abw.)</label><input type="number" value={normSigma} onChange={(e) => setNormSigma(e.target.value)} className="w-full bg-surface-100 rounded-lg px-2 py-1.5 border border-surface-200" /></div>
+                <div><label className="block text-sm text-surface-600 mb-1">x (Wert)</label><input type="number" value={normX} onChange={(e) => setNormX(e.target.value)} className="w-full bg-surface-100 rounded-lg px-2 py-1.5 border border-surface-200" /></div>
+              </div>
+              {Number(normSigma) > 0 && !isNaN(Number(normMu)) && !isNaN(Number(normX)) && (
+                <>
+                  <div className="bg-surface-50 rounded-lg p-3 text-sm space-y-1 font-mono text-surface-700">
+                    <div>z = (x - μ) / σ = ({Number(normX).toFixed(2)} - {Number(normMu).toFixed(2)}) / {Number(normSigma).toFixed(2)} = {((Number(normX) - Number(normMu)) / Number(normSigma)).toFixed(3)}</div>
+                    <div>Φ(z) = P(X ≤ x) = {normalCDF((Number(normX) - Number(normMu)) / Number(normSigma)).toFixed(4)}</div>
+                  </div>
+                  <canvas ref={normCanvasRef} width={700} height={250} className="w-full rounded-xl border border-surface-200" />
+                </>
+              )}
+            </div>
+          )}
+
+          {distMode === "poisson" && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="block text-sm text-surface-600 mb-1">λ (Rate)</label><input type="number" value={poisLambda} onChange={(e) => setPoisLambda(e.target.value)} className="w-full bg-surface-100 rounded-lg px-2 py-1.5 border border-surface-200" /></div>
+                <div><label className="block text-sm text-surface-600 mb-1">k (Ereignisse)</label><input type="number" value={poisK} onChange={(e) => setPoisK(e.target.value)} className="w-full bg-surface-100 rounded-lg px-2 py-1.5 border border-surface-200" /></div>
+              </div>
+              {Number(poisLambda) > 0 && Number(poisK) >= 0 && (
+                <div className="bg-surface-50 rounded-lg p-3 text-sm space-y-1 font-mono text-surface-700">
+                  <div>P(X={poisK}) = e^(-{Number(poisLambda).toFixed(2)}) · {Number(poisLambda).toFixed(2)}^{poisK} / {poisK}!</div>
+                  <div>P(X={poisK}) = {(Math.exp(-Number(poisLambda)) * Math.pow(Number(poisLambda), Number(poisK)) / factorial(Number(poisK))).toFixed(6)}</div>
+                  <div>E(X) = λ = {Number(poisLambda).toFixed(2)}</div>
+                  <div>Var(X) = λ = {Number(poisLambda).toFixed(2)}</div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab: Tests */}
+      {tab === "tests" && (
+        <div className="space-y-4">
+          <div className="flex gap-2">
+            {(["z", "t", "chi2"] as const).map((m) => (
+              <button key={m} onClick={() => setTestMode(m)} className={`px-3 py-2 rounded-lg text-sm ${testMode === m ? "bg-brand-500 text-white" : "bg-surface-100 text-surface-700"}`}>
+                {m === "z" ? t("math.statZTest") : m === "t" ? t("math.statTTest") : t("math.statChiTest")}
+              </button>
+            ))}
+          </div>
+
+          {(testMode === "z" || testMode === "t") && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="block text-sm text-surface-600 mb-1">Stichprobenmittelwert (x̄)</label><input type="number" value={testSampleMean} onChange={(e) => setTestSampleMean(e.target.value)} className="w-full bg-surface-100 rounded-lg px-2 py-1.5 border border-surface-200" /></div>
+                <div><label className="block text-sm text-surface-600 mb-1">Grundgesamtheitsmittelwert (μ₀)</label><input type="number" value={testPopMean} onChange={(e) => setTestPopMean(e.target.value)} className="w-full bg-surface-100 rounded-lg px-2 py-1.5 border border-surface-200" /></div>
+                <div><label className="block text-sm text-surface-600 mb-1">{testMode === "z" ? "σ (bekannt)" : "s (Stichprobe)"}</label><input type="number" value={testSigma} onChange={(e) => setTestSigma(e.target.value)} className="w-full bg-surface-100 rounded-lg px-2 py-1.5 border border-surface-200" /></div>
+                <div><label className="block text-sm text-surface-600 mb-1">n (Stichprobengröße)</label><input type="number" value={testN} onChange={(e) => setTestN(e.target.value)} className="w-full bg-surface-100 rounded-lg px-2 py-1.5 border border-surface-200" /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="block text-sm text-surface-600 mb-1">α (Signifikanz)</label><input type="number" value={testAlpha} onChange={(e) => setTestAlpha(e.target.value)} step="0.01" min="0" max="1" className="w-full bg-surface-100 rounded-lg px-2 py-1.5 border border-surface-200" /></div>
+                <div><label className="block text-sm text-surface-600 mb-1">Test</label><select value={testTailed} onChange={(e) => setTestTailed(e.target.value as any)} className="w-full bg-surface-100 text-surface-700 rounded-lg px-2 py-1.5 border border-surface-200"><option value="two">{t("math.statTwoTailed")}</option><option value="one">{t("math.statOneTailed")}</option></select></div>
+              </div>
+
+              {testSampleMean && testPopMean && testSigma && testN && (
+                <div className="bg-surface-50 rounded-lg p-3 text-sm space-y-2 font-mono text-surface-700">
+                  <div>H₀: μ = {Number(testPopMean).toFixed(2)}</div>
+                  <div>H₁: μ ≠ {Number(testPopMean).toFixed(2)} {testTailed === "one" ? " (einseitig)" : ""}</div>
+                  <div className={testMode === "z" ? "" : "hidden"}>Teststatistik: z = ({testSampleMean} - {testPopMean}) / ({testSigma} / √{testN}) = {testSigma && testN ? (((Number(testSampleMean) - Number(testPopMean)) / (Number(testSigma) / Math.sqrt(Number(testN))))).toFixed(3) : "—"}</div>
+                  <div className={testMode === "t" ? "" : "hidden"}>Teststatistik: t = ({testSampleMean} - {testPopMean}) / ({testSigma} / √{testN}) = {testSigma && testN ? (((Number(testSampleMean) - Number(testPopMean)) / (Number(testSigma) / Math.sqrt(Number(testN))))).toFixed(3) : "—"}</div>
+                  <div className={testSigma && testN && Number(testSigma) > 0 && Number(testN) > 0 ? "text-success-600" : "text-danger-600"}>{testSigma && testN && Number(testSigma) > 0 && Number(testN) > 0 ? t("math.statKeepH0") : t("math.statInvalid")}</div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {testMode === "chi2" && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="block text-sm text-surface-600 mb-1">Beobachtete Häufigkeiten (Komma-getrennt)</label><input type="text" placeholder="10, 20, 15" className="w-full bg-surface-100 rounded-lg px-2 py-1.5 border border-surface-200" /></div>
+                <div><label className="block text-sm text-surface-600 mb-1">Erwartete Häufigkeiten (Komma-getrennt)</label><input type="text" placeholder="15, 15, 15" className="w-full bg-surface-100 rounded-lg px-2 py-1.5 border border-surface-200" /></div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab: Regression */}
+      {tab === "regression" && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div><label className="block text-sm text-surface-600 mb-1">X-Werte (Komma-getrennt)</label><textarea value={xData} onChange={(e) => setXData(e.target.value)} placeholder="1, 2, 3, 4, 5" className="w-full bg-surface-100 text-surface-900 rounded-lg px-3 py-2 border border-surface-200 font-mono text-sm h-16 resize-none" /></div>
+            <div><label className="block text-sm text-surface-600 mb-1">Y-Werte (Komma-getrennt)</label><textarea value={yData} onChange={(e) => setYData(e.target.value)} placeholder="2, 4, 5, 8, 10" className="w-full bg-surface-100 text-surface-900 rounded-lg px-3 py-2 border border-surface-200 font-mono text-sm h-16 resize-none" /></div>
+          </div>
+
+          {regressionStats && (
+            <div className="bg-surface-50 rounded-lg p-3 text-sm space-y-2 font-mono text-surface-700">
+              <div>y = {regressionStats.a.toFixed(4)} + {regressionStats.b.toFixed(4)} · x</div>
+              <div>{t("math.statCorrelation")} (r) = {regressionStats.r.toFixed(4)}</div>
+              <div>R² = {regressionStats.r2.toFixed(4)}</div>
+              {Math.abs(regressionStats.r) > 0.7 && <div className="text-success-600">{t("math.statStrongCorr")}</div>}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab: Visualisierung */}
+      {tab === "visualisierung" && (
+        <div className="space-y-4">
+          <div className="flex gap-2">
+            {(["histogram", "boxplot"] as const).map((c) => (
+              <button key={c} onClick={() => setChartType(c)} className={`px-3 py-2 rounded-lg text-sm ${chartType === c ? "bg-brand-500 text-white" : "bg-surface-100 text-surface-700"}`}>
+                {c === "histogram" ? t("math.statHistogram") : t("math.statBoxplot")}
+              </button>
+            ))}
+          </div>
+          {stats && <canvas ref={canvasRef} width={700} height={250} className="w-full rounded-xl border border-surface-200" />}
+        </div>
       )}
     </div>
   );
