@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export type Plan = "free" | "pro";
+export type PlanType = "free" | "subscription" | "lifetime";
 
 export interface Profile {
   id: string;
@@ -10,6 +11,7 @@ export interface Profile {
   full_name: string | null;
   avatar_url: string | null;
   plan: Plan;
+  plan_type: PlanType | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
   stripe_subscription_status: string | null;
@@ -49,11 +51,15 @@ export function useProfile() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Pro status: lifetime (never expires), active subscription, or within expiry window
   const isPro = profile?.plan === "pro" && (
+    profile.plan_type === "lifetime" ||
     profile.stripe_subscription_status === "active" ||
     profile.stripe_subscription_status === "trialing" ||
     (profile.plan_expires_at != null && new Date(profile.plan_expires_at) > new Date())
   );
 
-  return { profile, loading, isPro: !!isPro, refetch: load };
+  const isLifetime = profile?.plan_type === "lifetime";
+
+  return { profile, loading, isPro: !!isPro, isLifetime: !!isLifetime, refetch: load };
 }

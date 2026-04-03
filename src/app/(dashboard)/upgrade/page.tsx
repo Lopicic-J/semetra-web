@@ -2,7 +2,7 @@
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
 import { CheckCircle, XCircle, Zap, Check, ArrowLeft, Star, Sparkles } from "lucide-react";
-import { PLANS, PRO_PRICES } from "@/lib/stripe";
+import { PLANS, PRO_PRICES, LIFETIME_PRICE } from "@/lib/stripe";
 import type { PriceTier } from "@/lib/stripe";
 import { useProfile } from "@/lib/hooks/useProfile";
 import Link from "next/link";
@@ -17,7 +17,7 @@ function UpgradeContent() {
   const params = useSearchParams();
   const success = params.get("success") === "1";
   const canceled = params.get("canceled") === "1";
-  const { isPro, refetch } = useProfile();
+  const { isPro, isLifetime, refetch } = useProfile();
   const [selectedTier, setSelectedTier] = useState<PriceTier>("yearly");
 
   useEffect(() => {
@@ -187,15 +187,36 @@ function UpgradeContent() {
         </div>
       </div>
 
+      {/* Lifetime option */}
+      {!isPro && (
+        <div className="max-w-2xl mx-auto mb-8">
+          <div className="bg-surface-900 text-white rounded-2xl p-6 flex items-center justify-between gap-6 flex-wrap">
+            <div>
+              <div className="inline-flex items-center gap-1.5 bg-white/10 text-white/70 text-xs font-semibold px-2.5 py-1 rounded-full mb-2 uppercase tracking-wide">
+                Einmalkauf
+              </div>
+              <p className="text-lg font-bold">Pro Lifetime — CHF {LIFETIME_PRICE.price.toFixed(2).replace(".", ",")}</p>
+              <p className="text-sm text-white/50 mt-1">Einmalig zahlen, dauerhaft Pro. Kein Abo. Gilt f&uuml;r Desktop, Web &amp; Mobile.</p>
+            </div>
+            <a
+              href={LIFETIME_PRICE.paymentLink}
+              className="shrink-0 bg-white text-surface-900 px-6 py-2.5 rounded-xl font-semibold text-sm hover:bg-surface-100 transition-all"
+            >
+              Lifetime kaufen
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* Platform info */}
       <div className="max-w-2xl mx-auto mb-8">
         <div className="bg-gradient-to-r from-brand-50 to-violet-50 border border-brand-200/60 rounded-2xl p-5 text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Sparkles size={16} className="text-brand-600" />
-            <span className="text-sm font-semibold text-brand-700">Ein Abo — überall Pro</span>
+            <span className="text-sm font-semibold text-brand-700">Ein Kauf oder Abo — &uuml;berall Pro</span>
           </div>
           <p className="text-sm text-surface-600">
-            Dein Pro-Abo gilt für Web-App, Desktop-App und zukünftige Mobile-App. Kein separater Desktop-Kauf nötig.
+            Dein Pro gilt f&uuml;r Web-App, Desktop-App und zuk&uuml;nftige Mobile-App. Einmal aktivieren, &uuml;berall nutzen.
           </p>
         </div>
       </div>

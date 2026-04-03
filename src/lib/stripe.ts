@@ -43,6 +43,16 @@ export const PRO_PRICES = {
   },
 } as const;
 
+// Lifetime one-time purchase (separate from subscriptions)
+export const LIFETIME_PRICE = {
+  priceId: "price_1THv6MRNHcFqFbgItC6BE1E1",
+  productId: "prod_UGS0z0EogksIbg",
+  price: 89.9,
+  currency: "CHF",
+  label: "Lifetime",
+  paymentLink: "https://buy.stripe.com/4gM3cx7cg3Ss15U3Q7fYY04",
+} as const;
+
 export type PriceTier = keyof typeof PRO_PRICES;
 
 // Validate that a given price ID belongs to one of our tiers

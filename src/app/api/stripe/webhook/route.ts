@@ -75,7 +75,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     userId = await getUserIdFromCustomer(session.customer as string);
   }
 
-  // For one-time payments (Desktop Pro Einmalkauf), also try by email
+  // For one-time payments (Lifetime Pro), also try by email
   if (!userId && session.customer_details?.email) {
     const { data } = await supabaseAdmin
       .from("profiles")
@@ -90,15 +90,16 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return;
   }
 
-  // One-time payment (Desktop Pro Einmalkauf) — no subscription
+  // One-time payment (Lifetime Pro) — no subscription, never expires
   if (session.mode === "payment") {
     await supabaseAdmin.from("profiles").update({
       plan: "pro",
-      stripe_subscription_status: "active",
+      plan_type: "lifetime",
+      stripe_subscription_status: null,
       stripe_customer_id: (session.customer as string) ?? null,
-      plan_expires_at: null, // lifetime — never expires
+      plan_expires_at: null,
     }).eq("id", userId);
-    console.log("[webhook] Desktop Pro activated for user:", userId);
+    console.log("[webhook] Lifetime Pro activated for user:", userId);
     return;
   }
 
@@ -113,6 +114,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   await supabaseAdmin.from("profiles").update({
     plan: "pro",
+    plan_type: "subscription",
     stripe_subscription_id: subscriptionId,
     stripe_subscription_status: subscription.status,
     stripe_price_id: subscription.items.data[0]?.price.id ?? null,
@@ -146,8 +148,25 @@ async function handleSubscriptionDeleted(sub: Stripe.Subscription) {
 
   if (!userId) return;
 
+  // Don't downgrade Lifetime users when a subscription is deleted
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("plan_type")
+    .eq("id", userId)
+    .single();
+
+  if (profile?.plan_type === "lifetime") {
+    // Just clean up subscription fields, keep Pro
+    await supabaseAdmin.from("profiles").update({
+      stripe_subscription_id: null,
+      stripe_subscription_status: null,
+    }).eq("id", userId);
+    return;
+  }
+
   await supabaseAdmin.from("profiles").update({
     plan: "free",
+    plan_type: null,
     stripe_subscription_status: "canceled",
     plan_expires_at: null,
   }).eq("id", userId);

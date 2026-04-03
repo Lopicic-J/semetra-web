@@ -9,7 +9,7 @@ import Link from "next/link";
 export default function SettingsPage() {
   const supabase = createClient();
   const router = useRouter();
-  const { profile, isPro } = useProfile();
+  const { profile, isPro, isLifetime } = useProfile();
   const [user, setUser] = useState<{ email?: string; created_at?: string } | null>(null);
   const [activeTab, setActiveTab] = useState("account");
 
@@ -59,7 +59,7 @@ export default function SettingsPage() {
         {/* Content */}
         <div className="flex-1">
           {activeTab === "account"       && <AccountTab user={user} />}
-          {activeTab === "plan"          && <PlanTab isPro={isPro} profile={profile} />}
+          {activeTab === "plan"          && <PlanTab isPro={isPro} isLifetime={isLifetime} profile={profile} />}
           {activeTab === "appearance"    && <AppearanceTab />}
           {activeTab === "notifications" && <NotificationsTab />}
           {activeTab === "privacy"       && <PrivacyTab />}
@@ -138,9 +138,8 @@ function AccountTab({ user }: { user: { email?: string; created_at?: string } | 
   );
 }
 
-function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscription_status?: string | null; plan_expires_at?: string | null } | null }) {
+function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: boolean; profile: { stripe_subscription_status?: string | null; plan_expires_at?: string | null; plan_type?: string | null } | null }) {
   const [loading, setLoading] = useState(false);
-  // Desktop Pro Einmalkauf entfernt — unified Pro-Abo deckt Web + Desktop
 
   async function handlePortal() {
     setLoading(true);
@@ -152,8 +151,8 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
     setLoading(false);
   }
 
-  // Calculate subscription remaining time
-  const expiresAt = profile?.plan_expires_at ? new Date(profile.plan_expires_at) : null;
+  // Calculate subscription remaining time (only relevant for non-lifetime)
+  const expiresAt = !isLifetime && profile?.plan_expires_at ? new Date(profile.plan_expires_at) : null;
   const now = new Date();
   let remainingDays = 0;
   let remainingLabel = "";
@@ -185,19 +184,39 @@ function PlanTab({ isPro, profile }: { isPro: boolean; profile: { stripe_subscri
 
   return (
     <div className="space-y-5">
-      {/* Web Abo */}
+      {/* Plan card */}
       <div className={`card border-2 ${isPro ? "border-brand-500" : "border-surface-200"}`}>
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="font-semibold text-surface-900">Web-App Abo</h2>
-            <p className="text-xs text-surface-400 mt-0.5">Monatlich oder jährlich kündbar</p>
+            <h2 className="font-semibold text-surface-900">
+              {isLifetime ? "Pro Lifetime" : isPro ? "Pro Abo" : "Dein Plan"}
+            </h2>
+            <p className="text-xs text-surface-400 mt-0.5">
+              {isLifetime ? "Einmalkauf — gilt dauerhaft" : isPro ? "Monatlich oder jährlich kündbar" : "Kostenloser Plan"}
+            </p>
           </div>
-          <span className={`px-3 py-1 rounded-full text-xs font-bold ${isPro ? "bg-brand-100 text-brand-700" : "bg-surface-100 text-surface-500"}`}>
-            {isPro ? "PRO" : "FREE"}
+          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+            isLifetime ? "bg-surface-800 text-white" :
+            isPro ? "bg-brand-100 text-brand-700" :
+            "bg-surface-100 text-surface-500"
+          }`}>
+            {isLifetime ? "LIFETIME" : isPro ? "PRO" : "FREE"}
           </span>
         </div>
 
-        {isPro ? (
+        {isLifetime ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm text-surface-600">
+              <CheckCircle size={15} className="text-green-500" />
+              Lifetime Pro aktiv — kein Ablaufdatum
+            </div>
+            <div className="bg-surface-50 rounded-xl p-4">
+              <p className="text-sm text-surface-600">
+                Dein Pro-Zugang gilt dauerhaft auf allen Plattformen: Web, Desktop und zukünftige Mobile-App. Kein Abo, keine Verlängerung nötig.
+              </p>
+            </div>
+          </div>
+        ) : isPro ? (
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-sm text-surface-600">
               <CheckCircle size={15} className="text-green-500" />

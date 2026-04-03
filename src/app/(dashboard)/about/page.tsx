@@ -34,7 +34,7 @@ export default function AboutPage() {
 
           {/* Version Badge */}
           <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-surface-100 text-surface-600 text-sm font-medium">
-            <span>v2.0 · FH Edition</span>
+            <span>v2.0 · Workspace</span>
           </div>
         </div>
       </div>
@@ -42,9 +42,10 @@ export default function AboutPage() {
       {/* Mission Statement */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
         <p className="text-lg text-surface-600 leading-relaxed">
-          Semetra unterstützt Schweizer Fachhochschul-Studierende dabei, ihre Lernziele effizient zu
-          organisieren und zu erreichen. Mit intelligenter KI-Unterstützung, flexiblem Offline-Zugang und
-          schweizer Datenschutz gestalten wir das Studium produktiver und stressfreier.
+          Semetra unterstützt Studierende an Fachhochschulen und Universitäten in Europa dabei, ihre
+          Lernziele effizient zu organisieren und zu erreichen. Mit intelligenter KI-Unterstützung,
+          flexiblem Offline-Zugang und europäischem Datenschutz gestalten wir das Studium produktiver
+          und stressfreier.
         </p>
       </div>
 
@@ -100,10 +101,10 @@ export default function AboutPage() {
               <Shield size={28} />
             </div>
             <h3 className="text-xl font-semibold text-surface-900 mb-3">
-              Schweizer Datenschutz
+              Europäischer Datenschutz
             </h3>
             <p className="text-surface-600 text-sm leading-relaxed">
-              Deine Daten sind sicher. Wir befolgen DSGVO-Standards und hosten alles in der Schweiz mit größter Sorgfalt.
+              Deine Daten sind sicher. Wir befolgen DSGVO-Standards und behandeln deine Daten mit größter Sorgfalt.
             </p>
           </div>
         </div>
@@ -259,7 +260,7 @@ export default function AboutPage() {
               Volle Kraft für dein Studium
             </p>
             <div className="text-3xl font-bold text-brand-600 mb-6">
-              CHF 4,99
+              ab CHF 3,33
               <span className="text-lg text-surface-600 font-normal">/Mt.</span>
             </div>
 
@@ -316,25 +317,25 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Desktop Plan */}
-        <div className="card p-8 border border-surface-200 max-w-2xl mx-auto">
+        {/* Lifetime Plan */}
+        <div className="card p-8 border border-surface-200 max-w-2xl mx-auto bg-surface-900 text-white">
           <div className="flex items-center gap-4">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-surface-100 text-surface-600">
-              <Monitor size={24} />
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-white/10 text-white">
+              <Zap size={24} />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-surface-900 mb-1">
-                Desktop App (One-Time)
+              <h3 className="text-lg font-semibold text-white mb-1">
+                Pro Lifetime
               </h3>
-              <p className="text-surface-600 text-sm">
-                Einmalige Zahlung für permanente Pro-Funktionen auf deinem Computer
+              <p className="text-white/60 text-sm">
+                Einmalkauf — dauerhaft Pro auf allen Plattformen. Kein Abo nötig.
               </p>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-surface-900">
-                CHF 49,90
+              <div className="text-2xl font-bold text-white">
+                CHF 89,90
               </div>
-              <p className="text-xs text-surface-500">einmalig</p>
+              <p className="text-xs text-white/50">einmalig</p>
             </div>
           </div>
         </div>
@@ -344,7 +345,7 @@ export default function AboutPage() {
       <div className="bg-surface-50 border-t border-surface-200 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-surface-700 font-medium mb-4">
-            Entwickelt von Lopicic Technologies 🇨🇭
+            Entwickelt von Lopicic Technologies
           </p>
 
           <div className="flex items-center justify-center gap-6 text-sm mb-6">
