@@ -631,19 +631,19 @@ function PrivacyTab() {
     try {
       const data = await fetchAllData();
       const date = new Date().toISOString().split("T")[0];
-      const counts = `${data.modules.length} Module, ${data.tasks.length} Aufgaben, ${data.events.length} Termine, ${data.grades.length} Noten, ${data.topics.length} Themen`;
+      const counts = t("settings.exportCounts", { modules: String(data.modules.length), tasks: String(data.tasks.length), events: String(data.events.length), grades: String(data.grades.length), topics: String(data.topics.length) });
 
       if (exportFormat === "desktop") {
         const desktopData = toDesktopFormat(data);
         downloadJSON(desktopData, `semetra-backup-${date}.json`);
-        setExportResult({ type: "success", text: `Desktop-kompatibles Backup exportiert (${counts})` });
+        setExportResult({ type: "success", text: t("settings.exportSuccess", { counts }) });
       } else {
         const rawExport = { _meta: { format: "semetra-web-raw", exported_at: new Date().toISOString() }, ...data };
         downloadJSON(rawExport, `semetra-web-export-${date}.json`);
-        setExportResult({ type: "success", text: `Web-Rohdaten exportiert (${counts})` });
+        setExportResult({ type: "success", text: t("settings.exportSuccessJson", { counts }) });
       }
     } catch (err: any) {
-      setExportResult({ type: "error", text: `Export fehlgeschlagen: ${err.message}` });
+      setExportResult({ type: "error", text: t("settings.exportFailed", { error: err.message }) });
     }
     setExporting(false);
   }
@@ -651,17 +651,16 @@ function PrivacyTab() {
   return (
     <div className="space-y-4">
       <div className="card">
-        <h2 className="font-semibold text-surface-900 mb-3">Datenschutz</h2>
+        <h2 className="font-semibold text-surface-900 mb-3">{t("settings.privacyTitle")}</h2>
         <p className="text-sm text-surface-600 leading-relaxed">
-          Semetra Workspace speichert deine Daten sicher in der Cloud über Supabase (PostgreSQL). Alle Daten sind mit Row Level Security (RLS) geschützt — nur du hast Zugriff auf deine eigenen Daten.
+          {t("settings.privacyDesc")}
         </p>
       </div>
 
       <div className="card">
-        <h2 className="font-semibold text-surface-900 mb-2">Daten exportieren</h2>
+        <h2 className="font-semibold text-surface-900 mb-2">{t("settings.exportTitle")}</h2>
         <p className="text-sm text-surface-500 mb-4">
-          Exportiere alle deine Daten als Backup oder zum Import in die Desktop-App.
-          Module, Aufgaben, Prüfungen, Noten, Wissen, Zeitlogs, Stundenplan und Anhänge werden eingeschlossen.
+          {t("settings.exportDesc")}
         </p>
 
         {/* Format selection */}
@@ -676,9 +675,9 @@ function PrivacyTab() {
           >
             <HardDrive size={20} className={exportFormat === "desktop" ? "text-brand-600" : "text-surface-400"} />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-surface-800">Desktop-kompatibel (empfohlen)</p>
+              <p className="text-sm font-semibold text-surface-800">{t("settings.exportDesktopTitle")}</p>
               <p className="text-xs text-surface-500">
-                Kann direkt in die Semetra Workspace Desktop-App importiert werden. Auch als Backup geeignet.
+                {t("settings.exportDesktopDesc")}
               </p>
             </div>
             <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
@@ -698,9 +697,9 @@ function PrivacyTab() {
           >
             <Database size={20} className={exportFormat === "json" ? "text-brand-600" : "text-surface-400"} />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-surface-800">Web-Rohdaten (JSON)</p>
+              <p className="text-sm font-semibold text-surface-800">{t("settings.exportJsonTitle")}</p>
               <p className="text-xs text-surface-500">
-                Originale Supabase-Daten mit UUIDs. Für technische Backups oder Datenanalyse.
+                {t("settings.exportJsonDesc")}
               </p>
             </div>
             <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
@@ -762,7 +761,7 @@ function LanguageCard() {
       setMsg({ type: "error", text: error.message });
     } else {
       setLocale(selectedLang);
-      setMsg({ type: "success", text: "Sprache aktualisiert." });
+      setMsg({ type: "success", text: t("settings.languageSaved") });
     }
   }
 

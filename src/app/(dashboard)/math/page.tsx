@@ -1127,7 +1127,7 @@ function StatisticsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
   const handleSave = () => {
     if (checkLimit && !checkLimit()) return;
     if (!stats) return;
-    onSave("statistics", `Daten (n=${stats.n})`, `x̄=${stats.mean.toFixed(4)}, σ=${stats.stddev.toFixed(4)}, Median=${stats.median}`, moduleId);
+    onSave("statistics", t("math.statSaveLabel", { n: String(stats.n) }), t("math.statSaveResult", { mean: stats.mean.toFixed(4), stddev: stats.stddev.toFixed(4), median: String(stats.median) }), moduleId);
   };
 
   const fmt = (n: number) => n.toFixed(4).replace(/\.?0+$/, "");
@@ -1152,21 +1152,21 @@ function StatisticsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
           {/* Stats Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 mb-4">
             {[
-              ["Anzahl (n)", String(stats.n)],
-              ["Summe", fmt(stats.sum)],
-              ["Mittelwert (x̄)", fmt(stats.mean)],
-              ["Median", fmt(stats.median)],
-              ["Varianz (σ²)", fmt(stats.variance)],
-              ["Stichproben-Var.", fmt(stats.sampleVariance)],
-              ["Std.-Abw. (σ)", fmt(stats.stddev)],
-              ["Stichpr.-Std.", fmt(stats.sampleStddev)],
-              ["Minimum", fmt(stats.min)],
-              ["Maximum", fmt(stats.max)],
-              ["Spannweite", fmt(stats.range)],
-              ["IQR (Q3−Q1)", fmt(stats.iqr)],
-              ["Q1 (25%)", fmt(stats.q1)],
-              ["Q3 (75%)", fmt(stats.q3)],
-              ["Modalwert", stats.modes.join(", ")],
+              [t("math.statCount"), String(stats.n)],
+              [t("math.statSum"), fmt(stats.sum)],
+              [t("math.statMean"), fmt(stats.mean)],
+              [t("math.statMedian"), fmt(stats.median)],
+              [t("math.statVariance"), fmt(stats.variance)],
+              [t("math.statSampleVariance"), fmt(stats.sampleVariance)],
+              [t("math.statStddev"), fmt(stats.stddev)],
+              [t("math.statSampleStddev"), fmt(stats.sampleStddev)],
+              [t("math.statMin"), fmt(stats.min)],
+              [t("math.statMax"), fmt(stats.max)],
+              [t("math.statRange"), fmt(stats.range)],
+              [t("math.statIqr"), fmt(stats.iqr)],
+              [t("math.statQ1"), fmt(stats.q1)],
+              [t("math.statQ3"), fmt(stats.q3)],
+              [t("math.statMode"), stats.modes.join(", ")],
             ].map(([label, val]) => (
               <div key={label} className="bg-surface-100 rounded-lg px-3 py-2">
                 <div className="text-surface-400 text-xs">{label}</div>
