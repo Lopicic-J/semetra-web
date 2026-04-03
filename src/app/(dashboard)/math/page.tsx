@@ -46,87 +46,7 @@ const CALC_BUTTONS = [
   ["e", "!", "%", "abs"],
 ];
 
-function getConstants(t: (key: string) => string): { name: string; symbol: string; value: string; unit: string }[] {
-  return [
-    { name: t("math.const.lightSpeed"), symbol: "c", value: "299 792 458", unit: "m/s" },
-    { name: t("math.const.gravity"), symbol: "G", value: "6.674 × 10⁻¹¹", unit: "m³/(kg·s²)" },
-    { name: t("math.const.planck"), symbol: "h", value: "6.626 × 10⁻³⁴", unit: "J·s" },
-    { name: t("math.const.boltzmann"), symbol: "k_B", value: "1.381 × 10⁻²³", unit: "J/K" },
-    { name: t("math.const.elemCharge"), symbol: "e", value: "1.602 × 10⁻¹⁹", unit: "C" },
-    { name: t("math.const.avogadro"), symbol: "N_A", value: "6.022 × 10²³", unit: "1/mol" },
-    { name: t("math.const.gasConst"), symbol: "R", value: "8.314", unit: "J/(mol·K)" },
-    { name: t("math.const.vacuumPerm"), symbol: "ε₀", value: "8.854 × 10⁻¹²", unit: "F/m" },
-    { name: t("math.const.euler"), symbol: "e", value: "2.71828 18284", unit: "" },
-    { name: t("math.const.pi"), symbol: "π", value: "3.14159 26535", unit: "" },
-    { name: t("math.const.goldenRatio"), symbol: "φ", value: "1.61803 39887", unit: "" },
-    { name: t("math.const.earthGravity"), symbol: "g", value: "9.80665", unit: "m/s²" },
-  ];
-}
-
-function getUnitGroups(t: (key: string) => string): { label: string; units: { name: string; factor: number; symbol: string }[] }[] {
-  return [
-    {
-      label: t("math.unit.length"),
-      units: [
-        { name: t("math.unit.meter"), factor: 1, symbol: "m" },
-        { name: t("math.unit.kilometer"), factor: 1000, symbol: "km" },
-        { name: t("math.unit.centimeter"), factor: 0.01, symbol: "cm" },
-        { name: t("math.unit.millimeter"), factor: 0.001, symbol: "mm" },
-        { name: t("math.unit.mile"), factor: 1609.344, symbol: "mi" },
-        { name: t("math.unit.foot"), factor: 0.3048, symbol: "ft" },
-        { name: t("math.unit.inch"), factor: 0.0254, symbol: "in" },
-      ],
-    },
-    {
-      label: t("math.unit.weight"),
-      units: [
-        { name: t("math.unit.kilogram"), factor: 1, symbol: "kg" },
-        { name: t("math.unit.gram"), factor: 0.001, symbol: "g" },
-        { name: t("math.unit.milligram"), factor: 0.000001, symbol: "mg" },
-        { name: t("math.unit.ton"), factor: 1000, symbol: "t" },
-        { name: t("math.unit.pound"), factor: 0.453592, symbol: "lb" },
-        { name: t("math.unit.ounce"), factor: 0.0283495, symbol: "oz" },
-      ],
-    },
-    {
-      label: t("math.unit.temperature"),
-      units: [
-        { name: t("math.unit.celsius"), factor: 1, symbol: "°C" },
-        { name: t("math.unit.fahrenheit"), factor: 1, symbol: "°F" },
-        { name: t("math.unit.kelvin"), factor: 1, symbol: "K" },
-      ],
-    },
-    {
-      label: t("math.unit.area"),
-      units: [
-        { name: t("math.unit.sqMeter"), factor: 1, symbol: "m²" },
-        { name: t("math.unit.sqKm"), factor: 1e6, symbol: "km²" },
-        { name: t("math.unit.hectare"), factor: 1e4, symbol: "ha" },
-        { name: t("math.unit.sqCm"), factor: 1e-4, symbol: "cm²" },
-        { name: t("math.unit.are"), factor: 100, symbol: "a" },
-      ],
-    },
-    {
-      label: t("math.unit.volume"),
-      units: [
-        { name: t("math.unit.liter"), factor: 1, symbol: "L" },
-        { name: t("math.unit.milliliter"), factor: 0.001, symbol: "mL" },
-        { name: t("math.unit.cubicMeter"), factor: 1000, symbol: "m³" },
-        { name: t("math.unit.gallon"), factor: 3.78541, symbol: "gal" },
-      ],
-    },
-    {
-      label: t("math.unit.time"),
-      units: [
-        { name: t("math.unit.second"), factor: 1, symbol: "s" },
-        { name: t("math.unit.minute"), factor: 60, symbol: "min" },
-        { name: t("math.unit.hour"), factor: 3600, symbol: "h" },
-        { name: t("math.unit.day"), factor: 86400, symbol: "d" },
-        { name: t("math.unit.week"), factor: 604800, symbol: "w" },
-      ],
-    },
-  ];
-}
+/* getConstants and getUnitGroups moved into UnitsTool component */
 
 function getBuiltinFormulas(t: (key: string) => string): { title: string; formula: string; category: FormulaCategory; description: string }[] {
   return [
@@ -314,8 +234,7 @@ export default function MathPage() {
 
   const tools = useMemo(() => getTools(t), [t]);
   const formulaCategories = useMemo(() => getFormulaCategories(t), [t]);
-  const constants = useMemo(() => getConstants(t), [t]);
-  const unitGroups = useMemo(() => getUnitGroups(t), [t]);
+  /* constants & unitGroups now inside UnitsTool */
   const builtinFormulas = useMemo(() => getBuiltinFormulas(t), [t]);
 
   /* Auth + data */
@@ -2505,143 +2424,655 @@ function StatisticsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/* TOOL 6: Units & Constants                                                  */
+/* TOOL 6: Einheiten & Konstanten — Lernsystem                               */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
-function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[] }) {
+interface UnitDef { symbol: string; nameKey: string; dim: number[]; factor: number; isTemp?: boolean }
+interface ConstDef { nameKey: string; symbol: string; value: number; display: string; unit: string; cat: string; descKey: string }
+interface ConvResult { value: number; display: string; from: string; to: string; steps: string[]; error?: never }
+interface ConvError { error: string; value?: never }
+
+const UNIT_DB: Record<string, UnitDef> = {
+  /* Length [1,0,0,0,0,0,0] */
+  m:   { symbol: "m",   nameKey: "math.unit.meter",      dim: [1,0,0,0,0,0,0], factor: 1 },
+  km:  { symbol: "km",  nameKey: "math.unit.kilometer",  dim: [1,0,0,0,0,0,0], factor: 1000 },
+  cm:  { symbol: "cm",  nameKey: "math.unit.centimeter",  dim: [1,0,0,0,0,0,0], factor: 0.01 },
+  mm:  { symbol: "mm",  nameKey: "math.unit.millimeter",  dim: [1,0,0,0,0,0,0], factor: 0.001 },
+  "\u00b5m": { symbol: "\u00b5m", nameKey: "math.unit.micrometer", dim: [1,0,0,0,0,0,0], factor: 1e-6 },
+  nm:  { symbol: "nm",  nameKey: "math.unit.nanometer",   dim: [1,0,0,0,0,0,0], factor: 1e-9 },
+  mi:  { symbol: "mi",  nameKey: "math.unit.mile",        dim: [1,0,0,0,0,0,0], factor: 1609.344 },
+  ft:  { symbol: "ft",  nameKey: "math.unit.foot",        dim: [1,0,0,0,0,0,0], factor: 0.3048 },
+  "in": { symbol: "in", nameKey: "math.unit.inch",        dim: [1,0,0,0,0,0,0], factor: 0.0254 },
+  yd:  { symbol: "yd",  nameKey: "math.unit.yard",        dim: [1,0,0,0,0,0,0], factor: 0.9144 },
+  nmi: { symbol: "nmi", nameKey: "math.unit.nauticalMile",dim: [1,0,0,0,0,0,0], factor: 1852 },
+  /* Mass [0,1,0,0,0,0,0] */
+  kg:  { symbol: "kg",  nameKey: "math.unit.kilogram",    dim: [0,1,0,0,0,0,0], factor: 1 },
+  g:   { symbol: "g",   nameKey: "math.unit.gram",        dim: [0,1,0,0,0,0,0], factor: 0.001 },
+  mg:  { symbol: "mg",  nameKey: "math.unit.milligram",   dim: [0,1,0,0,0,0,0], factor: 1e-6 },
+  "\u00b5g": { symbol: "\u00b5g", nameKey: "math.unit.microgram", dim: [0,1,0,0,0,0,0], factor: 1e-9 },
+  t:   { symbol: "t",   nameKey: "math.unit.ton",         dim: [0,1,0,0,0,0,0], factor: 1000 },
+  lb:  { symbol: "lb",  nameKey: "math.unit.pound",       dim: [0,1,0,0,0,0,0], factor: 0.453592 },
+  oz:  { symbol: "oz",  nameKey: "math.unit.ounce",       dim: [0,1,0,0,0,0,0], factor: 0.0283495 },
+  /* Time [0,0,1,0,0,0,0] */
+  s:   { symbol: "s",   nameKey: "math.unit.second",      dim: [0,0,1,0,0,0,0], factor: 1 },
+  ms:  { symbol: "ms",  nameKey: "math.unit.millisecond", dim: [0,0,1,0,0,0,0], factor: 0.001 },
+  "\u00b5s": { symbol: "\u00b5s", nameKey: "math.unit.microsecond", dim: [0,0,1,0,0,0,0], factor: 1e-6 },
+  min: { symbol: "min", nameKey: "math.unit.minute",      dim: [0,0,1,0,0,0,0], factor: 60 },
+  h:   { symbol: "h",   nameKey: "math.unit.hour",        dim: [0,0,1,0,0,0,0], factor: 3600 },
+  d:   { symbol: "d",   nameKey: "math.unit.day",         dim: [0,0,1,0,0,0,0], factor: 86400 },
+  week:{ symbol: "week",nameKey: "math.unit.week",        dim: [0,0,1,0,0,0,0], factor: 604800 },
+  year:{ symbol: "year",nameKey: "math.unit.year",        dim: [0,0,1,0,0,0,0], factor: 3.15576e7 },
+  /* Temperature [0,0,0,0,1,0,0] — special handling */
+  K:     { symbol: "K",   nameKey: "math.unit.kelvin",     dim: [0,0,0,0,1,0,0], factor: 1, isTemp: true },
+  "\u00b0C": { symbol: "\u00b0C", nameKey: "math.unit.celsius",    dim: [0,0,0,0,1,0,0], factor: 1, isTemp: true },
+  "\u00b0F": { symbol: "\u00b0F", nameKey: "math.unit.fahrenheit", dim: [0,0,0,0,1,0,0], factor: 1, isTemp: true },
+  /* Speed [1,0,-1,0,0,0,0] */
+  "m/s":  { symbol: "m/s",  nameKey: "math.unit.meterPerSecond",    dim: [1,0,-1,0,0,0,0], factor: 1 },
+  "km/h": { symbol: "km/h", nameKey: "math.unit.kilometerPerHour",  dim: [1,0,-1,0,0,0,0], factor: 1/3.6 },
+  mph:    { symbol: "mph",  nameKey: "math.unit.milePerHour",       dim: [1,0,-1,0,0,0,0], factor: 0.44704 },
+  kn:     { symbol: "kn",   nameKey: "math.unit.knot",              dim: [1,0,-1,0,0,0,0], factor: 0.51444 },
+  /* Force [1,1,-2,0,0,0,0] */
+  N:   { symbol: "N",   nameKey: "math.unit.newton",      dim: [1,1,-2,0,0,0,0], factor: 1 },
+  kN:  { symbol: "kN",  nameKey: "math.unit.kilonewton",  dim: [1,1,-2,0,0,0,0], factor: 1000 },
+  dyn: { symbol: "dyn", nameKey: "math.unit.dyne",        dim: [1,1,-2,0,0,0,0], factor: 1e-5 },
+  lbf: { symbol: "lbf", nameKey: "math.unit.poundForce",  dim: [1,1,-2,0,0,0,0], factor: 4.44822 },
+  /* Energy [2,1,-2,0,0,0,0] */
+  J:    { symbol: "J",    nameKey: "math.unit.joule",         dim: [2,1,-2,0,0,0,0], factor: 1 },
+  kJ:   { symbol: "kJ",   nameKey: "math.unit.kilojoule",     dim: [2,1,-2,0,0,0,0], factor: 1000 },
+  MJ:   { symbol: "MJ",   nameKey: "math.unit.megajoule",     dim: [2,1,-2,0,0,0,0], factor: 1e6 },
+  cal:  { symbol: "cal",  nameKey: "math.unit.calorie",       dim: [2,1,-2,0,0,0,0], factor: 4.184 },
+  kcal: { symbol: "kcal", nameKey: "math.unit.kilocalorie",   dim: [2,1,-2,0,0,0,0], factor: 4184 },
+  eV:   { symbol: "eV",   nameKey: "math.unit.electronVolt",  dim: [2,1,-2,0,0,0,0], factor: 1.60218e-19 },
+  kWh:  { symbol: "kWh",  nameKey: "math.unit.kilowattHour",  dim: [2,1,-2,0,0,0,0], factor: 3.6e6 },
+  Wh:   { symbol: "Wh",   nameKey: "math.unit.wattHour",      dim: [2,1,-2,0,0,0,0], factor: 3600 },
+  /* Power [2,1,-3,0,0,0,0] */
+  W:   { symbol: "W",   nameKey: "math.unit.watt",         dim: [2,1,-3,0,0,0,0], factor: 1 },
+  kW:  { symbol: "kW",  nameKey: "math.unit.kilowatt",     dim: [2,1,-3,0,0,0,0], factor: 1000 },
+  MW:  { symbol: "MW",  nameKey: "math.unit.megawatt",     dim: [2,1,-3,0,0,0,0], factor: 1e6 },
+  hp:  { symbol: "hp",  nameKey: "math.unit.horsepower",   dim: [2,1,-3,0,0,0,0], factor: 745.7 },
+  PS:  { symbol: "PS",  nameKey: "math.unit.pferdestaerke",dim: [2,1,-3,0,0,0,0], factor: 735.5 },
+  /* Pressure [-1,1,-2,0,0,0,0] */
+  Pa:   { symbol: "Pa",   nameKey: "math.unit.pascal",      dim: [-1,1,-2,0,0,0,0], factor: 1 },
+  kPa:  { symbol: "kPa",  nameKey: "math.unit.kilopascal",  dim: [-1,1,-2,0,0,0,0], factor: 1000 },
+  MPa:  { symbol: "MPa",  nameKey: "math.unit.megapascal",  dim: [-1,1,-2,0,0,0,0], factor: 1e6 },
+  bar:  { symbol: "bar",  nameKey: "math.unit.bar",         dim: [-1,1,-2,0,0,0,0], factor: 1e5 },
+  mbar: { symbol: "mbar", nameKey: "math.unit.millibar",    dim: [-1,1,-2,0,0,0,0], factor: 100 },
+  atm:  { symbol: "atm",  nameKey: "math.unit.atmosphere",  dim: [-1,1,-2,0,0,0,0], factor: 101325 },
+  psi:  { symbol: "psi",  nameKey: "math.unit.psi",         dim: [-1,1,-2,0,0,0,0], factor: 6894.76 },
+  mmHg: { symbol: "mmHg", nameKey: "math.unit.mmHg",        dim: [-1,1,-2,0,0,0,0], factor: 133.322 },
+  Torr: { symbol: "Torr", nameKey: "math.unit.torr",        dim: [-1,1,-2,0,0,0,0], factor: 133.322 },
+  /* Volume [3,0,0,0,0,0,0] — L is 0.001 m³ */
+  L:    { symbol: "L",    nameKey: "math.unit.liter",          dim: [3,0,0,0,0,0,0], factor: 0.001 },
+  mL:   { symbol: "mL",   nameKey: "math.unit.milliliter",     dim: [3,0,0,0,0,0,0], factor: 1e-6 },
+  "m\u00b3": { symbol: "m\u00b3", nameKey: "math.unit.cubicMeter",  dim: [3,0,0,0,0,0,0], factor: 1 },
+  "cm\u00b3":{ symbol: "cm\u00b3",nameKey: "math.unit.cubicCentimeter",dim:[3,0,0,0,0,0,0],factor:1e-6},
+  gal:  { symbol: "gal",  nameKey: "math.unit.gallon",         dim: [3,0,0,0,0,0,0], factor: 0.00378541 },
+  /* Area [2,0,0,0,0,0,0] */
+  "m\u00b2":  { symbol: "m\u00b2",  nameKey: "math.unit.sqMeter",   dim: [2,0,0,0,0,0,0], factor: 1 },
+  "km\u00b2": { symbol: "km\u00b2", nameKey: "math.unit.sqKm",      dim: [2,0,0,0,0,0,0], factor: 1e6 },
+  "cm\u00b2": { symbol: "cm\u00b2", nameKey: "math.unit.sqCm",      dim: [2,0,0,0,0,0,0], factor: 1e-4 },
+  ha:   { symbol: "ha",   nameKey: "math.unit.hectare",   dim: [2,0,0,0,0,0,0], factor: 10000 },
+  acre: { symbol: "acre", nameKey: "math.unit.acre",      dim: [2,0,0,0,0,0,0], factor: 4046.86 },
+  /* Electric */
+  A:  { symbol: "A",  nameKey: "math.unit.ampere",  dim: [0,0,0,1,0,0,0], factor: 1 },
+  V:  { symbol: "V",  nameKey: "math.unit.volt",    dim: [2,1,-3,-1,0,0,0], factor: 1 },
+  "\u03a9": { symbol: "\u03a9", nameKey: "math.unit.ohm", dim: [2,1,-3,-2,0,0,0], factor: 1 },
+  F:  { symbol: "F",  nameKey: "math.unit.farad",   dim: [-2,-1,4,2,0,0,0], factor: 1 },
+  C:  { symbol: "C",  nameKey: "math.unit.coulomb", dim: [0,0,1,1,0,0,0], factor: 1 },
+  T:  { symbol: "T",  nameKey: "math.unit.tesla",   dim: [0,1,-2,-1,0,0,0], factor: 1 },
+  Wb: { symbol: "Wb", nameKey: "math.unit.weber",   dim: [2,1,-2,-1,0,0,0], factor: 1 },
+  /* Frequency [0,0,-1,0,0,0,0] */
+  Hz:  { symbol: "Hz",  nameKey: "math.unit.hertz",     dim: [0,0,-1,0,0,0,0], factor: 1 },
+  kHz: { symbol: "kHz", nameKey: "math.unit.kilohertz", dim: [0,0,-1,0,0,0,0], factor: 1000 },
+  MHz: { symbol: "MHz", nameKey: "math.unit.megahertz", dim: [0,0,-1,0,0,0,0], factor: 1e6 },
+  GHz: { symbol: "GHz", nameKey: "math.unit.gigahertz", dim: [0,0,-1,0,0,0,0], factor: 1e9 },
+  rpm: { symbol: "rpm", nameKey: "math.unit.rpm",       dim: [0,0,-1,0,0,0,0], factor: 1/60 },
+};
+
+/* Reverse lookup: case-insensitive symbol → key */
+const UNIT_LOOKUP: Record<string, string> = {};
+for (const [key, def] of Object.entries(UNIT_DB)) {
+  UNIT_LOOKUP[key.toLowerCase()] = key;
+  UNIT_LOOKUP[def.symbol.toLowerCase()] = key;
+}
+/* Explicit aliases for common inputs */
+UNIT_LOOKUP["c"] = "\u00b0C"; UNIT_LOOKUP["°c"] = "\u00b0C";
+UNIT_LOOKUP["f"] = "\u00b0F"; UNIT_LOOKUP["°f"] = "\u00b0F";
+UNIT_LOOKUP["k"] = "K";
+UNIT_LOOKUP["ohm"] = "\u03a9";
+UNIT_LOOKUP["um"] = "\u00b5m"; UNIT_LOOKUP["ug"] = "\u00b5g"; UNIT_LOOKUP["us"] = "\u00b5s";
+
+function lookupUnit(s: string): UnitDef | null {
+  const key = UNIT_LOOKUP[s.toLowerCase()] ?? UNIT_LOOKUP[s];
+  return key ? UNIT_DB[key] ?? null : null;
+}
+
+function dimEqual(a: number[], b: number[]): boolean {
+  return a.length === b.length && a.every((v, i) => v === b[i]);
+}
+
+function convertUnits(val: number, from: UnitDef, to: UnitDef): { result: number; steps: string[] } {
+  if (from.isTemp && to.isTemp) {
+    let celsius: number;
+    const steps: string[] = [];
+    if (from.symbol === "\u00b0C") { celsius = val; steps.push(`${val} \u00b0C`); }
+    else if (from.symbol === "\u00b0F") { celsius = (val - 32) * 5/9; steps.push(`(${val} - 32) \u00d7 5/9 = ${celsius.toPrecision(10).replace(/\.?0+$/,"")}\u00b0C`); }
+    else { celsius = val - 273.15; steps.push(`${val} - 273.15 = ${celsius.toPrecision(10).replace(/\.?0+$/,"")}\u00b0C`); }
+    let result: number;
+    if (to.symbol === "\u00b0C") { result = celsius; }
+    else if (to.symbol === "\u00b0F") { result = celsius * 9/5 + 32; steps.push(`${celsius.toPrecision(6).replace(/\.?0+$/,"")} \u00d7 9/5 + 32 = ${result.toPrecision(10).replace(/\.?0+$/,"")} \u00b0F`); }
+    else { result = celsius + 273.15; steps.push(`${celsius.toPrecision(6).replace(/\.?0+$/,"")} + 273.15 = ${result.toPrecision(10).replace(/\.?0+$/,"")} K`); }
+    return { result, steps };
+  }
+  const si = val * from.factor;
+  const result = si / to.factor;
+  const steps = [
+    `${val} ${from.symbol} \u00d7 ${from.factor} = ${si.toPrecision(10).replace(/\.?0+$/,"")} (SI)`,
+    `${si.toPrecision(10).replace(/\.?0+$/,"")} \u00f7 ${to.factor} = ${result.toPrecision(10).replace(/\.?0+$/,"")} ${to.symbol}`,
+  ];
+  return { result, steps };
+}
+
+const CONST_DB: Omit<ConstDef, "nameKey" | "descKey">[] = [
+  { symbol: "c",    value: 299792458,        display: "299 792 458",       unit: "m/s",       cat: "physics" },
+  { symbol: "h",    value: 6.62607015e-34,   display: "6.626\u00d710\u207b\u00b3\u2074", unit: "J\u00b7s", cat: "physics" },
+  { symbol: "\u0127",value:1.054571817e-34,   display: "1.055\u00d710\u207b\u00b3\u2074", unit: "J\u00b7s", cat: "physics" },
+  { symbol: "G",    value: 6.674e-11,        display: "6.674\u00d710\u207b\u00b9\u00b9", unit: "m\u00b3/(kg\u00b7s\u00b2)", cat: "physics" },
+  { symbol: "g",    value: 9.80665,          display: "9.80665",           unit: "m/s\u00b2", cat: "physics" },
+  { symbol: "k_B",  value: 1.380649e-23,     display: "1.381\u00d710\u207b\u00b2\u00b3", unit: "J/K",       cat: "physics" },
+  { symbol: "e",    value: 1.602176634e-19,  display: "1.602\u00d710\u207b\u00b9\u2079", unit: "C",         cat: "physics" },
+  { symbol: "\u03b5\u2080",value:8.854187817e-12,display:"8.854\u00d710\u207b\u00b9\u00b2",unit:"F/m", cat:"physics" },
+  { symbol: "\u00b5\u2080",value:1.25663706212e-6,display:"1.257\u00d710\u207b\u2076",unit:"H/m",cat:"physics" },
+  { symbol: "\u03c3",value:5.670374419e-8,   display: "5.670\u00d710\u207b\u2078", unit: "W/(m\u00b2\u00b7K\u2074)", cat: "physics" },
+  { symbol: "R\u221e",value:1.0973731568e7,  display: "1.097\u00d710\u2077", unit: "m\u207b\u00b9", cat: "physics" },
+  { symbol: "N_A",  value: 6.02214076e23,    display: "6.022\u00d710\u00b2\u00b3", unit: "1/mol", cat: "chemistry" },
+  { symbol: "R",    value: 8.31446261815,    display: "8.314",             unit: "J/(mol\u00b7K)", cat: "chemistry" },
+  { symbol: "F",    value: 96485.33212,      display: "96 485.3",         unit: "C/mol",     cat: "chemistry" },
+  { symbol: "u",    value: 1.66053906660e-27,display: "1.661\u00d710\u207b\u00b2\u2077", unit: "kg", cat: "chemistry" },
+  { symbol: "\u03c0",value:Math.PI,          display: "3.14159 26535",     unit: "",          cat: "math" },
+  { symbol: "e",    value: Math.E,           display: "2.71828 18284",     unit: "",          cat: "math" },
+  { symbol: "\u03c6",value:1.618033988749895, display:"1.61803 39887",     unit: "",          cat: "math" },
+  { symbol: "\u221a2",value:Math.SQRT2,      display: "1.41421 35623",     unit: "",          cat: "math" },
+  { symbol: "ln(2)",value: Math.LN2,         display: "0.69314 71805",     unit: "",          cat: "math" },
+  { symbol: "AU",   value: 1.495978707e11,   display: "1.496\u00d710\u00b9\u00b9", unit: "m", cat: "astronomy" },
+  { symbol: "ly",   value: 9.46073047258e15, display: "9.461\u00d710\u00b9\u2075", unit: "m", cat: "astronomy" },
+  { symbol: "M\u2609",value:1.98892e30,      display: "1.989\u00d710\u00b3\u2070", unit: "kg", cat: "astronomy" },
+  { symbol: "M_E",  value: 5.9722e24,        display: "5.972\u00d710\u00b2\u2074", unit: "kg", cat: "astronomy" },
+  { symbol: "R_E",  value: 6.371e6,          display: "6.371\u00d710\u2076", unit: "m",       cat: "astronomy" },
+];
+
+const DIM_LABELS = ["L","M","T","I","\u0398","N","J"];
+const DIM_QUANTITIES: Record<string, string> = {
+  "1,0,0,0,0,0,0":  "math.dim.length",
+  "0,1,0,0,0,0,0":  "math.dim.mass",
+  "0,0,1,0,0,0,0":  "math.dim.time",
+  "0,0,0,1,0,0,0":  "math.dim.current",
+  "0,0,0,0,1,0,0":  "math.dim.temperature",
+  "1,0,-1,0,0,0,0": "math.dim.velocity",
+  "1,0,-2,0,0,0,0": "math.dim.acceleration",
+  "1,1,-2,0,0,0,0": "math.dim.force",
+  "2,1,-2,0,0,0,0": "math.dim.energy",
+  "2,1,-3,0,0,0,0": "math.dim.power",
+  "-1,1,-2,0,0,0,0":"math.dim.pressure",
+  "0,0,-1,0,0,0,0": "math.dim.frequency",
+  "3,0,0,0,0,0,0":  "math.dim.volume",
+  "2,0,0,0,0,0,0":  "math.dim.area",
+  "2,1,-3,-1,0,0,0":"math.dim.voltage",
+  "2,1,-3,-2,0,0,0":"math.dim.resistance",
+  "0,0,1,1,0,0,0":  "math.dim.charge",
+};
+
+function UnitsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
   const { t } = useTranslation();
-  const [tab, setTab] = useState<"convert" | "constants" | "bases">("convert");
-  const [group, setGroup] = useState(0);
-  const [fromUnit, setFromUnit] = useState(0);
-  const [toUnit, setToUnit] = useState(1);
-  const [value, setValue] = useState("1");
-  const [baseInput, setBaseInput] = useState("255");
-  const [baseFrom, setBaseFrom] = useState(10);
+  const [tab, setTab] = useState<"converter"|"constants"|"formula"|"dimAnalysis"|"bases">("converter");
   const [moduleId, setModuleId] = useState<string | null>(null);
 
-  const unitGroups = useMemo(() => getUnitGroups(t), [t]);
-  const constants = useMemo(() => getConstants(t), [t]);
-  const currentGroup = unitGroups[group];
-  const isTemp = currentGroup.label === t("math.unit.temperature");
-
-  const convertResult = useMemo(() => {
-    const v = Number(value);
-    if (isNaN(v)) return "—";
-    if (isTemp) {
-      const fromSym = currentGroup.units[fromUnit].symbol;
-      const toSym = currentGroup.units[toUnit].symbol;
-      return convertTemp(v, fromSym, toSym).toPrecision(10).replace(/\.?0+$/, "");
+  /* ── Tab 1: Smart Converter ────────────────────────────────────── */
+  const [convInput, setConvInput] = useState("");
+  const convResult = useMemo<ConvResult | ConvError | null>(() => {
+    const s = convInput.trim();
+    if (!s) return null;
+    // pattern: number unit (in|to|→|nach) unit
+    const m = s.match(/^([\d.,]+)\s*(.+?)\s+(?:in|to|nach|\u2192)\s+(.+)$/i);
+    if (!m) return { error: t("math.units.invalidFormat") };
+    const val = parseFloat(m[1].replace(",", "."));
+    if (isNaN(val)) return { error: t("math.units.invalidNumber") };
+    const fromDef = lookupUnit(m[2].trim());
+    const toDef = lookupUnit(m[3].trim());
+    if (!fromDef) return { error: t("math.units.unknownUnit") + `: "${m[2].trim()}"` };
+    if (!toDef) return { error: t("math.units.unknownUnit") + `: "${m[3].trim()}"` };
+    if (!dimEqual(fromDef.dim, toDef.dim)) {
+      const fromQ = DIM_QUANTITIES[fromDef.dim.join(",")] || "?";
+      const toQ = DIM_QUANTITIES[toDef.dim.join(",")] || "?";
+      return { error: t("math.units.dimMismatch") + ` (${t(fromQ)} \u2260 ${t(toQ)})` };
     }
-    const fromF = currentGroup.units[fromUnit].factor;
-    const toF = currentGroup.units[toUnit].factor;
-    return ((v * fromF) / toF).toPrecision(10).replace(/\.?0+$/, "");
-  }, [value, group, fromUnit, toUnit, isTemp, currentGroup]);
+    const { result, steps } = convertUnits(val, fromDef, toDef);
+    return { value: result, display: result.toPrecision(10).replace(/\.?0+$/, ""), from: fromDef.symbol, to: toDef.symbol, steps };
+  }, [convInput, t]);
 
+  const [showSteps, setShowSteps] = useState(false);
+
+  const favorites = useMemo(() => [
+    { q: "1 km/h in m/s",  label: "km/h \u2194 m/s" },
+    { q: "1 \u00b0C in K", label: "\u00b0C \u2194 K" },
+    { q: "1 bar in Pa",    label: "bar \u2194 Pa" },
+    { q: "1 kJ in kcal",   label: "kJ \u2194 kcal" },
+    { q: "1 atm in Pa",    label: "atm \u2194 Pa" },
+    { q: "1 hp in kW",     label: "hp \u2194 kW" },
+    { q: "1 mi in km",     label: "mi \u2194 km" },
+    { q: "1 lb in kg",     label: "lb \u2194 kg" },
+  ], []);
+
+  /* ── Tab 2: Constants ──────────────────────────────────────────── */
+  const [constSearch, setConstSearch] = useState("");
+  const [constCat, setConstCat] = useState("all");
+
+  const constList = useMemo(() => CONST_DB.map((c, i) => ({
+    ...c,
+    name: t(`math.const.${["lightSpeed","planck","reducedPlanck","gravity","earthGravity","boltzmann","elemCharge","vacuumPerm","vacuumPermMag","stefanBoltzmann","rydberg","avogadro","gasConst","faradayConst","atomicMassUnit","pi","euler","goldenRatio","sqrt2","ln2","au","lightYear","solarMass","earthMass","earthRadius"][i]}`),
+    desc: t(`math.const.desc.${["lightSpeed","planck","reducedPlanck","gravity","earthGravity","boltzmann","elemCharge","vacuumPerm","vacuumPermMag","stefanBoltzmann","rydberg","avogadro","gasConst","faradayConst","atomicMassUnit","pi","euler","goldenRatio","sqrt2","ln2","au","lightYear","solarMass","earthMass","earthRadius"][i]}`),
+  })), [t]);
+
+  const filteredConsts = useMemo(() => {
+    let list = constList;
+    if (constCat !== "all") list = list.filter(c => c.cat === constCat);
+    if (constSearch) {
+      const q = constSearch.toLowerCase();
+      list = list.filter(c => c.name.toLowerCase().includes(q) || c.symbol.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q));
+    }
+    return list;
+  }, [constList, constCat, constSearch]);
+
+  /* ── Tab 3: Formula Calculator ─────────────────────────────────── */
+  const [fExpr, setFExpr] = useState("");
+  const [fVars, setFVars] = useState<Record<string, string>>({});
+
+  const presetFormulas = useMemo(() => [
+    { label: "F = m \u00b7 a",           expr: "F = m * a",      hint: t("math.formula.force") },
+    { label: "E = m \u00b7 c\u00b2",     expr: "E = m * c^2",    hint: t("math.formula.energy") },
+    { label: "P = U \u00b7 I",           expr: "P = U * I",      hint: t("math.formula.power") },
+    { label: "E = \u00bd\u00b7m\u00b7v\u00b2", expr: "E = 0.5*m*v^2", hint: t("math.formula.kinetic") },
+    { label: "p = F / A",               expr: "p = F / A",      hint: t("math.formula.pressure") },
+    { label: "W = F \u00b7 s",           expr: "W = F * s",      hint: t("math.formula.work") },
+    { label: "v = s / t",               expr: "v = s / t",      hint: t("math.formula.velocity") },
+    { label: "U = R \u00b7 I",           expr: "U = R * I",      hint: t("math.formula.ohm") },
+  ], [t]);
+
+  const fParsed = useMemo(() => {
+    if (!fExpr) return null;
+    // split on =
+    const parts = fExpr.split("=").map(p => p.trim());
+    if (parts.length !== 2) return null;
+    const lhs = parts[0];
+    const rhs = parts[1];
+    // extract variable names (single uppercase or lowercase letters, or multi-char)
+    const varNames = (rhs.match(/[a-zA-Z_]\w*/g) || []).filter(v => !["sin","cos","tan","log","ln","sqrt","abs","exp","PI","pi"].includes(v));
+    return { lhs, rhs, vars: Array.from(new Set(varNames)) };
+  }, [fExpr]);
+
+  useEffect(() => {
+    if (fParsed) {
+      setFVars(prev => {
+        const next: Record<string, string> = {};
+        fParsed.vars.forEach(v => { next[v] = prev[v] || ""; });
+        return next;
+      });
+    }
+  }, [fParsed]);
+
+  const fResult = useMemo(() => {
+    if (!fParsed) return null;
+    const allFilled = fParsed.vars.every(v => fVars[v] && !isNaN(parseFloat(fVars[v])));
+    if (!allFilled) return null;
+    try {
+      // Build known constants
+      const knownConsts: Record<string, number> = { c: 299792458, g: 9.80665, pi: Math.PI, PI: Math.PI, e: Math.E };
+      CONST_DB.forEach(cd => { if (cd.symbol.length <= 3 && !cd.symbol.includes("(")) knownConsts[cd.symbol] = cd.value; });
+      let expr = fParsed.rhs;
+      // substitute variables
+      for (const [v, val] of Object.entries(fVars)) {
+        expr = expr.replace(new RegExp(`\\b${v}\\b`, "g"), `(${parseFloat(val)})`);
+      }
+      // substitute known constants that weren't overridden by variables
+      for (const [k, val] of Object.entries(knownConsts)) {
+        if (!fVars[k]) expr = expr.replace(new RegExp(`\\b${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, "g"), `(${val})`);
+      }
+      expr = expr.replace(/\^/g, "**");
+      if (/[a-zA-Z_]/.test(expr.replace(/Math\.\w+/g, "").replace(/Infinity|NaN/g, ""))) return null;
+      const result = Function(`"use strict"; return (${expr})`)();
+      if (typeof result !== "number" || !isFinite(result)) return null;
+      return { lhs: fParsed.lhs, value: result, display: result.toPrecision(10).replace(/\.?0+$/, "") };
+    } catch { return null; }
+  }, [fParsed, fVars]);
+
+  /* ── Tab 4: Dimensional Analysis ───────────────────────────────── */
+  const [dimInput, setDimInput] = useState("");
+  const dimResult = useMemo(() => {
+    const s = dimInput.trim();
+    if (!s) return null;
+    const u = lookupUnit(s);
+    if (u) {
+      const key = u.dim.join(",");
+      const qKey = DIM_QUANTITIES[key];
+      const eqs: string[] = [];
+      Object.values(UNIT_DB).forEach(d => { if (dimEqual(d.dim, u.dim) && d.symbol !== u.symbol && d.symbol.length <= 5) eqs.push(d.symbol); });
+      // SI decomposition
+      const siParts: string[] = [];
+      const siBase = ["m","kg","s","A","K","mol","cd"];
+      u.dim.forEach((exp, i) => { if (exp !== 0) siParts.push(exp === 1 ? siBase[i] : `${siBase[i]}${exp < 0 ? "\u207b" : ""}${Math.abs(exp) === 1 ? "\u00b9" : Math.abs(exp) === 2 ? "\u00b2" : Math.abs(exp) === 3 ? "\u00b3" : String(Math.abs(exp))}`); });
+      return { dim: u.dim, quantity: qKey ? t(qKey) : t("math.dim.unknown"), equivalents: Array.from(new Set(eqs)).slice(0, 10), siDecomp: siParts.join("\u00b7") || "1", dimStr: u.dim.map((v, i) => `${DIM_LABELS[i]}:${v}`).join(", ") };
+    }
+    return null;
+  }, [dimInput, t]);
+
+  /* ── Tab 5: Number Systems ─────────────────────────────────────── */
+  const [baseInput, setBaseInput] = useState("255");
+  const [baseFrom, setBaseFrom] = useState(10);
   const baseResults = useMemo(() => {
     const num = parseInt(baseInput, baseFrom);
-    if (isNaN(num)) return null;
-    return { bin: numberToBase(num, 2, t), oct: numberToBase(num, 8, t), dec: numberToBase(num, 10, t), hex: numberToBase(num, 16, t) };
-  }, [baseInput, baseFrom, t]);
+    if (isNaN(num) || num < 0) return null;
+    const res: Record<string, string> = {
+      bin: num.toString(2),
+      oct: num.toString(8),
+      dec: num.toString(10),
+      hex: num.toString(16).toUpperCase(),
+    };
+    if (num >= 0 && num < 256) res.bits = num.toString(2).padStart(8, "0").split("").join(" ");
+    if (num >= 32 && num <= 126) res.ascii = String.fromCharCode(num);
+    if (!Number.isInteger(num)) return null;
+    return res;
+  }, [baseInput, baseFrom]);
 
-  const handleSaveConvert = () => {
-    const from = currentGroup.units[fromUnit];
-    const to = currentGroup.units[toUnit];
-    onSave("units", `${value} ${from.symbol} → ${to.symbol}`, `${convertResult} ${to.symbol}`, moduleId);
-  };
+  /* ── Render ────────────────────────────────────────────────────── */
+  const tabs: [string, string][] = [
+    ["converter", t("math.units.smartConverter")],
+    ["constants", t("math.units.constants")],
+    ["formula", t("math.units.formulaCalc")],
+    ["dimAnalysis", t("math.units.dimAnalysis")],
+    ["bases", t("math.units.numberSystems")],
+  ];
 
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <h2 className="text-lg font-semibold text-surface-900">{t("math.unitsConstants")}</h2>
-        <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 min-w-0 self-start sm:self-auto">
+        <select value={moduleId || ""} onChange={e => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-3 py-1.5 border border-surface-200">
           <option value="">{t("math.noModule")}</option>
-          {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+          {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
       </div>
 
-      <div className="flex gap-2 mb-6">
-        {([["convert", t("math.converter")], ["constants", t("math.constants")], ["bases", t("math.numberSystems")]] as [string, string][]).map(([k, l]) => (
-          <button key={k} onClick={() => setTab(k as typeof tab)} className={`px-4 py-2 rounded-lg text-sm ${tab === k ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{l}</button>
+      <div className="flex flex-wrap gap-2 mb-6">
+        {tabs.map(([k, l]) => (
+          <button key={k} onClick={() => setTab(k as typeof tab)} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${tab === k ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-700 hover:bg-surface-200"}`}>{l}</button>
         ))}
       </div>
 
-      {tab === "convert" && (
-        <div>
-          {/* Group selector */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {unitGroups.map((g, i) => (
-              <button key={g.label} onClick={() => { setGroup(i); setFromUnit(0); setToUnit(1); }} className={`px-3 py-1.5 rounded-lg text-sm ${group === i ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{g.label}</button>
+      {/* ═══ TAB 1: Smart Converter ═══ */}
+      {tab === "converter" && (
+        <div className="space-y-4">
+          <div className="bg-surface-100 rounded-xl p-4 sm:p-6">
+            <label className="block text-sm font-medium text-surface-900 mb-2">{t("math.units.enterConversion")}</label>
+            <input value={convInput} onChange={e => setConvInput(e.target.value)} placeholder={t("math.units.exampleConversion")} className="w-full bg-white text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-sm" autoFocus />
+
+            {convResult && "error" in convResult && (
+              <div className="mt-3 bg-danger-600/10 border border-danger-600/30 rounded-lg px-4 py-3">
+                <p className="text-danger-600 text-sm">{convResult.error}</p>
+              </div>
+            )}
+
+            {convResult && "value" in convResult && (() => {
+              const cr = convResult as ConvResult;
+              return (
+                <div className="mt-4">
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-success-600 text-2xl font-mono font-semibold">{cr.display}</span>
+                    <span className="text-surface-500 text-sm">{cr.to}</span>
+                  </div>
+                  <button onClick={() => setShowSteps(!showSteps)} className="text-brand-600 text-xs mt-2 hover:text-brand-500">
+                    {showSteps ? t("math.units.hideSteps") : t("math.units.showSteps")}
+                  </button>
+                  {showSteps && (
+                    <div className="mt-2 bg-white rounded-lg p-3 space-y-1">
+                      {cr.steps.map((step: string, i: number) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <span className="text-brand-600 text-xs font-mono w-5">{i + 1}.</span>
+                          <span className="text-surface-700 text-xs font-mono">{step}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="mt-3">
+                    <button onClick={() => { if (checkLimit && !checkLimit()) return; onSave("units", `${convInput}`, `${cr.display} ${cr.to}`, moduleId); }} className="text-brand-600 text-sm hover:text-brand-500">
+                      {t("math.saveToHistory")}
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* Favorites */}
+          <div className="bg-surface-100 rounded-xl p-4">
+            <p className="text-xs font-medium text-surface-700 mb-2">{t("math.units.favorites")}</p>
+            <div className="flex flex-wrap gap-2">
+              {favorites.map(f => (
+                <button key={f.label} onClick={() => setConvInput(f.q)} className="px-3 py-1.5 rounded-lg bg-white border border-surface-200 text-surface-700 hover:bg-surface-200 text-xs font-mono">{f.label}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Supported units hint */}
+          <details className="text-surface-400 text-xs">
+            <summary className="cursor-pointer font-medium text-surface-500 hover:text-surface-700">{t("math.units.supportedUnits")}</summary>
+            <div className="mt-2 bg-surface-100 rounded-lg p-3 grid grid-cols-2 sm:grid-cols-4 gap-1">
+              {Object.values(UNIT_DB).slice(0, 40).map(u => (
+                <span key={u.symbol} className="text-surface-600 font-mono">{u.symbol}</span>
+              ))}
+              <span className="text-surface-400">...</span>
+            </div>
+          </details>
+        </div>
+      )}
+
+      {/* ═══ TAB 2: Constants ═══ */}
+      {tab === "constants" && (
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input value={constSearch} onChange={e => setConstSearch(e.target.value)} placeholder={t("math.units.searchConstants")} className="flex-1 bg-surface-100 text-surface-900 rounded-lg px-4 py-2 border border-surface-200 text-sm" />
+            <select value={constCat} onChange={e => setConstCat(e.target.value)} className="bg-surface-100 text-surface-700 rounded-lg px-4 py-2 border border-surface-200 text-sm">
+              <option value="all">{t("math.units.allCategories")}</option>
+              <option value="physics">{t("math.units.category.physics")}</option>
+              <option value="chemistry">{t("math.units.category.chemistry")}</option>
+              <option value="math">{t("math.units.category.math")}</option>
+              <option value="astronomy">{t("math.units.category.astronomy")}</option>
+            </select>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+            {filteredConsts.map((c, i) => (
+              <div key={`${c.symbol}-${i}`} onClick={() => navigator.clipboard?.writeText(c.symbol)} className="bg-surface-100 rounded-lg px-4 py-3 cursor-pointer hover:bg-surface-200 transition group">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-brand-600 font-mono text-sm font-semibold">{c.symbol}</span>
+                      <span className="text-surface-900 text-sm font-medium truncate">{c.name}</span>
+                    </div>
+                    <p className="text-surface-400 text-xs mt-0.5">{c.desc}</p>
+                  </div>
+                  <div className="text-right shrink-0 ml-2">
+                    <div className="text-success-600 font-mono text-xs">{c.display}</div>
+                    {c.unit && <div className="text-surface-400 text-xs">{c.unit}</div>}
+                  </div>
+                </div>
+                <p className="text-surface-400 text-xs mt-1 opacity-0 group-hover:opacity-100 transition">{t("math.units.clickToCopy")}</p>
+              </div>
             ))}
           </div>
+        </div>
+      )}
 
+      {/* ═══ TAB 3: Formula Calculator ═══ */}
+      {tab === "formula" && (
+        <div className="space-y-4">
           <div className="bg-surface-100 rounded-xl p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center">
-              <div className="text-center w-full sm:w-auto">
-                <input value={value} onChange={(e) => setValue(e.target.value)} className="w-full sm:w-40 bg-white text-surface-900 text-lg sm:text-xl rounded-lg px-4 py-3 border border-surface-200 font-mono text-center" />
-                <select value={fromUnit} onChange={(e) => setFromUnit(Number(e.target.value))} className="mt-2 w-full sm:w-40 bg-white text-surface-700 rounded-lg px-3 py-2 border border-surface-200 text-sm">
-                  {currentGroup.units.map((u, i) => <option key={i} value={i}>{u.name} ({u.symbol})</option>)}
-                </select>
-              </div>
-              <button onClick={() => { setFromUnit(toUnit); setToUnit(fromUnit); }} className="text-2xl text-surface-500 hover:text-brand-600 rotate-90 sm:rotate-0">⇄</button>
-              <div className="text-center w-full sm:w-auto">
-                <div className="w-full sm:w-40 text-success-600 text-lg sm:text-xl font-mono py-3 px-4 text-center break-all">{convertResult}</div>
-                <select value={toUnit} onChange={(e) => setToUnit(Number(e.target.value))} className="mt-2 w-full sm:w-40 bg-white text-surface-700 rounded-lg px-3 py-2 border border-surface-200 text-sm">
-                  {currentGroup.units.map((u, i) => <option key={i} value={i}>{u.name} ({u.symbol})</option>)}
-                </select>
-              </div>
+            <label className="block text-sm font-medium text-surface-900 mb-2">{t("math.units.enterFormula")}</label>
+            <input value={fExpr} onChange={e => setFExpr(e.target.value)} placeholder="E = m * c^2" className="w-full bg-white text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-sm" />
+
+            {/* Preset formulas */}
+            <div className="flex flex-wrap gap-2 mt-3">
+              {presetFormulas.map(pf => (
+                <button key={pf.expr} onClick={() => setFExpr(pf.expr)} className={`px-3 py-1.5 rounded-lg text-xs border transition ${fExpr === pf.expr ? "bg-brand-600 text-white border-brand-600" : "bg-white border-surface-200 text-surface-700 hover:bg-surface-200"}`} title={pf.hint}>
+                  {pf.label}
+                </button>
+              ))}
             </div>
-            <div className="text-center mt-4">
-              <button onClick={handleSaveConvert} className="text-brand-600 text-sm hover:text-brand-500">💾 {t("math.saveToHistory")}</button>
+
+            {/* Variable inputs */}
+            {fParsed && fParsed.vars.length > 0 && (
+              <div className="mt-4 bg-white rounded-lg p-4 space-y-3">
+                <p className="text-xs font-medium text-surface-700">{t("math.units.variables")}</p>
+                {fParsed.vars.map(v => (
+                  <div key={v} className="flex items-center gap-3">
+                    <span className="text-surface-900 font-mono text-sm w-8 shrink-0">{v} =</span>
+                    <input value={fVars[v] || ""} onChange={e => setFVars(prev => ({ ...prev, [v]: e.target.value }))} placeholder="0" className="flex-1 bg-surface-50 text-surface-900 rounded-lg px-3 py-2 border border-surface-200 font-mono text-sm" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Result */}
+            {fResult && (
+              <div className="mt-4 bg-white rounded-lg p-4">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-surface-700 font-mono text-sm">{fResult.lhs} =</span>
+                  <span className="text-success-600 text-xl font-mono font-semibold">{fResult.display}</span>
+                </div>
+                <div className="mt-2">
+                  <button onClick={() => { if (checkLimit && !checkLimit()) return; onSave("units", fExpr, `${fResult.lhs} = ${fResult.display}`, moduleId); }} className="text-brand-600 text-sm hover:text-brand-500">{t("math.saveToHistory")}</button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Constants hint */}
+          <p className="text-surface-400 text-xs px-2">{t("math.units.constantsHint")}</p>
+        </div>
+      )}
+
+      {/* ═══ TAB 4: Dimensional Analysis ═══ */}
+      {tab === "dimAnalysis" && (
+        <div className="space-y-4">
+          <div className="bg-surface-100 rounded-xl p-4 sm:p-6">
+            <label className="block text-sm font-medium text-surface-900 mb-2">{t("math.units.dimAnalysis")}</label>
+            <input value={dimInput} onChange={e => setDimInput(e.target.value)} placeholder={t("math.units.dimPlaceholder")} className="w-full bg-white text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-sm" />
+
+            {/* Quick unit chips */}
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              {["N", "J", "Pa", "W", "V", "Hz", "T", "C"].map(u => (
+                <button key={u} onClick={() => setDimInput(u)} className={`px-2.5 py-1 rounded text-xs font-mono transition ${dimInput === u ? "bg-brand-600 text-white" : "bg-white border border-surface-200 text-surface-700 hover:bg-surface-200"}`}>{u}</button>
+              ))}
             </div>
+
+            {dimResult && (
+              <div className="mt-4 space-y-3">
+                {/* SI Decomposition */}
+                <div className="bg-white rounded-lg p-3">
+                  <p className="text-xs text-surface-400 font-medium mb-1">{t("math.units.siDecomposition")}</p>
+                  <p className="text-surface-900 font-mono text-lg">{dimResult.siDecomp}</p>
+                </div>
+
+                {/* Dimension Vector */}
+                <div className="bg-white rounded-lg p-3">
+                  <p className="text-xs text-surface-400 font-medium mb-2">{t("math.units.dimVector")}</p>
+                  <div className="flex gap-2">
+                    {dimResult.dim.map((v, i) => (
+                      <div key={i} className={`flex flex-col items-center px-2 py-1 rounded ${v !== 0 ? "bg-brand-600/10" : "bg-surface-100"}`}>
+                        <span className="text-xs text-surface-500">{DIM_LABELS[i]}</span>
+                        <span className={`font-mono text-sm font-medium ${v !== 0 ? "text-brand-600" : "text-surface-400"}`}>{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Physical Quantity */}
+                <div className="bg-white rounded-lg p-3">
+                  <p className="text-xs text-surface-400 font-medium mb-1">{t("math.units.physicalQuantity")}</p>
+                  <p className="text-success-600 font-medium">{dimResult.quantity}</p>
+                </div>
+
+                {/* Equivalent Units */}
+                {dimResult.equivalents.length > 0 && (
+                  <div className="bg-white rounded-lg p-3">
+                    <p className="text-xs text-surface-400 font-medium mb-2">{t("math.units.equivalent")}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {dimResult.equivalents.map(eq => (
+                        <span key={eq} className="px-2.5 py-1 rounded-lg bg-brand-600/10 text-brand-600 text-xs font-mono font-medium">{eq}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {dimInput && !dimResult && (
+              <p className="text-danger-600 text-sm mt-3">{t("math.units.unknownUnit")}: &quot;{dimInput}&quot;</p>
+            )}
           </div>
         </div>
       )}
 
-      {tab === "constants" && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3">
-          {constants.map((c) => (
-            <div key={c.name} className="bg-surface-100 rounded-lg px-4 py-3 flex items-center justify-between">
-              <div>
-                <div className="text-surface-900 text-sm font-medium">{c.name}</div>
-                <div className="text-surface-400 text-xs">{c.unit}</div>
-              </div>
-              <div className="text-right">
-                <div className="text-brand-600 font-mono text-sm">{c.symbol}</div>
-                <div className="text-success-600 font-mono text-sm">{c.value}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
+      {/* ═══ TAB 5: Number Systems ═══ */}
       {tab === "bases" && (
         <div className="bg-surface-100 rounded-xl p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mb-6">
-            <input value={baseInput} onChange={(e) => setBaseInput(e.target.value)} className="flex-1 bg-white text-surface-900 text-lg sm:text-xl rounded-lg px-4 py-3 border border-surface-200 font-mono min-w-0" placeholder={t("math.enterNumber")} />
-            <select value={baseFrom} onChange={(e) => setBaseFrom(Number(e.target.value))} className="bg-white text-surface-700 rounded-lg px-3 py-3 border border-surface-200 text-sm">
+            <input value={baseInput} onChange={e => setBaseInput(e.target.value)} className="flex-1 bg-white text-surface-900 text-lg rounded-lg px-4 py-3 border border-surface-200 font-mono min-w-0" placeholder={t("math.enterNumber")} />
+            <select value={baseFrom} onChange={e => setBaseFrom(Number(e.target.value))} className="bg-white text-surface-700 rounded-lg px-3 py-3 border border-surface-200 text-sm">
               <option value={2}>{t("math.binary")} (2)</option>
               <option value={8}>{t("math.octal")} (8)</option>
               <option value={10}>{t("math.decimal")} (10)</option>
               <option value={16}>{t("math.hexadecimal")} (16)</option>
             </select>
           </div>
-          {baseResults && (
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                [t("math.binary") + " (2)", baseResults.bin, "BIN"],
-                [t("math.octal") + " (8)", baseResults.oct, "OCT"],
-                [t("math.decimal") + " (10)", baseResults.dec, "DEC"],
-                [t("math.hexadecimal") + " (16)", baseResults.hex, "HEX"],
-              ].map(([label, val, tag]) => (
-                <div key={label} className="bg-white rounded-lg px-4 py-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-surface-400 text-xs">{label}</span>
-                    <span className="text-brand-600 text-xs font-mono">{tag}</span>
+          {baseResults ? (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                {([
+                  [t("math.binary") + " (2)", baseResults.bin, "BIN"],
+                  [t("math.octal") + " (8)", baseResults.oct, "OCT"],
+                  [t("math.decimal") + " (10)", baseResults.dec, "DEC"],
+                  [t("math.hexadecimal") + " (16)", baseResults.hex, "HEX"],
+                ] as [string, string, string][]).map(([label, val, tag]) => (
+                  <div key={label} className="bg-white rounded-lg px-4 py-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-surface-400 text-xs">{label}</span>
+                      <span className="text-brand-600 text-xs font-mono">{tag}</span>
+                    </div>
+                    <div className="text-success-600 font-mono text-lg break-all">{val}</div>
                   </div>
-                  <div className="text-success-600 font-mono text-lg break-all">{val}</div>
+                ))}
+              </div>
+              {baseResults.bits && (
+                <div className="bg-white rounded-lg px-4 py-3">
+                  <p className="text-xs text-surface-400 font-medium mb-2">{t("math.units.bitView")}</p>
+                  <div className="flex gap-1 justify-center">
+                    {baseResults.bits.split(" ").map((bit, i) => (
+                      <div key={i} className={`w-8 h-8 flex items-center justify-center rounded text-sm font-mono font-medium ${bit === "1" ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-400"}`}>{bit}</div>
+                    ))}
+                  </div>
+                  <div className="flex gap-1 justify-center mt-0.5">
+                    {[7,6,5,4,3,2,1,0].map(i => <div key={i} className="w-8 text-center text-surface-400 text-xs">{i}</div>)}
+                  </div>
                 </div>
-              ))}
+              )}
+              {baseResults.ascii && (
+                <div className="bg-white rounded-lg px-4 py-3">
+                  <p className="text-xs text-surface-400 font-medium mb-1">{t("math.units.asciiChar")}</p>
+                  <p className="text-brand-600 text-2xl font-mono">&quot;{baseResults.ascii}&quot;</p>
+                </div>
+              )}
             </div>
+          ) : baseInput && (
+            <p className="text-danger-600 text-sm">{t("math.integerOnly")}</p>
           )}
         </div>
       )}
