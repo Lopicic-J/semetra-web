@@ -509,138 +509,443 @@ function CalculatorTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/* TOOL 2: Equation Solver                                                    */
+/* TOOL 2: Equation Solver & Formula Rearrangement (Complete Overhaul)        */
 /* ═══════════════════════════════════════════════════════════════════════════ */
+
+interface SolverStep {
+  expr: string;
+  op: string;
+}
+
+interface SolverResult {
+  type: string;
+  steps: SolverStep[];
+  solutions: string[];
+  domain: string;
+  notes: string;
+  error: string | null;
+}
+
+/* ── Client-side step-by-step for common cases ────────────────────── */
+
+function solveLinearSteps(a: number, b: number, c: number): SolverResult {
+  // ax + b = c
+  if (a === 0) {
+    if (b === c) return { type: "linear", steps: [{ expr: `${b} = ${c}`, op: "Wahre Aussage" }], solutions: ["x ∈ ℝ (unendlich viele Lösungen)"], domain: "D = ℝ", notes: "Die Gleichung ist für alle x erfüllt.", error: null };
+    return { type: "linear", steps: [{ expr: `${b} = ${c}`, op: "Falsche Aussage" }], solutions: [], domain: "D = ℝ", notes: "Widerspruch — keine Lösung.", error: null };
+  }
+  const steps: SolverStep[] = [
+    { expr: `${a}x + ${b} = ${c}`, op: "Ausgangsgleichung" },
+  ];
+  if (b !== 0) {
+    steps.push({ expr: `${a}x = ${c - b}`, op: `| ${b > 0 ? "−" : "+"}${Math.abs(b)} auf beiden Seiten` });
+  }
+  const result = (c - b) / a;
+  if (a !== 1) {
+    steps.push({ expr: `x = ${fmt(result)}`, op: `| ÷${a}` });
+  }
+  return { type: "linear", steps, solutions: [`x = ${fmt(result)}`], domain: "D = ℝ", notes: "", error: null };
+}
+
+function solveQuadraticSteps(a: number, b: number, c: number): SolverResult {
+  if (a === 0) return solveLinearSteps(b, c, 0);
+  const steps: SolverStep[] = [
+    { expr: `${a}x² + ${b}x + ${c} = 0`, op: "Ausgangsgleichung (quadratisch)" },
+  ];
+
+  const disc = b * b - 4 * a * c;
+  steps.push({ expr: `D = b² − 4ac = ${b}² − 4·${a}·${c} = ${fmt(disc)}`, op: "Diskriminante berechnen" });
+
+  if (disc < 0) {
+    const re = fmt(-b / (2 * a));
+    const im = fmt(Math.sqrt(-disc) / (2 * a));
+    steps.push({ expr: `D < 0 → komplexe Lösungen`, op: "Diskriminante negativ" });
+    steps.push({ expr: `x₁ = ${re} + ${im}i`, op: "Mitternachtsformel" });
+    steps.push({ expr: `x₂ = ${re} − ${im}i`, op: "" });
+    return { type: "quadratic", steps, solutions: [`x₁ = ${re} + ${im}i`, `x₂ = ${re} − ${im}i`], domain: "D = ℝ (keine reellen Lösungen)", notes: "Die Diskriminante ist negativ → zwei konjugiert komplexe Lösungen.", error: null };
+  }
+
+  if (disc === 0) {
+    const x = -b / (2 * a);
+    steps.push({ expr: `D = 0 → doppelte Nullstelle`, op: "Diskriminante = 0" });
+    steps.push({ expr: `x = −b/(2a) = ${fmt(-b)}/(2·${a}) = ${fmt(x)}`, op: "Mitternachtsformel" });
+    return { type: "quadratic", steps, solutions: [`x = ${fmt(x)} (doppelte Nullstelle)`], domain: "D = ℝ", notes: "", error: null };
+  }
+
+  const sqrtD = Math.sqrt(disc);
+  const x1 = (-b + sqrtD) / (2 * a);
+  const x2 = (-b - sqrtD) / (2 * a);
+  steps.push({ expr: `D > 0 → zwei reelle Lösungen`, op: "Diskriminante positiv" });
+  steps.push({ expr: `√D = √${fmt(disc)} = ${fmt(sqrtD)}`, op: "Wurzel der Diskriminante" });
+  steps.push({ expr: `x₁ = (−${b} + ${fmt(sqrtD)}) / (2·${a}) = ${fmt(x1)}`, op: "Mitternachtsformel (x₁)" });
+  steps.push({ expr: `x₂ = (−${b} − ${fmt(sqrtD)}) / (2·${a}) = ${fmt(x2)}`, op: "Mitternachtsformel (x₂)" });
+
+  // Vieta check
+  steps.push({ expr: `Probe: x₁ + x₂ = ${fmt(x1 + x2)} = −b/a = ${fmt(-b / a)} ✓`, op: "Vieta-Kontrolle" });
+
+  return { type: "quadratic", steps, solutions: [`x₁ = ${fmt(x1)}`, `x₂ = ${fmt(x2)}`], domain: "D = ℝ", notes: "", error: null };
+}
+
+function solveSystem2Steps(a1: number, b1: number, c1: number, a2: number, b2: number, c2: number): SolverResult {
+  const steps: SolverStep[] = [
+    { expr: `${a1}x + ${b1}y = ${c1}`, op: "Gleichung I" },
+    { expr: `${a2}x + ${b2}y = ${c2}`, op: "Gleichung II" },
+  ];
+  const det = a1 * b2 - a2 * b1;
+  steps.push({ expr: `det(A) = ${a1}·${b2} − ${a2}·${b1} = ${fmt(det)}`, op: "Determinante berechnen" });
+
+  if (det === 0) {
+    return { type: "system", steps, solutions: [], domain: "", notes: "Die Determinante ist 0 → keine eindeutige Lösung (abhängig oder widersprüchlich).", error: null };
+  }
+
+  const x = (c1 * b2 - c2 * b1) / det;
+  const y = (a1 * c2 - a2 * c1) / det;
+  steps.push({ expr: `x = (${c1}·${b2} − ${c2}·${b1}) / ${fmt(det)} = ${fmt(x)}`, op: "Cramersche Regel (x)" });
+  steps.push({ expr: `y = (${a1}·${c2} − ${a2}·${c1}) / ${fmt(det)} = ${fmt(y)}`, op: "Cramersche Regel (y)" });
+  steps.push({ expr: `Probe I: ${a1}·${fmt(x)} + ${b1}·${fmt(y)} = ${fmt(a1 * x + b1 * y)} = ${c1} ✓`, op: "Probe in Gleichung I" });
+
+  return { type: "system", steps, solutions: [`x = ${fmt(x)}`, `y = ${fmt(y)}`], domain: "", notes: "", error: null };
+}
+
+function fmt(n: number): string {
+  if (Number.isInteger(n)) return String(n);
+  const s = n.toPrecision(10).replace(/\.?0+$/, "");
+  return s;
+}
+
+/* ── Main EquationsTool Component ─────────────────────────────────── */
 
 function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
   const { t } = useTranslation();
-  const [mode, setMode] = useState<"linear" | "quadratic" | "system" | "custom">("quadratic");
-  const [a, setA] = useState("1");
-  const [b, setB] = useState("0");
-  const [c, setC] = useState("0");
-  const [a2, setA2] = useState("0");
-  const [b2, setB2] = useState("0");
-  const [c2, setC2] = useState("0");
-  const [customExpr, setCustomExpr] = useState("");
-  const [customVar, setCustomVar] = useState("x");
-  const [result, setResult] = useState("");
+  const supabase = createClient();
+
+  // Mode: solve (free text), rearrange, system, quick (coefficient input)
+  const [mode, setMode] = useState<"solve" | "rearrange" | "system" | "quick">("solve");
+  const [equation, setEquation] = useState("");
+  const [variable, setVariable] = useState("x");
+  const [targetVar, setTargetVar] = useState("");
   const [moduleId, setModuleId] = useState<string | null>(null);
 
-  const solve = () => {
-    let expr = "", res = "";
-    if (mode === "linear") {
-      expr = `${a}x + ${b} = 0`;
-      res = solveLinear(Number(a), Number(b), t);
-    } else if (mode === "quadratic") {
-      expr = `${a}x² + ${b}x + ${c} = 0`;
-      res = solveQuadratic(Number(a), Number(b), Number(c), t);
-    } else if (mode === "system") {
-      expr = `${a}x + ${b}y = ${c}\n${a2}x + ${b2}y = ${c2}`;
-      res = solveSystem2(Number(a), Number(b), Number(c), Number(a2), Number(b2), Number(c2), t);
-    } else {
-      expr = customExpr;
-      // Simple variable isolation for ax + b = c pattern
-      res = t("math.useStandardModes");
-      try {
-        // Try numeric approximation via bisection for f(x) = 0
-        const fn = customExpr.replace(/=/g, "-(") + ")";
-        const evalFn = (x: number) => {
-          const e = fn.replace(new RegExp(customVar, "g"), `(${x})`);
-          return Number(safeEval(e, t));
-        };
-        // Simple Newton-like search
-        let lo = -100, hi = 100;
-        const fLo = evalFn(lo), fHi = evalFn(hi);
-        if (fLo * fHi <= 0) {
-          for (let i = 0; i < 100; i++) {
-            const mid = (lo + hi) / 2;
-            if (evalFn(mid) * evalFn(lo) <= 0) hi = mid; else lo = mid;
-          }
-          res = `${customVar} ≈ ${((lo + hi) / 2).toPrecision(8).replace(/\.?0+$/, "")}`;
-        }
-      } catch { /* keep default message */ }
-    }
-    if (checkLimit && !checkLimit()) return;
-    setResult(res);
-    onSave("equations", expr, res, moduleId);
-  };
+  // Quick mode (coefficient input)
+  const [quickType, setQuickType] = useState<"linear" | "quadratic">("quadratic");
+  const [coeffA, setCoeffA] = useState("1");
+  const [coeffB, setCoeffB] = useState("0");
+  const [coeffC, setCoeffC] = useState("0");
 
-  const inputCls = "bg-surface-100 text-surface-900 rounded-lg px-2 sm:px-3 py-2 border border-surface-200 text-center font-mono w-14 sm:w-20";
+  // System mode
+  const [sysA1, setSysA1] = useState(""); const [sysB1, setSysB1] = useState(""); const [sysC1, setSysC1] = useState("");
+  const [sysA2, setSysA2] = useState(""); const [sysB2, setSysB2] = useState(""); const [sysC2, setSysC2] = useState("");
+  const [sysA3, setSysA3] = useState(""); const [sysB3, setSysB3] = useState(""); const [sysC3_1, setSysC3_1] = useState(""); const [sysD3, setSysD3] = useState("");
+  const [sysSize, setSysSize] = useState<2 | 3>(2);
+
+  // Result
+  const [result, setResult] = useState<SolverResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showSteps, setShowSteps] = useState(true);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => { inputRef.current?.focus(); }, [mode]);
+
+  /* ── Solve via client-side (quick mode) ── */
+  function solveQuick() {
+    if (checkLimit && !checkLimit()) return;
+    let res: SolverResult;
+    if (quickType === "linear") {
+      res = solveLinearSteps(Number(coeffA), Number(coeffB), 0);
+    } else {
+      res = solveQuadraticSteps(Number(coeffA), Number(coeffB), Number(coeffC));
+    }
+    setResult(res);
+    setError("");
+    onSave("equations", quickType === "linear" ? `${coeffA}x + ${coeffB} = 0` : `${coeffA}x² + ${coeffB}x + ${coeffC} = 0`, res.solutions.join(", "), moduleId);
+  }
+
+  /* ── Solve system client-side ── */
+  function solveSystemLocal() {
+    if (checkLimit && !checkLimit()) return;
+    if (sysSize === 2) {
+      const res = solveSystem2Steps(Number(sysA1), Number(sysB1), Number(sysC1), Number(sysA2), Number(sysB2), Number(sysC2));
+      setResult(res);
+      setError("");
+      onSave("equations", `${sysA1}x+${sysB1}y=${sysC1}; ${sysA2}x+${sysB2}y=${sysC2}`, res.solutions.join(", "), moduleId);
+    } else {
+      // 3x3 → use AI
+      solveWithAI(`${sysA1}x + ${sysB1}y + ${sysC1}z = ${sysC3_1}\n${sysA2}x + ${sysB2}y + ${sysC2 || "0"}z = ${sysD3}\n${sysA3}x + ${sysB3}y + ${sysC3_1}z = ${sysD3}`, "system");
+    }
+  }
+
+  /* ── Solve via AI backend (complex equations) ── */
+  async function solveWithAI(eq?: string, aiMode?: string) {
+    const eqToSolve = eq || equation;
+    if (!eqToSolve.trim()) return;
+    if (checkLimit && !checkLimit()) return;
+    setLoading(true);
+    setError("");
+    setResult(null);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { setError("Nicht eingeloggt"); setLoading(false); return; }
+
+      const res = await fetch("/api/math/solve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          equation: eqToSolve,
+          variable,
+          mode: aiMode || mode,
+          targetVariable: targetVar || variable,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Fehler");
+        setLoading(false);
+        return;
+      }
+
+      setResult(data as SolverResult);
+      onSave("equations", eqToSolve, (data.solutions || []).join(", "), moduleId);
+    } catch {
+      setError(t("math.solverError"));
+    }
+    setLoading(false);
+  }
+
+  function handleSolve() {
+    if (mode === "quick") { solveQuick(); return; }
+    if (mode === "system" && sysSize === 2 && sysA1 && sysB1) { solveSystemLocal(); return; }
+
+    // Check if it's a simple linear/quadratic we can solve client-side
+    const eq = equation.trim();
+    const linearMatch = eq.match(/^(-?\d*\.?\d*)x\s*([+-]\s*\d+\.?\d*)?\s*=\s*(-?\d+\.?\d*)$/);
+    if (linearMatch && mode === "solve") {
+      const a = Number(linearMatch[1] || "1");
+      const b = Number((linearMatch[2] || "0").replace(/\s/g, ""));
+      const c = Number(linearMatch[3]);
+      if (checkLimit && !checkLimit()) return;
+      setResult(solveLinearSteps(a, b, c));
+      setError("");
+      onSave("equations", eq, `x = ${fmt((c - b) / a)}`, moduleId);
+      return;
+    }
+
+    const quadMatch = eq.match(/^(-?\d*\.?\d*)x[²2]\s*([+-]\s*\d*\.?\d*)x\s*([+-]\s*\d+\.?\d*)?\s*=\s*0$/);
+    if (quadMatch && mode === "solve") {
+      const a = Number(quadMatch[1] || "1");
+      const b = Number((quadMatch[2] || "0").replace(/\s/g, ""));
+      const c = Number((quadMatch[3] || "0").replace(/\s/g, ""));
+      if (checkLimit && !checkLimit()) return;
+      setResult(solveQuadraticSteps(a, b, c));
+      setError("");
+      return;
+    }
+
+    // Everything else → AI
+    solveWithAI();
+  }
+
+  const inputCls = "bg-surface-100 text-surface-900 rounded-lg px-2 sm:px-3 py-2 border border-surface-200 text-center font-mono w-14 sm:w-20 focus:border-brand-500 focus:outline-none";
 
   return (
     <div>
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <h2 className="text-lg font-semibold text-surface-900">{t("math.equationSolver")}</h2>
-        <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 min-w-0 self-start sm:self-auto">
+        <select value={moduleId || ""} onChange={e => setModuleId(e.target.value || null)} className="bg-surface-100 text-surface-700 text-sm rounded-lg px-2 sm:px-3 py-1.5 border border-surface-200 min-w-0 self-start sm:self-auto">
           <option value="">{t("math.noModule")}</option>
-          {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+          {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
       </div>
 
       {/* Mode Tabs */}
-      <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6">
-        {([ ["linear", t("math.linearMode")], ["quadratic", t("math.quadraticMode")], ["system", t("math.systemMode")], ["custom", t("math.customMode")] ] as [string, string][]).map(([k, l]) => (
-          <button key={k} onClick={() => setMode(k as typeof mode)} className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm ${mode === k ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{l}</button>
+      <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4">
+        {([
+          ["solve", t("math.modeSolve")],
+          ["rearrange", t("math.modeRearrange")],
+          ["system", t("math.systemMode")],
+          ["quick", t("math.modeQuick")],
+        ] as [string, string][]).map(([k, l]) => (
+          <button key={k} onClick={() => { setMode(k as typeof mode); setResult(null); setError(""); }}
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition ${mode === k ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>
+            {l}
+          </button>
         ))}
       </div>
 
-      {/* Inputs */}
-      <div className="bg-surface-100 rounded-xl p-3 sm:p-6 mb-4">
-        {mode === "linear" && (
-          <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-surface-900 font-mono flex-wrap">
-            <input value={a} onChange={(e) => setA(e.target.value)} className={inputCls} />
-            <span>x +</span>
-            <input value={b} onChange={(e) => setB(e.target.value)} className={inputCls} />
-            <span>= 0</span>
-          </div>
-        )}
-        {mode === "quadratic" && (
-          <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-surface-900 font-mono flex-wrap">
-            <input value={a} onChange={(e) => setA(e.target.value)} className={inputCls} />
-            <span>x² +</span>
-            <input value={b} onChange={(e) => setB(e.target.value)} className={inputCls} />
-            <span>x +</span>
-            <input value={c} onChange={(e) => setC(e.target.value)} className={inputCls} />
-            <span>= 0</span>
-          </div>
-        )}
-        {mode === "system" && (
-          <div className="space-y-3">
-            <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-surface-900 font-mono flex-wrap">
-              <input value={a} onChange={(e) => setA(e.target.value)} className={inputCls} /><span>x +</span>
-              <input value={b} onChange={(e) => setB(e.target.value)} className={inputCls} /><span>y =</span>
-              <input value={c} onChange={(e) => setC(e.target.value)} className={inputCls} />
-            </div>
-            <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-surface-900 font-mono flex-wrap">
-              <input value={a2} onChange={(e) => setA2(e.target.value)} className={inputCls} /><span>x +</span>
-              <input value={b2} onChange={(e) => setB2(e.target.value)} className={inputCls} /><span>y =</span>
-              <input value={c2} onChange={(e) => setC2(e.target.value)} className={inputCls} />
+      {/* ── Solve Mode: Free text input ── */}
+      {mode === "solve" && (
+        <div className="space-y-3 mb-4">
+          <div className="bg-surface-50 rounded-xl p-4 border border-surface-200">
+            <label className="text-xs text-surface-500 mb-1.5 block font-medium">{t("math.enterEquation")}</label>
+            <input
+              ref={inputRef}
+              value={equation}
+              onChange={e => setEquation(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") handleSolve(); }}
+              placeholder={t("math.equationPlaceholder")}
+              className="w-full bg-white text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-base focus:border-brand-500 focus:outline-none"
+            />
+            <div className="flex items-center gap-3 mt-2">
+              <span className="text-xs text-surface-500">{t("math.variable")}:</span>
+              <input value={variable} onChange={e => setVariable(e.target.value)} className="bg-white text-surface-900 rounded px-2 py-1 border border-surface-200 font-mono w-12 text-center text-sm" />
             </div>
           </div>
-        )}
-        {mode === "custom" && (
-          <div className="space-y-3">
-            <input value={customExpr} onChange={(e) => setCustomExpr(e.target.value)} placeholder={t("math.customExprExample")} className="w-full bg-white text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono" />
-            <div className="flex items-center gap-2 text-sm text-surface-500">
-              <span>{t("math.variable")}:</span>
-              <input value={customVar} onChange={(e) => setCustomVar(e.target.value)} className="bg-white text-surface-900 rounded px-2 py-1 border border-surface-200 font-mono w-12 text-center" />
-            </div>
-          </div>
-        )}
-      </div>
-
-      <button onClick={solve} className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors mb-4">{t("math.solve")}</button>
-
-      {result && (
-        <div className="bg-surface-50 rounded-xl p-4 border border-surface-200">
-          <div className="text-surface-500 text-sm mb-1">{t("math.result")}</div>
-          <div className="text-success-600 text-xl font-mono whitespace-pre-line">{result}</div>
+          <p className="text-xs text-surface-400">{t("math.solveExamples")}</p>
         </div>
       )}
 
-      {/* Quick formulas */}
-      <div className="mt-6">
-        <h3 className="text-surface-500 text-sm font-semibold mb-2">{t("math.quickRef")}</h3>
+      {/* ── Rearrange Mode ── */}
+      {mode === "rearrange" && (
+        <div className="space-y-3 mb-4">
+          <div className="bg-surface-50 rounded-xl p-4 border border-surface-200">
+            <label className="text-xs text-surface-500 mb-1.5 block font-medium">{t("math.enterFormula")}</label>
+            <input
+              ref={inputRef}
+              value={equation}
+              onChange={e => setEquation(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") handleSolve(); }}
+              placeholder={t("math.formulaPlaceholder")}
+              className="w-full bg-white text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-base focus:border-brand-500 focus:outline-none"
+            />
+            <div className="flex items-center gap-3 mt-2">
+              <span className="text-xs text-surface-500">{t("math.rearrangeFor")}:</span>
+              <input value={targetVar} onChange={e => setTargetVar(e.target.value)} placeholder="U" className="bg-white text-surface-900 rounded px-2 py-1 border border-surface-200 font-mono w-16 text-center text-sm" />
+            </div>
+          </div>
+          <p className="text-xs text-surface-400">{t("math.rearrangeExamples")}</p>
+        </div>
+      )}
+
+      {/* ── System Mode ── */}
+      {mode === "system" && (
+        <div className="space-y-3 mb-4">
+          <div className="flex gap-2 mb-2">
+            <button onClick={() => setSysSize(2)} className={`px-3 py-1 rounded text-xs font-medium ${sysSize === 2 ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500"}`}>2×2</button>
+            <button onClick={() => setSysSize(3)} className={`px-3 py-1 rounded text-xs font-medium ${sysSize === 3 ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500"}`}>3×3</button>
+          </div>
+          <div className="bg-surface-50 rounded-xl p-4 border border-surface-200 space-y-3">
+            <div className="flex items-center gap-1.5 justify-center text-sm text-surface-900 font-mono flex-wrap">
+              <input value={sysA1} onChange={e => setSysA1(e.target.value)} className={inputCls} placeholder="a₁" /><span>x +</span>
+              <input value={sysB1} onChange={e => setSysB1(e.target.value)} className={inputCls} placeholder="b₁" /><span>y</span>
+              {sysSize === 3 && <><span>+</span><input value={sysC1} onChange={e => setSysC1(e.target.value)} className={inputCls} placeholder="c₁" /><span>z</span></>}
+              <span>=</span><input value={sysC1} onChange={e => setSysC1(e.target.value)} className={inputCls} placeholder="r₁" />
+            </div>
+            <div className="flex items-center gap-1.5 justify-center text-sm text-surface-900 font-mono flex-wrap">
+              <input value={sysA2} onChange={e => setSysA2(e.target.value)} className={inputCls} placeholder="a₂" /><span>x +</span>
+              <input value={sysB2} onChange={e => setSysB2(e.target.value)} className={inputCls} placeholder="b₂" /><span>y</span>
+              {sysSize === 3 && <><span>+</span><input value={sysC2} onChange={e => setSysC2(e.target.value)} className={inputCls} placeholder="c₂" /><span>z</span></>}
+              <span>=</span><input value={sysC2} onChange={e => setSysC2(e.target.value)} className={inputCls} placeholder="r₂" />
+            </div>
+            {sysSize === 3 && (
+              <div className="flex items-center gap-1.5 justify-center text-sm text-surface-900 font-mono flex-wrap">
+                <input value={sysA3} onChange={e => setSysA3(e.target.value)} className={inputCls} placeholder="a₃" /><span>x +</span>
+                <input value={sysB3} onChange={e => setSysB3(e.target.value)} className={inputCls} placeholder="b₃" /><span>y +</span>
+                <input value={sysC3_1} onChange={e => setSysC3_1(e.target.value)} className={inputCls} placeholder="c₃" /><span>z =</span>
+                <input value={sysD3} onChange={e => setSysD3(e.target.value)} className={inputCls} placeholder="r₃" />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Quick Mode (coefficient input) ── */}
+      {mode === "quick" && (
+        <div className="space-y-3 mb-4">
+          <div className="flex gap-2 mb-2">
+            <button onClick={() => setQuickType("linear")} className={`px-3 py-1 rounded text-xs font-medium ${quickType === "linear" ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500"}`}>{t("math.linearMode")}</button>
+            <button onClick={() => setQuickType("quadratic")} className={`px-3 py-1 rounded text-xs font-medium ${quickType === "quadratic" ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500"}`}>{t("math.quadraticMode")}</button>
+          </div>
+          <div className="bg-surface-50 rounded-xl p-4 border border-surface-200">
+            <div className="flex items-center gap-1.5 sm:gap-2 justify-center text-sm sm:text-lg text-surface-900 font-mono flex-wrap">
+              <input value={coeffA} onChange={e => setCoeffA(e.target.value)} className={inputCls} />
+              {quickType === "quadratic" && <span>x² +</span>}
+              {quickType === "quadratic" && <input value={coeffB} onChange={e => setCoeffB(e.target.value)} className={inputCls} />}
+              <span>x +</span>
+              <input value={quickType === "quadratic" ? coeffC : coeffB} onChange={e => quickType === "quadratic" ? setCoeffC(e.target.value) : setCoeffB(e.target.value)} className={inputCls} />
+              <span>= 0</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Solve Button */}
+      <button
+        onClick={handleSolve}
+        disabled={loading}
+        className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors mb-4 disabled:opacity-50 flex items-center justify-center gap-2"
+      >
+        {loading && <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+        {mode === "rearrange" ? t("math.rearrange") : t("math.solve")}
+      </button>
+
+      {/* Error */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 text-red-700 text-sm">{error}</div>
+      )}
+
+      {/* ── Step-by-Step Result ── */}
+      {result && (
+        <div className="bg-white border border-surface-200 rounded-xl overflow-hidden mb-4">
+          {/* Type badge */}
+          <div className="flex items-center justify-between px-4 py-2.5 bg-surface-50 border-b border-surface-200">
+            <span className="text-xs font-medium text-brand-600 uppercase tracking-wider">{result.type}</span>
+            <button onClick={() => setShowSteps(s => !s)} className="text-xs text-surface-500 hover:text-surface-900 transition">
+              {showSteps ? t("math.hideSteps") : t("math.showSteps")}
+            </button>
+          </div>
+
+          {/* Steps */}
+          {showSteps && result.steps && result.steps.length > 0 && (
+            <div className="px-4 py-3 border-b border-surface-200">
+              <div className="space-y-1">
+                {result.steps.map((step, i) => (
+                  <div key={i} className="flex items-start gap-3 py-1.5">
+                    <div className="flex-1 font-mono text-sm text-surface-800 whitespace-pre-wrap">{step.expr}</div>
+                    {step.op && <div className="text-xs text-surface-400 whitespace-nowrap flex-shrink-0 mt-0.5">│ {step.op}</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Solutions */}
+          <div className="px-4 py-3">
+            {result.solutions && result.solutions.length > 0 ? (
+              <div className="space-y-1.5">
+                <div className="text-xs text-surface-500 font-medium uppercase tracking-wider mb-2">{t("math.solutions")}</div>
+                {result.solutions.map((sol, i) => (
+                  <div key={i} className="text-lg font-mono text-green-700 font-semibold">{sol}</div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-amber-600 font-medium">{t("math.noSolution")}</div>
+            )}
+          </div>
+
+          {/* Domain */}
+          {result.domain && (
+            <div className="px-4 py-2.5 bg-surface-50 border-t border-surface-200">
+              <span className="text-xs text-surface-500">{t("math.domain")}:</span>
+              <span className="text-xs text-surface-800 font-mono ml-2">{result.domain}</span>
+            </div>
+          )}
+
+          {/* Notes */}
+          {result.notes && (
+            <div className="px-4 py-2.5 border-t border-surface-200">
+              <p className="text-xs text-surface-500">{result.notes}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Quick reference */}
+      <div className="mt-4">
+        <h3 className="text-surface-500 text-xs font-semibold mb-2 uppercase tracking-wider">{t("math.quickRef")}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {[
             [t("math.pqFormula"), "x = −p/2 ± √((p/2)² − q)"],
@@ -648,7 +953,7 @@ function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, 
             [t("math.vieta"), "x₁+x₂ = −b/a,  x₁·x₂ = c/a"],
             [t("math.cramersRule"), "x = det(Aₓ)/det(A)"],
           ].map(([label, f]) => (
-            <div key={label} className="bg-surface-100 rounded-lg px-3 py-2">
+            <div key={label} className="bg-surface-50 rounded-lg px-3 py-2 border border-surface-100">
               <div className="text-surface-500 text-xs">{label}</div>
               <div className="text-surface-800 text-sm font-mono">{f}</div>
             </div>
