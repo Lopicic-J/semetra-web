@@ -10,60 +10,62 @@ import {
 export interface NavItem {
   href: string;
   icon: LucideIcon;
-  label: string;
+  /** i18n key — resolved at render time via useTranslation().t() */
+  labelKey: string;
   pro: boolean;
 }
 
 export interface NavGroup {
-  label: string;
+  /** i18n key for group label, empty string = no label */
+  labelKey: string;
   items: NavItem[];
 }
 
 export const NAV_GROUPS: NavGroup[] = [
   {
-    label: "",
+    labelKey: "",
     items: [
-      { href: "/dashboard",      icon: LayoutDashboard, label: "Dashboard",           pro: false },
-      { href: "/navigator",      icon: Compass,         label: "Navigator",           pro: false },
-      { href: "/modules",        icon: BookOpen,        label: "Module",              pro: false },
-      { href: "/tasks",          icon: CheckSquare,     label: "Aufgaben",            pro: false },
+      { href: "/dashboard",      icon: LayoutDashboard, labelKey: "nav.dashboard",      pro: false },
+      { href: "/navigator",      icon: Compass,         labelKey: "nav.navigator",      pro: false },
+      { href: "/modules",        icon: BookOpen,        labelKey: "nav.modules",        pro: false },
+      { href: "/tasks",          icon: CheckSquare,     labelKey: "nav.tasks",          pro: false },
     ],
   },
   {
-    label: "Planung",
+    labelKey: "navGroup.planning",
     items: [
-      { href: "/studienplan",  icon: Target,     label: "Studienplan",    pro: false },
-      { href: "/calendar",     icon: Calendar,   label: "Kalender",       pro: false },
-      { href: "/timeline",     icon: BarChart3,  label: "Timeline",       pro: false },
-      { href: "/stundenplan",  icon: Clock3,     label: "Stundenplan",    pro: false },
-      { href: "/exams",        icon: Award,      label: "Prüfungen",      pro: false },
+      { href: "/studienplan",  icon: Target,     labelKey: "nav.studienplan",  pro: false },
+      { href: "/calendar",     icon: Calendar,   labelKey: "nav.calendar",     pro: false },
+      { href: "/timeline",     icon: BarChart3,  labelKey: "nav.timeline",     pro: false },
+      { href: "/stundenplan",  icon: Clock3,     labelKey: "nav.stundenplan",  pro: false },
+      { href: "/exams",        icon: Award,      labelKey: "nav.exams",        pro: false },
     ],
   },
   {
-    label: "Wissen",
+    labelKey: "navGroup.knowledge",
     items: [
-      { href: "/notes",         icon: FileText,    label: "Notizen",        pro: false },
-      { href: "/documents",     icon: FolderOpen,  label: "Dokumente",      pro: false },
-      { href: "/knowledge",     icon: Brain,       label: "Lernziele",      pro: false },
-      { href: "/mindmaps",      icon: Network,     label: "Mind Maps",      pro: false },
-      { href: "/brainstorming", icon: Lightbulb,   label: "Brainstorming",  pro: false },
-      { href: "/flashcards",    icon: Layers,      label: "Karteikarten",   pro: false },
-      { href: "/math",          icon: Calculator,  label: "Mathe-Raum",     pro: false },
-      { href: "/timer",         icon: Timer,       label: "Timer",          pro: false },
+      { href: "/notes",         icon: FileText,    labelKey: "nav.notes",         pro: false },
+      { href: "/documents",     icon: FolderOpen,  labelKey: "nav.documents",     pro: false },
+      { href: "/knowledge",     icon: Brain,       labelKey: "nav.knowledge",     pro: false },
+      { href: "/mindmaps",      icon: Network,     labelKey: "nav.mindmaps",      pro: false },
+      { href: "/brainstorming", icon: Lightbulb,   labelKey: "nav.brainstorming", pro: false },
+      { href: "/flashcards",    icon: Layers,      labelKey: "nav.flashcards",    pro: false },
+      { href: "/math",          icon: Calculator,  labelKey: "nav.math",          pro: false },
+      { href: "/timer",         icon: Timer,       labelKey: "nav.timer",         pro: false },
     ],
   },
   {
-    label: "Analyse",
+    labelKey: "navGroup.analytics",
     items: [
-      { href: "/grades",   icon: TrendingUp,  label: "Noten",          pro: false },
-      { href: "/credits",  icon: Medal,        label: "Credits & ECTS", pro: false },
+      { href: "/grades",   icon: TrendingUp,  labelKey: "nav.grades",   pro: false },
+      { href: "/credits",  icon: Medal,        labelKey: "nav.credits",  pro: false },
     ],
   },
 ];
 
 export const BOTTOM_ITEMS: NavItem[] = [
-  { href: "/settings", icon: Settings, label: "Einstellungen", pro: false },
-  { href: "/about",    icon: Info,     label: "Über Semetra Workspace",  pro: false },
+  { href: "/settings", icon: Settings, labelKey: "nav.settings", pro: false },
+  { href: "/about",    icon: Info,     labelKey: "nav.about",    pro: false },
 ];
 
 export function getAllNavItems(): NavItem[] {

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { Award, CheckCircle, Clock, TrendingUp, BookOpen, AlertTriangle, Calendar, Pencil, Save, X } from "lucide-react";
@@ -8,6 +9,7 @@ import type { Module, Grade } from "@/types/database";
 
 const DEGREE_ECTS = 180;
 
+// Note: displaySemester kept in German for internal use, translations handled at component level
 function displaySemester(raw: string | null | undefined): string {
   if (!raw) return "Kein Semester";
   if (raw.startsWith("Semester ")) return raw;
@@ -22,6 +24,7 @@ function semesterNum(s: string): number {
 }
 
 export default function CreditsPage() {
+  const { t } = useTranslation();
   const supabase = createClient();
   const { profile, refetch: refetchProfile } = useProfile();
   const [modules, setModules] = useState<Module[]>([]);
@@ -128,10 +131,10 @@ export default function CreditsPage() {
       <div className="mb-8">
         <h1 className="text-xl sm:text-2xl font-bold text-surface-900 flex flex-col sm:flex-row sm:items-center gap-2">
           <Award className="text-brand-600" size={26} />
-          Credits & ECTS
+          {t("credits.title")}
         </h1>
         <p className="text-surface-500 text-sm mt-1">
-          ECTS-Fortschritt basierend auf deinen Noten (bestanden ab Note 4.0)
+          {t("credits.subtitle")}
         </p>
       </div>
 
@@ -139,28 +142,28 @@ export default function CreditsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         <StatCard
           icon={<CheckCircle className="text-green-600" size={20} />}
-          label="Bestanden"
+          label={t("credits.statPassed")}
           value={`${earnedEcts} ECTS`}
           sub={`${passedModules.length} Module · ø ${weightedAvg > 0 ? roundGrade(weightedAvg).toFixed(2) : "—"}`}
           color="green"
         />
         <StatCard
           icon={<TrendingUp className="text-blue-600" size={20} />}
-          label="In Bearbeitung"
+          label={t("credits.statActive")}
           value={`${activeEcts} ECTS`}
           sub={`${activeModules.length} Module`}
           color="blue"
         />
         <StatCard
           icon={<Clock className="text-amber-600" size={20} />}
-          label="Offen"
+          label={t("credits.statPending")}
           value={`${plannedEcts} ECTS`}
           sub={`${plannedModules.length} Module`}
           color="amber"
         />
         <StatCard
           icon={<AlertTriangle className="text-red-500" size={20} />}
-          label="Nicht bestanden"
+          label={t("credits.statFailed")}
           value={`${failedEcts} ECTS`}
           sub={`${failedModules.length} Module`}
           color="red"
@@ -170,7 +173,7 @@ export default function CreditsPage() {
       {/* Progress toward degree */}
       <div className="card mb-8">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-surface-800">Fortschritt Abschluss (BSc = 180 ECTS)</h2>
+          <h2 className="font-semibold text-surface-800">{t("credits.progressTitle")}</h2>
           <span className="text-2xl font-bold text-brand-600">{progressPct}%</span>
         </div>
         <div className="h-4 bg-surface-100 rounded-full overflow-hidden">
@@ -180,8 +183,8 @@ export default function CreditsPage() {
           />
         </div>
         <div className="flex justify-between text-xs text-surface-500 mt-2">
-          <span>{earnedEcts} / {DEGREE_ECTS} ECTS erlangt</span>
-          <span>{DEGREE_ECTS - earnedEcts} ECTS verbleibend</span>
+          <span>{t("credits.progressEarned", { earned: earnedEcts, total: DEGREE_ECTS })}</span>
+          <span>{t("credits.progressRemaining", { remaining: DEGREE_ECTS - earnedEcts })}</span>
         </div>
       </div>
 
@@ -200,12 +203,12 @@ export default function CreditsPage() {
       />
 
       {/* Semester breakdown */}
-      <h2 className="font-semibold text-surface-800 mb-4">Semesterübersicht</h2>
+      <h2 className="font-semibold text-surface-800 mb-4">{t("credits.semesterOverview")}</h2>
       {sortedSemesters.length === 0 ? (
         <div className="text-center py-12 text-surface-400">
           <Award size={40} className="mx-auto mb-3 opacity-30" />
-          <p>Keine Module gefunden.</p>
-          <p className="text-sm mt-1">Importiere einen Studiengang oder füge Module manuell hinzu.</p>
+          <p>{t("credits.noModules")}</p>
+          <p className="text-sm mt-1">{t("credits.noModulesHint")}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -299,6 +302,7 @@ function StudyPeriodCard({
   onToggleEdit: () => void;
   onSave: () => void;
 }) {
+  const { t } = useTranslation();
   const now = new Date();
   const start = studyStart ? new Date(studyStart) : null;
   const end = studyEnd ? new Date(studyEnd) : null;
@@ -338,12 +342,12 @@ function StudyPeriodCard({
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-semibold text-surface-800 flex items-center gap-2">
           <Calendar size={18} className="text-brand-500" />
-          Studienzeitraum
+          {t("credits.studyPeriod")}
         </h2>
         <button
           onClick={onToggleEdit}
           className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400 hover:text-brand-600 transition-colors"
-          title={editing ? "Abbrechen" : "Bearbeiten"}
+          title={editing ? t("credits.cancel") : t("credits.editStudyPeriod")}
         >
           {editing ? <X size={16} /> : <Pencil size={14} />}
         </button>
@@ -353,7 +357,7 @@ function StudyPeriodCard({
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-surface-600 mb-1">Studienbeginn</label>
+              <label className="block text-xs font-medium text-surface-600 mb-1">{t("credits.studyStartLabel")}</label>
               <input
                 type="date"
                 value={editStart}
@@ -362,7 +366,7 @@ function StudyPeriodCard({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-surface-600 mb-1">Studienende (geplant)</label>
+              <label className="block text-xs font-medium text-surface-600 mb-1">{t("credits.studyEndLabel")}</label>
               <input
                 type="date"
                 value={editEnd}
@@ -372,18 +376,18 @@ function StudyPeriodCard({
             </div>
           </div>
           <p className="text-[10px] text-surface-400">
-            Freiwillig — wenn du das genaue Datum nicht kennst, trage ein ungefähres ein.
+            {t("credits.studyPeriodOptional")}
           </p>
           <div className="flex gap-2 justify-end">
             <button onClick={onToggleEdit} className="px-3 py-1.5 text-xs rounded-lg hover:bg-surface-100 text-surface-500">
-              Abbrechen
+              {t("credits.cancel")}
             </button>
             <button
               onClick={onSave}
               disabled={saving}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-600 text-white text-xs font-medium hover:bg-brand-700 disabled:opacity-50"
             >
-              <Save size={12} /> {saving ? "Speichern…" : "Speichern"}
+              <Save size={12} /> {saving ? t("credits.saving") : t("credits.save")}
             </button>
           </div>
         </div>
@@ -404,10 +408,10 @@ function StudyPeriodCard({
           <div className="flex items-center justify-between text-xs text-surface-500">
             <span>{formatDateDE(studyStart)}</span>
             {isFinished ? (
-              <span className="text-green-600 font-semibold">Studium abgeschlossen!</span>
+              <span className="text-green-600 font-semibold">{t("credits.completed")}</span>
             ) : (
               <span className="font-medium text-brand-600">
-                Noch {remainingLabel} · {timePct}% der Studienzeit vorbei
+                {t("credits.timeRemaining", { time: remainingLabel, percent: timePct })}
               </span>
             )}
             <span>{formatDateDE(studyEnd)}</span>
@@ -418,15 +422,15 @@ function StudyPeriodCard({
             <div className="flex gap-2 sm:gap-4 mt-3 pt-3 border-t border-surface-100">
               <div className="text-center flex-1">
                 <p className="text-lg font-bold text-surface-800">{totalMonths}</p>
-                <p className="text-[10px] text-surface-400">Monate gesamt</p>
+                <p className="text-[10px] text-surface-400">{t("credits.totalMonths")}</p>
               </div>
               <div className="text-center flex-1">
                 <p className="text-lg font-bold text-brand-600">{elapsedMonths}</p>
-                <p className="text-[10px] text-surface-400">Monate absolviert</p>
+                <p className="text-[10px] text-surface-400">{t("credits.elapsedMonths")}</p>
               </div>
               <div className="text-center flex-1">
                 <p className="text-lg font-bold text-brand-700">{remainingMonths}</p>
-                <p className="text-[10px] text-surface-400">Monate verbleibend</p>
+                <p className="text-[10px] text-surface-400">{t("credits.remainingMonths")}</p>
               </div>
             </div>
           )}
@@ -434,13 +438,13 @@ function StudyPeriodCard({
       ) : (
         <div className="text-center py-4">
           <p className="text-sm text-surface-400 mb-2">
-            Trage deinen Studienzeitraum ein, um den zeitlichen Fortschritt zu sehen.
+            {t("credits.enterStudyPeriod")}
           </p>
           <button
             onClick={onToggleEdit}
             className="text-xs font-medium text-brand-600 hover:text-brand-700"
           >
-            Studienzeitraum eintragen →
+            {t("credits.enterPeriod")}
           </button>
         </div>
       )}
@@ -449,6 +453,7 @@ function StudyPeriodCard({
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation();
   const map: Record<string, string> = {
     passed:  "bg-green-100 text-green-700",
     failed:  "bg-red-100 text-red-700",
@@ -456,10 +461,10 @@ function StatusBadge({ status }: { status: string }) {
     planned: "bg-surface-100 text-surface-500",
   };
   const labels: Record<string, string> = {
-    passed:  "✓ bestanden",
-    failed:  "✗ n. best.",
-    active:  "aktiv",
-    planned: "offen",
+    passed:  t("credits.statusPassed"),
+    failed:  t("credits.statusFailed"),
+    active:  t("credits.statusActive"),
+    planned: t("credits.statusPlanned"),
   };
   return (
     <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full whitespace-nowrap ${map[status] ?? "bg-surface-100 text-surface-500"}`}>

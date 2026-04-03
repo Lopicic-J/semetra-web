@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useTranslation } from "@/lib/i18n";
 import { useModules } from "@/lib/hooks/useModules";
 import { useTasks } from "@/lib/hooks/useTasks";
 import {
@@ -21,25 +22,28 @@ function sortSemester(a: string, b: string) {
   return ai - bi;
 }
 
-const STATUS_COLORS: Record<string, { bg: string; text: string; label: string }> = {
-  planned:   { bg: "bg-surface-100",  text: "text-surface-600",  label: "Geplant" },
-  active:    { bg: "bg-blue-100",  text: "text-blue-700",  label: "Aktiv" },
-  completed: { bg: "bg-green-100", text: "text-green-700", label: "Abgeschlossen" },
-  paused:    { bg: "bg-amber-100", text: "text-amber-700", label: "Pausiert" },
-};
+const getStatusColors = (t: ReturnType<typeof useTranslation>["t"]) => ({
+  planned:   { bg: "bg-surface-100",  text: "text-surface-600",  label: t("studienplan.statusPlanned") },
+  active:    { bg: "bg-blue-100",  text: "text-blue-700",  label: t("studienplan.statusActive") },
+  completed: { bg: "bg-green-100", text: "text-green-700", label: t("studienplan.statusCompleted") },
+  paused:    { bg: "bg-amber-100", text: "text-amber-700", label: t("studienplan.statusPaused") },
+});
 
-const TYPE_BADGES: Record<string, { bg: string; text: string; label: string }> = {
-  pflicht:     { bg: "bg-blue-50",   text: "text-blue-600",   label: "Pflicht" },
-  wahl:        { bg: "bg-amber-50",  text: "text-amber-600",  label: "Wahl" },
-  vertiefung:  { bg: "bg-purple-50", text: "text-purple-600", label: "Vertiefung" },
-};
+const getTypeBadges = (t: ReturnType<typeof useTranslation>["t"]) => ({
+  pflicht:     { bg: "bg-blue-50",   text: "text-blue-600",   label: t("studienplan.typeMandatory") },
+  wahl:        { bg: "bg-amber-50",  text: "text-amber-600",  label: t("studienplan.typeElective") },
+  vertiefung:  { bg: "bg-purple-50", text: "text-purple-600", label: t("studienplan.typeSpecialization") },
+});
 
 export default function StudienplanPage() {
+  const { t } = useTranslation();
   const { modules, refetch: refetchModules } = useModules();
   const { tasks } = useTasks();
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
   const [expandedSemesters, setExpandedSemesters] = useState<Set<string>>(new Set(SEMESTER_ORDER));
   const supabase = createClient();
+  const STATUS_COLORS = getStatusColors(t);
+  const TYPE_BADGES = getTypeBadges(t);
 
   // Group modules by semester
   const bySemester = useMemo(() => {
@@ -93,9 +97,9 @@ export default function StudienplanPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
           <Target className="text-brand-600" size={26} />
-          Studienplan
+          {t("nav.studienplan")}
         </h1>
-        <p className="text-surface-500 text-sm mt-1">Dein Semester-Roadmap — der Fels in der Brandung</p>
+        <p className="text-surface-500 text-sm mt-1">{t("studienplan.subtitle")}</p>
       </div>
 
       {/* Stat cards */}
@@ -103,29 +107,29 @@ export default function StudienplanPage() {
         <div className="rounded-2xl p-4 bg-brand-50">
           <Award className="text-brand-600 mb-2" size={20} />
           <p className="text-2xl font-bold text-surface-900">{completedEcts}/{totalEcts}</p>
-          <p className="text-xs text-surface-600">ECTS erreicht</p>
+          <p className="text-xs text-surface-600">{t("studienplan.ectsReached")}</p>
         </div>
         <div className="rounded-2xl p-4 bg-blue-50">
           <BookOpen className="text-blue-600 mb-2" size={20} />
           <p className="text-2xl font-bold text-surface-900">{activeCount}</p>
-          <p className="text-xs text-surface-600">Aktive Module</p>
+          <p className="text-xs text-surface-600">{t("studienplan.activeModules")}</p>
         </div>
         <div className="rounded-2xl p-4 bg-green-50">
           <CheckCircle className="text-green-600 mb-2" size={20} />
           <p className="text-2xl font-bold text-surface-900">{completedCount}/{inPlanModules.length}</p>
-          <p className="text-xs text-surface-600">Module abgeschlossen</p>
+          <p className="text-xs text-surface-600">{t("studienplan.modulesComplete")}</p>
         </div>
         <div className="rounded-2xl p-4 bg-amber-50">
           <Clock className="text-amber-600 mb-2" size={20} />
           <p className="text-2xl font-bold text-surface-900">{doneTasks}/{totalTasks}</p>
-          <p className="text-xs text-surface-600">Aufgaben erledigt</p>
+          <p className="text-xs text-surface-600">{t("studienplan.tasksComplete")}</p>
         </div>
       </div>
 
       {/* ECTS Progress bar */}
       <div className="card mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-surface-700">ECTS-Fortschritt</span>
+          <span className="text-sm font-medium text-surface-700">{t("studienplan.ectsProgress")}</span>
           <span className="text-sm font-bold text-brand-600">{totalEcts > 0 ? Math.round((completedEcts / totalEcts) * 100) : 0}%</span>
         </div>
         <div className="h-3 bg-surface-100 rounded-full overflow-hidden">
@@ -141,8 +145,8 @@ export default function StudienplanPage() {
           {sortedSemesters.length === 0 ? (
             <div className="text-center py-16 text-surface-400">
               <GraduationCap size={48} className="mx-auto mb-3 opacity-30" />
-              <p className="font-medium">Noch keine Module</p>
-              <p className="text-sm mt-1">Importiere einen Studiengang oder erstelle Module manuell.</p>
+              <p className="font-medium">{t("studienplan.noModules")}</p>
+              <p className="text-sm mt-1">{t("studienplan.noModulesHint")}</p>
             </div>
           ) : (
             sortedSemesters.map(sem => {
@@ -179,8 +183,8 @@ export default function StudienplanPage() {
                     <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {mods.map(mod => {
                         const isInPlan = mod.in_plan !== false;
-                        const status = STATUS_COLORS[mod.status ?? "planned"] ?? STATUS_COLORS.planned;
-                        const type = TYPE_BADGES[mod.module_type ?? "pflicht"] ?? TYPE_BADGES.pflicht;
+                        const status = STATUS_COLORS[(mod.status ?? "planned") as keyof typeof STATUS_COLORS] ?? STATUS_COLORS.planned;
+                        const type = TYPE_BADGES[(mod.module_type ?? "pflicht") as keyof typeof TYPE_BADGES] ?? TYPE_BADGES.pflicht;
                         const isSelected = selectedModule?.id === mod.id;
 
                         return (
@@ -203,7 +207,7 @@ export default function StudienplanPage() {
                               <button
                                 onClick={(e) => { e.stopPropagation(); toggleInPlan(mod); }}
                                 className="p-0.5 rounded hover:bg-surface-200 text-surface-400"
-                                title={isInPlan ? "Aus Plan entfernen" : "In Plan aufnehmen"}
+                                title={isInPlan ? t("studienplan.removeFromPlan") : t("studienplan.addToPlan")}
                               >
                                 {isInPlan ? <Eye size={12} /> : <EyeOff size={12} />}
                               </button>
@@ -253,25 +257,25 @@ export default function StudienplanPage() {
               <div className="space-y-2 mb-4 text-sm">
                 {selectedModule.professor && (
                   <div className="flex justify-between">
-                    <span className="text-surface-500">Dozent</span>
+                    <span className="text-surface-500">{t("studienplan.instructor")}</span>
                     <span className="text-surface-800">{selectedModule.professor}</span>
                   </div>
                 )}
                 {selectedModule.exam_date && (
                   <div className="flex justify-between">
-                    <span className="text-surface-500">Prüfung</span>
+                    <span className="text-surface-500">{t("studienplan.exam")}</span>
                     <span className="text-surface-800">{selectedModule.exam_date}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-surface-500">Status</span>
-                  <span className={`${STATUS_COLORS[selectedModule.status ?? "planned"].text} font-medium`}>
-                    {STATUS_COLORS[selectedModule.status ?? "planned"].label}
+                  <span className="text-surface-500">{t("studienplan.status")}</span>
+                  <span className={`${STATUS_COLORS[(selectedModule.status ?? "planned") as keyof typeof STATUS_COLORS].text} font-medium`}>
+                    {STATUS_COLORS[(selectedModule.status ?? "planned") as keyof typeof STATUS_COLORS].label}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-surface-500">Typ</span>
-                  <span className="text-surface-800">{TYPE_BADGES[selectedModule.module_type ?? "pflicht"]?.label ?? "Pflicht"}</span>
+                  <span className="text-surface-500">{t("studienplan.type")}</span>
+                  <span className="text-surface-800">{TYPE_BADGES[(selectedModule.module_type ?? "pflicht") as keyof typeof TYPE_BADGES]?.label ?? t("studienplan.typeMandatory")}</span>
                 </div>
               </div>
 
@@ -292,9 +296,9 @@ export default function StudienplanPage() {
 
               {/* Tasks for this module */}
               <div className="border-t border-surface-100 pt-4">
-                <h4 className="text-sm font-semibold text-surface-700 mb-3">Aufgaben ({moduleTasks.length})</h4>
+                <h4 className="text-sm font-semibold text-surface-700 mb-3">{t("studienplan.tasks", { count: moduleTasks.length })}</h4>
                 {moduleTasks.length === 0 ? (
-                  <p className="text-xs text-surface-400">Keine Aufgaben für dieses Modul.</p>
+                  <p className="text-xs text-surface-400">{t("studienplan.noTasksForModule")}</p>
                 ) : (
                   <div className="space-y-1.5 max-h-60 overflow-y-auto">
                     {moduleTasks.map(t => (
@@ -319,7 +323,7 @@ export default function StudienplanPage() {
           ) : (
             <div className="card text-center py-12 text-surface-400 sticky top-6">
               <BookOpen size={32} className="mx-auto mb-3 opacity-30" />
-              <p className="text-sm">Wähle ein Modul für Details</p>
+              <p className="text-sm">{t("studienplan.selectModuleForDetails")}</p>
             </div>
           )}
         </div>

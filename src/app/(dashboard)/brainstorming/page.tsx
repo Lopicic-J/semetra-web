@@ -16,6 +16,7 @@ import type {
   BrainstormSession, BrainstormIdea, BrainstormTechnique,
   CalendarEvent, Task, Module
 } from "@/types/database";
+import { useTranslation } from "@/lib/i18n";
 
 /* ── Technique definitions (vollständig Deutsch) ────────────────────── */
 interface TechniqueDef {
@@ -193,6 +194,7 @@ function getAiSuggestions(technique: string, topic: string, ideas: BrainstormIde
 
 /* ── Main Page ──────────────────────────────────────────────────────── */
 export default function BrainstormingPage() {
+  const { t } = useTranslation();
   const supabase = createClient();
   const { modules } = useModules();
   const { isPro } = useProfile();
@@ -360,6 +362,7 @@ function CreateSessionModal({
   onClose: () => void;
   onCreated: (s: BrainstormSession) => void;
 }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const [title, setTitle] = useState("");
   const [technique, setTechnique] = useState<BrainstormTechnique>(initialTechnique ?? "freeform");

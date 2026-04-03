@@ -6,6 +6,7 @@ import { useProfile } from "@/lib/hooks/useProfile";
 import { FREE_LIMITS, mathUsageToday, mathUsageIncrement } from "@/lib/gates";
 import { LimitNudge, UpgradeModal } from "@/components/ui/ProGate";
 import type { Module, MathHistory, MathFormula, MathTool, FormulaCategory } from "@/types/database";
+import { useTranslation } from "@/lib/i18n";
 
 /* ─── Constants ───────────────────────────────────────────────────────────── */
 
@@ -289,6 +290,7 @@ function numberToBase(num: number, base: number): string {
 /* ─── Main Page ───────────────────────────────────────────────────────────── */
 
 export default function MathPage() {
+  const { t } = useTranslation();
   const supabase = createClient();
   const { isPro } = useProfile();
   const [userId, setUserId] = useState<string | null>(null);

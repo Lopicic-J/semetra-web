@@ -16,6 +16,7 @@ import type {
   Document as Doc, CalendarEvent, Task, Module,
   TaskAttachment, ExamAttachment
 } from "@/types/database";
+import { useTranslation } from "@/lib/i18n";
 
 /* ── File type helpers ──────────────────────────────────────────────── */
 function getKindFromUrl(url: string, fileType?: string | null): Doc["kind"] {
@@ -53,7 +54,8 @@ interface DocFlowItem {
 
 /* ── Main Page ──────────────────────────────────────────────────────── */
 export default function DocumentsPage() {
-  const supabase = createClient();
+
+  const { t } = useTranslation();  const supabase = createClient();
   const { modules } = useModules();
   const { isPro } = useProfile();
   const [docs, setDocs] = useState<Doc[]>([]);
@@ -228,7 +230,7 @@ export default function DocumentsPage() {
   }), [docs, flowItems, modules]);
 
   async function deleteDoc(id: string) {
-    if (!confirm("Dokument löschen?")) return;
+    if (!confirm(t("documents.deleteConfirm"))) return;
     await supabase.from("documents").delete().eq("id", id);
     fetchDocs();
     fetchFlow();
@@ -350,7 +352,7 @@ export default function DocumentsPage() {
           <input
             value={searchQ}
             onChange={e => setSearchQ(e.target.value)}
-            placeholder="Dokumente durchsuchen..."
+            placeholder={t("documents.search")}
             className="w-full bg-white border border-surface-200 rounded-lg pl-10 pr-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none transition"
           />
         </div>
@@ -368,7 +370,7 @@ export default function DocumentsPage() {
               key={v}
               onClick={() => setViewMode(v)}
               className={`p-1 sm:p-2 transition ${viewMode === v ? "bg-brand-600 text-white" : "bg-white text-surface-500 hover:text-surface-900"}`}
-              title={v === "flow" ? "Flow — alle Quellen" : v === "grid" ? "Karten" : "Liste"}
+              title={v === "flow" ? t("documents.viewFlow") : v === "grid" ? t("documents.viewCards") : t("documents.viewList")}
             >
               {v === "grid" ? <LayoutGrid size={14} /> : v === "list" ? <ListIcon size={14} /> : <Workflow size={14} />}
             </button>
@@ -440,12 +442,13 @@ export default function DocumentsPage() {
 
 /* ── Empty state ────────────────────────────────────────────────────── */
 function EmptyState({ hasAny, flowCount, onSwitchToFlow }: { hasAny: boolean; flowCount?: number; onSwitchToFlow?: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="text-center py-16">
       <FolderOpen size={48} className="mx-auto mb-4 text-surface-300" />
-      <p className="text-surface-500">{hasAny ? "Keine Dokumente gefunden" : "Noch keine eigenen Dokumente"}</p>
+      <p className="text-surface-500">{hasAny ? t("documents.noDocuments") : t("documents.noDocumentsOwn")}</p>
       <p className="text-sm mt-1 text-surface-400">
-        {hasAny ? "Versuche einen anderen Filter" : "Füge Dokumente und Links zu deinen Modulen hinzu!"}
+        {hasAny ? t("documents.tryOtherFilter") : t("documents.addDocuments")}
       </p>
       {!hasAny && flowCount && flowCount > 0 && onSwitchToFlow && (
         <button onClick={onSwitchToFlow} className="mt-4 px-4 py-2 rounded-lg bg-brand-50 text-brand-600 text-sm font-medium hover:bg-brand-100 transition">
@@ -646,6 +649,7 @@ function DocModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const isEdit = !!doc;
   const [mode, setMode] = useState<"link" | "upload">(doc ? "link" : "link");
@@ -738,7 +742,7 @@ function DocModal({
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
       <div className="bg-white border border-surface-200 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center gap-2 mb-4 sm:mb-5">
-          <h2 className="text-base sm:text-lg font-bold text-surface-900">{isEdit ? "Dokument bearbeiten" : "Dokument hinzufügen"}</h2>
+          <h2 className="text-base sm:text-lg font-bold text-surface-900">{isEdit ? t("documents.edit") + " Dokument" : t("documents.modal.title")}</h2>
           <button onClick={onClose} className="text-surface-500 hover:text-surface-900 transition flex-shrink-0"><X size={20} /></button>
         </div>
 
@@ -887,7 +891,7 @@ function DocModal({
           className="w-full bg-brand-600 hover:bg-brand-500 text-white py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {(saving || uploading) && <Loader2 size={14} className="animate-spin" />}
-          {uploading ? "Wird hochgeladen..." : saving ? "Speichern..." : isEdit ? "Änderungen speichern" : "Hinzufügen"}
+          {uploading ? t("documents.modal.uploading") : saving ? t("documents.modal.save") : isEdit ? t("documents.modal.changesSave") : t("documents.modal.add")}
         </button>
       </div>
     </div>

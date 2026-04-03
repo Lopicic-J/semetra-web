@@ -1,16 +1,17 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useTranslation } from "@/lib/i18n";
 import { ChevronLeft, ChevronRight, Plus, X, Trash2 } from "lucide-react";
 import type { CalendarEvent } from "@/types/database";
 
-const MONTHS = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
 const DOW = ["Mo","Di","Mi","Do","Fr","Sa","So"];
 
 function startOfMonth(y: number, m: number) { return new Date(y, m, 1); }
 function daysInMonth(y: number, m: number) { return new Date(y, m + 1, 0).getDate(); }
 
 export default function CalendarPage() {
+  const { t } = useTranslation();
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -56,17 +57,17 @@ export default function CalendarPage() {
     <div className="p-3 sm:p-6 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-surface-900">Kalender</h1>
-          <p className="text-surface-500 text-sm mt-0.5">{MONTHS[month]} {year}</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900">{t("nav.calendar")}</h1>
+          <p className="text-surface-500 text-sm mt-0.5">{t("calendar.monthNames", { index: month })} {year}</p>
         </div>
         <div className="flex gap-2">
           <div className="flex bg-surface-100 rounded-xl overflow-hidden">
             <button onClick={prev} className="px-3 py-2 hover:bg-surface-200 transition-colors"><ChevronLeft size={16} /></button>
-            <button onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth()); }} className="px-3 py-2 text-sm font-medium hover:bg-surface-200 transition-colors">Heute</button>
+            <button onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth()); }} className="px-3 py-2 text-sm font-medium hover:bg-surface-200 transition-colors">{t("calendar.today")}</button>
             <button onClick={next} className="px-3 py-2 hover:bg-surface-200 transition-colors"><ChevronRight size={16} /></button>
           </div>
           <button onClick={() => { setSelected(null); setShowForm(true); }} className="btn-primary gap-2">
-            <Plus size={16} /> Event
+            <Plus size={16} /> {t("calendar.addEvent")}
           </button>
         </div>
       </div>
@@ -114,7 +115,7 @@ export default function CalendarPage() {
             {new Date(selected).toLocaleDateString("de-CH", { weekday: "long", day: "numeric", month: "long" })}
           </h3>
           {events.filter(e => e.start_dt.startsWith(selected)).length === 0 ? (
-            <p className="text-sm text-surface-400">Keine Termine an diesem Tag.</p>
+            <p className="text-sm text-surface-400">{t("calendar.noEvents")}</p>
           ) : (
             <ul className="space-y-2">
               {events.filter(e => e.start_dt.startsWith(selected)).map(ev => (
@@ -136,7 +137,7 @@ export default function CalendarPage() {
             </ul>
           )}
           <button onClick={() => { setShowForm(true); }} className="mt-3 btn-ghost gap-1.5 text-sm">
-            <Plus size={14} /> Termin hinzufügen
+            <Plus size={14} /> {t("calendar.addAppointment")}
           </button>
         </div>
       )}
@@ -153,6 +154,7 @@ export default function CalendarPage() {
 }
 
 function EventModal({ defaultDate, onClose, onSaved }: { defaultDate: string; onClose: () => void; onSaved: () => void }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const COLORS = ["#6d28d9","#2563eb","#dc2626","#059669","#d97706","#db2777"];
   const [form, setForm] = useState({
@@ -192,43 +194,43 @@ function EventModal({ defaultDate, onClose, onSaved }: { defaultDate: string; on
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-surface-100">
-          <h2 className="font-semibold text-surface-900">Neuer Termin</h2>
+          <h2 className="font-semibold text-surface-900">{t("calendar.modal.title")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Titel *</label>
-            <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder="Termin…" />
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("calendar.modal.titleLabel")} *</label>
+            <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("calendar.modal.titlePlaceholder")} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Datum</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("calendar.modal.dateLabel")}</label>
               <input className="input" type="date" value={form.date} onChange={e => set("date", e.target.value)} required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Von</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("calendar.modal.fromLabel")}</label>
               <input className="input" type="time" value={form.time_start} onChange={e => set("time_start", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Bis</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("calendar.modal.toLabel")}</label>
               <input className="input" type="time" value={form.time_end} onChange={e => set("time_end", e.target.value)} />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Ort</label>
-            <input className="input" value={form.location} onChange={e => set("location", e.target.value)} placeholder="Raum / Ort…" />
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("calendar.modal.locationLabel")}</label>
+            <input className="input" value={form.location} onChange={e => set("location", e.target.value)} placeholder={t("calendar.modal.locationPlaceholder")} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Typ</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("calendar.modal.typeLabel")}</label>
             <select className="input" value={form.event_type} onChange={e => set("event_type", e.target.value)}>
-              <option value="general">Allgemein</option>
-              <option value="exam">Prüfung</option>
-              <option value="lecture">Vorlesung</option>
-              <option value="deadline">Deadline</option>
+              <option value="general">{t("calendar.modal.typeGeneral")}</option>
+              <option value="exam">{t("calendar.modal.typeExam")}</option>
+              <option value="lecture">{t("calendar.modal.typeLecture")}</option>
+              <option value="deadline">{t("calendar.modal.typeDeadline")}</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-2">Farbe</label>
+            <label className="block text-sm font-medium text-surface-700 mb-2">{t("calendar.modal.colorLabel")}</label>
             <div className="flex gap-2">
               {COLORS.map(c => (
                 <button key={c} type="button" onClick={() => set("color", c)}
@@ -238,9 +240,9 @@ function EventModal({ defaultDate, onClose, onSaved }: { defaultDate: string; on
             </div>
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="btn-secondary flex-1">Abbrechen</button>
+            <button type="button" onClick={onClose} className="btn-secondary flex-1">{t("calendar.modal.cancel")}</button>
             <button type="submit" disabled={saving} className="btn-primary flex-1 justify-center">
-              {saving ? "Speichern…" : "Speichern"}
+              {saving ? t("calendar.modal.saving") : t("calendar.modal.save")}
             </button>
           </div>
         </form>

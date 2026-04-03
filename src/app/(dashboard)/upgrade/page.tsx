@@ -6,6 +6,7 @@ import { PLANS, PRO_PRICES, LIFETIME_PRICE } from "@/lib/stripe";
 import type { PriceTier } from "@/lib/stripe";
 import { useProfile } from "@/lib/hooks/useProfile";
 import Link from "next/link";
+import { useTranslation } from "@/lib/i18n";
 
 const STRIPE_PAYMENT_LINKS: Record<string, string> = {
   "price_1TG9kaRNHcFqFbgIthnElTOy": "https://buy.stripe.com/14A3cxbsw2Oo7ui9arfYY01",
@@ -14,6 +15,7 @@ const STRIPE_PAYMENT_LINKS: Record<string, string> = {
 };
 
 function UpgradeContent() {
+  const { t } = useTranslation();
   const params = useSearchParams();
   const success = params.get("success") === "1";
   const canceled = params.get("canceled") === "1";

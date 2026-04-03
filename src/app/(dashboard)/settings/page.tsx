@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Settings, User, Bell, Palette, Shield, LogOut, Zap, CreditCard, CheckCircle, Monitor, ExternalLink, Download, Loader2, FileJson, HardDrive, Database, Globe } from "lucide-react";
+import { Settings, User, Bell, Palette, Shield, LogOut, Zap, CreditCard, CheckCircle, Monitor, ExternalLink, Download, Loader2, FileJson, HardDrive, Database, Globe, Languages } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { COUNTRY_LIST, GRADING_SYSTEMS, type CountryCode } from "@/lib/grading-systems";
+import { useTranslation, LOCALES, LOCALE_LABELS, LOCALE_FLAGS, type Locale } from "@/lib/i18n";
 import Link from "next/link";
 
 export default function SettingsPage() {
@@ -163,6 +164,9 @@ function AccountTab({ user, profile }: { user: { email?: string; created_at?: st
           </p>
         )}
       </div>
+
+      {/* Language */}
+      <LanguageCard />
 
       <div className="card">
         <h2 className="font-semibold text-surface-900 mb-4">Passwort ändern</h2>
@@ -729,6 +733,68 @@ function PrivacyTab() {
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ── Language Card ── */
+function LanguageCard() {
+  const supabase = createClient();
+  const { locale, setLocale, t } = useTranslation();
+  const [saving, setSaving] = useState(false);
+  const [selectedLang, setSelectedLang] = useState<Locale>(locale);
+  const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  useEffect(() => { setSelectedLang(locale); }, [locale]);
+
+  async function handleSave() {
+    setSaving(true);
+    setMsg(null);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaving(false); return; }
+    const { error } = await supabase.from("profiles").update({ language: selectedLang }).eq("id", user.id);
+    setSaving(false);
+    if (error) {
+      setMsg({ type: "error", text: error.message });
+    } else {
+      setLocale(selectedLang);
+      setMsg({ type: "success", text: "Sprache aktualisiert." });
+    }
+  }
+
+  return (
+    <div className="card">
+      <div className="flex items-center gap-2 mb-1">
+        <Languages size={16} className="text-brand-600" />
+        <h2 className="font-semibold text-surface-900">Sprache</h2>
+      </div>
+      <p className="text-xs text-surface-400 mb-4">Bestimmt die Sprache der gesamten App-Oberfläche.</p>
+      <div className="flex items-end gap-3">
+        <div className="flex-1">
+          <label className="block text-sm font-medium text-surface-700 mb-1">Sprache</label>
+          <select
+            value={selectedLang}
+            onChange={e => setSelectedLang(e.target.value as Locale)}
+            className="input w-full"
+          >
+            {LOCALES.map(l => (
+              <option key={l} value={l}>{LOCALE_FLAGS[l]} {LOCALE_LABELS[l]}</option>
+            ))}
+          </select>
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={saving || selectedLang === locale}
+          className="btn-primary shrink-0"
+        >
+          {saving ? "Speichern…" : "Speichern"}
+        </button>
+      </div>
+      {msg && (
+        <p className={`text-sm px-3 py-2 rounded-lg mt-3 ${msg.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>
+          {msg.text}
+        </p>
+      )}
     </div>
   );
 }

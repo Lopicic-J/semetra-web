@@ -9,6 +9,7 @@ import {
   Eye, EyeOff, RotateCcw, Check, X, Upload, Loader2, Filter
 } from "lucide-react";
 import type { Flashcard, Module } from "@/types/database";
+import { useTranslation } from "@/lib/i18n";
 
 // ── SM-2 Spaced Repetition ────────────────────────────────────────────────────
 function sm2(card: Flashcard, quality: number): Partial<Flashcard> {
@@ -51,6 +52,7 @@ function CardDialog({
   onSave: (data: Partial<Flashcard>) => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [front, setFront] = useState(card?.front ?? "");
   const [back, setBack] = useState(card?.back ?? "");
   const [moduleId, setModuleId] = useState(card?.module_id ?? "");
@@ -60,7 +62,7 @@ function CardDialog({
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
         <h3 className="text-lg font-bold text-surface-900 mb-4">
-          {card ? "Karteikarte bearbeiten" : "Neue Karteikarte"}
+          {card ? t("flashcards.editCard") : t("flashcards.newCard")}
         </h3>
 
         <div className="space-y-4">
@@ -95,7 +97,7 @@ function CardDialog({
               className="input w-full min-h-[80px] resize-y"
               value={front}
               onChange={(e) => setFront(e.target.value)}
-              placeholder="Was ist...?"
+              placeholder={t("flashcards.newCardFront")}
             />
           </div>
 
@@ -105,7 +107,7 @@ function CardDialog({
               className="input w-full min-h-[80px] resize-y"
               value={back}
               onChange={(e) => setBack(e.target.value)}
-              placeholder="Die Antwort ist..."
+              placeholder={t("flashcards.newCardBack")}
             />
           </div>
         </div>
@@ -143,6 +145,7 @@ function StudyMode({
   onRate: (id: string, quality: number) => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const card = cards[idx];
@@ -182,7 +185,7 @@ function StudyMode({
       >
         <div className="text-center">
           <p className="text-xs font-semibold text-brand-600 mb-3">
-            {flipped ? "ANTWORT" : "FRAGE"}
+            {flipped ? t("flashcards.answer") : t("flashcards.question")}
           </p>
           <p className="text-lg text-surface-800 whitespace-pre-wrap">
             {flipped ? card.back : card.front}
@@ -237,6 +240,7 @@ function StudyMode({
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function FlashcardsPage() {
+  const { t } = useTranslation();
   const supabase = createClient();
   const { profile, isPro } = useProfile();
   const [cards, setCards] = useState<Flashcard[]>([]);
@@ -259,7 +263,7 @@ export default function FlashcardsPage() {
       supabase.from("modules").select("id,name,color").order("name"),
     ]);
     setCards(cardsRes.data ?? []);
-    setModules(modsRes.data ?? []);
+    setModules((modsRes.data as Module[]) ?? []);
     setLoading(false);
   }, [supabase]);
 

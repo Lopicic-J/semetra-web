@@ -18,6 +18,7 @@ import type {
   Note, NoteStatus, NoteChecklistItem,
   CalendarEvent, Task, Module, TimeLog
 } from "@/types/database";
+import { useTranslation } from "@/lib/i18n";
 
 /* ── Unified note item for Flow view ─────────────────────────────── */
 interface FlowItem {
@@ -62,7 +63,8 @@ const FLOW_TYPE_COLORS: Record<string, string> = {
 
 /* ── Main Page ──────────────────────────────────────────────────────── */
 export default function NotesPage() {
-  const supabase = createClient();
+
+  const { t } = useTranslation();  const supabase = createClient();
   const { modules } = useModules();
   const { isPro } = useProfile();
   const [notes, setNotes] = useState<Note[]>([]);
@@ -178,7 +180,7 @@ export default function NotesPage() {
       items.push({
         id: "exam-" + en.id,
         type: "exam",
-        title: en.label || "Prüfungs-Notiz",
+        title: en.label || t("notes.typeExamNote"),
         content: (en.content ?? "").slice(0, 200),
         date: en.created_at,
         color: "#d97706",
@@ -263,7 +265,7 @@ export default function NotesPage() {
             }}
             className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition"
           >
-            <Plus size={16} /> Neue Notiz
+            <Plus size={16} /> {t("notes.newNote")}
           </button>
         </div>
       </div>
@@ -316,7 +318,7 @@ export default function NotesPage() {
             <input
               value={searchQ}
               onChange={e => setSearchQ(e.target.value)}
-              placeholder="Notizen durchsuchen..."
+              placeholder={t("notes.search")}
               className="w-full bg-surface-50 border border-surface-200 rounded-lg pl-10 pr-3 py-2 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none transition"
             />
           </div>
@@ -452,9 +454,9 @@ export default function NotesPage() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-16">
           <FileText size={48} className="mx-auto mb-4 text-surface-300" />
-          <p className="text-surface-500">{notes.length === 0 ? "Noch keine Notizen" : "Keine Notizen gefunden"}</p>
+          <p className="text-surface-500">{notes.length === 0 ? t("notes.noNotes") : t("notes.noNotesFound")}</p>
           <p className="text-sm mt-1 text-surface-400">
-            {notes.length === 0 ? "Erstelle deine erste Notiz zu einem Modul oder Thema!" : "Versuche einen anderen Suchbegriff oder Filter"}
+            {notes.length === 0 ? t("notes.createFirst") : t("notes.tryOtherSearch")}
           </p>
         </div>
       ) : viewMode === "flow" ? (
@@ -878,6 +880,7 @@ function NoteEditor({
   tasks: Task[];
   onBack: () => void;
 }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const editorRef = useRef<HTMLDivElement>(null);
   const [title, setTitle] = useState(note.title);
@@ -948,7 +951,7 @@ function NoteEditor({
   }
 
   async function deleteNote() {
-    if (!confirm("Notiz wirklich löschen?")) return;
+    if (!confirm(t("notes.deleteConfirm"))) return;
     await supabase.from("note_checklist_items").delete().eq("note_id", note.id);
     await supabase.from("notes").delete().eq("id", note.id);
     onBack();
@@ -1040,7 +1043,7 @@ function NoteEditor({
           </div>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap flex-shrink-0">
-          <button onClick={togglePin} className={`p-2 rounded-lg transition ${pinned ? "bg-amber-500/20 text-amber-400" : "bg-surface-100 text-surface-500 hover:text-surface-900"} border border-surface-200`} title={pinned ? "Loslösen" : "Anheften"}>
+          <button onClick={togglePin} className={`p-2 rounded-lg transition ${pinned ? "bg-amber-500/20 text-amber-400" : "bg-surface-100 text-surface-500 hover:text-surface-900"} border border-surface-200`} title={pinned ? t("notes.detach") : t("notes.pin")}>
             {pinned ? <PinOff size={16} /> : <Pin size={16} />}
           </button>
           <button onClick={saveNote} className="flex items-center gap-1.5 px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-sm font-medium transition">
@@ -1099,17 +1102,17 @@ function NoteEditor({
         <TBtn onClick={() => execCmd("underline")} title="Unterstrichen"><Underline size={14} /></TBtn>
         <TBtn onClick={() => execCmd("strikeThrough")} title="Durchgestrichen"><Strikethrough size={14} /></TBtn>
         <div className="w-px h-4 sm:h-5 bg-surface-200 mx-0.5 sm:mx-1" />
-        <TBtn onClick={() => execCmd("formatBlock", "h1")} title="Überschrift 1"><Heading1 size={14} /></TBtn>
-        <TBtn onClick={() => execCmd("formatBlock", "h2")} title="Überschrift 2"><Heading2 size={14} /></TBtn>
+        <TBtn onClick={() => execCmd("formatBlock", "h1")} title={t("notes.heading1")}><Heading1 size={14} /></TBtn>
+        <TBtn onClick={() => execCmd("formatBlock", "h2")} title={t("notes.heading2")}><Heading2 size={14} /></TBtn>
         <TBtn onClick={() => execCmd("formatBlock", "p")} title="Absatz"><AlignLeft size={14} /></TBtn>
         <div className="w-px h-4 sm:h-5 bg-surface-200 mx-0.5 sm:mx-1" />
-        <TBtn onClick={() => execCmd("insertUnorderedList")} title="Aufzählung"><List size={14} /></TBtn>
+        <TBtn onClick={() => execCmd("insertUnorderedList")} title={t("notes.bullet")}><List size={14} /></TBtn>
         <TBtn onClick={() => execCmd("insertOrderedList")} title="Nummerierung"><ListOrdered size={14} /></TBtn>
         <div className="w-px h-4 sm:h-5 bg-surface-200 mx-0.5 sm:mx-1" />
         <TBtn onClick={() => {
           const url = prompt("Link-URL:");
           if (url) execCmd("createLink", url);
-        }} title="Link einfügen"><Link2 size={14} /></TBtn>
+        }} title={t("notes.insertLink")}><Link2 size={14} /></TBtn>
         <TBtn onClick={() => execCmd("justifyCenter")} title="Zentriert"><AlignCenter size={14} /></TBtn>
       </div>
 

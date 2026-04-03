@@ -12,8 +12,10 @@ import {
   Crown,
 } from "lucide-react";
 import Link from "next/link";
+import { useTranslation } from "@/lib/i18n";
 
 export default function AboutPage() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -26,15 +28,15 @@ export default function AboutPage() {
 
           {/* App Name & Tagline */}
           <h1 className="text-5xl sm:text-6xl font-bold text-surface-900 mb-4">
-            Semetra Workspace
+            {t("about.title")}
           </h1>
           <p className="text-xl sm:text-2xl text-surface-600 font-medium mb-3">
-            Dein intelligenter Studienbegleiter
+            {t("about.tagline")}
           </p>
 
           {/* Version Badge */}
           <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-surface-100 text-surface-600 text-sm font-medium">
-            <span>v2.0 · Workspace</span>
+            <span>{t("about.version")}</span>
           </div>
         </div>
       </div>
@@ -42,17 +44,14 @@ export default function AboutPage() {
       {/* Mission Statement */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
         <p className="text-lg text-surface-600 leading-relaxed">
-          Semetra Workspace unterstützt Studierende an Fachhochschulen und Universitäten in Europa dabei, ihre
-          Lernziele effizient zu organisieren und zu erreichen. Mit intelligenter KI-Unterstützung,
-          flexiblem Offline-Zugang und europäischem Datenschutz gestalten wir das Studium produktiver
-          und stressfreier.
+          {t("about.mission")}
         </p>
       </div>
 
       {/* Feature Highlights */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h2 className="text-3xl font-bold text-surface-900 text-center mb-12">
-          Warum Semetra Workspace?
+          {t("about.whySemetra")}
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -62,10 +61,10 @@ export default function AboutPage() {
               <Brain size={28} />
             </div>
             <h3 className="text-xl font-semibold text-surface-900 mb-3">
-              KI-gestütztes Lernen
+              {t("about.featureAi")}
             </h3>
             <p className="text-surface-600 text-sm leading-relaxed">
-              Generiere Karteikarten, Zusammenfassungen und Prüfungsfragen automatisch mit KI-Unterstützung. Lerne effizienter mit intelligenten Vorschlägen.
+              {t("about.featureAiDesc")}
             </p>
           </div>
 
@@ -75,10 +74,10 @@ export default function AboutPage() {
               <BookOpen size={28} />
             </div>
             <h3 className="text-xl font-semibold text-surface-900 mb-3">
-              Modulplanung & ECTS
+              {t("about.featureModules")}
             </h3>
             <p className="text-surface-600 text-sm leading-relaxed">
-              Verwalte deine Module, tracke ECTS-Credits, plane Prüfungen und überwache deine Noten — alles auf einen Blick organisiert.
+              {t("about.featureModulesDesc")}
             </p>
           </div>
 
@@ -88,10 +87,10 @@ export default function AboutPage() {
               <Layers size={28} />
             </div>
             <h3 className="text-xl font-semibold text-surface-900 mb-3">
-              Plattformübergreifend
+              {t("about.featureCrossPlatform")}
             </h3>
             <p className="text-surface-600 text-sm leading-relaxed">
-              Nutze Semetra Workspace im Browser, als Desktop-App oder mobil — deine Daten synchronisieren nahtlos und offline funktioniert es auch.
+              {t("about.featureCrossPlatformDesc")}
             </p>
           </div>
 
@@ -101,10 +100,10 @@ export default function AboutPage() {
               <Shield size={28} />
             </div>
             <h3 className="text-xl font-semibold text-surface-900 mb-3">
-              Europäischer Datenschutz
+              {t("about.featureSecurity")}
             </h3>
             <p className="text-surface-600 text-sm leading-relaxed">
-              Deine Daten sind sicher. Wir befolgen DSGVO-Standards und behandeln deine Daten mit größter Sorgfalt.
+              {t("about.featureSecurityDesc")}
             </p>
           </div>
         </div>
@@ -114,7 +113,7 @@ export default function AboutPage() {
       <div className="bg-surface-50 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-surface-900 text-center mb-12">
-            Verfügbar auf allen Plattformen
+            {t("about.platformTitle")}
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -126,17 +125,17 @@ export default function AboutPage() {
                 </div>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
                   <span className="w-2 h-2 rounded-full bg-emerald-600" />
-                  Live
+                  {t("about.platformStatus")}
                 </span>
               </div>
               <h3 className="text-lg font-semibold text-surface-900 mb-2">
-                Web App
+                {t("about.platformWeb")}
               </h3>
               <p className="text-surface-600 text-sm mb-4">
-                Zugänglich von überall. Nutze Semetra Workspace direkt im Browser — kein Download nötig.
+                {t("about.platformWebDesc")}
               </p>
               <p className="text-xs text-surface-500">
-                app.semetra.ch
+                {t("about.platformWebUrl")}
               </p>
             </div>
 
@@ -148,17 +147,17 @@ export default function AboutPage() {
                 </div>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
                   <span className="w-2 h-2 rounded-full bg-emerald-600" />
-                  Live
+                  {t("about.platformStatus")}
                 </span>
               </div>
               <h3 className="text-lg font-semibold text-surface-900 mb-2">
-                Desktop App
+                {t("about.platformDesktop")}
               </h3>
               <p className="text-surface-600 text-sm mb-4">
-                Offline-First mit lokaler Datenbank. Synchronisiert automatisch wenn online.
+                {t("about.platformDesktopDesc")}
               </p>
               <p className="text-xs text-surface-500">
-                Windows, macOS, Linux
+                {t("about.platformDesktopOs")}
               </p>
             </div>
 
@@ -170,17 +169,17 @@ export default function AboutPage() {
                 </div>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-200 text-surface-600 text-xs font-semibold">
                   <span className="w-2 h-2 rounded-full bg-surface-400" />
-                  In Entwicklung
+                  {t("about.platformStatusDevelopment")}
                 </span>
               </div>
               <h3 className="text-lg font-semibold text-surface-900 mb-2">
-                Mobile App
+                {t("about.platformMobile")}
               </h3>
               <p className="text-surface-600 text-sm mb-4">
-                Bald verfügbar. Vollständiger Zugriff auf deine Daten unterwegs.
+                {t("about.platformMobileDesc")}
               </p>
               <p className="text-xs text-surface-500">
-                iOS & Android
+                {t("about.platformMobileOs")}
               </p>
             </div>
           </div>
@@ -190,59 +189,37 @@ export default function AboutPage() {
       {/* Pricing Overview */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h2 className="text-3xl font-bold text-surface-900 text-center mb-12">
-          Einfache, transparente Preise
+          {t("about.pricingTitle")}
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           {/* Free Plan */}
           <div className="card p-8 border border-surface-200">
             <h3 className="text-2xl font-bold text-surface-900 mb-2">
-              Kostenlos
+              {t("about.planFree")}
             </h3>
             <p className="text-surface-600 text-sm mb-6">
-              Grundfunktionen ohne Kosten
+              {t("about.planFreeSubtitle")}
             </p>
 
             <ul className="space-y-3 mb-8">
-              <li className="flex items-start gap-3">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 text-brand-600 flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold">✓</span>
-                </span>
-                <span className="text-surface-700 text-sm">
-                  Module und ECTS-Verwaltung
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 text-brand-600 flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold">✓</span>
-                </span>
-                <span className="text-surface-700 text-sm">
-                  Aufgaben & Kalender
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 text-brand-600 flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold">✓</span>
-                </span>
-                <span className="text-surface-700 text-sm">
-                  Noten-Tracker
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 text-brand-600 flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold">✓</span>
-                </span>
-                <span className="text-surface-700 text-sm">
-                  Web & Desktop Zugang
-                </span>
-              </li>
+              {t("about.freeFeatures").split("|").map((feature, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 text-brand-600 flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold">✓</span>
+                  </span>
+                  <span className="text-surface-700 text-sm">
+                    {feature}
+                  </span>
+                </li>
+              ))}
             </ul>
 
             <Link
               href="/upgrade"
               className="inline-flex w-full items-center justify-center px-4 py-3 rounded-lg border border-surface-300 text-surface-900 font-medium hover:bg-surface-50 transition-colors text-sm"
             >
-              Mit Free starten
+              {t("about.startFree")}
             </Link>
           </div>
 
@@ -250,61 +227,31 @@ export default function AboutPage() {
           <div className="card p-8 bg-gradient-to-br from-brand-50 to-brand-25 border-2 border-brand-300 relative">
             <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-600 text-white text-xs font-semibold">
               <Crown size={12} />
-              Beliebt
+              {t("about.planProPopular")}
             </div>
 
             <h3 className="text-2xl font-bold text-surface-900 mb-2">
-              Pro
+              {t("about.planPro")}
             </h3>
             <p className="text-surface-600 text-sm mb-2">
-              Volle Kraft für dein Studium
+              {t("about.planProSubtitle")}
             </p>
             <div className="text-3xl font-bold text-brand-600 mb-6">
-              ab CHF 3,33
-              <span className="text-lg text-surface-600 font-normal">/Mt.</span>
+              {t("about.planProPrice")}
+              <span className="text-lg text-surface-600 font-normal">{t("about.planProPerMonth")}</span>
             </div>
 
             <ul className="space-y-3 mb-8">
-              <li className="flex items-start gap-3">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-600 text-white flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold">✓</span>
-                </span>
-                <span className="text-surface-700 text-sm">
-                  Alles aus dem kostenlosen Plan
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-600 text-white flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold">✓</span>
-                </span>
-                <span className="text-surface-700 text-sm">
-                  KI-Karteikarten & Zusammenfassungen
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-600 text-white flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold">✓</span>
-                </span>
-                <span className="text-surface-700 text-sm">
-                  Unbegrenzte Module
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-600 text-white flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold">✓</span>
-                </span>
-                <span className="text-surface-700 text-sm">
-                  Automatische Synchronisation
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-600 text-white flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-bold">✓</span>
-                </span>
-                <span className="text-surface-700 text-sm">
-                  FH-Voreinstellungen
-                </span>
-              </li>
+              {t("about.proFeatures").split("|").map((feature, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-600 text-white flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold">✓</span>
+                  </span>
+                  <span className="text-surface-700 text-sm">
+                    {feature}
+                  </span>
+                </li>
+              ))}
             </ul>
 
             <Link
@@ -312,7 +259,7 @@ export default function AboutPage() {
               className="inline-flex w-full items-center justify-center px-4 py-3 rounded-lg bg-brand-600 text-white font-medium hover:bg-brand-700 transition-colors text-sm"
             >
               <Zap size={14} className="mr-2" />
-              Zu Pro wechseln
+              {t("about.upgradePro")}
             </Link>
           </div>
         </div>
@@ -325,17 +272,17 @@ export default function AboutPage() {
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-white mb-1">
-                Pro Lifetime
+                {t("about.planLifetime")}
               </h3>
               <p className="text-white/60 text-sm">
-                Einmalkauf — dauerhaft Pro auf allen Plattformen. Kein Abo nötig.
+                {t("about.planLifetimeDesc")}
               </p>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-white">
-                CHF 89,90
+                {t("about.planLifetimePrice")}
               </div>
-              <p className="text-xs text-white/50">einmalig</p>
+              <p className="text-xs text-white/50">{t("about.planLifetimeOneTime")}</p>
             </div>
           </div>
         </div>
@@ -345,7 +292,7 @@ export default function AboutPage() {
       <div className="bg-surface-50 border-t border-surface-200 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-surface-700 font-medium mb-4">
-            Entwickelt von Lopicic Technologies
+            {t("about.company")}
           </p>
 
           <div className="flex items-center justify-center gap-6 text-sm mb-6">
@@ -354,19 +301,19 @@ export default function AboutPage() {
               target="_blank"
               className="inline-flex items-center gap-1.5 text-brand-600 hover:text-brand-700 font-medium"
             >
-              semetra.ch
+              {t("about.website")}
               <ExternalLink size={14} />
             </Link>
             <Link
               href="/privacy"
               className="text-surface-600 hover:text-surface-900 font-medium"
             >
-              Datenschutz & Sicherheit
+              {t("about.privacy")}
             </Link>
           </div>
 
           <p className="text-xs text-surface-500">
-            © 2024–2026 Lopicic Technologies. Alle Rechte vorbehalten.
+            {t("about.copyright")}
           </p>
         </div>
       </div>

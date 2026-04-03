@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "@/lib/i18n";
 import { useGrades } from "@/lib/hooks/useGrades";
 import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
@@ -41,6 +42,7 @@ function safeGradeAvg(grades: Grade[]): number {
 }
 
 export default function GradesPage() {
+  const { t } = useTranslation();
   const { grades, loading, refetch } = useGrades();
   const { modules } = useModules();
   const { isPro } = useProfile();
@@ -125,6 +127,7 @@ export default function GradesPage() {
   });
 
   async function handleDelete(id: string) {
+    // Note: No translation key for "delete grade" confirmation, using German
     if (!confirm("Note löschen?")) return;
     await supabase.from("grades").delete().eq("id", id);
     refetch();
@@ -134,15 +137,15 @@ export default function GradesPage() {
     <div className="p-4 md:p-6 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-surface-900">Noten & {gs.creditLabel}</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-surface-900">{t("grades.title", { creditLabel: gs.creditLabel })}</h1>
           <p className="text-surface-500 text-sm mt-0.5">
-            {grades.length} Noten · {totalEarnedEcts}/{totalEcts} {gs.creditLabel} erlangt
+            {t("grades.subtitle", { count: grades.length, earned: totalEarnedEcts, total: totalEcts, creditLabel: gs.creditLabel })}
           </p>
         </div>
         <button onClick={() => {
           setEditing(null); setShowForm(true);
         }} className="btn-primary gap-2">
-          <Plus size={16} /> Note erfassen
+          <Plus size={16} /> {t("grades.addGrade")}
         </button>
       </div>
 
@@ -150,7 +153,7 @@ export default function GradesPage() {
       {totalEcts > 0 && (
         <div className="card mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-surface-700">{gs.creditLabel}-Fortschritt</span>
+            <span className="text-sm font-medium text-surface-700">{t("grades.ectsProgress", { creditLabel: gs.creditLabel })}</span>
             <span className="text-sm font-bold text-brand-600">{totalEarnedEcts} / {totalEcts} {gs.creditLabel}</span>
           </div>
           <div className="w-full bg-surface-100 rounded-full h-3 overflow-hidden">
@@ -163,8 +166,8 @@ export default function GradesPage() {
             />
           </div>
           <p className="text-xs text-surface-400 mt-1.5">
-            {Math.round((totalEarnedEcts / totalEcts) * 100)}% abgeschlossen
-            {ungradedModules.length > 0 && ` · ${ungradedModules.length} Module noch offen`}
+            {Math.round((totalEarnedEcts / totalEcts) * 100)}% {t("grades.percentComplete")}
+            {ungradedModules.length > 0 && ` · ${t("grades.modulesRemaining", { count: ungradedModules.length })}`}
           </p>
         </div>
       )}
@@ -173,7 +176,7 @@ export default function GradesPage() {
       {ectsAvg > 0 && gradedModules.length > 1 && (
         <div className="card mb-6 bg-brand-50/50 border-brand-200">
           <h3 className="text-xs font-semibold text-brand-700 mb-2 flex items-center gap-1.5">
-            <TrendingUp size={12} /> ECTS-gewichteter Durchschnitt ({gs.name})
+            <TrendingUp size={12} /> {t("grades.ecsWeightedAverage", { system: gs.name })}
           </h3>
           <div className="text-xs text-surface-600 space-y-1">
             <p className="font-mono text-[11px]">
@@ -200,7 +203,7 @@ export default function GradesPage() {
             <p className={`text-2xl font-bold ${ectsAvg ? getGradeColor(ectsAvg, gs.country) : "text-surface-300"}`}>
               {ectsAvg ? formatGrade(ectsAvg, gs.country) : "—"}
             </p>
-            <p className="text-xs text-surface-500 mt-0.5">{gs.creditLabel}-Durchschnitt</p>
+            <p className="text-xs text-surface-500 mt-0.5">{t("grades.averageEcs", { creditLabel: gs.creditLabel })}</p>
             {ectsAvg > 0 && (
               <p className={`text-[10px] mt-0.5 ${getGradeColor(ectsAvg, gs.country)}`}>{getGradeLabelText(ectsAvg, gs.country)}</p>
             )}
@@ -208,22 +211,22 @@ export default function GradesPage() {
           <div className="card text-center py-4">
             <BarChart2 size={18} className="mx-auto mb-1.5 text-surface-400" />
             <p className={`text-2xl font-bold ${avg ? getGradeColor(avg, gs.country) : "text-surface-300"}`}>{avg ? formatGrade(avg, gs.country) : "—"}</p>
-            <p className="text-xs text-surface-500 mt-0.5">Einfacher ⌀</p>
+            <p className="text-xs text-surface-500 mt-0.5">{t("grades.simpleAverage")}</p>
           </div>
           <div className="card text-center py-4">
             <Award size={18} className="mx-auto mb-1.5 text-green-500" />
             <p className="text-2xl font-bold text-green-600">{totalEarnedEcts}</p>
-            <p className="text-xs text-surface-500 mt-0.5">{gs.creditLabel} erlangt</p>
+            <p className="text-xs text-surface-500 mt-0.5">{t("grades.ectsEarned", { creditLabel: gs.creditLabel })}</p>
           </div>
           <div className="card text-center py-4">
             <Target size={18} className="mx-auto mb-1.5 text-blue-500" />
             <p className="text-2xl font-bold text-blue-600">{gradedModules.length}</p>
-            <p className="text-xs text-surface-500 mt-0.5">Module bewertet</p>
+            <p className="text-xs text-surface-500 mt-0.5">{t("grades.modulesGraded")}</p>
           </div>
           <div className="card text-center py-4">
             <AlertTriangle size={18} className="mx-auto mb-1.5 text-red-400" />
             <p className="text-2xl font-bold text-red-600">{failedModules.length}</p>
-            <p className="text-xs text-surface-500 mt-0.5">Nicht bestanden</p>
+            <p className="text-xs text-surface-500 mt-0.5">{t("grades.modulesFailed")}</p>
           </div>
         </div>
       )}
@@ -232,7 +235,7 @@ export default function GradesPage() {
       {examStatus.filter(e => e.status !== "pending").length > 0 && (
         <div className="card mb-6">
           <h3 className="text-sm font-semibold text-surface-700 mb-3 flex items-center gap-2">
-            <GraduationCap size={14} /> Prüfungsstatus
+            <GraduationCap size={14} /> {t("grades.examStatus")}
           </h3>
           <div className="flex flex-wrap gap-2">
             {examStatus.filter(e => e.status !== "pending").map(es => (
@@ -255,7 +258,7 @@ export default function GradesPage() {
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
           <div className="flex items-center gap-2 mb-2">
             <AlertTriangle size={16} className="text-red-500" />
-            <span className="text-sm font-semibold text-red-700">Achtung: {failedModules.length} Modul{failedModules.length > 1 ? "e" : ""} nicht bestanden</span>
+            <span className="text-sm font-semibold text-red-700">{t("grades.failedModules", { count: failedModules.length, plural: failedModules.length > 1 ? "e" : "" })}</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {failedModules.map(m => (
@@ -270,10 +273,10 @@ export default function GradesPage() {
       {/* Filters: Module + Exam */}
       <div className="space-y-2 mb-5">
         <div className="flex gap-2 flex-wrap items-center">
-          <span className="text-xs text-surface-400 font-medium w-14 shrink-0">Modul:</span>
+          <span className="text-xs text-surface-400 font-medium w-14 shrink-0">{t("grades.moduleFilter")}</span>
           <button onClick={() => { setFilterModule("all"); setFilterExam("all"); }}
             className={`badge cursor-pointer text-xs ${filterModule === "all" ? "bg-brand-600 text-white" : "badge-gray hover:bg-surface-200"}`}>
-            Alle
+            {t("grades.filterAll")}
           </button>
           {byModule.map(({ module: m, passed }) => (
             <button key={m.id} onClick={() => { setFilterModule(m.id); setFilterExam("all"); }}
@@ -286,10 +289,10 @@ export default function GradesPage() {
 
         {gradedExams.length > 0 && (
           <div className="flex gap-2 flex-wrap items-center">
-            <span className="text-xs text-surface-400 font-medium w-14 shrink-0">Prüfung:</span>
+            <span className="text-xs text-surface-400 font-medium w-14 shrink-0">{t("grades.examFilter")}</span>
             <button onClick={() => setFilterExam("all")}
               className={`badge cursor-pointer text-xs ${filterExam === "all" ? "bg-brand-600 text-white" : "badge-gray hover:bg-surface-200"}`}>
-              Alle
+              {t("grades.filterAll")}
             </button>
             {gradedExams.map(e => {
               const es = examStatus.find(x => x.exam.id === e.id);
@@ -312,8 +315,8 @@ export default function GradesPage() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-surface-400">
           <BarChart2 size={40} className="mx-auto mb-3 opacity-30" />
-          <p className="font-medium">Noch keine Noten erfasst</p>
-          <p className="text-sm mt-1">Erfasse Noten für deine Module — {gs.creditLabel} werden automatisch gutgeschrieben bei bestandener Note</p>
+          <p className="font-medium">{t("grades.noGrades")}</p>
+          <p className="text-sm mt-1">{t("grades.noGradesSubtitle", { creditLabel: gs.creditLabel })}</p>
         </div>
       ) : filterModule === "all" && filterExam === "all" ? (
         // Grouped view
@@ -384,6 +387,7 @@ function GradeRow({ grade, exams, gs, onEdit, onDelete }: {
   onEdit: (g: Grade) => void;
   onDelete: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   const passed = grade.grade != null && gs.isPassing(grade.grade);
   const linkedExam = grade.exam_id ? exams.find(e => e.id === grade.exam_id) : null;
 
@@ -414,7 +418,7 @@ function GradeRow({ grade, exams, gs, onEdit, onDelete }: {
         {grade.grade != null && (
           <>
             <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${passed ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"}`}>
-              {passed ? "bestanden" : "n. best."}
+              {passed ? t("grades.passed") : t("grades.notPassed")}
             </span>
             <div className={`text-xl font-bold w-14 text-right ${getGradeColor(grade.grade, gs.country)}`} title={getGradeLabelText(grade.grade, gs.country)}>
               {formatGrade(grade.grade, gs.country)}
@@ -441,6 +445,7 @@ function GradeModal({ initial, modules, exams, gs, onClose, onSaved }: {
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const [form, setForm] = useState({
     title: initial?.title ?? "",
@@ -496,8 +501,8 @@ function GradeModal({ initial, modules, exams, gs, onClose, onSaved }: {
       const passed = gs.isPassing(gradeNum);
       const formatted = formatGrade(gradeNum, gs.country);
       const statusText = passed
-        ? `✓ Bestanden (${formatted})`
-        : `✗ Nicht bestanden (${formatted}) — Wiederholung nötig`;
+        ? `✓ ${t("grades.modal.statusPassed", { label: formatted, ects: "", exam: "" })}`
+        : `✗ ${t("grades.modal.statusFailed", { label: formatted, exam: "" })}`;
       await supabase.from("events").update({
         description: statusText,
       }).eq("id", form.exam_id);
@@ -511,24 +516,24 @@ function GradeModal({ initial, modules, exams, gs, onClose, onSaved }: {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-5 border-b border-surface-100">
-          <h2 className="font-semibold text-surface-900">{initial ? "Note bearbeiten" : "Note erfassen"}</h2>
+          <h2 className="font-semibold text-surface-900">{initial ? t("grades.modal.editTitle") : t("grades.modal.title")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Modul</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("grades.modal.moduleLabel")}</label>
             <select className="input" value={form.module_id} onChange={e => set("module_id", e.target.value)}>
-              <option value="">— Modul wählen —</option>
+              <option value="">{t("grades.modal.moduleSelect")}</option>
               {modules.map(m => <option key={m.id} value={m.id}>{m.name} {m.ects ? `(${m.ects} ${gs.creditLabel})` : ""}</option>)}
             </select>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-surface-700 mb-1 flex items-center gap-1">
-              <GraduationCap size={12} /> Prüfung
+              <GraduationCap size={12} /> {t("grades.modal.examLabel")}
             </label>
             <select className="input" value={form.exam_id} onChange={e => set("exam_id", e.target.value)}>
-              <option value="">— keine Prüfung —</option>
+              <option value="">{t("grades.modal.examSelect")}</option>
               {filteredExams.map(ex => (
                 <option key={ex.id} value={ex.id}>
                   {ex.title} ({formatDate(ex.start_dt)})
@@ -538,31 +543,31 @@ function GradeModal({ initial, modules, exams, gs, onClose, onSaved }: {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Bezeichnung *</label>
-            <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder="z.B. Schlussprüfung" />
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("grades.modal.nameLabel")}</label>
+            <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("grades.modal.namePlaceholder")} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{gs.inputPlaceholder}</label>
-              <input className="input" type="number" step={gs.step} min={gs.min} max={gs.max} value={form.grade} onChange={e => set("grade", e.target.value)} placeholder={`z.B. ${gs.passingGrade}`} />
-              <p className="text-[10px] text-surface-400 mt-0.5">Optional — Note oder {gs.creditLabel} oder beides</p>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("grades.modal.gradeLabel", { placeholder: gs.inputPlaceholder })}</label>
+              <input className="input" type="number" step={gs.step} min={gs.min} max={gs.max} value={form.grade} onChange={e => set("grade", e.target.value)} placeholder={t("grades.modal.gradePlaceholder", { example: gs.passingGrade })} />
+              <p className="text-[10px] text-surface-400 mt-0.5">{t("grades.modal.gradeHint", { creditLabel: gs.creditLabel })}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{gs.creditLabel}-Punkte</label>
-              <input className="input" type="number" step="0.5" min="0" max="30" value={form.ects_earned} onChange={e => set("ects_earned", e.target.value)} placeholder="z.B. 5" />
-              <p className="text-[10px] text-surface-400 mt-0.5">Direkt erlangte {gs.creditLabel}</p>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("grades.modal.ectsLabel", { creditLabel: gs.creditLabel })}</label>
+              <input className="input" type="number" step="0.5" min="0" max="30" value={form.ects_earned} onChange={e => set("ects_earned", e.target.value)} placeholder={t("grades.modal.ectsPlaceholder")} />
+              <p className="text-[10px] text-surface-400 mt-0.5">{t("grades.modal.ectsHint", { creditLabel: gs.creditLabel })}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Gewicht im Modul</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("grades.modal.weightLabel")}</label>
               <input className="input" type="number" step="0.5" min="0.5" max="5" value={form.weight} onChange={e => set("weight", e.target.value)} />
-              <p className="text-[10px] text-surface-400 mt-0.5">Gewichtung innerhalb des Moduls (z.B. Prüfung=2, Testat=1)</p>
+              <p className="text-[10px] text-surface-400 mt-0.5">{t("grades.modal.weightHint")}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Datum</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("grades.modal.dateLabel")}</label>
               <input className="input" type="date" value={form.date} onChange={e => set("date", e.target.value)} />
             </div>
           </div>
@@ -575,40 +580,40 @@ function GradeModal({ initial, modules, exams, gs, onClose, onSaved }: {
               "bg-blue-50 text-blue-700"
             }`}>
               {gradeNum !== null && gs.isPassing(gradeNum) && (
-                <>✓ Bestanden — {getGradeLabelText(gradeNum, gs.country)}{selectedModule?.ects ? <> — <strong>{selectedModule.ects} {gs.creditLabel}</strong> werden gutgeschrieben</> : ""}{form.exam_id && " · Prüfung wird als abgehakt markiert"}</>
+                <>✓ {t("grades.modal.statusPassed", { label: getGradeLabelText(gradeNum, gs.country), ects: selectedModule?.ects ? ` — <strong>${selectedModule.ects} ${gs.creditLabel}</strong> werden gutgeschrieben` : "", exam: form.exam_id ? " · Prüfung wird als abgehakt markiert" : "" })}</>
               )}
               {gradeNum !== null && !gs.isPassing(gradeNum) && (
-                <>✗ Nicht bestanden — {getGradeLabelText(gradeNum, gs.country)}{form.exam_id && " · Prüfung wird als zu wiederholen markiert"}</>
+                <>✗ {t("grades.modal.statusFailed", { label: getGradeLabelText(gradeNum, gs.country), exam: form.exam_id ? " · Prüfung wird als zu wiederholen markiert" : "" })}</>
               )}
               {gradeNum === null && ectsNum !== null && (
-                <>📊 {ectsNum} {gs.creditLabel} werden direkt gutgeschrieben</>
+                <>📊 {t("grades.modal.statusEcs", { count: ectsNum, creditLabel: gs.creditLabel })}</>
               )}
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Typ</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("grades.modal.typeLabel")}</label>
             <select className="input" value={form.exam_type} onChange={e => set("exam_type", e.target.value)}>
-              <option value="">—</option>
-              <option value="Schlussprüfung">Schlussprüfung</option>
-              <option value="Zwischenprüfung">Zwischenprüfung</option>
-              <option value="Testat">Testat</option>
-              <option value="Hausarbeit">Hausarbeit</option>
-              <option value="Projekt">Projekt</option>
-              <option value="Präsentation">Präsentation</option>
-              <option value="Mitarbeit">Mitarbeit</option>
-              <option value="Mündlich">Mündliche Prüfung</option>
-              <option value="Online-Prüfung">Online-Prüfung</option>
+              <option value="">{t("grades.modal.typeDefault")}</option>
+              <option value="Schlussprüfung">{t("grades.modal.typeFinal")}</option>
+              <option value="Zwischenprüfung">{t("grades.modal.typeMid")}</option>
+              <option value="Testat">{t("grades.modal.typeAttest")}</option>
+              <option value="Hausarbeit">{t("grades.modal.typeEssay")}</option>
+              <option value="Projekt">{t("grades.modal.typeProject")}</option>
+              <option value="Präsentation">{t("grades.modal.typePresentation")}</option>
+              <option value="Mitarbeit">{t("grades.modal.typeParticipation")}</option>
+              <option value="Mündlich">{t("grades.modal.typeOral")}</option>
+              <option value="Online-Prüfung">{t("grades.modal.typeOnline")}</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Notizen</label>
-            <textarea className="input resize-none" rows={2} value={form.notes} onChange={e => set("notes", e.target.value)} placeholder="Feedback, Kommentar…" />
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("grades.modal.notesLabel")}</label>
+            <textarea className="input resize-none" rows={2} value={form.notes} onChange={e => set("notes", e.target.value)} placeholder={t("grades.modal.notesPlaceholder")} />
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="btn-secondary flex-1">Abbrechen</button>
+            <button type="button" onClick={onClose} className="btn-secondary flex-1">{t("credits.cancel")}</button>
             <button type="submit" disabled={saving || !hasValue} className="btn-primary flex-1 justify-center">
-              {saving ? "Speichern…" : "Speichern"}
+              {saving ? t("credits.saving") : t("credits.save")}
             </button>
           </div>
         </form>

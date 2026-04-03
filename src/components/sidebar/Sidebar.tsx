@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { LogOut, Zap, Gem } from "lucide-react";
 import { clsx } from "clsx";
 import { useProfile } from "@/lib/hooks/useProfile";
+import { useTranslation } from "@/lib/i18n";
 import { ProBadge } from "@/components/ui/ProGate";
 import { NAV_GROUPS, BOTTOM_ITEMS, type NavItem as NavItemType } from "./nav-config";
 
@@ -13,6 +14,7 @@ export default function Sidebar() {
   const router   = useRouter();
   const supabase = createClient();
   const { isPro } = useProfile();
+  const { t } = useTranslation();
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -20,7 +22,7 @@ export default function Sidebar() {
     router.refresh();
   }
 
-  function NavItem({ href, icon: Icon, label, pro }: NavItemType) {
+  function NavItem({ href, icon: Icon, labelKey, pro }: NavItemType) {
     const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
     const locked = pro && !isPro;
 
@@ -35,7 +37,7 @@ export default function Sidebar() {
               : "text-surface-500 hover:bg-surface-100 hover:text-surface-800"
         )}>
         <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
-        <span className="flex-1 truncate">{label}</span>
+        <span className="flex-1 truncate">{t(labelKey)}</span>
         {locked && !active && <ProBadge />}
       </Link>
     );
@@ -63,10 +65,10 @@ export default function Sidebar() {
       {/* Nav */}
       <nav className="flex-1 space-y-0.5 overflow-y-auto pr-0.5 -mr-0.5">
         {NAV_GROUPS.map((group) => (
-          <div key={group.label}>
-            {group.label && (
+          <div key={group.labelKey}>
+            {group.labelKey && (
               <p className="px-3 pt-4 pb-1.5 text-[10px] font-semibold text-surface-400 tracking-wider uppercase select-none">
-                {group.label}
+                {t(group.labelKey)}
               </p>
             )}
             {group.items.map((item) => (
@@ -83,7 +85,7 @@ export default function Sidebar() {
           onClick={handleLogout}
           className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-[13px] font-medium text-surface-400 hover:bg-danger-50 hover:text-danger-600 transition-all duration-150">
           <LogOut size={17} strokeWidth={1.8} className="shrink-0" />
-          Abmelden
+          {t("sidebar.logout")}
         </button>
       </div>
 
@@ -92,19 +94,19 @@ export default function Sidebar() {
         <div className="mt-3 p-3 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white">
           <div className="flex items-center gap-2">
             <Zap size={13} />
-            <span className="text-xs font-semibold">Semetra Pro aktiv</span>
+            <span className="text-xs font-semibold">{t("sidebar.proActive")}</span>
           </div>
-          <p className="text-[11px] text-brand-200 mt-1">Alle Features freigeschaltet</p>
+          <p className="text-[11px] text-brand-200 mt-1">{t("sidebar.allFeaturesUnlocked")}</p>
         </div>
       ) : (
         <Link href="/upgrade" className="mt-3 p-3 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white block hover:opacity-95 transition-opacity">
           <div className="flex items-center gap-2 mb-1">
             <Zap size={13} />
-            <span className="text-xs font-semibold">Semetra Pro</span>
+            <span className="text-xs font-semibold">{t("sidebar.proUpgrade")}</span>
           </div>
-          <p className="text-[11px] text-brand-200 mb-2.5">KI-Coach, Sync & mehr</p>
+          <p className="text-[11px] text-brand-200 mb-2.5">{t("sidebar.aiCoach")}</p>
           <div className="w-full py-1.5 rounded-lg bg-white/95 text-brand-700 text-xs font-semibold text-center hover:bg-white transition-colors">
-            Upgrade — ab CHF 3.33/Mt.
+            {t("sidebar.upgradePrice")}
           </div>
         </Link>
       )}

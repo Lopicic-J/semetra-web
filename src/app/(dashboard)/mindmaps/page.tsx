@@ -11,6 +11,7 @@ import {
   Network, LayoutGrid, ZoomIn, ZoomOut, Maximize2, GraduationCap
 } from "lucide-react";
 import type { MindMap, MindMapNode, CalendarEvent, Task } from "@/types/database";
+import { useTranslation } from "@/lib/i18n";
 
 const NODE_COLORS = [
   "#6d28d9","#2563eb","#059669","#dc2626","#d97706",
@@ -22,7 +23,8 @@ const NODE_ICONS = ["", "💡","📌","⭐","🔥","✅","❓","📖","🎯","�
 
 // ─── Main Page ────────────────────────────────────────────────────────
 export default function MindMapsPage() {
-  const supabase = createClient();
+
+  const { t } = useTranslation();  const supabase = createClient();
   const { modules } = useModules();
   const { isPro } = useProfile();
   const [maps, setMaps] = useState<MindMap[]>([]);
@@ -101,7 +103,7 @@ export default function MindMapsPage() {
                   <button
                     onClick={async (e) => {
                       e.stopPropagation();
-                      if (!confirm("Mind Map löschen?")) return;
+                      if (!confirm(t("mindmaps.deleteConfirm"))) return;
                       await supabase.from("mindmaps").delete().eq("id", m.id);
                       fetchMaps();
                     }}
@@ -116,7 +118,7 @@ export default function MindMapsPage() {
                     <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-100 text-brand-700">{mod.name}</span>
                   )}
                   <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-surface-100 text-surface-500">
-                    {m.layout_mode === "tree" ? "Baum" : "Frei"}
+                    {m.layout_mode === "tree" ? t("mindmaps.layoutTree") : t("mindmaps.layoutFree")}
                   </span>
                 </div>
                 <p className="text-[10px] text-surface-400 mt-2">
@@ -144,6 +146,7 @@ function CreateMapModal({ modules, exams, tasks, onClose, onCreated }: {
   modules: any[]; exams: CalendarEvent[]; tasks: Task[];
   onClose: () => void; onCreated: (m: MindMap) => void;
 }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const [title, setTitle] = useState("");
   const [moduleId, setModuleId] = useState("");
@@ -160,7 +163,7 @@ function CreateMapModal({ modules, exams, tasks, onClose, onCreated }: {
     if (!user) { setSaving(false); return; }
     const { data } = await supabase.from("mindmaps").insert({
       user_id: user.id,
-      title: title || "Neue Mind Map",
+      title: title || t("mindmaps.newMindmap"),
       module_id: moduleId || null,
       exam_id: examId || null,
       task_id: taskId || null,
@@ -173,7 +176,7 @@ function CreateMapModal({ modules, exams, tasks, onClose, onCreated }: {
         user_id: user.id,
         mindmap_id: data.id,
         parent_id: null,
-        label: title || "Hauptthema",
+        label: title || t("mindmaps.centralTopic"),
         color,
         pos_x: 400, pos_y: 50,
         sort_order: 0,
@@ -250,6 +253,7 @@ function CreateMapModal({ modules, exams, tasks, onClose, onCreated }: {
 function MindMapEditor({ map, modules, onBack }: {
   map: MindMap; modules: any[]; onBack: () => void;
 }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const [nodes, setNodes] = useState<MindMapNode[]>([]);
   const [loading, setLoading] = useState(true);
@@ -425,7 +429,7 @@ function MindMapEditor({ map, modules, onBack }: {
       user_id: user.id,
       mindmap_id: map.id,
       parent_id: parentId,
-      label: "Neuer Knoten",
+      label: t("mindmaps.newNode"),
       color: parent?.color ?? map.color,
       pos_x: (parent?.pos_x ?? 200) + 220,
       pos_y: (parent?.pos_y ?? 50) + siblings.length * 70,
@@ -507,14 +511,14 @@ function MindMapEditor({ map, modules, onBack }: {
         <h2 className="font-semibold text-surface-900 text-sm truncate flex-1">{map.title}</h2>
         <button onClick={toggleLayout}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-100 hover:bg-brand-100 text-surface-600 hover:text-brand-700 transition-colors"
-          title={layoutMode === "tree" ? "Wechsel zu Frei" : "Wechsel zu Baum"}>
+          title={layoutMode === "tree" ? t("mindmaps.switchToFree") : t("mindmaps.switchToTree")}>
           {layoutMode === "tree" ? <><GitBranch size={13} /> Baum</> : <><Move size={13} /> Frei</>}
         </button>
         <button onClick={() => setShowGrid(g => !g)}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
             showGrid ? "bg-brand-50 text-brand-700" : "bg-surface-100 text-surface-500 hover:bg-surface-200"
           }`}
-          title={showGrid ? "Raster ausblenden" : "Raster einblenden"}>
+          title={showGrid ? t("mindmaps.hideGrid") : t("mindmaps.showGrid")}>
           <LayoutGrid size={13} /> Raster
         </button>
         <div className="flex items-center gap-1 bg-surface-100 rounded-lg px-1">
@@ -608,16 +612,16 @@ function MindMapEditor({ map, modules, onBack }: {
                   {isSelected && (
                     <div className="flex gap-1 mt-1 justify-center">
                       <button onClick={(e) => { e.stopPropagation(); addChild(n.id); }}
-                        className="p-1 rounded bg-brand-600 text-white hover:bg-brand-700" title="Kind hinzufügen">
+                        className="p-1 rounded bg-brand-600 text-white hover:bg-brand-700" title={t("mindmaps.addChild")}>
                         <Plus size={12} />
                       </button>
                       <button onClick={(e) => { e.stopPropagation(); setEditNode(n); }}
-                        className="p-1 rounded bg-surface-200 text-surface-600 hover:bg-surface-300" title="Bearbeiten">
+                        className="p-1 rounded bg-surface-200 text-surface-600 hover:bg-surface-300" title={t("mindmaps.edit")}>
                         <Pencil size={12} />
                       </button>
                       {!isRoot && (
                         <button onClick={(e) => { e.stopPropagation(); deleteNode(n.id); }}
-                          className="p-1 rounded bg-red-100 text-red-500 hover:bg-red-200" title="Löschen">
+                          className="p-1 rounded bg-red-100 text-red-500 hover:bg-red-200" title={t("mindmaps.delete")}>
                           <Trash2 size={12} />
                         </button>
                       )}
@@ -659,6 +663,7 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
   onSave: (updates: Partial<MindMapNode>) => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   const [label, setLabel] = useState(node.label);
   const [notes, setNotes] = useState(node.notes ?? "");
   const [color, setColor] = useState(node.color);
@@ -724,7 +729,7 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
           <div>
             <label className="block text-sm font-medium text-surface-700 mb-1">Notizen</label>
             <textarea className="input resize-none text-sm" rows={3} value={notes} onChange={e => setNotes(e.target.value)}
-              placeholder="Erklärungen, Zusammenfassung, Formeln…" />
+              placeholder={t("mindmaps.placeholder")} />
           </div>
 
           {/* Links */}

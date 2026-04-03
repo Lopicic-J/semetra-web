@@ -6,6 +6,7 @@ import { useTasks } from "@/lib/hooks/useTasks";
 import { formatDate } from "@/lib/utils";
 import { Plus, X, Trash2, Pencil, Brain, ChevronDown, ChevronRight, RotateCcw, Zap, Check, GraduationCap, AlertTriangle, Clock, Filter } from "lucide-react";
 import type { Topic, CalendarEvent } from "@/types/database";
+import { useTranslation } from "@/lib/i18n";
 
 type Exam = CalendarEvent & { daysLeft?: number };
 
@@ -15,20 +16,25 @@ const STATUS_COLORS: Record<string, string> = {
   understood: "bg-green-100 text-green-700",
   needs_review: "bg-yellow-100 text-yellow-700",
 };
-const STATUS_LABELS: Record<string, string> = {
-  not_started: "Nicht begonnen",
-  in_progress: "In Bearbeitung",
-  understood: "Verstanden",
-  needs_review: "Wiederholen",
-};
 
-const KNOWLEDGE_LEVELS = [
-  { level: 0, label: "Unbekannt", color: "bg-surface-300" },
-  { level: 1, label: "Gesehen", color: "bg-red-400" },
-  { level: 2, label: "Grundlagen", color: "bg-orange-400" },
-  { level: 3, label: "Verstanden", color: "bg-yellow-400" },
-  { level: 4, label: "Beherrscht", color: "bg-green-500" },
-];
+function getStatusLabels(t: (key: string) => string): Record<string, string> {
+  return {
+    not_started: t("knowledge.statusNotStarted"),
+    in_progress: t("knowledge.statusInProgress"),
+    understood: t("knowledge.statusUnderstood"),
+    needs_review: t("knowledge.statusRetry"),
+  };
+}
+
+function getKnowledgeLevels(t: (key: string) => string) {
+  return [
+    { level: 0, label: t("knowledge.statusUnknown"), color: "bg-surface-300" },
+    { level: 1, label: t("knowledge.statusSeen"), color: "bg-red-400" },
+    { level: 2, label: t("knowledge.levelBasics"), color: "bg-orange-400" },
+    { level: 3, label: t("knowledge.statusUnderstood"), color: "bg-yellow-400" },
+    { level: 4, label: t("knowledge.levelMastered"), color: "bg-green-500" },
+  ];
+}
 
 // SM-2 Algorithm
 function sm2(quality: number, easiness: number, interval: number, repetitions: number) {
@@ -55,7 +61,8 @@ function sm2(quality: number, easiness: number, interval: number, repetitions: n
 }
 
 export default function KnowledgePage() {
-  const [topics, setTopics] = useState<Topic[]>([]);
+
+  const { t } = useTranslation();  const [topics, setTopics] = useState<Topic[]>([]);
   const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -140,7 +147,7 @@ export default function KnowledgePage() {
     .filter(Boolean) as { exam: Exam; avgKnowledge: number; understoodPct: number; topicCount: number }[];
 
   async function handleDelete(id: string) {
-    if (!confirm("Thema löschen?")) return;
+    if (!confirm(t("knowledge.deleteConfirm"))) return;
     await supabase.from("topics").delete().eq("id", id);
     fetchTopics();
   }
@@ -176,7 +183,8 @@ export default function KnowledgePage() {
   }
 
   // Knowledge level distribution (filtered)
-  const levelDist = KNOWLEDGE_LEVELS.map(kl => ({
+  const knowledgeLevels = getKnowledgeLevels(t);
+  const levelDist = knowledgeLevels.map(kl => ({
     ...kl,
     count: filteredTopics.filter(t => (t.knowledge_level ?? 0) === kl.level).length,
   }));
@@ -355,7 +363,7 @@ export default function KnowledgePage() {
               style={{ width: `${(filteredTopics.filter(t => t.status === "understood").length / filteredTopics.length) * 100}%` }} />
           </div>
           <div className="flex gap-4 mt-3 text-xs text-surface-500">
-            {Object.entries(STATUS_LABELS).map(([k, v]) => (
+            {Object.entries(getStatusLabels(t)).map(([k, v]) => (
               <span key={k} className="flex items-center gap-1">
                 <span className={`w-2 h-2 rounded-full ${k === "not_started" ? "bg-surface-400" : k === "in_progress" ? "bg-blue-500" : k === "understood" ? "bg-green-500" : "bg-yellow-500"}`} />
                 {filteredTopics.filter(t => t.status === k).length} {v}
@@ -370,7 +378,7 @@ export default function KnowledgePage() {
       ) : rootTopics.length === 0 ? (
         <div className="text-center py-16 text-surface-400">
           <Brain size={40} className="mx-auto mb-3 opacity-30" />
-          <p className="font-medium">Keine Lernziele {filterExam !== "all" ? "für diese Prüfung" : filterTask !== "all" ? "für diese Aufgabe" : ""}</p>
+          <p className="font-medium">{t("knowledge.noGoals")} {filterExam !== "all" ? "für diese Prüfung" : filterTask !== "all" ? "für diese Aufgabe" : ""}</p>
           <p className="text-sm mt-1">Füge Themen hinzu und ordne sie einer Prüfung oder Aufgabe zu.</p>
         </div>
       ) : (
@@ -435,10 +443,13 @@ function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onTog
   exams: Exam[];
   depth: number;
 }) {
+  const { t } = useTranslation();
   const isExpanded = expanded.has(topic.id);
   const hasChildren = children.length > 0;
   const kl = topic.knowledge_level ?? 0;
   const linkedExam = topic.exam_id ? exams.find(e => e.id === topic.exam_id) : null;
+  const statusLabels = getStatusLabels(t);
+  const knowledgeLevels = getKnowledgeLevels(t);
 
   return (
     <div>
@@ -449,7 +460,7 @@ function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onTog
 
         <button onClick={() => onToggleStatus(topic)}
           className={`px-2 py-0.5 rounded-full text-xs font-medium shrink-0 cursor-pointer ${STATUS_COLORS[topic.status ?? "not_started"]}`}>
-          {STATUS_LABELS[topic.status ?? "not_started"]}
+          {statusLabels[topic.status ?? "not_started"]}
         </button>
 
         <span className="flex-1 text-sm text-surface-800 font-medium">{topic.title}</span>
@@ -463,7 +474,7 @@ function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onTog
 
         {/* Knowledge level indicator */}
         <div className="flex gap-0.5 shrink-0">
-          {KNOWLEDGE_LEVELS.map(l => (
+          {knowledgeLevels.map(l => (
             <button key={l.level} onClick={() => onSetLevel(topic, l.level)}
               className={`w-3 h-3 rounded-sm transition-all ${kl >= l.level ? l.color : "bg-surface-200"} hover:scale-125`}
               title={l.label}
@@ -478,12 +489,12 @@ function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onTog
           <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
             new Date(topic.sr_next_review) <= new Date() ? "bg-amber-100 text-amber-700" : "bg-surface-100 text-surface-500"
           }`}>
-            {new Date(topic.sr_next_review) <= new Date() ? "Fällig" : new Date(topic.sr_next_review).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" })}
+            {new Date(topic.sr_next_review) <= new Date() ? t("knowledge.dueSoon") : new Date(topic.sr_next_review).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" })}
           </span>
         )}
 
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button onClick={() => onAddChild(topic.id)} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400 hover:text-brand-500" title="Unterthema">
+          <button onClick={() => onAddChild(topic.id)} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400 hover:text-brand-500" title={t("knowledge.subTopic")}>
             <Plus size={13} />
           </button>
           <button onClick={() => onEdit(topic)} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400">
@@ -664,6 +675,7 @@ function TopicModal({ initial, parentId, modules, exams, tasks, presetExam, pres
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const [form, setForm] = useState({
     title: initial?.title ?? "",
@@ -706,17 +718,17 @@ function TopicModal({ initial, parentId, modules, exams, tasks, presetExam, pres
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-5 border-b border-surface-100">
-          <h2 className="font-semibold text-surface-900">{initial ? "Thema bearbeiten" : parentId ? "Unterthema hinzufügen" : "Neues Thema"}</h2>
+          <h2 className="font-semibold text-surface-900">{initial ? t("knowledge.editTopic") : parentId ? t("knowledge.addSubtopic") : t("knowledge.newTopic")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
             <label className="block text-sm font-medium text-surface-700 mb-1">Titel *</label>
-            <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder="Thema…" />
+            <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("knowledge.topicPlaceholder")} />
           </div>
           <div>
             <label className="block text-sm font-medium text-surface-700 mb-1">Beschreibung</label>
-            <textarea className="input resize-none" rows={2} value={form.description} onChange={e => set("description", e.target.value)} placeholder="Details…" />
+            <textarea className="input resize-none" rows={2} value={form.description} onChange={e => set("description", e.target.value)} placeholder={t("knowledge.detailsPlaceholder")} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -729,7 +741,7 @@ function TopicModal({ initial, parentId, modules, exams, tasks, presetExam, pres
             <div>
               <label className="block text-sm font-medium text-surface-700 mb-1">Status</label>
               <select className="input" value={form.status} onChange={e => set("status", e.target.value)}>
-                {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                {Object.entries(getStatusLabels(t)).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
             </div>
           </div>
@@ -754,7 +766,7 @@ function TopicModal({ initial, parentId, modules, exams, tasks, presetExam, pres
           <div>
             <label className="block text-sm font-medium text-surface-700 mb-2">Wissensstand</label>
             <div className="flex gap-2">
-              {KNOWLEDGE_LEVELS.map(kl => (
+              {getKnowledgeLevels(t).map(kl => (
                 <button key={kl.level} type="button"
                   onClick={() => set("knowledge_level", kl.level)}
                   className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${

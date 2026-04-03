@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Menu, X, LogOut, Zap, Gem } from "lucide-react";
 import { clsx } from "clsx";
 import { useProfile } from "@/lib/hooks/useProfile";
+import { useTranslation } from "@/lib/i18n";
 import { ProBadge } from "@/components/ui/ProGate";
 import { NAV_GROUPS, BOTTOM_ITEMS, getAllNavItems } from "./nav-config";
 
@@ -15,6 +16,7 @@ export default function MobileHeader() {
   const router = useRouter();
   const supabase = createClient();
   const { isPro } = useProfile();
+  const { t } = useTranslation();
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -77,7 +79,7 @@ export default function MobileHeader() {
             </div>
             <div>
               <p className="font-bold text-surface-900 text-sm leading-tight tracking-tight">Semetra Workspace</p>
-              <p className="text-[10px] text-surface-400 leading-tight">Study Organizer</p>
+              <p className="text-[10px] text-surface-400 leading-tight">{t("sidebar.study")}</p>
             </div>
           </div>
           <button
@@ -91,10 +93,10 @@ export default function MobileHeader() {
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-0.5">
           {NAV_GROUPS.map((group) => (
-            <div key={group.label}>
-              {group.label && (
+            <div key={group.labelKey}>
+              {group.labelKey && (
                 <p className="px-3 pt-4 pb-1.5 text-[10px] font-semibold text-surface-400 tracking-wider uppercase select-none">
-                  {group.label}
+                  {t(group.labelKey)}
                 </p>
               )}
               {group.items.map((item) => {
@@ -116,7 +118,7 @@ export default function MobileHeader() {
                     )}
                   >
                     <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
-                    <span className="flex-1">{item.label}</span>
+                    <span className="flex-1">{t(item.labelKey)}</span>
                     {locked && !active && <ProBadge />}
                   </Link>
                 );
@@ -143,7 +145,7 @@ export default function MobileHeader() {
                 )}
               >
                 <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
-                <span>{item.label}</span>
+                <span>{t(item.labelKey)}</span>
               </Link>
             );
           })}
@@ -152,7 +154,7 @@ export default function MobileHeader() {
             className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-[13px] font-medium text-surface-400 hover:bg-danger-50 hover:text-danger-600 transition-all duration-150"
           >
             <LogOut size={17} strokeWidth={1.8} className="shrink-0" />
-            Abmelden
+            {t("sidebar.logout")}
           </button>
         </div>
 
@@ -162,9 +164,9 @@ export default function MobileHeader() {
             <div className="p-3 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white">
               <div className="flex items-center gap-2">
                 <Zap size={13} />
-                <span className="text-xs font-semibold">Semetra Pro aktiv</span>
+                <span className="text-xs font-semibold">{t("sidebar.proActive")}</span>
               </div>
-              <p className="text-[11px] text-brand-200 mt-1">Alle Features freigeschaltet</p>
+              <p className="text-[11px] text-brand-200 mt-1">{t("sidebar.allFeaturesUnlocked")}</p>
             </div>
           ) : (
             <Link
@@ -174,11 +176,11 @@ export default function MobileHeader() {
             >
               <div className="flex items-center gap-2 mb-1">
                 <Zap size={13} />
-                <span className="text-xs font-semibold">Semetra Pro</span>
+                <span className="text-xs font-semibold">{t("sidebar.proUpgrade")}</span>
               </div>
-              <p className="text-[11px] text-brand-200 mb-2.5">KI-Coach, Sync & mehr</p>
+              <p className="text-[11px] text-brand-200 mb-2.5">{t("sidebar.aiCoach")}</p>
               <div className="w-full py-1.5 rounded-lg bg-white/95 text-brand-700 text-xs font-semibold text-center">
-                Upgrade — ab CHF 3.33/Mt.
+                {t("sidebar.upgradePrice")}
               </div>
             </Link>
           )}

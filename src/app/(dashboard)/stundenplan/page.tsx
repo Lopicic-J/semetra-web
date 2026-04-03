@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useTranslation } from "@/lib/i18n";
 import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { FREE_LIMITS } from "@/lib/gates";
@@ -14,7 +15,12 @@ const HOURS = Array.from({ length: 14 }, (_, i) => i + 7); // 7:00 – 20:00
 const SEMESTERS = ["Semester 1","Semester 2","Semester 3","Semester 4","Semester 5","Semester 6","Semester 7","Semester 8","Semester 9"];
 const MAX_KW = 20;
 
+function formatWeeks(t: ReturnType<typeof useTranslation>["t"], count: number) {
+  return t("stundenplan.modal.kwWarning", { count, from: "", to: "" }).replace(/\([^)]*\)/, "").trim();
+}
+
 export default function StundenplanPage() {
+  const { t } = useTranslation();
   const [entries, setEntries] = useState<StundenplanEntry[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
@@ -86,15 +92,15 @@ export default function StundenplanPage() {
     <div className="p-3 sm:p-6 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-surface-900">Stundenplan</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900">{t("nav.stundenplan")}</h1>
           <p className="text-surface-500 text-sm mt-0.5">
-            Wochenplan nach Kalenderwoche & Semester
+            {t("stundenplan.subtitle")}
           </p>
         </div>
         <button onClick={() => {
           setShowForm(true);
         }} className="btn-primary gap-2">
-          <Plus size={16} /> Eintrag
+          <Plus size={16} /> {t("stundenplan.addEntry")}
         </button>
       </div>
 
@@ -156,12 +162,12 @@ export default function StundenplanPage() {
           <button
             onClick={() => {
               const target = currentKw + 1;
-              if (target <= MAX_KW && confirm(`Alle Einträge von KW${currentKw} nach KW${target} kopieren?`)) {
+              if (target <= MAX_KW && confirm(t("stundenplan.copyConfirm", { from: currentKw, to: target }))) {
                 copyToKw(target);
               }
             }}
             className="btn-secondary gap-1.5 text-xs ml-2"
-            title="Einträge in nächste KW kopieren"
+            title={t("stundenplan.copyToNext")}
           >
             <Copy size={13} /> → KW{Math.min(currentKw + 1, MAX_KW)}
           </button>
@@ -228,7 +234,7 @@ export default function StundenplanPage() {
 
       {currentEntries.length === 0 && (
         <p className="text-center text-sm text-surface-400 mt-4">
-          Keine Einträge für KW{currentKw} in {currentSemester}. Erstelle neue oder kopiere aus einer anderen KW.
+          {t("stundenplan.noEntries", { week: currentKw, semester: currentSemester })}
         </p>
       )}
 
@@ -256,6 +262,7 @@ function StundenplanModal({ modules, currentKw, currentSemester, onClose, onSave
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const COLORS = ["#6d28d9","#2563eb","#dc2626","#059669","#d97706","#db2777","#0891b2","#7c3aed"];
 
@@ -308,27 +315,27 @@ function StundenplanModal({ modules, currentKw, currentSemester, onClose, onSave
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between p-5 border-b border-surface-100">
-          <h2 className="font-semibold text-surface-900">Neuer Eintrag</h2>
+          <h2 className="font-semibold text-surface-900">{t("stundenplan.modal.title")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Bezeichnung *</label>
-            <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder="z.B. Mathematik 1" />
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.nameLabel")} *</label>
+            <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("stundenplan.modal.namePlaceholder")} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Tag</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.dayLabel")}</label>
               <select className="input" value={form.day} onChange={e => set("day", e.target.value)}>
                 {DAYS_SHORT.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Von</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.fromLabel")}</label>
               <input className="input" type="time" value={form.time_start} onChange={e => set("time_start", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Bis</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.toLabel")}</label>
               <input className="input" type="time" value={form.time_end} onChange={e => set("time_end", e.target.value)} />
             </div>
           </div>
@@ -336,27 +343,27 @@ function StundenplanModal({ modules, currentKw, currentSemester, onClose, onSave
           {/* KW range */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Von KW</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.fromKwLabel")}</label>
               <input className="input" type="number" min="1" max={MAX_KW} value={form.kw_from} onChange={e => set("kw_from", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Bis KW</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.toKwLabel")}</label>
               <input className="input" type="number" min={form.kw_from} max={MAX_KW} value={form.kw_to} onChange={e => set("kw_to", e.target.value)} />
             </div>
           </div>
           {parseInt(form.kw_to) > parseInt(form.kw_from) && (
             <p className="text-xs text-brand-600 -mt-2">
-              Wird in {parseInt(form.kw_to) - parseInt(form.kw_from) + 1} Wochen erstellt (KW{form.kw_from}–KW{form.kw_to})
+              {t("stundenplan.modal.kwWarning", { count: parseInt(form.kw_to) - parseInt(form.kw_from) + 1, from: form.kw_from, to: form.kw_to })}
             </p>
           )}
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Raum</label>
-              <input className="input" value={form.room} onChange={e => set("room", e.target.value)} placeholder="A101" />
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.roomLabel")}</label>
+              <input className="input" value={form.room} onChange={e => set("room", e.target.value)} placeholder={t("stundenplan.modal.roomPlaceholder")} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Modul</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.moduleLabel")}</label>
               <select className="input" value={form.module_id} onChange={e => set("module_id", e.target.value)}>
                 <option value="">—</option>
                 {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -364,7 +371,7 @@ function StundenplanModal({ modules, currentKw, currentSemester, onClose, onSave
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-2">Farbe</label>
+            <label className="block text-sm font-medium text-surface-700 mb-2">{t("stundenplan.modal.colorLabel")}</label>
             <div className="flex gap-2 flex-wrap">
               {COLORS.map(c => (
                 <button key={c} type="button" onClick={() => set("color", c)}
@@ -374,9 +381,9 @@ function StundenplanModal({ modules, currentKw, currentSemester, onClose, onSave
             </div>
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="btn-secondary flex-1">Abbrechen</button>
+            <button type="button" onClick={onClose} className="btn-secondary flex-1">{t("stundenplan.modal.cancel")}</button>
             <button type="submit" disabled={saving} className="btn-primary flex-1 justify-center">
-              {saving ? "Speichern…" : "Speichern"}
+              {saving ? t("stundenplan.modal.saving") : t("stundenplan.modal.save")}
             </button>
           </div>
         </form>

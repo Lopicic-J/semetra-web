@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useTranslation } from "@/lib/i18n";
 
 /* ─── Feature Catalogue ───────────────────────────────────────────────────── */
 
@@ -177,6 +178,7 @@ const QUICK_ACTIONS: { label: string; description: string; href: string; emoji: 
 /* ─── Page ────────────────────────────────────────────────────────────────── */
 
 export default function NavigatorPage() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [activeGroup, setActiveGroup] = useState<string | null>(null);
 

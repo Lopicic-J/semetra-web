@@ -6,6 +6,7 @@ import { useGradingSystem } from "@/lib/hooks/useGradingSystem";
 import { GraduationCap, BookOpen, CheckCircle, ChevronRight, Plus, Loader2, X, Building2, Lock } from "lucide-react";
 import { ProGate } from "@/components/ui/ProGate";
 import type { Studiengang, StudiengangModuleTemplate } from "@/types/database";
+import { useTranslation } from "@/lib/i18n";
 
 const MODULE_COLORS = [
   "#6d28d9","#2563eb","#dc2626","#059669","#d97706","#db2777","#0891b2","#65a30d"
@@ -62,6 +63,7 @@ const COUNTRY_TABS: { code: string; flag: string; label: string }[] = [
 ];
 
 export default function StudiengaengePage() {
+  const { t } = useTranslation();
   const supabase = createClient();
   const { isPro } = useProfile();
   const gs = useGradingSystem();

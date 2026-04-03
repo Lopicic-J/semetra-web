@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useTranslation } from "@/lib/i18n";
 import { useModules } from "@/lib/hooks/useModules";
 import { useTasks } from "@/lib/hooks/useTasks";
 import { useGrades } from "@/lib/hooks/useGrades";
@@ -13,6 +14,7 @@ import type { CalendarEvent, Topic } from "@/types/database";
 type Exam = CalendarEvent & { daysLeft?: number };
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const { modules, loading: ml } = useModules();
   const { tasks } = useTasks();
   const { grades } = useGrades();
@@ -75,17 +77,17 @@ export default function DashboardPage() {
   })();
 
   const statCards = [
-    { label: "Module", value: modules.length, icon: BookOpen, color: "bg-brand-100 text-brand-600", href: "/modules" },
-    { label: "Offene Aufgaben", value: openTasks.length, icon: CheckSquare, color: "bg-blue-100 text-blue-600", href: "/tasks" },
-    { label: "Heute gelernt", value: formatDuration(todaySecs), icon: Clock, color: "bg-green-100 text-green-600", href: "/timer" },
-    { label: "⌀ ECTS-gewichtet", value: ectsAvg ? roundGrade(ectsAvg).toFixed(2) : "—", icon: TrendingUp, color: "bg-orange-100 text-orange-600", href: "/grades" },
+    { label: t("dashboard.modules"), value: modules.length, icon: BookOpen, color: "bg-brand-100 text-brand-600", href: "/modules" },
+    { label: t("dashboard.openTasks"), value: openTasks.length, icon: CheckSquare, color: "bg-blue-100 text-blue-600", href: "/tasks" },
+    { label: t("dashboard.learnedToday"), value: formatDuration(todaySecs), icon: Clock, color: "bg-green-100 text-green-600", href: "/timer" },
+    { label: t("dashboard.ecsAverage"), value: ectsAvg ? roundGrade(ectsAvg).toFixed(2) : "—", icon: TrendingUp, color: "bg-orange-100 text-orange-600", href: "/grades" },
   ];
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-surface-900">Dashboard</h1>
-        <p className="text-surface-500 text-sm mt-0.5">Willkommen zurück — Dein Studium auf einen Blick.</p>
+        <h1 className="text-2xl font-bold text-surface-900">{t("dashboard.title")}</h1>
+        <p className="text-surface-500 text-sm mt-0.5">{t("dashboard.welcomeBack")}</p>
       </div>
 
       {/* Stat cards */}
@@ -106,9 +108,9 @@ export default function DashboardPage() {
         <div className="card mb-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-surface-900 flex items-center gap-2">
-              <GraduationCap size={16} className="text-brand-500" /> Anstehende Prüfungen
+              <GraduationCap size={16} className="text-brand-500" /> {t("dashboard.upcomingExams")}
             </h2>
-            <Link href="/exams" className="text-xs text-brand-600 hover:underline">Alle anzeigen</Link>
+            <Link href="/exams" className="text-xs text-brand-600 hover:underline">{t("dashboard.showAll")}</Link>
           </div>
           <div className="space-y-2">
             {exams.slice(0, 5).map(exam => {
@@ -142,7 +144,7 @@ export default function DashboardPage() {
                     "bg-green-100 text-green-700"
                   }`}>
                     <Clock size={12} />
-                    {isToday ? "Heute!" : d === 1 ? "Morgen" : `${d} Tage`}
+                    {isToday ? t("dashboard.today") : d === 1 ? t("dashboard.tomorrow") : `${d} ${t("dashboard.daysLeft")}`}
                   </div>
                 </div>
               );
@@ -165,14 +167,14 @@ export default function DashboardPage() {
               } />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-surface-900">
-                  ⚠️ {w.exam.title} — nur {w.understoodPct}% Wissensstand
+                  {t("dashboard.knowledgeWarning", { exam: w.exam.title, percent: w.understoodPct })}
                 </p>
                 <p className="text-xs text-surface-500">
-                  Prüfung in {w.exam.daysLeft} Tagen · {w.topicCount} Themen zugeordnet → Wissen überprüfen
+                  {t("dashboard.examInDays", { days: w.exam.daysLeft ?? 0, topics: w.topicCount })}
                 </p>
               </div>
               <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-white border border-surface-200 text-brand-600 shrink-0">
-                <Brain size={12} /> Review
+                <Brain size={12} /> {t("dashboard.review")}
               </div>
             </Link>
           ))}
@@ -184,12 +186,12 @@ export default function DashboardPage() {
         <div className="card">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-surface-900 flex items-center gap-2">
-              <AlertCircle size={16} className="text-red-500" /> Dringende Aufgaben
+              <AlertCircle size={16} className="text-red-500" /> {t("dashboard.urgentTasks")}
             </h2>
-            <Link href="/tasks" className="text-xs text-brand-600 hover:underline">Alle anzeigen</Link>
+            <Link href="/tasks" className="text-xs text-brand-600 hover:underline">{t("dashboard.showAll")}</Link>
           </div>
           {overdue.length === 0 && openTasks.length === 0 && (
-            <p className="text-sm text-surface-400 text-center py-4">Alles erledigt! 🎉</p>
+            <p className="text-sm text-surface-400 text-center py-4">{t("dashboard.allDone")}</p>
           )}
           <ul className="space-y-2">
             {[...overdue, ...openTasks.filter(t => !overdue.includes(t))].slice(0, 6).map(task => (
@@ -204,7 +206,7 @@ export default function DashboardPage() {
                   </p>
                   {task.due_date && (
                     <p className={`text-xs mt-0.5 ${new Date(task.due_date) < new Date() ? "text-red-500 font-medium" : "text-surface-400"}`}>
-                      Fällig: {formatDate(task.due_date)}
+                      {t("dashboard.dueDate", { date: formatDate(task.due_date) })}
                     </p>
                   )}
                 </div>
@@ -217,16 +219,16 @@ export default function DashboardPage() {
         <div className="card">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-surface-900 flex items-center gap-2">
-              <BookOpen size={16} className="text-brand-500" /> Meine Module
+              <BookOpen size={16} className="text-brand-500" /> {t("dashboard.myModules")}
             </h2>
-            <Link href="/modules" className="text-xs text-brand-600 hover:underline">Verwalten</Link>
+            <Link href="/modules" className="text-xs text-brand-600 hover:underline">{t("dashboard.manage")}</Link>
           </div>
           {ml ? (
             <div className="space-y-2">
               {[1,2,3].map(i => <div key={i} className="h-12 bg-surface-100 rounded-lg animate-pulse" />)}
             </div>
           ) : modules.length === 0 ? (
-            <p className="text-sm text-surface-400 text-center py-4">Noch keine Module angelegt.</p>
+            <p className="text-sm text-surface-400 text-center py-4">{t("dashboard.noModules")}</p>
           ) : (
             <ul className="space-y-2">
               {modules.slice(0, 6).map(mod => (
@@ -247,9 +249,9 @@ export default function DashboardPage() {
         <div className="card lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-surface-900 flex items-center gap-2">
-              <Calendar size={16} className="text-green-500" /> Lernzeit diese Woche
+              <Calendar size={16} className="text-green-500" /> {t("dashboard.weeklyLearning")}
             </h2>
-            <Link href="/timer" className="text-xs text-brand-600 hover:underline">Timer öffnen</Link>
+            <Link href="/timer" className="text-xs text-brand-600 hover:underline">{t("dashboard.openTimer")}</Link>
           </div>
           <WeeklyChart logs={logs} />
         </div>

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useTranslation } from "@/lib/i18n";
 import { useModules } from "@/lib/hooks/useModules";
 import { useTasks } from "@/lib/hooks/useTasks";
 import { Calendar, Clock, GraduationCap, CheckSquare, AlertTriangle, Filter, ChevronDown, ChevronUp, ExternalLink, FileText, Link2, FolderOpen } from "lucide-react";
@@ -23,14 +24,16 @@ type TimelineItem = {
   documents?: { title: string; url: string; kind: string }[];
 };
 
-const RANGES = [
-  { label: "7 Tage", days: 7 },
-  { label: "30 Tage", days: 30 },
-  { label: "90 Tage", days: 90 },
-  { label: "Alle", days: 9999 },
-];
-
 export default function TimelinePage() {
+  const { t } = useTranslation();
+
+  const RANGES = [
+    { label: t("timeline.filter7Days"), days: 7 },
+    { label: t("timeline.filter30Days"), days: 30 },
+    { label: t("timeline.filter90Days"), days: 90 },
+    { label: t("timeline.filterAll"), days: 9999 },
+  ];
+
   const { modules } = useModules();
   const { tasks } = useTasks();
   const [exams, setExams] = useState<CalendarEvent[]>([]);
@@ -138,20 +141,27 @@ export default function TimelinePage() {
     const groups: Record<string, TimelineItem[]> = {};
     items.forEach(item => {
       let label: string;
-      if (item.daysLeft < 0) label = "Überfällig";
-      else if (item.daysLeft === 0) label = "Heute";
-      else if (item.daysLeft === 1) label = "Morgen";
-      else if (item.daysLeft <= 7) label = "Diese Woche";
-      else if (item.daysLeft <= 30) label = "Diesen Monat";
-      else label = "Später";
+      if (item.daysLeft < 0) label = t("timeline.groupOverdue");
+      else if (item.daysLeft === 0) label = t("timeline.groupToday");
+      else if (item.daysLeft === 1) label = t("timeline.groupTomorrow");
+      else if (item.daysLeft <= 7) label = t("timeline.groupThisWeek");
+      else if (item.daysLeft <= 30) label = t("timeline.groupThisMonth");
+      else label = t("timeline.groupLater");
 
       if (!groups[label]) groups[label] = [];
       groups[label].push(item);
     });
     return groups;
-  }, [items]);
+  }, [items, t]);
 
-  const groupOrder = ["Überfällig", "Heute", "Morgen", "Diese Woche", "Diesen Monat", "Später"];
+  const groupOrder = [
+    t("timeline.groupOverdue"),
+    t("timeline.groupToday"),
+    t("timeline.groupTomorrow"),
+    t("timeline.groupThisWeek"),
+    t("timeline.groupThisMonth"),
+    t("timeline.groupLater"),
+  ];
   const overdueCount = items.filter(i => i.daysLeft < 0).length;
 
   return (
@@ -160,11 +170,10 @@ export default function TimelinePage() {
         <div>
           <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
             <Calendar className="text-brand-600" size={26} />
-            Timeline
+            {t("nav.timeline")}
           </h1>
           <p className="text-surface-500 text-sm mt-0.5">
-            {items.length} Einträge
-            {overdueCount > 0 && <span className="text-red-500 font-medium ml-1">· {overdueCount} überfällig</span>}
+            {t("timeline.subtitle", { count: items.length, overdue: overdueCount > 0 ? t("timeline.overdue", { count: overdueCount }) : "" })}
           </p>
         </div>
       </div>
@@ -184,7 +193,7 @@ export default function TimelinePage() {
         <label className="flex items-center gap-2 text-sm text-surface-600 cursor-pointer">
           <input type="checkbox" checked={showOverdue} onChange={e => setShowOverdue(e.target.checked)}
             className="rounded border-surface-300 text-brand-600 focus:ring-brand-500" />
-          Überfällige zeigen
+          {t("timeline.showOverdue")}
         </label>
       </div>
 
@@ -192,8 +201,8 @@ export default function TimelinePage() {
       {items.length === 0 ? (
         <div className="text-center py-20 text-surface-400">
           <Calendar size={48} className="mx-auto mb-3 opacity-30" />
-          <p className="font-medium">Keine Einträge im gewählten Zeitraum</p>
-          <p className="text-sm mt-1">Erstelle Aufgaben mit Fälligkeitsdaten oder trage Prüfungen ein.</p>
+          <p className="font-medium">{t("timeline.noEntries")}</p>
+          <p className="text-sm mt-1">{t("timeline.noEntriesHint")}</p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -207,7 +216,7 @@ export default function TimelinePage() {
                 <div className="flex items-center gap-2 mb-3">
                   {isOverdue && <AlertTriangle size={14} className="text-red-500" />}
                   <h2 className={`text-sm font-semibold uppercase tracking-wider ${
-                    isOverdue ? "text-red-500" : label === "Heute" ? "text-brand-600" : "text-surface-400"
+                    isOverdue ? "text-red-500" : label === t("timeline.groupToday") ? "text-brand-600" : "text-surface-400"
                   }`}>
                     {label}
                   </h2>
@@ -268,9 +277,9 @@ export default function TimelinePage() {
                                   item.priority === "medium" ? "bg-amber-100 text-amber-700" :
                                   "bg-surface-100 text-surface-600"
                                 }`}>
-                                  {item.priority === "high" ? "Hoch" :
-                                   item.priority === "medium" ? "Mittel" :
-                                   "Niedrig"}
+                                  {item.priority === "high" ? t("timeline.priorityHigh") :
+                                   item.priority === "medium" ? t("timeline.priorityMedium") :
+                                   t("timeline.priorityLow")}
                                 </span>
                               )}
                               <span className="text-xs text-surface-500 w-10 text-right">
@@ -282,10 +291,10 @@ export default function TimelinePage() {
                                 item.priority === "medium" ? "bg-amber-100 text-amber-700" :
                                 "bg-surface-100 text-surface-600"
                               }`}>
-                                {item.type === "exam" ? "Prüfung" :
-                                  item.daysLeft < 0 ? `${Math.abs(item.daysLeft)}d überfällig` :
-                                  item.daysLeft === 0 ? "Heute" :
-                                  `${item.daysLeft}d`
+                                {item.type === "exam" ? t("timeline.exam") :
+                                  item.daysLeft < 0 ? t("timeline.daysOverdue", { days: Math.abs(item.daysLeft) }) :
+                                  item.daysLeft === 0 ? t("timeline.groupToday") :
+                                  t("timeline.daysLeft", { days: item.daysLeft })
                                 }
                               </span>
                               {isExpanded ? (
@@ -316,7 +325,7 @@ export default function TimelinePage() {
                               {/* Documents */}
                               {item.documents && item.documents.length > 0 && (
                                 <div>
-                                  <p className="text-xs font-medium text-surface-600 mb-2">Dokumente</p>
+                                  <p className="text-xs font-medium text-surface-600 mb-2">{t("timeline.documents")}</p>
                                   <div className="flex flex-wrap gap-2">
                                     {item.documents.map((doc, idx) => (
                                       <a
@@ -343,11 +352,11 @@ export default function TimelinePage() {
                               {item.status && item.type === "task" && (
                                 <div className="pt-1">
                                   <span className="text-[10px] text-surface-600">
-                                    Status: <span className="font-medium">
-                                      {item.status === "todo" ? "Zu tun" :
-                                       item.status === "in_progress" ? "In Bearbeitung" :
-                                       "Erledigt"}
-                                    </span>
+                                    {t("timeline.status", { status:
+                                      item.status === "todo" ? t("timeline.statusTodo") :
+                                      item.status === "in_progress" ? t("timeline.statusInProgress") :
+                                      t("timeline.statusDone")
+                                    })}
                                   </span>
                                 </div>
                               )}

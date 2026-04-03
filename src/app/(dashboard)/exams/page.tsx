@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useTranslation } from "@/lib/i18n";
 import { useModules } from "@/lib/hooks/useModules";
 import { useExamAttachments } from "@/lib/hooks/useExamAttachments";
 import { formatDate } from "@/lib/utils";
@@ -29,6 +30,7 @@ function humanSize(bytes: number) {
 }
 
 export default function ExamsPage() {
+  const { t } = useTranslation();
   const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -55,7 +57,7 @@ export default function ExamsPage() {
   useEffect(() => { fetchExams(); }, [fetchExams]);
 
   async function handleDelete(id: string) {
-    if (!confirm("Prüfung löschen?")) return;
+    if (!confirm(t("exams.deleteConfirm"))) return;
     await supabase.from("events").delete().eq("id", id);
     fetchExams();
   }
@@ -67,11 +69,11 @@ export default function ExamsPage() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-surface-900">Prüfungen</h1>
-          <p className="text-surface-500 text-sm mt-0.5">{upcoming.length} bevorstehend · {past.length} vergangen</p>
+          <h1 className="text-2xl font-bold text-surface-900">{t("nav.exams")}</h1>
+          <p className="text-surface-500 text-sm mt-0.5">{t("exams.subtitle", { upcoming: upcoming.length, past: past.length })}</p>
         </div>
         <button onClick={() => { setEditing(null); setShowForm(true); }} className="btn-primary gap-2">
-          <Plus size={16} /> Prüfung
+          <Plus size={16} /> {t("exams.addExam")}
         </button>
       </div>
 
@@ -82,13 +84,13 @@ export default function ExamsPage() {
           {upcoming.length === 0 && past.length === 0 ? (
             <div className="text-center py-20 text-surface-400">
               <GraduationCap size={48} className="mx-auto mb-3 opacity-30" />
-              <p className="font-medium">Noch keine Prüfungen eingetragen</p>
+              <p className="font-medium">{t("exams.noExams")}</p>
             </div>
           ) : (
             <>
               {upcoming.length > 0 && (
                 <div className="mb-6">
-                  <h2 className="text-sm font-semibold text-surface-500 uppercase tracking-wider mb-3">Bevorstehend</h2>
+                  <h2 className="text-sm font-semibold text-surface-500 uppercase tracking-wider mb-3">{t("exams.upcoming")}</h2>
                   <div className="space-y-3">
                     {upcoming.map(exam => (
                       <div key={exam.id}>
@@ -108,7 +110,7 @@ export default function ExamsPage() {
               )}
               {past.length > 0 && (
                 <div>
-                  <h2 className="text-sm font-semibold text-surface-500 uppercase tracking-wider mb-3">Vergangen</h2>
+                  <h2 className="text-sm font-semibold text-surface-500 uppercase tracking-wider mb-3">{t("exams.past")}</h2>
                   <div className="space-y-3 opacity-60">
                     {past.map(exam => (
                       <div key={exam.id}>
@@ -151,6 +153,7 @@ function ExamCard({ exam, modules, onEdit, onDelete, isExpanded, onToggleExpand 
   isExpanded: boolean;
   onToggleExpand: () => void;
 }) {
+  const { t } = useTranslation();
   const urgent = (exam.daysLeft ?? 999) >= 0 && (exam.daysLeft ?? 999) <= 7;
   const mod = modules.find(m => exam.title.toLowerCase().includes(m.name.toLowerCase().split(" ")[0]));
 
@@ -174,7 +177,7 @@ function ExamCard({ exam, modules, onEdit, onDelete, isExpanded, onToggleExpand 
       <div className="flex items-center gap-2 shrink-0">
         <button onClick={onToggleExpand}
           className={`p-1.5 rounded-lg transition-colors ${isExpanded ? "bg-brand-100 text-brand-600" : "text-surface-400 hover:bg-surface-100"}`}
-          title="Materialien & Notizen">
+          title={t("exams.materials")}>
           <Paperclip size={14} />
         </button>
         {exam.daysLeft !== undefined && exam.daysLeft >= 0 && (
@@ -199,6 +202,7 @@ function ExamCard({ exam, modules, onEdit, onDelete, isExpanded, onToggleExpand 
 
 /** Expandable panel showing notes, links, and files for an exam */
 function ExamAttachmentsPanel({ examId }: { examId: string }) {
+  const { t } = useTranslation();
   const { attachments, loading, addNote, updateNote, addLink, uploadFile, remove, getDownloadUrl } = useExamAttachments(examId);
   const [showLinkForm, setShowLinkForm] = useState(false);
   const [showNoteForm, setShowNoteForm] = useState(false);
@@ -252,20 +256,20 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
       {/* Action buttons */}
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-semibold text-surface-500 uppercase tracking-wider flex items-center gap-1.5">
-          <Paperclip size={12} /> Materialien & Notizen
+          <Paperclip size={12} /> {t("exams.materials")}
         </h3>
         <div className="flex gap-2">
           <button onClick={() => { setShowNoteForm(!showNoteForm); setShowLinkForm(false); }}
             className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
-            <StickyNote size={12} /> Notiz
+            <StickyNote size={12} /> {t("exams.note")}
           </button>
           <button onClick={() => { setShowLinkForm(!showLinkForm); setShowNoteForm(false); }}
             className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
-            <Link2 size={12} /> Link
+            <Link2 size={12} /> {t("exams.link")}
           </button>
           <button onClick={() => fileInputRef.current?.click()}
             className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
-            <Upload size={12} /> Datei
+            <Upload size={12} /> {t("exams.file")}
           </button>
           <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileUpload}
             accept=".pdf,.docx,.doc,.xlsx,.xls,.csv,.pptx,.ppt,.png,.jpg,.jpeg,.gif,.svg,.zip,.rar,.txt,.py,.js,.ts,.html,.mp4,.mp3" />
@@ -276,12 +280,12 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
       {showNoteForm && (
         <form onSubmit={handleAddNote} className="space-y-2">
           <textarea value={noteText} onChange={e => setNoteText(e.target.value)}
-            placeholder="Notiz schreiben… (z.B. erlaubte Hilfsmittel, Themen, Tipps)"
+            placeholder={t("exams.notePlaceholder")}
             className="input resize-none text-sm w-full" rows={3} required />
           <div className="flex gap-2 justify-end">
             <button type="button" onClick={() => setShowNoteForm(false)}
-              className="px-3 py-1.5 text-xs rounded-lg hover:bg-surface-200 text-surface-500">Abbrechen</button>
-            <button type="submit" className="btn-primary text-xs px-3 py-1.5">Notiz speichern</button>
+              className="px-3 py-1.5 text-xs rounded-lg hover:bg-surface-200 text-surface-500">{t("calendar.modal.cancel")}</button>
+            <button type="submit" className="btn-primary text-xs px-3 py-1.5">{t("exams.addNote")}</button>
           </div>
         </form>
       )}
@@ -290,10 +294,10 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
       {showLinkForm && (
         <form onSubmit={handleAddLink} className="flex gap-2">
           <input value={linkUrl} onChange={e => setLinkUrl(e.target.value)}
-            placeholder="https://..." className="input flex-1 text-sm" required />
+            placeholder={t("exams.linkPlaceholder")} className="input flex-1 text-sm" required />
           <input value={linkLabel} onChange={e => setLinkLabel(e.target.value)}
-            placeholder="Bezeichnung (optional)" className="input w-40 text-sm" />
-          <button type="submit" className="btn-primary text-xs px-3 py-1.5">Hinzufügen</button>
+            placeholder={t("exams.linkLabel")} className="input w-40 text-sm" />
+          <button type="submit" className="btn-primary text-xs px-3 py-1.5">{t("exams.addLink")}</button>
           <button type="button" onClick={() => setShowLinkForm(false)}
             className="p-1.5 rounded-lg hover:bg-surface-200 text-surface-400"><X size={14} /></button>
         </form>
@@ -302,13 +306,13 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
       {loading ? (
         <div className="h-8 bg-surface-200 rounded animate-pulse" />
       ) : attachments.length === 0 ? (
-        <p className="text-xs text-surface-400 text-center py-3">Noch keine Materialien oder Notizen. Füge Links, Dateien oder Notizen hinzu um alles griffbereit zu haben.</p>
+        <p className="text-xs text-surface-400 text-center py-3">{t("exams.noMaterials")}</p>
       ) : (
         <div className="space-y-3">
           {/* Notes section */}
           {notes.length > 0 && (
             <div>
-              <p className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider mb-1.5">Notizen</p>
+              <p className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider mb-1.5">{t("exams.notesSection")}</p>
               <div className="space-y-1.5">
                 {notes.map(att => (
                   <div key={att.id} className="p-3 rounded-lg bg-yellow-50 border border-yellow-100 group/att">
@@ -318,9 +322,9 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
                           className="input resize-none text-sm w-full" rows={3} />
                         <div className="flex gap-2 justify-end">
                           <button onClick={() => setEditingNote(null)}
-                            className="px-2 py-1 text-xs rounded hover:bg-surface-200 text-surface-500">Abbrechen</button>
+                            className="px-2 py-1 text-xs rounded hover:bg-surface-200 text-surface-500">{t("calendar.modal.cancel")}</button>
                           <button onClick={() => handleUpdateNote(att.id)}
-                            className="btn-primary text-xs px-2 py-1">Speichern</button>
+                            className="btn-primary text-xs px-2 py-1">{t("calendar.modal.save")}</button>
                         </div>
                       </div>
                     ) : (
@@ -348,7 +352,7 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
           {/* Links section */}
           {links.length > 0 && (
             <div>
-              <p className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider mb-1.5">Links</p>
+              <p className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider mb-1.5">{t("exams.linksSection")}</p>
               <div className="space-y-1.5">
                 {links.map(att => (
                   <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-surface-100 group/att hover:border-brand-200 transition-colors">
@@ -374,7 +378,7 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
           {/* Files section */}
           {files.length > 0 && (
             <div>
-              <p className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider mb-1.5">Dateien</p>
+              <p className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider mb-1.5">{t("exams.filesSection")}</p>
               <div className="space-y-1.5">
                 {files.map(att => (
                   <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-surface-100 group/att hover:border-brand-200 transition-colors">
@@ -387,12 +391,12 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
                     </div>
                     <a href={getDownloadUrl(att) ?? att.url} target="_blank" rel="noopener noreferrer"
                       className="p-1 rounded hover:bg-surface-100 text-surface-400 hover:text-brand-600 transition-colors"
-                      title="Öffnen">
+                      title={t("exams.open")}>
                       <ExternalLink size={13} />
                     </a>
                     <button onClick={() => remove(att)}
                       className="p-1 rounded hover:bg-red-50 text-surface-300 hover:text-red-500 opacity-0 group-hover/att:opacity-100 transition-all"
-                      title="Entfernen">
+                      title={t("documents.delete")}>
                       <Trash2 size={13} />
                     </button>
                   </div>
@@ -412,6 +416,7 @@ function ExamModal({ initial, modules, onClose, onSaved }: {
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const COLORS = ["#6d28d9","#2563eb","#dc2626","#059669","#d97706","#db2777"];
   const [form, setForm] = useState({
@@ -452,34 +457,34 @@ function ExamModal({ initial, modules, onClose, onSaved }: {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between p-5 border-b border-surface-100">
-          <h2 className="font-semibold text-surface-900">{initial ? "Prüfung bearbeiten" : "Prüfung hinzufügen"}</h2>
+          <h2 className="font-semibold text-surface-900">{initial ? t("exams.modal.editTitle") : t("exams.modal.title")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Prüfungsname *</label>
-            <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder="z.B. Mathematik 1 Prüfung" />
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("exams.modal.nameLabel")} *</label>
+            <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("exams.modal.namePlaceholder")} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Datum *</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("exams.modal.dateLabel")} *</label>
               <input className="input" type="date" required value={form.date} onChange={e => set("date", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Uhrzeit</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("exams.modal.timeLabel")}</label>
               <input className="input" type="time" value={form.time} onChange={e => set("time", e.target.value)} />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Raum / Ort</label>
-            <input className="input" value={form.location} onChange={e => set("location", e.target.value)} placeholder="Prüfungsraum…" />
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("exams.modal.locationLabel")}</label>
+            <input className="input" value={form.location} onChange={e => set("location", e.target.value)} placeholder={t("exams.modal.locationPlaceholder")} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Notizen</label>
-            <textarea className="input resize-none" rows={2} value={form.description} onChange={e => set("description", e.target.value)} placeholder="Erlaubte Hilfsmittel, etc." />
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("exams.modal.notesLabel")}</label>
+            <textarea className="input resize-none" rows={2} value={form.description} onChange={e => set("description", e.target.value)} placeholder={t("exams.modal.notesPlaceholder")} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-2">Farbe</label>
+            <label className="block text-sm font-medium text-surface-700 mb-2">{t("exams.modal.colorLabel")}</label>
             <div className="flex gap-2">
               {COLORS.map(c => (
                 <button key={c} type="button" onClick={() => set("color", c)}
@@ -489,9 +494,9 @@ function ExamModal({ initial, modules, onClose, onSaved }: {
             </div>
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="btn-secondary flex-1">Abbrechen</button>
+            <button type="button" onClick={onClose} className="btn-secondary flex-1">{t("exams.modal.cancel")}</button>
             <button type="submit" disabled={saving} className="btn-primary flex-1 justify-center">
-              {saving ? "Speichern…" : "Speichern"}
+              {saving ? t("exams.modal.saving") : t("exams.modal.save")}
             </button>
           </div>
         </form>

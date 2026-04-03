@@ -10,26 +10,29 @@ import {
   Pencil, Save, X, StickyNote
 } from "lucide-react";
 import type { CalendarEvent, Topic, Task } from "@/types/database";
+import { useTranslation } from "@/lib/i18n";
 
 type TimerMode = "focus" | "short_break" | "long_break";
 
-const PRESETS: Record<TimerMode, { label: string; seconds: number; color: string; icon: React.ReactNode }> = {
-  focus:       { label: "Fokus",        seconds: 25 * 60, color: "#6d28d9", icon: <BookOpen size={14} /> },
-  short_break: { label: "Kurze Pause",  seconds: 5 * 60,  color: "#059669", icon: <Coffee size={14} /> },
-  long_break:  { label: "Lange Pause",  seconds: 15 * 60, color: "#2563eb", icon: <Coffee size={14} /> },
-};
-
-const FOCUS_DURATIONS = [
-  { label: "15 Min", seconds: 15 * 60 },
-  { label: "25 Min", seconds: 25 * 60 },
-  { label: "50 Min", seconds: 50 * 60 },
-  { label: "90 Min", seconds: 90 * 60 },
-];
-
 export default function TimerPage() {
+  const { t } = useTranslation();
   const { modules } = useModules();
   const { logs, refetch: refetchLogs } = useTimeLogs();
   const supabase = createClient();
+
+  // Build runtime constants with translations
+  const PRESETS: Record<TimerMode, { label: string; seconds: number; color: string; icon: React.ReactNode }> = {
+    focus:       { label: t("timer.focus"),        seconds: 25 * 60, color: "#6d28d9", icon: <BookOpen size={14} /> },
+    short_break: { label: t("timer.shortBreak"),  seconds: 5 * 60,  color: "#059669", icon: <Coffee size={14} /> },
+    long_break:  { label: t("timer.longBreak"),   seconds: 15 * 60, color: "#2563eb", icon: <Coffee size={14} /> },
+  };
+
+  const FOCUS_DURATIONS = [
+    { label: `15 ${t("timer.minutes")}`, seconds: 15 * 60 },
+    { label: `25 ${t("timer.minutes")}`, seconds: 25 * 60 },
+    { label: `50 ${t("timer.minutes")}`, seconds: 50 * 60 },
+    { label: `90 ${t("timer.minutes")}`, seconds: 90 * 60 },
+  ];
 
   // Context selection
   const [selectedModule, setSelectedModule] = useState<string>("");
@@ -412,7 +415,7 @@ export default function TimerPage() {
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-4xl font-mono font-bold text-surface-900">{timeStr}</span>
               <span className="text-xs mt-1 font-medium" style={{ color: currentPreset.color }}>
-                {running && !paused ? currentPreset.label : paused ? "Pausiert" : "Bereit"}
+                {running && !paused ? currentPreset.label : paused ? t("timer.paused") : t("timer.ready")}
               </span>
             </div>
           </div>
@@ -432,7 +435,7 @@ export default function TimerPage() {
                 <option value="">— Modul —</option>
                 {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
               </select>
-              <input className="input flex-1" value={note} onChange={e => setNote(e.target.value)} placeholder="Notiz…" />
+              <input className="input flex-1" value={note} onChange={e => setNote(e.target.value)} placeholder={t("timer.noteLabel")} />
             </div>
 
             {/* Toggle for extended context */}
@@ -441,7 +444,7 @@ export default function TimerPage() {
               className="flex items-center gap-1.5 mx-auto text-xs text-surface-400 hover:text-brand-600 transition-colors"
             >
               {showContext ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-              {showContext ? "Weniger Optionen" : "Prüfung, Wissensthema oder Aufgabe wählen"}
+              {showContext ? t("timer.lessOptions") : t("timer.selectTopic")}
             </button>
 
             {/* Extended selectors */}
@@ -564,6 +567,7 @@ function SessionLogRow({ log, contextLabel, onDelete, onNoteUpdated }: {
   onDelete: (id: string) => void;
   onNoteUpdated: () => void;
 }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const [editingNote, setEditingNote] = useState(false);
   const [noteText, setNoteText] = useState(log.note ?? "");
@@ -605,7 +609,7 @@ function SessionLogRow({ log, contextLabel, onDelete, onNoteUpdated }: {
           <button
             onClick={() => { setEditingNote(!editingNote); setNoteText(log.note ?? ""); }}
             className={`p-1.5 rounded-lg transition-colors ${editingNote ? "bg-brand-100 text-brand-600" : "hover:bg-surface-100 text-surface-400"}`}
-            title="Notiz bearbeiten"
+            title={t("timer.editNote")}
           >
             <StickyNote size={13} />
           </button>
@@ -622,7 +626,7 @@ function SessionLogRow({ log, contextLabel, onDelete, onNoteUpdated }: {
             <textarea
               value={noteText}
               onChange={e => setNoteText(e.target.value)}
-              placeholder="Notiz zur Sitzung… (z.B. was gelernt, offene Fragen, nächste Schritte)"
+              placeholder={t("timer.notePlaceholder")}
               className="input flex-1 text-sm resize-none"
               rows={2}
               autoFocus
