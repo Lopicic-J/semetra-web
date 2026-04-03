@@ -1,14 +1,37 @@
 "use client";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/lib/i18n";
 import { useModules } from "@/lib/hooks/useModules";
+import { useProfile } from "@/lib/hooks/useProfile";
 import { useExamAttachments } from "@/lib/hooks/useExamAttachments";
+import { ProGate, ProBadge } from "@/components/ui/ProGate";
 import { formatDate } from "@/lib/utils";
-import { Plus, X, Trash2, Pencil, GraduationCap, Clock, Paperclip, Link2, Upload, ExternalLink, FileText, StickyNote, ChevronDown, ChevronUp } from "lucide-react";
-import type { CalendarEvent, ExamAttachment } from "@/types/database";
+import Link from "next/link";
+import {
+  Plus, X, Trash2, Pencil, GraduationCap, Clock, Paperclip, Link2, Upload,
+  ExternalLink, FileText, StickyNote, ChevronDown, ChevronUp, Target,
+  AlertTriangle, CheckCircle2, Timer, Brain, TrendingUp, Sparkles, Lock, Zap,
+  CalendarDays, BarChart3, Play
+} from "lucide-react";
+import type { CalendarEvent, ExamAttachment, Topic } from "@/types/database";
 
 type Exam = CalendarEvent & { daysLeft?: number };
+
+interface ExamWithReadiness extends Exam {
+  topics: Topic[];
+  readinessPercent: number;
+  readinessLevel: "good" | "ok" | "warning" | "critical" | "none";
+}
+
+interface StudyPlanItem {
+  examId: string;
+  examTitle: string;
+  examColor: string;
+  topic: Topic;
+  priority: "high" | "medium" | "low";
+  daysUntilExam: number;
+}
 
 const FILE_ICONS: Record<string, string> = {
   pdf: "📄", docx: "📝", doc: "📝", xlsx: "📊", xls: "📊", csv: "📊",
@@ -29,44 +52,109 @@ function humanSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+/** Calculate readiness based on topic knowledge_levels */
+function calcReadiness(topics: Topic[]): { percent: number; level: "good" | "ok" | "warning" | "critical" | "none" } {
+  if (topics.length === 0) return { percent: 0, level: "none" };
+  const totalPoints = topics.reduce((sum, t) => sum + (t.knowledge_level ?? 0), 0);
+  const maxPoints = topics.length * 4; // max knowledge_level is 4
+  const percent = Math.round((totalPoints / maxPoints) * 100);
+  const level = percent >= 75 ? "good" : percent >= 50 ? "ok" : percent >= 25 ? "warning" : "critical";
+  return { percent, level };
+}
+
+/** Generate study plan: prioritize topics by knowledge gap + urgency */
+function generateStudyPlan(examsWithTopics: ExamWithReadiness[]): StudyPlanItem[] {
+  const items: StudyPlanItem[] = [];
+
+  for (const exam of examsWithTopics) {
+    if ((exam.daysLeft ?? -1) < 0) continue; // skip past exams
+    for (const topic of exam.topics) {
+      if (topic.knowledge_level >= 4) continue; // already mastered
+      const daysLeft = exam.daysLeft ?? 999;
+      const gap = 4 - (topic.knowledge_level ?? 0); // how much left to learn
+      const urgencyScore = gap * (daysLeft <= 3 ? 3 : daysLeft <= 7 ? 2 : daysLeft <= 14 ? 1.5 : 1);
+      const priority: "high" | "medium" | "low" =
+        (daysLeft <= 7 && gap >= 2) || (daysLeft <= 3) ? "high" :
+        (daysLeft <= 14 && gap >= 2) || (daysLeft <= 7) ? "medium" : "low";
+
+      items.push({
+        examId: exam.id,
+        examTitle: exam.title,
+        examColor: exam.color ?? "#6d28d9",
+        topic,
+        priority,
+        daysUntilExam: daysLeft,
+      });
+    }
+  }
+
+  // Sort: high priority first, then by days remaining, then by knowledge gap
+  items.sort((a, b) => {
+    const pOrder = { high: 0, medium: 1, low: 2 };
+    if (pOrder[a.priority] !== pOrder[b.priority]) return pOrder[a.priority] - pOrder[b.priority];
+    if (a.daysUntilExam !== b.daysUntilExam) return a.daysUntilExam - b.daysUntilExam;
+    return (a.topic.knowledge_level ?? 0) - (b.topic.knowledge_level ?? 0);
+  });
+
+  return items;
+}
+
 export default function ExamsPage() {
   const { t } = useTranslation();
   const [exams, setExams] = useState<Exam[]>([]);
+  const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Exam | null>(null);
   const [expandedExam, setExpandedExam] = useState<string | null>(null);
+  const [showStudyPlan, setShowStudyPlan] = useState(false);
   const { modules } = useModules();
+  const { isPro } = useProfile();
   const supabase = createClient();
 
-  const fetchExams = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from("events")
-      .select("*")
-      .eq("event_type", "exam")
-      .order("start_dt", { ascending: true });
+    const [examRes, topicRes] = await Promise.all([
+      supabase.from("events").select("*").eq("event_type", "exam").order("start_dt", { ascending: true }),
+      supabase.from("topics").select("*").order("created_at", { ascending: true }),
+    ]);
     const now = new Date();
-    setExams((data ?? []).map(e => ({
+    setExams((examRes.data ?? []).map(e => ({
       ...e,
       daysLeft: Math.ceil((new Date(e.start_dt).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
     })));
+    setTopics(topicRes.data ?? []);
     setLoading(false);
   }, [supabase]);
 
-  useEffect(() => { fetchExams(); }, [fetchExams]);
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  // Build exams with readiness data
+  const examsWithReadiness: ExamWithReadiness[] = useMemo(() => {
+    return exams.map(exam => {
+      const examTopics = topics.filter(t => t.exam_id === exam.id);
+      const { percent, level } = calcReadiness(examTopics);
+      return { ...exam, topics: examTopics, readinessPercent: percent, readinessLevel: level };
+    });
+  }, [exams, topics]);
+
+  const upcoming = examsWithReadiness.filter(e => (e.daysLeft ?? 0) >= 0);
+  const past = examsWithReadiness.filter(e => (e.daysLeft ?? 0) < 0);
+
+  // Study plan items
+  const studyPlan = useMemo(() => generateStudyPlan(upcoming), [upcoming]);
+  const todayPlan = studyPlan.filter(item => item.priority === "high").slice(0, 8);
+  const weekPlan = studyPlan.slice(0, 20);
 
   async function handleDelete(id: string) {
     if (!confirm(t("exams.deleteConfirm"))) return;
     await supabase.from("events").delete().eq("id", id);
-    fetchExams();
+    fetchData();
   }
 
-  const upcoming = exams.filter(e => (e.daysLeft ?? 0) >= 0);
-  const past = exams.filter(e => (e.daysLeft ?? 0) < 0);
-
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-5xl mx-auto">
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-surface-900">{t("nav.exams")}</h1>
@@ -81,6 +169,83 @@ export default function ExamsPage() {
         <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-20 bg-surface-100 rounded-xl animate-pulse" />)}</div>
       ) : (
         <>
+          {/* ─── Countdown Dashboard ─── */}
+          {upcoming.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-sm font-semibold text-surface-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Target size={14} /> {t("exams.countdown")}
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {upcoming.slice(0, 6).map(exam => (
+                  <CountdownCard key={exam.id} exam={exam} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ─── Study Plan Section (Pro-gated) ─── */}
+          {upcoming.length > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-semibold text-surface-500 uppercase tracking-wider flex items-center gap-2">
+                  <Brain size={14} /> {t("exams.studyPlan")}
+                  {!isPro && <ProBadge />}
+                </h2>
+                {isPro && studyPlan.length > 0 && (
+                  <button
+                    onClick={() => setShowStudyPlan(!showStudyPlan)}
+                    className="text-xs text-brand-600 hover:text-brand-700 font-medium flex items-center gap-1"
+                  >
+                    {showStudyPlan ? t("exams.focusToday") : t("exams.focusThisWeek")}
+                    {showStudyPlan ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                  </button>
+                )}
+              </div>
+
+              {isPro ? (
+                studyPlan.length === 0 ? (
+                  <div className="card p-6 text-center text-surface-400">
+                    <Brain size={32} className="mx-auto mb-2 opacity-30" />
+                    <p className="text-sm">{t("exams.planEmpty")}</p>
+                    <p className="text-xs mt-1">{t("exams.noTopicsLinked")}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {(showStudyPlan ? weekPlan : todayPlan).map((item, i) => (
+                      <StudyPlanCard key={`${item.topic.id}-${i}`} item={item} />
+                    ))}
+                    {!showStudyPlan && studyPlan.length > todayPlan.length && (
+                      <button
+                        onClick={() => setShowStudyPlan(true)}
+                        className="w-full text-center py-2 text-xs text-brand-600 hover:text-brand-700 font-medium"
+                      >
+                        {t("exams.topicsDone", { done: todayPlan.length, total: studyPlan.length })}
+                      </button>
+                    )}
+                  </div>
+                )
+              ) : (
+                <div className="card p-6 relative overflow-hidden">
+                  {/* Blurred preview */}
+                  <div className="opacity-20 pointer-events-none select-none blur-[2px] space-y-2">
+                    {[1,2,3].map(i => (
+                      <div key={i} className="h-12 bg-surface-100 rounded-lg" />
+                    ))}
+                  </div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <Lock size={20} className="text-surface-400 mb-2" />
+                    <p className="text-sm font-semibold text-surface-700">{t("exams.proFeature")}</p>
+                    <p className="text-xs text-surface-500 mb-3">{t("exams.upgradeForPlan")}</p>
+                    <Link href="/upgrade" className="flex items-center gap-1.5 bg-brand-600 text-white px-4 py-2 rounded-full text-xs font-semibold hover:bg-brand-500 transition-all">
+                      <Zap size={12} /> Upgrade
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ─── Exam List ─── */}
           {upcoming.length === 0 && past.length === 0 ? (
             <div className="text-center py-20 text-surface-400">
               <GraduationCap size={48} className="mx-auto mb-3 opacity-30" />
@@ -138,15 +303,173 @@ export default function ExamsPage() {
           initial={editing}
           modules={modules}
           onClose={() => setShowForm(false)}
-          onSaved={() => { setShowForm(false); fetchExams(); }}
+          onSaved={() => { setShowForm(false); fetchData(); }}
         />
       )}
     </div>
   );
 }
 
+/* ─── Countdown Card ─── */
+function CountdownCard({ exam }: { exam: ExamWithReadiness }) {
+  const { t } = useTranslation();
+  const days = exam.daysLeft ?? 0;
+  const isToday = days === 0;
+  const isUrgent = days <= 7;
+
+  const readinessLabel =
+    exam.readinessLevel === "good" ? t("exams.readinessGood") :
+    exam.readinessLevel === "ok" ? t("exams.readinessOk") :
+    exam.readinessLevel === "warning" ? t("exams.readinessWarning") :
+    exam.readinessLevel === "critical" ? t("exams.readinessCritical") :
+    t("exams.noTopicsLinked");
+
+  const readinessColor =
+    exam.readinessLevel === "good" ? "text-green-600" :
+    exam.readinessLevel === "ok" ? "text-blue-600" :
+    exam.readinessLevel === "warning" ? "text-orange-600" :
+    exam.readinessLevel === "critical" ? "text-red-600" :
+    "text-surface-400";
+
+  const readinessIcon =
+    exam.readinessLevel === "good" ? <CheckCircle2 size={12} /> :
+    exam.readinessLevel === "ok" ? <TrendingUp size={12} /> :
+    exam.readinessLevel === "warning" ? <AlertTriangle size={12} /> :
+    exam.readinessLevel === "critical" ? <AlertTriangle size={12} /> :
+    <Brain size={12} />;
+
+  return (
+    <div className={`card p-4 border-l-4 transition-shadow hover:shadow-md ${
+      isToday ? "border-l-red-500 bg-red-50/30" :
+      isUrgent ? "border-l-orange-400" :
+      days <= 30 ? "border-l-yellow-400" :
+      "border-l-green-400"
+    }`}>
+      <div className="flex items-start justify-between mb-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-white text-xs"
+            style={{ background: exam.color ?? "#6d28d9" }}>
+            <GraduationCap size={14} />
+          </div>
+          <p className="font-semibold text-surface-900 text-sm truncate">{exam.title}</p>
+        </div>
+      </div>
+
+      {/* Countdown */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-baseline gap-1">
+          <span className={`text-2xl font-bold ${isToday ? "text-red-600" : isUrgent ? "text-orange-600" : "text-surface-800"}`}>
+            {isToday ? t("exams.todayExam") : days}
+          </span>
+          {!isToday && <span className="text-xs text-surface-500">{t("exams.daysUntil", { days: "" }).trim()}</span>}
+        </div>
+        <span className="text-[10px] text-surface-500">{formatDate(exam.start_dt)}</span>
+      </div>
+
+      {/* Readiness bar */}
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <div className={`flex items-center gap-1 text-[10px] font-medium ${readinessColor}`}>
+            {readinessIcon}
+            <span>{t("exams.readiness")}</span>
+          </div>
+          {exam.readinessLevel !== "none" && (
+            <span className="text-[10px] font-semibold text-surface-600">{exam.readinessPercent}%</span>
+          )}
+        </div>
+        {exam.readinessLevel !== "none" ? (
+          <div className="w-full h-1.5 bg-surface-100 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${
+                exam.readinessLevel === "good" ? "bg-green-500" :
+                exam.readinessLevel === "ok" ? "bg-blue-500" :
+                exam.readinessLevel === "warning" ? "bg-orange-500" :
+                "bg-red-500"
+              }`}
+              style={{ width: `${exam.readinessPercent}%` }}
+            />
+          </div>
+        ) : (
+          <p className="text-[10px] text-surface-400 italic">{readinessLabel}</p>
+        )}
+        {exam.readinessLevel !== "none" && (
+          <p className={`text-[10px] ${readinessColor}`}>{readinessLabel}</p>
+        )}
+        {exam.topics.length > 0 && (
+          <p className="text-[10px] text-surface-400">
+            {t("exams.topicsDone", {
+              done: exam.topics.filter(tp => tp.knowledge_level >= 3).length,
+              total: exam.topics.length,
+            })}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Study Plan Card ─── */
+function StudyPlanCard({ item }: { item: StudyPlanItem }) {
+  const { t } = useTranslation();
+
+  const priorityConfig = {
+    high:   { label: t("exams.priorityHigh"),   bg: "bg-red-50", text: "text-red-700", dot: "bg-red-500" },
+    medium: { label: t("exams.priorityMedium"), bg: "bg-orange-50", text: "text-orange-700", dot: "bg-orange-500" },
+    low:    { label: t("exams.priorityLow"),    bg: "bg-green-50", text: "text-green-700", dot: "bg-green-500" },
+  };
+
+  const cfg = priorityConfig[item.priority];
+  const knowledgeLabels = [
+    t("knowledge.statusUnknown"),
+    t("knowledge.statusSeen"),
+    t("knowledge.levelBasics"),
+    t("knowledge.levelUnderstood"),
+    t("knowledge.levelMastered"),
+  ];
+
+  return (
+    <div className={`flex items-center gap-3 p-3 rounded-xl border border-surface-100 ${cfg.bg} transition-all hover:shadow-sm`}>
+      {/* Priority dot */}
+      <div className={`w-2 h-2 rounded-full shrink-0 ${cfg.dot}`} />
+
+      {/* Topic info */}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-surface-800 truncate">{item.topic.title}</p>
+        <div className="flex items-center gap-2 mt-0.5">
+          <span className="text-[10px] px-1.5 py-0.5 rounded-md font-medium" style={{ background: item.examColor + "20", color: item.examColor }}>
+            {item.examTitle}
+          </span>
+          <span className="text-[10px] text-surface-400">
+            {knowledgeLabels[item.topic.knowledge_level ?? 0]}
+          </span>
+        </div>
+      </div>
+
+      {/* Priority + Days */}
+      <div className="flex items-center gap-2 shrink-0">
+        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${cfg.text} ${cfg.bg}`}>
+          {cfg.label}
+        </span>
+        <span className="text-[10px] text-surface-500 flex items-center gap-0.5">
+          <Clock size={10} /> {item.daysUntilExam}d
+        </span>
+      </div>
+
+      {/* Start timer link */}
+      <Link
+        href={`/timer?exam=${item.examId}&topic=${item.topic.id}`}
+        className="p-1.5 rounded-lg text-brand-600 hover:bg-brand-50 transition-colors shrink-0"
+        title={t("exams.startTimer")}
+      >
+        <Play size={14} />
+      </Link>
+    </div>
+  );
+}
+
+/* ─── Exam Card (enhanced with readiness) ─── */
 function ExamCard({ exam, modules, onEdit, onDelete, isExpanded, onToggleExpand }: {
-  exam: Exam;
+  exam: ExamWithReadiness;
   modules: ReturnType<typeof useModules>["modules"];
   onEdit: (e: Exam) => void;
   onDelete: (id: string) => void;
@@ -167,14 +490,34 @@ function ExamCard({ exam, modules, onEdit, onDelete, isExpanded, onToggleExpand 
         <p className="font-semibold text-surface-900">{exam.title}</p>
         <div className="flex flex-wrap gap-3 mt-1">
           <span className="text-xs text-surface-500 flex items-center gap-1">
-            📅 {formatDate(exam.start_dt)}
+            <CalendarDays size={11} /> {formatDate(exam.start_dt)}
             {" "}
             {new Date(exam.start_dt).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}
           </span>
-          {exam.location && <span className="text-xs text-surface-500">📍 {exam.location}</span>}
+          {exam.location && <span className="text-xs text-surface-500 flex items-center gap-1">📍 {exam.location}</span>}
+          {exam.topics.length > 0 && (
+            <span className="text-xs text-surface-400 flex items-center gap-1">
+              <Brain size={11} />
+              {t("exams.topicsDone", {
+                done: exam.topics.filter(tp => tp.knowledge_level >= 3).length,
+                total: exam.topics.length,
+              })}
+            </span>
+          )}
         </div>
       </div>
       <div className="flex items-center gap-2 shrink-0">
+        {/* Readiness mini-badge */}
+        {exam.readinessLevel !== "none" && (exam.daysLeft ?? -1) >= 0 && (
+          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold ${
+            exam.readinessLevel === "good" ? "bg-green-100 text-green-700" :
+            exam.readinessLevel === "ok" ? "bg-blue-100 text-blue-700" :
+            exam.readinessLevel === "warning" ? "bg-orange-100 text-orange-700" :
+            "bg-red-100 text-red-700"
+          }`} title={`${t("exams.readiness")}: ${exam.readinessPercent}%`}>
+            {exam.readinessPercent}
+          </div>
+        )}
         <button onClick={onToggleExpand}
           className={`p-1.5 rounded-lg transition-colors ${isExpanded ? "bg-brand-100 text-brand-600" : "text-surface-400 hover:bg-surface-100"}`}
           title={t("exams.materials")}>
@@ -188,7 +531,7 @@ function ExamCard({ exam, modules, onEdit, onDelete, isExpanded, onToggleExpand 
             "bg-green-100 text-green-700"
           }`}>
             <Clock size={12} />
-            {exam.daysLeft === 0 ? "Heute!" : `${exam.daysLeft}d`}
+            {exam.daysLeft === 0 ? t("exams.todayExam") : `${exam.daysLeft}d`}
           </div>
         )}
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

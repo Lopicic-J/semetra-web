@@ -51,6 +51,7 @@ export const PRO_FEATURES = {
   desktopSync:         "Desktop ↔ Web Sync",
   fhImportAll:         "Alle Studiengang-Module importieren",
   spacedRepetition:    "Smart Spaced Repetition",
+  studyPlanGenerator:  "Lernplan-Generator",
   themes:              "Benutzerdefinierte Themes",
   prioritySupport:     "Prioritäts-Support",
 } as const;
