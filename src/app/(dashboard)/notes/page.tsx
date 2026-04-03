@@ -516,6 +516,7 @@ export default function NotesPage() {
 
 /* ── Flow View ──────────────────────────────────────────────────────── */
 function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: Note) => void }) {
+  const { t } = useTranslation();
   // Group by date
   const grouped: Record<string, FlowItem[]> = {};
   items.forEach(item => {
@@ -652,6 +653,7 @@ function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: No
 
 /* ── Note Card (Grid) ───────────────────────────────────────────────── */
 function NoteCard({ note, modules, onClick }: { note: Note; modules: Module[]; onClick: () => void }) {
+  const { t } = useTranslation();
   const mod = note.module ?? modules.find(m => m.id === note.module_id);
   const st = STATUS_CONFIG[note.status as NoteStatus] ?? STATUS_CONFIG.draft;
   const preview = note.content.replace(/<[^>]*>/g, "").slice(0, 120);
@@ -698,6 +700,7 @@ function NoteCard({ note, modules, onClick }: { note: Note; modules: Module[]; o
 
 /* ── Note List Row ──────────────────────────────────────────────────── */
 function NoteListRow({ note, modules, onClick }: { note: Note; modules: Module[]; onClick: () => void }) {
+  const { t } = useTranslation();
   const mod = note.module ?? modules.find(m => m.id === note.module_id);
   const st = STATUS_CONFIG[note.status as NoteStatus] ?? STATUS_CONFIG.draft;
 
@@ -738,6 +741,7 @@ function CreateNoteModal({
   onClose: () => void;
   onCreated: (n: Note) => void;
 }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const [title, setTitle] = useState("");
   const [moduleId, setModuleId] = useState("");
@@ -1208,6 +1212,7 @@ function NoteEditor({
 
 /* ── Rubrik Create Modal ──────────────────────────────────────────── */
 function RubrikCreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const [name, setName] = useState("");
   const [color, setColor] = useState(NOTE_COLORS[0]);

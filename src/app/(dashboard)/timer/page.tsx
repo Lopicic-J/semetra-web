@@ -290,8 +290,8 @@ export default function TimerPage() {
   return (
     <div className="p-3 sm:p-6 max-w-4xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-surface-900">Lern-Timer</h1>
-        <p className="text-surface-500 text-sm mt-0.5">Pomodoro-Technik & Lernzeit-Tracking</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-surface-900">{t("nav.timer")}</h1>
+        <p className="text-surface-500 text-sm mt-0.5">{t("navigator.timerDesc")}</p>
       </div>
 
       {/* Stats row */}
@@ -432,7 +432,7 @@ export default function TimerPage() {
             {/* Module + Note (always visible) */}
             <div className="flex gap-3">
               <select className="input flex-1" value={selectedModule} onChange={e => setSelectedModule(e.target.value)}>
-                <option value="">— Modul —</option>
+                <option value="">— {t("studiengaenge.modal.module")} —</option>
                 {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
               </select>
               <input className="input flex-1" value={note} onChange={e => setNote(e.target.value)} placeholder={t("timer.noteLabel")} />
@@ -478,7 +478,7 @@ export default function TimerPage() {
                 <div className="flex items-center gap-2">
                   <ClipboardList size={14} className="text-green-400 shrink-0" />
                   <select className="input flex-1 text-sm" value={selectedTask} onChange={e => setSelectedTask(e.target.value)}>
-                    <option value="">— Aufgabe —</option>
+                    <option value="">— {t("nav.tasks")} —</option>
                     {filteredTasks.map(t => (
                       <option key={t.id} value={t.id}>{t.title}</option>
                     ))}

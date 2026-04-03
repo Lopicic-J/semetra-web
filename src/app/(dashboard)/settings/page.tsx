@@ -9,6 +9,7 @@ import { useTranslation, LOCALES, LOCALE_LABELS, LOCALE_FLAGS, type Locale } fro
 import Link from "next/link";
 
 export default function SettingsPage() {
+  const { t } = useTranslation();
   const supabase = createClient();
   const router = useRouter();
   const { profile, isPro, isLifetime } = useProfile();
@@ -37,8 +38,8 @@ export default function SettingsPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-surface-900">Einstellungen</h1>
-        <p className="text-surface-500 text-sm mt-0.5">App & Konto verwalten</p>
+        <h1 className="text-2xl font-bold text-surface-900">{t("settings.title")}</h1>
+        <p className="text-surface-500 text-sm mt-0.5">{t("settings.subtitle")}</p>
       </div>
 
       <div className="flex gap-6">
@@ -54,7 +55,7 @@ export default function SettingsPage() {
           <button onClick={handleLogout}
             className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-surface-500 hover:bg-red-50 hover:text-red-600 transition-colors mt-4">
             <LogOut size={16} />
-            Abmelden
+            {t("sidebar.logout")}
           </button>
         </nav>
 
@@ -72,6 +73,7 @@ export default function SettingsPage() {
 }
 
 function AccountTab({ user, profile }: { user: { email?: string; created_at?: string } | null; profile: { country?: string | null } | null }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -202,6 +204,7 @@ function AccountTab({ user, profile }: { user: { email?: string; created_at?: st
 }
 
 function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: boolean; profile: { stripe_subscription_status?: string | null; plan_expires_at?: string | null; plan_type?: string | null } | null }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
 
   async function handlePortal() {
@@ -374,6 +377,7 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
 }
 
 function AppearanceTab() {
+  const { t } = useTranslation();
   return (
     <div className="card">
       <h2 className="font-semibold text-surface-900 mb-4">Darstellung</h2>
@@ -408,6 +412,7 @@ function AppearanceTab() {
 }
 
 function NotificationsTab() {
+  const { t } = useTranslation();
   const [settings, setSettings] = useState({
     exam_reminder: true,
     task_deadline: true,
@@ -443,6 +448,7 @@ function NotificationsTab() {
 }
 
 function PrivacyTab() {
+  const { t } = useTranslation();
   const supabase = createClient();
   const [exporting, setExporting] = useState(false);
   const [exportFormat, setExportFormat] = useState<"desktop" | "json">("desktop");

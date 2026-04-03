@@ -61,8 +61,8 @@ function sm2(quality: number, easiness: number, interval: number, repetitions: n
 }
 
 export default function KnowledgePage() {
-
-  const { t } = useTranslation();  const [topics, setTopics] = useState<Topic[]>([]);
+  const { t } = useTranslation();
+  const [topics, setTopics] = useState<Topic[]>([]);
   const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -206,22 +206,22 @@ export default function KnowledgePage() {
     <div className="p-3 sm:p-6 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-surface-900">Lernziele & Wissen</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900">{t("knowledge.title")}</h1>
           <p className="text-surface-500 text-sm mt-0.5">
             {filteredTopics.filter(t => t.status === "understood").length}/{filteredTopics.length} verstanden
             {dueTopics.length > 0 && (
-              <span className="text-amber-600 font-medium ml-2">· {dueTopics.length} Review{dueTopics.length !== 1 ? "s" : ""} fällig</span>
+              <span className="text-amber-600 font-medium ml-2">· {dueTopics.length} {t("knowledge.dueSoon")}</span>
             )}
           </p>
         </div>
         <div className="flex gap-2">
           {dueTopics.length > 0 && (
             <button onClick={() => { setReviewContext("all"); setShowReview(true); }} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium transition-colors">
-              <RotateCcw size={16} /> Review starten ({dueTopics.length})
+              <RotateCcw size={16} /> {t("knowledge.title")} ({dueTopics.length})
             </button>
           )}
           <button onClick={() => { setParentForNew(null); setEditingTopic(null); setShowForm(true); }} className="btn-primary gap-2">
-            <Plus size={16} /> Thema
+            <Plus size={16} /> {t("knowledge.newTopic")}
           </button>
         </div>
       </div>
@@ -241,7 +241,7 @@ export default function KnowledgePage() {
               } />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-surface-900">
-                  {w.exam.title} — {w.understoodPct}% Wissensstand
+                  {w.exam.title} — {w.understoodPct}% {t("knowledge.title")}
                 </p>
                 <p className="text-xs text-surface-500">
                   Prüfung in {w.exam.daysLeft} Tagen · {w.topicCount} Themen zugeordnet
@@ -249,7 +249,7 @@ export default function KnowledgePage() {
               </div>
               <button onClick={() => startExamReview(w.exam.id)}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-white border border-surface-200 hover:border-brand-300 hover:text-brand-600 transition-colors shrink-0">
-                <Brain size={12} /> Review starten
+                <Brain size={12} /> {t("knowledge.title")}
               </button>
             </div>
           ))}
@@ -260,7 +260,7 @@ export default function KnowledgePage() {
       {filteredTopics.length > 0 && (
         <div className="card mb-5">
           <div className="flex justify-between text-sm mb-3">
-            <span className="font-medium text-surface-700">Wissensstand</span>
+            <span className="font-medium text-surface-700">{t("knowledge.title")}</span>
             <span className="text-surface-500">{Math.round((filteredTopics.filter(t => (t.knowledge_level ?? 0) >= 3).length / filteredTopics.length) * 100)}% gut oder besser</span>
           </div>
           <div className="h-3 bg-surface-100 rounded-full overflow-hidden flex">
@@ -288,10 +288,10 @@ export default function KnowledgePage() {
       <div className="space-y-2 mb-5">
         {/* Module filter */}
         <div className="flex gap-2 flex-wrap items-center">
-          <span className="text-xs text-surface-400 font-medium w-14 shrink-0">Modul:</span>
+          <span className="text-xs text-surface-400 font-medium w-14 shrink-0">{t("nav.modules")}:</span>
           <button onClick={() => { setFilterModule("all"); setFilterExam("all"); setFilterTask("all"); }}
             className={`badge cursor-pointer text-xs ${filterModule === "all" ? "bg-brand-600 text-white" : "badge-gray hover:bg-surface-200"}`}>
-            Alle
+            {t("grades.filterAll")}
           </button>
           {modules.map(m => (
             <button key={m.id} onClick={() => { setFilterModule(m.id); setFilterExam("all"); setFilterTask("all"); }}
@@ -308,7 +308,7 @@ export default function KnowledgePage() {
             <span className="text-xs text-surface-400 font-medium w-14 shrink-0">Prüfung:</span>
             <button onClick={() => setFilterExam("all")}
               className={`badge cursor-pointer text-xs ${filterExam === "all" ? "bg-brand-600 text-white" : "badge-gray hover:bg-surface-200"}`}>
-              Alle
+              {t("grades.filterAll")}
             </button>
             {upcomingExams.map(e => {
               const count = topics.filter(t => t.exam_id === e.id).length;
@@ -328,10 +328,10 @@ export default function KnowledgePage() {
         {/* Task filter */}
         {openTasks.length > 0 && (
           <div className="flex gap-2 flex-wrap items-center">
-            <span className="text-xs text-surface-400 font-medium w-14 shrink-0">Aufgabe:</span>
+            <span className="text-xs text-surface-400 font-medium w-14 shrink-0">{t("nav.tasks")}:</span>
             <button onClick={() => setFilterTask("all")}
               className={`badge cursor-pointer text-xs ${filterTask === "all" ? "bg-brand-600 text-white" : "badge-gray hover:bg-surface-200"}`}>
-              Alle
+              {t("grades.filterAll")}
             </button>
             {openTasks.slice(0, 8).map(t => {
               const count = topics.filter(tp => tp.task_id === t.id).length;
@@ -352,7 +352,7 @@ export default function KnowledgePage() {
         <div className="card mb-5">
           <div className="flex justify-between text-sm mb-2">
             <span className="font-medium text-surface-700">
-              Gesamtfortschritt
+              {t("knowledge.title")}
               {filterExam !== "all" && <span className="text-brand-600 ml-1">· {examName(filterExam)}</span>}
               {filterTask !== "all" && <span className="text-blue-600 ml-1">· {taskName(filterTask)}</span>}
             </span>
@@ -378,7 +378,7 @@ export default function KnowledgePage() {
       ) : rootTopics.length === 0 ? (
         <div className="text-center py-16 text-surface-400">
           <Brain size={40} className="mx-auto mb-3 opacity-30" />
-          <p className="font-medium">{t("knowledge.noGoals")} {filterExam !== "all" ? "für diese Prüfung" : filterTask !== "all" ? "für diese Aufgabe" : ""}</p>
+          <p className="font-medium">{t("knowledge.noGoals")}</p>
           <p className="text-sm mt-1">Füge Themen hinzu und ordne sie einer Prüfung oder Aufgabe zu.</p>
         </div>
       ) : (
@@ -497,10 +497,10 @@ function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onTog
           <button onClick={() => onAddChild(topic.id)} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400 hover:text-brand-500" title={t("knowledge.subTopic")}>
             <Plus size={13} />
           </button>
-          <button onClick={() => onEdit(topic)} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400">
+          <button onClick={() => onEdit(topic)} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400" title={t("documents.edit")}>
             <Pencil size={13} />
           </button>
-          <button onClick={() => onDelete(topic.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500">
+          <button onClick={() => onDelete(topic.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500" title={t("documents.delete")}>
             <Trash2 size={13} />
           </button>
         </div>
@@ -529,6 +529,7 @@ function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onTog
 
 /* ── SR Review Modal ──────────────────────────────────────────────────────── */
 function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; contextLabel?: string; onClose: () => void }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const [idx, setIdx] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
@@ -570,9 +571,9 @@ function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; con
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
         <div className="bg-white rounded-2xl shadow-xl w-full max-w-md text-center p-8">
           <Check size={32} className="mx-auto mb-4 text-green-500" />
-          <h2 className="text-lg font-bold text-surface-900 mb-2">Keine Reviews fällig</h2>
-          <p className="text-surface-500 text-sm mb-4">Alle Themen sind auf dem neuesten Stand.</p>
-          <button onClick={onClose} className="btn-primary w-full justify-center">Schliessen</button>
+          <h2 className="text-lg font-bold text-surface-900 mb-2">{t("knowledge.title")}</h2>
+          <p className="text-surface-500 text-sm mb-4">{t("knowledge.statusUnderstood")}</p>
+          <button onClick={onClose} className="btn-primary w-full justify-center">{t("tasks.modal.cancel")}</button>
         </div>
       </div>
     );
@@ -585,19 +586,19 @@ function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; con
           <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
             <Check size={32} className="text-green-600" />
           </div>
-          <h2 className="text-xl font-bold text-surface-900 mb-2">Review abgeschlossen!</h2>
+          <h2 className="text-xl font-bold text-surface-900 mb-2">{t("knowledge.title")}</h2>
           {contextLabel && <p className="text-brand-600 text-sm font-medium mb-1">{contextLabel}</p>}
           <p className="text-surface-500 mb-4">
-            {stats.good + stats.again} Themen wiederholt
+            {stats.good + stats.again} {t("knowledge.title")}
           </p>
           <div className="flex justify-center gap-6 mb-6">
             <div className="text-center">
               <p className="text-2xl font-bold text-green-600">{stats.good}</p>
-              <p className="text-xs text-surface-500">Gewusst</p>
+              <p className="text-xs text-surface-500">{t("knowledge.statusUnderstood")}</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-red-500">{stats.again}</p>
-              <p className="text-xs text-surface-500">Wiederholen</p>
+              <p className="text-xs text-surface-500">{t("knowledge.statusRetry")}</p>
             </div>
           </div>
           <button onClick={onClose} className="btn-primary w-full justify-center">Fertig</button>

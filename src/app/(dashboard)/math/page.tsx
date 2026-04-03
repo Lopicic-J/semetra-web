@@ -341,7 +341,7 @@ export default function MathPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 flex items-center gap-2">🧮 Mathe-Raum</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 flex items-center gap-2">🧮 {t("math.title")}</h1>
           <p className="text-surface-500 text-xs sm:text-sm mt-1">Dein wissenschaftlicher Arbeitsplatz für Mathematik</p>
         </div>
         <button onClick={() => setShowHistory(!showHistory)} className="px-3 sm:px-4 py-2 rounded-lg bg-surface-100 text-surface-700 hover:bg-surface-200 text-sm flex items-center gap-2 self-start sm:self-auto">
@@ -423,6 +423,7 @@ export default function MathPage() {
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
 function CalculatorTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
+  const { t } = useTranslation();
   const [display, setDisplay] = useState("");
   const [result, setResult] = useState("");
   const [angleMode, setAngleMode] = useState<"deg" | "rad">("deg");
@@ -496,6 +497,7 @@ function CalculatorTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
 function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<"linear" | "quadratic" | "system" | "custom">("quadratic");
   const [a, setA] = useState("1");
   const [b, setB] = useState("0");
@@ -646,6 +648,7 @@ function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, 
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
 function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
+  const { t } = useTranslation();
   const [size, setSize] = useState(3);
   const [matA, setMatA] = useState<number[][]>(Array.from({ length: 3 }, () => Array(3).fill(0)));
   const [matB, setMatB] = useState<number[][]>(Array.from({ length: 3 }, () => Array(3).fill(0)));
@@ -831,6 +834,7 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
 function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [functions, setFunctions] = useState<{ expr: string; color: string }[]>([
     { expr: "sin(x)", color: "#8b5cf6" },
@@ -1029,6 +1033,7 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
 function StatisticsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
+  const { t } = useTranslation();
   const [data, setData] = useState("5, 8, 12, 7, 9, 15, 6, 11, 10, 8");
   const [moduleId, setModuleId] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -1167,6 +1172,7 @@ function StatisticsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
 function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[] }) {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<"convert" | "constants" | "bases">("convert");
   const [group, setGroup] = useState(0);
   const [fromUnit, setFromUnit] = useState(0);
@@ -1309,6 +1315,7 @@ function UnitsTool({ onSave, modules }: { onSave: (t: MathTool, e: string, r: st
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
 function FormulasTool({ userId, supabase, formulas, setFormulas, modules }: { userId: string | null; supabase: ReturnType<typeof createClient>; formulas: MathFormula[]; setFormulas: React.Dispatch<React.SetStateAction<MathFormula[]>>; modules: Module[] }) {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<FormulaCategory | "all">("all");
   const [showModal, setShowModal] = useState(false);

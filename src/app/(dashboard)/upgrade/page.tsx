@@ -35,13 +35,13 @@ function UpgradeContent() {
         <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-6">
           <CheckCircle className="text-green-500" size={44} />
         </div>
-        <h1 className="text-2xl font-bold text-surface-900 mb-2">Willkommen bei Semetra Pro!</h1>
+        <h1 className="text-2xl font-bold text-surface-900 mb-2">{t("upgrade.successTitle")}</h1>
         <p className="text-surface-500 mb-8 max-w-sm">
-          Dein Upgrade war erfolgreich. Alle Pro-Features sind jetzt freigeschaltet — auf Web und Desktop.
+          {t("upgrade.successSubtitle")}
         </p>
         <Link href="/dashboard" className="btn-primary gap-2">
           <ArrowLeft size={16} />
-          Zum Dashboard
+          {t("upgrade.successButton")}
         </Link>
       </div>
     );
@@ -53,9 +53,9 @@ function UpgradeContent() {
         <div className="w-24 h-24 rounded-full bg-surface-100 flex items-center justify-center mb-6">
           <XCircle className="text-surface-400" size={44} />
         </div>
-        <h1 className="text-2xl font-bold text-surface-900 mb-2">Upgrade abgebrochen</h1>
-        <p className="text-surface-500 mb-8">Kein Problem — du kannst jederzeit upgraden.</p>
-        <Link href="/dashboard" className="btn-secondary">Zurück zum Dashboard</Link>
+        <h1 className="text-2xl font-bold text-surface-900 mb-2">{t("upgrade.cancelledTitle")}</h1>
+        <p className="text-surface-500 mb-8">{t("upgrade.cancelledSubtitle")}</p>
+        <Link href="/dashboard" className="btn-secondary">{t("upgrade.cancelledButton")}</Link>
       </div>
     );
   }
@@ -74,10 +74,10 @@ function UpgradeContent() {
           Semetra Pro
         </div>
         <h1 className="text-3xl font-bold text-surface-900 mb-3">
-          Hol das Beste aus deinem Studium heraus
+          {t("upgrade.title")}
         </h1>
         <p className="text-surface-500 max-w-xl mx-auto">
-          Ein Abo, alle Plattformen. Upgrade auf Pro und schalte unbegrenzte Features, KI-Coach und Desktop-Sync frei.
+          {t("upgrade.subtitle")}
         </p>
       </div>
 
@@ -112,7 +112,7 @@ function UpgradeContent() {
           <div className="mb-5">
             <p className="text-sm font-semibold text-surface-500 uppercase tracking-wide mb-1">Free</p>
             <p className="text-3xl font-bold text-surface-900">CHF 0</p>
-            <p className="text-sm text-surface-400 mt-1">für immer</p>
+            <p className="text-sm text-surface-400 mt-1">{t("upgrade.forever")}</p>
           </div>
           <div className="space-y-2.5 mb-6">
             {PLANS.free.features.map(f => (
@@ -130,7 +130,7 @@ function UpgradeContent() {
           </div>
           {!isPro && (
             <div className="w-full py-2.5 rounded-xl border-2 border-surface-200 text-surface-500 text-sm text-center font-medium">
-              Dein aktueller Plan
+              {t("upgrade.currentPlan")}
             </div>
           )}
         </div>
@@ -160,15 +160,15 @@ function UpgradeContent() {
             </div>
             {PRO_PRICES[selectedTier].intervalCount > 1 && (
               <p className="text-sm text-brand-600 font-medium mt-1">
-                = CHF {PRO_PRICES[selectedTier].perMonth.toFixed(2).replace(".", ",")} pro Monat
+                = CHF {PRO_PRICES[selectedTier].perMonth.toFixed(2).replace(".", ",")} {t("upgrade.perMonth")}
                 {"savings" in PRO_PRICES[selectedTier] && (
                   <span className="ml-1.5 text-green-600 font-semibold">
-                    ({(PRO_PRICES[selectedTier] as { savings: number }).savings}% gespart)
+                    ({t("upgrade.savings", { percent: (PRO_PRICES[selectedTier] as { savings: number }).savings })})
                   </span>
                 )}
               </p>
             )}
-            <p className="text-sm text-surface-400 mt-1">jederzeit kündbar</p>
+            <p className="text-sm text-surface-400 mt-1">{t("upgrade.cancellable")}</p>
           </div>
           <div className="space-y-2.5 mb-6">
             {PLANS.pro.features.map(f => (
@@ -181,7 +181,7 @@ function UpgradeContent() {
           {isPro ? (
             <div className="w-full py-2.5 rounded-xl bg-green-50 text-green-700 text-sm text-center font-semibold flex items-center justify-center gap-2">
               <CheckCircle size={15} />
-              Aktiver Plan
+              {t("upgrade.activePlan")}
             </div>
           ) : (
             <UpgradeButton priceId={PRO_PRICES[selectedTier].priceId} />
@@ -204,7 +204,7 @@ function UpgradeContent() {
               href={LIFETIME_PRICE.paymentLink}
               className="shrink-0 bg-white text-surface-900 px-6 py-2.5 rounded-xl font-semibold text-sm hover:bg-surface-100 transition-all"
             >
-              Lifetime kaufen
+              {t("upgrade.buyLifetime")}
             </a>
           </div>
         </div>
@@ -215,22 +215,23 @@ function UpgradeContent() {
         <div className="bg-gradient-to-r from-brand-50 to-violet-50 border border-brand-200/60 rounded-2xl p-5 text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Sparkles size={16} className="text-brand-600" />
-            <span className="text-sm font-semibold text-brand-700">Ein Kauf oder Abo — &uuml;berall Pro</span>
+            <span className="text-sm font-semibold text-brand-700">{t("upgrade.allPlatforms")}</span>
           </div>
           <p className="text-sm text-surface-600">
-            Dein Pro gilt f&uuml;r Web-App, Desktop-App und zuk&uuml;nftige Mobile-App. Einmal aktivieren, &uuml;berall nutzen.
+            {t("upgrade.allPlatformsDesc")}
           </p>
         </div>
       </div>
 
       <p className="text-center text-xs text-surface-400">
-        Sichere Zahlung via Stripe · Schweizer Datenschutz · Keine versteckten Kosten
+        {t("upgrade.securePayment")}
       </p>
     </div>
   );
 }
 
 function UpgradeButton({ priceId }: { priceId: string }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
 
   return (
@@ -262,14 +263,15 @@ function UpgradeButton({ priceId }: { priceId: string }) {
       className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-500 transition-all flex items-center justify-center gap-2 disabled:opacity-60 shadow-md shadow-brand-600/20"
     >
       <Zap size={16} />
-      {loading ? "Wird geladen…" : "Jetzt upgraden"}
+      {loading ? t("upgrade.upgrading") : t("upgrade.nowUpgrade")}
     </button>
   );
 }
 
 export default function UpgradePage() {
+  const { t } = useTranslation();
   return (
-    <Suspense fallback={<div className="p-6">Lade…</div>}>
+    <Suspense fallback={<div className="p-6">{t("upgrade.upgrading")}</div>}>
       <UpgradeContent />
     </Suspense>
   );

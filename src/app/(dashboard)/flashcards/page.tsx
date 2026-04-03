@@ -68,13 +68,13 @@ function CardDialog({
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium text-surface-500 mb-1 block">Modul</label>
+              <label className="text-xs font-medium text-surface-500 mb-1 block">{t("nav.modules")}</label>
               <select
                 className="input w-full"
                 value={moduleId}
                 onChange={(e) => setModuleId(e.target.value)}
               >
-                <option value="">Kein Modul</option>
+                <option value="">— {t("tasks.modal.moduleEmpty")} —</option>
                 {modules.map((m) => (
                   <option key={m.id} value={m.id}>{m.name}</option>
                 ))}
@@ -92,7 +92,7 @@ function CardDialog({
           </div>
 
           <div>
-            <label className="text-xs font-medium text-surface-500 mb-1 block">Vorderseite (Frage)</label>
+            <label className="text-xs font-medium text-surface-500 mb-1 block">{t("flashcards.question")}</label>
             <textarea
               className="input w-full min-h-[80px] resize-y"
               value={front}
@@ -102,7 +102,7 @@ function CardDialog({
           </div>
 
           <div>
-            <label className="text-xs font-medium text-surface-500 mb-1 block">Rückseite (Antwort)</label>
+            <label className="text-xs font-medium text-surface-500 mb-1 block">{t("flashcards.answer")}</label>
             <textarea
               className="input w-full min-h-[80px] resize-y"
               value={back}
@@ -113,7 +113,7 @@ function CardDialog({
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
-          <button onClick={onClose} className="btn-secondary text-sm">Abbrechen</button>
+          <button onClick={onClose} className="btn-secondary text-sm">{t("tasks.modal.cancel")}</button>
           <button
             onClick={() => {
               if (!front.trim() || !back.trim()) return;
@@ -127,7 +127,7 @@ function CardDialog({
             disabled={!front.trim() || !back.trim()}
             className="btn-primary text-sm"
           >
-            {card ? "Speichern" : "Erstellen"}
+            {card ? t("knowledge.save") : t("flashcards.creating")}
           </button>
         </div>
       </div>
@@ -156,9 +156,9 @@ function StudyMode({
         <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
           <Check className="text-green-600" size={36} />
         </div>
-        <h2 className="text-xl font-bold text-surface-900 mb-2">Geschafft!</h2>
-        <p className="text-surface-500 mb-6">Alle Karteikarten für heute wiederholt.</p>
-        <button onClick={onClose} className="btn-primary">Zurück</button>
+        <h2 className="text-xl font-bold text-surface-900 mb-2">{t("knowledge.title")}</h2>
+        <p className="text-surface-500 mb-6">{t("flashcards.title")}</p>
+        <button onClick={onClose} className="btn-primary">{t("tasks.modal.cancel")}</button>
       </div>
     );
   }
@@ -173,7 +173,7 @@ function StudyMode({
     <div className="max-w-xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <button onClick={onClose} className="btn-ghost text-sm gap-1">
-          <ChevronLeft size={14} /> Zurück
+          <ChevronLeft size={14} /> {t("tasks.modal.cancel")}
         </button>
         <span className="text-sm text-surface-400">{idx + 1} / {cards.length}</span>
       </div>
@@ -204,25 +204,25 @@ function StudyMode({
             onClick={() => handleRate(1)}
             className="px-5 py-2.5 rounded-xl bg-red-50 text-red-700 font-semibold text-sm hover:bg-red-100 transition-colors"
           >
-            Nochmal
+            {t("tasks.statusLow")}
           </button>
           <button
             onClick={() => handleRate(3)}
             className="px-5 py-2.5 rounded-xl bg-amber-50 text-amber-700 font-semibold text-sm hover:bg-amber-100 transition-colors"
           >
-            Schwer
+            {t("tasks.statusMedium")}
           </button>
           <button
             onClick={() => handleRate(4)}
             className="px-5 py-2.5 rounded-xl bg-green-50 text-green-700 font-semibold text-sm hover:bg-green-100 transition-colors"
           >
-            Gut
+            {t("knowledge.levelBasics")}
           </button>
           <button
             onClick={() => handleRate(5)}
             className="px-5 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-semibold text-sm hover:bg-blue-100 transition-colors"
           >
-            Leicht
+            {t("knowledge.levelMastered")}
           </button>
         </div>
       )}
@@ -398,7 +398,7 @@ export default function FlashcardsPage() {
         <div>
           <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
             <BookOpen className="text-brand-600" size={26} />
-            Karteikarten
+            {t("flashcards.title")}
           </h1>
           <p className="text-surface-500 text-sm mt-1">
             {cards.length} Karten · {userCount} eigene · {aiCount} KI-generiert
@@ -415,12 +415,12 @@ export default function FlashcardsPage() {
               className="btn-primary gap-2"
             >
               <Brain size={16} />
-              Lernen ({dueCards.length})
+              {t("knowledge.title")} ({dueCards.length})
             </button>
           )}
           <label className={`btn-secondary gap-2 cursor-pointer ${generating ? "opacity-60 pointer-events-none" : ""}`}>
             {generating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-            {generating ? "Generiere…" : "KI-Import"}
+            {generating ? t("flashcards.generateAi") : t("flashcards.aiImport")}
             <input
               type="file"
               accept=".txt,.md,.pdf,.docx,.csv"
@@ -438,12 +438,12 @@ export default function FlashcardsPage() {
             className="btn-primary gap-2"
           >
             <Plus size={16} />
-            Neue Karte
+            {t("flashcards.newCard")}
           </button>
         </div>
       </div>
 
-      <LimitNudge current={decks.length} max={FREE_LIMITS.flashcardSets} isPro={isPro} label="Karteikarten-Sets" />
+      <LimitNudge current={decks.length} max={FREE_LIMITS.flashcardSets} isPro={isPro} label={t("flashcards.sets")} />
 
       {showUpgrade && (
         <UpgradeModal feature="unlimitedFlashcards" onClose={() => setShowUpgrade(false)} />
@@ -456,7 +456,7 @@ export default function FlashcardsPage() {
           value={filterModule}
           onChange={(e) => setFilterModule(e.target.value)}
         >
-          <option value="">Alle Module</option>
+          <option value="">— {t("grades.filterAll")} —</option>
           {modules.map((m) => (
             <option key={m.id} value={m.id}>{m.name}</option>
           ))}
@@ -467,8 +467,8 @@ export default function FlashcardsPage() {
           value={filterSource}
           onChange={(e) => setFilterSource(e.target.value as "all" | "user" | "ai")}
         >
-          <option value="all">Alle Quellen</option>
-          <option value="user">Eigene</option>
+          <option value="all">— {t("grades.filterAll")} —</option>
+          <option value="user">{t("documents.typeDocument")}</option>
           <option value="ai">KI-generiert</option>
         </select>
 
@@ -478,7 +478,7 @@ export default function FlashcardsPage() {
             value={selectedDeck}
             onChange={(e) => setSelectedDeck(e.target.value)}
           >
-            <option value="">Alle Decks</option>
+            <option value="">— {t("grades.filterAll")} —</option>
             {decks.map((d) => (
               <option key={d} value={d}>{d}</option>
             ))}
@@ -503,13 +503,13 @@ export default function FlashcardsPage() {
                 <div className="flex items-center gap-2">
                   <Sparkles size={14} className="text-brand-600" />
                   <span className="text-sm font-medium text-brand-800">{doc}</span>
-                  <span className="text-xs text-brand-500">({docCards.length} Karten)</span>
+                  <span className="text-xs text-brand-500">({docCards.length} {t("flashcards.newCard")})</span>
                 </div>
                 <button
                   onClick={() => handleDeleteAiBatch(doc)}
                   className="text-xs text-red-500 hover:text-red-700 font-medium"
                 >
-                  Alle löschen
+                  {t("grades.filterAll")}
                 </button>
               </div>
             ))}
@@ -525,8 +525,8 @@ export default function FlashcardsPage() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-surface-400">
           <BookOpen size={40} className="mx-auto mb-3 opacity-30" />
-          <p className="font-medium">Keine Karteikarten</p>
-          <p className="text-sm mt-1">Erstelle deine erste Karteikarte oder lade ein Dokument hoch.</p>
+          <p className="font-medium">{t("flashcards.newCard")}</p>
+          <p className="text-sm mt-1">{t("flashcards.title")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

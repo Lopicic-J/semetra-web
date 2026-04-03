@@ -113,6 +113,18 @@ export default function StudiengaengePage() {
     return `Semester 1`;
   }
 
+  // Country tabs with translated labels
+  const COUNTRY_TABS_LOCALIZED = [
+    { code: "CH", flag: "🇨🇭", label: t("studiengaenge.countrySwiss") },
+    { code: "DE", flag: "🇩🇪", label: t("studiengaenge.countryGermany") },
+    { code: "AT", flag: "🇦🇹", label: t("studiengaenge.countryAustria") },
+    { code: "FR", flag: "🇫🇷", label: t("studiengaenge.countryFrance") },
+    { code: "IT", flag: "🇮🇹", label: t("studiengaenge.countryItaly") },
+    { code: "NL", flag: "🇳🇱", label: t("studiengaenge.countryNetherlands") },
+    { code: "ES", flag: "🇪🇸", label: t("studiengaenge.countrySpain") },
+    { code: "UK", flag: "🇬🇧", label: t("studiengaenge.countryUk") },
+  ];
+
   function pickProgram(p: Studiengang) {
     setSelected(p);
     const init: Record<string, string> = {};
@@ -160,10 +172,10 @@ export default function StudiengaengePage() {
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
             <GraduationCap className="text-brand-600" size={26} />
-            Studiengänge importieren
+            {t("studiengaenge.title")}
           </h1>
           <p className="text-surface-500 text-sm mt-1">
-            Importiere alle Module deiner Hochschule automatisch.
+            {t("studiengaenge.subtitle")}
           </p>
         </div>
         <ProGate feature="fhImportAll" isPro={false}>
@@ -178,10 +190,10 @@ export default function StudiengaengePage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
           <GraduationCap className="text-brand-600" size={26} />
-          Studiengänge importieren
+          {t("studiengaenge.title")}
         </h1>
         <p className="text-surface-500 text-sm mt-1">
-          Wähle dein Land und deinen Studiengang — alle Module werden als Voreinstellung importiert.
+          {t("studiengaenge.subtitle")}
         </p>
       </div>
 
@@ -189,7 +201,7 @@ export default function StudiengaengePage() {
         <>
           {/* Country Tabs */}
           <div className="flex flex-wrap gap-1.5 mb-5 pb-3 border-b border-surface-100">
-            {COUNTRY_TABS.map(ct => (
+            {COUNTRY_TABS_LOCALIZED.map(ct => (
               <button
                 key={ct.code}
                 onClick={() => { setActiveCountry(ct.code); setActiveFh(null); }}
@@ -214,7 +226,7 @@ export default function StudiengaengePage() {
                   : "bg-surface-100 text-surface-600 hover:bg-surface-200"
               }`}
             >
-              Alle ({countryProgrammes.length})
+              {t("studiengaenge.all", { count: countryProgrammes.length })}
             </button>
             {fhList.map(([fh, progs]) => (
               <button
@@ -281,24 +293,21 @@ export default function StudiengaengePage() {
           {countryProgrammes.length === 0 && programmes.length > 0 && (
             <div className="text-center py-12 text-surface-400">
               <GraduationCap size={40} className="mx-auto mb-3 opacity-30" />
-              <p>Keine Studiengänge für dieses Land. Bitte Migration 022 ausführen.</p>
+              <p>{t("studiengaenge.noProgrammes")}</p>
             </div>
           )}
 
           {programmes.length === 0 && (
             <div className="text-center py-12 text-surface-400">
               <GraduationCap size={40} className="mx-auto mb-3 opacity-30" />
-              <p>Keine Studiengänge gefunden. Bitte Migrationen ausführen.</p>
+              <p>{t("studiengaenge.noProgrammesFound")}</p>
             </div>
           )}
 
           {/* Legal Disclaimer */}
           <div className="mt-8 pt-6 border-t border-surface-100">
             <p className="text-[11px] text-surface-400 leading-relaxed">
-              Semetra Workspace steht in keiner Verbindung zu den genannten Hochschulen und ist kein offizielles Angebot
-              dieser Institutionen. Die Studiengang-Daten basieren auf öffentlich zugänglichen Informationen und dienen
-              ausschliesslich als Orientierungshilfe. Alle Angaben ohne Gewähr — verbindlich sind ausschliesslich die
-              offiziellen Informationen der jeweiligen Hochschule. Stand: April 2026.
+              {t("studiengaenge.disclaimer")}
             </p>
           </div>
         </>
@@ -308,7 +317,7 @@ export default function StudiengaengePage() {
         <div>
           <div className="flex items-center gap-3 mb-6">
             <button onClick={() => setStep("choose")} className="btn-ghost text-sm gap-1">
-              <X size={14} /> Zurück
+              <X size={14} /> {t("studiengaenge.modal.back")}
             </button>
             <div>
               <h2 className="font-semibold text-surface-800">{selected.name}</h2>
@@ -318,10 +327,10 @@ export default function StudiengaengePage() {
 
           <div className="card p-0 overflow-hidden mb-6">
             <div className="grid grid-cols-12 gap-2 px-4 py-2.5 bg-surface-50 text-xs font-semibold text-surface-500 border-b border-surface-100">
-              <div className="col-span-4">Modul</div>
-              <div className="col-span-2">Code</div>
+              <div className="col-span-4">{t("studiengaenge.modal.module")}</div>
+              <div className="col-span-2">{t("studiengaenge.modal.code")}</div>
               <div className="col-span-2">{gs.creditLabel}</div>
-              <div className="col-span-2">Typ</div>
+              <div className="col-span-2">{t("studiengaenge.modal.type")}</div>
               <div className="col-span-2">Semester</div>
             </div>
             <div className="divide-y divide-surface-50">
@@ -360,7 +369,7 @@ export default function StudiengaengePage() {
 
           <div className="flex items-center justify-between">
             <div className="text-sm text-surface-500">
-              {(selected.modules_json ?? []).length} Module · {selected.ects_total} {gs.creditLabel} total
+              {t("studiengaenge.modal.modulesTotal", { count: (selected.modules_json ?? []).length, credits: selected.ects_total, creditLabel: gs.creditLabel })}
             </div>
             <button
               onClick={doImport}
@@ -368,7 +377,7 @@ export default function StudiengaengePage() {
               className="btn-primary gap-2"
             >
               {importing ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
-              {importing ? "Importiere…" : "Module importieren"}
+              {importing ? t("studiengaenge.modal.importing") : t("studiengaenge.modal.import")}
             </button>
           </div>
         </div>
@@ -379,16 +388,16 @@ export default function StudiengaengePage() {
           <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="text-green-600" size={36} />
           </div>
-          <h2 className="text-xl font-bold text-surface-900 mb-2">Import erfolgreich!</h2>
+          <h2 className="text-xl font-bold text-surface-900 mb-2">{t("studiengaenge.modal.successTitle")}</h2>
           <p className="text-surface-500 mb-6">
-            Alle Module von <strong>{selected?.name}</strong> ({selected?.fh}) wurden importiert.
+            {t("studiengaenge.modal.successSubtitle", { programme: selected?.name ?? "", fh: selected?.fh ?? "" })}
           </p>
           <div className="flex gap-3 justify-center">
             <button onClick={() => { setStep("choose"); setSelected(null); }} className="btn-secondary">
-              Weiteren Studiengang
+              {t("studiengaenge.modal.anotherProgram")}
             </button>
             <a href="/modules" className="btn-primary">
-              Module ansehen
+              {t("studiengaenge.modal.viewModules")}
             </a>
           </div>
         </div>

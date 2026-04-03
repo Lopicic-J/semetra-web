@@ -29,108 +29,118 @@ interface TechniqueDef {
   categories?: string[];
 }
 
-const TECHNIQUES: TechniqueDef[] = [
-  {
-    key: "freeform",
-    label: "Freies Brainstorming",
-    icon: <Lightbulb size={18} />,
-    color: "#a78bfa",
-    description: "Sammle frei alle Ideen die dir einfallen — ohne Grenzen oder Struktur.",
-    prompts: [
-      "Was fällt dir spontan zu diesem Thema ein?",
-      "Welche Aspekte wurden noch nicht betrachtet?",
-      "Wenn es keine Einschränkungen gäbe, was würdest du tun?",
-      "Welche ungewöhnlichen Verbindungen siehst du?",
-      "Was wäre das Gegenteil deiner bisherigen Ideen?",
-    ],
-  },
-  {
-    key: "scamper",
-    label: "SCAMPER-Methode",
-    icon: <Shuffle size={18} />,
-    color: "#60a5fa",
-    description: "Systematische Kreativtechnik: Ersetzen, Kombinieren, Anpassen, Verändern, Zweckentfremden, Entfernen, Umkehren.",
-    prompts: [
-      "Ersetzen: Was könntest du durch etwas anderes austauschen?",
-      "Kombinieren: Welche Ideen oder Konzepte lassen sich zusammenführen?",
-      "Anpassen: Was aus einem anderen Kontext lässt sich hier anwenden?",
-      "Verändern: Was kannst du vergrössern, verkleinern oder umgestalten?",
-      "Zweckentfremden: Wie könnte es für einen anderen Zweck genutzt werden?",
-      "Entfernen: Was kann weggelassen oder vereinfacht werden?",
-      "Umkehren: Was passiert wenn du die Reihenfolge oder Perspektive umdrehst?",
-    ],
-    categories: ["Ersetzen", "Kombinieren", "Anpassen", "Verändern", "Zweckentfremden", "Entfernen", "Umkehren"],
-  },
-  {
-    key: "pro_contra",
-    label: "Pro & Contra",
-    icon: <Minus size={18} />,
-    color: "#34d399",
-    description: "Analysiere Vor- und Nachteile systematisch für bessere Entscheidungen.",
-    prompts: [
-      "Was spricht eindeutig dafür?",
-      "Welche Risiken oder Nachteile gibt es?",
-      "Welche versteckten Vorteile könnten existieren?",
-      "Was sind die langfristigen Konsequenzen?",
-    ],
-    categories: ["Pro", "Contra", "Neutral"],
-  },
-  {
-    key: "starbursting",
-    label: "Sternfragen (5W1H)",
-    icon: <Star size={18} />,
-    color: "#fbbf24",
-    description: "Erforsche dein Thema mit den 6 Grundfragen: Wer, Was, Wo, Wann, Warum, Wie.",
-    prompts: [
-      "WER ist betroffen oder beteiligt?",
-      "WAS genau ist das Problem oder Thema?",
-      "WO findet es statt oder tritt es auf?",
-      "WANN ist es relevant oder tritt es ein?",
-      "WARUM ist es wichtig?",
-      "WIE kann es gelöst oder umgesetzt werden?",
-    ],
-    categories: ["Wer", "Was", "Wo", "Wann", "Warum", "Wie"],
-  },
-  {
-    key: "brainwriting",
-    label: "Ideenkettenreaktion",
-    icon: <MessageSquare size={18} />,
-    color: "#f472b6",
-    description: "Schreibe Ideen auf und baue darauf weiter — jede Idee kann neue Ideen inspirieren.",
-    prompts: [
-      "Schreibe 3 Ideen auf — schnell, ohne zu urteilen.",
-      "Schau dir eine bestehende Idee an: Wie kannst du sie erweitern?",
-      "Welche Variation oder Kombination fällt dir ein?",
-      "Was fehlt noch? Welche Lücke siehst du?",
-    ],
-  },
-  {
-    key: "reverse",
-    label: "Umkehr-Brainstorming",
-    icon: <RefreshCw size={18} />,
-    color: "#f87171",
-    description: "Denke umgekehrt: Was würde das Problem verschlimmern? Dann kehre die Ideen um.",
-    prompts: [
-      "Wie könntest du das Problem absichtlich verschlimmern?",
-      "Was wäre die schlimmste mögliche Lösung?",
-      "Welche Fehler könnten garantiert zum Scheitern führen?",
-      "Jetzt umkehren: Was ist das Gegenteil jeder schlechten Idee?",
-    ],
-    categories: ["Problem verschlimmern", "Umgekehrte Lösung"],
-  },
-  {
-    key: "minddump",
-    label: "Gedankenflut",
-    icon: <Zap size={18} />,
-    color: "#22d3ee",
-    description: "Timer-basiert: Schreibe 5 Minuten lang alles auf was dir einfällt. Quantität vor Qualität!",
-    prompts: [
-      "Schreibe alles auf — ohne Filter, ohne Pause!",
-      "Noch nicht fertig? Was liegt dir noch auf dem Herzen?",
-      "Welche Gedanken schwirren noch im Kopf herum?",
-    ],
-  },
-];
+function getTechniques(t: (key: string) => string): TechniqueDef[] {
+  return [
+    {
+      key: "freeform",
+      label: t("brainstorming.methodFreeform"),
+      icon: <Lightbulb size={18} />,
+      color: "#a78bfa",
+      description: t("brainstorming.methodFreeformDesc"),
+      prompts: [
+        t("brainstorming.methodFreeformQ1"),
+        t("brainstorming.methodFreeformQ2"),
+        t("brainstorming.methodFreeformQ3"),
+        t("brainstorming.methodFreeformQ4"),
+        t("brainstorming.methodFreeformQ5"),
+      ],
+    },
+    {
+      key: "scamper",
+      label: t("brainstorming.methodScamper"),
+      icon: <Shuffle size={18} />,
+      color: "#60a5fa",
+      description: t("brainstorming.methodScamperDesc"),
+      prompts: [
+        t("brainstorming.methodScamperSubstitute"),
+        t("brainstorming.methodScamperCombine"),
+        t("brainstorming.methodScamperAdapt"),
+        t("brainstorming.methodScamperModify"),
+        t("brainstorming.methodScamperRepurpose"),
+        t("brainstorming.methodScamperRemove"),
+        t("brainstorming.methodScamperReverse"),
+      ],
+      categories: [
+        t("brainstorming.methodScamperSubstitute").split(":")[0],
+        t("brainstorming.methodScamperCombine").split(":")[0],
+        t("brainstorming.methodScamperAdapt").split(":")[0],
+        t("brainstorming.methodScamperModify").split(":")[0],
+        t("brainstorming.methodScamperRepurpose").split(":")[0],
+        t("brainstorming.methodScamperRemove").split(":")[0],
+        t("brainstorming.methodScamperReverse").split(":")[0],
+      ],
+    },
+    {
+      key: "pro_contra",
+      label: t("brainstorming.methodProCon"),
+      icon: <Minus size={18} />,
+      color: "#34d399",
+      description: t("brainstorming.methodProConDesc"),
+      prompts: [
+        t("brainstorming.methodProConQ1"),
+        t("brainstorming.methodProConQ2"),
+        t("brainstorming.methodProConQ3"),
+        t("brainstorming.methodProConQ4"),
+      ],
+      categories: [t("brainstorming.methodProConPro"), t("brainstorming.methodProConCon"), t("brainstorming.methodProConNeutral")],
+    },
+    {
+      key: "starbursting",
+      label: t("brainstorming.methodWhy"),
+      icon: <Star size={18} />,
+      color: "#fbbf24",
+      description: t("brainstorming.methodWhyDesc"),
+      prompts: [
+        t("brainstorming.methodWhyWho"),
+        t("brainstorming.methodWhyWhat"),
+        t("brainstorming.methodWhyWhere"),
+        t("brainstorming.methodWhyWhen"),
+        t("brainstorming.methodWhyWhy"),
+        t("brainstorming.methodWhyHow"),
+      ],
+      categories: ["Wer", "Was", "Wo", "Wann", "Warum", "Wie"],
+    },
+    {
+      key: "brainwriting",
+      label: t("brainstorming.methodChainReaction"),
+      icon: <MessageSquare size={18} />,
+      color: "#f472b6",
+      description: t("brainstorming.methodChainReactionDesc"),
+      prompts: [
+        t("brainstorming.methodChainReactionQ1"),
+        t("brainstorming.methodChainReactionQ2"),
+        t("brainstorming.methodChainReactionQ3"),
+        t("brainstorming.methodChainReactionQ4"),
+      ],
+    },
+    {
+      key: "reverse",
+      label: t("brainstorming.methodReverse"),
+      icon: <RefreshCw size={18} />,
+      color: "#f87171",
+      description: t("brainstorming.methodReverseDesc"),
+      prompts: [
+        t("brainstorming.methodReverseQ1"),
+        t("brainstorming.methodReverseQ2"),
+        t("brainstorming.methodReverseQ3"),
+        t("brainstorming.methodReverseQ4"),
+      ],
+      categories: [t("brainstorming.methodReverseWorsen"), t("brainstorming.methodReverseOpposite")],
+    },
+    {
+      key: "minddump",
+      label: t("brainstorming.methodRapid"),
+      icon: <Zap size={18} />,
+      color: "#22d3ee",
+      description: t("brainstorming.methodRapidDesc"),
+      prompts: [
+        t("brainstorming.methodRapidQ1"),
+        t("brainstorming.methodRapidQ2"),
+        t("brainstorming.methodRapidQ3"),
+      ],
+    },
+  ];
+}
 
 const IDEA_COLORS = [
   "#a78bfa","#60a5fa","#34d399","#f87171","#fbbf24",
@@ -139,55 +149,58 @@ const IDEA_COLORS = [
 ];
 
 /* ── KI-Assistent (lokale Prompt-basierte Vorschläge) ───────────────── */
-const AI_SUGGESTION_TEMPLATES: Record<string, (topic: string, existingIdeas: string[]) => string[]> = {
-  freeform: (topic, ideas) => [
-    `Hast du schon an die technische Seite von "${topic}" gedacht?`,
-    `Was würde jemand aus einer komplett anderen Fachrichtung zu "${topic}" sagen?`,
-    `Stelle dir vor "${topic}" existiert in 10 Jahren — wie sieht es aus?`,
-    ideas.length > 2 ? `Kannst du Idee "${ideas[0]}" mit "${ideas[1]}" kombinieren?` : `Welche Emotion verbindest du mit "${topic}"?`,
-    `Was ist das Minimum Viable Product für "${topic}"?`,
-  ],
-  scamper: (topic, ideas) => [
-    `Ersetzen: Was wäre, wenn du "${topic}" mit einer komplett anderen Methode umsetzt?`,
-    `Kombinieren: Wie liesse sich "${topic}" mit einem aktuellen Trend verbinden?`,
-    `Anpassen: Welche Lösung aus der Natur könnte auf "${topic}" angewendet werden?`,
-    `Verändern: Was wenn "${topic}" 10x grösser oder 10x kleiner wäre?`,
-    `Entfernen: Was passiert wenn du den wichtigsten Teil von "${topic}" weglässt?`,
-  ],
-  pro_contra: (topic, ideas) => [
-    `Welchen finanziellen Einfluss hat "${topic}"?`,
-    `Wie wirkt sich "${topic}" auf deine Zeitplanung aus?`,
-    `Was sagen Kritiker zu "${topic}" — und haben sie recht?`,
-    `Gibt es einen Mittelweg der die Nachteile minimiert?`,
-  ],
-  starbursting: (topic, ideas) => [
-    `Wer profitiert am meisten wenn "${topic}" umgesetzt wird?`,
-    `Was ist das grösste ungelöste Problem bei "${topic}"?`,
-    `Wie misst man den Erfolg von "${topic}"?`,
-    `Warum wurde "${topic}" bisher noch nicht anders gelöst?`,
-  ],
-  brainwriting: (topic, ideas) => {
-    if (ideas.length === 0) return [`Beginne mit 3 schnellen Ideen zu "${topic}" — ohne Nachdenken!`];
-    return [
-      `Wie könnte "${ideas[ideas.length - 1]}" noch besser werden?`,
-      `Was ist das Gegenteil von "${ideas[0]}"?`,
-      `Welche zwei bestehenden Ideen ergeben zusammen etwas Neues?`,
-    ];
-  },
-  reverse: (topic, ideas) => [
-    `Was wäre der sicherste Weg "${topic}" zum Scheitern zu bringen?`,
-    `Welcher Fehler wäre so offensichtlich, dass ihn niemand machen würde?`,
-    `Jetzt dreh es um: Was ist die perfekte Lösung die sich daraus ergibt?`,
-  ],
-  minddump: (topic, ideas) => [
-    `Schnell — was kommt dir als erstes in den Sinn?`,
-    `Noch mehr! Denk nicht nach, schreib einfach!`,
-    `Was hast du vergessen? Es wartet noch eine Idee!`,
-  ],
-};
+function getAISuggestionTemplates(t: (key: string) => string): Record<string, (topic: string, existingIdeas: string[]) => string[]> {
+  return {
+    freeform: (topic, ideas) => [
+      `Hast du schon an die technische Seite von "${topic}" gedacht?`,
+      `Was würde jemand aus einer komplett anderen Fachrichtung zu "${topic}" sagen?`,
+      `Stelle dir vor "${topic}" existiert in 10 Jahren — wie sieht es aus?`,
+      ideas.length > 2 ? `Kannst du Idee "${ideas[0]}" mit "${ideas[1]}" kombinieren?` : `Welche Emotion verbindest du mit "${topic}"?`,
+      `Was ist das Minimum Viable Product für "${topic}"?`,
+    ],
+    scamper: (topic, ideas) => [
+      `Ersetzen: Was wäre, wenn du "${topic}" mit einer komplett anderen Methode umsetzt?`,
+      `Kombinieren: Wie liesse sich "${topic}" mit einem aktuellen Trend verbinden?`,
+      `Anpassen: Welche Lösung aus der Natur könnte auf "${topic}" angewendet werden?`,
+      `Verändern: Was wenn "${topic}" 10x grösser oder 10x kleiner wäre?`,
+      `Entfernen: Was passiert wenn du den wichtigsten Teil von "${topic}" weglässt?`,
+    ],
+    pro_contra: (topic, ideas) => [
+      `Welchen finanziellen Einfluss hat "${topic}"?`,
+      `Wie wirkt sich "${topic}" auf deine Zeitplanung aus?`,
+      `Was sagen Kritiker zu "${topic}" — und haben sie recht?`,
+      `Gibt es einen Mittelweg der die Nachteile minimiert?`,
+    ],
+    starbursting: (topic, ideas) => [
+      `Wer profitiert am meisten wenn "${topic}" umgesetzt wird?`,
+      `Was ist das grösste ungelöste Problem bei "${topic}"?`,
+      `Wie misst man den Erfolg von "${topic}"?`,
+      `Warum wurde "${topic}" bisher noch nicht anders gelöst?`,
+    ],
+    brainwriting: (topic, ideas) => {
+      if (ideas.length === 0) return [`Beginne mit 3 schnellen Ideen zu "${topic}" — ohne Nachdenken!`];
+      return [
+        `Wie könnte "${ideas[ideas.length - 1]}" noch besser werden?`,
+        `Was ist das Gegenteil von "${ideas[0]}"?`,
+        `Welche zwei bestehenden Ideen ergeben zusammen etwas Neues?`,
+      ];
+    },
+    reverse: (topic, ideas) => [
+      `Was wäre der sicherste Weg "${topic}" zum Scheitern zu bringen?`,
+      `Welcher Fehler wäre so offensichtlich, dass ihn niemand machen würde?`,
+      `Jetzt dreh es um: Was ist die perfekte Lösung die sich daraus ergibt?`,
+    ],
+    minddump: (topic, ideas) => [
+      `Schnell — was kommt dir als erstes in den Sinn?`,
+      `Noch mehr! Denk nicht nach, schreib einfach!`,
+      `Was hast du vergessen? Es wartet noch eine Idee!`,
+    ],
+  };
+}
 
-function getAiSuggestions(technique: string, topic: string, ideas: BrainstormIdea[]): string[] {
-  const fn = AI_SUGGESTION_TEMPLATES[technique] ?? AI_SUGGESTION_TEMPLATES.freeform;
+function getAiSuggestions(t: (key: string) => string, technique: string, topic: string, ideas: BrainstormIdea[]): string[] {
+  const templates = getAISuggestionTemplates(t);
+  const fn = templates[technique] ?? templates.freeform;
   const ideaTexts = ideas.map(i => i.content);
   return fn(topic, ideaTexts);
 }
@@ -232,14 +245,16 @@ export default function BrainstormingPage() {
     );
   }
 
+  const TECHNIQUES = getTechniques(t);
+
   return (
     <div className="p-3 sm:p-6 max-w-5xl mx-auto space-y-4 sm:space-y-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-surface-900 flex items-center gap-2">
-            <Lightbulb className="text-yellow-300" /> Brainstorming
+            <Lightbulb className="text-yellow-300" /> {t("brainstorming.title")}
           </h1>
-          <p className="text-surface-500 text-xs sm:text-sm mt-1">Ideen sammeln, Kreativität entfalten, Probleme lösen</p>
+          <p className="text-surface-500 text-xs sm:text-sm mt-1">{t("brainstorming.createSession")}</p>
         </div>
         <div className="flex items-center gap-3">
           <LimitCounter current={sessions.length} max={FREE_LIMITS.brainstormSessions} isPro={isPro} />
@@ -251,12 +266,12 @@ export default function BrainstormingPage() {
             }}
             className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition"
           >
-            <Plus size={16} /> Neue Session
+            <Plus size={16} /> {t("brainstorming.createSession")}
           </button>
         </div>
       </div>
 
-      <LimitNudge current={sessions.length} max={FREE_LIMITS.brainstormSessions} isPro={isPro} label="Brainstorming-Sessions" />
+      <LimitNudge current={sessions.length} max={FREE_LIMITS.brainstormSessions} isPro={isPro} label={t("brainstorming.title")} />
 
       {showUpgrade && (
         <UpgradeModal feature="unlimitedBrainstorm" onClose={() => setShowUpgrade(false)} />
@@ -264,39 +279,39 @@ export default function BrainstormingPage() {
 
       {/* Technique overview cards */}
       <div className="mb-8">
-        <h2 className="text-sm font-semibold text-surface-700 uppercase tracking-wider mb-3">Techniken</h2>
+        <h2 className="text-sm font-semibold text-surface-700 uppercase tracking-wider mb-3">{t("nav.brainstorming")}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-          {TECHNIQUES.map(t => (
+          {getTechniques(t).map(tech => (
             <button
-              key={t.key}
-              onClick={() => { setPreselectedTech(t.key); setShowCreate(true); }}
+              key={tech.key}
+              onClick={() => { setPreselectedTech(tech.key); setShowCreate(true); }}
               className="bg-white border border-surface-200 rounded-lg p-3.5 text-left hover:border-surface-300 hover:bg-surface-50 transition group"
             >
               <div className="flex items-center gap-2 mb-1.5">
-                <span style={{ color: t.color }}>{t.icon}</span>
-                <span className="text-sm font-medium text-surface-800">{t.label}</span>
+                <span style={{ color: tech.color }}>{tech.icon}</span>
+                <span className="text-sm font-medium text-surface-800">{tech.label}</span>
               </div>
-              <p className="text-xs text-surface-500 line-clamp-2 leading-relaxed">{t.description}</p>
+              <p className="text-xs text-surface-500 line-clamp-2 leading-relaxed">{tech.description}</p>
             </button>
           ))}
         </div>
       </div>
 
       {/* Session list */}
-      <h2 className="text-sm font-semibold text-surface-700 uppercase tracking-wider mb-3">Meine Sessions</h2>
+      <h2 className="text-sm font-semibold text-surface-700 uppercase tracking-wider mb-3">{t("brainstorming.title")}</h2>
       {loading ? (
-        <p className="text-surface-500 text-sm">Laden...</p>
+        <p className="text-surface-500 text-sm">{t("brainstorming.noSessions")}</p>
       ) : sessions.length === 0 ? (
         <div className="text-center py-16">
           <Lightbulb size={48} className="mx-auto mb-4 text-surface-300" />
-          <p className="text-surface-500">Noch keine Brainstorming-Sessions</p>
-          <p className="text-sm mt-1 text-surface-400">Starte eine neue Session um Ideen zu sammeln!</p>
+          <p className="text-surface-500">{t("brainstorming.noSessions")}</p>
+          <p className="text-sm mt-1 text-surface-400">{t("brainstorming.createSession")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
           {sessions.map(s => {
-            const tech = TECHNIQUES.find(t => t.key === s.technique);
-            const mod = modules.find(m => m.id === s.module_id);
+            const tech = getTechniques(t).find(tech => tech.key === s.technique);
+            const mod = modules.find((m: any) => m.id === s.module_id);
             return (
               <button
                 key={s.id}
@@ -376,9 +391,9 @@ function CreateSessionModal({
     modules.find(m => m.id === moduleId)?.name?.toLowerCase().slice(0, 5) ?? "---"
   )) : exams;
 
-  const filteredTasks = moduleId ? tasks.filter(t => t.module_id === moduleId) : tasks;
+  const filteredTasks = moduleId ? tasks.filter((t: any) => t.module_id === moduleId) : tasks;
 
-  const selectedTech = TECHNIQUES.find(t => t.key === technique)!;
+  const selectedTech = getTechniques(t).find(tech => tech.key === technique)!;
 
   async function handleCreate() {
     setSaving(true);
@@ -406,11 +421,11 @@ function CreateSessionModal({
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-5">
-          <h2 className="text-lg font-bold text-surface-900">Neue Brainstorming-Session</h2>
+          <h2 className="text-lg font-bold text-surface-900">{t("brainstorming.createSession")}</h2>
           <button onClick={onClose} className="text-surface-500 hover:text-surface-900 transition"><X size={20} /></button>
         </div>
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">Titel</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("tasks.modal.titleLabel")}</label>
         <input
           value={title}
           onChange={e => setTitle(e.target.value)}
@@ -418,20 +433,20 @@ function CreateSessionModal({
           className="w-full bg-surface-50 border border-surface-200 rounded-lg px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 mb-4 focus:border-brand-500 focus:outline-none transition"
         />
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-2">Technik wählen</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-2">{t("brainstorming.title")}</label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
-          {TECHNIQUES.map(t => (
+          {getTechniques(t).map(tech => (
             <button
-              key={t.key}
-              onClick={() => setTechnique(t.key)}
+              key={tech.key}
+              onClick={() => setTechnique(tech.key)}
               className={`flex items-center gap-2 p-1.5 sm:p-2.5 rounded-lg border text-xs text-left transition ${
-                technique === t.key
+                technique === tech.key
                   ? "border-brand-500 bg-brand-500/15 text-surface-900"
                   : "border-surface-200 bg-surface-50 text-surface-700 hover:border-surface-300 hover:text-surface-900"
               }`}
             >
-              <span style={{ color: t.color }}>{t.icon}</span>
-              <div className="font-medium">{t.label}</div>
+              <span style={{ color: tech.color }}>{tech.icon}</span>
+              <div className="font-medium">{tech.label}</div>
             </button>
           ))}
         </div>
@@ -441,7 +456,7 @@ function CreateSessionModal({
           <span>{selectedTech.description}</span>
         </div>
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">Verknüpfung (optional)</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("tasks.modal.modulLabel")}</label>
         <select
           value={moduleId}
           onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); }}
@@ -458,7 +473,7 @@ function CreateSessionModal({
               onChange={e => setExamId(e.target.value)}
               className="flex-1 bg-surface-50 border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900"
             >
-              <option value="">Keine Prüfung</option>
+              <option value="">— keine Prüfung —</option>
               {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
             </select>
             <select
@@ -466,13 +481,13 @@ function CreateSessionModal({
               onChange={e => setTaskId(e.target.value)}
               className="flex-1 bg-surface-50 border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900"
             >
-              <option value="">Keine Aufgabe</option>
+              <option value="">— keine Aufgabe —</option>
               {filteredTasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
             </select>
           </div>
         )}
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5 mt-3">Farbe</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5 mt-3">{t("grades.modal.typeDefault")}</label>
         <div className="flex gap-2 mb-5 flex-wrap">
           {IDEA_COLORS.slice(0, 10).map(c => (
             <button
@@ -489,7 +504,7 @@ function CreateSessionModal({
           disabled={saving}
           className="w-full bg-brand-600 hover:bg-brand-500 text-white py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50"
         >
-          {saving ? "Erstellen..." : "Session starten"}
+          {saving ? t("flashcards.creating") : t("brainstorming.start")}
         </button>
       </div>
     </div>
@@ -504,6 +519,7 @@ function BrainstormEditor({
   modules: Module[];
   onBack: () => void;
 }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const [ideas, setIdeas] = useState<BrainstormIdea[]>([]);
   const [loading, setLoading] = useState(true);
@@ -523,8 +539,8 @@ function BrainstormEditor({
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const tech = TECHNIQUES.find(t => t.key === session.technique)!;
-  const mod = modules.find(m => m.id === session.module_id);
+  const tech = getTechniques(t).find(tech => tech.key === session.technique)!;
+  const mod = modules.find((m: any) => m.id === session.module_id);
 
   const fetchIdeas = useCallback(async () => {
     const { data } = await supabase
@@ -593,7 +609,7 @@ function BrainstormEditor({
   }
 
   async function deleteSession() {
-    if (!confirm("Session wirklich löschen? Alle Ideen gehen verloren.")) return;
+    if (!confirm(t("brainstorming.deleteConfirm"))) return;
     await supabase.from("brainstorm_ideas").delete().eq("session_id", session.id);
     await supabase.from("brainstorm_sessions").delete().eq("id", session.id);
     onBack();
@@ -605,7 +621,7 @@ function BrainstormEditor({
 
   function generateAiSuggestions() {
     const topic = session.title || mod?.name || "dein Thema";
-    const suggestions = getAiSuggestions(session.technique, topic, ideas);
+    const suggestions = getAiSuggestions(t, session.technique, topic, ideas);
     setAiSuggestions(suggestions);
     setShowAi(true);
   }
@@ -669,14 +685,14 @@ function BrainstormEditor({
           <button
             onClick={() => setViewMode(viewMode === "board" ? "list" : "board")}
             className="p-2 rounded-lg bg-surface-100 border border-surface-200 text-surface-700 hover:text-surface-900 hover:border-surface-300 transition"
-            title={viewMode === "board" ? "Listenansicht" : "Board-Ansicht"}
+            title={viewMode === "board" ? t("brainstorming.viewList") : t("brainstorming.viewBoard")}
           >
             {viewMode === "board" ? <List size={16} /> : <LayoutGrid size={16} />}
           </button>
           <button
             onClick={deleteSession}
             className="p-2 rounded-lg bg-surface-100 border border-surface-200 text-red-400 hover:text-red-300 hover:border-red-500/40 transition"
-            title="Session löschen"
+            title={t("brainstorming.deleteSession")}
           >
             <Trash2 size={16} />
           </button>
@@ -688,13 +704,13 @@ function BrainstormEditor({
         <div className="mb-4 p-3 sm:p-4 rounded-xl border border-surface-200 bg-surface-50">
           <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
             <h3 className="text-xs sm:text-sm font-semibold text-brand-400 flex items-center gap-2">
-              <Bot size={16} /> KI-Denkanstösse
+              <Bot size={16} /> {t("brainstorming.newSuggestions")}
             </h3>
             <div className="flex gap-1">
               <button
                 onClick={generateAiSuggestions}
                 className="p-1.5 rounded text-surface-500 hover:text-surface-900 hover:bg-surface-200 transition"
-                title="Neue Vorschläge"
+                title={t("brainstorming.newSuggestions")}
               >
                 <RefreshCw size={14} />
               </button>
@@ -715,14 +731,14 @@ function BrainstormEditor({
                   <button
                     onClick={() => copyToInput(s, idx)}
                     className="p-1.5 text-surface-500 hover:text-surface-900 hover:bg-surface-200 rounded transition"
-                    title="In Eingabefeld kopieren"
+                    title={t("brainstorming.copyToInput")}
                   >
                     {copiedIdx === idx ? <Check size={14} /> : <Copy size={14} />}
                   </button>
                   <button
                     onClick={() => addIdea(s)}
                     className="p-1.5 text-surface-500 hover:text-green-400 hover:bg-surface-200 rounded transition"
-                    title="Direkt als Idee hinzufügen"
+                    title={t("brainstorming.addAsIdea")}
                   >
                     <Plus size={14} />
                   </button>
@@ -749,14 +765,14 @@ function BrainstormEditor({
             <button
               onClick={nextPrompt}
               className="p-1.5 rounded-lg text-surface-500 hover:text-surface-900 hover:bg-surface-200 transition"
-              title="Nächster Denkanstoß"
+              title={t("brainstorming.nextPrompt")}
             >
               <RefreshCw size={14} />
             </button>
             <button
               onClick={() => setShowPrompt(false)}
               className="p-1.5 rounded-lg text-surface-500 hover:text-surface-900 hover:bg-surface-200 transition"
-              title="Ausblenden"
+              title={t("brainstorming.hide")}
             >
               <X size={14} />
             </button>
@@ -768,7 +784,7 @@ function BrainstormEditor({
           onClick={() => setShowPrompt(true)}
           className="mb-4 text-xs text-surface-700 hover:text-surface-900 flex items-center gap-1 transition"
         >
-          <Sparkles size={12} /> Denkanstoß anzeigen
+          <Sparkles size={12} /> {t("brainstorming.methodRapid")}
         </button>
       )}
 
@@ -782,7 +798,7 @@ function BrainstormEditor({
               onClick={() => { setTimerActive(true); if (timerSec === 0) setTimerSec(300); }}
               className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs sm:text-sm font-medium transition"
             >
-              {timerSec === 300 ? "Start" : "Weiter"}
+              {timerSec === 300 ? t("brainstorming.start") : "Weiter"}
             </button>
           ) : (
             <button
@@ -810,7 +826,7 @@ function BrainstormEditor({
             value={newContent}
             onChange={e => setNewContent(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addIdea(); } }}
-            placeholder="Neue Idee eingeben... (Enter zum Hinzufügen)"
+            placeholder={t("brainstorming.title")}
             className="flex-1 bg-surface-50 border border-surface-200 rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none transition"
             autoFocus
           />
@@ -829,7 +845,7 @@ function BrainstormEditor({
           disabled={!newContent.trim()}
           className="bg-brand-600 hover:bg-brand-500 disabled:opacity-40 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 w-full sm:w-auto justify-center sm:justify-start"
         >
-          <Plus size={16} /> Hinzufügen
+          <Plus size={16} /> {t("tasks.modal.add")}
         </button>
       </div>
 
@@ -842,7 +858,7 @@ function BrainstormEditor({
               !filterCat ? "bg-brand-600 text-white" : "bg-surface-100 border border-surface-200 text-surface-700 hover:bg-surface-200 hover:text-surface-900"
             }`}
           >
-            Alle
+            {t("grades.filterAll")}
           </button>
           {tech.categories.map(cat => {
             const count = (grouped[cat] ?? []).length;
@@ -863,17 +879,17 @@ function BrainstormEditor({
 
       {/* Ideas display */}
       {loading ? (
-        <p className="text-surface-500 text-sm">Laden...</p>
+        <p className="text-surface-500 text-sm">{t("brainstorming.noSessions")}</p>
       ) : ideas.length === 0 ? (
         <div className="text-center py-16">
           <Lightbulb size={48} className="mx-auto mb-4 text-surface-300" />
-          <p className="text-surface-500">Noch keine Ideen — leg los!</p>
+          <p className="text-surface-500">{t("brainstorming.noSessions")}</p>
           <p className="text-xs mt-1 text-surface-400">Nutze den Denkanstoß oder KI-Assistent als Inspiration</p>
         </div>
       ) : viewMode === "board" ? (
         tech.categories ? (
           <div className="grid gap-2 sm:gap-4" style={{ gridTemplateColumns: `repeat(${Math.min(allCats.length, 4)}, 1fr)` }}>
-            {allCats.filter(c => !filterCat || c === filterCat).map(cat => (
+            {allCats.filter((c: any) => !filterCat || c === filterCat).map(cat => (
               <div key={cat} className="bg-white border border-surface-200 rounded-xl p-2 sm:p-3">
                 <h3 className="text-xs sm:text-sm font-semibold text-surface-800 mb-3 flex items-center justify-between">
                   {cat}

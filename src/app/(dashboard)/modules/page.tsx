@@ -16,6 +16,7 @@ import {
 import { ProGate } from "@/components/ui/ProGate";
 import type { Module } from "@/types/database";
 import type { Studiengang, StudiengangModuleTemplate } from "@/types/database";
+import { useTranslation } from "@/lib/i18n";
 
 const SEMESTERS = ["Semester 1","Semester 2","Semester 3","Semester 4","Semester 5","Semester 6","Semester 7","Semester 8","Semester 9"];
 const DAYS = ["Mo","Di","Mi","Do","Fr","Sa"];
@@ -39,6 +40,7 @@ const STATUS_CONFIG: Record<string, { label: string; icon: React.ElementType; cl
 };
 
 export default function ModulesPage() {
+  const { t } = useTranslation();
   const { modules, loading, refetch } = useModules();
   const { isPro } = useProfile();
   const [showForm, setShowForm] = useState(false);
@@ -111,7 +113,7 @@ export default function ModulesPage() {
               className={`btn-secondary gap-2 text-sm ${selectMode ? "bg-brand-50 text-brand-700 border-brand-200" : ""}`}
             >
               {selectMode ? <XSquare size={15} /> : <CheckSquare size={15} />}
-              {selectMode ? "Abbrechen" : "Auswählen"}
+              {selectMode ? t("common.cancel") : "Auswählen"}
             </button>
           )}
           <button onClick={() => setShowFhImport(true)} className="btn-secondary gap-2 text-sm">
@@ -140,7 +142,7 @@ export default function ModulesPage() {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <Trash2 size={14} />
-            {selected.size > 0 ? `${selected.size} löschen` : "Löschen"}
+            {selected.size > 0 ? `${selected.size} ${t("common.delete").toLowerCase()}` : t("common.delete")}
           </button>
         </div>
       )}
@@ -157,7 +159,7 @@ export default function ModulesPage() {
                 : "bg-surface-100 text-surface-600 hover:bg-surface-200"
             }`}
           >
-            {s === "all" ? "Alle" : STATUS_CONFIG[s]?.label ?? s}
+            {s === "all" ? t("tasks.filterAll") : (s === "planned" ? t("studienplan.statusPlanned") : s === "active" ? t("studienplan.statusActive") : s === "completed" ? t("studienplan.statusCompleted") : s === "paused" ? t("timer.paused") : s)}
             {s !== "all" && (
               <span className="ml-1.5 opacity-70">
                 {modules.filter(m => (m.status ?? "active") === s).length}
@@ -174,8 +176,8 @@ export default function ModulesPage() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-16">
           <BookOpen size={48} className="mx-auto mb-4 text-surface-300 opacity-40" />
-          <p className="font-medium text-surface-600">Keine Module vorhanden</p>
-          <p className="text-sm mt-1 text-surface-400 mb-6">Starte mit einem FH-Import oder erstelle Module manuell.</p>
+          <p className="font-medium text-surface-600">{t("credits.noModules")}</p>
+          <p className="text-sm mt-1 text-surface-400 mb-6">{t("studienplan.noModulesHint")}</p>
           <div className="flex gap-3 justify-center">
             <button onClick={() => setShowFhImport(true)} className="btn-primary gap-2">
               <GraduationCap size={16} /> FH-Module importieren
@@ -247,6 +249,7 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
   onClose: () => void;
   onDeleted: () => void;
 }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const [counts, setCounts] = useState<{
     tasks: number; grades: number; topics: number;
@@ -437,6 +440,7 @@ function ModuleCard({ mod, onEdit, onDelete, selectMode, isSelected, onToggleSel
   isSelected: boolean;
   onToggleSelect: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   const statusCfg = STATUS_CONFIG[mod.status ?? "active"] ?? STATUS_CONFIG.active;
   const StatusIcon = statusCfg.icon;
 
@@ -539,6 +543,7 @@ function ModuleModal({ initial, onClose, onSaved }: {
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const [tab, setTab] = useState<"basic"|"details"|"links">("basic");
   const [form, setForm] = useState({
@@ -853,6 +858,7 @@ function FhImportModal({ isPro, onClose, onImported }: {
   onClose: () => void;
   onImported: () => void;
 }) {
+  const { t } = useTranslation();
   const supabase = createClient();
   const gs = useGradingSystem();
   const [programmes, setProgrammes] = useState<Studiengang[]>([]);

@@ -54,8 +54,8 @@ interface DocFlowItem {
 
 /* ── Main Page ──────────────────────────────────────────────────────── */
 export default function DocumentsPage() {
-
-  const { t } = useTranslation();  const supabase = createClient();
+  const { t } = useTranslation();
+  const supabase = createClient();
   const { modules } = useModules();
   const { isPro } = useProfile();
   const [docs, setDocs] = useState<Doc[]>([]);
@@ -248,9 +248,9 @@ export default function DocumentsPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 sm:mb-6">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-surface-900 flex items-center gap-2">
-            <FolderOpen className="text-blue-400" /> Dokumente & Links
+            <FolderOpen className="text-blue-400" /> {t("documents.title")}
           </h1>
-          <p className="text-surface-500 text-xs sm:text-sm mt-1">Alle Dokumente und Links an einem Ort — zugeordnet zu Modulen, Aufgaben & Prüfungen</p>
+          <p className="text-surface-500 text-xs sm:text-sm mt-1">{t("navigator.documentsDesc")}</p>
         </div>
         <div className="flex items-center gap-3">
           <LimitCounter current={docs.length} max={FREE_LIMITS.documents} isPro={isPro} />
@@ -262,12 +262,12 @@ export default function DocumentsPage() {
             }}
             className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition flex-shrink-0"
           >
-            <Plus size={16} /> Hinzufügen
+            <Plus size={16} /> {t("tasks.modal.add")}
           </button>
         </div>
       </div>
 
-      <LimitNudge current={docs.length} max={FREE_LIMITS.documents} isPro={isPro} label="Dokumente" />
+      <LimitNudge current={docs.length} max={FREE_LIMITS.documents} isPro={isPro} label={t("documents.title")} />
 
       {showUpgrade && (
         <UpgradeModal feature="unlimitedDocs" onClose={() => setShowUpgrade(false)} />
@@ -280,19 +280,19 @@ export default function DocumentsPage() {
           className={`bg-white border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-brand-500" : "border-surface-200 hover:border-surface-300"}`}
         >
           <p className="text-lg sm:text-2xl font-bold text-surface-900">{stats.total}</p>
-          <p className="text-xs text-surface-500">Alle Dokumente</p>
+          <p className="text-xs text-surface-500">{t("documents.noDocuments")}</p>
         </button>
         <div className="bg-white border border-surface-200 rounded-xl p-2 sm:p-3 text-center">
           <p className="text-lg sm:text-2xl font-bold text-brand-400">{stats.own}</p>
-          <p className="text-xs text-surface-500">Eigene</p>
+          <p className="text-xs text-surface-500">{t("documents.typeDocument")}</p>
         </div>
         <div className="bg-white border border-surface-200 rounded-xl p-2 sm:p-3 text-center">
           <p className="text-lg sm:text-2xl font-bold text-blue-400">{stats.fromTasks + stats.fromExams}</p>
-          <p className="text-xs text-surface-500">Aus Aufgaben & Prüfungen</p>
+          <p className="text-xs text-surface-500">{t("documents.typeTaskAttachment")}</p>
         </div>
         <div className="bg-white border border-surface-200 rounded-xl p-2 sm:p-3 text-center">
           <p className="text-lg sm:text-2xl font-bold text-cyan-400">{stats.fromModules}</p>
-          <p className="text-xs text-surface-500">Modul-Links</p>
+          <p className="text-xs text-surface-500">{t("documents.typeModuleLink")}</p>
         </div>
       </div>
 
@@ -300,7 +300,7 @@ export default function DocumentsPage() {
       {stats.byModule.length > 0 && (
         <div className="mb-4 sm:mb-6 bg-white border border-surface-200 rounded-xl p-3 sm:p-4">
           <h3 className="text-xs sm:text-sm font-semibold text-surface-800 mb-2 sm:mb-3 flex items-center gap-2">
-            <FolderOpen size={14} className="text-blue-400" /> Nach Modul
+            <FolderOpen size={14} className="text-blue-400" /> {t("nav.modules")}
           </h3>
           <div className="flex gap-1 sm:gap-2 flex-wrap">
             {stats.byModule.map(({ module: m, count }) => (
@@ -326,7 +326,7 @@ export default function DocumentsPage() {
             onClick={() => setFilterKind("")}
             className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${!filterKind ? "bg-brand-600 text-white" : "bg-surface-100 border border-surface-200 text-surface-700 hover:bg-surface-200"}`}
           >
-            Alle Typen
+            {t("grades.filterAll")}
           </button>
           {stats.byKind.map(({ kind, count }) => {
             const cfg = KIND_CONFIG[kind] ?? KIND_CONFIG.other;
@@ -361,7 +361,7 @@ export default function DocumentsPage() {
           onChange={e => setFilterModule(e.target.value)}
           className="bg-white border border-surface-200 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900"
         >
-          <option value="">Module</option>
+          <option value="">{t("nav.modules")}</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
         <div className="flex rounded-lg overflow-hidden border border-surface-200">
@@ -381,14 +381,14 @@ export default function DocumentsPage() {
             onClick={() => { setFilterModule(""); setFilterKind(""); setSearchQ(""); }}
             className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-surface-100 text-surface-500 hover:text-surface-900 text-xs transition flex-shrink-0"
           >
-            Reset
+            {t("grades.filterAll")}
           </button>
         )}
       </div>
 
       {/* Content */}
       {loading ? (
-        <p className="text-surface-500 text-sm">Laden...</p>
+        <p className="text-surface-500 text-sm">{t("documents.typeDocument")}</p>
       ) : viewMode === "flow" ? (
         <DocFlowView items={filteredFlow} onOpenDoc={(d) => { setEditDoc(d); setShowCreate(true); }} />
       ) : viewMode === "grid" ? (
@@ -464,6 +464,7 @@ function EmptyState({ hasAny, flowCount, onSwitchToFlow }: { hasAny: boolean; fl
 function DocCard({ doc, modules, onEdit, onDelete, onTogglePin }: {
   doc: Doc; modules: Module[]; onEdit: () => void; onDelete: () => void; onTogglePin: () => void;
 }) {
+  const { t } = useTranslation();
   const mod = doc.module ?? modules.find(m => m.id === doc.module_id);
   const cfg = KIND_CONFIG[doc.kind] ?? KIND_CONFIG.other;
   const domain = (() => { try { return new URL(doc.url).hostname.replace("www.", ""); } catch { return ""; } })();
@@ -506,10 +507,10 @@ function DocCard({ doc, modules, onEdit, onDelete, onTogglePin }: {
       <div className="flex items-center justify-between gap-2">
         <span className="text-[10px] sm:text-xs text-surface-400">{new Date(doc.updated_at).toLocaleDateString("de-CH")}</span>
         <div className="flex items-center gap-0 sm:gap-0.5 opacity-0 group-hover:opacity-100 transition">
-          <a href={doc.url} target="_blank" rel="noopener" className="p-1 sm:p-1.5 text-surface-500 hover:text-blue-400 transition" title="Öffnen"><ExternalLink size={13} /></a>
-          <button onClick={onTogglePin} className={`p-1 sm:p-1.5 transition ${doc.pinned ? "text-amber-400" : "text-surface-500 hover:text-amber-400"}`} title={doc.pinned ? "Loslösen" : "Anheften"}><Pin size={13} /></button>
-          <button onClick={onEdit} className="p-1 sm:p-1.5 text-surface-500 hover:text-surface-900 transition" title="Bearbeiten"><Pencil size={13} /></button>
-          <button onClick={onDelete} className="p-1 sm:p-1.5 text-surface-500 hover:text-red-400 transition" title="Löschen"><Trash2 size={13} /></button>
+          <a href={doc.url} target="_blank" rel="noopener" className="p-1 sm:p-1.5 text-surface-500 hover:text-blue-400 transition" title={t("documents.open")}><ExternalLink size={13} /></a>
+          <button onClick={onTogglePin} className={`p-1 sm:p-1.5 transition ${doc.pinned ? "text-amber-400" : "text-surface-500 hover:text-amber-400"}`} title={doc.pinned ? t("documents.detach") : t("documents.pin")}><Pin size={13} /></button>
+          <button onClick={onEdit} className="p-1 sm:p-1.5 text-surface-500 hover:text-surface-900 transition" title={t("documents.edit")}><Pencil size={13} /></button>
+          <button onClick={onDelete} className="p-1 sm:p-1.5 text-surface-500 hover:text-red-400 transition" title={t("documents.delete")}><Trash2 size={13} /></button>
         </div>
       </div>
     </div>
@@ -520,6 +521,7 @@ function DocCard({ doc, modules, onEdit, onDelete, onTogglePin }: {
 function DocListRow({ doc, modules, onEdit, onDelete }: {
   doc: Doc; modules: Module[]; onEdit: () => void; onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   const mod = doc.module ?? modules.find(m => m.id === doc.module_id);
   const cfg = KIND_CONFIG[doc.kind] ?? KIND_CONFIG.other;
 
@@ -540,9 +542,9 @@ function DocListRow({ doc, modules, onEdit, onDelete }: {
         {cfg.label}
       </span>
       <div className="flex items-center gap-0 sm:gap-0.5 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
-        <a href={doc.url} target="_blank" rel="noopener" className="p-1 sm:p-1.5 text-surface-500 hover:text-blue-400 transition"><ExternalLink size={13} /></a>
-        <button onClick={onEdit} className="p-1 sm:p-1.5 text-surface-500 hover:text-surface-900 transition"><Pencil size={13} /></button>
-        <button onClick={onDelete} className="p-1 sm:p-1.5 text-surface-500 hover:text-red-400 transition"><Trash2 size={13} /></button>
+        <a href={doc.url} target="_blank" rel="noopener" className="p-1 sm:p-1.5 text-surface-500 hover:text-blue-400 transition" title={t("documents.open")}><ExternalLink size={13} /></a>
+        <button onClick={onEdit} className="p-1 sm:p-1.5 text-surface-500 hover:text-surface-900 transition" title={t("documents.edit")}><Pencil size={13} /></button>
+        <button onClick={onDelete} className="p-1 sm:p-1.5 text-surface-500 hover:text-red-400 transition" title={t("documents.delete")}><Trash2 size={13} /></button>
       </div>
     </div>
   );
@@ -557,6 +559,7 @@ const SOURCE_CONFIG: Record<string, { label: string; color: string }> = {
 };
 
 function DocFlowView({ items, onOpenDoc }: { items: DocFlowItem[]; onOpenDoc: (d: Doc) => void }) {
+  const { t } = useTranslation();
   // Group by module
   const byModule: Record<string, DocFlowItem[]> = { "Ohne Zuordnung": [] };
   items.forEach(item => {
@@ -623,7 +626,7 @@ function DocFlowView({ items, onOpenDoc }: { items: DocFlowItem[]; onOpenDoc: (d
                       <span className="text-xs px-1 sm:px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: srcCfg.color + "20", color: srcCfg.color }}>
                         {srcCfg.label}
                       </span>
-                      <a href={item.url} target="_blank" rel="noopener" className="p-1 text-surface-400 hover:text-blue-400 transition" onClick={e => e.stopPropagation()}>
+                      <a href={item.url} target="_blank" rel="noopener" className="p-1 text-surface-400 hover:text-blue-400 transition" onClick={e => e.stopPropagation()} title={t("documents.open")}>
                         <ExternalLink size={12} />
                       </a>
                     </div>
@@ -742,7 +745,7 @@ function DocModal({
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
       <div className="bg-white border border-surface-200 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center gap-2 mb-4 sm:mb-5">
-          <h2 className="text-base sm:text-lg font-bold text-surface-900">{isEdit ? t("documents.edit") + " Dokument" : t("documents.modal.title")}</h2>
+          <h2 className="text-base sm:text-lg font-bold text-surface-900">{isEdit ? t("documents.edit") : t("documents.modal.title")}</h2>
           <button onClick={onClose} className="text-surface-500 hover:text-surface-900 transition flex-shrink-0"><X size={20} /></button>
         </div>
 
@@ -755,7 +758,7 @@ function DocModal({
                 mode === "link" ? "bg-white text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"
               }`}
             >
-              <Globe size={14} /> Link / URL
+              <Globe size={14} /> {t("documents.typeLink")}
             </button>
             <button
               onClick={() => setMode("upload")}
@@ -763,7 +766,7 @@ function DocModal({
                 mode === "upload" ? "bg-white text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"
               }`}
             >
-              <Upload size={14} /> Datei hochladen
+              <Upload size={14} /> {t("documents.typeFile")}
             </button>
           </div>
         )}
@@ -771,7 +774,7 @@ function DocModal({
         {/* Link mode */}
         {(mode === "link" || isEdit) && (
           <>
-            <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">URL / Link</label>
+            <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("documents.typeLink")}</label>
             <input
               value={url}
               onChange={e => {
@@ -799,8 +802,8 @@ function DocModal({
                 className="w-full border-2 border-dashed border-surface-300 hover:border-brand-400 rounded-xl p-6 mb-3 flex flex-col items-center gap-2 transition-colors group"
               >
                 <Upload size={28} className="text-surface-300 group-hover:text-brand-500 transition-colors" />
-                <span className="text-sm font-medium text-surface-500 group-hover:text-surface-700">Datei auswählen</span>
-                <span className="text-[10px] text-surface-400">PDF, Word, Excel, Bilder, Videos, etc.</span>
+                <span className="text-sm font-medium text-surface-500 group-hover:text-surface-700">{t("documents.typeFile")}</span>
+                <span className="text-[10px] text-surface-400">PDF, Word, Excel, {t("documents.typeImage")}, {t("documents.typeVideo")}, etc.</span>
               </button>
             ) : (
               <div className="flex items-center gap-3 bg-surface-50 border border-surface-200 rounded-xl p-3 mb-3">
@@ -823,7 +826,7 @@ function DocModal({
           </>
         )}
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">Titel</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("tasks.modal.titleLabel")}</label>
         <input
           value={title}
           onChange={e => setTitle(e.target.value)}
@@ -831,7 +834,7 @@ function DocModal({
           className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 mb-3 focus:border-brand-500 focus:outline-none transition"
         />
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">Typ</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("grades.modal.typeLabel")}</label>
         <div className="flex gap-1 sm:gap-1.5 mb-3 flex-wrap">
           {Object.entries(KIND_CONFIG).map(([k, cfg]) => (
             <button
@@ -846,13 +849,13 @@ function DocModal({
           ))}
         </div>
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">Zuordnung</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("tasks.modal.modulLabel")}</label>
         <select
           value={moduleId}
           onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); }}
           className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 mb-2"
         >
-          <option value="">Kein Modul</option>
+          <option value="">— {t("tasks.modal.moduleEmpty")} —</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
 
@@ -863,7 +866,7 @@ function DocModal({
               onChange={e => setExamId(e.target.value)}
               className="flex-1 bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900"
             >
-              <option value="">Keine Prüfung</option>
+              <option value="">— keine Prüfung —</option>
               {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
             </select>
             <select
@@ -871,13 +874,13 @@ function DocModal({
               onChange={e => setTaskId(e.target.value)}
               className="flex-1 bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900"
             >
-              <option value="">Keine Aufgabe</option>
+              <option value="">— keine Aufgabe —</option>
               {filteredTasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
             </select>
           </div>
         )}
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5 mt-2">Tags (kommagetrennt)</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5 mt-2">{t("nav.modules")}</label>
         <input
           value={tagsStr}
           onChange={e => setTagsStr(e.target.value)}
@@ -891,7 +894,7 @@ function DocModal({
           className="w-full bg-brand-600 hover:bg-brand-500 text-white py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {(saving || uploading) && <Loader2 size={14} className="animate-spin" />}
-          {uploading ? t("documents.modal.uploading") : saving ? t("documents.modal.save") : isEdit ? t("documents.modal.changesSave") : t("documents.modal.add")}
+          {uploading ? t("documents.modal.uploading") : saving ? t("documents.modal.save") : isEdit ? t("tasks.modal.save") : t("documents.modal.add")}
         </button>
       </div>
     </div>
