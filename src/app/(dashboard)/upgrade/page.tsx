@@ -61,9 +61,9 @@ function UpgradeContent() {
   }
 
   const tiers = [
-    { key: "monthly" as PriceTier, ...PRO_PRICES.monthly },
-    { key: "halfYearly" as PriceTier, ...PRO_PRICES.halfYearly },
-    { key: "yearly" as PriceTier, ...PRO_PRICES.yearly },
+    { key: "monthly" as PriceTier, ...PRO_PRICES.monthly, tLabel: t("upgrade.monthly") },
+    { key: "halfYearly" as PriceTier, ...PRO_PRICES.halfYearly, tLabel: t("upgrade.halfYearly") },
+    { key: "yearly" as PriceTier, ...PRO_PRICES.yearly, tLabel: t("upgrade.yearly") },
   ];
 
   return (
@@ -94,7 +94,7 @@ function UpgradeContent() {
                   : "text-surface-500 hover:text-surface-700"
               }`}
             >
-              {tier.label}
+              {tier.tLabel}
               {"savings" in tier && (
                 <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                   -{tier.savings}%
@@ -115,13 +115,13 @@ function UpgradeContent() {
             <p className="text-sm text-surface-400 mt-1">{t("upgrade.forever")}</p>
           </div>
           <div className="space-y-2.5 mb-6">
-            {PLANS.free.features.map(f => (
+            {Array.from({ length: 10 }, (_, i) => t(`upgrade.free.f${i + 1}`)).map(f => (
               <div key={f} className="flex items-center gap-2.5 text-sm text-surface-600">
                 <Check size={14} className="text-surface-400 shrink-0" />
                 <span>{f}</span>
               </div>
             ))}
-            {PLANS.free.lockedFeatures.map(f => (
+            {Array.from({ length: 7 }, (_, i) => t(`upgrade.free.locked${i + 1}`)).map(f => (
               <div key={f} className="flex items-center gap-2.5 text-sm text-surface-400 line-through">
                 <Check size={14} className="text-surface-200 shrink-0" />
                 <span>{f}</span>
@@ -155,7 +155,7 @@ function UpgradeContent() {
                 CHF {PRO_PRICES[selectedTier].price.toFixed(2).replace(".", ",")}
               </span>
               <span className="text-sm text-surface-400">
-                / {PRO_PRICES[selectedTier].interval}
+                / {tiers.find(ti => ti.key === selectedTier)?.tLabel ?? PRO_PRICES[selectedTier].interval}
               </span>
             </div>
             {PRO_PRICES[selectedTier].intervalCount > 1 && (
@@ -171,7 +171,7 @@ function UpgradeContent() {
             <p className="text-sm text-surface-400 mt-1">{t("upgrade.cancellable")}</p>
           </div>
           <div className="space-y-2.5 mb-6">
-            {PLANS.pro.features.map(f => (
+            {Array.from({ length: 12 }, (_, i) => t(`upgrade.pro.f${i + 1}`)).map(f => (
               <div key={f} className="flex items-center gap-2.5 text-sm text-surface-700">
                 <Check size={14} className="text-brand-600 shrink-0" />
                 <span>{f}</span>

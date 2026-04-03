@@ -132,11 +132,11 @@ function AccountTab({ user, profile }: { user: { email?: string; created_at?: st
 
       {/* Country / Grading System */}
       <div className="card">
-        <h2 className="font-semibold text-surface-900 mb-1">Land & Notensystem</h2>
-        <p className="text-xs text-surface-400 mb-4">Bestimmt die Notenskala, Bestehensgrenze und Labels in der gesamten App.</p>
+        <h2 className="font-semibold text-surface-900 mb-1">{t("settings.countryTitle")}</h2>
+        <p className="text-xs text-surface-400 mb-4">{t("settings.countryDesc")}</p>
         <div className="flex items-end gap-3">
           <div className="flex-1">
-            <label className="block text-sm font-medium text-surface-700 mb-1">Land</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("settings.countryLabel")}</label>
             <select
               value={selectedCountry}
               onChange={e => setSelectedCountry(e.target.value)}
@@ -152,13 +152,13 @@ function AccountTab({ user, profile }: { user: { email?: string; created_at?: st
             disabled={countrySaving || selectedCountry === (profile?.country ?? "CH")}
             className="btn-primary shrink-0"
           >
-            {countrySaving ? "Speichern…" : "Speichern"}
+            {countrySaving ? t("settings.countrySaving") : t("settings.countrySave")}
           </button>
         </div>
         {/* Preview of selected system */}
         <div className="mt-3 bg-surface-50 rounded-xl p-3 text-xs text-surface-500 space-y-1">
-          <p>Skala: <strong className="text-surface-700">{currentSystem.scaleLabel}</strong></p>
-          <p>Bestanden ab: <strong className="text-surface-700">{currentSystem.passingGrade}</strong> · Credits: <strong className="text-surface-700">{currentSystem.creditLabel}</strong></p>
+          <p>{t("settings.scaleLabel")}: <strong className="text-surface-700">{currentSystem.scaleLabel}</strong></p>
+          <p>{t("settings.passingLabel")}: <strong className="text-surface-700">{currentSystem.passingGrade}</strong> · {t("settings.creditsLabel")}: <strong className="text-surface-700">{currentSystem.creditLabel}</strong></p>
         </div>
         {countryMsg && (
           <p className={`text-sm px-3 py-2 rounded-lg mt-3 ${countryMsg.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>
@@ -193,7 +193,7 @@ function AccountTab({ user, profile }: { user: { email?: string; created_at?: st
       </div>
 
       <div className="card border-red-100">
-        <h2 className="font-semibold text-red-700 mb-2">Gefahrenzone</h2>
+        <h2 className="font-semibold text-red-700 mb-2">{t("settings.dangerZone")}</h2>
         <p className="text-sm text-surface-500 mb-3">{t("settings.deleteAccountWarning")}</p>
         <button className="px-4 py-2 rounded-xl border border-red-200 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors">
           {t("settings.deleteAccount")}

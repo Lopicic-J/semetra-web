@@ -5,6 +5,7 @@ import { PLANS, PRO_PRICES } from "@/lib/stripe";
 import type { ProFeature } from "@/lib/gates";
 import { PRO_FEATURES, FREE_LIMITS } from "@/lib/gates";
 import Link from "next/link";
+import { useTranslation } from "@/lib/i18n";
 
 /* ─── ProGate: wraps content that requires Pro ─── */
 interface ProGateProps {
@@ -144,14 +145,15 @@ export function LimitCounter({ current, max, isPro }: LimitCounterProps) {
 type PriceTierKey = "monthly" | "halfYearly" | "yearly";
 
 export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClose: () => void }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedTier, setSelectedTier] = useState<PriceTierKey>("yearly");
 
   const tiers: { key: PriceTierKey; label: string; price: string; sub: string; popular?: boolean }[] = [
-    { key: "monthly",    label: "Monatlich",   price: "CHF 4.90/Mt.",  sub: "monatlich kündbar" },
-    { key: "halfYearly", label: "6 Monate",    price: "CHF 4.15/Mt.",  sub: "CHF 24.90 alle 6 Mt." },
-    { key: "yearly",     label: "12 Monate",   price: "CHF 3.33/Mt.",  sub: "CHF 39.90/Jahr · 32% sparen", popular: true },
+    { key: "monthly",    label: t("progate.modal.monthly"),    price: t("progate.modal.monthlyPrice"),    sub: t("progate.modal.monthlySub") },
+    { key: "halfYearly", label: t("progate.modal.halfYearly"), price: t("progate.modal.halfYearlyPrice"), sub: t("progate.modal.halfYearlySub") },
+    { key: "yearly",     label: t("progate.modal.yearly"),     price: t("progate.modal.yearlyPrice"),     sub: t("progate.modal.yearlySub"), popular: true },
   ];
 
   async function handleUpgrade() {
@@ -165,10 +167,10 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
         body: JSON.stringify({ price_id: priceId }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Checkout-Fehler");
+      if (!res.ok) throw new Error(data.error ?? t("progate.modal.checkoutError"));
       window.location.href = data.url;
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Unbekannter Fehler");
+      setError(err instanceof Error ? err.message : t("progate.modal.unknownError"));
       setLoading(false);
     }
   }
@@ -190,11 +192,11 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
           </div>
           {feature ? (
             <p className="text-brand-200 text-sm">
-              Schalte <strong className="text-white">{PRO_FEATURES[feature]}</strong> und alle weiteren Pro-Features frei.
+              {t("progate.modal.featureUnlock", { feature: PRO_FEATURES[feature] })}
             </p>
           ) : (
             <p className="text-brand-200 text-sm">
-              Hol das Beste aus deinem Studium — auf allen Geräten.
+              {t("progate.modal.generalUnlock")}
             </p>
           )}
         </div>
@@ -222,7 +224,7 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
                     <span className="text-sm font-semibold text-surface-900">{t.label}</span>
                     {t.popular && (
                       <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold flex items-center gap-0.5">
-                        <Star size={8} /> Beliebt
+                        <Star size={8} /> {t("progate.modal.yearlyPopular")}
                       </span>
                     )}
                   </div>
@@ -235,13 +237,13 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
 
           {/* Features */}
           <div className="space-y-2 mb-5">
-            {PLANS.pro.features.slice(0, 6).map(f => (
+            {Array.from({ length: 6 }, (_, i) => t(`upgrade.pro.f${i + 1}`)).map(f => (
               <div key={f} className="flex items-center gap-2.5 text-sm text-surface-700">
                 <Check size={16} className="text-brand-600 shrink-0" />
                 <span>{f}</span>
               </div>
             ))}
-            <p className="text-xs text-surface-400 pl-6">+ {PLANS.pro.features.length - 6} weitere Pro-Features</p>
+            <p className="text-xs text-surface-400 pl-6">{t("upgrade.moreProFeatures", { count: "6" })}</p>
           </div>
 
           {error && (
@@ -256,12 +258,12 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
             className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-500 transition-all flex items-center justify-center gap-2 shadow-md shadow-brand-600/20"
           >
             {loading
-              ? <><Loader2 size={16} className="animate-spin" /> Weiterleitung zu Stripe...</>
-              : <><Zap size={16} /> Jetzt upgraden</>
+              ? <><Loader2 size={16} className="animate-spin" /> {t("progate.modal.upgrading")}</>
+              : <><Zap size={16} /> {t("progate.modal.upgradeNow")}</>
             }
           </button>
           <p className="text-center text-xs text-surface-400 mt-3">
-            Sichere Zahlung via Stripe · Jederzeit kündbar
+            {t("progate.modal.securePayment")}
           </p>
         </div>
       </div>
