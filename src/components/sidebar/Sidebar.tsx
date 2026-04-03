@@ -2,9 +2,10 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { LogOut, Zap, Gem } from "lucide-react";
+import { LogOut, Zap, Gem, Flame } from "lucide-react";
 import { clsx } from "clsx";
 import { useProfile } from "@/lib/hooks/useProfile";
+import { useStreaks } from "@/lib/hooks/useStreaks";
 import { useTranslation } from "@/lib/i18n";
 import { ProBadge } from "@/components/ui/ProGate";
 import { NAV_GROUPS, BOTTOM_ITEMS, type NavItem as NavItemType } from "./nav-config";
@@ -14,6 +15,7 @@ export default function Sidebar() {
   const router   = useRouter();
   const supabase = createClient();
   const { isPro } = useProfile();
+  const streak = useStreaks();
   const { t } = useTranslation();
 
   async function handleLogout() {
@@ -88,6 +90,20 @@ export default function Sidebar() {
           {t("sidebar.logout")}
         </button>
       </div>
+
+      {/* Streak indicator */}
+      {streak.currentStreak > 0 && (
+        <Link href="/dashboard" className={clsx(
+          "mt-2 flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all",
+          streak.todayDone
+            ? "bg-orange-50 text-orange-700"
+            : "bg-orange-50/50 text-orange-500"
+        )}>
+          <Flame size={15} className={streak.todayDone ? "text-orange-500" : "text-orange-300"} />
+          <span>{t("sidebar.streak", { count: String(streak.currentStreak) })}</span>
+          {!streak.todayDone && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />}
+        </Link>
+      )}
 
       {/* Upgrade / Pro badge */}
       {isPro ? (
