@@ -48,43 +48,266 @@ const CALC_BUTTONS = [
 
 /* getConstants and getUnitGroups moved into UnitsTool component */
 
-function getBuiltinFormulas(t: (key: string) => string): { title: string; formula: string; category: FormulaCategory; description: string }[] {
-  return [
-    // Analysis
-    { title: "Ableitungsregel (Potenz)", formula: "f(x) = xⁿ  →  f'(x) = n·xⁿ⁻¹", category: "analysis", description: "Potenzregel für Ableitungen" },
-    { title: "Kettenregel", formula: "(f∘g)'(x) = f'(g(x)) · g'(x)", category: "analysis", description: "Ableitung verketteter Funktionen" },
-    { title: "Produktregel", formula: "(f·g)' = f'·g + f·g'", category: "analysis", description: "Ableitung eines Produkts" },
-    { title: "Quotientenregel", formula: "(f/g)' = (f'·g − f·g') / g²", category: "analysis", description: "Ableitung eines Quotienten" },
-    { title: "Integral (Potenz)", formula: "∫ xⁿ dx = xⁿ⁺¹/(n+1) + C", category: "analysis", description: "Stammfunktion der Potenzfunktion" },
-    { title: "Partielle Integration", formula: "∫ u·v' dx = u·v − ∫ u'·v dx", category: "analysis", description: "" },
-    // Lineare Algebra
-    { title: "Determinante 2×2", formula: "det(A) = a·d − b·c", category: "lineare_algebra", description: "Für Matrix [[a,b],[c,d]]" },
-    { title: "Kreuzprodukt", formula: "a × b = |a|·|b|·sin(θ)·n̂", category: "lineare_algebra", description: "Vektorprodukt" },
-    { title: "Skalarprodukt", formula: "a · b = |a|·|b|·cos(θ)", category: "lineare_algebra", description: "Inneres Produkt" },
-    { title: "Inverse 2×2", formula: "A⁻¹ = (1/det(A))·[[d,−b],[−c,a]]", category: "lineare_algebra", description: "" },
-    // Trigonometrie
-    { title: "Sinus-Satz", formula: "a/sin(A) = b/sin(B) = c/sin(C)", category: "trigonometrie", description: "" },
-    { title: "Kosinus-Satz", formula: "c² = a² + b² − 2ab·cos(C)", category: "trigonometrie", description: "" },
-    { title: "Pythagoras", formula: "a² + b² = c²", category: "trigonometrie", description: "Rechtwinkliges Dreieck" },
-    { title: "sin² + cos² = 1", formula: "sin²(x) + cos²(x) = 1", category: "trigonometrie", description: "Trigonometrische Identität" },
-    // Statistik
-    { title: "Mittelwert", formula: "x̄ = (1/n) · Σxᵢ", category: "statistik", description: "Arithmetisches Mittel" },
-    { title: "Standardabweichung", formula: "σ = √[(1/n)·Σ(xᵢ − x̄)²]", category: "statistik", description: "Population" },
-    { title: "Varianz", formula: "σ² = (1/n)·Σ(xᵢ − x̄)²", category: "statistik", description: "" },
-    { title: "Normalverteilung", formula: "f(x) = (1/(σ√(2π)))·e^(−(x−μ)²/(2σ²))", category: "statistik", description: "Gauss-Verteilung" },
-    // Physik
-    { title: "Kraft (Newton)", formula: "F = m · a", category: "physik", description: "Kraft = Masse × Beschleunigung" },
-    { title: "Kinetische Energie", formula: "E_kin = ½·m·v²", category: "physik", description: "" },
-    { title: "Potenzielle Energie", formula: "E_pot = m·g·h", category: "physik", description: "" },
-    { title: "Ohmsches Gesetz", formula: "U = R · I", category: "physik", description: "Spannung = Widerstand × Strom" },
-    // Finanzen
-    { title: "Zinseszins", formula: "K_n = K₀ · (1 + p/100)ⁿ", category: "finanzen", description: "Kapital nach n Perioden" },
-    { title: "Barwert", formula: "BW = K_n / (1 + i)ⁿ", category: "finanzen", description: "Abgezinster Wert" },
-    // Informatik
-    { title: "Big-O Notation", formula: "O(1) < O(log n) < O(n) < O(n log n) < O(n²)", category: "informatik", description: "Laufzeitkomplexität" },
-    { title: "Binär → Dezimal", formula: "Σ bᵢ · 2ⁱ", category: "informatik", description: "Zahlensystem-Umrechnung" },
-  ];
+interface RichFormula {
+  id: string;
+  title: string;
+  formula: string;
+  category: FormulaCategory;
+  description: string;
+  vars: string;
+  usage: string;
+  example: string;
+  mistakes: string;
+  synonyms: string[];
+  related: string[];
+  calc?: { vars: string[]; expr: string };
 }
+
+function getBuiltinFormulas(t: (key: string) => string): { title: string; formula: string; category: FormulaCategory; description: string }[] {
+  return RICH_FORMULAS.map(f => ({ title: f.title, formula: f.formula, category: f.category, description: f.description }));
+}
+
+const RICH_FORMULAS: RichFormula[] = [
+  /* ═══ ANALYSIS ═══ */
+  { id: "potenzregel", title: "Potenzregel", formula: "f(x) = x\u207f \u2192 f'(x) = n\u00b7x\u207f\u207b\u00b9", category: "analysis",
+    description: "Ableitung von Potenzfunktionen", vars: "n = Exponent, x = Variable",
+    usage: "Wenn f(x) eine Potenz von x ist", example: "f(x) = x\u00b3 \u2192 f'(x) = 3x\u00b2",
+    mistakes: "n=0 vergessen (Konstante \u2192 Ableitung=0), negativen Exponenten falsch ableiten",
+    synonyms: ["ableitung", "potenz", "derivative", "power rule"], related: ["kettenregel", "produktregel"] },
+  { id: "kettenregel", title: "Kettenregel", formula: "(f\u2218g)'(x) = f'(g(x)) \u00b7 g'(x)", category: "analysis",
+    description: "Ableitung verketteter Funktionen", vars: "f = \u00e4ussere Funktion, g = innere Funktion",
+    usage: "Bei verschachtelten Funktionen wie sin(x\u00b2)", example: "f(x)=sin(x\u00b2) \u2192 f'(x)=cos(x\u00b2)\u00b72x",
+    mistakes: "Innere Ableitung g'(x) vergessen", synonyms: ["chain rule", "verkettung", "innere ableitung"], related: ["potenzregel", "produktregel"] },
+  { id: "produktregel", title: "Produktregel", formula: "(f\u00b7g)' = f'\u00b7g + f\u00b7g'", category: "analysis",
+    description: "Ableitung eines Produkts zweier Funktionen", vars: "f, g = differenzierbare Funktionen",
+    usage: "Wenn zwei Funktionen multipliziert werden", example: "f(x)=x\u00b7sin(x) \u2192 f'(x)=sin(x)+x\u00b7cos(x)",
+    mistakes: "Einfach f'\u00b7g' statt der Summe", synonyms: ["product rule", "leibniz"], related: ["quotientenregel", "kettenregel"] },
+  { id: "quotientenregel", title: "Quotientenregel", formula: "(f/g)' = (f'\u00b7g \u2212 f\u00b7g') / g\u00b2", category: "analysis",
+    description: "Ableitung eines Quotienten", vars: "f = Z\u00e4hler, g = Nenner (g\u22600)",
+    usage: "Bei Division zweier Funktionen", example: "f(x)=sin(x)/x \u2192 (cos(x)\u00b7x\u2212sin(x))/x\u00b2",
+    mistakes: "Reihenfolge Z\u00e4hler/Nenner vertauschen, g\u00b2 vergessen",
+    synonyms: ["quotient rule", "bruch ableitung"], related: ["produktregel"] },
+  { id: "integral_potenz", title: "Integral (Potenz)", formula: "\u222b x\u207f dx = x\u207f\u207a\u00b9/(n+1) + C", category: "analysis",
+    description: "Stammfunktion der Potenzfunktion", vars: "n \u2260 -1, C = Integrationskonstante",
+    usage: "Aufleitung von Potenzfunktionen", example: "\u222b x\u00b2 dx = x\u00b3/3 + C",
+    mistakes: "+C vergessen, n=-1 nicht beachten (dann ln|x|+C)",
+    synonyms: ["stammfunktion", "aufleitung", "antiderivative", "integral"], related: ["partielle_integration"] },
+  { id: "partielle_integration", title: "Partielle Integration", formula: "\u222b u\u00b7v' dx = u\u00b7v \u2212 \u222b u'\u00b7v dx", category: "analysis",
+    description: "Integration durch Teile", vars: "u = einfach abzuleiten, v' = einfach aufzuleiten",
+    usage: "Produkt von Funktionen integrieren (z.B. x\u00b7e\u02e3)", example: "\u222b x\u00b7e\u02e3 dx = x\u00b7e\u02e3 \u2212 \u222b e\u02e3 dx = x\u00b7e\u02e3 \u2212 e\u02e3 + C",
+    mistakes: "Falsche Wahl von u und v', LIATE-Regel beachten",
+    synonyms: ["integration by parts", "teilweise integration"], related: ["integral_potenz"] },
+  { id: "substitution", title: "Substitution", formula: "\u222b f(g(x))\u00b7g'(x) dx = \u222b f(u) du", category: "analysis",
+    description: "Integration durch Substitution", vars: "u = g(x), du = g'(x)\u00b7dx",
+    usage: "Bei verschachtelten Funktionen im Integral", example: "\u222b 2x\u00b7cos(x\u00b2) dx, u=x\u00b2 \u2192 \u222b cos(u) du = sin(u) + C",
+    mistakes: "R\u00fccksubstitution vergessen, du/dx nicht korrekt",
+    synonyms: ["u-substitution", "integration substitution"], related: ["kettenregel", "integral_potenz"] },
+  { id: "taylor", title: "Taylor-Reihe", formula: "f(x) = \u03a3 f\u207d\u207f\u207e(a)/n! \u00b7 (x\u2212a)\u207f", category: "analysis",
+    description: "Approximation einer Funktion durch Polynome", vars: "a = Entwicklungspunkt, n = Ordnung, f\u207d\u207f\u207e = n-te Ableitung",
+    usage: "Funktion lokal durch Polynom ann\u00e4hern", example: "e\u02e3 \u2248 1 + x + x\u00b2/2 + x\u00b3/6 (um a=0)",
+    mistakes: "Fakult\u00e4t n! im Nenner vergessen, Konvergenzradius nicht pr\u00fcfen",
+    synonyms: ["taylorreihe", "maclaurin", "reihenentwicklung", "taylor series"], related: [] },
+  { id: "grenzwert_lhopital", title: "L'H\u00f4pital", formula: "lim f(x)/g(x) = lim f'(x)/g'(x)", category: "analysis",
+    description: "Grenzwerte bei 0/0 oder \u221e/\u221e", vars: "f(a)=g(a)=0 oder \u00b1\u221e",
+    usage: "Wenn direktes Einsetzen 0/0 ergibt", example: "lim(x\u21920) sin(x)/x = lim cos(x)/1 = 1",
+    mistakes: "Anwenden ohne 0/0 oder \u221e/\u221e Bedingung zu pr\u00fcfen",
+    synonyms: ["hopital", "grenzwert", "limit", "lhopital"], related: [] },
+  /* ═══ LINEARE ALGEBRA ═══ */
+  { id: "det_2x2", title: "Determinante 2\u00d72", formula: "det(A) = a\u00b7d \u2212 b\u00b7c", category: "lineare_algebra",
+    description: "Determinante einer 2\u00d72 Matrix", vars: "A = [[a,b],[c,d]]",
+    usage: "Invertierbarkeit pr\u00fcfen, Fl\u00e4chenberechnung", example: "A=[[3,1],[2,4]] \u2192 det=3\u00b74\u22121\u00b72=10",
+    mistakes: "Vorzeichen: ad\u2212bc, nicht ad+bc",
+    synonyms: ["determinante", "det", "2x2 matrix"], related: ["inverse_2x2"], calc: { vars: ["a","b","c","d"], expr: "a*d-b*c" } },
+  { id: "inverse_2x2", title: "Inverse 2\u00d72", formula: "A\u207b\u00b9 = (1/det)\u00b7[[d,\u2212b],[\u2212c,a]]", category: "lineare_algebra",
+    description: "Inverse einer 2\u00d72 Matrix", vars: "det(A) \u2260 0",
+    usage: "Gleichungssysteme l\u00f6sen, Matrizengleichungen", example: "A=[[2,1],[1,1]] \u2192 A\u207b\u00b9=[[1,\u22121],[\u22121,2]]",
+    mistakes: "Vorzeichen bei b und c vergessen, det=0 nicht pr\u00fcfen",
+    synonyms: ["inverse", "umkehrmatrix"], related: ["det_2x2"] },
+  { id: "skalarprodukt", title: "Skalarprodukt", formula: "a \u00b7 b = |a|\u00b7|b|\u00b7cos(\u03b8) = \u03a3 a\u1d62\u00b7b\u1d62", category: "lineare_algebra",
+    description: "Inneres Produkt zweier Vektoren", vars: "a, b = Vektoren, \u03b8 = eingeschlossener Winkel",
+    usage: "Winkelberechnung, Orthogonalit\u00e4tstest (=0)", example: "(1,2)\u00b7(3,4) = 1\u00b73+2\u00b74 = 11",
+    mistakes: "Kreuzprodukt verwechseln, Ergebnis ist Skalar nicht Vektor",
+    synonyms: ["dot product", "inner product", "inneres produkt"], related: ["kreuzprodukt"] },
+  { id: "kreuzprodukt", title: "Kreuzprodukt", formula: "a \u00d7 b = |a|\u00b7|b|\u00b7sin(\u03b8)\u00b7n\u0302", category: "lineare_algebra",
+    description: "Vektorprodukt (nur \u211d\u00b3)", vars: "n\u0302 = Normalenvektor, \u03b8 = Winkel",
+    usage: "Fl\u00e4chenberechnung, Normalenvektoren", example: "(1,0,0)\u00d7(0,1,0) = (0,0,1)",
+    mistakes: "Reihenfolge wichtig: a\u00d7b \u2260 b\u00d7a, Ergebnis ist Vektor",
+    synonyms: ["cross product", "vektorprodukt"], related: ["skalarprodukt"] },
+  { id: "eigenwerte", title: "Eigenwerte", formula: "det(A \u2212 \u03bbI) = 0", category: "lineare_algebra",
+    description: "Eigenwerte einer Matrix finden", vars: "\u03bb = Eigenwert, I = Einheitsmatrix",
+    usage: "Stabilit\u00e4tsanalyse, Diagonalisierung", example: "A=[[2,1],[0,3]] \u2192 (2\u2212\u03bb)(3\u2212\u03bb)=0 \u2192 \u03bb=2,3",
+    mistakes: "Determinante falsch entwickeln, I vergessen",
+    synonyms: ["eigenvalue", "eigenwert", "charakteristisches polynom"], related: ["det_2x2"] },
+  /* ═══ TRIGONOMETRIE ═══ */
+  { id: "pythagoras", title: "Pythagoras", formula: "a\u00b2 + b\u00b2 = c\u00b2", category: "trigonometrie",
+    description: "Satzlängen im rechtwinkligen Dreieck", vars: "a, b = Katheten, c = Hypotenuse",
+    usage: "Seitenl\u00e4ngen berechnen bei 90\u00b0-Winkel", example: "a=3, b=4 \u2192 c=\u221a(9+16)=5",
+    mistakes: "c ist IMMER die Hypotenuse (l\u00e4ngste Seite)",
+    synonyms: ["pythagorean theorem", "satz des pythagoras", "hypotenuse"], related: ["sinussatz", "kosinussatz"],
+    calc: { vars: ["a","b"], expr: "Math.sqrt(a*a+b*b)" } },
+  { id: "sinussatz", title: "Sinussatz", formula: "a/sin(A) = b/sin(B) = c/sin(C)", category: "trigonometrie",
+    description: "Verh\u00e4ltnis Seite/Gegenwinkel ist konstant", vars: "a,b,c = Seiten, A,B,C = gegen\u00fcberliegende Winkel",
+    usage: "Wenn Winkel + gegen\u00fcberliegende Seite bekannt", example: "a=5, A=30\u00b0, B=45\u00b0 \u2192 b = 5\u00b7sin(45\u00b0)/sin(30\u00b0)",
+    mistakes: "Mehrdeutigkeit bei SSA (zwei L\u00f6sungen m\u00f6glich)",
+    synonyms: ["sine rule", "law of sines"], related: ["kosinussatz", "pythagoras"] },
+  { id: "kosinussatz", title: "Kosinussatz", formula: "c\u00b2 = a\u00b2 + b\u00b2 \u2212 2ab\u00b7cos(C)", category: "trigonometrie",
+    description: "Verallgemeinerung von Pythagoras", vars: "C = Winkel gegen\u00fcber c",
+    usage: "Bei SSS oder SWS gegeben", example: "a=3, b=4, C=60\u00b0 \u2192 c\u00b2=9+16\u221212=13",
+    mistakes: "Vorzeichen vor 2ab\u00b7cos vergessen, C=90\u00b0 \u2192 Pythagoras",
+    synonyms: ["cosine rule", "law of cosines", "cosinussatz"], related: ["pythagoras", "sinussatz"] },
+  { id: "trig_identitaet", title: "Trigonometrische Identit\u00e4t", formula: "sin\u00b2(x) + cos\u00b2(x) = 1", category: "trigonometrie",
+    description: "Fundamentale Beziehung am Einheitskreis", vars: "x = beliebiger Winkel",
+    usage: "Umformungen, Vereinfachungen", example: "sin\u00b2(x) = 1 \u2212 cos\u00b2(x)",
+    mistakes: "Gilt f\u00fcr alle x, nicht nur spezielle Winkel",
+    synonyms: ["pythagorean identity", "sin cos", "einheitskreis"], related: [] },
+  { id: "additionstheoreme", title: "Additionstheoreme", formula: "sin(a\u00b1b) = sin(a)cos(b) \u00b1 cos(a)sin(b)", category: "trigonometrie",
+    description: "Sinus/Kosinus von Winkelsummen", vars: "a, b = Winkel",
+    usage: "Zusammengesetzte Winkel aufl\u00f6sen", example: "sin(75\u00b0)=sin(45\u00b0+30\u00b0)=sin45\u00b7cos30+cos45\u00b7sin30",
+    mistakes: "Vorzeichen bei cos(a\u2212b) vs cos(a+b) verwechseln",
+    synonyms: ["addition theorem", "winkeladdition"], related: ["trig_identitaet"] },
+  /* ═══ STATISTIK ═══ */
+  { id: "mittelwert", title: "Arithmetisches Mittel", formula: "x\u0304 = (1/n) \u00b7 \u03a3x\u1d62", category: "statistik",
+    description: "Durchschnitt aller Werte", vars: "n = Anzahl Werte, x\u1d62 = einzelne Werte",
+    usage: "Zentraltendenz einer Stichprobe", example: "x = {2,4,6} \u2192 x\u0304 = 12/3 = 4",
+    mistakes: "Median und Mittelwert verwechseln, Ausreisser nicht beachten",
+    synonyms: ["mean", "durchschnitt", "average", "mittel"], related: ["varianz", "standardabweichung"] },
+  { id: "varianz", title: "Varianz", formula: "\u03c3\u00b2 = (1/n)\u00b7\u03a3(x\u1d62 \u2212 x\u0304)\u00b2", category: "statistik",
+    description: "Mittlere quadratische Abweichung", vars: "\u03c3\u00b2 = Varianz, x\u0304 = Mittelwert",
+    usage: "Streuung messen", example: "x={2,4,6}, x\u0304=4 \u2192 \u03c3\u00b2=[(4+0+4)/3]=8/3",
+    mistakes: "Stichprobe: 1/(n\u22121) statt 1/n, Quadrat vergessen",
+    synonyms: ["variance", "streuung"], related: ["mittelwert", "standardabweichung"],
+    calc: { vars: ["x1","x2","x3"], expr: "((v=>(s=>s/3)((x1-v)**2+(x2-v)**2+(x3-v)**2))((x1+x2+x3)/3))" } },
+  { id: "standardabweichung", title: "Standardabweichung", formula: "\u03c3 = \u221a[(1/n)\u00b7\u03a3(x\u1d62 \u2212 x\u0304)\u00b2]", category: "statistik",
+    description: "Wurzel der Varianz", vars: "\u03c3 = Standardabweichung",
+    usage: "Streuung in gleicher Einheit wie Daten", example: "\u03c3\u00b2=4 \u2192 \u03c3=2",
+    mistakes: "\u03c3 vs \u03c3\u00b2 verwechseln, s (Stichprobe) vs \u03c3 (Population)",
+    synonyms: ["standard deviation", "sigma", "std"], related: ["varianz", "mittelwert"] },
+  { id: "normalverteilung", title: "Normalverteilung", formula: "f(x) = (1/(\u03c3\u221a(2\u03c0)))\u00b7e^(\u2212(x\u2212\u03bc)\u00b2/(2\u03c3\u00b2))", category: "statistik",
+    description: "Gauss-Verteilung / Glockenkurve", vars: "\u03bc = Erwartungswert, \u03c3 = Standardabweichung",
+    usage: "Modellierung vieler nat\u00fcrlicher Prozesse", example: "68% der Werte liegen in [\u03bc\u2212\u03c3, \u03bc+\u03c3]",
+    mistakes: "68-95-99.7-Regel falsch anwenden, \u03c3\u00b2 vs \u03c3 in Formel",
+    synonyms: ["gaussian", "gauss", "bell curve", "glockenkurve"], related: ["mittelwert", "standardabweichung"] },
+  { id: "binomial", title: "Binomialkoeffizient", formula: "P(X=k) = C(n,k) \u00b7 p\u1d4f \u00b7 (1\u2212p)\u207f\u207b\u1d4f", category: "statistik",
+    description: "Wahrscheinlichkeit bei n Versuchen", vars: "n = Versuche, k = Erfolge, p = Erfolgswahrscheinlichkeit",
+    usage: "M\u00fcnzwurf, Qualit\u00e4tskontrolle", example: "3 W\u00fcrfe M\u00fcnze, P(2\u00d7Kopf) = C(3,2)\u00b70.5\u00b2\u00b70.5 = 0.375",
+    mistakes: "C(n,k) = n!/(k!\u00b7(n\u2212k)!) nicht vergessen",
+    synonyms: ["binomial distribution", "binomialverteilung", "bernoulli"], related: ["normalverteilung"] },
+  { id: "erwartungswert", title: "Erwartungswert", formula: "E(X) = \u03a3 x\u1d62 \u00b7 P(x\u1d62)", category: "statistik",
+    description: "Gewichteter Durchschnitt einer Zufallsvariable", vars: "x\u1d62 = Werte, P(x\u1d62) = Wahrscheinlichkeiten",
+    usage: "Langfristiger Durchschnitt bei Wiederholung", example: "W\u00fcrfel: E = (1+2+3+4+5+6)/6 = 3.5",
+    mistakes: "\u03a3P muss 1 ergeben, E(X) muss kein m\u00f6glicher Wert sein",
+    synonyms: ["expected value", "expectation", "mu"], related: ["mittelwert", "varianz"] },
+  /* ═══ GLEICHUNGEN ═══ */
+  { id: "quadratische_formel", title: "Quadratische Formel", formula: "x = (\u2212b \u00b1 \u221a(b\u00b2\u22124ac)) / (2a)", category: "allgemein",
+    description: "L\u00f6sung von ax\u00b2+bx+c=0", vars: "a \u2260 0, D = b\u00b2\u22124ac (Diskriminante)",
+    usage: "Jede quadratische Gleichung l\u00f6sen", example: "x\u00b2\u22125x+6=0 \u2192 x=(5\u00b1\u221a1)/2 \u2192 x=2 oder x=3",
+    mistakes: "Vorzeichen von b vergessen, a\u22600 pr\u00fcfen, D<0 = keine reelle L\u00f6sung",
+    synonyms: ["abc formel", "mitternachtsformel", "quadratic formula", "pq formel", "l\u00f6sungsformel"], related: [],
+    calc: { vars: ["a","b","c"], expr: "(-b+Math.sqrt(b*b-4*a*c))/(2*a)" } },
+  { id: "logarithmen", title: "Logarithmus-Regeln", formula: "log_a(x\u00b7y) = log_a(x) + log_a(y)", category: "allgemein",
+    description: "Rechenregeln f\u00fcr Logarithmen", vars: "a = Basis, x,y > 0",
+    usage: "Gleichungen mit Exponenten l\u00f6sen", example: "log\u2082(8) = log\u2082(2\u00b3) = 3\u00b7log\u2082(2) = 3",
+    mistakes: "log(a+b) \u2260 log(a)+log(b), Basis verwechseln",
+    synonyms: ["logarithm", "log regeln", "ln", "natuerlicher logarithmus"], related: [] },
+  { id: "binomische_formeln", title: "Binomische Formeln", formula: "(a\u00b1b)\u00b2 = a\u00b2 \u00b1 2ab + b\u00b2", category: "allgemein",
+    description: "Drei binomische Formeln", vars: "a, b = beliebige Ausdr\u00fccke",
+    usage: "Vereinfachung, Faktorisierung", example: "(x+3)\u00b2 = x\u00b2+6x+9, (a\u2212b)(a+b)=a\u00b2\u2212b\u00b2",
+    mistakes: "Mischterm 2ab vergessen, 3. Formel: (a+b)(a\u2212b)=a\u00b2\u2212b\u00b2",
+    synonyms: ["binomial formula", "binomisch", "quadrat aufl\u00f6sen"], related: ["quadratische_formel"] },
+  /* ═══ PHYSIK ═══ */
+  { id: "newton_kraft", title: "Newtons 2. Gesetz", formula: "F = m \u00b7 a", category: "physik",
+    description: "Kraft = Masse \u00d7 Beschleunigung", vars: "F [N], m [kg], a [m/s\u00b2]",
+    usage: "Grundgleichung der Mechanik", example: "m=10kg, a=2m/s\u00b2 \u2192 F=20N",
+    mistakes: "Einheiten mischen (g statt kg), Reibung vergessen",
+    synonyms: ["kraft", "force", "newton", "f=ma", "beschleunigung"], related: ["kinetische_energie", "arbeit"],
+    calc: { vars: ["m","a"], expr: "m*a" } },
+  { id: "kinetische_energie", title: "Kinetische Energie", formula: "E_kin = \u00bd\u00b7m\u00b7v\u00b2", category: "physik",
+    description: "Bewegungsenergie", vars: "E [J], m [kg], v [m/s]",
+    usage: "Energie eines bewegten K\u00f6rpers", example: "m=2kg, v=3m/s \u2192 E=\u00bd\u00b72\u00b79=9J",
+    mistakes: "Faktor \u00bd vergessen, v quadrieren nicht vergessen",
+    synonyms: ["kinetic energy", "bewegungsenergie", "ekin"], related: ["potenzielle_energie", "arbeit"],
+    calc: { vars: ["m","v"], expr: "0.5*m*v*v" } },
+  { id: "potenzielle_energie", title: "Potenzielle Energie", formula: "E_pot = m\u00b7g\u00b7h", category: "physik",
+    description: "Lageenergie", vars: "m [kg], g=9.81 m/s\u00b2, h [m]",
+    usage: "H\u00f6henenergie bei Schwerkraft", example: "m=5kg, h=10m \u2192 E=5\u00b79.81\u00b710=490.5J",
+    mistakes: "g\u224810 verwenden statt 9.81, H\u00f6hendifferenz nicht Absolutwert",
+    synonyms: ["potential energy", "lageenergie", "epot"], related: ["kinetische_energie"],
+    calc: { vars: ["m","h"], expr: "m*9.80665*h" } },
+  { id: "arbeit", title: "Arbeit", formula: "W = F \u00b7 s \u00b7 cos(\u03b1)", category: "physik",
+    description: "Kraft \u00d7 Weg in Kraftrichtung", vars: "W [J], F [N], s [m], \u03b1 = Winkel zwischen F und s",
+    usage: "Energieumwandlung durch Kraft", example: "F=50N, s=3m, \u03b1=0\u00b0 \u2192 W=150J",
+    mistakes: "Winkel vergessen (wenn F nicht parallel zu s), cos(90\u00b0)=0",
+    synonyms: ["work", "energy", "kraft mal weg"], related: ["newton_kraft", "kinetische_energie"],
+    calc: { vars: ["F","s"], expr: "F*s" } },
+  { id: "ohm", title: "Ohmsches Gesetz", formula: "U = R \u00b7 I", category: "physik",
+    description: "Spannung = Widerstand \u00d7 Strom", vars: "U [V], R [\u03a9], I [A]",
+    usage: "Grundgleichung der Elektrotechnik", example: "R=100\u03a9, I=0.5A \u2192 U=50V",
+    mistakes: "Einheiten: mA statt A, k\u03a9 statt \u03a9 umrechnen",
+    synonyms: ["ohm's law", "ohmsches gesetz", "spannung", "widerstand", "strom", "u=ri"], related: ["leistung_elek"],
+    calc: { vars: ["R","I"], expr: "R*I" } },
+  { id: "leistung_elek", title: "Elektrische Leistung", formula: "P = U \u00b7 I = R\u00b7I\u00b2 = U\u00b2/R", category: "physik",
+    description: "Drei \u00e4quivalente Formen", vars: "P [W], U [V], I [A], R [\u03a9]",
+    usage: "Energieverbrauch, Dimensionierung", example: "U=230V, I=2A \u2192 P=460W",
+    mistakes: "Richtige Form w\u00e4hlen je nach gegebenen Gr\u00f6ssen",
+    synonyms: ["electric power", "watt", "leistung"], related: ["ohm"],
+    calc: { vars: ["U","I"], expr: "U*I" } },
+  { id: "frequenz_welle", title: "Wellengleichung", formula: "v = f \u00b7 \u03bb", category: "physik",
+    description: "Geschwindigkeit = Frequenz \u00d7 Wellenl\u00e4nge", vars: "v [m/s], f [Hz], \u03bb [m]",
+    usage: "Schall, Licht, elektromagnetische Wellen", example: "f=440Hz, \u03bb=0.78m \u2192 v\u2248343m/s (Schall)",
+    mistakes: "Einheiten: kHz \u2192 Hz umrechnen, \u03bb in nm vs m",
+    synonyms: ["wave equation", "frequenz", "wellenlaenge", "wavelength"], related: [],
+    calc: { vars: ["f","lambda"], expr: "f*lambda" } },
+  { id: "gravitationsgesetz", title: "Gravitationsgesetz", formula: "F = G\u00b7m\u2081\u00b7m\u2082/r\u00b2", category: "physik",
+    description: "Anziehungskraft zweier Massen", vars: "G=6.674\u00d710\u207b\u00b9\u00b9, m\u2081,m\u2082 [kg], r [m]",
+    usage: "Planetenbahnen, Satellitenorbits", example: "Erde-Mond: F\u22481.98\u00d710\u00b2\u2070 N",
+    mistakes: "r ist Abstand der Schwerpunkte, nicht der Oberfl\u00e4chen",
+    synonyms: ["gravitation", "newton gravitation", "anziehungskraft"], related: ["newton_kraft"] },
+  /* ═══ FINANZEN ═══ */
+  { id: "zinseszins", title: "Zinseszins", formula: "K\u2099 = K\u2080 \u00b7 (1 + p/100)\u207f", category: "finanzen",
+    description: "Kapital nach n Perioden", vars: "K\u2080 = Anfangskapital, p = Zinssatz [%], n = Perioden",
+    usage: "Sparpl\u00e4ne, Kreditberechnung", example: "K\u2080=1000\u20ac, p=5%, n=10 \u2192 K=1628.89\u20ac",
+    mistakes: "p als Dezimalzahl (0.05) vs Prozent (5), j\u00e4hrlich vs monatlich",
+    synonyms: ["compound interest", "zins", "kapitalverzinsung", "zinsen"], related: ["barwert"],
+    calc: { vars: ["K0","p","n"], expr: "K0*Math.pow(1+p/100,n)" } },
+  { id: "barwert", title: "Barwert", formula: "BW = K\u2099 / (1 + i)\u207f", category: "finanzen",
+    description: "Heutiger Wert eines zuk\u00fcnftigen Betrags", vars: "i = Diskontierungssatz, n = Perioden",
+    usage: "Investitionsentscheidungen, NPV", example: "K\u2099=1000\u20ac in 5 Jahren, i=3% \u2192 BW=862.61\u20ac",
+    mistakes: "i als Dezimalzahl, nicht Prozent",
+    synonyms: ["present value", "abzinsung", "discounting", "npv"], related: ["zinseszins"],
+    calc: { vars: ["Kn","i","n"], expr: "Kn/Math.pow(1+i/100,n)" } },
+  { id: "annuitaet", title: "Annuit\u00e4t", formula: "A = K\u2080 \u00b7 q\u207f\u00b7(q\u22121)/(q\u207f\u22121)", category: "finanzen",
+    description: "Gleichbleibende Ratenzahlung", vars: "q = 1+i, K\u2080 = Kreditbetrag",
+    usage: "Hypotheken, Ratenkredite", example: "K=200k\u20ac, i=2%, n=20 \u2192 A\u224812.178\u20ac/Jahr",
+    mistakes: "q = 1+i nicht vergessen, i monatlich vs j\u00e4hrlich",
+    synonyms: ["annuity", "rate", "tilgung", "hypothek"], related: ["zinseszins", "barwert"] },
+  /* ═══ INFORMATIK ═══ */
+  { id: "bigo", title: "Big-O Notation", formula: "O(1) < O(log n) < O(n) < O(n log n) < O(n\u00b2) < O(2\u207f)", category: "informatik",
+    description: "Laufzeitkomplexit\u00e4t von Algorithmen", vars: "n = Eingabegr\u00f6sse",
+    usage: "Algorithmen vergleichen und bewerten", example: "Bin\u00e4re Suche: O(log n), Bubblesort: O(n\u00b2)",
+    mistakes: "Best/Average/Worst Case unterscheiden, Konstanten weglassen",
+    synonyms: ["complexity", "laufzeit", "algorithmus", "runtime", "zeitkomplexit\u00e4t"], related: ["ds_komplexitaet"] },
+  { id: "ds_komplexitaet", title: "Datenstruktur-Komplexit\u00e4ten", formula: "Array: O(1) Zugriff, O(n) Suche | HashMap: O(1) avg", category: "informatik",
+    description: "Typische Laufzeiten wichtiger Datenstrukturen", vars: "n = Anzahl Elemente",
+    usage: "Richtige Datenstruktur w\u00e4hlen", example: "Array-Lookup: O(1), LinkedList-Suche: O(n), BST: O(log n)",
+    mistakes: "HashMap Worst-Case ist O(n), nicht O(1)",
+    synonyms: ["data structure", "datenstruktur", "hashmap", "array", "linked list", "bst"], related: ["bigo"] },
+  { id: "boolesche_algebra", title: "Boolesche Algebra", formula: "A \u2227 (B \u2228 C) = (A\u2227B) \u2228 (A\u2227C)", category: "informatik",
+    description: "Distributivgesetz und De Morgan", vars: "A, B, C = boolesche Variablen (0/1)",
+    usage: "Logikschaltungen, SQL WHERE, Programmierung", example: "De Morgan: \u00ac(A\u2227B) = \u00acA \u2228 \u00acB",
+    mistakes: "De Morgan: Negation \u00e4ndert \u2227\u2194\u2228",
+    synonyms: ["boolean algebra", "logik", "de morgan", "and or not", "wahrheitstabelle"], related: [] },
+  { id: "binaer_dezimal", title: "Bin\u00e4r \u2194 Dezimal", formula: "\u03a3 b\u1d62 \u00b7 2\u2071 (von rechts, i ab 0)", category: "informatik",
+    description: "Umrechnung Bin\u00e4r-Dezimal", vars: "b\u1d62 = Bit (0 oder 1)",
+    usage: "Zahlensysteme, Speicherberechnung", example: "1011\u2082 = 1\u00b78 + 0\u00b74 + 1\u00b72 + 1\u00b71 = 11\u2081\u2080",
+    mistakes: "Bits von rechts z\u00e4hlen (LSB=Position 0)",
+    synonyms: ["binary", "binaer", "hex", "dezimal", "zahlensystem"], related: ["bigo"] },
+  { id: "rekursion", title: "Master-Theorem", formula: "T(n) = aT(n/b) + O(n\u1d48)", category: "informatik",
+    description: "L\u00f6sung von Divide-and-Conquer Rekurrenzen", vars: "a = Teilprobleme, b = Teilungsfaktor, d = Kombinationskosten",
+    usage: "Mergesort, Quicksort, Bin\u00e4re Suche analysieren", example: "Mergesort: T(n)=2T(n/2)+O(n) \u2192 O(n log n)",
+    mistakes: "Drei F\u00e4lle unterscheiden: d vs log_b(a)",
+    synonyms: ["master theorem", "rekurrenz", "divide and conquer", "rekursion"], related: ["bigo", "ds_komplexitaet"] },
+];
+
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────── */
 
@@ -3090,110 +3313,252 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules, builti
   const [category, setCategory] = useState<FormulaCategory | "all">("all");
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [title, setTitle] = useState("");
-  const [formula, setFormula] = useState("");
-  const [desc, setDesc] = useState("");
-  const [cat, setCat] = useState<FormulaCategory>("allgemein");
+  const [fTitle, setFTitle] = useState("");
+  const [fFormula, setFFormula] = useState("");
+  const [fDesc, setFDesc] = useState("");
+  const [fCat, setFCat] = useState<FormulaCategory>("allgemein");
   const [moduleId, setModuleId] = useState<string | null>(null);
-  const [tags, setTags] = useState("");
+  const [fTags, setFTags] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [examMode, setExamMode] = useState(false);
+  const [calcVars, setCalcVars] = useState<Record<string, string>>({});
 
+  /* ─── Rich + Custom formulas merged ─── */
   const allFormulas = useMemo(() => {
-    const custom = formulas.map((f) => ({ ...f, isCustom: true }));
-    const builtin = builtinFormulas.map((f, i) => ({
-      id: `builtin-${i}`, user_id: "", title: f.title, formula: f.formula, category: f.category, description: f.description, module_id: null, tags: [] as string[], pinned: false, created_at: "", updated_at: "", isCustom: false,
+    const custom = formulas.map(f => ({ ...f, isCustom: true, isRich: false, rich: null as RichFormula | null }));
+    const rich = RICH_FORMULAS.map(rf => ({
+      id: rf.id, user_id: "", title: rf.title, formula: rf.formula, category: rf.category, description: rf.description,
+      module_id: null, tags: rf.synonyms, pinned: false, created_at: "", updated_at: "",
+      isCustom: false, isRich: true, rich: rf,
     }));
-    let all = [...custom, ...builtin];
-    if (category !== "all") all = all.filter((f) => f.category === category);
+    let all = [...custom, ...rich];
+    if (category !== "all") all = all.filter(f => f.category === category);
     if (search) {
       const q = search.toLowerCase();
-      all = all.filter((f) => f.title.toLowerCase().includes(q) || f.formula.toLowerCase().includes(q) || f.description.toLowerCase().includes(q));
+      all = all.filter(f =>
+        f.title.toLowerCase().includes(q) ||
+        f.formula.toLowerCase().includes(q) ||
+        f.description.toLowerCase().includes(q) ||
+        (f.tags && f.tags.some(tag => tag.toLowerCase().includes(q))) ||
+        (f.rich && (f.rich.vars.toLowerCase().includes(q) || f.rich.usage.toLowerCase().includes(q)))
+      );
     }
     return all;
-  }, [formulas, category, search, builtinFormulas]);
+  }, [formulas, category, search]);
 
-  const openNew = () => { setEditId(null); setTitle(""); setFormula(""); setDesc(""); setCat("allgemein"); setModuleId(null); setTags(""); setShowModal(true); };
-  const openEdit = (f: MathFormula) => { setEditId(f.id); setTitle(f.title); setFormula(f.formula); setDesc(f.description); setCat(f.category); setModuleId(f.module_id); setTags(f.tags.join(", ")); setShowModal(true); };
+  const openNew = () => { setEditId(null); setFTitle(""); setFFormula(""); setFDesc(""); setFCat("allgemein"); setModuleId(null); setFTags(""); setShowModal(true); };
+  const openEdit = (f: MathFormula) => { setEditId(f.id); setFTitle(f.title); setFFormula(f.formula); setFDesc(f.description); setFCat(f.category); setModuleId(f.module_id); setFTags(f.tags.join(", ")); setShowModal(true); };
 
   const save = async () => {
-    if (!userId || !title || !formula) return;
-    const entry = { user_id: userId, title, formula, category: cat, description: desc, module_id: moduleId, tags: tags.split(",").map((t) => t.trim()).filter(Boolean) };
+    if (!userId || !fTitle || !fFormula) return;
+    const entry = { user_id: userId, title: fTitle, formula: fFormula, category: fCat, description: fDesc, module_id: moduleId, tags: fTags.split(",").map(tg => tg.trim()).filter(Boolean) };
     if (editId) {
       const { data } = await supabase.from("math_formulas").update(entry).eq("id", editId).select().single();
-      if (data) setFormulas((prev) => prev.map((f) => f.id === editId ? (data as MathFormula) : f));
+      if (data) setFormulas(prev => prev.map(f => f.id === editId ? (data as MathFormula) : f));
     } else {
       const { data } = await supabase.from("math_formulas").insert(entry).select().single();
-      if (data) setFormulas((prev) => [data as MathFormula, ...prev]);
+      if (data) setFormulas(prev => [data as MathFormula, ...prev]);
     }
     setShowModal(false);
   };
 
   const remove = async (id: string) => {
     await supabase.from("math_formulas").delete().eq("id", id);
-    setFormulas((prev) => prev.filter((f) => f.id !== id));
+    setFormulas(prev => prev.filter(f => f.id !== id));
   };
+
+  /* ─── Interactive calculator for a formula ─── */
+  const calcResult = useCallback((calc: { vars: string[]; expr: string }, vars: Record<string, string>): string | null => {
+    const allFilled = calc.vars.every(v => vars[v] && !isNaN(parseFloat(vars[v])));
+    if (!allFilled) return null;
+    try {
+      let expr = calc.expr;
+      for (const [v, val] of Object.entries(vars)) {
+        expr = expr.replace(new RegExp(`\\b${v}\\b`, "g"), `(${parseFloat(val)})`);
+      }
+      const result = Function(`"use strict"; return (${expr})`)();
+      if (typeof result !== "number" || !isFinite(result)) return null;
+      return result.toPrecision(10).replace(/\.?0+$/, "");
+    } catch { return null; }
+  }, []);
+
+  /* ─── Navigate to related formula ─── */
+  const goToRelated = (id: string) => {
+    setExpandedId(id);
+    setSearch("");
+    setCategory("all");
+    setTimeout(() => {
+      document.getElementById(`formula-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+  };
+
+  const catCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: RICH_FORMULAS.length + formulas.length };
+    RICH_FORMULAS.forEach(f => { counts[f.category] = (counts[f.category] || 0) + 1; });
+    formulas.forEach(f => { counts[f.category] = (counts[f.category] || 0) + 1; });
+    return counts;
+  }, [formulas]);
 
   return (
     <div>
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <h2 className="text-lg font-semibold text-surface-900">{t("math.formulaCollection")}</h2>
-        <button onClick={openNew} className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 self-start sm:self-auto whitespace-nowrap">+ {t("math.ownFormula")}</button>
+        <div className="flex gap-2 self-start sm:self-auto">
+          <button onClick={() => setExamMode(!examMode)} className={`px-3 py-2 rounded-lg text-xs font-medium transition ${examMode ? "bg-danger-600 text-white" : "bg-surface-100 text-surface-700 hover:bg-surface-200"}`}>
+            {examMode ? t("math.fc.examModeOn") : t("math.fc.examMode")}
+          </button>
+          <button onClick={openNew} className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 whitespace-nowrap">+ {t("math.ownFormula")}</button>
+        </div>
       </div>
 
-      {/* Search + Category filter */}
-      <div className="flex gap-3 mb-4">
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("math.searchFormulas")} className="flex-1 bg-surface-100 text-surface-900 rounded-lg px-4 py-2 border border-surface-200 text-sm" />
+      {/* Search with synonym support */}
+      <div className="mb-4">
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t("math.fc.searchPlaceholder")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />
       </div>
+
+      {/* Category filter with counts */}
       <div className="flex flex-wrap gap-2 mb-4">
-        <button onClick={() => setCategory("all")} className={`px-3 py-1.5 rounded-lg text-xs ${category === "all" ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{t("math.all")}</button>
-        {formulaCategories.map((c) => (
-          <button key={c.key} onClick={() => setCategory(c.key)} className={`px-3 py-1.5 rounded-lg text-xs ${category === c.key ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>{c.label}</button>
+        <button onClick={() => setCategory("all")} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${category === "all" ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>
+          {t("math.all")} ({catCounts.all || 0})
+        </button>
+        {formulaCategories.map(c => (
+          <button key={c.key} onClick={() => setCategory(c.key)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${category === c.key ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}>
+            {c.label} ({catCounts[c.key] || 0})
+          </button>
         ))}
       </div>
 
-      {/* Formulas List */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3">
-        {allFormulas.map((f) => (
-          <div key={f.id} className="bg-surface-100 rounded-lg px-4 py-3 group">
-            <div className="flex items-start justify-between">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  {(f as { isCustom?: boolean }).isCustom && <span className="text-xs bg-brand-50 text-brand-500 px-1.5 py-0.5 rounded">{t("math.custom")}</span>}
-                  <span className="text-xs bg-surface-200 text-surface-700 px-1.5 py-0.5 rounded">{formulaCategories.find((c) => c.key === f.category)?.label}</span>
+      {/* Formula count */}
+      <p className="text-surface-400 text-xs mb-3">{allFormulas.length} {t("math.fc.formulasFound")}</p>
+
+      {/* Formulas Grid */}
+      <div className="space-y-2">
+        {allFormulas.map(f => {
+          const isExpanded = expandedId === f.id && !examMode;
+          const rf = f.rich;
+          return (
+            <div key={f.id} id={`formula-${f.id}`} className={`bg-surface-100 rounded-lg transition ${isExpanded ? "ring-2 ring-brand-600/30" : ""}`}>
+              {/* Compact card */}
+              <div className="px-4 py-3 cursor-pointer group" onClick={() => setExpandedId(isExpanded ? null : f.id)}>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {f.isCustom && <span className="text-xs bg-brand-600/10 text-brand-600 px-1.5 py-0.5 rounded">{t("math.custom")}</span>}
+                      <span className="text-xs bg-surface-200 text-surface-700 px-1.5 py-0.5 rounded">{formulaCategories.find(c => c.key === f.category)?.label}</span>
+                      {!examMode && <span className="text-surface-400 text-xs opacity-0 group-hover:opacity-100 transition">{isExpanded ? t("math.fc.collapse") : t("math.fc.expand")}</span>}
+                    </div>
+                    <div className="text-surface-900 font-medium text-sm mt-1">{f.title}</div>
+                    <div className="text-success-600 font-mono text-sm mt-1">{f.formula}</div>
+                    {!examMode && f.description && <div className="text-surface-400 text-xs mt-1">{f.description}</div>}
+                  </div>
+                  {f.isCustom && (
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                      <button onClick={e => { e.stopPropagation(); openEdit(f as MathFormula); }} className="text-surface-400 hover:text-brand-600 text-sm px-1">✏️</button>
+                      <button onClick={e => { e.stopPropagation(); remove(f.id); }} className="text-surface-400 hover:text-danger-600 text-sm px-1">🗑️</button>
+                    </div>
+                  )}
                 </div>
-                <div className="text-surface-900 font-medium text-sm mt-1">{f.title}</div>
-                <div className="text-success-600 font-mono text-sm mt-1">{f.formula}</div>
-                {f.description && <div className="text-surface-400 text-xs mt-1">{f.description}</div>}
               </div>
-              {(f as { isCustom?: boolean }).isCustom && (
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => openEdit(f as MathFormula)} className="text-surface-400 hover:text-brand-600 text-xs">✏️</button>
-                  <button onClick={() => remove(f.id)} className="text-surface-400 hover:text-danger-600 text-xs">🗑️</button>
+
+              {/* Expanded detail (only for rich formulas, not in exam mode) */}
+              {isExpanded && rf && (
+                <div className="border-t border-surface-200 px-4 py-4 space-y-3">
+                  {/* Variables */}
+                  <div>
+                    <p className="text-xs font-semibold text-surface-700 mb-1">{t("math.fc.variables")}</p>
+                    <p className="text-surface-600 text-xs">{rf.vars}</p>
+                  </div>
+
+                  {/* When to use */}
+                  <div>
+                    <p className="text-xs font-semibold text-surface-700 mb-1">{t("math.fc.whenToUse")}</p>
+                    <p className="text-surface-600 text-xs">{rf.usage}</p>
+                  </div>
+
+                  {/* Example */}
+                  <div>
+                    <p className="text-xs font-semibold text-surface-700 mb-1">{t("math.fc.example")}</p>
+                    <div className="bg-white rounded-lg px-3 py-2 font-mono text-xs text-surface-900">{rf.example}</div>
+                  </div>
+
+                  {/* Common mistakes */}
+                  <div>
+                    <p className="text-xs font-semibold text-danger-600 mb-1">{t("math.fc.commonMistakes")}</p>
+                    <p className="text-surface-600 text-xs">{rf.mistakes}</p>
+                  </div>
+
+                  {/* Interactive Calculator */}
+                  {rf.calc && (
+                    <div className="bg-white rounded-lg p-3">
+                      <p className="text-xs font-semibold text-brand-600 mb-2">{t("math.fc.tryIt")}</p>
+                      <div className="flex flex-wrap gap-2 items-center">
+                        {rf.calc.vars.map(v => (
+                          <div key={v} className="flex items-center gap-1">
+                            <span className="text-xs font-mono text-surface-700">{v}=</span>
+                            <input
+                              value={calcVars[`${rf.id}_${v}`] || ""}
+                              onChange={e => setCalcVars(prev => ({ ...prev, [`${rf.id}_${v}`]: e.target.value }))}
+                              className="w-16 bg-surface-50 text-surface-900 rounded px-2 py-1 border border-surface-200 text-xs font-mono"
+                              placeholder="0"
+                              onClick={e => e.stopPropagation()}
+                            />
+                          </div>
+                        ))}
+                        {(() => {
+                          const vars: Record<string, string> = {};
+                          rf.calc!.vars.forEach(v => { vars[v] = calcVars[`${rf.id}_${v}`] || ""; });
+                          const result = calcResult(rf.calc!, vars);
+                          return result ? (
+                            <span className="text-success-600 font-mono text-sm font-semibold ml-2">= {result}</span>
+                          ) : null;
+                        })()}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Related formulas */}
+                  {rf.related.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-surface-700 mb-1">{t("math.fc.related")}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {rf.related.map(relId => {
+                          const rel = RICH_FORMULAS.find(r => r.id === relId);
+                          return rel ? (
+                            <button key={relId} onClick={e => { e.stopPropagation(); goToRelated(relId); }} className="px-2.5 py-1 rounded-lg bg-brand-600/10 text-brand-600 text-xs font-medium hover:bg-brand-600/20 transition">
+                              {rel.title}
+                            </button>
+                          ) : null;
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {allFormulas.length === 0 && <p className="text-surface-400 text-sm text-center py-8">{t("math.noFormulasFound")}</p>}
 
-      {/* Modal */}
+      {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowModal(false)}>
-          <div className="bg-white rounded-2xl p-6 w-full max-w-lg border border-surface-200" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-lg border border-surface-200" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-semibold text-surface-900 mb-4">{editId ? t("math.editFormula") : t("math.newFormula")}</h3>
             <div className="space-y-3">
-              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t("math.title")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />
-              <input value={formula} onChange={(e) => setFormula(e.target.value)} placeholder={t("math.formulaPlaceholder")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 font-mono text-sm" />
-              <input value={desc} onChange={(e) => setDesc(e.target.value)} placeholder={t("math.description")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />
-              <select value={cat} onChange={(e) => setCat(e.target.value as FormulaCategory)} className="w-full bg-surface-100 text-surface-700 rounded-lg px-4 py-2.5 border border-surface-200 text-sm">
-                {formulaCategories.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
+              <input value={fTitle} onChange={e => setFTitle(e.target.value)} placeholder={t("math.title")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />
+              <input value={fFormula} onChange={e => setFFormula(e.target.value)} placeholder={t("math.formulaPlaceholder")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 font-mono text-sm" />
+              <input value={fDesc} onChange={e => setFDesc(e.target.value)} placeholder={t("math.description")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />
+              <select value={fCat} onChange={e => setFCat(e.target.value as FormulaCategory)} className="w-full bg-surface-100 text-surface-700 rounded-lg px-4 py-2.5 border border-surface-200 text-sm">
+                {formulaCategories.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
               </select>
-              <select value={moduleId || ""} onChange={(e) => setModuleId(e.target.value || null)} className="w-full bg-surface-100 text-surface-700 rounded-lg px-4 py-2.5 border border-surface-200 text-sm">
+              <select value={moduleId || ""} onChange={e => setModuleId(e.target.value || null)} className="w-full bg-surface-100 text-surface-700 rounded-lg px-4 py-2.5 border border-surface-200 text-sm">
                 <option value="">{t("math.noModule")}</option>
-                {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+                {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
               </select>
-              <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder={t("math.tagsPlaceholder")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />
+              <input value={fTags} onChange={e => setFTags(e.target.value)} placeholder={t("math.tagsPlaceholder")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={() => setShowModal(false)} className="flex-1 py-2.5 rounded-xl bg-surface-100 text-surface-700 hover:bg-surface-200">{t("math.cancel")}</button>
