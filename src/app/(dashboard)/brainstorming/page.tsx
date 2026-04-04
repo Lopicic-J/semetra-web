@@ -338,7 +338,7 @@ export default function BrainstormingPage() {
                   </span>
                 )}
                 <p className="text-xs text-surface-400 mt-1">
-                  {new Date(s.updated_at).toLocaleDateString("de-CH")}
+                  {new Date(s.updated_at).toLocaleDateString(undefined)}
                 </p>
               </button>
             );
@@ -507,6 +507,7 @@ function BrainstormEditor({
 
   // Undo
   const [undoStack, setUndoStack] = useState<LocalIdea[][]>([]);
+  const [redoStack, setRedoStack] = useState<LocalIdea[][]>([]);
 
   // Refs
   const inputRefs = useRef<Map<number, HTMLInputElement>>(new Map());
@@ -604,14 +605,25 @@ function BrainstormEditor({
   /* ── Undo ───────────────────────────────────────────────────────── */
   function pushUndo() {
     setUndoStack(prev => [...prev.slice(-19), ideas.map(i => ({ ...i }))]);
+    setRedoStack([]);
   }
 
   function undo() {
     if (undoStack.length === 0) return;
+    setRedoStack(prev => [...prev.slice(-19), ideas.map(i => ({ ...i }))]);
     const prev = undoStack[undoStack.length - 1];
     setUndoStack(s => s.slice(0, -1));
     setIdeas(prev);
     saveIdeas(prev);
+  }
+
+  function redo() {
+    if (redoStack.length === 0) return;
+    setUndoStack(prev => [...prev.slice(-19), ideas.map(i => ({ ...i }))]);
+    const next = redoStack[redoStack.length - 1];
+    setRedoStack(s => s.slice(0, -1));
+    setIdeas(next);
+    saveIdeas(next);
   }
 
   /* ── Idea operations ────────────────────────────────────────────── */
@@ -809,6 +821,9 @@ function BrainstormEditor({
     } else if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       undo();
+    } else if (e.key === "y" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      redo();
     } else if (e.key === "f" && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       setShowSearch(true);
@@ -821,6 +836,10 @@ function BrainstormEditor({
       if (e.key === "z" && (e.ctrlKey || e.metaKey) && editIdx === -1) {
         e.preventDefault();
         undo();
+      }
+      if (e.key === "y" && (e.ctrlKey || e.metaKey) && editIdx === -1) {
+        e.preventDefault();
+        redo();
       }
       if (e.key === "f" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
@@ -901,11 +920,32 @@ function BrainstormEditor({
       if (!token) throw new Error("Auth");
 
       const ideaTexts = ideas.map(i => `${"  ".repeat(i.indent_level)}- ${i.content}`).join("\n");
+      const techName = tech.label;
+      const techDesc = tech.description;
+      const techContext = `Brainstorming-Methode: ${techName}\nBeschreibung: ${techDesc}\n\n`;
       const prompts: Record<string, string> = {
-        expand: `Erweitere diese Brainstorming-Ideen mit neuen Perspektiven und Unterpunkten:\n\n${ideaTexts}\n\nGib 5-8 neue Ideen als Aufzählung zurück.`,
-        structure: `Analysiere diese Brainstorming-Ideen und schlage eine bessere Struktur/Gruppierung vor:\n\n${ideaTexts}\n\nGib eine strukturierte Gliederung zurück.`,
-        summarize: `Fasse diese Brainstorming-Ideen in 3-5 Kernaussagen zusammen:\n\n${ideaTexts}`,
-        gaps: `Analysiere diese Brainstorming-Ideen und identifiziere Lücken — was fehlt noch?\n\n${ideaTexts}\n\nGib fehlende Aspekte als Aufzählung zurück.`,
+        expand: session.technique === "scamper"
+          ? `${techContext}Erweitere diese SCAMPER-Analyse. Für jede der 7 Kategorien (Substituieren, Kombinieren, Anpassen, Modifizieren, Umnutzen, Eliminieren, Umkehren), liefere 1-2 neue Ideen:\n\n${ideaTexts}\n\nAntworte mit konkreten, umsetzbaren Ideen pro Kategorie.`
+          : session.technique === "pro_contra"
+          ? `${techContext}Erweitere diese Pro/Contra-Analyse. Ergänze jeweils 2-3 neue Argumente pro Seite und bewerte deren Gewicht:\n\n${ideaTexts}\n\nStrukturiere klar nach Pro, Contra und Neutral.`
+          : session.technique === "starbursting"
+          ? `${techContext}Erweitere diese W-Fragen-Analyse. Für jede Frage-Dimension (Wer, Was, Wo, Wann, Warum, Wie), generiere 2 vertiefende Unterfragen:\n\n${ideaTexts}\n\nStrukturiere nach Frage-Kategorie.`
+          : session.technique === "reverse"
+          ? `${techContext}Erweitere diese Reverse-Brainstorming-Analyse. Generiere 3-4 neue "Wie könnte man es verschlechtern?"-Ideen und leite daraus konstruktive Lösungen ab:\n\n${ideaTexts}\n\nStrukturiere: Problem → Umkehr → Lösung.`
+          : session.technique === "brainwriting"
+          ? `${techContext}Baue auf diesen Kettenreaktions-Ideen auf. Nimm die letzte Idee und entwickle sie in 3 verschiedene Richtungen weiter (Variante A, B, C):\n\n${ideaTexts}\n\nZeige den Gedankenfluss.`
+          : session.technique === "minddump"
+          ? `${techContext}Analysiere diesen Rapid-Braindump und identifiziere Cluster/Themen. Gruppiere die Ideen und ergänze 3-5 neue schnelle Ideen pro Cluster:\n\n${ideaTexts}\n\nKurz und knapp.`
+          : `${techContext}Erweitere diese Brainstorming-Ideen mit neuen Perspektiven und Unterpunkten:\n\n${ideaTexts}\n\nGib 5-8 neue Ideen als Aufzählung zurück.`,
+        structure: `${techContext}Analysiere diese Brainstorming-Ideen und schlage eine bessere Struktur/Gruppierung vor:\n\n${ideaTexts}\n\nGib eine strukturierte Gliederung zurück.`,
+        summarize: `${techContext}Fasse diese Brainstorming-Ideen in 3-5 Kernaussagen zusammen:\n\n${ideaTexts}`,
+        gaps: session.technique === "scamper"
+          ? `${techContext}Welche SCAMPER-Kategorien wurden noch nicht ausreichend beleuchtet?\n\n${ideaTexts}\n\nListe fehlende Aspekte pro Kategorie.`
+          : session.technique === "pro_contra"
+          ? `${techContext}Welche Argumente fehlen in dieser Pro/Contra-Analyse? Gibt es blinde Flecken?\n\n${ideaTexts}\n\nListe fehlende Perspektiven.`
+          : session.technique === "starbursting"
+          ? `${techContext}Welche W-Fragen wurden noch nicht gestellt? Welche Dimensionen fehlen?\n\n${ideaTexts}\n\nListe ungestellte Fragen.`
+          : `${techContext}Analysiere diese Brainstorming-Ideen und identifiziere Lücken — was fehlt noch?\n\n${ideaTexts}\n\nGib fehlende Aspekte als Aufzählung zurück.`,
       };
 
       const res = await fetch("/api/ai/chat", {
@@ -1025,6 +1065,9 @@ function BrainstormEditor({
           </button>
           <button onClick={undo} disabled={undoStack.length === 0} className="p-2 rounded-lg bg-surface-100 border border-surface-200 text-surface-700 hover:text-surface-900 hover:border-surface-300 transition disabled:opacity-30" title="Ctrl+Z">
             <Undo2 size={16} />
+          </button>
+          <button onClick={redo} disabled={redoStack.length === 0} className="p-2 rounded-lg bg-surface-100 border border-surface-200 text-surface-700 hover:text-surface-900 hover:border-surface-300 transition disabled:opacity-30" title="Ctrl+Y">
+            <Undo2 size={16} className="transform scale-x-[-1]" />
           </button>
           <button onClick={() => setShowAi(s => !s)} className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-brand-600 border border-brand-500 text-white hover:bg-brand-500 text-xs font-medium transition">
             <Bot size={16} /> KI
@@ -1149,6 +1192,7 @@ function BrainstormEditor({
                 ["Alt + \u2191/\u2193", t("brainstorming.shortcutMove")],
                 ["Ctrl + P", t("brainstorming.shortcutPriority")],
                 ["Ctrl + Z", t("brainstorming.shortcutUndo")],
+                ["Ctrl + Y", t("brainstorming.shortcutRedo") || "Redo"],
                 ["Ctrl + F", t("brainstorming.shortcutSearch")],
                 ["Escape", t("brainstorming.shortcutEscape")],
               ].map(([key, desc]) => (
@@ -1167,7 +1211,11 @@ function BrainstormEditor({
         <div className="mb-6 p-4 rounded-xl border border-surface-200 bg-surface-50 flex items-start gap-3">
           <Sparkles size={16} className="flex-shrink-0 mt-0.5" style={{ color: tech.color }} />
           <div>
-            <p className="text-sm text-surface-900 font-medium leading-relaxed">{tech.prompts[0]}</p>
+            <div className="space-y-1">
+              {tech.prompts.slice(0, 4).map((p, pi) => (
+                <p key={pi} className={`text-sm leading-relaxed ${pi === 0 ? "text-surface-900 font-medium" : "text-surface-600"}`}>{pi > 0 ? "• " : ""}{p}</p>
+              ))}
+            </div>
             <p className="text-xs text-surface-500 mt-1.5">{t("brainstorming.startTyping")}</p>
           </div>
         </div>

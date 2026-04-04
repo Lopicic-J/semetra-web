@@ -400,7 +400,7 @@ function StudyMode({
         {!flipped && card.card_type === "basic" && (
           <div className="mt-4 flex justify-center gap-4 text-xs text-surface-400">
             <span><kbd className="px-1.5 py-0.5 bg-surface-100 rounded text-surface-500">Space</kbd> {t("fc.flip")}</span>
-            <span><kbd className="px-1.5 py-0.5 bg-surface-100 rounded text-surface-500">F</kbd> Focus</span>
+            <span><kbd className="px-1.5 py-0.5 bg-surface-100 rounded text-surface-500">F</kbd> {t("fc.focus") || "Focus"}</span>
             <span><kbd className="px-1.5 py-0.5 bg-surface-100 rounded text-surface-500">Esc</kbd> {t("fc.exit")}</span>
           </div>
         )}
@@ -437,7 +437,7 @@ function CardDialog({
   const [back, setBack] = useState(card?.back ?? "");
   const [moduleId, setModuleId] = useState(card?.module_id ?? "");
   const [examId, setExamId] = useState(card?.exam_id ?? "");
-  const [deckName, setDeckName] = useState(card?.deck_name ?? "Standard");
+  const [deckName, setDeckName] = useState(card?.deck_name ?? (t("flashcards.defaultDeck") || "Standard"));
   const [tags, setTags] = useState(card?.tags?.join(", ") ?? "");
   const [choices, setChoices] = useState<string[]>(card?.choices ?? ["", "", "", ""]);
 
@@ -499,7 +499,7 @@ function CardDialog({
             <label className="text-xs font-medium text-surface-500 mb-1 block">{t("fc.linkExam")}</label>
             <select className="input w-full" value={examId} onChange={e => setExamId(e.target.value)}>
               <option value="">— {t("fc.noExamLink")} —</option>
-              {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title} ({new Date(e.start_dt).toLocaleDateString("de-CH")})</option>)}
+              {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title} ({new Date(e.start_dt).toLocaleDateString(undefined)})</option>)}
             </select>
           </div>
         )}
@@ -513,7 +513,7 @@ function CardDialog({
             className="input w-full min-h-[80px] resize-y"
             value={front}
             onChange={e => setFront(e.target.value)}
-            placeholder={cardType === "cloze" ? "Die Hauptstadt der Schweiz ist {{c1::Bern}}." : t("flashcards.newCardFront")}
+            placeholder={cardType === "cloze" ? (t("flashcards.clozePlaceholder") || "Die Hauptstadt der Schweiz ist {{c1::Bern}}.") : t("flashcards.newCardFront")}
           />
         </div>
 
@@ -584,7 +584,7 @@ function CardDialog({
                 card_type: cardType,
                 module_id: moduleId || null,
                 exam_id: examId || null,
-                deck_name: deckName.trim() || "Standard",
+                deck_name: deckName.trim() || (t("flashcards.defaultDeck") || "Standard"),
                 tags: tags.split(",").map(t => t.trim()).filter(Boolean),
                 choices: cardType === "mc" ? choices.filter(c => c.trim()) : null,
               });
@@ -616,7 +616,7 @@ function BulkCreatePanel({
   const supabase = createClient();
   const [text, setText] = useState("");
   const [moduleId, setModuleId] = useState("");
-  const [deckName, setDeckName] = useState("Standard");
+  const [deckName, setDeckName] = useState(t("flashcards.defaultDeck") || "Standard");
   const [saving, setSaving] = useState(false);
 
   // Format: Question? | Answer (one per line)
@@ -635,7 +635,7 @@ function BulkCreatePanel({
         back: back || "",
         card_type: hasCloze(front || "") ? "cloze" : "basic",
         module_id: moduleId || null,
-        deck_name: deckName || "Standard",
+        deck_name: deckName || (t("flashcards.defaultDeck") || "Standard"),
         source: "user" as const,
         tags: [] as string[],
       };
@@ -664,7 +664,7 @@ function BulkCreatePanel({
             <option value="">— {t("tasks.modal.moduleEmpty")} —</option>
             {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
-          <input className="input" value={deckName} onChange={e => setDeckName(e.target.value)} placeholder="Deck" />
+          <input className="input" value={deckName} onChange={e => setDeckName(e.target.value)} placeholder={t("flashcards.deckPlaceholder") || "Deck"} />
         </div>
 
         <textarea
@@ -726,7 +726,7 @@ function AIGeneratePanel({
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ text, module_id: moduleId || undefined, filename: "Texteingabe" }),
+        body: JSON.stringify({ text, module_id: moduleId || undefined, filename: t("flashcards.textInput") || "Texteingabe" }),
       });
 
       const data = await res.json();
@@ -734,7 +734,7 @@ function AIGeneratePanel({
         setResult(data.error || t("flashcards.aiGenerationError"));
         return;
       }
-      setResult(t("flashcards.cardsCreated", { count: String(data.count), filename: "Texteingabe" }));
+      setResult(t("flashcards.cardsCreated", { count: String(data.count), filename: t("flashcards.textInput") || "Texteingabe" }));
       onCreated();
     } catch {
       setResult(t("flashcards.aiGenerationError"));
@@ -786,7 +786,7 @@ function AIGeneratePanel({
         />
 
         {result && (
-          <div className={`mt-3 p-3 rounded-lg text-sm ${result.includes("Fehler") || result.includes("error") ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"}`}>
+          <div className={`mt-3 p-3 rounded-lg text-sm ${result.includes("❌") || result.includes("Error") || result.includes("error") || result.includes("Fehler") || result.startsWith("⚠") ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"}`}>
             {result}
           </div>
         )}
@@ -1137,7 +1137,7 @@ export default function FlashcardsPage() {
         </select>
         {decks.length > 1 && (
           <select className="input text-sm py-1.5" value={filterDeck} onChange={e => setFilterDeck(e.target.value)}>
-            <option value="">— Deck —</option>
+            <option value="">{t("flashcards.allDecks") || "— Deck —"}</option>
             {decks.map(d => <option key={d} value={d}>{d}</option>)}
           </select>
         )}
@@ -1215,7 +1215,7 @@ export default function FlashcardsPage() {
                     <span className="text-[10px] text-amber-600 font-medium">{t("flashcards.dueLabel")}</span>
                   ) : (
                     <span className="text-[10px] text-green-600">
-                      {new Date(card.next_review!).toLocaleDateString("de-CH")}
+                      {new Date(card.next_review!).toLocaleDateString(undefined)}
                     </span>
                   )}
                 </div>

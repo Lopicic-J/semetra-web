@@ -825,24 +825,44 @@ function CalculatorTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
       )}
 
       {/* Button Grid */}
-      <div className={`grid gap-1.5 ${showSci ? "grid-cols-10" : "grid-cols-4"}`}>
-        {showSci && (
-          <>
-            {/* Scientific buttons (left 6 cols) */}
-            {CALC_SCI.flat().map((btn, i) => (
-              <button key={`sci-${i}`} onClick={() => handleButton(btn)} className={`py-2 sm:py-2.5 rounded-lg font-mono text-xs font-medium transition-all active:scale-95 col-span-1 ${btnStyle(btn)}`}>
+      {showSci ? (
+        <div className="flex gap-3">
+          {/* Scientific panel */}
+          <div className="flex-1 min-w-0">
+            <div className="grid grid-cols-4 gap-1">
+              {CALC_SCI.map((row, ri) => (
+                row.map((btn, ci) => (
+                  <button key={`sci-${ri}-${ci}`} onClick={() => handleButton(btn)} className={`py-2 sm:py-2.5 rounded-lg font-mono text-[11px] sm:text-xs font-medium transition-all active:scale-95 ${btnStyle(btn)}`}>
+                    {btn}
+                  </button>
+                ))
+              ))}
+            </div>
+          </div>
+          {/* Basic number pad */}
+          <div className="flex-1 min-w-0">
+            <div className="grid grid-cols-4 gap-1.5">
+              {CALC_BASIC.map((row, ri) => (
+                row.map((btn, ci) => (
+                  <button key={`basic-${ri}-${ci}`} onClick={() => handleButton(btn)} className={`py-2.5 sm:py-3 rounded-lg font-mono text-sm sm:text-base font-semibold transition-all active:scale-95 ${btnStyle(btn)}`}>
+                    {btn}
+                  </button>
+                ))
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-4 gap-1.5 max-w-xs mx-auto">
+          {CALC_BASIC.map((row, ri) => (
+            row.map((btn, ci) => (
+              <button key={`basic-${ri}-${ci}`} onClick={() => handleButton(btn)} className={`py-3 rounded-lg font-mono text-base font-semibold transition-all active:scale-95 ${btnStyle(btn)}`}>
                 {btn}
               </button>
-            ))}
-          </>
-        )}
-        {/* Basic buttons (right 4 cols or full width) */}
-        {CALC_BASIC.flat().map((btn, i) => (
-          <button key={`basic-${i}`} onClick={() => handleButton(btn)} className={`py-2.5 sm:py-3 rounded-lg font-mono text-sm sm:text-base font-semibold transition-all active:scale-95 ${showSci ? "col-span-1" : ""} ${btnStyle(btn)}`}>
-            {btn}
-          </button>
-        ))}
-      </div>
+            ))
+          ))}
+        </div>
+      )}
 
       {/* Keyboard hint */}
       <p className="text-surface-400 text-xs mt-2 text-center">{t("math.calc.keyboardHint")}</p>
@@ -975,9 +995,10 @@ function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, 
   const [coeffC, setCoeffC] = useState("0");
 
   // System mode
-  const [sysA1, setSysA1] = useState(""); const [sysB1, setSysB1] = useState(""); const [sysC1, setSysC1] = useState("");
-  const [sysA2, setSysA2] = useState(""); const [sysB2, setSysB2] = useState(""); const [sysC2, setSysC2] = useState("");
-  const [sysA3, setSysA3] = useState(""); const [sysB3, setSysB3] = useState(""); const [sysC3_1, setSysC3_1] = useState(""); const [sysD3, setSysD3] = useState("");
+  const [sysA1, setSysA1] = useState(""); const [sysB1, setSysB1] = useState(""); const [sysR1, setSysR1] = useState("");
+  const [sysA2, setSysA2] = useState(""); const [sysB2, setSysB2] = useState(""); const [sysR2, setSysR2] = useState("");
+  const [sysC1, setSysC1] = useState(""); const [sysC2, setSysC2] = useState("");
+  const [sysA3, setSysA3] = useState(""); const [sysB3, setSysB3] = useState(""); const [sysC3, setSysC3] = useState(""); const [sysR3, setSysR3] = useState("");
   const [sysSize, setSysSize] = useState<2 | 3>(2);
 
   // Result
@@ -1008,13 +1029,13 @@ function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, 
   function solveSystemLocal() {
     if (checkLimit && !checkLimit()) return;
     if (sysSize === 2) {
-      const res = solveSystem2Steps(Number(sysA1), Number(sysB1), Number(sysC1), Number(sysA2), Number(sysB2), Number(sysC2));
+      const res = solveSystem2Steps(Number(sysA1), Number(sysB1), Number(sysR1), Number(sysA2), Number(sysB2), Number(sysR2));
       setResult(res);
       setError("");
-      onSave("equations", `${sysA1}x+${sysB1}y=${sysC1}; ${sysA2}x+${sysB2}y=${sysC2}`, res.solutions.join(", "), moduleId);
+      onSave("equations", `${sysA1}x+${sysB1}y=${sysR1}; ${sysA2}x+${sysB2}y=${sysR2}`, res.solutions.join(", "), moduleId);
     } else {
       // 3x3 → use AI
-      solveWithAI(`${sysA1}x + ${sysB1}y + ${sysC1}z = ${sysC3_1}\n${sysA2}x + ${sysB2}y + ${sysC2 || "0"}z = ${sysD3}\n${sysA3}x + ${sysB3}y + ${sysC3_1}z = ${sysD3}`, "system");
+      solveWithAI(`${sysA1}x + ${sysB1}y + ${sysC1}z = ${sysR1}\n${sysA2}x + ${sysB2}y + ${sysC2}z = ${sysR2}\n${sysA3}x + ${sysB3}y + ${sysC3}z = ${sysR3}`, "system");
     }
   }
 
@@ -1029,7 +1050,7 @@ function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, 
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { setError("Nicht eingeloggt"); setLoading(false); return; }
+      if (!session) { setError(t("math.notLoggedIn")); setLoading(false); return; }
 
       const res = await fetch("/api/math/solve", {
         method: "POST",
@@ -1044,7 +1065,7 @@ function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, 
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Fehler");
+        setError(data.error || t("math.error"));
         setLoading(false);
         return;
       }
@@ -1174,20 +1195,20 @@ function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, 
               <input value={sysA1} onChange={e => setSysA1(e.target.value)} className={inputCls} placeholder="a₁" /><span>x +</span>
               <input value={sysB1} onChange={e => setSysB1(e.target.value)} className={inputCls} placeholder="b₁" /><span>y</span>
               {sysSize === 3 && <><span>+</span><input value={sysC1} onChange={e => setSysC1(e.target.value)} className={inputCls} placeholder="c₁" /><span>z</span></>}
-              <span>=</span><input value={sysC1} onChange={e => setSysC1(e.target.value)} className={inputCls} placeholder="r₁" />
+              <span>=</span><input value={sysR1} onChange={e => setSysR1(e.target.value)} className={inputCls} placeholder="r₁" />
             </div>
             <div className="flex items-center gap-1.5 justify-center text-sm text-surface-900 font-mono flex-wrap">
               <input value={sysA2} onChange={e => setSysA2(e.target.value)} className={inputCls} placeholder="a₂" /><span>x +</span>
               <input value={sysB2} onChange={e => setSysB2(e.target.value)} className={inputCls} placeholder="b₂" /><span>y</span>
               {sysSize === 3 && <><span>+</span><input value={sysC2} onChange={e => setSysC2(e.target.value)} className={inputCls} placeholder="c₂" /><span>z</span></>}
-              <span>=</span><input value={sysC2} onChange={e => setSysC2(e.target.value)} className={inputCls} placeholder="r₂" />
+              <span>=</span><input value={sysR2} onChange={e => setSysR2(e.target.value)} className={inputCls} placeholder="r₂" />
             </div>
             {sysSize === 3 && (
               <div className="flex items-center gap-1.5 justify-center text-sm text-surface-900 font-mono flex-wrap">
                 <input value={sysA3} onChange={e => setSysA3(e.target.value)} className={inputCls} placeholder="a₃" /><span>x +</span>
                 <input value={sysB3} onChange={e => setSysB3(e.target.value)} className={inputCls} placeholder="b₃" /><span>y +</span>
-                <input value={sysC3_1} onChange={e => setSysC3_1(e.target.value)} className={inputCls} placeholder="c₃" /><span>z =</span>
-                <input value={sysD3} onChange={e => setSysD3(e.target.value)} className={inputCls} placeholder="r₃" />
+                <input value={sysC3} onChange={e => setSysC3(e.target.value)} className={inputCls} placeholder="c₃" /><span>z =</span>
+                <input value={sysR3} onChange={e => setSysR3(e.target.value)} className={inputCls} placeholder="r₃" />
               </div>
             )}
           </div>
@@ -1467,7 +1488,7 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
       </div>
 
       <div className="bg-surface-50 rounded-lg p-3 border border-surface-200">
-        <div className="text-sm text-surface-600 mb-2">Matrix A</div>
+        <div className="text-sm text-surface-600 mb-2">{t("math.matrixA")}</div>
         <div className="border-l-2 border-r-2 border-surface-300 px-2 py-1 inline-block">
           {matA.map((row, r) => (
             <div key={r} className="flex gap-1">
@@ -1481,7 +1502,7 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
 
       {(operation === "multiply" || operation === "add" || operation === "subtract") && (
         <div className="bg-surface-50 rounded-lg p-3 border border-surface-200">
-          <div className="text-sm text-surface-600 mb-2">Matrix B</div>
+          <div className="text-sm text-surface-600 mb-2">{t("math.matrixB")}</div>
           <div className="border-l-2 border-r-2 border-surface-300 px-2 py-1 inline-block">
             {matB.map((row, r) => (
               <div key={r} className="flex gap-1">
@@ -1575,7 +1596,7 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
           if (checkLimit && !checkLimit()) return;
           onSave("matrices", expr, res, moduleId);
         } catch (e) {
-          setResult("Error: " + String(e));
+          setResult(t("math.error"));
         }
       }} className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700">{t("math.calculate")}</button>
 

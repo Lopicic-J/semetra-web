@@ -271,6 +271,7 @@ function MindMapEditor({ map, modules, onBack }: {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [undoStack, setUndoStack] = useState<MindMapNode[][]>([]);
+  const [redoStack, setRedoStack] = useState<MindMapNode[][]>([]);
   const canvasRef = useRef<HTMLDivElement>(null);
   const inlineInputRef = useRef<HTMLInputElement>(null);
   const dragRef = useRef<{ id: string; startX: number; startY: number; nodeX: number; nodeY: number } | null>(null);
@@ -470,6 +471,7 @@ function MindMapEditor({ map, modules, onBack }: {
   // ── Node operations ──
   function pushUndo() {
     setUndoStack(prev => [...prev.slice(-20), [...nodes]]);
+    setRedoStack([]);
   }
 
   async function addChild(parentId: string) {
@@ -554,6 +556,7 @@ function MindMapEditor({ map, modules, onBack }: {
   }
 
   async function toggleCollapse(id: string) {
+    pushUndo();
     const node = nodes.find(n => n.id === id);
     if (!node) return;
     const newCollapsed = !node.collapsed;
@@ -562,6 +565,7 @@ function MindMapEditor({ map, modules, onBack }: {
   }
 
   async function handleInlineEditSubmit(id: string) {
+    pushUndo();
     const text = inlineEditText.trim() || t("mindmaps.newNode");
     setInlineEditId(null);
     setNodes(prev => prev.map(n => n.id === id ? { ...n, label: text } : n));
@@ -571,13 +575,29 @@ function MindMapEditor({ map, modules, onBack }: {
 
   async function undoLast() {
     if (undoStack.length === 0) return;
+    setRedoStack(prev => [...prev.slice(-20), [...nodes]]);
     const prev = undoStack[undoStack.length - 1];
     setUndoStack(s => s.slice(0, -1));
     setNodes(prev);
     // Re-sync to DB (simplified: save all positions)
     for (const n of prev) {
-      await supabase.from("mindmap_nodes").update({ label: n.label, pos_x: n.pos_x, pos_y: n.pos_y, collapsed: n.collapsed }).eq("id", n.id);
+      await supabase.from("mindmap_nodes").update({ label: n.label, pos_x: n.pos_x, pos_y: n.pos_y, collapsed: n.collapsed, color: n.color, icon: n.icon, notes: n.notes }).eq("id", n.id);
     }
+  }
+
+  async function redoLast() {
+    if (redoStack.length === 0) return;
+    setUndoStack(prev => [...prev.slice(-20), [...nodes]]);
+    const next = redoStack[redoStack.length - 1];
+    setRedoStack(s => s.slice(0, -1));
+    setNodes(next);
+    next.forEach(n => {
+      supabase.from("mindmap_nodes").upsert({
+        id: n.id, map_id: map.id, label: n.label,
+        pos_x: n.pos_x, pos_y: n.pos_y, collapsed: n.collapsed,
+        color: n.color, icon: n.icon, notes: n.notes,
+      }).then();
+    });
   }
 
   async function toggleLayout() {
@@ -663,6 +683,9 @@ function MindMapEditor({ map, modules, onBack }: {
         case "z":
           if (e.ctrlKey || e.metaKey) { e.preventDefault(); undoLast(); }
           break;
+        case "y":
+          if (e.ctrlKey || e.metaKey) { e.preventDefault(); redoLast(); }
+          break;
       }
     }
 
@@ -737,7 +760,7 @@ function MindMapEditor({ map, modules, onBack }: {
         });
       }
       const h2c = (window as any).html2canvas;
-      if (!h2c) { alert("Export nicht verfügbar"); return; }
+      if (!h2c) { alert(t("mindmaps.exportFailed")); return; }
       const canvas = await h2c(el, { scale: 2, backgroundColor: "#f8fafc", useCORS: true });
       const url = canvas.toDataURL("image/png");
       const a = document.createElement("a");
@@ -745,7 +768,7 @@ function MindMapEditor({ map, modules, onBack }: {
       a.download = `${map.title}.png`;
       a.click();
     } catch {
-      alert("Export fehlgeschlagen. Bitte versuche es erneut.");
+      alert(t("mindmaps.exportFailed"));
     }
   }
 
@@ -825,12 +848,16 @@ function MindMapEditor({ map, modules, onBack }: {
           </button>
         )}
 
+        <button onClick={redoLast} disabled={redoStack.length === 0} className="p-1.5 rounded-lg bg-surface-100 text-surface-500 hover:bg-surface-200 disabled:opacity-30 transition" title="Redo (Ctrl+Y)">
+          <Undo2 size={14} className="transform scale-x-[-1]" />
+        </button>
+
         <div className="w-px h-5 bg-surface-200" />
 
         {/* Export dropdown */}
         <div className="relative group/export shrink-0">
           <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-surface-100 text-surface-600 hover:bg-surface-200">
-            <Download size={12} /> Export
+            <Download size={12} /> {t("mindmaps.export") || "Export"}
           </button>
           <div className="absolute right-0 top-full mt-1 bg-white border border-surface-200 rounded-xl shadow-lg py-1 w-40 opacity-0 invisible group-hover/export:opacity-100 group-hover/export:visible transition-all z-20">
             <button onClick={exportPNG} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-surface-700 hover:bg-surface-50">
