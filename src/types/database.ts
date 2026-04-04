@@ -334,6 +334,7 @@ export interface MindMapNode {
   label: string;
   notes: string | null;
   color: string;
+  text_color: string | null;
   icon: string | null;
   image_url: string | null;
   pos_x: number;

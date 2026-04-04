@@ -25,6 +25,21 @@ const NODE_COLORS = [
 
 const NODE_ICONS = ["", "💡","📌","⭐","🔥","✅","❓","📖","🎯","⚠️","💎","🧩","🔬","📝","🏗️","🧪"];
 
+const TEXT_COLORS = [
+  null,        // Standard (surface-900 — schwarz/weiss je nach mode)
+  "#000000",   // Schwarz
+  "#ffffff",   // Weiss
+  "#1e293b",   // Slate 800
+  "#475569",   // Slate 600
+  "#6d28d9",   // Violet
+  "#2563eb",   // Blue
+  "#059669",   // Emerald
+  "#dc2626",   // Red
+  "#d97706",   // Amber
+  "#db2777",   // Pink
+  "#0891b2",   // Cyan
+];
+
 // ─── Main Page ────────────────────────────────────────────────────────
 export default function MindMapsPage() {
   const { t } = useTranslation();
@@ -753,7 +768,7 @@ function MindMapEditor({ map, modules, onBack }: {
     setUndoStack(s => s.slice(0, -1));
     setNodes(prev);
     for (const n of prev) {
-      await supabase.from("mindmap_nodes").update({ label: n.label, pos_x: n.pos_x, pos_y: n.pos_y, collapsed: n.collapsed, color: n.color, icon: n.icon, notes: n.notes }).eq("id", n.id);
+      await supabase.from("mindmap_nodes").update({ label: n.label, pos_x: n.pos_x, pos_y: n.pos_y, collapsed: n.collapsed, color: n.color, text_color: n.text_color, icon: n.icon, notes: n.notes }).eq("id", n.id);
     }
   }
 
@@ -767,7 +782,7 @@ function MindMapEditor({ map, modules, onBack }: {
       supabase.from("mindmap_nodes").upsert({
         id: n.id, map_id: map.id, label: n.label,
         pos_x: n.pos_x, pos_y: n.pos_y, collapsed: n.collapsed,
-        color: n.color, icon: n.icon, notes: n.notes,
+        color: n.color, text_color: n.text_color, icon: n.icon, notes: n.notes,
       }).then();
     });
   }
@@ -1380,7 +1395,10 @@ function MindMapEditor({ map, modules, onBack }: {
                             onBlur={() => handleInlineEditSubmit(n.id)}
                           />
                         ) : (
-                          <span className={`text-sm truncate ${isRoot ? "font-bold" : "font-medium"} text-surface-900`}>
+                          <span
+                            className={`text-sm truncate ${isRoot ? "font-bold" : "font-medium"} ${n.text_color ? "" : "text-surface-900"}`}
+                            style={n.text_color ? { color: n.text_color } : undefined}
+                          >
                             {n.label || t("mindmaps.newNode")}
                           </span>
                         )}
@@ -1562,6 +1580,7 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
   const [label, setLabel] = useState(node.label);
   const [notes, setNotes] = useState(node.notes ?? "");
   const [color, setColor] = useState(node.color);
+  const [textColor, setTextColor] = useState<string | null>(node.text_color ?? null);
   const [icon, setIcon] = useState(node.icon ?? "");
   const [imageUrl, setImageUrl] = useState(node.image_url ?? "");
   const [links, setLinks] = useState<{ label: string; url: string }[]>(node.links ?? []);
@@ -1724,6 +1743,21 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
           </div>
 
           <div>
+            <label className="block text-sm font-medium text-surface-700 mb-2">{t("mindmaps.textColor")}</label>
+            <div className="flex gap-1.5 flex-wrap items-center">
+              {TEXT_COLORS.map((tc, i) => (
+                <button key={tc ?? "default"} type="button" onClick={() => setTextColor(tc)}
+                  className={`w-6 h-6 rounded-full border-2 transition-transform flex items-center justify-center text-[10px] font-bold ${textColor === tc ? "border-surface-800 scale-110" : "border-surface-300"}`}
+                  style={{ background: tc ?? undefined }}
+                  title={tc === null ? "Standard" : tc}
+                >
+                  {tc === null ? <span className="text-surface-500">A</span> : null}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
             <label className="block text-sm font-medium text-surface-700 mb-1">{t("mindmaps.nodeNotes")}</label>
             <textarea className="input resize-none text-sm" rows={3} value={notes} onChange={e => setNotes(e.target.value)}
               placeholder={t("mindmaps.placeholder")} />
@@ -1826,7 +1860,7 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
             <div className="flex-1" />
             <button onClick={onClose} className="btn-secondary">{t("mindmaps.cancel")}</button>
             <button
-              onClick={() => onSave({ label, notes: notes || null, color, icon: icon || null, image_url: imageUrl || null, links })}
+              onClick={() => onSave({ label, notes: notes || null, color, text_color: textColor, icon: icon || null, image_url: imageUrl || null, links })}
               className="btn-primary gap-1.5"
             >
               <Save size={14} /> {t("mindmaps.save")}

@@ -1381,6 +1381,7 @@
   "mindmaps.noModule": "— Ningún módulo —",
   "mindmaps.noExam": "— Ninguno —",
   "mindmaps.color": "Color",
+  "mindmaps.textColor": "Color del texto",
   "mindmaps.cancel": "Cancelar",
   "mindmaps.create": "Crear",
   "mindmaps.back": "Volver",
