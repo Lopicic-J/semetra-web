@@ -1384,7 +1384,8 @@ function MindMapEditor({ map, modules, onBack }: {
                         {isInlineEditing ? (
                           <input
                             ref={inlineInputRef}
-                            className="text-sm font-medium text-surface-800 bg-transparent outline-none border-none flex-1 min-w-[60px]"
+                            className="text-sm font-medium bg-transparent outline-none border-none flex-1 min-w-[60px]"
+                            style={{ color: n.text_color || "#000000" }}
                             value={inlineEditText}
                             onChange={e => setInlineEditText(e.target.value)}
                             onKeyDown={e => {
@@ -1396,8 +1397,8 @@ function MindMapEditor({ map, modules, onBack }: {
                           />
                         ) : (
                           <span
-                            className={`text-sm truncate ${isRoot ? "font-bold" : "font-medium"} ${n.text_color ? "" : "text-surface-900"}`}
-                            style={n.text_color ? { color: n.text_color } : undefined}
+                            className={`text-sm truncate ${isRoot ? "font-bold" : "font-medium"}`}
+                            style={{ color: n.text_color || "#000000" }}
                           >
                             {n.label || t("mindmaps.newNode")}
                           </span>
