@@ -166,6 +166,7 @@ export interface Flashcard {
   user_id: string;
   module_id: string | null;
   exam_id: string | null;
+  task_id: string | null;
   knowledge_id: string | null;
   deck_name: string;
   front: string;
@@ -175,6 +176,7 @@ export interface Flashcard {
   source_document: string | null;
   tags: string[];
   choices: string[] | null;
+  correct_answers: string[] | null;  // MC: multiple correct answers (null = single correct = back)
   ease_factor: number;
   interval_days: number;
   repetitions: number;
@@ -187,6 +189,7 @@ export interface Flashcard {
   created_at: string;
   updated_at: string;
   module?: Module;
+  task?: Task;
 }
 
 export interface TaskAttachment {

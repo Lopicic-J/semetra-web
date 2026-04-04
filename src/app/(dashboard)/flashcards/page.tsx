@@ -12,7 +12,7 @@ import {
   Calendar, Tag, FileText, Zap, Copy, Clock, Target,
   TrendingUp, ArrowRight, CheckSquare, Square, Filter, type LucideIcon,
 } from "lucide-react";
-import type { Flashcard, Module, CalendarEvent } from "@/types/database";
+import type { Flashcard, Module, CalendarEvent, Task } from "@/types/database";
 import { useTranslation } from "@/lib/i18n";
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -266,7 +266,14 @@ function StudyMode({
 
   const cloze = card.card_type === "cloze" ? parseCloze(card.front) : null;
   const isCorrectCloze = cloze && clozeInput.trim().toLowerCase() === cloze.answer.toLowerCase();
-  const isCorrectMc = card.choices && mcSelected !== null && card.choices[mcSelected] === card.back;
+  // MC correctness check: support multiple correct answers
+  const mcCorrectSet = useMemo(() => {
+    if (!card.choices) return new Set<string>();
+    if (card.correct_answers && card.correct_answers.length > 0) return new Set(card.correct_answers);
+    return new Set([card.back]); // fallback: single correct
+  }, [card.choices, card.correct_answers, card.back]);
+  const isMultiCorrectMc = mcCorrectSet.size > 1;
+  const isCorrectMc = card.choices && mcSelected !== null && mcCorrectSet.has(card.choices[mcSelected]);
 
   const progress = idx / cards.length;
 
@@ -361,17 +368,20 @@ function StudyMode({
         {/* ── Multiple Choice card ── */}
         {card.card_type === "mc" && card.choices && (
           <div className={`bg-white border border-surface-200 rounded-2xl p-8 sm:p-12 min-h-[280px] ${focusMode ? "min-h-[360px]" : ""}`}>
-            <p className="text-xs font-semibold text-cyan-600 mb-4 tracking-wider uppercase text-center">{t("fc.multipleChoice")}</p>
+            <p className="text-xs font-semibold text-cyan-600 mb-4 tracking-wider uppercase text-center">
+              {t("fc.multipleChoice")}
+              {isMultiCorrectMc && <span className="ml-2 text-surface-400">({mcCorrectSet.size} {t("fc.mcCorrectLabel")})</span>}
+            </p>
             <p className={`text-surface-800 whitespace-pre-wrap leading-relaxed text-center mb-8 ${focusMode ? "text-2xl" : "text-lg"}`}>
               {card.front}
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
+            <div className={`grid gap-3 max-w-lg mx-auto ${card.choices.length <= 4 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
               {card.choices.map((choice, ci) => {
-                const isCorrect = choice === card.back;
+                const isCorrectChoice = mcCorrectSet.has(choice);
                 const isSelected = mcSelected === ci;
                 let style = "bg-surface-50 border-surface-200 text-surface-800 hover:border-surface-300";
-                if (flipped && isCorrect) style = "bg-green-50 border-green-300 text-green-800";
-                else if (flipped && isSelected && !isCorrect) style = "bg-red-50 border-red-300 text-red-800";
+                if (flipped && isCorrectChoice) style = "bg-green-50 border-green-300 text-green-800";
+                else if (flipped && isSelected && !isCorrectChoice) style = "bg-red-50 border-red-300 text-red-800";
                 return (
                   <button
                     key={ci}
@@ -443,12 +453,14 @@ function CardDialog({
   card,
   modules,
   exams,
+  tasks,
   onSave,
   onClose,
 }: {
   card?: Flashcard;
   modules: Module[];
   exams: CalendarEvent[];
+  tasks: Task[];
   onSave: (data: Partial<Flashcard>) => void;
   onClose: () => void;
 }) {
@@ -458,16 +470,68 @@ function CardDialog({
   const [back, setBack] = useState(card?.back ?? "");
   const [moduleId, setModuleId] = useState(card?.module_id ?? "");
   const [examId, setExamId] = useState(card?.exam_id ?? "");
+  const [taskId, setTaskId] = useState(card?.task_id ?? "");
   const [deckName, setDeckName] = useState(card?.deck_name ?? (t("flashcards.defaultDeck") || "Standard"));
   const [tags, setTags] = useState(card?.tags?.join(", ") ?? "");
-  const [choices, setChoices] = useState<string[]>(card?.choices ?? ["", "", "", ""]);
+  const [choices, setChoices] = useState<string[]>(card?.choices ?? ["", ""]);
+  const [correctAnswers, setCorrectAnswers] = useState<Set<number>>(() => {
+    // Initialize from existing card data
+    if (card?.correct_answers && card.choices) {
+      const indices = new Set<number>();
+      card.correct_answers.forEach(ans => {
+        const idx = card.choices!.indexOf(ans);
+        if (idx >= 0) indices.add(idx);
+      });
+      return indices;
+    }
+    // Fallback: single correct answer from back
+    if (card?.back && card?.choices) {
+      const idx = card.choices.indexOf(card.back);
+      if (idx >= 0) return new Set([idx]);
+    }
+    return new Set<number>();
+  });
 
+  // MC: how many answer choices (2-8)
+  const [mcCount, setMcCount] = useState(card?.choices?.length ?? 4);
+
+  // Adjust choices array when mcCount changes
+  useEffect(() => {
+    setChoices(prev => {
+      if (prev.length === mcCount) return prev;
+      if (prev.length < mcCount) return [...prev, ...Array(mcCount - prev.length).fill("")];
+      const trimmed = prev.slice(0, mcCount);
+      // Remove correctAnswers indices beyond new count
+      setCorrectAnswers(prev2 => {
+        const next = new Set<number>();
+        prev2.forEach(i => { if (i < mcCount) next.add(i); });
+        return next;
+      });
+      return trimmed;
+    });
+  }, [mcCount]);
+
+  // Filter exams by module (or show all if no module)
   const filteredExams = moduleId
     ? exams.filter(e => {
         const mod = modules.find(m => m.id === moduleId);
         return mod && e.title?.toLowerCase().includes(mod.name.toLowerCase().slice(0, 5));
       })
     : exams;
+
+  // Filter tasks by module (or show all if no module)
+  const filteredTasks = moduleId
+    ? tasks.filter(t => t.module_id === moduleId)
+    : tasks;
+
+  const toggleCorrect = (ci: number) => {
+    setCorrectAnswers(prev => {
+      const next = new Set(prev);
+      if (next.has(ci)) next.delete(ci);
+      else next.add(ci);
+      return next;
+    });
+  };
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={onClose}>
@@ -500,11 +564,11 @@ function CardDialog({
           ))}
         </div>
 
-        {/* Module + Deck + Exam */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        {/* Module + Deck */}
+        <div className="grid grid-cols-2 gap-3 mb-3">
           <div>
             <label className="text-xs font-medium text-surface-500 mb-1 block">{t("nav.modules")}</label>
-            <select className="input w-full" value={moduleId} onChange={e => { setModuleId(e.target.value); setExamId(""); }}>
+            <select className="input w-full" value={moduleId} onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); }}>
               <option value="">— {t("tasks.modal.moduleEmpty")} —</option>
               {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
             </select>
@@ -515,15 +579,31 @@ function CardDialog({
           </div>
         </div>
 
-        {moduleId && filteredExams.length > 0 && (
-          <div className="mb-4">
+        {/* Prüfung + Aufgabe — always visible, optional */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div>
             <label className="text-xs font-medium text-surface-500 mb-1 block">{t("fc.linkExam")}</label>
             <select className="input w-full" value={examId} onChange={e => setExamId(e.target.value)}>
               <option value="">— {t("fc.noExamLink")} —</option>
-              {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title} ({new Date(e.start_dt).toLocaleDateString(undefined)})</option>)}
+              {filteredExams.map(e => (
+                <option key={e.id} value={e.id}>
+                  {e.title} ({new Date(e.start_dt).toLocaleDateString(undefined)})
+                </option>
+              ))}
             </select>
           </div>
-        )}
+          <div>
+            <label className="text-xs font-medium text-surface-500 mb-1 block">{t("fc.linkTask")}</label>
+            <select className="input w-full" value={taskId} onChange={e => setTaskId(e.target.value)}>
+              <option value="">— {t("fc.noTaskLink")} —</option>
+              {filteredTasks.map(tk => (
+                <option key={tk.id} value={tk.id}>
+                  {tk.title}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
 
         {/* Front */}
         <div className="mb-4">
@@ -538,7 +618,7 @@ function CardDialog({
           />
         </div>
 
-        {/* Back (for basic/cloze) or Correct Answer (for MC) */}
+        {/* Back (for basic/cloze) or MC Choices */}
         {cardType !== "mc" ? (
           <div className="mb-4">
             <label className="text-xs font-medium text-surface-500 mb-1 block">{t("flashcards.answer")}</label>
@@ -550,12 +630,31 @@ function CardDialog({
             />
           </div>
         ) : (
-          <div className="mb-4 space-y-2">
-            <label className="text-xs font-medium text-surface-500 mb-1 block">{t("fc.mcChoices")}</label>
+          <div className="mb-4 space-y-3">
+            {/* MC config: how many answers + how many correct */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-medium text-surface-500">{t("fc.mcAnswerCount")}</label>
+                <select
+                  className="input w-16 text-center text-sm"
+                  value={mcCount}
+                  onChange={e => setMcCount(Number(e.target.value))}
+                >
+                  {[2, 3, 4, 5, 6, 7, 8].map(n => (
+                    <option key={n} value={n}>{n}</option>
+                  ))}
+                </select>
+              </div>
+              <span className="text-xs text-surface-400">
+                {correctAnswers.size} {t("fc.mcCorrectCount")}
+              </span>
+            </div>
+
+            <label className="text-xs font-medium text-surface-500 block">{t("fc.mcChoices")}</label>
             {choices.map((ch, ci) => (
               <div key={ci} className="flex items-center gap-2">
                 <span className={`text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full ${
-                  back === ch && ch ? "bg-green-100 text-green-700" : "bg-surface-100 text-surface-500"
+                  correctAnswers.has(ci) && ch ? "bg-green-100 text-green-700" : "bg-surface-100 text-surface-500"
                 }`}>{String.fromCharCode(65 + ci)}</span>
                 <input
                   className="input flex-1"
@@ -568,14 +667,17 @@ function CardDialog({
                   placeholder={`${t("fc.choice")} ${String.fromCharCode(65 + ci)}`}
                 />
                 <button
-                  onClick={() => setBack(ch)}
-                  className={`text-xs px-2 py-1 rounded ${back === ch ? "bg-green-100 text-green-700" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}
+                  onClick={() => toggleCorrect(ci)}
+                  className={`text-xs px-2 py-1 rounded transition ${correctAnswers.has(ci) ? "bg-green-100 text-green-700" : "bg-surface-100 text-surface-500 hover:bg-surface-200"}`}
                   title={t("fc.markCorrect")}
                 >
                   <Check size={12} />
                 </button>
               </div>
             ))}
+            {correctAnswers.size === 0 && (
+              <p className="text-xs text-amber-600">{t("fc.mcSelectCorrect")}</p>
+            )}
           </div>
         )}
 
@@ -595,19 +697,27 @@ function CardDialog({
           <button onClick={onClose} className="btn-secondary text-sm">{t("tasks.modal.cancel")}</button>
           <button
             onClick={() => {
+              const filledChoices = choices.filter(c => c.trim());
+              const correctList = Array.from(correctAnswers).filter(i => choices[i]?.trim()).map(i => choices[i].trim());
               const isValid = cardType === "mc"
-                ? front.trim() && back.trim() && choices.filter(c => c.trim()).length >= 2
+                ? front.trim() && filledChoices.length >= 2 && correctList.length >= 1
                 : front.trim() && (cardType === "cloze" ? hasCloze(front) : back.trim());
               if (!isValid) return;
               onSave({
                 front: front.trim(),
-                back: cardType === "cloze" ? parseCloze(front).answer : back.trim(),
+                back: cardType === "cloze"
+                  ? parseCloze(front).answer
+                  : cardType === "mc"
+                    ? correctList[0] // primary correct answer for backward compat
+                    : back.trim(),
                 card_type: cardType,
                 module_id: moduleId || null,
                 exam_id: examId || null,
+                task_id: taskId || null,
                 deck_name: deckName.trim() || (t("flashcards.defaultDeck") || "Standard"),
                 tags: tags.split(",").map(t => t.trim()).filter(Boolean),
-                choices: cardType === "mc" ? choices.filter(c => c.trim()) : null,
+                choices: cardType === "mc" ? filledChoices : null,
+                correct_answers: cardType === "mc" ? correctList : null,
               });
             }}
             className="btn-primary text-sm"
@@ -970,6 +1080,7 @@ export default function FlashcardsPage() {
   const { modules } = useModules();
   const [cards, setCards] = useState<Flashcard[]>([]);
   const [exams, setExams] = useState<CalendarEvent[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
 
   // UI state
@@ -999,12 +1110,14 @@ export default function FlashcardsPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [cardsRes, examsRes] = await Promise.all([
+    const [cardsRes, examsRes, tasksRes] = await Promise.all([
       supabase.from("flashcards").select("*, module:modules(id,name,color)").order("created_at", { ascending: false }),
       supabase.from("events").select("*").eq("event_type", "exam"),
+      supabase.from("tasks").select("*, modules(name, color)").order("due_date", { ascending: true, nullsFirst: false }),
     ]);
     setCards(cardsRes.data ?? []);
     setExams(examsRes.data ?? []);
+    setTasks(tasksRes.data ?? []);
     setLoading(false);
   }, [supabase]);
 
@@ -1573,6 +1686,7 @@ export default function FlashcardsPage() {
           card={editCard}
           modules={modules}
           exams={exams}
+          tasks={tasks}
           onSave={handleSave}
           onClose={() => { setShowDialog(false); setEditCard(undefined); }}
         />
