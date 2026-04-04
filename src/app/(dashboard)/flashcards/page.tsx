@@ -268,12 +268,12 @@ function StudyMode({
   const isCorrectCloze = cloze && clozeInput.trim().toLowerCase() === cloze.answer.toLowerCase();
   // MC correctness check: support multiple correct answers
   const mcCorrectSet = useMemo(() => {
-    if (!card.choices) return new Set<string>();
+    if (!card?.choices) return new Set<string>();
     if (card.correct_answers && card.correct_answers.length > 0) return new Set(card.correct_answers);
     return new Set([card.back]); // fallback: single correct
-  }, [card.choices, card.correct_answers, card.back]);
+  }, [card?.choices, card?.correct_answers, card?.back]);
   const isMultiCorrectMc = mcCorrectSet.size > 1;
-  const isCorrectMc = card.choices && mcSelected !== null && mcCorrectSet.has(card.choices[mcSelected]);
+  const isCorrectMc = card?.choices && mcSelected !== null && mcCorrectSet.has(card.choices[mcSelected]);
 
   const progress = idx / cards.length;
 
@@ -1257,16 +1257,20 @@ export default function FlashcardsPage() {
   }
 
   async function handleRate(id: string, quality: number, daysUntilExam?: number) {
-    const card = cards.find(c => c.id === id);
-    if (!card) return;
-    const updates = sm2(card, quality, daysUntilExam);
-    const { error } = await supabase.from("flashcards").update(updates).eq("id", id);
-    // Fallback: if last_quality column doesn't exist yet, retry without it
-    if (error) {
-      const { last_quality, ...rest } = updates as any;
-      await supabase.from("flashcards").update(rest).eq("id", id);
+    try {
+      const card = cards.find(c => c.id === id);
+      if (!card) return;
+      const updates = sm2(card, quality, daysUntilExam);
+      const { error } = await supabase.from("flashcards").update(updates).eq("id", id);
+      // Fallback: if last_quality column doesn't exist yet, retry without it
+      if (error) {
+        const { last_quality, ...rest } = updates as any;
+        await supabase.from("flashcards").update(rest).eq("id", id);
+      }
+      reviewCount.current += 1;
+    } catch (e) {
+      console.warn("Error rating flashcard:", e);
     }
-    reviewCount.current += 1;
   }
 
   // Study mode
@@ -1287,17 +1291,21 @@ export default function FlashcardsPage() {
       const durationSeconds = Math.floor(duration / 1000);
 
       if (durationSeconds > 0) {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          await supabase.from("time_logs").insert({
-            user_id: user.id,
-            module_id: currentModuleId.current,
-            duration_seconds: durationSeconds,
-            started_at: new Date(studyStartTime.current!).toISOString(),
-            note: `Flashcard review: ${reviewCount.current} cards`,
-          });
-          // Notify streak hook that a time log was saved
-          window.dispatchEvent(new Event("time-log-updated"));
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            await supabase.from("time_logs").insert({
+              user_id: user.id,
+              module_id: currentModuleId.current,
+              duration_seconds: durationSeconds,
+              started_at: new Date(studyStartTime.current!).toISOString(),
+              note: `Flashcard review: ${reviewCount.current} cards`,
+            });
+            // Notify streak hook that a time log was saved
+            window.dispatchEvent(new Event("time-log-updated"));
+          }
+        } catch (e) {
+          console.warn("Could not save time_log for flashcard session:", e);
         }
       }
 
