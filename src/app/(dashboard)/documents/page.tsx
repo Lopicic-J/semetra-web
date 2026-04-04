@@ -11,7 +11,7 @@ import {
   LayoutGrid, ListIcon, Workflow, GraduationCap, CheckSquare,
   CircleDot, Tag, Download, Globe, FileSpreadsheet, FileCode,
   Presentation, Archive, Upload, Loader2, Scissors, Combine,
-  GripVertical, ChevronUp, ChevronDown, ArrowDownToLine
+  GripVertical, ChevronUp, ChevronDown, ArrowDownToLine, Minus
 } from "lucide-react";
 import type {
   Document as Doc, CalendarEvent, Task, Module,
@@ -69,7 +69,8 @@ export default function DocumentsPage() {
   const [searchQ, setSearchQ] = useState("");
   const [filterModule, setFilterModule] = useState("");
   const [filterKind, setFilterKind] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "list" | "flow" | "pdftools">("flow");
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "flow">("flow");
+  const [showPdfTools, setShowPdfTools] = useState(false);
   const [flowItems, setFlowItems] = useState<DocFlowItem[]>([]);
 
   const fetchDocs = useCallback(async () => {
@@ -253,8 +254,14 @@ export default function DocumentsPage() {
           </h1>
           <p className="text-surface-500 text-xs sm:text-sm mt-1">{t("navigator.documentsDesc")}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <LimitCounter current={docs.length} max={FREE_LIMITS.documents} isPro={isPro} />
+          <button
+            onClick={() => setShowPdfTools(true)}
+            className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition flex-shrink-0"
+          >
+            <FileText size={16} /> {t("documents.pdfTools")}
+          </button>
           <button
             onClick={() => {
               const check = withinFreeLimit("documents", docs.length, isPro);
@@ -366,14 +373,14 @@ export default function DocumentsPage() {
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
         <div className="flex rounded-lg overflow-hidden border border-surface-200">
-          {(["flow", "grid", "list", "pdftools"] as const).map(v => (
+          {(["flow", "grid", "list"] as const).map(v => (
             <button
               key={v}
               onClick={() => setViewMode(v)}
               className={`p-1 sm:p-2 transition ${viewMode === v ? "bg-brand-600 text-white" : "bg-white text-surface-500 hover:text-surface-900"}`}
-              title={v === "flow" ? t("documents.viewFlow") : v === "grid" ? t("documents.viewCards") : v === "list" ? t("documents.viewList") : t("documents.pdfTools")}
+              title={v === "flow" ? t("documents.viewFlow") : v === "grid" ? t("documents.viewCards") : t("documents.viewList")}
             >
-              {v === "grid" ? <LayoutGrid size={14} /> : v === "list" ? <ListIcon size={14} /> : v === "pdftools" ? <Scissors size={14} /> : <Workflow size={14} />}
+              {v === "grid" ? <LayoutGrid size={14} /> : v === "list" ? <ListIcon size={14} /> : <Workflow size={14} />}
             </button>
           ))}
         </div>
@@ -390,8 +397,6 @@ export default function DocumentsPage() {
       {/* Content */}
       {loading ? (
         <p className="text-surface-500 text-sm">{t("documents.typeDocument")}</p>
-      ) : viewMode === "pdftools" ? (
-        <PdfToolsView />
       ) : viewMode === "flow" ? (
         <DocFlowView items={filteredFlow} onOpenDoc={(d) => { setEditDoc(d); setShowCreate(true); }} />
       ) : viewMode === "grid" ? (
@@ -439,6 +444,8 @@ export default function DocumentsPage() {
           onSaved={() => { setShowCreate(false); setEditDoc(null); fetchDocs(); fetchFlow(); }}
         />
       )}
+
+      {showPdfTools && <PdfToolsModal onClose={() => setShowPdfTools(false)} />}
     </div>
   );
 }
@@ -644,107 +651,178 @@ function DocFlowView({ items, onOpenDoc }: { items: DocFlowItem[]; onOpenDoc: (d
   );
 }
 
-/* ── PDF Tools View ────────────────────────────────────────────────── */
-function PdfToolsView() {
+/* ── PDF Tools Modal ───────────────────────────────────────────────── */
+
+interface PageThumb {
+  pageIndex: number;       // original page index in its source PDF
+  fileIndex: number;       // which PDF file it came from
+  fileName: string;
+  dataUrl: string;         // canvas thumbnail as data URL
+  width: number;
+  height: number;
+}
+
+async function renderPdfThumbnails(
+  file: File,
+  fileIndex: number,
+  scale: number = 0.3
+): Promise<PageThumb[]> {
+  const buf = await file.arrayBuffer();
+  const { PDFDocument } = await import("pdf-lib");
+  const pdf = await PDFDocument.load(buf, { ignoreEncryption: true });
+  const thumbs: PageThumb[] = [];
+  const pageCount = pdf.getPageCount();
+
+  // Use pdf.js-like canvas rendering isn't available without pdfjs.
+  // Instead, create a simple placeholder with page number + file name.
+  for (let i = 0; i < pageCount; i++) {
+    const page = pdf.getPage(i);
+    const { width, height } = page.getSize();
+    const w = Math.round(width * scale);
+    const h = Math.round(height * scale);
+
+    // Create a simple canvas thumbnail
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d")!;
+    // Light background
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, w, h);
+    // Border
+    ctx.strokeStyle = "#e2e8f0";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(0.5, 0.5, w - 1, h - 1);
+    // Page number centered
+    ctx.fillStyle = "#64748b";
+    ctx.font = `bold ${Math.max(12, Math.round(h * 0.15))}px system-ui`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(`${i + 1}`, w / 2, h / 2);
+    // File name at bottom
+    ctx.font = `${Math.max(8, Math.round(h * 0.07))}px system-ui`;
+    ctx.fillStyle = "#94a3b8";
+    const label = file.name.length > 15 ? file.name.slice(0, 12) + "…" : file.name;
+    ctx.fillText(label, w / 2, h - Math.max(8, Math.round(h * 0.08)));
+
+    thumbs.push({
+      pageIndex: i,
+      fileIndex,
+      fileName: file.name,
+      dataUrl: canvas.toDataURL("image/png"),
+      width: w,
+      height: h,
+    });
+  }
+  return thumbs;
+}
+
+/* ── PDF Tools Modal ─────────────────────────────────────────────────── */
+function PdfToolsModal({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"merge" | "split">("merge");
 
   return (
-    <div className="space-y-4">
-      {/* Tab selector */}
-      <div className="flex gap-2">
-        <button
-          onClick={() => setActiveTab("merge")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition ${
-            activeTab === "merge"
-              ? "bg-brand-600 text-white shadow-sm"
-              : "bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600"
-          }`}
-        >
-          <Combine size={16} /> {t("documents.pdfMerge")}
-        </button>
-        <button
-          onClick={() => setActiveTab("split")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition ${
-            activeTab === "split"
-              ? "bg-brand-600 text-white shadow-sm"
-              : "bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600"
-          }`}
-        >
-          <Scissors size={16} /> {t("documents.pdfSplit")}
-        </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-surface-200">
+          <div className="flex items-center gap-4">
+            <h2 className="text-lg font-bold text-surface-900">{t("documents.pdfTools")}</h2>
+            <div className="flex bg-surface-100 rounded-lg p-0.5">
+              <button onClick={() => setActiveTab("merge")}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
+                  activeTab === "merge" ? "bg-white shadow text-brand-700" : "text-surface-500 hover:text-surface-700"
+                }`}>
+                <Combine size={13} className="inline mr-1.5 -mt-0.5" />
+                {t("documents.pdfMerge")}
+              </button>
+              <button onClick={() => setActiveTab("split")}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
+                  activeTab === "split" ? "bg-white shadow text-brand-700" : "text-surface-500 hover:text-surface-700"
+                }`}>
+                <Scissors size={13} className="inline mr-1.5 -mt-0.5" />
+                {t("documents.pdfSplit")}
+              </button>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface-100 text-surface-400 hover:text-surface-600 transition">
+            <X size={18} />
+          </button>
+        </div>
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {activeTab === "merge" ? <PdfMergePanel /> : <PdfSplitPanel />}
+        </div>
       </div>
-
-      {activeTab === "merge" ? <PdfMergePanel /> : <PdfSplitPanel />}
     </div>
   );
 }
 
-/* ── PDF Merge Panel ─────────────────────────────────────────────────── */
+/* ── PDF Merge Panel (page-level thumbnails) ────────────────────────── */
 function PdfMergePanel() {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [files, setFiles] = useState<{ file: File; name: string; pages: number }[]>([]);
+  const [pages, setPages] = useState<PageThumb[]>([]);
+  const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [sourceFiles, setSourceFiles] = useState<File[]>([]);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
   async function addFiles(fileList: FileList) {
-    const newFiles: typeof files = [];
-    for (const file of Array.from(fileList)) {
-      if (file.type !== "application/pdf") continue;
-      try {
-        const buf = await file.arrayBuffer();
-        const { PDFDocument } = await import("pdf-lib");
-        const pdf = await PDFDocument.load(buf, { ignoreEncryption: true });
-        newFiles.push({ file, name: file.name, pages: pdf.getPageCount() });
-      } catch {
-        newFiles.push({ file, name: file.name, pages: 0 });
+    setLoading(true);
+    try {
+      const newPages: PageThumb[] = [];
+      const newFiles: File[] = [];
+      for (const file of Array.from(fileList)) {
+        if (file.type !== "application/pdf") continue;
+        const fileIdx = sourceFiles.length + newFiles.length;
+        newFiles.push(file);
+        const thumbs = await renderPdfThumbnails(file, fileIdx);
+        newPages.push(...thumbs);
       }
+      setSourceFiles(prev => [...prev, ...newFiles]);
+      setPages(prev => [...prev, ...newPages]);
+    } finally {
+      setLoading(false);
     }
-    setFiles(prev => [...prev, ...newFiles]);
   }
 
-  function removeFile(idx: number) {
-    setFiles(prev => prev.filter((_, i) => i !== idx));
+  function removePage(idx: number) {
+    setPages(prev => prev.filter((_, i) => i !== idx));
   }
 
-  function moveFile(from: number, to: number) {
-    if (from === to) return;
-    setFiles(prev => {
-      const arr = [...prev];
-      const [item] = arr.splice(from, 1);
-      arr.splice(to, 0, item);
-      return arr;
-    });
-  }
-
-  function handleDragStart(idx: number) {
-    setDragIdx(idx);
-  }
-
-  function handleDragOver(e: React.DragEvent, idx: number) {
-    e.preventDefault();
-    setDragOverIdx(idx);
-  }
-
+  function handleDragStart(idx: number) { setDragIdx(idx); }
+  function handleDragOver(e: React.DragEvent, idx: number) { e.preventDefault(); setDragOverIdx(idx); }
   function handleDrop(idx: number) {
-    if (dragIdx !== null && dragIdx !== idx) moveFile(dragIdx, idx);
+    if (dragIdx !== null && dragIdx !== idx) {
+      setPages(prev => {
+        const arr = [...prev];
+        const [item] = arr.splice(dragIdx, 1);
+        arr.splice(idx, 0, item);
+        return arr;
+      });
+    }
     setDragIdx(null);
     setDragOverIdx(null);
   }
 
   async function mergePdfs() {
-    if (files.length < 2) return;
+    if (pages.length < 1) return;
     setProcessing(true);
     try {
       const { PDFDocument } = await import("pdf-lib");
       const merged = await PDFDocument.create();
-      for (const { file } of files) {
-        const buf = await file.arrayBuffer();
-        const src = await PDFDocument.load(buf, { ignoreEncryption: true });
-        const pages = await merged.copyPages(src, src.getPageIndices());
-        pages.forEach((p: any) => merged.addPage(p));
+      // Cache loaded source PDFs
+      const pdfCache: Record<number, any> = {};
+      for (const pg of pages) {
+        if (!pdfCache[pg.fileIndex]) {
+          const buf = await sourceFiles[pg.fileIndex].arrayBuffer();
+          pdfCache[pg.fileIndex] = await PDFDocument.load(buf, { ignoreEncryption: true });
+        }
+        const [copiedPage] = await merged.copyPages(pdfCache[pg.fileIndex], [pg.pageIndex]);
+        merged.addPage(copiedPage);
       }
       const bytes = await merged.save();
       const blob = new Blob([bytes], { type: "application/pdf" });
@@ -763,80 +841,72 @@ function PdfMergePanel() {
   }
 
   return (
-    <div className="bg-white border border-surface-200 rounded-2xl p-4 sm:p-6">
-      <div className="mb-4">
-        <h3 className="text-base font-semibold text-surface-900 mb-1">{t("documents.pdfMerge")}</h3>
+    <div className="flex flex-col h-full">
+      <div className="mb-3">
         <p className="text-xs text-surface-500">{t("documents.pdfMergeDesc")}</p>
+        <p className="text-[11px] text-surface-400 mt-0.5">{t("documents.pdfDragHint")}</p>
       </div>
 
-      {/* Drop zone / file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".pdf"
-        multiple
-        className="hidden"
-        onChange={e => { if (e.target.files) addFiles(e.target.files); e.target.value = ""; }}
-      />
-      <button
-        onClick={() => fileInputRef.current?.click()}
-        className="w-full mb-4 px-4 py-6 rounded-xl border-2 border-dashed border-surface-300 text-surface-500 text-sm hover:border-brand-400 hover:text-brand-600 transition flex flex-col items-center gap-2"
-      >
-        <Upload size={20} />
+      <input ref={fileInputRef} type="file" accept=".pdf" multiple className="hidden"
+        onChange={e => { if (e.target.files) addFiles(e.target.files); e.target.value = ""; }} />
+      <button onClick={() => fileInputRef.current?.click()}
+        className="w-full mb-4 px-4 py-5 rounded-xl border-2 border-dashed border-surface-300 text-surface-500 text-sm hover:border-brand-400 hover:text-brand-600 transition flex flex-col items-center gap-1.5">
+        <Upload size={18} />
         {t("documents.pdfAddFiles")}
       </button>
 
-      {/* File list with drag reorder */}
-      {files.length > 0 && (
-        <div className="space-y-1.5 mb-4">
-          {files.map((f, i) => (
-            <div
-              key={`${f.name}-${i}`}
-              draggable
-              onDragStart={() => handleDragStart(i)}
-              onDragOver={e => handleDragOver(e, i)}
-              onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
-              onDrop={() => handleDrop(i)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition cursor-grab active:cursor-grabbing ${
-                dragOverIdx === i ? "border-brand-400 bg-brand-50" : dragIdx === i ? "opacity-50 border-surface-300" : "border-surface-200 bg-white hover:border-surface-300"
-              }`}
-            >
-              <GripVertical size={14} className="text-surface-400 shrink-0" />
-              <span className="text-xs font-bold text-surface-400 w-5">{i + 1}</span>
-              <FileText size={16} className="text-red-400 shrink-0" />
-              <span className="text-sm text-surface-800 flex-1 truncate">{f.name}</span>
-              <span className="text-xs text-surface-400 shrink-0">
-                {f.pages > 0 ? `${f.pages} ${t("documents.pdfPages")}` : "—"}
-              </span>
-              <div className="flex gap-0.5 shrink-0">
-                <button onClick={() => moveFile(i, Math.max(0, i - 1))} disabled={i === 0}
-                  className="p-1 rounded hover:bg-surface-100 text-surface-400 disabled:opacity-30">
-                  <ChevronUp size={14} />
-                </button>
-                <button onClick={() => moveFile(i, Math.min(files.length - 1, i + 1))} disabled={i === files.length - 1}
-                  className="p-1 rounded hover:bg-surface-100 text-surface-400 disabled:opacity-30">
-                  <ChevronDown size={14} />
-                </button>
-              </div>
-              <button onClick={() => removeFile(i)} className="p-1 rounded hover:bg-red-50 text-surface-400 hover:text-red-500 shrink-0">
-                <Trash2 size={14} />
-              </button>
-            </div>
-          ))}
+      {loading && (
+        <div className="flex items-center justify-center py-6 text-surface-400 text-sm gap-2">
+          <Loader2 size={16} className="animate-spin" /> Seiten werden geladen...
         </div>
       )}
 
-      {/* Summary + merge button */}
-      {files.length > 0 && (
-        <div className="flex items-center justify-between">
+      {/* Page thumbnail grid */}
+      {pages.length > 0 && (
+        <div className="flex-1 overflow-y-auto mb-4">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+            {pages.map((pg, i) => (
+              <div key={`${pg.fileIndex}-${pg.pageIndex}-${i}`}
+                draggable
+                onDragStart={() => handleDragStart(i)}
+                onDragOver={e => handleDragOver(e, i)}
+                onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
+                onDrop={() => handleDrop(i)}
+                className={`relative group rounded-lg border-2 transition cursor-grab active:cursor-grabbing overflow-hidden ${
+                  dragOverIdx === i ? "border-brand-400 ring-2 ring-brand-200" : dragIdx === i ? "opacity-40 border-surface-300" : "border-surface-200 hover:border-surface-300"
+                }`}
+              >
+                {/* Order badge */}
+                <div className="absolute top-1 left-1 bg-brand-600 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center z-10">
+                  {i + 1}
+                </div>
+                {/* Remove button */}
+                <button onClick={() => removePage(i)}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition z-10">
+                  <X size={10} />
+                </button>
+                {/* Thumbnail */}
+                <img src={pg.dataUrl} alt={`Page ${pg.pageIndex + 1}`}
+                  className="w-full h-auto bg-white" draggable={false} />
+                {/* File label */}
+                <div className="px-1.5 py-1 bg-surface-50 border-t border-surface-200">
+                  <p className="text-[9px] text-surface-500 truncate">{pg.fileName}</p>
+                  <p className="text-[10px] font-medium text-surface-700">S. {pg.pageIndex + 1}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Footer with merge button */}
+      {pages.length > 0 && (
+        <div className="flex items-center justify-between pt-3 border-t border-surface-200">
           <span className="text-xs text-surface-500">
-            {files.length} PDFs · {files.reduce((s, f) => s + f.pages, 0)} {t("documents.pdfPages")}
+            {pages.length} {t("documents.pdfPages")} · {new Set(pages.map(p => p.fileIndex)).size} PDFs
           </span>
-          <button
-            onClick={mergePdfs}
-            disabled={files.length < 2 || processing}
-            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
-          >
+          <button onClick={mergePdfs} disabled={pages.length < 1 || processing}
+            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50">
             {processing ? <Loader2 size={14} className="animate-spin" /> : <ArrowDownToLine size={14} />}
             {processing ? t("documents.pdfProcessing") : t("documents.pdfMergeAction")}
           </button>
@@ -846,52 +916,61 @@ function PdfMergePanel() {
   );
 }
 
-/* ── PDF Split Panel ─────────────────────────────────────────────────── */
+/* ── PDF Split Panel (page-level group assignment) ──────────────────── */
+const GROUP_COLORS = ["#6366f1", "#f43f5e", "#10b981", "#f59e0b", "#06b6d4", "#8b5cf6", "#ec4899", "#14b8a6"];
+
 function PdfSplitPanel() {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [pageCount, setPageCount] = useState(0);
-  const [splitMode, setSplitMode] = useState<"all" | "ranges">("all");
-  const [ranges, setRanges] = useState("");
+  const [pages, setPages] = useState<PageThumb[]>([]);
+  const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [numOutputs, setNumOutputs] = useState(2);
+  // group assignment per page index (0-based group)
+  const [assignments, setAssignments] = useState<number[]>([]);
 
   async function loadFile(f: File) {
     if (f.type !== "application/pdf") return;
+    setLoading(true);
     try {
-      const buf = await f.arrayBuffer();
-      const { PDFDocument } = await import("pdf-lib");
-      const pdf = await PDFDocument.load(buf, { ignoreEncryption: true });
+      const thumbs = await renderPdfThumbnails(f, 0);
       setFile(f);
-      setPageCount(pdf.getPageCount());
-    } catch {
-      setFile(f);
-      setPageCount(0);
+      setPages(thumbs);
+      // Default: assign pages evenly across 2 groups
+      const assign = thumbs.map((_, i) => Math.min(Math.floor(i / Math.ceil(thumbs.length / 2)), 1));
+      setAssignments(assign);
+      setNumOutputs(2);
+    } finally {
+      setLoading(false);
     }
   }
 
-  function parseRanges(input: string, max: number): number[][] {
-    const groups: number[][] = [];
-    for (const part of input.split(",").map(s => s.trim()).filter(Boolean)) {
-      const m = part.match(/^(\d+)\s*-\s*(\d+)$/);
-      if (m) {
-        const start = Math.max(1, parseInt(m[1]));
-        const end = Math.min(max, parseInt(m[2]));
-        if (start <= end) {
-          const pages: number[] = [];
-          for (let i = start; i <= end; i++) pages.push(i - 1);
-          groups.push(pages);
-        }
-      } else {
-        const n = parseInt(part);
-        if (!isNaN(n) && n >= 1 && n <= max) groups.push([n - 1]);
-      }
-    }
-    return groups;
+  function cycleGroup(pageIdx: number) {
+    setAssignments(prev => {
+      const arr = [...prev];
+      arr[pageIdx] = (arr[pageIdx] + 1) % numOutputs;
+      return arr;
+    });
+  }
+
+  function setGroup(pageIdx: number, group: number) {
+    setAssignments(prev => {
+      const arr = [...prev];
+      arr[pageIdx] = group;
+      return arr;
+    });
+  }
+
+  function changeNumOutputs(delta: number) {
+    const next = Math.max(2, Math.min(8, numOutputs + delta));
+    setNumOutputs(next);
+    // Clamp any assignments that exceed new max
+    setAssignments(prev => prev.map(g => Math.min(g, next - 1)));
   }
 
   async function splitPdf() {
-    if (!file || pageCount === 0) return;
+    if (!file || pages.length === 0) return;
     setProcessing(true);
     try {
       const { PDFDocument } = await import("pdf-lib");
@@ -899,40 +978,24 @@ function PdfSplitPanel() {
       const src = await PDFDocument.load(buf, { ignoreEncryption: true });
       const baseName = file.name.replace(/\.pdf$/i, "");
 
-      if (splitMode === "all") {
-        // Each page as separate PDF
-        for (let i = 0; i < pageCount; i++) {
-          const newDoc = await PDFDocument.create();
-          const [page] = await newDoc.copyPages(src, [i]);
-          newDoc.addPage(page);
-          const bytes = await newDoc.save();
-          const blob = new Blob([bytes], { type: "application/pdf" });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = `${baseName}_${t("documents.pdfPage")}_${i + 1}.pdf`;
-          a.click();
-          URL.revokeObjectURL(url);
-          // Small delay to prevent browser blocking multiple downloads
-          await new Promise(r => setTimeout(r, 100));
-        }
-      } else {
-        // Split by ranges
-        const groups = parseRanges(ranges, pageCount);
-        for (let g = 0; g < groups.length; g++) {
-          const newDoc = await PDFDocument.create();
-          const pages = await newDoc.copyPages(src, groups[g]);
-          pages.forEach(p => newDoc.addPage(p));
-          const bytes = await newDoc.save();
-          const blob = new Blob([bytes], { type: "application/pdf" });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = `${baseName}_${t("documents.pdfPart")}_${g + 1}.pdf`;
-          a.click();
-          URL.revokeObjectURL(url);
-          await new Promise(r => setTimeout(r, 100));
-        }
+      for (let g = 0; g < numOutputs; g++) {
+        const pageIndices = assignments
+          .map((group, idx) => group === g ? idx : -1)
+          .filter(idx => idx >= 0);
+        if (pageIndices.length === 0) continue;
+
+        const newDoc = await PDFDocument.create();
+        const copiedPages = await newDoc.copyPages(src, pageIndices);
+        copiedPages.forEach((p: any) => newDoc.addPage(p));
+        const bytes = await newDoc.save();
+        const blob = new Blob([bytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${baseName}_${t("documents.pdfPart")}_${g + 1}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        await new Promise(r => setTimeout(r, 150));
       }
     } catch (err) {
       console.error("PDF split error:", err);
@@ -942,90 +1005,120 @@ function PdfSplitPanel() {
     }
   }
 
+  // Group legend with page counts
+  const groupCounts = Array.from({ length: numOutputs }, (_, g) =>
+    assignments.filter(a => a === g).length
+  );
+
   return (
-    <div className="bg-white border border-surface-200 rounded-2xl p-4 sm:p-6">
-      <div className="mb-4">
-        <h3 className="text-base font-semibold text-surface-900 mb-1">{t("documents.pdfSplit")}</h3>
+    <div className="flex flex-col h-full">
+      <div className="mb-3">
         <p className="text-xs text-surface-500">{t("documents.pdfSplitDesc")}</p>
+        <p className="text-[11px] text-surface-400 mt-0.5">{t("documents.pdfClickToAssign")}</p>
       </div>
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".pdf"
-        className="hidden"
-        onChange={e => { if (e.target.files?.[0]) loadFile(e.target.files[0]); e.target.value = ""; }}
-      />
+      <input ref={fileInputRef} type="file" accept=".pdf" className="hidden"
+        onChange={e => { if (e.target.files?.[0]) loadFile(e.target.files[0]); e.target.value = ""; }} />
 
       {!file ? (
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="w-full px-4 py-6 rounded-xl border-2 border-dashed border-surface-300 text-surface-500 text-sm hover:border-brand-400 hover:text-brand-600 transition flex flex-col items-center gap-2"
-        >
-          <Upload size={20} />
+        <button onClick={() => fileInputRef.current?.click()}
+          className="w-full px-4 py-5 rounded-xl border-2 border-dashed border-surface-300 text-surface-500 text-sm hover:border-brand-400 hover:text-brand-600 transition flex flex-col items-center gap-1.5">
+          <Upload size={18} />
           {t("documents.pdfSelectFile")}
         </button>
       ) : (
-        <div className="space-y-4">
-          {/* File info */}
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-surface-200 bg-surface-50">
-            <FileText size={18} className="text-red-400 shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-surface-800 truncate">{file.name}</p>
-              <p className="text-xs text-surface-400">{pageCount} {t("documents.pdfPages")}</p>
-            </div>
-            <button onClick={() => { setFile(null); setPageCount(0); setRanges(""); }}
-              className="p-1.5 rounded-lg hover:bg-surface-200 text-surface-400 hover:text-red-500 transition">
-              <X size={14} />
-            </button>
-          </div>
-
-          {/* Split mode */}
-          <div className="space-y-2">
-            <label className="block text-xs font-medium text-surface-700">{t("documents.pdfSplitMode")}</label>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setSplitMode("all")}
-                className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition border ${
-                  splitMode === "all" ? "border-brand-500 bg-brand-50 text-brand-700" : "border-surface-200 text-surface-600 hover:border-surface-300"
-                }`}
-              >
-                {t("documents.pdfSplitAll")}
-              </button>
-              <button
-                onClick={() => setSplitMode("ranges")}
-                className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition border ${
-                  splitMode === "ranges" ? "border-brand-500 bg-brand-50 text-brand-700" : "border-surface-200 text-surface-600 hover:border-surface-300"
-                }`}
-              >
-                {t("documents.pdfSplitRanges")}
-              </button>
-            </div>
-          </div>
-
-          {/* Range input */}
-          {splitMode === "ranges" && (
-            <div>
-              <input
-                value={ranges}
-                onChange={e => setRanges(e.target.value)}
-                placeholder={t("documents.pdfRangesPlaceholder")}
-                className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-2 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none transition"
-              />
-              <p className="text-[10px] text-surface-400 mt-1">{t("documents.pdfRangesHint")}</p>
+        <>
+          {loading && (
+            <div className="flex items-center justify-center py-6 text-surface-400 text-sm gap-2">
+              <Loader2 size={16} className="animate-spin" /> Seiten werden geladen...
             </div>
           )}
 
-          {/* Split button */}
-          <button
-            onClick={splitPdf}
-            disabled={processing || (splitMode === "ranges" && !ranges.trim())}
-            className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50"
-          >
-            {processing ? <Loader2 size={14} className="animate-spin" /> : <ArrowDownToLine size={14} />}
-            {processing ? t("documents.pdfProcessing") : t("documents.pdfSplitAction")}
-          </button>
-        </div>
+          {/* Controls: number of output PDFs + file info */}
+          <div className="flex items-center justify-between mb-3 px-1">
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-medium text-surface-700">{t("documents.pdfNumOutputs")}:</span>
+              <div className="flex items-center gap-1">
+                <button onClick={() => changeNumOutputs(-1)} disabled={numOutputs <= 2}
+                  className="w-6 h-6 rounded-md bg-surface-100 hover:bg-surface-200 text-surface-600 flex items-center justify-center disabled:opacity-30 transition">
+                  <Minus size={12} />
+                </button>
+                <span className="text-sm font-bold text-surface-800 w-6 text-center">{numOutputs}</span>
+                <button onClick={() => changeNumOutputs(1)} disabled={numOutputs >= 8}
+                  className="w-6 h-6 rounded-md bg-surface-100 hover:bg-surface-200 text-surface-600 flex items-center justify-center disabled:opacity-30 transition">
+                  <Plus size={12} />
+                </button>
+              </div>
+            </div>
+            <button onClick={() => { setFile(null); setPages([]); setAssignments([]); }}
+              className="text-xs text-surface-400 hover:text-red-500 transition">
+              {t("documents.pdfSelectFile")}
+            </button>
+          </div>
+
+          {/* Group legend */}
+          <div className="flex flex-wrap gap-2 mb-3 px-1">
+            {Array.from({ length: numOutputs }, (_, g) => (
+              <div key={g} className="flex items-center gap-1.5 text-xs">
+                <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: GROUP_COLORS[g] }} />
+                <span className="text-surface-600">PDF {g + 1}</span>
+                <span className="text-surface-400">({groupCounts[g]})</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Page thumbnail grid */}
+          {pages.length > 0 && (
+            <div className="flex-1 overflow-y-auto mb-4">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                {pages.map((pg, i) => (
+                  <div key={`split-${pg.pageIndex}-${i}`}
+                    onClick={() => cycleGroup(i)}
+                    className="relative group rounded-lg border-2 transition cursor-pointer overflow-hidden hover:shadow-md"
+                    style={{ borderColor: GROUP_COLORS[assignments[i] ?? 0] }}
+                  >
+                    {/* Group badge */}
+                    <div className="absolute top-1 left-1 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center z-10"
+                      style={{ backgroundColor: GROUP_COLORS[assignments[i] ?? 0] }}>
+                      {(assignments[i] ?? 0) + 1}
+                    </div>
+                    {/* Mini group selector on hover */}
+                    <div className="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition z-10">
+                      {Array.from({ length: numOutputs }, (_, g) => (
+                        <button key={g}
+                          onClick={e => { e.stopPropagation(); setGroup(i, g); }}
+                          className="w-4 h-4 rounded-full border border-white/50 transition hover:scale-110"
+                          style={{ backgroundColor: GROUP_COLORS[g], opacity: assignments[i] === g ? 1 : 0.5 }}
+                        />
+                      ))}
+                    </div>
+                    {/* Thumbnail */}
+                    <img src={pg.dataUrl} alt={`Page ${pg.pageIndex + 1}`}
+                      className="w-full h-auto bg-white" draggable={false} />
+                    {/* Page label */}
+                    <div className="px-1.5 py-1 border-t" style={{ borderColor: GROUP_COLORS[assignments[i] ?? 0], backgroundColor: `${GROUP_COLORS[assignments[i] ?? 0]}10` }}>
+                      <p className="text-[10px] font-medium text-surface-700">{t("documents.pdfPage")} {pg.pageIndex + 1}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Footer with split button */}
+          {pages.length > 0 && (
+            <div className="flex items-center justify-between pt-3 border-t border-surface-200">
+              <span className="text-xs text-surface-500">
+                {pages.length} {t("documents.pdfPages")} → {numOutputs} PDFs
+              </span>
+              <button onClick={splitPdf} disabled={processing}
+                className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50">
+                {processing ? <Loader2 size={14} className="animate-spin" /> : <Scissors size={14} />}
+                {processing ? t("documents.pdfProcessing") : t("documents.pdfSplitAction")}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
