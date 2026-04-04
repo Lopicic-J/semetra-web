@@ -1031,18 +1031,21 @@ export default function FlashcardsPage() {
   // Decks
   const decks = useMemo(() => Array.from(new Set(cards.map(c => c.deck_name))).sort(), [cards]);
 
-  // Due cards
+  // Due cards — when a filter is active, ALL filtered cards are studyable
+  const hasActiveFilter = !!(filterModule || filterDeck || filterType !== "all" || filterLevel !== "all");
   const dueCards = useMemo(() => {
+    // If user has explicitly filtered (module, deck, type, level), include ALL matching cards
+    if (hasActiveFilter) return filtered;
+    // Otherwise, apply due-date + study-rating logic
     const now = new Date();
     return filtered.filter(c => {
       // Always include cards that are naturally due (no next_review or past due)
       if (!c.next_review || new Date(c.next_review) <= now) return true;
       // For non-due cards: include if their last rating matches the study filter
-      // This lets students re-study specific difficulty levels even if not yet due
       if (c.last_quality != null && studyRatings.has(c.last_quality)) return true;
       return false;
     });
-  }, [filtered, studyRatings]);
+  }, [filtered, studyRatings, hasActiveFilter]);
 
   // Stats
   const stats = useMemo(() => {
