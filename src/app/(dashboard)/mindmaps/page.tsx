@@ -289,6 +289,7 @@ function MindMapEditor({ map, modules, onBack }: {
 
   // Close export dropdown when clicking outside (use mousedown + skip first frame)
   const exportOpenedRef = useRef(false);
+  const exportBtnRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!showExport) { exportOpenedRef.current = false; return; }
     // Skip the first frame so the opening click doesn't immediately close
@@ -1058,24 +1059,11 @@ function MindMapEditor({ map, modules, onBack }: {
 
         <div className="w-px h-5 bg-surface-200" />
 
-        {/* Export dropdown */}
-        <div className="relative shrink-0 export-dropdown">
+        {/* Export dropdown — uses fixed positioning to escape toolbar overflow clip */}
+        <div className="shrink-0 export-dropdown" ref={exportBtnRef}>
           <button onClick={() => setShowExport(!showExport)} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-surface-100 text-surface-600 hover:bg-surface-200">
             <Download size={12} /> {t("mindmaps.export") || "Export"}
           </button>
-          {showExport && (
-            <div className="absolute right-0 top-full mt-1 bg-white border border-surface-200 rounded-xl shadow-lg py-1 w-40 z-50" onClick={e => e.stopPropagation()}>
-              <button onClick={() => { exportPNG(); setShowExport(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-surface-700 hover:bg-surface-50">
-                <Image size={12} /> PNG
-              </button>
-              <button onClick={() => { exportMarkdown(); setShowExport(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-surface-700 hover:bg-surface-50">
-                <FileText size={12} /> Markdown
-              </button>
-              <button onClick={() => { exportJSON(); setShowExport(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-surface-700 hover:bg-surface-50">
-                <FileText size={12} /> JSON
-              </button>
-            </div>
-          )}
         </div>
 
         <div className="flex items-center gap-0.5 bg-surface-100 rounded-lg px-1 shrink-0">
@@ -1089,6 +1077,26 @@ function MindMapEditor({ map, modules, onBack }: {
           <Keyboard size={14} />
         </button>
       </div>
+
+      {/* Export dropdown portal — rendered outside toolbar to avoid overflow clipping */}
+      {showExport && exportBtnRef.current && (() => {
+        const rect = exportBtnRef.current!.getBoundingClientRect();
+        return (
+          <div className="fixed bg-white border border-surface-200 rounded-xl shadow-lg py-1 w-40 export-dropdown"
+            style={{ top: rect.bottom + 4, left: rect.right - 160, zIndex: 9999 }}
+            onClick={e => e.stopPropagation()}>
+            <button onClick={() => { exportPNG(); setShowExport(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-surface-700 hover:bg-surface-50">
+              <Image size={12} /> PNG
+            </button>
+            <button onClick={() => { exportMarkdown(); setShowExport(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-surface-700 hover:bg-surface-50">
+              <FileText size={12} /> Markdown
+            </button>
+            <button onClick={() => { exportJSON(); setShowExport(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-surface-700 hover:bg-surface-50">
+              <FileText size={12} /> JSON
+            </button>
+          </div>
+        );
+      })()}
 
       {/* Search bar */}
       {showSearch && (
