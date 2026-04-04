@@ -68,7 +68,7 @@ export default function LoginPage() {
           <p className="text-surface-500 text-sm mt-1">Melde dich bei Semetra Workspace an</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl shadow-surface-200/50 border border-surface-200/60 p-6 sm:p-8">
+        <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-xl shadow-surface-200/50 border border-surface-200/60 p-6 sm:p-8">
           {/* OAuth Buttons — only shows if providers are enabled */}
           {enabledProviders.length > 0 && (
             <>

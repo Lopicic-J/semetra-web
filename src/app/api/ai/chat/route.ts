@@ -143,8 +143,32 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Keep only last 20 messages for context window management
-  const trimmedMessages = messages.slice(-20);
+  // ── Determine action type + token limits ──
+  const { classifyChatAction, AI_TOKEN_LIMITS, truncateToTokenLimit } = await import("@/lib/ai-weights");
+  const lastMsg = messages[messages.length - 1]?.content ?? "";
+  const actionType = mode === "summarize" ? "notes_summarize" as const
+    : mode === "explain" ? "chat_explain" as const
+    : classifyChatAction(lastMsg);
+  const limits = AI_TOKEN_LIMITS[actionType];
+
+  // ── AI Usage Check (server-side metering with weight) ──
+  const { checkAndIncrementAiUsage } = await import("@/lib/ai-usage");
+  const aiCheck = await checkAndIncrementAiUsage(user.id, actionType);
+  if (!aiCheck.allowed) {
+    const msg = aiCheck.addonCredits === 0
+      ? `KI-Kontingent aufgebraucht (${aiCheck.used}/${aiCheck.monthlyPool + aiCheck.addonCredits} Credits). Kaufe ein Add-on für weitere Requests.`
+      : "KI-Kontingent aufgebraucht.";
+    return new Response(JSON.stringify({ error: msg, usage: aiCheck }), {
+      status: 429,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Keep only last 20 messages for context window, truncate content to token limit
+  const trimmedMessages = messages.slice(-20).map(m => ({
+    role: m.role,
+    content: truncateToTokenLimit(m.content, limits.maxInput),
+  }));
 
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -156,13 +180,10 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
-        max_tokens: 2048,
+        max_tokens: limits.maxOutput,
         stream: true,
         system: buildSystemPrompt(mode, context),
-        messages: trimmedMessages.map(m => ({
-          role: m.role,
-          content: m.content,
-        })),
+        messages: trimmedMessages,
       }),
     });
 

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Lock, Zap, X, Check, Loader2, Star, Sparkles, ArrowRight } from "lucide-react";
-import { PLANS, PRO_PRICES } from "@/lib/stripe";
+import { PRO_BASIC_PRICES } from "@/lib/stripe";
 import type { ProFeature } from "@/lib/gates";
 import { PRO_FEATURES, FREE_LIMITS } from "@/lib/gates";
 import Link from "next/link";
@@ -160,7 +160,7 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
     setLoading(true);
     setError(null);
     try {
-      const priceId = PRO_PRICES[selectedTier].priceId;
+      const priceId = PRO_BASIC_PRICES[selectedTier].priceId;
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -177,7 +177,7 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="bg-gradient-to-br from-brand-600 to-brand-800 p-6 text-white relative">
           <button
@@ -204,46 +204,55 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
         <div className="p-6">
           {/* Tier selector */}
           <div className="space-y-2 mb-5">
-            {tiers.map(t => (
+            {tiers.map(tier => (
               <button
-                key={t.key}
-                onClick={() => setSelectedTier(t.key)}
+                key={tier.key}
+                onClick={() => setSelectedTier(tier.key)}
                 className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-all ${
-                  selectedTier === t.key
+                  selectedTier === tier.key
                     ? "border-brand-600 bg-brand-50"
                     : "border-surface-200 hover:border-surface-300"
                 }`}
               >
                 <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                  selectedTier === t.key ? "border-brand-600" : "border-surface-300"
+                  selectedTier === tier.key ? "border-brand-600" : "border-surface-300"
                 }`}>
-                  {selectedTier === t.key && <div className="w-2 h-2 rounded-full bg-brand-600" />}
+                  {selectedTier === tier.key && <div className="w-2 h-2 rounded-full bg-brand-600" />}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-surface-900">{t.label}</span>
-                    {t.popular && (
+                    <span className="text-sm font-semibold text-surface-900">{tier.label}</span>
+                    {tier.popular && (
                       <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold flex items-center gap-0.5">
                         <Star size={8} /> {t("progate.modal.yearlyPopular")}
                       </span>
                     )}
                   </div>
-                  <span className="text-xs text-surface-500">{t.sub}</span>
+                  <span className="text-xs text-surface-500">{tier.sub}</span>
                 </div>
-                <span className="text-sm font-bold text-brand-600">{t.price}</span>
+                <span className="text-sm font-bold text-brand-600">{tier.price}</span>
               </button>
             ))}
           </div>
 
           {/* Features */}
           <div className="space-y-2 mb-5">
-            {Array.from({ length: 6 }, (_, i) => t(`upgrade.pro.f${i + 1}`)).map(f => (
+            {[
+              t("upgrade.basic.f1"),
+              t("upgrade.basic.f2"),
+              t("upgrade.basic.f3"),
+              t("upgrade.basic.f4"),
+              t("upgrade.basic.f5"),
+              t("upgrade.basic.f6"),
+            ].map(f => (
               <div key={f} className="flex items-center gap-2.5 text-sm text-surface-700">
                 <Check size={16} className="text-brand-600 shrink-0" />
                 <span>{f}</span>
               </div>
             ))}
-            <p className="text-xs text-surface-400 pl-6">{t("upgrade.moreProFeatures", { count: "6" })}</p>
+            <p className="text-xs text-surface-400 pl-6">
+              <Link href="/upgrade" className="text-brand-600 hover:underline">{t("progate.modal.seeAllPlans")}</Link>
+            </p>
           </div>
 
           {error && (

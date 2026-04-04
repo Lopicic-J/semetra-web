@@ -378,34 +378,89 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
 
 function AppearanceTab() {
   const { t } = useTranslation();
+  const { isPro } = useProfile();
+
+  // Dynamic import to avoid SSR issues — ThemeProvider is client-only
+  let mode: import("@/components/providers/ThemeProvider").ThemeMode = "system";
+  let setMode: (m: import("@/components/providers/ThemeProvider").ThemeMode) => void = () => {};
+  let accent: import("@/components/providers/ThemeProvider").AccentKey = "indigo";
+  let setAccent: (a: import("@/components/providers/ThemeProvider").AccentKey) => void = () => {};
+  let palettes: import("@/components/providers/ThemeProvider").AccentPalette[] = [];
+
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const theme = require("@/components/providers/ThemeProvider").useTheme();
+    mode = theme.mode;
+    setMode = theme.setMode;
+    accent = theme.accent;
+    setAccent = theme.setAccent;
+    palettes = theme.palettes;
+  } catch {
+    // ThemeProvider not mounted (shouldn't happen in dashboard)
+  }
+
+  const modeOptions = [
+    { id: "light" as const, label: t("settings.light"), emoji: "☀️" },
+    { id: "dark" as const,  label: t("settings.dark"),  emoji: "🌙" },
+    { id: "system" as const, label: t("settings.system"), emoji: "💻" },
+  ];
+
   return (
-    <div className="card">
-      <h2 className="font-semibold text-surface-900 mb-4">{t("settings.appearance")}</h2>
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-surface-700 mb-2">{t("settings.colorScheme")}</label>
-          <div className="flex gap-3">
-            {[
-              { id: "light", label: t("settings.light"), emoji: "☀️" },
-              { id: "dark", label: t("settings.dark"), emoji: "🌙" },
-              { id: "system", label: t("settings.system"), emoji: "💻" },
-            ].map(item => (
-              <button key={item.id} className="flex flex-col items-center gap-1 p-3 rounded-xl border-2 border-brand-200 bg-brand-50 text-brand-700 text-sm font-medium">
-                <span className="text-xl">{item.emoji}</span>
-                {item.label}
-              </button>
-            ))}
-          </div>
+    <div className="space-y-5">
+      {/* ── Color Scheme (Free + Pro) ── */}
+      <div className="card">
+        <h2 className="font-semibold text-surface-900 mb-4">{t("settings.colorScheme")}</h2>
+        <div className="flex gap-3">
+          {modeOptions.map(item => (
+            <button
+              key={item.id}
+              onClick={() => setMode(item.id)}
+              className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                mode === item.id
+                  ? "border-brand-500 bg-brand-50 text-brand-700 shadow-sm"
+                  : "border-surface-200 bg-surface-50 text-surface-600 hover:border-surface-300"
+              }`}
+            >
+              <span className="text-xl">{item.emoji}</span>
+              {item.label}
+            </button>
+          ))}
         </div>
-        <div>
-          <label className="block text-sm font-medium text-surface-700 mb-1">{t("settings.accentColor")}</label>
-          <div className="flex gap-2">
-            {["#6d28d9","#2563eb","#059669","#dc2626","#d97706"].map(c => (
-              <button key={c} className="w-8 h-8 rounded-full border-2 border-transparent hover:scale-110 transition-transform" style={{ background: c }} />
-            ))}
-          </div>
+      </div>
+
+      {/* ── Accent Color (Pro only) ── */}
+      <div className="card">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold text-surface-900">{t("settings.accentColor")}</h2>
+          {!isPro && (
+            <Link href="/upgrade" className="flex items-center gap-1 text-xs font-medium text-brand-600 hover:text-brand-700">
+              <Zap size={12} /> Pro
+            </Link>
+          )}
         </div>
-        <p className="text-xs text-surface-400">{t("settings.moreAppearance")}</p>
+        <div className="flex flex-wrap gap-3">
+          {palettes.map(p => (
+            <button
+              key={p.key}
+              onClick={() => isPro && setAccent(p.key)}
+              disabled={!isPro}
+              title={isPro ? p.label : `${p.label} — Pro Feature`}
+              className={`group relative w-10 h-10 rounded-full border-2 transition-all ${
+                accent === p.key
+                  ? "border-surface-900 scale-110 shadow-md"
+                  : "border-transparent hover:scale-105"
+              } ${!isPro && p.key !== "indigo" ? "opacity-40 cursor-not-allowed" : ""}`}
+              style={{ background: p.swatch }}
+            >
+              {accent === p.key && (
+                <CheckCircle size={16} className="absolute -top-1 -right-1 text-surface-900 bg-white rounded-full" />
+              )}
+            </button>
+          ))}
+        </div>
+        {!isPro && (
+          <p className="text-xs text-surface-400 mt-3">{t("settings.accentProHint")}</p>
+        )}
       </div>
     </div>
   );

@@ -10,27 +10,97 @@
 
 @layer base {
   :root {
-    --brand:       #4f46e5;
-    --brand-light: #6366f1;
-    --brand-dark:  #4338ca;
-    --brand-muted: #eef2ff;
     --radius:      0.75rem;
+
+    /* ── Accent / Brand (default: Indigo) ── */
+    --accent-50:  238 242 255;   /* #eef2ff */
+    --accent-100: 224 231 255;   /* #e0e7ff */
+    --accent-200: 199 210 254;   /* #c7d2fe */
+    --accent-300: 165 180 252;   /* #a5b4fc */
+    --accent-400: 129 140 248;   /* #818cf8 */
+    --accent-500: 99  102 241;   /* #6366f1 */
+    --accent-600: 79  70  229;   /* #4f46e5 */
+    --accent-700: 67  56  202;   /* #4338ca */
+    --accent-800: 55  48  163;   /* #3730a3 */
+    --accent-900: 49  46  129;   /* #312e81 */
+    --accent-950: 30  27  75;    /* #1e1b4b */
+
+    /* ── Surface (Light mode) ── */
+    --sf-50:  248 250 252;
+    --sf-100: 241 245 249;
+    --sf-200: 226 232 240;
+    --sf-300: 203 213 225;
+    --sf-400: 148 163 184;
+    --sf-500: 100 116 139;
+    --sf-600: 71  85  105;
+    --sf-700: 51  65  85;
+    --sf-800: 30  41  59;
+    --sf-900: 15  23  42;
+
+    /* ── Card / Page ── */
+    --page-bg: var(--sf-50);
+    --card-bg: 255 255 255;
+    --card-border: 226 232 240;
+
+    /* ── Text ── */
+    --text-primary:   var(--sf-900);
+    --text-secondary: var(--sf-600);
+    --text-muted:     var(--sf-400);
+  }
+
+  /* ── Dark Mode: warm neutral grays (Claude-style) ──
+     Key insight: in light mode surface-400 = placeholder (muted),
+     surface-500 = secondary text, surface-800/900 = headings.
+     In dark mode we invert so surface-400 must still be readable
+     as muted text on dark bg, and surface-800/900 must be near-white. */
+  .dark {
+    --sf-50:  24  24  27;    /* #18181b — page bg */
+    --sf-100: 39  39  42;    /* #27272a — card bg / sidebar */
+    --sf-200: 55  55  60;    /* #37373c — borders, dividers */
+    --sf-300: 75  75  82;    /* #4b4b52 — muted borders */
+    --sf-400: 140 140 150;   /* #8c8c96 — placeholder text (brighter!) */
+    --sf-500: 180 180 188;   /* #b4b4bc — secondary text (brighter!) */
+    --sf-600: 210 210 215;   /* #d2d2d7 — body text */
+    --sf-700: 232 232 235;   /* #e8e8eb — strong text */
+    --sf-800: 245 245 246;   /* #f5f5f6 — headings */
+    --sf-900: 252 252 252;   /* #fcfcfc — brightest text */
+
+    --page-bg: 24 24 27;        /* #18181b */
+    --card-bg: 39 39 42;        /* #27272a */
+    --card-border: 55 55 60;    /* #37373c */
+
+    --text-primary:   252 252 252;  /* #fcfcfc */
+    --text-secondary: 210 210 215;  /* #d2d2d7 */
+    --text-muted:     140 140 150;  /* #8c8c96 */
   }
 
   * { box-sizing: border-box; }
 
   body {
-    @apply font-sans text-surface-800 bg-surface-50;
+    @apply font-sans;
+    color: rgb(var(--text-primary));
+    background-color: rgb(var(--page-bg));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply text-surface-900 tracking-tight;
+    color: rgb(var(--text-primary));
+    @apply tracking-tight;
   }
 
   ::selection {
     @apply bg-brand-100 text-brand-900;
+  }
+
+  /* ── Dark Mode: override all bg-white globally ── */
+  .dark .bg-white {
+    background-color: rgb(var(--card-bg)) !important;
+  }
+
+  /* Dark mode shadows should be darker */
+  .dark {
+    --tw-shadow-color: rgba(0,0,0,.35);
   }
 }
 
@@ -42,8 +112,9 @@
 
   /* ── Cards ─────────────────────────────────────────────────────────────── */
   .card {
-    @apply bg-white rounded-2xl shadow-card border border-surface-200/60 p-5
-           transition-shadow duration-200;
+    background-color: rgb(var(--card-bg));
+    border-color: rgb(var(--card-border) / 0.6);
+    @apply rounded-2xl shadow-card border p-5 transition-shadow duration-200;
   }
   .card-hover {
     @apply card hover:shadow-card-md hover:border-surface-200;
@@ -86,8 +157,9 @@
 
   /* ── Inputs ────────────────────────────────────────────────────────────── */
   .input {
+    background-color: rgb(var(--card-bg));
     @apply w-full px-3 py-2 rounded-xl text-sm
-           bg-white border border-surface-200
+           border border-surface-200
            text-surface-800 placeholder:text-surface-400
            focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400
            transition-all duration-150;
@@ -139,3 +211,142 @@
   scrollbar-width: thin;
   scrollbar-color: rgb(203 213 225 / 0.5) transparent;
 }
+.dark * {
+  scrollbar-color: rgb(55 55 60 / 0.6) transparent;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* DARK MODE — Comprehensive override system                                  */
+/* Reference: src/lib/design-tokens.ts                                        */
+/*                                                                            */
+/* surface-* and brand-* adapt AUTOMATICALLY via CSS variables.               */
+/* Everything below fixes Tailwind standard colors + hardcoded values.        */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. BACKGROUNDS: white & standard colors → dark equivalents ────────── */
+
+/* bg-white → card background (#27272a) */
+.dark .bg-white,
+.dark .bg-white\/40,
+.dark .bg-white\/80,
+.dark .bg-white\/90,
+.dark .bg-white\/95 {
+  background-color: rgb(var(--card-bg)) !important;
+}
+
+/* Brand light bgs → subtle tints */
+.dark .bg-brand-50  { background-color: rgb(var(--accent-950) / 0.2) !important; }
+.dark .bg-brand-100 { background-color: rgb(var(--accent-900) / 0.25) !important; }
+.dark .bg-brand-200 { background-color: rgb(var(--accent-800) / 0.3) !important; }
+
+/* Red / Danger */
+.dark .bg-red-50    { background-color: rgba(220,38,38,0.10) !important; }
+.dark .bg-red-100   { background-color: rgba(220,38,38,0.15) !important; }
+
+/* Orange */
+.dark .bg-orange-50     { background-color: rgba(234,88,12,0.10) !important; }
+.dark .bg-orange-50\/50 { background-color: rgba(234,88,12,0.06) !important; }
+.dark .bg-orange-100    { background-color: rgba(234,88,12,0.15) !important; }
+.dark .bg-orange-200    { background-color: rgba(234,88,12,0.20) !important; }
+
+/* Amber */
+.dark .bg-amber-50  { background-color: rgba(217,119,6,0.10) !important; }
+.dark .bg-amber-100 { background-color: rgba(217,119,6,0.15) !important; }
+.dark .bg-amber-200 { background-color: rgba(217,119,6,0.20) !important; }
+
+/* Yellow */
+.dark .bg-yellow-50  { background-color: rgba(202,138,4,0.10) !important; }
+.dark .bg-yellow-100 { background-color: rgba(202,138,4,0.15) !important; }
+
+/* Green */
+.dark .bg-green-50  { background-color: rgba(22,163,74,0.10) !important; }
+.dark .bg-green-100 { background-color: rgba(22,163,74,0.15) !important; }
+
+/* Blue */
+.dark .bg-blue-50  { background-color: rgba(37,99,235,0.10) !important; }
+.dark .bg-blue-100 { background-color: rgba(37,99,235,0.15) !important; }
+
+/* Semantic (custom palette from tailwind.config) */
+.dark .bg-success-50 { background-color: rgba(22,163,74,0.10) !important; }
+.dark .bg-warning-50 { background-color: rgba(217,119,6,0.10) !important; }
+.dark .bg-danger-50  { background-color: rgba(220,38,38,0.10) !important; }
+.dark .bg-info-50    { background-color: rgba(37,99,235,0.10) !important; }
+
+/* Gray/Slate/Zinc → surface equivalents */
+.dark .bg-gray-50, .dark .bg-slate-50, .dark .bg-zinc-50 {
+  background-color: rgb(var(--sf-50)) !important;
+}
+.dark .bg-gray-100, .dark .bg-slate-100, .dark .bg-zinc-100 {
+  background-color: rgb(var(--sf-100)) !important;
+}
+.dark .bg-gray-800, .dark .bg-gray-900 {
+  background-color: rgb(var(--sf-100)) !important;
+}
+
+/* Gradients: from-X to-Y */
+.dark .from-orange-50 { --tw-gradient-from: rgba(234,88,12,0.10) !important; }
+.dark .to-amber-50    { --tw-gradient-to: rgba(217,119,6,0.10) !important; }
+
+/* ── 2. TEXT: light-bg text colors → bright for dark bg ────────────────── */
+
+/* Red text: -700/-800 → brighter in dark */
+.dark .text-red-500 { color: #f87171 !important; }
+.dark .text-red-600 { color: #fca5a5 !important; }
+.dark .text-red-700 { color: #fca5a5 !important; }
+
+/* Orange text */
+.dark .text-orange-500 { color: #fb923c !important; }
+.dark .text-orange-600 { color: #fdba74 !important; }
+.dark .text-orange-700 { color: #fdba74 !important; }
+.dark .text-orange-800 { color: #fed7aa !important; }
+
+/* Amber text */
+.dark .text-amber-400 { color: #fbbf24 !important; }
+.dark .text-amber-600 { color: #fcd34d !important; }
+.dark .text-amber-700 { color: #fde68a !important; }
+
+/* Yellow text */
+.dark .text-yellow-500 { color: #facc15 !important; }
+.dark .text-yellow-700 { color: #fde68a !important; }
+
+/* Green text */
+.dark .text-green-600 { color: #86efac !important; }
+.dark .text-green-700 { color: #86efac !important; }
+
+/* Blue text */
+.dark .text-blue-400 { color: #93c5fd !important; }
+.dark .text-blue-700 { color: #93c5fd !important; }
+
+/* Gray/Slate/Zinc text */
+.dark .text-gray-400, .dark .text-gray-500 { color: rgb(var(--sf-400)) !important; }
+.dark .text-gray-600 { color: rgb(var(--sf-500)) !important; }
+.dark .text-gray-700, .dark .text-gray-800, .dark .text-gray-900 { color: rgb(var(--sf-800)) !important; }
+.dark .text-gray-100 { color: rgb(var(--sf-600)) !important; }
+.dark .text-black { color: rgb(var(--sf-900)) !important; }
+
+/* ── 3. BORDERS: light borders → subtle dark borders ──────────────────── */
+
+.dark .border-red-200    { border-color: rgba(220,38,38,0.25) !important; }
+.dark .border-orange-100,
+.dark .border-orange-200 { border-color: rgba(234,88,12,0.25) !important; }
+.dark .border-amber-200,
+.dark .border-amber-300,
+.dark .border-amber-400  { border-color: rgba(217,119,6,0.30) !important; }
+.dark .border-yellow-100,
+.dark .border-yellow-200 { border-color: rgba(202,138,4,0.25) !important; }
+.dark .border-green-200  { border-color: rgba(22,163,74,0.25) !important; }
+.dark .border-blue-200   { border-color: rgba(37,99,235,0.25) !important; }
+
+/* Dividers */
+.dark .divide-surface-50 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgb(var(--sf-200) / 0.4);
+}
+
+/* ── 4. MODAL BACKDROPS ───────────────────────────────────────────────── */
+.dark .fixed.inset-0.bg-black\/40,
+.dark .fixed.inset-0.bg-black\/50 {
+  background-color: rgba(0,0,0,0.65) !important;
+}
+
+/* ── 5. RING / FOCUS COLORS ──────────────────────────────────────────── */
+.dark .ring-brand-500\/20 { --tw-ring-color: rgb(var(--accent-500) / 0.3) !important; }

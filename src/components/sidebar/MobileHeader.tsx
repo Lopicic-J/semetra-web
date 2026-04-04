@@ -32,7 +32,7 @@ export default function MobileHeader() {
   return (
     <>
       {/* Mobile top bar */}
-      <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-surface-200/60 shrink-0">
+      <header className="md:hidden flex items-center justify-between px-4 py-3 bg-surface-50 border-b border-surface-200/60 shrink-0">
         <button
           onClick={() => setOpen(true)}
           className="p-2 -ml-2 rounded-xl hover:bg-surface-100 transition-colors"
@@ -67,7 +67,7 @@ export default function MobileHeader() {
       {/* Slide-out sidebar */}
       <aside
         className={clsx(
-          "md:hidden fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-xl transition-transform duration-300 ease-in-out flex flex-col",
+          "md:hidden fixed inset-y-0 left-0 z-50 w-72 bg-[rgb(var(--card-bg))] shadow-xl transition-transform duration-300 ease-in-out flex flex-col",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -179,7 +179,7 @@ export default function MobileHeader() {
                 <span className="text-xs font-semibold">{t("sidebar.proUpgrade")}</span>
               </div>
               <p className="text-[11px] text-brand-200 mb-2.5">{t("sidebar.aiCoach")}</p>
-              <div className="w-full py-1.5 rounded-lg bg-white/95 text-brand-700 text-xs font-semibold text-center">
+              <div className="w-full py-1.5 rounded-lg bg-surface-50/95 text-brand-700 text-xs font-semibold text-center">
                 {t("sidebar.upgradePrice")}
               </div>
             </Link>

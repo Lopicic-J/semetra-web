@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { CountryCode } from "@/lib/grading-systems";
+import type { PlanTier } from "@/lib/gates";
 
 export type Plan = "free" | "pro";
 export type PlanType = "free" | "subscription" | "lifetime";
@@ -13,6 +14,7 @@ export interface Profile {
   avatar_url: string | null;
   plan: Plan;
   plan_type: PlanType | null;
+  plan_tier: PlanTier | null;       // "basic" | "full"
   country: CountryCode | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
@@ -20,6 +22,7 @@ export interface Profile {
   plan_expires_at: string | null;
   study_start: string | null;
   study_end: string | null;
+  ai_credits: number;               // Legacy add-on credits
 }
 
 export function useProfile() {
@@ -62,6 +65,16 @@ export function useProfile() {
   );
 
   const isLifetime = profile?.plan_type === "lifetime";
+  const planTier: PlanTier | null = (profile?.plan_tier as PlanTier | null) ?? null;
+  const aiCredits = profile?.ai_credits ?? 0;
 
-  return { profile, loading, isPro: !!isPro, isLifetime: !!isLifetime, refetch: load };
+  return {
+    profile,
+    loading,
+    isPro: !!isPro,
+    isLifetime: !!isLifetime,
+    planTier,
+    aiCredits,
+    refetch: load,
+  };
 }

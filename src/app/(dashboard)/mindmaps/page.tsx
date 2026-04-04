@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import type { MindMap, MindMapNode, CalendarEvent, Task } from "@/types/database";
 import { useTranslation } from "@/lib/i18n";
+import { useTheme } from "@/components/providers/ThemeProvider";
+import { nodeGradient, DK, dk } from "@/lib/design-tokens";
 
 const NODE_COLORS = [
   "#6d28d9","#2563eb","#059669","#dc2626","#d97706",
@@ -29,6 +31,8 @@ export default function MindMapsPage() {
   const supabase = createClient();
   const { modules } = useModules();
   const { isPro } = useProfile();
+  const { resolvedMode } = useTheme();
+  const isDark = resolvedMode === "dark";
   const [maps, setMaps] = useState<MindMap[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingMap, setEditingMap] = useState<MindMap | null>(null);
@@ -256,6 +260,8 @@ function MindMapEditor({ map, modules, onBack }: {
 }) {
   const { t } = useTranslation();
   const supabase = createClient();
+  const { resolvedMode } = useTheme();
+  const isDark = resolvedMode === "dark";
   const [nodes, setNodes] = useState<MindMapNode[]>([]);
   const [loading, setLoading] = useState(true);
   const [layoutMode, setLayoutMode] = useState<"tree"|"free">(map.layout_mode as "tree"|"free");
@@ -1329,12 +1335,10 @@ function MindMapEditor({ map, modules, onBack }: {
                       "border-surface-200 hover:border-surface-300 shadow-sm hover:shadow-md"
                     }`}
                       style={{
-                        background: isRoot
-                          ? `linear-gradient(135deg, ${n.color}15 0%, ${n.color}05 100%)`
-                          : `linear-gradient(135deg, ${n.color}20 0%, ${n.color}08 100%)`,
+                        background: nodeGradient(n.color, isDark, isRoot),
                         backdropFilter: "blur(4px)",
                         borderLeftWidth: isRoot ? "4px" : "2px",
-                        borderLeftColor: isRoot ? n.color : "inherit",
+                        borderLeftColor: isRoot ? n.color : isDark ? "rgba(255,255,255,0.1)" : "inherit",
                       }}
                     >
                       {/* Node image */}

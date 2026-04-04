@@ -46,7 +46,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="flex flex-col w-[232px] shrink-0 h-screen bg-white border-r border-surface-200/60 px-3 py-4">
+    <aside className="flex flex-col w-[232px] shrink-0 h-screen bg-[rgb(var(--card-bg))] border-r border-surface-200/60 px-3 py-4">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-2 mb-6">
         <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-600 text-white shrink-0">
@@ -124,7 +124,7 @@ export default function Sidebar() {
             <span className="text-xs font-semibold">{t("sidebar.proUpgrade")}</span>
           </div>
           <p className="text-[11px] text-brand-200 mb-2.5">{t("sidebar.aiCoach")}</p>
-          <div className="w-full py-1.5 rounded-lg bg-white/95 text-brand-700 text-xs font-semibold text-center hover:bg-white transition-colors">
+          <div className="w-full py-1.5 rounded-lg bg-surface-50/95 text-brand-700 text-xs font-semibold text-center hover:bg-surface-50 transition-colors">
             {t("sidebar.upgradePrice")}
           </div>
         </Link>

@@ -10,8 +10,9 @@ import { formatDate, gradeAvg, ectsWeightedAvg } from "@/lib/utils";
 import { getGradeColor, getGradeLabelText, formatGrade } from "@/lib/grading-systems";
 import type { GradingSystem } from "@/lib/grading-systems";
 import { FREE_LIMITS } from "@/lib/gates";
-import { UpgradeModal } from "@/components/ui/ProGate";
+import { UpgradeModal, ProGate } from "@/components/ui/ProGate";
 import { Plus, X, Trash2, Pencil, BarChart2, TrendingUp, AlertTriangle, Award, Target, GraduationCap, RotateCcw } from "lucide-react";
+import { GradeAnalytics } from "@/components/grades/GradeAnalytics";
 import type { Grade, Module, CalendarEvent } from "@/types/database";
 
 type Exam = CalendarEvent & { daysLeft?: number };
@@ -361,6 +362,17 @@ export default function GradesPage() {
           ))}
         </div>
       )}
+
+      {/* ─── Notenprognosen & Trendanalyse (Pro Feature) ─── */}
+      <ProGate feature="gradeAnalytics" isPro={isPro} mode="overlay">
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold text-surface-900 mb-3 flex items-center gap-2">
+            <TrendingUp size={20} className="text-brand-600" />
+            {t("grades.analytics") ?? "Notenprognosen & Trendanalyse"}
+          </h2>
+          <GradeAnalytics grades={grades} modules={modules} gs={gs} />
+        </div>
+      </ProGate>
 
       {showForm && (
         <GradeModal

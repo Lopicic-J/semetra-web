@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { stripe, STRIPE_PRO_PRICE_ID, isValidProPrice } from "@/lib/stripe";
+import {
+  stripe,
+  STRIPE_PRO_PRICE_ID,
+  isValidProPrice,
+  isAiAddonPrice,
+  isLifetimeBasicPrice,
+  isLifetimeFullPrice,
+} from "@/lib/stripe";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,12 +18,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Nicht eingeloggt." }, { status: 401 });
     }
 
-    // Accept optional price_id from body, fall back to default (monthly)
+    // Parse body for price_id and optional mode
     let priceId = STRIPE_PRO_PRICE_ID;
+    let isOneTime = false;
     try {
       const body = await req.json();
-      if (body.price_id && isValidProPrice(body.price_id)) {
-        priceId = body.price_id;
+      if (body.price_id) {
+        if (isValidProPrice(body.price_id)) {
+          priceId = body.price_id;
+        } else if (isAiAddonPrice(body.price_id)) {
+          priceId = body.price_id;
+          isOneTime = true;
+        } else if (isLifetimeBasicPrice(body.price_id) || isLifetimeFullPrice(body.price_id)) {
+          priceId = body.price_id;
+          isOneTime = true;
+        }
+      }
+      // Allow explicit mode override
+      if (body.mode === "payment") {
+        isOneTime = true;
       }
     } catch {
       // No body or invalid JSON — use default
@@ -43,7 +63,6 @@ export async function POST(req: NextRequest) {
       });
       customerId = customer.id;
 
-      // Save customer ID to profile
       await supabase
         .from("profiles")
         .update({ stripe_customer_id: customerId })
@@ -52,29 +71,26 @@ export async function POST(req: NextRequest) {
 
     const origin = req.headers.get("origin") ?? "https://semetra-web.vercel.app";
 
-    // Create Stripe Checkout Session
-    const session = await stripe.checkout.sessions.create({
+    // Build checkout session params
+    const sessionParams: Parameters<typeof stripe.checkout.sessions.create>[0] = {
       customer: customerId,
-      mode: "subscription",
+      mode: isOneTime ? "payment" : "subscription",
       payment_method_types: ["card"],
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${origin}/upgrade?success=1&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/upgrade?canceled=1`,
-      metadata: {
-        supabase_user_id: user.id,
-      },
-      subscription_data: {
-        metadata: {
-          supabase_user_id: user.id,
-        },
-      },
+      metadata: { supabase_user_id: user.id },
       allow_promotion_codes: true,
-    });
+    };
+
+    // Only add subscription_data for subscription mode
+    if (!isOneTime) {
+      sessionParams.subscription_data = {
+        metadata: { supabase_user_id: user.id },
+      };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     return NextResponse.json({ url: session.url });
   } catch (err: unknown) {

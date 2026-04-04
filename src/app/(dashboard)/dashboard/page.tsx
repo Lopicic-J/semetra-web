@@ -16,11 +16,15 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type { CalendarEvent, Topic } from "@/types/database";
+import { useTheme } from "@/components/providers/ThemeProvider";
+import { DK, dk } from "@/lib/design-tokens";
 
 type Exam = CalendarEvent & { daysLeft?: number };
 
 export default function DashboardPage() {
   const { t } = useTranslation();
+  const { resolvedMode } = useTheme();
+  const isDark = resolvedMode === "dark";
   const { modules, loading: ml } = useModules();
   const { tasks } = useTasks();
   const { grades } = useGrades();
@@ -258,8 +262,8 @@ export default function DashboardPage() {
           {examKnowledgeWarnings.map(w => (
             <Link key={w.exam.id} href="/knowledge" className="flex items-center gap-3 p-3 rounded-xl border transition-colors hover:shadow-sm no-underline"
               style={{
-                background: w.understoodPct < 30 ? "#fef2f2" : w.understoodPct < 60 ? "#fff7ed" : "#fefce8",
-                borderColor: w.understoodPct < 30 ? "#fecaca" : w.understoodPct < 60 ? "#fed7aa" : "#fef08a",
+                background: w.understoodPct < 30 ? (isDark ? "rgba(220,38,38,0.12)" : "#fef2f2") : w.understoodPct < 60 ? (isDark ? "rgba(234,88,12,0.12)" : "#fff7ed") : (isDark ? "rgba(202,138,4,0.12)" : "#fefce8"),
+                borderColor: w.understoodPct < 30 ? (isDark ? "rgba(220,38,38,0.25)" : "#fecaca") : w.understoodPct < 60 ? (isDark ? "rgba(234,88,12,0.25)" : "#fed7aa") : (isDark ? "rgba(202,138,4,0.25)" : "#fef08a"),
               }}>
               <AlertTriangle size={18} className={
                 w.understoodPct < 30 ? "text-red-500" : w.understoodPct < 60 ? "text-orange-500" : "text-yellow-500"
@@ -553,6 +557,8 @@ export default function DashboardPage() {
 /* ═══ 30-Day Heatmap ═══ */
 function HeatmapRow({ last30Days }: { last30Days: Record<string, number> }) {
   const { t } = useTranslation();
+  const { resolvedMode } = useTheme();
+  const isDark = resolvedMode === "dark";
   const days = Object.entries(last30Days);
   if (days.length === 0) {
     return <p className="text-sm text-surface-400 text-center py-4">{t("dashboard.noStudyData")}</p>;
@@ -577,7 +583,7 @@ function HeatmapRow({ last30Days }: { last30Days: Record<string, number> }) {
                 height: `${Math.max(secs > 0 ? (secs / maxSecs) * 56 + 8 : 6, 6)}px`,
                 background: secs > 0
                   ? `rgba(79, 70, 229, ${intensity})`
-                  : "#f1f5f9",
+                  : isDark ? "#27272a" : "#f1f5f9",
               }}
             />
             {d.getDate() === 1 || d.getDay() === 1 || isToday ? (

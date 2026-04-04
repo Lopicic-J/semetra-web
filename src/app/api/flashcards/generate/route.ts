@@ -33,8 +33,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
   }
 
-  // KI-Features sind Beta — free für alle User
-  // Wird zu Pro hochgestuft wenn echter Mehrwert vorhanden
+  // ── AI Usage Check (server-side metering, weight=3 for flashcard generation) ──
+  const { checkAndIncrementAiUsage } = await import("@/lib/ai-usage");
+  const aiCheck = await checkAndIncrementAiUsage(user.id, "flashcards_generate");
+  if (!aiCheck.allowed) {
+    const msg = aiCheck.addonCredits === 0
+      ? "KI-Kontingent aufgebraucht. Kaufe ein Add-on für weitere Requests."
+      : "KI-Kontingent aufgebraucht.";
+    return NextResponse.json({ error: msg, usage: aiCheck }, { status: 429 });
+  }
 
   const body = await req.json();
   const { text, module_id, deck_name, filename, language = "de" } = body as {

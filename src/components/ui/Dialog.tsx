@@ -49,7 +49,7 @@ export function Dialog({
     >
       <div
         className={clsx(
-          "bg-white rounded-2xl shadow-xl w-full overflow-hidden",
+          "bg-[rgb(var(--card-bg))] rounded-2xl shadow-xl w-full overflow-hidden",
           sizeStyles[size],
           className
         )}

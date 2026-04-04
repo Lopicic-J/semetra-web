@@ -23,7 +23,7 @@ export function Card({
   return (
     <div
       className={clsx(
-        "bg-white rounded-2xl shadow-card border border-surface-200/60 transition-all duration-200",
+        "bg-[rgb(var(--card-bg))] rounded-2xl shadow-card border border-surface-200/60 transition-all duration-200",
         interactive && "hover:shadow-card-md hover:border-surface-200 cursor-pointer active:scale-[0.995]",
         paddingStyles[padding],
         className

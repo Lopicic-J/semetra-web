@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import {
+  stripe,
+  isAiAddonPrice,
+  AI_ADDON_PRICE,
+  isLifetimeFullPrice,
+  getTierFromPriceId,
+} from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 
@@ -8,6 +14,11 @@ const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
   process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""
 );
+
+function currentMonth(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -47,7 +58,6 @@ export async function POST(req: NextRequest) {
         break;
       }
       default:
-        // Unhandled event — ignore
         break;
     }
   } catch (err) {
@@ -75,7 +85,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     userId = await getUserIdFromCustomer(session.customer as string);
   }
 
-  // For one-time payments (Lifetime Pro), also try by email
+  // For one-time payments, also try by email
   if (!userId && session.customer_details?.email) {
     const { data } = await supabaseAdmin
       .from("profiles")
@@ -90,16 +100,37 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return;
   }
 
-  // One-time payment (Lifetime Pro) — no subscription, never expires
+  // One-time payment: could be Lifetime Basic, Lifetime Full, or AI Add-on
   if (session.mode === "payment") {
+    const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 5 });
+
+    // Check for AI Add-on purchase
+    const addonItem = lineItems.data.find((item: Stripe.LineItem) => item.price && isAiAddonPrice(item.price.id));
+    if (addonItem) {
+      const credits = AI_ADDON_PRICE.credits;
+      const month = currentMonth();
+      await supabaseAdmin.rpc("add_addon_credits", {
+        p_user_id: userId,
+        p_month: month,
+        p_credits: credits,
+      });
+      console.log(`[webhook] AI Add-on: +${credits} credits for user ${userId} (month: ${month})`);
+      return;
+    }
+
+    // Check for Lifetime Full
+    const lifetimeFullItem = lineItems.data.find((item: Stripe.LineItem) => item.price && isLifetimeFullPrice(item.price.id));
+    const tier = lifetimeFullItem ? "full" : "basic";
+
     await supabaseAdmin.from("profiles").update({
       plan: "pro",
       plan_type: "lifetime",
+      plan_tier: tier,
       stripe_subscription_status: null,
       stripe_customer_id: (session.customer as string) ?? null,
       plan_expires_at: null,
     }).eq("id", userId);
-    console.log("[webhook] Lifetime Pro activated for user:", userId);
+    console.log(`[webhook] Lifetime ${tier} activated for user:`, userId);
     return;
   }
 
@@ -111,16 +142,21 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const priceId = subscription.items.data[0]?.price.id ?? "";
+  const tier = getTierFromPriceId(priceId) ?? "basic";
 
   await supabaseAdmin.from("profiles").update({
     plan: "pro",
     plan_type: "subscription",
+    plan_tier: tier,
     stripe_subscription_id: subscriptionId,
     stripe_subscription_status: subscription.status,
-    stripe_price_id: subscription.items.data[0]?.price.id ?? null,
+    stripe_price_id: priceId,
     plan_expires_at: null,
     stripe_customer_id: session.customer as string,
   }).eq("id", userId);
+
+  console.log(`[webhook] Pro ${tier} subscription activated for user:`, userId);
 }
 
 async function handleSubscriptionChange(sub: Stripe.Subscription) {
@@ -130,12 +166,15 @@ async function handleSubscriptionChange(sub: Stripe.Subscription) {
   if (!userId) return;
 
   const isActive = sub.status === "active" || sub.status === "trialing";
+  const priceId = sub.items.data[0]?.price.id ?? "";
+  const tier = getTierFromPriceId(priceId) ?? "basic";
 
   await supabaseAdmin.from("profiles").update({
     plan: isActive ? "pro" : "free",
+    plan_tier: isActive ? tier : null,
     stripe_subscription_id: sub.id,
     stripe_subscription_status: sub.status,
-    stripe_price_id: sub.items.data[0]?.price.id ?? null,
+    stripe_price_id: priceId,
     plan_expires_at: sub.cancel_at
       ? new Date(sub.cancel_at * 1000).toISOString()
       : null,
@@ -156,7 +195,6 @@ async function handleSubscriptionDeleted(sub: Stripe.Subscription) {
     .single();
 
   if (profile?.plan_type === "lifetime") {
-    // Just clean up subscription fields, keep Pro
     await supabaseAdmin.from("profiles").update({
       stripe_subscription_id: null,
       stripe_subscription_status: null,
@@ -167,6 +205,7 @@ async function handleSubscriptionDeleted(sub: Stripe.Subscription) {
   await supabaseAdmin.from("profiles").update({
     plan: "free",
     plan_type: null,
+    plan_tier: null,
     stripe_subscription_status: "canceled",
     plan_expires_at: null,
   }).eq("id", userId);

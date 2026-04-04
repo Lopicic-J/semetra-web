@@ -19,6 +19,7 @@ import type {
   CalendarEvent, Task, Module, TimeLog
 } from "@/types/database";
 import { useTranslation } from "@/lib/i18n";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 /* ── Unified note item for Flow view ─────────────────────────────── */
 interface FlowItem {
@@ -68,6 +69,8 @@ export default function NotesPage() {
   const supabase = createClient();
   const { modules } = useModules();
   const { isPro } = useProfile();
+  const { resolvedMode } = useTheme();
+  const isDark = resolvedMode === "dark";
   const STATUS_CONFIG = getStatusConfig(t);
   const [notes, setNotes] = useState<Note[]>([]);
   const [showUpgrade, setShowUpgrade] = useState(false);
@@ -519,6 +522,8 @@ export default function NotesPage() {
 /* ── Flow View ──────────────────────────────────────────────────────── */
 function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: Note) => void }) {
   const { t } = useTranslation();
+  const { resolvedMode } = useTheme();
+  const isDark = resolvedMode === "dark";
   const STATUS_CONFIG = getStatusConfig(t);
   // Group by date
   const grouped: Record<string, FlowItem[]> = {};
@@ -633,7 +638,7 @@ function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: No
                         {item.module_name && (
                           <span
                             className="text-xs px-1.5 py-0.5 rounded font-medium"
-                            style={{ backgroundColor: (item.module_color ?? "#666") + "20", color: item.module_color }}
+                            style={{ backgroundColor: (item.module_color ?? "#666") + (isDark ? "35" : "20"), color: isDark ? ((item.module_color ?? "#666") + "cc") : item.module_color }}
                           >
                             {item.module_name}
                           </span>

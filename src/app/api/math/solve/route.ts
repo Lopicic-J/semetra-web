@@ -36,6 +36,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
   }
 
+  // ── Math Room: unlimited for Pro, daily limit for Free (client-side) ──
+  // The Math Room is a core Semetra feature and does NOT consume KI requests.
+  // Free users are gated by mathDailyCalculations (3/day) on the client side.
+  // Pro users have unlimited access (gates.ts → mathUsageToday returns allowed:true).
+  // We still check that the user is authenticated (above) but do NOT deduct credits.
+
   const body = await req.json();
   const { equation, variable = "x", mode = "solve", targetVariable, language = "de" } = body as {
     equation: string;
@@ -107,9 +113,9 @@ Rules:
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
-        max_tokens: 4096,
+        max_tokens: 1500,
         system: systemPrompt,
-        messages: [{ role: "user", content: userPrompt }],
+        messages: [{ role: "user", content: userPrompt.slice(0, 8000) }],
       }),
     });
 

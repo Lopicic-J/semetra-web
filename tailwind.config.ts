@@ -10,32 +10,32 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // ── Sapphire brand palette ─────────────────────────────
+        // ── Brand / Accent (via CSS variables → dynamic accent switching) ──
         brand: {
-          50:  "#eef2ff",
-          100: "#e0e7ff",
-          200: "#c7d2fe",
-          300: "#a5b4fc",
-          400: "#818cf8",
-          500: "#6366f1",
-          600: "#4f46e5",   // ← Primary
-          700: "#4338ca",
-          800: "#3730a3",
-          900: "#312e81",
-          950: "#1e1b4b",
+          50:  "rgb(var(--accent-50)  / <alpha-value>)",
+          100: "rgb(var(--accent-100) / <alpha-value>)",
+          200: "rgb(var(--accent-200) / <alpha-value>)",
+          300: "rgb(var(--accent-300) / <alpha-value>)",
+          400: "rgb(var(--accent-400) / <alpha-value>)",
+          500: "rgb(var(--accent-500) / <alpha-value>)",
+          600: "rgb(var(--accent-600) / <alpha-value>)",
+          700: "rgb(var(--accent-700) / <alpha-value>)",
+          800: "rgb(var(--accent-800) / <alpha-value>)",
+          900: "rgb(var(--accent-900) / <alpha-value>)",
+          950: "rgb(var(--accent-950) / <alpha-value>)",
         },
-        // ── Warm slate neutrals (statt kaltem gray) ───────────
+        // ── Surface neutrals (via CSS variables → dark mode) ──
         surface: {
-          50:  "#f8fafc",   // Page background
-          100: "#f1f5f9",   // Subtle card bg / hover
-          200: "#e2e8f0",   // Borders
-          300: "#cbd5e1",   // Disabled / muted borders
-          400: "#94a3b8",   // Placeholder text
-          500: "#64748b",   // Secondary text
-          600: "#475569",   // Body text
-          700: "#334155",   // Strong text
-          800: "#1e293b",   // Headings
-          900: "#0f172a",   // Darkest text
+          50:  "rgb(var(--sf-50)  / <alpha-value>)",
+          100: "rgb(var(--sf-100) / <alpha-value>)",
+          200: "rgb(var(--sf-200) / <alpha-value>)",
+          300: "rgb(var(--sf-300) / <alpha-value>)",
+          400: "rgb(var(--sf-400) / <alpha-value>)",
+          500: "rgb(var(--sf-500) / <alpha-value>)",
+          600: "rgb(var(--sf-600) / <alpha-value>)",
+          700: "rgb(var(--sf-700) / <alpha-value>)",
+          800: "rgb(var(--sf-800) / <alpha-value>)",
+          900: "rgb(var(--sf-900) / <alpha-value>)",
         },
         // ── Semantic accents (muted & harmonisch) ─────────────
         success: {

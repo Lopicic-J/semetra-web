@@ -7,6 +7,7 @@ import { GraduationCap, BookOpen, CheckCircle, ChevronRight, Plus, Loader2, X, B
 import { ProGate } from "@/components/ui/ProGate";
 import type { Studiengang, StudiengangModuleTemplate } from "@/types/database";
 import { useTranslation } from "@/lib/i18n";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 const MODULE_COLORS = [
   "#6d28d9","#2563eb","#dc2626","#059669","#d97706","#db2777","#0891b2","#65a30d"
@@ -67,6 +68,8 @@ export default function StudiengaengePage() {
   const supabase = createClient();
   const { isPro } = useProfile();
   const gs = useGradingSystem();
+  const { resolvedMode } = useTheme();
+  const isDark = resolvedMode === "dark";
   const [programmes, setProgrammes] = useState<Studiengang[]>([]);
   const [selected, setSelected] = useState<Studiengang | null>(null);
   const [importing, setImporting] = useState(false);
@@ -270,14 +273,14 @@ export default function StudiengaengePage() {
                       <div className="flex items-start gap-3">
                         <div
                           className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 opacity-90"
-                          style={{ background: `${FH_INFO[fh]?.color ?? "#6d28d9"}15` }}
+                          style={{ background: `${FH_INFO[fh]?.color ?? "#6d28d9"}${isDark ? "30" : "15"}` }}
                         >
                           <BookOpen style={{ color: FH_INFO[fh]?.color ?? "#6d28d9" }} size={20} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-surface-900 text-sm truncate">{p.name}</p>
                           <p className="text-xs text-surface-500 mt-0.5">{p.abschluss} · {p.semester_count} Semester</p>
-                          <p className="text-xs font-medium mt-1" style={{ color: FH_INFO[fh]?.color ?? "#6d28d9" }}>
+                          <p className="text-xs font-medium mt-1" style={{ color: isDark ? `${FH_INFO[fh]?.color ?? "#6d28d9"}dd` : (FH_INFO[fh]?.color ?? "#6d28d9") }}>
                             {p.ects_total} {gs.creditLabel} · {(p.modules_json ?? []).length} Module
                           </p>
                         </div>
