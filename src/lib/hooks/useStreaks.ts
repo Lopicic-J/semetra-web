@@ -40,9 +40,23 @@ export function useStreaks(): StreakData {
 
   // Re-fetch when a time log is saved anywhere in the app
   useEffect(() => {
-    const handler = () => fetch();
+    const handler = () => { setTimeout(fetch, 500); }; // small delay so DB write completes
     window.addEventListener("time-log-updated", handler);
     return () => window.removeEventListener("time-log-updated", handler);
+  }, [fetch]);
+
+  // Re-fetch when tab becomes visible (user switches back from another tab)
+  useEffect(() => {
+    const handler = () => { if (document.visibilityState === "visible") fetch(); };
+    document.addEventListener("visibilitychange", handler);
+    return () => document.removeEventListener("visibilitychange", handler);
+  }, [fetch]);
+
+  // Also re-fetch on route changes (Next.js client navigation)
+  useEffect(() => {
+    const handler = () => fetch();
+    window.addEventListener("focus", handler);
+    return () => window.removeEventListener("focus", handler);
   }, [fetch]);
 
   return useMemo(() => {

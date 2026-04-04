@@ -913,6 +913,7 @@ function MindMapEditor({ map, modules, onBack }: {
   async function exportPNG() {
     const el = document.getElementById("mindmap-canvas");
     if (!el) return;
+    const wrapper = el.parentElement; // the overflow-hidden container
     try {
       if (!(window as any).html2canvas) {
         await new Promise<void>((resolve, reject) => {
@@ -926,20 +927,27 @@ function MindMapEditor({ map, modules, onBack }: {
       const h2c = (window as any).html2canvas;
       if (!h2c) { alert(t("mindmaps.exportFailed")); return; }
 
-      // 1. Reset transform so we measure at 1:1 scale
+      // Save original styles
       const origTransform = el.style.transform;
       const origOrigin = el.style.transformOrigin;
       const origWidth = el.style.width;
       const origHeight = el.style.height;
       const origOverflow = el.style.overflow;
+      const origWrapperOverflow = wrapper?.style.overflow ?? "";
+
+      // 1. Remove zoom/pan transform and parent clip
       el.style.transform = "none";
       el.style.transformOrigin = "0 0";
+      if (wrapper) wrapper.style.overflow = "visible";
 
-      // 2. Measure actual bounding box of ALL child elements
+      // 2. Force reflow so getBoundingClientRect is accurate
+      el.offsetHeight; // trigger reflow
+
+      // 3. Measure actual bounding box of ALL child elements
       const canvasRect = el.getBoundingClientRect();
       let maxRight = 0;
       let maxBottom = 0;
-      el.querySelectorAll("*").forEach(child => {
+      el.querySelectorAll("[data-nodeid], .node-box, svg, svg path, a, span, img, div").forEach(child => {
         const r = child.getBoundingClientRect();
         if (r.width === 0 && r.height === 0) return;
         const right = r.right - canvasRect.left;
@@ -948,17 +956,24 @@ function MindMapEditor({ map, modules, onBack }: {
         if (bottom > maxBottom) maxBottom = bottom;
       });
 
-      // Add padding around content
-      const padding = 40;
-      const exportW = Math.max(maxRight + padding, el.scrollWidth, 800);
-      const exportH = Math.max(maxBottom + padding, el.scrollHeight, 500);
+      // Add generous padding
+      const padding = 60;
+      const exportW = Math.max(Math.ceil(maxRight) + padding, 800);
+      const exportH = Math.max(Math.ceil(maxBottom) + padding, 500);
 
-      // 3. Temporarily expand canvas to fit all content
+      // 4. Expand canvas AND SVG to measured size
       el.style.width = `${exportW}px`;
       el.style.height = `${exportH}px`;
       el.style.overflow = "visible";
+      const svg = el.querySelector("svg");
+      const origSvgW = svg?.getAttribute("width") ?? "";
+      const origSvgH = svg?.getAttribute("height") ?? "";
+      if (svg) {
+        svg.setAttribute("width", String(exportW));
+        svg.setAttribute("height", String(exportH));
+      }
 
-      // 4. Replace SVG gradient strokes with solid colors (html2canvas can't render gradients)
+      // 5. Replace SVG gradient strokes with solid colors (html2canvas can't render gradients)
       const svgPaths = el.querySelectorAll("svg path");
       const origStrokes: string[] = [];
       svgPaths.forEach((path, i) => {
@@ -968,7 +983,7 @@ function MindMapEditor({ map, modules, onBack }: {
         }
       });
 
-      // 5. Capture with html2canvas at measured dimensions
+      // 6. Capture with html2canvas
       const canvas = await h2c(el, {
         scale: 2,
         backgroundColor: "#f8fafc",
@@ -984,15 +999,20 @@ function MindMapEditor({ map, modules, onBack }: {
         logging: false,
       });
 
-      // 6. Restore everything
+      // 7. Restore everything
       svgPaths.forEach((path, i) => {
         (path as SVGPathElement).setAttribute("stroke", origStrokes[i]);
       });
+      if (svg) {
+        svg.setAttribute("width", origSvgW);
+        svg.setAttribute("height", origSvgH);
+      }
       el.style.transform = origTransform;
       el.style.transformOrigin = origOrigin;
       el.style.width = origWidth;
       el.style.height = origHeight;
       el.style.overflow = origOverflow;
+      if (wrapper) wrapper.style.overflow = origWrapperOverflow;
 
       const url = canvas.toDataURL("image/png");
       const a = document.createElement("a");
