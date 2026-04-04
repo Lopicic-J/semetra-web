@@ -85,6 +85,14 @@ function parseCloze(text: string): { display: string; answer: string } {
     return { display, answer };
   }
 
+  // Try -answer- format (single hyphens)
+  match = text.match(/-(.+?)-/);
+  if (match) {
+    const answer = match[1];
+    const display = text.replace(/-(.+?)-/, "[...]");
+    return { display, answer };
+  }
+
   // Try [answer] format
   match = text.match(/\[(.+?)\]/);
   if (match) {
@@ -97,7 +105,7 @@ function parseCloze(text: string): { display: string; answer: string } {
 }
 
 function hasCloze(text: string): boolean {
-  return /\{\{c\d+::(.+?)\}\}/.test(text) || /\[(.+?)\]/.test(text);
+  return /\{\{c\d+::(.+?)\}\}/.test(text) || /-(.+?)-/.test(text) || /\[(.+?)\]/.test(text);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -1311,6 +1319,8 @@ export default function FlashcardsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.map(card => {
             const isDue = !card.next_review || new Date(card.next_review) <= new Date();
+            const isMastered = (card.repetitions ?? 0) >= 5;
+            const isLearning = (card.repetitions ?? 0) > 0 && !isMastered;
             const cardType = card.card_type ?? "basic";
             const typeColor = cardType === "cloze" ? "purple" : cardType === "mc" ? "cyan" : "brand";
             const isSelected = selectedCards.has(card.id);
@@ -1319,15 +1329,25 @@ export default function FlashcardsPage() {
               <div
                 key={card.id}
                 onClick={() => selectMode && toggleCardSelection(card.id)}
-                className={`bg-white border border-surface-200 rounded-xl p-4 hover:shadow-md transition-all group relative cursor-pointer ${
+                className={`bg-white border rounded-xl p-4 hover:shadow-md transition-all group relative cursor-pointer ${
                   selectMode ? "cursor-pointer" : ""
-                } ${isSelected ? "bg-brand-50 border-brand-300" : ""}`}
+                } ${isSelected ? "bg-brand-50 border-brand-300" : isMastered ? "border-green-200 bg-green-50/30" : "border-surface-200"}`}
               >
                 {/* Badges */}
                 <div className="flex items-center gap-1.5 mb-2 flex-wrap">
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-${typeColor}-50 text-${typeColor}-700`}>
                     {cardType === "cloze" ? "Cloze" : cardType === "mc" ? "MC" : "Q&A"}
                   </span>
+                  {isMastered && (
+                    <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
+                      <CheckCircle2 size={8} /> {t("fc.mastered")}
+                    </span>
+                  )}
+                  {isLearning && !isDue && (
+                    <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
+                      <TrendingUp size={8} /> {t("fc.learning")}
+                    </span>
+                  )}
                   {card.source === "ai" && (
                     <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
                       <Sparkles size={8} /> KI

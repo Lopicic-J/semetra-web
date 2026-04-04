@@ -930,6 +930,17 @@ function MindMapEditor({ map, modules, onBack }: {
       el.style.transform = "none";
       el.style.transformOrigin = "0 0";
 
+      // Temporarily replace SVG gradient strokes with solid colors for html2canvas
+      const svgPaths = el.querySelectorAll("svg path");
+      const origStrokes: string[] = [];
+      svgPaths.forEach((path, i) => {
+        origStrokes[i] = (path as SVGPathElement).getAttribute("stroke") || "";
+        const strokeVal = origStrokes[i];
+        if (strokeVal.startsWith("url(")) {
+          (path as SVGPathElement).setAttribute("stroke", "#8b5cf6");
+        }
+      });
+
       // Compute actual content bounds for accurate export
       const elW = el.scrollWidth || parseInt(String(el.style.width)) || 2000;
       const elH = el.scrollHeight || parseInt(String(el.style.height)) || 1500;
@@ -949,6 +960,10 @@ function MindMapEditor({ map, modules, onBack }: {
         logging: false,
       });
 
+      // Restore original strokes
+      svgPaths.forEach((path, i) => {
+        (path as SVGPathElement).setAttribute("stroke", origStrokes[i]);
+      });
       el.style.transform = origTransform;
       el.style.transformOrigin = origOrigin;
 
@@ -1385,7 +1400,12 @@ function MindMapEditor({ map, modules, onBack }: {
           isRoot={!editNode.parent_id}
           onClose={() => { setEditNode(null); fetchNodes(); }}
           onSave={async (updates) => {
-            await supabase.from("mindmap_nodes").update(updates).eq("id", editNode.id);
+            const { error } = await supabase.from("mindmap_nodes").update(updates).eq("id", editNode.id);
+            if (error) {
+              // If image_url column doesn't exist yet, retry without it
+              const { image_url, ...rest } = updates as any;
+              await supabase.from("mindmap_nodes").update(rest).eq("id", editNode.id);
+            }
             await supabase.from("mindmaps").update({ updated_at: new Date().toISOString() }).eq("id", map.id);
             fetchNodes();
             setEditNode(null);
