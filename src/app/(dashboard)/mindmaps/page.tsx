@@ -1013,7 +1013,7 @@ function MindMapEditor({ map, modules, onBack }: {
   return (
     <div className="flex flex-col h-[calc(100vh-64px)]">
       {/* Toolbar */}
-      <div className="flex items-center gap-2 px-3 py-2 bg-white border-b border-surface-100 shrink-0 overflow-x-auto">
+      <div className="flex items-center gap-2 px-3 py-2 bg-white border-b border-surface-100 shrink-0 overflow-x-auto relative z-30">
         <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-surface-500 hover:text-brand-600 shrink-0">
           <ArrowLeft size={16} /> {t("mindmaps.back")}
         </button>
@@ -1064,7 +1064,7 @@ function MindMapEditor({ map, modules, onBack }: {
             <Download size={12} /> {t("mindmaps.export") || "Export"}
           </button>
           {showExport && (
-            <div className="absolute right-0 top-full mt-1 bg-white border border-surface-200 rounded-xl shadow-lg py-1 w-40 z-20" onClick={e => e.stopPropagation()}>
+            <div className="absolute right-0 top-full mt-1 bg-white border border-surface-200 rounded-xl shadow-lg py-1 w-40 z-50" onClick={e => e.stopPropagation()}>
               <button onClick={() => { exportPNG(); setShowExport(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-surface-700 hover:bg-surface-50">
                 <Image size={12} /> PNG
               </button>
