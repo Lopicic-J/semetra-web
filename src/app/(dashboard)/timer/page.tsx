@@ -161,6 +161,8 @@ export default function TimerPage() {
       note: note || null,
     });
     refetchLogs();
+    // Notify streak hook and other listeners that a time log was saved
+    window.dispatchEvent(new Event("time-log-updated"));
   }
 
   async function handleTimerComplete() {

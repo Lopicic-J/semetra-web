@@ -1152,6 +1152,8 @@ export default function FlashcardsPage() {
             started_at: new Date(studyStartTime.current!).toISOString(),
             note: `Flashcard review: ${reviewCount.current} cards`,
           });
+          // Notify streak hook that a time log was saved
+          window.dispatchEvent(new Event("time-log-updated"));
         }
       }
 

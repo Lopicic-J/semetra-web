@@ -38,6 +38,13 @@ export function useStreaks(): StreakData {
 
   useEffect(() => { fetch(); }, [fetch]);
 
+  // Re-fetch when a time log is saved anywhere in the app
+  useEffect(() => {
+    const handler = () => fetch();
+    window.addEventListener("time-log-updated", handler);
+    return () => window.removeEventListener("time-log-updated", handler);
+  }, [fetch]);
+
   return useMemo(() => {
     if (loading || logs.length === 0) {
       return {
