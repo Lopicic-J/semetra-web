@@ -978,7 +978,7 @@ function fmt(n: number): string {
 /* ── Main EquationsTool Component ─────────────────────────────────── */
 
 function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const supabase = createClient();
 
   // Mode: solve (free text), rearrange, system, quick (coefficient input)
@@ -1060,6 +1060,7 @@ function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, 
           variable,
           mode: aiMode || mode,
           targetVariable: targetVar || variable,
+          language: locale,
         }),
       });
 

@@ -37,16 +37,23 @@ export async function POST(req: NextRequest) {
   // Wird zu Pro hochgestuft wenn echter Mehrwert vorhanden
 
   const body = await req.json();
-  const { text, module_id, deck_name, filename } = body as {
+  const { text, module_id, deck_name, filename, language = "de" } = body as {
     text: string;
     module_id?: string;
     deck_name?: string;
     filename?: string;
+    language?: string;
   };
 
   if (!text || text.length < 50) {
-    return NextResponse.json({ error: "Text zu kurz (min. 50 Zeichen)" }, { status: 400 });
+    return NextResponse.json({ error: "Text too short (min. 50 characters)" }, { status: 400 });
   }
+
+  const LANG_INSTRUCTIONS: Record<string, string> = {
+    de: "Antworte auf Deutsch.", en: "Respond in English.", fr: "Réponds en français.",
+    it: "Rispondi in italiano.", es: "Responde en español.", nl: "Antwoord in het Nederlands.",
+  };
+  const langInstr = LANG_INSTRUCTIONS[language] || LANG_INSTRUCTIONS.de;
 
   // Truncate very long texts
   const maxChars = 12000;
@@ -64,22 +71,22 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
         max_tokens: 4096,
-        system: `Du bist ein Lernassistent für Schweizer FH-Studierende. Erstelle Karteikarten aus dem gegebenen Text.
+        system: `You are a study assistant for Swiss university students. Create flashcards from the given text. ${langInstr}
 
-Regeln:
-- Erstelle 10-25 Karteikarten je nach Textlänge und Inhalt
-- Jede Karte hat eine klare Frage (front) und eine präzise Antwort (back)
-- Fragen sollen das Verständnis testen, nicht nur Fakten abfragen
-- Verwende einfache, klare Sprache (Deutsch)
-- Mische verschiedene Fragetypen: Definition, Vergleich, Anwendung, Erklärung
-- Antworte NUR mit einem JSON-Array, kein anderer Text
+Rules:
+- Create 10-25 flashcards depending on text length and content
+- Each card has a clear question (front) and a precise answer (back)
+- Questions should test understanding, not just recall facts
+- Use simple, clear language in the requested language
+- Mix different question types: definition, comparison, application, explanation
+- Respond ONLY with a JSON array, no other text
 
-Ausgabeformat (STRIKT JSON):
-[{"front": "Was ist X?", "back": "X ist..."}, ...]`,
+Output format (STRICT JSON):
+[{"front": "What is X?", "back": "X is..."}, ...]`,
         messages: [
           {
             role: "user",
-            content: `Erstelle Karteikarten aus folgendem Text:\n\n${truncated}`,
+            content: `Create flashcards from the following text:\n\n${truncated}`,
           },
         ],
       }),

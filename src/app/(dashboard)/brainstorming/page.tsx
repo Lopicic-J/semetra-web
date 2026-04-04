@@ -485,7 +485,7 @@ function BrainstormEditor({
   isPro: boolean;
   onBack: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const supabase = createClient();
 
   // Core state
@@ -925,7 +925,7 @@ function BrainstormEditor({
       body: JSON.stringify({
         messages,
         mode: "chat",
-        context: { moduleName: mod?.name, topicTitle: session.title },
+        context: { moduleName: mod?.name, topicTitle: session.title, language: locale },
       }),
     });
 
@@ -957,6 +957,13 @@ function BrainstormEditor({
     return result;
   }
 
+  /* ── Locale → language name for AI prompts ───────────────────────── */
+  const LANG_NAMES: Record<string, string> = {
+    de: "German", en: "English", fr: "French", it: "Italian", es: "Spanish", nl: "Dutch",
+  };
+  const aiLang = LANG_NAMES[locale] || "German";
+  const langInstruction = `IMPORTANT: You MUST respond entirely in ${aiLang}. All text, headings, and explanations must be in ${aiLang}.\n\n`;
+
   /* ── KI expand idea (Quick-Actions) ──────────────────────────────── */
   async function aiExpandIdeas(mode: "expand" | "structure" | "summarize" | "gaps" | "cleanup") {
     setAiLoading(true);
@@ -965,31 +972,31 @@ function BrainstormEditor({
       const ideaTexts = ideas.map(i => `${"  ".repeat(i.indent_level)}- ${i.content}`).join("\n");
       const techName = tech.label;
       const techDesc = tech.description;
-      const techContext = `Brainstorming-Methode: ${techName}\nBeschreibung: ${techDesc}\n\n`;
+      const techContext = `${langInstruction}Brainstorming method: ${techName}\nDescription: ${techDesc}\n\n`;
       const prompts: Record<string, string> = {
         expand: session.technique === "scamper"
-          ? `${techContext}Erweitere diese SCAMPER-Analyse. Für jede der 7 Kategorien (Substituieren, Kombinieren, Anpassen, Modifizieren, Umnutzen, Eliminieren, Umkehren), liefere 1-2 neue Ideen:\n\n${ideaTexts}\n\nAntworte mit konkreten, umsetzbaren Ideen pro Kategorie.`
+          ? `${techContext}Expand this SCAMPER analysis. For each of the 7 categories (Substitute, Combine, Adapt, Modify, Put to other use, Eliminate, Reverse), provide 1-2 new ideas:\n\n${ideaTexts}\n\nRespond with concrete, actionable ideas per category.`
           : session.technique === "pro_contra"
-          ? `${techContext}Erweitere diese Pro/Contra-Analyse. Ergänze jeweils 2-3 neue Argumente pro Seite und bewerte deren Gewicht:\n\n${ideaTexts}\n\nStrukturiere klar nach Pro, Contra und Neutral.`
+          ? `${techContext}Expand this pro/contra analysis. Add 2-3 new arguments per side and assess their weight:\n\n${ideaTexts}\n\nStructure clearly by Pro, Contra, and Neutral.`
           : session.technique === "starbursting"
-          ? `${techContext}Erweitere diese W-Fragen-Analyse. Für jede Frage-Dimension (Wer, Was, Wo, Wann, Warum, Wie), generiere 2 vertiefende Unterfragen:\n\n${ideaTexts}\n\nStrukturiere nach Frage-Kategorie.`
+          ? `${techContext}Expand this W-questions analysis. For each question dimension (Who, What, Where, When, Why, How), generate 2 deeper sub-questions:\n\n${ideaTexts}\n\nStructure by question category.`
           : session.technique === "reverse"
-          ? `${techContext}Erweitere diese Reverse-Brainstorming-Analyse. Generiere 3-4 neue "Wie könnte man es verschlechtern?"-Ideen und leite daraus konstruktive Lösungen ab:\n\n${ideaTexts}\n\nStrukturiere: Problem → Umkehr → Lösung.`
+          ? `${techContext}Expand this reverse brainstorming analysis. Generate 3-4 new "How could we make it worse?" ideas and derive constructive solutions:\n\n${ideaTexts}\n\nStructure: Problem → Reversal → Solution.`
           : session.technique === "brainwriting"
-          ? `${techContext}Baue auf diesen Kettenreaktions-Ideen auf. Nimm die letzte Idee und entwickle sie in 3 verschiedene Richtungen weiter (Variante A, B, C):\n\n${ideaTexts}\n\nZeige den Gedankenfluss.`
+          ? `${techContext}Build on these chain-reaction ideas. Take the last idea and develop it in 3 different directions (Variant A, B, C):\n\n${ideaTexts}\n\nShow the flow of thought.`
           : session.technique === "minddump"
-          ? `${techContext}Analysiere diesen Rapid-Braindump und identifiziere Cluster/Themen. Gruppiere die Ideen und ergänze 3-5 neue schnelle Ideen pro Cluster:\n\n${ideaTexts}\n\nKurz und knapp.`
-          : `${techContext}Erweitere diese Brainstorming-Ideen mit neuen Perspektiven und Unterpunkten:\n\n${ideaTexts}\n\nGib 5-8 neue Ideen als Aufzählung zurück.`,
-        structure: `${techContext}Analysiere diese Brainstorming-Ideen und schlage eine bessere Struktur/Gruppierung vor:\n\n${ideaTexts}\n\nGib eine strukturierte Gliederung zurück.`,
-        summarize: `${techContext}Fasse diese Brainstorming-Ideen in 3-5 Kernaussagen zusammen:\n\n${ideaTexts}`,
+          ? `${techContext}Analyze this rapid braindump and identify clusters/themes. Group the ideas and add 3-5 new quick ideas per cluster:\n\n${ideaTexts}\n\nKeep it brief.`
+          : `${techContext}Expand these brainstorming ideas with new perspectives and sub-points:\n\n${ideaTexts}\n\nReturn 5-8 new ideas as a list.`,
+        structure: `${techContext}Analyze these brainstorming ideas and suggest a better structure/grouping:\n\n${ideaTexts}\n\nReturn a structured outline.`,
+        summarize: `${techContext}Summarize these brainstorming ideas in 3-5 key takeaways:\n\n${ideaTexts}`,
         gaps: session.technique === "scamper"
-          ? `${techContext}Welche SCAMPER-Kategorien wurden noch nicht ausreichend beleuchtet?\n\n${ideaTexts}\n\nListe fehlende Aspekte pro Kategorie.`
+          ? `${techContext}Which SCAMPER categories have not been sufficiently explored?\n\n${ideaTexts}\n\nList missing aspects per category.`
           : session.technique === "pro_contra"
-          ? `${techContext}Welche Argumente fehlen in dieser Pro/Contra-Analyse? Gibt es blinde Flecken?\n\n${ideaTexts}\n\nListe fehlende Perspektiven.`
+          ? `${techContext}Which arguments are missing in this pro/contra analysis? Are there blind spots?\n\n${ideaTexts}\n\nList missing perspectives.`
           : session.technique === "starbursting"
-          ? `${techContext}Welche W-Fragen wurden noch nicht gestellt? Welche Dimensionen fehlen?\n\n${ideaTexts}\n\nListe ungestellte Fragen.`
-          : `${techContext}Analysiere diese Brainstorming-Ideen und identifiziere Lücken — was fehlt noch?\n\n${ideaTexts}\n\nGib fehlende Aspekte als Aufzählung zurück.`,
-        cleanup: `${techContext}Analysiere diese Brainstorming-Ideen auf Duplikate, sehr ähnliche Einträge und Redundanzen:\n\n${ideaTexts}\n\nListe konkret:\n1. Welche Ideen sind identisch oder fast identisch? (Nummern angeben)\n2. Welche Ideen könnten zusammengeführt werden?\n3. Schlage eine bereinigte Version ohne Duplikate vor.\n\nSei präzise und nenne die betroffenen Einträge.`,
+          ? `${techContext}Which W-questions have not been asked yet? Which dimensions are missing?\n\n${ideaTexts}\n\nList unasked questions.`
+          : `${techContext}Analyze these brainstorming ideas and identify gaps — what is still missing?\n\n${ideaTexts}\n\nReturn missing aspects as a list.`,
+        cleanup: `${techContext}Analyze these brainstorming ideas for duplicates, very similar entries, and redundancies:\n\n${ideaTexts}\n\nList specifically:\n1. Which ideas are identical or nearly identical? (state numbers)\n2. Which ideas could be merged?\n3. Suggest a cleaned-up version without duplicates.\n\nBe precise and name the affected entries.`,
       };
 
       const userMsg: { role: "user" | "assistant"; content: string } = { role: "user", content: prompts[mode] };
@@ -1012,7 +1019,7 @@ function BrainstormEditor({
     setAiResult("");
     try {
       const ideaTexts = ideas.map(i => `${"  ".repeat(i.indent_level)}- ${i.content}`).join("\n");
-      const contextMsg = `Kontext — aktuelle Brainstorming-Ideen:\n${ideaTexts}\n\nFrage des Users: ${aiUserInput}`;
+      const contextMsg = `${langInstruction}Context — current brainstorming ideas:\n${ideaTexts}\n\nUser's question: ${aiUserInput}`;
       const userMsg: { role: "user" | "assistant"; content: string } = { role: "user", content: contextMsg };
       const newHistory = [...aiChatHistory, userMsg];
       setAiChatHistory(newHistory);

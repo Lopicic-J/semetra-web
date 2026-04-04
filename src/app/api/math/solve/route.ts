@@ -37,56 +37,64 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { equation, variable = "x", mode = "solve", targetVariable } = body as {
+  const { equation, variable = "x", mode = "solve", targetVariable, language = "de" } = body as {
     equation: string;
     variable?: string;
     mode?: string;
     targetVariable?: string;
+    language?: string;
   };
 
   if (!equation || equation.trim().length < 2) {
-    return NextResponse.json({ error: "Gleichung zu kurz" }, { status: 400 });
+    return NextResponse.json({ error: "Equation too short" }, { status: 400 });
   }
 
-  const systemPrompt = `Du bist ein mathematischer Solver für Schweizer FH/Uni-Studierende. Du löst Gleichungen Schritt für Schritt.
+  const LANG_INSTRUCTIONS: Record<string, string> = {
+    de: "Antworte auf Deutsch.", en: "Respond in English.", fr: "Réponds en français.",
+    it: "Rispondi in italiano.", es: "Responde en español.", nl: "Antwoord in het Nederlands.",
+  };
+  const langInstr = LANG_INSTRUCTIONS[language] || LANG_INSTRUCTIONS.de;
 
-WICHTIG: Antworte AUSSCHLIESSLICH mit einem JSON-Objekt im folgenden Format (kein Markdown, kein Codeblock):
+  const systemPrompt = `You are a math solver for Swiss university students. You solve equations step by step. ${langInstr}
+
+IMPORTANT: Respond EXCLUSIVELY with a JSON object in the following format (no Markdown, no code block):
 
 {
   "type": "linear|quadratic|polynomial|rational|root|exponential|logarithmic|trigonometric|system|rearrangement|simplification",
   "steps": [
-    {"expr": "Ausdruck", "op": "Erklärung der Operation"},
-    {"expr": "Nächster Schritt", "op": "Was wurde gemacht"}
+    {"expr": "Expression", "op": "Explanation of operation"},
+    {"expr": "Next step", "op": "What was done"}
   ],
   "solutions": ["x = 3", "x = -2"],
-  "domain": "D = ℝ \\ {-3}" oder "D = ℝ" oder "D = {x ∈ ℝ | x > 0}",
-  "notes": "Zusätzliche Hinweise (z.B. Probe, Periodizität, Scheinlösungen)",
+  "domain": "D = ℝ \\ {-3}" or "D = ℝ" or "D = {x ∈ ℝ | x > 0}",
+  "notes": "Additional notes (e.g. verification, periodicity, extraneous solutions)",
   "error": null
 }
 
-Regeln:
-- Zeige JEDEN Umformungsschritt einzeln
-- Bei der Operation: zeige was gemacht wurde (z.B. "| −4 auf beiden Seiten", "| ÷2", "| Quadrieren")
-- Prüfe die Definitionsmenge (Division durch 0, Logarithmus nur x > 0, Wurzel ≥ 0)
-- Bei Wurzelgleichungen: mache eine Probe für Scheinlösungen
-- Bei trigonometrischen Gleichungen: gib die allgemeine Lösung mit k ∈ ℤ an
-- Bei quadratischen: verwende die Mitternachtsformel mit Diskriminante
-- Bei Systemen: zeige Einsetzverfahren oder Additionsverfahren
-- Bei Umstellungen: stelle nach der gewünschten Variable um
-- Wenn keine Lösung existiert: erkläre warum
-- Wenn unendlich viele Lösungen: erkläre warum
-- Gib immer den Typ der Gleichung an
-- Verwende mathematische Unicode-Symbole: ², ³, √, ±, ≠, ≤, ≥, π, ∈, ℝ, ℤ, ∞`;
+Rules:
+- Show EVERY transformation step individually
+- For operations: show what was done (e.g. "| −4 on both sides", "| ÷2", "| squaring")
+- Check the domain (division by 0, logarithm only x > 0, square root ≥ 0)
+- For root equations: verify for extraneous solutions
+- For trigonometric equations: give the general solution with k ∈ ℤ
+- For quadratic: use the quadratic formula with discriminant
+- For systems: show substitution or elimination method
+- For rearrangements: rearrange for the desired variable
+- If no solution exists: explain why
+- If infinitely many solutions: explain why
+- Always state the equation type
+- Use mathematical Unicode symbols: ², ³, √, ±, ≠, ≤, ≥, π, ∈, ℝ, ℤ, ∞
+- All step explanations ("op" and "notes") MUST be in the requested language`;
 
   let userPrompt = "";
   if (mode === "solve") {
-    userPrompt = `Löse die folgende Gleichung nach ${variable} auf und zeige jeden Schritt:\n\n${equation}`;
+    userPrompt = `Solve the following equation for ${variable} and show every step:\n\n${equation}`;
   } else if (mode === "rearrange") {
-    userPrompt = `Stelle die folgende Formel nach ${targetVariable || variable} um und zeige jeden Schritt:\n\n${equation}`;
+    userPrompt = `Rearrange the following formula for ${targetVariable || variable} and show every step:\n\n${equation}`;
   } else if (mode === "simplify") {
-    userPrompt = `Vereinfache den folgenden Ausdruck und zeige jeden Schritt:\n\n${equation}`;
+    userPrompt = `Simplify the following expression and show every step:\n\n${equation}`;
   } else if (mode === "system") {
-    userPrompt = `Löse das folgende Gleichungssystem und zeige jeden Schritt (verwende Einsetzverfahren oder Additionsverfahren):\n\n${equation}`;
+    userPrompt = `Solve the following system of equations and show every step (use substitution or elimination method):\n\n${equation}`;
   }
 
   try {

@@ -705,7 +705,7 @@ function AIGeneratePanel({
   onCreated: () => void;
   onClose: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const supabase = createClient();
   const [text, setText] = useState("");
   const [moduleId, setModuleId] = useState("");
@@ -726,7 +726,7 @@ function AIGeneratePanel({
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ text, module_id: moduleId || undefined, filename: t("flashcards.textInput") || "Texteingabe" }),
+        body: JSON.stringify({ text, module_id: moduleId || undefined, filename: t("flashcards.textInput") || "Texteingabe", language: locale }),
       });
 
       const data = await res.json();
