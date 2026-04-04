@@ -503,6 +503,9 @@ function BrainstormEditor({
   const [showAi, setShowAi] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState("");
+  const [aiChatHistory, setAiChatHistory] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+  const [aiUserInput, setAiUserInput] = useState("");
+  const aiChatEndRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
 
   // Undo
@@ -910,15 +913,55 @@ function BrainstormEditor({
     URL.revokeObjectURL(url);
   }
 
-  /* ── KI expand idea ─────────────────────────────────────────────── */
-  async function aiExpandIdeas(mode: "expand" | "structure" | "summarize" | "gaps") {
+  /* ── KI streaming helper ─────────────────────────────────────────── */
+  async function streamAiResponse(messages: { role: "user" | "assistant"; content: string }[], onChunk: (text: string) => void): Promise<string> {
+    const { data: { session: authSession } } = await supabase.auth.getSession();
+    const token = authSession?.access_token;
+    if (!token) throw new Error("Auth");
+
+    const res = await fetch("/api/ai/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        messages,
+        mode: "chat",
+        context: { moduleName: mod?.name, topicTitle: session.title },
+      }),
+    });
+
+    if (!res.ok) throw new Error("API");
+
+    const reader = res.body?.getReader();
+    const decoder = new TextDecoder();
+    let result = "";
+
+    if (reader) {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const parsed = JSON.parse(line.slice(6));
+              if (parsed.text) {
+                result += parsed.text;
+                onChunk(result);
+              }
+            } catch {}
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  /* ── KI expand idea (Quick-Actions) ──────────────────────────────── */
+  async function aiExpandIdeas(mode: "expand" | "structure" | "summarize" | "gaps" | "cleanup") {
     setAiLoading(true);
     setAiResult("");
     try {
-      const { data: { session: authSession } } = await supabase.auth.getSession();
-      const token = authSession?.access_token;
-      if (!token) throw new Error("Auth");
-
       const ideaTexts = ideas.map(i => `${"  ".repeat(i.indent_level)}- ${i.content}`).join("\n");
       const techName = tech.label;
       const techDesc = tech.description;
@@ -946,43 +989,39 @@ function BrainstormEditor({
           : session.technique === "starbursting"
           ? `${techContext}Welche W-Fragen wurden noch nicht gestellt? Welche Dimensionen fehlen?\n\n${ideaTexts}\n\nListe ungestellte Fragen.`
           : `${techContext}Analysiere diese Brainstorming-Ideen und identifiziere Lücken — was fehlt noch?\n\n${ideaTexts}\n\nGib fehlende Aspekte als Aufzählung zurück.`,
+        cleanup: `${techContext}Analysiere diese Brainstorming-Ideen auf Duplikate, sehr ähnliche Einträge und Redundanzen:\n\n${ideaTexts}\n\nListe konkret:\n1. Welche Ideen sind identisch oder fast identisch? (Nummern angeben)\n2. Welche Ideen könnten zusammengeführt werden?\n3. Schlage eine bereinigte Version ohne Duplikate vor.\n\nSei präzise und nenne die betroffenen Einträge.`,
       };
 
-      const res = await fetch("/api/ai/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          messages: [{ role: "user", content: prompts[mode] }],
-          mode: "chat",
-          context: { moduleName: mod?.name, topicTitle: session.title },
-        }),
-      });
+      const userMsg: { role: "user" | "assistant"; content: string } = { role: "user", content: prompts[mode] };
+      setAiChatHistory(prev => [...prev, userMsg]);
 
-      if (!res.ok) throw new Error("API");
+      const result = await streamAiResponse([...aiChatHistory, userMsg], (text) => setAiResult(text));
 
-      const reader = res.body?.getReader();
-      const decoder = new TextDecoder();
-      let result = "";
+      setAiChatHistory(prev => [...prev, { role: "assistant", content: result }]);
+      setTimeout(() => aiChatEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+    } catch {
+      setAiResult(t("brainstorming.aiError"));
+    }
+    setAiLoading(false);
+  }
 
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split("\n");
-          for (const line of lines) {
-            if (line.startsWith("data: ")) {
-              try {
-                const parsed = JSON.parse(line.slice(6));
-                if (parsed.text) {
-                  result += parsed.text;
-                  setAiResult(result);
-                }
-              } catch {}
-            }
-          }
-        }
-      }
+  /* ── KI follow-up question ──────────────────────────────────────── */
+  async function aiFollowUp() {
+    if (!aiUserInput.trim() || aiLoading) return;
+    setAiLoading(true);
+    setAiResult("");
+    try {
+      const ideaTexts = ideas.map(i => `${"  ".repeat(i.indent_level)}- ${i.content}`).join("\n");
+      const contextMsg = `Kontext — aktuelle Brainstorming-Ideen:\n${ideaTexts}\n\nFrage des Users: ${aiUserInput}`;
+      const userMsg: { role: "user" | "assistant"; content: string } = { role: "user", content: contextMsg };
+      const newHistory = [...aiChatHistory, userMsg];
+      setAiChatHistory(newHistory);
+      setAiUserInput("");
+
+      const result = await streamAiResponse(newHistory, (text) => setAiResult(text));
+
+      setAiChatHistory(prev => [...prev, { role: "assistant", content: result }]);
+      setTimeout(() => aiChatEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
     } catch {
       setAiResult(t("brainstorming.aiError"));
     }
@@ -1102,49 +1141,138 @@ function BrainstormEditor({
         </div>
       )}
 
-      {/* ── KI Panel ───────────────────────────────────────────────── */}
+      {/* ── KI Panel (Modern Chat) ─────────────────────────────────── */}
       {showAi && (
-        <div className="mb-4 p-4 rounded-xl border border-surface-200 bg-surface-50">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-brand-400 flex items-center gap-2">
-              <Bot size={16} /> {t("brainstorming.aiAssistant")}
-            </h3>
-            <button onClick={() => setShowAi(false)} className="text-surface-500 hover:text-surface-900"><X size={14} /></button>
+        <div className="mb-4 rounded-2xl border border-brand-200/60 bg-gradient-to-b from-brand-50/40 to-white shadow-sm overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-brand-100/60 bg-white/60 backdrop-blur-sm">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-brand-600 flex items-center justify-center">
+                <Bot size={14} className="text-white" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-surface-900">{t("brainstorming.aiAssistant")}</h3>
+                <p className="text-[10px] text-surface-500 leading-tight">{t("brainstorming.aiSubtitle")}</p>
+              </div>
+            </div>
+            <button onClick={() => setShowAi(false)} className="w-7 h-7 rounded-lg hover:bg-surface-100 flex items-center justify-center text-surface-400 hover:text-surface-700 transition">
+              <X size={14} />
+            </button>
           </div>
-          <div className="flex gap-2 mb-3 flex-wrap">
+
+          {/* Quick Actions */}
+          <div className="px-4 py-2.5 border-b border-surface-100 flex gap-1.5 overflow-x-auto scrollbar-none">
             <button onClick={() => aiExpandIdeas("expand")} disabled={aiLoading || ideas.length === 0}
-              className="px-3 py-1.5 rounded-lg bg-brand-600 text-white text-xs font-medium hover:bg-brand-500 disabled:opacity-40 transition">
-              <Sparkles size={12} className="inline mr-1" /> {t("brainstorming.aiExpand")}
+              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-600 text-white text-xs font-medium hover:bg-brand-500 disabled:opacity-40 transition shadow-sm">
+              <Sparkles size={11} /> {t("brainstorming.aiExpand")}
             </button>
             <button onClick={() => aiExpandIdeas("structure")} disabled={aiLoading || ideas.length === 0}
-              className="px-3 py-1.5 rounded-lg bg-surface-200 text-surface-800 text-xs font-medium hover:bg-surface-300 disabled:opacity-40 transition">
+              className="shrink-0 px-3 py-1.5 rounded-full bg-surface-100 text-surface-700 text-xs font-medium hover:bg-surface-200 disabled:opacity-40 transition">
               {t("brainstorming.aiStructure")}
             </button>
             <button onClick={() => aiExpandIdeas("summarize")} disabled={aiLoading || ideas.length === 0}
-              className="px-3 py-1.5 rounded-lg bg-surface-200 text-surface-800 text-xs font-medium hover:bg-surface-300 disabled:opacity-40 transition">
+              className="shrink-0 px-3 py-1.5 rounded-full bg-surface-100 text-surface-700 text-xs font-medium hover:bg-surface-200 disabled:opacity-40 transition">
               {t("brainstorming.aiSummarize")}
             </button>
             <button onClick={() => aiExpandIdeas("gaps")} disabled={aiLoading || ideas.length === 0}
-              className="px-3 py-1.5 rounded-lg bg-surface-200 text-surface-800 text-xs font-medium hover:bg-surface-300 disabled:opacity-40 transition">
+              className="shrink-0 px-3 py-1.5 rounded-full bg-surface-100 text-surface-700 text-xs font-medium hover:bg-surface-200 disabled:opacity-40 transition">
               {t("brainstorming.aiGaps")}
             </button>
+            <button onClick={() => aiExpandIdeas("cleanup")} disabled={aiLoading || ideas.length === 0}
+              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 text-red-600 text-xs font-medium hover:bg-red-100 disabled:opacity-40 transition border border-red-200/60">
+              <Trash2 size={11} /> {t("brainstorming.aiCleanup")}
+            </button>
           </div>
-          {aiLoading && (
-            <div className="flex items-center gap-2 text-sm text-surface-500">
-              <span className="animate-pulse">...</span> {t("brainstorming.aiThinking")}
-            </div>
-          )}
-          {aiResult && (
-            <div className="mt-2 p-3 bg-white rounded-lg border border-surface-200">
-              <pre className="text-xs sm:text-sm text-surface-800 whitespace-pre-wrap font-sans leading-relaxed">{aiResult}</pre>
+
+          {/* Chat History */}
+          <div className="max-h-80 overflow-y-auto px-4 py-3 space-y-3 scrollbar-thin">
+            {aiChatHistory.length === 0 && !aiResult && !aiLoading && (
+              <div className="py-8 text-center">
+                <div className="w-10 h-10 mx-auto mb-3 rounded-xl bg-brand-100 flex items-center justify-center">
+                  <Sparkles size={18} className="text-brand-500" />
+                </div>
+                <p className="text-sm text-surface-500">{t("brainstorming.aiEmpty")}</p>
+                <p className="text-xs text-surface-400 mt-1">{t("brainstorming.aiEmptyHint")}</p>
+              </div>
+            )}
+
+            {aiChatHistory.map((msg, i) => (
+              <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                  msg.role === "user"
+                    ? "bg-brand-600 text-white rounded-br-md"
+                    : "bg-white border border-surface-200 text-surface-800 rounded-bl-md shadow-sm"
+                }`}>
+                  {msg.role === "assistant" && (
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <Bot size={11} className="text-brand-500" />
+                      <span className="text-[10px] font-medium text-brand-500">Semetra KI</span>
+                    </div>
+                  )}
+                  <div className="whitespace-pre-wrap text-xs sm:text-sm">{msg.content}</div>
+                  {msg.role === "assistant" && (
+                    <button
+                      onClick={() => copyToClipboard(msg.content)}
+                      className="mt-1.5 text-[10px] text-surface-400 hover:text-surface-600 flex items-center gap-1 transition"
+                    >
+                      {copied ? <Check size={10} /> : <Copy size={10} />} {copied ? t("brainstorming.copied") : t("brainstorming.copyResult")}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {/* Streaming result (not yet in history) */}
+            {aiLoading && aiResult && (
+              <div className="flex justify-start">
+                <div className="max-w-[85%] rounded-2xl rounded-bl-md px-3.5 py-2.5 bg-white border border-surface-200 text-surface-800 shadow-sm">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Bot size={11} className="text-brand-500" />
+                    <span className="text-[10px] font-medium text-brand-500">Semetra KI</span>
+                  </div>
+                  <div className="whitespace-pre-wrap text-xs sm:text-sm">{aiResult}</div>
+                </div>
+              </div>
+            )}
+
+            {aiLoading && !aiResult && (
+              <div className="flex justify-start">
+                <div className="rounded-2xl rounded-bl-md px-4 py-3 bg-white border border-surface-200 shadow-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+                    </div>
+                    <span className="text-xs text-surface-500">{t("brainstorming.aiThinking")}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div ref={aiChatEndRef} />
+          </div>
+
+          {/* Input */}
+          <div className="px-4 py-3 border-t border-surface-100 bg-white/60 backdrop-blur-sm">
+            <div className="flex items-center gap-2">
+              <input
+                value={aiUserInput}
+                onChange={e => setAiUserInput(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); aiFollowUp(); } }}
+                placeholder={t("brainstorming.aiInputPlaceholder")}
+                disabled={aiLoading}
+                className="flex-1 px-3.5 py-2 rounded-xl bg-surface-50 border border-surface-200 text-sm text-surface-900 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400 disabled:opacity-50 transition"
+              />
               <button
-                onClick={() => copyToClipboard(aiResult)}
-                className="mt-2 text-xs text-surface-500 hover:text-surface-900 flex items-center gap-1"
+                onClick={aiFollowUp}
+                disabled={aiLoading || !aiUserInput.trim()}
+                className="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center hover:bg-brand-500 disabled:opacity-40 disabled:hover:bg-brand-600 transition shadow-sm"
               >
-                {copied ? <Check size={12} /> : <Copy size={12} />} {copied ? t("brainstorming.copied") : t("brainstorming.copyResult")}
+                <ArrowUpRight size={16} />
               </button>
             </div>
-          )}
+          </div>
         </div>
       )}
 
