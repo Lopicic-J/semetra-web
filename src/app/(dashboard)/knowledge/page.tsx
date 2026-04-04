@@ -724,23 +724,23 @@ function TopicModal({ initial, parentId, modules, exams, tasks, presetExam, pres
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Titel *</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("knowledge.labelTitle")} *</label>
             <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("knowledge.topicPlaceholder")} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">Beschreibung</label>
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("knowledge.labelDescription")}</label>
             <textarea className="input resize-none" rows={2} value={form.description} onChange={e => set("description", e.target.value)} placeholder={t("knowledge.detailsPlaceholder")} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Modul</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("knowledge.labelModule")}</label>
               <select className="input" value={form.module_id} onChange={e => set("module_id", e.target.value)}>
                 <option value="">—</option>
                 {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Status</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("knowledge.labelStatus")}</label>
               <select className="input" value={form.status} onChange={e => set("status", e.target.value)}>
                 {Object.entries(getStatusLabels(t)).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
@@ -749,23 +749,23 @@ function TopicModal({ initial, parentId, modules, exams, tasks, presetExam, pres
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-surface-700 mb-1 flex items-center gap-1">
-                <GraduationCap size={12} /> Prüfung
+                <GraduationCap size={12} /> {t("knowledge.labelExam")}
               </label>
               <select className="input" value={form.exam_id} onChange={e => set("exam_id", e.target.value)}>
-                <option value="">— keine —</option>
+                <option value="">{t("knowledge.optionNone")}</option>
                 {exams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">Aufgabe</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("knowledge.labelTask")}</label>
               <select className="input" value={form.task_id} onChange={e => set("task_id", e.target.value)}>
-                <option value="">— keine —</option>
+                <option value="">{t("knowledge.optionNone")}</option>
                 {tasks.map(t => <option key={t.id} value={t.id}>{t.title.length > 30 ? t.title.slice(0, 30) + "…" : t.title}</option>)}
               </select>
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-2">Wissensstand</label>
+            <label className="block text-sm font-medium text-surface-700 mb-2">{t("knowledge.labelKnowledgeLevel")}</label>
             <div className="flex gap-2">
               {getKnowledgeLevels(t).map(kl => (
                 <button key={kl.level} type="button"
@@ -779,9 +779,9 @@ function TopicModal({ initial, parentId, modules, exams, tasks, presetExam, pres
             </div>
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="btn-secondary flex-1">Abbrechen</button>
+            <button type="button" onClick={onClose} className="btn-secondary flex-1">{t("knowledge.cancel")}</button>
             <button type="submit" disabled={saving} className="btn-primary flex-1 justify-center">
-              {saving ? "Speichern…" : "Speichern"}
+              {saving ? t("knowledge.saving") : t("knowledge.save")}
             </button>
           </div>
         </form>

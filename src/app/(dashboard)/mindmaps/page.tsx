@@ -270,6 +270,7 @@ function MindMapEditor({ map, modules, onBack }: {
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+  const [showExport, setShowExport] = useState(false);
   const [undoStack, setUndoStack] = useState<MindMapNode[][]>([]);
   const [redoStack, setRedoStack] = useState<MindMapNode[][]>([]);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -285,6 +286,19 @@ function MindMapEditor({ map, modules, onBack }: {
   }, [supabase, map.id]);
 
   useEffect(() => { fetchNodes(); }, [fetchNodes]);
+
+  // Close export dropdown when clicking outside
+  useEffect(() => {
+    if (!showExport) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.export-dropdown')) {
+        setShowExport(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showExport]);
 
   // Build tree helpers
   const rootNode = useMemo(() => nodes.find(n => !n.parent_id), [nodes]);
@@ -877,21 +891,23 @@ function MindMapEditor({ map, modules, onBack }: {
         <div className="w-px h-5 bg-surface-200" />
 
         {/* Export dropdown */}
-        <div className="relative group/export shrink-0">
-          <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-surface-100 text-surface-600 hover:bg-surface-200">
+        <div className="relative shrink-0 export-dropdown">
+          <button onClick={() => setShowExport(!showExport)} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-surface-100 text-surface-600 hover:bg-surface-200">
             <Download size={12} /> {t("mindmaps.export") || "Export"}
           </button>
-          <div className="absolute right-0 top-full mt-1 bg-white border border-surface-200 rounded-xl shadow-lg py-1 w-40 opacity-0 invisible group-hover/export:opacity-100 group-hover/export:visible transition-all z-20">
-            <button onClick={exportPNG} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-surface-700 hover:bg-surface-50">
-              <Image size={12} /> PNG
-            </button>
-            <button onClick={exportMarkdown} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-surface-700 hover:bg-surface-50">
-              <FileText size={12} /> Markdown
-            </button>
-            <button onClick={exportJSON} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-surface-700 hover:bg-surface-50">
-              <FileText size={12} /> JSON
-            </button>
-          </div>
+          {showExport && (
+            <div className="absolute right-0 top-full mt-1 bg-white border border-surface-200 rounded-xl shadow-lg py-1 w-40 z-20" onClick={e => e.stopPropagation()}>
+              <button onClick={() => { exportPNG(); setShowExport(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-surface-700 hover:bg-surface-50">
+                <Image size={12} /> PNG
+              </button>
+              <button onClick={() => { exportMarkdown(); setShowExport(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-surface-700 hover:bg-surface-50">
+                <FileText size={12} /> Markdown
+              </button>
+              <button onClick={() => { exportJSON(); setShowExport(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-surface-700 hover:bg-surface-50">
+                <FileText size={12} /> JSON
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-0.5 bg-surface-100 rounded-lg px-1 shrink-0">

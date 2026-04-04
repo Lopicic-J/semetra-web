@@ -10,7 +10,7 @@ import {
   Eye, Check, X, Loader2, Keyboard, Maximize2, Minimize2,
   Flame, AlertTriangle, CheckCircle2, XCircle, BarChart3,
   Calendar, Tag, FileText, Zap, Copy, Clock, Target,
-  TrendingUp, ArrowRight, type LucideIcon,
+  TrendingUp, ArrowRight, CheckSquare, Square, type LucideIcon,
 } from "lucide-react";
 import type { Flashcard, Module, CalendarEvent } from "@/types/database";
 import { useTranslation } from "@/lib/i18n";
@@ -77,15 +77,27 @@ function sm2(
    ═══════════════════════════════════════════════════════════════════════ */
 
 function parseCloze(text: string): { display: string; answer: string } {
-  const match = text.match(/\{\{c\d+::(.+?)\}\}/);
-  if (!match) return { display: text, answer: "" };
-  const answer = match[1];
-  const display = text.replace(/\{\{c\d+::(.+?)\}\}/, "[...]");
-  return { display, answer };
+  // Try {{c1::answer}} format first
+  let match = text.match(/\{\{c\d+::(.+?)\}\}/);
+  if (match) {
+    const answer = match[1];
+    const display = text.replace(/\{\{c\d+::(.+?)\}\}/, "[...]");
+    return { display, answer };
+  }
+
+  // Try [answer] format
+  match = text.match(/\[(.+?)\]/);
+  if (match) {
+    const answer = match[1];
+    const display = text.replace(/\[(.+?)\]/, "[...]");
+    return { display, answer };
+  }
+
+  return { display: text, answer: "" };
 }
 
 function hasCloze(text: string): boolean {
-  return /\{\{c\d+::(.+?)\}\}/.test(text);
+  return /\{\{c\d+::(.+?)\}\}/.test(text) || /\[(.+?)\]/.test(text);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -513,7 +525,7 @@ function CardDialog({
             className="input w-full min-h-[80px] resize-y"
             value={front}
             onChange={e => setFront(e.target.value)}
-            placeholder={cardType === "cloze" ? (t("flashcards.clozePlaceholder") || "Die Hauptstadt der Schweiz ist {{c1::Bern}}.") : t("flashcards.newCardFront")}
+            placeholder={cardType === "cloze" ? (t("flashcards.clozePlaceholder") || "The capital of Switzerland is [Bern].") : t("flashcards.newCardFront")}
           />
         </div>
 
@@ -619,16 +631,38 @@ function BulkCreatePanel({
   const [deckName, setDeckName] = useState(t("flashcards.defaultDeck") || "Standard");
   const [saving, setSaving] = useState(false);
 
-  // Format: Question? | Answer (one per line)
+  // Helper: split line by first matching separator (tab, |, -, =)
+  function splitLine(line: string): [string, string] {
+    // Try separators in order: tab, |, -, =
+    if (line.includes("\t")) {
+      const [front, back] = line.split("\t");
+      return [front.trim(), back.trim()];
+    }
+    if (line.includes("|")) {
+      const [front, back] = line.split("|");
+      return [front.trim(), back.trim()];
+    }
+    if (line.includes(" - ")) {
+      const [front, back] = line.split(" - ");
+      return [front.trim(), back.trim()];
+    }
+    if (line.includes(" = ")) {
+      const [front, back] = line.split(" = ");
+      return [front.trim(), back.trim()];
+    }
+    return ["", ""];
+  }
+
+  // Format: Question | Answer or Question - Answer or Question = Answer or Question\tAnswer
   async function handleBulkCreate() {
-    const lines = text.split("\n").filter(l => l.includes("|"));
+    const lines = text.split("\n").filter(l => splitLine(l)[0] && splitLine(l)[1]);
     if (lines.length === 0) return;
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     const rows = lines.map(line => {
-      const [front, back] = line.split("|").map(s => s.trim());
+      const [front, back] = splitLine(line);
       return {
         user_id: user.id,
         front: front || "",
@@ -670,14 +704,14 @@ function BulkCreatePanel({
         <textarea
           value={text}
           onChange={e => setText(e.target.value)}
-          placeholder={`Was ist HTTP? | Hypertext Transfer Protocol\nWas ist DNS? | Domain Name System\n...`}
+          placeholder={`What is HTTP? - Hypertext Transfer Protocol\nWhat is DNS? - Domain Name System\n...`}
           className="input w-full min-h-[240px] resize-y font-mono text-sm"
           autoFocus
         />
 
         <div className="flex justify-between items-center mt-4">
           <span className="text-xs text-surface-500">
-            {text.split("\n").filter(l => l.includes("|")).length} {t("fc.cardsDetected")}
+            {text.split("\n").filter(l => splitLine(l)[0] && splitLine(l)[1]).length} {t("fc.cardsDetected")}
           </span>
           <div className="flex gap-3">
             <button onClick={onClose} className="btn-secondary text-sm">{t("tasks.modal.cancel")}</button>
@@ -746,10 +780,49 @@ function AIGeneratePanel({
     const file = e.target.files?.[0];
     if (!file) return;
     e.target.value = "";
+
+    const isBinaryFormat = file.type === "application/pdf" ||
+                           file.name.endsWith(".pptx") ||
+                           file.name.endsWith(".docx");
+
     try {
-      const fileText = await file.text();
+      let fileText: string;
+
+      if (isBinaryFormat) {
+        // For binary formats, use API to extract text
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          setResult(t("flashcards.uploadError"));
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("/api/extract-text", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: formData,
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          setResult(errorData.error || t("flashcards.uploadError"));
+          return;
+        }
+
+        const data = await res.json();
+        fileText = data.text || "";
+      } else {
+        // For text formats, use file.text()
+        fileText = await file.text();
+      }
+
       setText(fileText.slice(0, 12000));
-    } catch {
+    } catch (err) {
+      console.error("Upload error:", err);
       setResult(t("flashcards.uploadError"));
     }
   }
@@ -773,7 +846,7 @@ function AIGeneratePanel({
           </select>
           <label className="btn-secondary text-sm cursor-pointer flex items-center gap-1.5">
             <FileText size={14} /> {t("fc.uploadFile")}
-            <input type="file" accept=".txt,.md,.csv" className="hidden" onChange={handleFileUpload} />
+            <input type="file" accept=".txt,.md,.csv,.pdf,.docx,.pptx" className="hidden" onChange={handleFileUpload} />
           </label>
         </div>
 
@@ -899,6 +972,15 @@ export default function FlashcardsPage() {
   const [showAiGen, setShowAiGen] = useState(false);
   const [showStats, setShowStats] = useState(true);
 
+  // Multi-select state
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedCards, setSelectedCards] = useState<Set<string>>(new Set());
+
+  // Study session tracking
+  const studyStartTime = useRef<number | null>(null);
+  const reviewCount = useRef<number>(0);
+  const currentModuleId = useRef<string | null>(null);
+
   // Filters
   const [filterModule, setFilterModule] = useState("");
   const [filterDeck, setFilterDeck] = useState("");
@@ -982,22 +1064,80 @@ export default function FlashcardsPage() {
     load();
   }
 
+  async function handleDeleteSelected() {
+    if (selectedCards.size === 0) return;
+    const ids = Array.from(selectedCards);
+    for (const id of ids) {
+      await supabase.from("flashcards").delete().eq("id", id);
+    }
+    setSelectedCards(new Set());
+    setSelectMode(false);
+    load();
+  }
+
+  function toggleCardSelection(id: string) {
+    const newSelection = new Set(selectedCards);
+    if (newSelection.has(id)) {
+      newSelection.delete(id);
+    } else {
+      newSelection.add(id);
+    }
+    setSelectedCards(newSelection);
+  }
+
   async function handleRate(id: string, quality: number, daysUntilExam?: number) {
     const card = cards.find(c => c.id === id);
     if (!card) return;
     const updates = sm2(card, quality, daysUntilExam);
     await supabase.from("flashcards").update(updates).eq("id", id);
+    reviewCount.current += 1;
   }
 
   // Study mode
   if (studyMode && dueCards.length > 0) {
+    // Initialize study session timing
+    if (studyStartTime.current === null) {
+      studyStartTime.current = Date.now();
+      reviewCount.current = 0;
+      // Capture first card's module
+      if (dueCards.length > 0) {
+        currentModuleId.current = dueCards[0].module_id ?? null;
+      }
+    }
+
+    const handleStudyClose = async () => {
+      // Create time_logs entry if study session was at least somewhat long
+      const duration = studyStartTime.current ? Date.now() - studyStartTime.current : 0;
+      const durationSeconds = Math.floor(duration / 1000);
+
+      if (durationSeconds > 0) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from("time_logs").insert({
+            user_id: user.id,
+            module_id: currentModuleId.current,
+            duration_seconds: durationSeconds,
+            started_at: new Date(studyStartTime.current!).toISOString(),
+            note: `Flashcard review: ${reviewCount.current} cards`,
+          });
+        }
+      }
+
+      // Reset study session state
+      studyStartTime.current = null;
+      reviewCount.current = 0;
+      currentModuleId.current = null;
+      setStudyMode(false);
+      load();
+    };
+
     return (
       <div className="p-3 sm:p-6 max-w-4xl mx-auto">
         <StudyMode
           cards={dueCards}
           exams={exams}
           onRate={handleRate}
-          onClose={() => { setStudyMode(false); load(); }}
+          onClose={handleStudyClose}
         />
       </div>
     );
@@ -1017,6 +1157,15 @@ export default function FlashcardsPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <LimitCounter current={decks.length} max={FREE_LIMITS.flashcardSets} isPro={isPro} />
+          <button
+            onClick={() => {
+              setSelectMode(!selectMode);
+              if (!selectMode) setSelectedCards(new Set());
+            }}
+            className={`text-sm px-3 py-1.5 rounded-lg transition ${selectMode ? "bg-brand-50 text-brand-700 border border-brand-300" : "text-surface-600 hover:bg-surface-100"}`}
+          >
+            {t("flashcards.select")}
+          </button>
           {dueCards.length > 0 && (
             <button onClick={() => setStudyMode(true)} className="btn-primary gap-2 text-sm">
               <Brain size={16} /> {t("fc.study")} ({dueCards.length})
@@ -1164,11 +1313,15 @@ export default function FlashcardsPage() {
             const isDue = !card.next_review || new Date(card.next_review) <= new Date();
             const cardType = card.card_type ?? "basic";
             const typeColor = cardType === "cloze" ? "purple" : cardType === "mc" ? "cyan" : "brand";
+            const isSelected = selectedCards.has(card.id);
 
             return (
               <div
                 key={card.id}
-                className="bg-white border border-surface-200 rounded-xl p-4 hover:shadow-md transition-all group relative"
+                onClick={() => selectMode && toggleCardSelection(card.id)}
+                className={`bg-white border border-surface-200 rounded-xl p-4 hover:shadow-md transition-all group relative cursor-pointer ${
+                  selectMode ? "cursor-pointer" : ""
+                } ${isSelected ? "bg-brand-50 border-brand-300" : ""}`}
               >
                 {/* Badges */}
                 <div className="flex items-center gap-1.5 mb-2 flex-wrap">
@@ -1220,16 +1373,27 @@ export default function FlashcardsPage() {
                   )}
                 </div>
 
+                {/* Checkbox in select mode */}
+                {selectMode && (
+                  <div className="absolute top-3 left-3">
+                    {isSelected ? (
+                      <CheckSquare size={20} className="text-brand-600" />
+                    ) : (
+                      <Square size={20} className="text-surface-300" />
+                    )}
+                  </div>
+                )}
+
                 {/* Hover actions */}
-                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                <div className={`absolute top-3 right-3 ${selectMode ? "opacity-0" : "opacity-0 group-hover:opacity-100"} transition-opacity flex gap-1`}>
                   <button
-                    onClick={() => { setEditCard(card); setShowDialog(true); }}
+                    onClick={(e) => { e.stopPropagation(); setEditCard(card); setShowDialog(true); }}
                     className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400 hover:text-surface-600"
                   >
                     <BookOpen size={14} />
                   </button>
                   <button
-                    onClick={() => handleDelete(card.id)}
+                    onClick={(e) => { e.stopPropagation(); handleDelete(card.id); }}
                     className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500"
                   >
                     <Trash2 size={14} />
@@ -1238,6 +1402,30 @@ export default function FlashcardsPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* ── Floating Action Bar (Multi-select) ── */}
+      {selectMode && selectedCards.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white border border-surface-200 rounded-lg shadow-lg p-4 flex items-center gap-4 z-40">
+          <span className="text-sm font-medium text-surface-700">
+            {t("flashcards.selected", { count: String(selectedCards.size) })}
+          </span>
+          <button
+            onClick={handleDeleteSelected}
+            className="btn-danger text-sm gap-2"
+          >
+            <Trash2 size={14} /> {t("flashcards.deleteSelected")}
+          </button>
+          <button
+            onClick={() => {
+              setSelectMode(false);
+              setSelectedCards(new Set());
+            }}
+            className="text-sm px-3 py-1.5 rounded-lg text-surface-600 hover:bg-surface-100"
+          >
+            {t("flashcards.cancel")}
+          </button>
         </div>
       )}
 

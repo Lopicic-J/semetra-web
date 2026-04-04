@@ -262,7 +262,7 @@ export default function DocumentsPage() {
             }}
             className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition flex-shrink-0"
           >
-            <Plus size={16} /> {t("tasks.modal.add")}
+            <Plus size={16} /> {t("documents.modal.add")}
           </button>
         </div>
       </div>
@@ -826,7 +826,7 @@ function DocModal({
           </>
         )}
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("tasks.modal.titleLabel")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("documents.modal.titleLabel")}</label>
         <input
           value={title}
           onChange={e => setTitle(e.target.value)}
@@ -849,13 +849,13 @@ function DocModal({
           ))}
         </div>
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("tasks.modal.modulLabel")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("documents.modal.modulLabel")}</label>
         <select
           value={moduleId}
           onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); }}
           className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 mb-2"
         >
-          <option value="">— {t("tasks.modal.moduleEmpty")} —</option>
+          <option value="">— {t("documents.modal.moduleEmpty")} —</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
 
@@ -894,7 +894,7 @@ function DocModal({
           className="w-full bg-brand-600 hover:bg-brand-500 text-white py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {(saving || uploading) && <Loader2 size={14} className="animate-spin" />}
-          {uploading ? t("documents.modal.uploading") : saving ? t("documents.modal.save") : isEdit ? t("tasks.modal.save") : t("documents.modal.add")}
+          {uploading ? t("documents.modal.uploading") : saving ? t("documents.modal.save") : isEdit ? t("documents.modal.save") : t("documents.modal.add")}
         </button>
       </div>
     </div>
