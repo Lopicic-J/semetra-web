@@ -868,12 +868,12 @@ function MindMapEditor({ map, modules, onBack }: {
 
   // Canvas size
   const canvasW = useMemo(() => {
-    const maxX = Math.max(800, ...visibleNodes.map(n => getPos(n).x + 240));
-    return maxX + 200;
+    const maxX = Math.max(800, ...visibleNodes.map(n => getPos(n).x + 400));
+    return maxX + 300;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visibleNodes, treePositions, layoutMode]);
   const canvasH = useMemo(() => {
-    const maxY = Math.max(500, ...visibleNodes.map(n => getPos(n).y + 100));
+    const maxY = Math.max(500, ...visibleNodes.map(n => getPos(n).y + 150));
     return maxY + 200;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visibleNodes, treePositions, layoutMode]);
@@ -926,47 +926,73 @@ function MindMapEditor({ map, modules, onBack }: {
       const h2c = (window as any).html2canvas;
       if (!h2c) { alert(t("mindmaps.exportFailed")); return; }
 
+      // 1. Reset transform so we measure at 1:1 scale
       const origTransform = el.style.transform;
       const origOrigin = el.style.transformOrigin;
+      const origWidth = el.style.width;
+      const origHeight = el.style.height;
+      const origOverflow = el.style.overflow;
       el.style.transform = "none";
       el.style.transformOrigin = "0 0";
 
-      // Temporarily replace SVG gradient strokes with solid colors for html2canvas
+      // 2. Measure actual bounding box of ALL child elements
+      const canvasRect = el.getBoundingClientRect();
+      let maxRight = 0;
+      let maxBottom = 0;
+      el.querySelectorAll("*").forEach(child => {
+        const r = child.getBoundingClientRect();
+        if (r.width === 0 && r.height === 0) return;
+        const right = r.right - canvasRect.left;
+        const bottom = r.bottom - canvasRect.top;
+        if (right > maxRight) maxRight = right;
+        if (bottom > maxBottom) maxBottom = bottom;
+      });
+
+      // Add padding around content
+      const padding = 40;
+      const exportW = Math.max(maxRight + padding, el.scrollWidth, 800);
+      const exportH = Math.max(maxBottom + padding, el.scrollHeight, 500);
+
+      // 3. Temporarily expand canvas to fit all content
+      el.style.width = `${exportW}px`;
+      el.style.height = `${exportH}px`;
+      el.style.overflow = "visible";
+
+      // 4. Replace SVG gradient strokes with solid colors (html2canvas can't render gradients)
       const svgPaths = el.querySelectorAll("svg path");
       const origStrokes: string[] = [];
       svgPaths.forEach((path, i) => {
         origStrokes[i] = (path as SVGPathElement).getAttribute("stroke") || "";
-        const strokeVal = origStrokes[i];
-        if (strokeVal.startsWith("url(")) {
+        if (origStrokes[i].startsWith("url(")) {
           (path as SVGPathElement).setAttribute("stroke", "#8b5cf6");
         }
       });
 
-      // Compute actual content bounds for accurate export
-      const elW = el.scrollWidth || parseInt(String(el.style.width)) || 2000;
-      const elH = el.scrollHeight || parseInt(String(el.style.height)) || 1500;
-
+      // 5. Capture with html2canvas at measured dimensions
       const canvas = await h2c(el, {
         scale: 2,
         backgroundColor: "#f8fafc",
         useCORS: true,
         allowTaint: true,
-        width: elW,
-        height: elH,
+        width: exportW,
+        height: exportH,
         scrollX: 0,
         scrollY: 0,
-        windowWidth: elW,
-        windowHeight: elH,
+        windowWidth: exportW,
+        windowHeight: exportH,
         foreignObjectRendering: false,
         logging: false,
       });
 
-      // Restore original strokes
+      // 6. Restore everything
       svgPaths.forEach((path, i) => {
         (path as SVGPathElement).setAttribute("stroke", origStrokes[i]);
       });
       el.style.transform = origTransform;
       el.style.transformOrigin = origOrigin;
+      el.style.width = origWidth;
+      el.style.height = origHeight;
+      el.style.overflow = origOverflow;
 
       const url = canvas.toDataURL("image/png");
       const a = document.createElement("a");
