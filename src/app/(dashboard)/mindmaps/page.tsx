@@ -913,7 +913,6 @@ function MindMapEditor({ map, modules, onBack }: {
   async function exportPNG() {
     const el = document.getElementById("mindmap-canvas");
     if (!el) return;
-    const wrapper = el.parentElement; // the overflow-hidden container
     try {
       if (!(window as any).html2canvas) {
         await new Promise<void>((resolve, reject) => {
@@ -927,53 +926,85 @@ function MindMapEditor({ map, modules, onBack }: {
       const h2c = (window as any).html2canvas;
       if (!h2c) { alert(t("mindmaps.exportFailed")); return; }
 
-      // Save original styles
+      // 1. Walk ALL ancestors and temporarily remove overflow clipping
+      const ancestors: { el: HTMLElement; orig: string }[] = [];
+      let parent = el.parentElement;
+      while (parent && parent !== document.body) {
+        const cs = getComputedStyle(parent);
+        if (cs.overflow !== "visible" || cs.overflowX !== "visible" || cs.overflowY !== "visible") {
+          ancestors.push({ el: parent, orig: parent.style.overflow });
+          parent.style.overflow = "visible";
+        }
+        parent = parent.parentElement;
+      }
+
+      // 2. Save original canvas styles
       const origTransform = el.style.transform;
       const origOrigin = el.style.transformOrigin;
       const origWidth = el.style.width;
       const origHeight = el.style.height;
       const origOverflow = el.style.overflow;
-      const origWrapperOverflow = wrapper?.style.overflow ?? "";
+      const origMinWidth = el.style.minWidth;
+      const origMinHeight = el.style.minHeight;
+      const origPosition = el.style.position;
 
-      // 1. Remove zoom/pan transform and parent clip
+      // 3. Remove zoom/pan transform
       el.style.transform = "none";
       el.style.transformOrigin = "0 0";
-      if (wrapper) wrapper.style.overflow = "visible";
+      el.style.overflow = "visible";
 
-      // 2. Force reflow so getBoundingClientRect is accurate
-      el.offsetHeight; // trigger reflow
+      // Force reflow so getBoundingClientRect is accurate
+      el.offsetHeight;
 
-      // 3. Measure actual bounding box of ALL child elements
+      // 4. Measure actual bounding box of ALL child elements (track all edges)
       const canvasRect = el.getBoundingClientRect();
-      let maxRight = 0;
-      let maxBottom = 0;
-      el.querySelectorAll("[data-nodeid], .node-box, svg, svg path, a, span, img, div").forEach(child => {
-        const r = child.getBoundingClientRect();
+      let minLeft = Infinity, minTop = Infinity, maxRight = 0, maxBottom = 0;
+      el.querySelectorAll("*").forEach(child => {
+        const r = (child as HTMLElement).getBoundingClientRect();
         if (r.width === 0 && r.height === 0) return;
+        const left = r.left - canvasRect.left;
+        const top = r.top - canvasRect.top;
         const right = r.right - canvasRect.left;
         const bottom = r.bottom - canvasRect.top;
+        if (left < minLeft) minLeft = left;
+        if (top < minTop) minTop = top;
         if (right > maxRight) maxRight = right;
         if (bottom > maxBottom) maxBottom = bottom;
       });
 
-      // Add generous padding
-      const padding = 60;
-      const exportW = Math.max(Math.ceil(maxRight) + padding, 800);
-      const exportH = Math.max(Math.ceil(maxBottom) + padding, 500);
+      // Handle case where there are no children
+      if (minLeft === Infinity) minLeft = 0;
+      if (minTop === Infinity) minTop = 0;
 
-      // 4. Expand canvas AND SVG to measured size
+      // 5. Calculate export dimensions with generous padding
+      const padding = 80;
+      const offsetX = Math.min(0, minLeft) - padding;
+      const offsetY = Math.min(0, minTop) - padding;
+      const exportW = Math.max(Math.ceil(maxRight - offsetX) + padding, 800);
+      const exportH = Math.max(Math.ceil(maxBottom - offsetY) + padding, 500);
+
+      // 6. Expand canvas element to contain everything
       el.style.width = `${exportW}px`;
       el.style.height = `${exportH}px`;
-      el.style.overflow = "visible";
+      el.style.minWidth = `${exportW}px`;
+      el.style.minHeight = `${exportH}px`;
+
+      // 7. Expand SVG to match
       const svg = el.querySelector("svg");
       const origSvgW = svg?.getAttribute("width") ?? "";
       const origSvgH = svg?.getAttribute("height") ?? "";
+      const origSvgStyle = svg?.getAttribute("style") ?? "";
       if (svg) {
         svg.setAttribute("width", String(exportW));
         svg.setAttribute("height", String(exportH));
+        svg.style.width = `${exportW}px`;
+        svg.style.height = `${exportH}px`;
       }
 
-      // 5. Replace SVG gradient strokes with solid colors (html2canvas can't render gradients)
+      // Force another reflow after resize
+      el.offsetHeight;
+
+      // 8. Replace SVG gradient strokes with solid colors (html2canvas can't render gradients)
       const svgPaths = el.querySelectorAll("svg path");
       const origStrokes: string[] = [];
       svgPaths.forEach((path, i) => {
@@ -983,7 +1014,7 @@ function MindMapEditor({ map, modules, onBack }: {
         }
       });
 
-      // 6. Capture with html2canvas
+      // 9. Capture with html2canvas — use x/y to offset if nodes extend left/above origin
       const canvas = await h2c(el, {
         scale: 2,
         backgroundColor: "#f8fafc",
@@ -991,28 +1022,36 @@ function MindMapEditor({ map, modules, onBack }: {
         allowTaint: true,
         width: exportW,
         height: exportH,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: exportW,
-        windowHeight: exportH,
+        x: offsetX,
+        y: offsetY,
+        scrollX: -window.scrollX,
+        scrollY: -window.scrollY,
+        windowWidth: exportW + 200,
+        windowHeight: exportH + 200,
         foreignObjectRendering: false,
         logging: false,
       });
 
-      // 7. Restore everything
+      // 10. Restore everything
       svgPaths.forEach((path, i) => {
         (path as SVGPathElement).setAttribute("stroke", origStrokes[i]);
       });
       if (svg) {
         svg.setAttribute("width", origSvgW);
         svg.setAttribute("height", origSvgH);
+        svg.setAttribute("style", origSvgStyle);
       }
       el.style.transform = origTransform;
       el.style.transformOrigin = origOrigin;
       el.style.width = origWidth;
       el.style.height = origHeight;
       el.style.overflow = origOverflow;
-      if (wrapper) wrapper.style.overflow = origWrapperOverflow;
+      el.style.minWidth = origMinWidth;
+      el.style.minHeight = origMinHeight;
+      el.style.position = origPosition;
+
+      // Restore all ancestor overflow
+      ancestors.forEach(a => { a.el.style.overflow = a.orig; });
 
       const url = canvas.toDataURL("image/png");
       const a = document.createElement("a");
