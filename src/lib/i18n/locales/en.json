@@ -381,6 +381,7 @@
   "documents.viewList": "List",
   "documents.noDocuments": "No documents found",
   "documents.noDocumentsOwn": "No own documents yet",
+  "documents.totalDocs": "Total",
   "documents.tryOtherFilter": "Try a different filter",
   "documents.addDocuments": "Add documents and links to your modules!",
   "documents.deleteConfirm": "Delete document?",

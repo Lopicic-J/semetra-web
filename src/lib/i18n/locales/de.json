@@ -421,6 +421,7 @@
   "documents.viewList": "Liste",
   "documents.noDocuments": "Keine Dokumente gefunden",
   "documents.noDocumentsOwn": "Noch keine eigenen Dokumente",
+  "documents.totalDocs": "Gesamt",
   "documents.tryOtherFilter": "Versuche einen anderen Filter",
   "documents.addDocuments": "Füge Dokumente und Links zu deinen Modulen hinzu!",
   "documents.deleteConfirm": "Dokument löschen?",

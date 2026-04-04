@@ -280,7 +280,7 @@ export default function DocumentsPage() {
           className={`bg-white border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-brand-500" : "border-surface-200 hover:border-surface-300"}`}
         >
           <p className="text-lg sm:text-2xl font-bold text-surface-900">{stats.total}</p>
-          <p className="text-xs text-surface-500">{t("documents.noDocuments")}</p>
+          <p className="text-xs text-surface-500">{t("documents.totalDocs") || "Gesamt"}</p>
         </button>
         <div className="bg-white border border-surface-200 rounded-xl p-2 sm:p-3 text-center">
           <p className="text-lg sm:text-2xl font-bold text-brand-400">{stats.own}</p>
