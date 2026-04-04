@@ -268,4 +268,7 @@ export const PLANS = {
       "Alle Pro-Features — für immer",
       "Keine monatlichen Kosten",
       "20 KI-Requests / Monat inkludiert",
-      "Erweiterbar über Add-on (+200 für CHF
+      "Erweiterbar über Add-on (+200 für CHF 6.90)",
+    ],
+  },
+} as const;
