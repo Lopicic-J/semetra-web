@@ -955,6 +955,7 @@
   "math.plotAnalysis": "Analyse",
   "math.plotDerivative": "Afgeleide f'(x)",
   "math.plotParameters": "Parameters",
+  "math.plotParamHint": "Gebruik a, b, c in je functie, bijv. a*sin(b*x+c)",
   "math.plotZeros": "Nulpunten",
   "math.plotExtrema": "Extremen",
   "math.plotInflections": "Buigpunten",

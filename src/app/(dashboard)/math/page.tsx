@@ -1907,6 +1907,8 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
 function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: string, r: string, m?: string | null) => void; modules: Module[]; checkLimit?: () => boolean }) {
   const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [canvasSize, setCanvasSize] = useState({ w: 800, h: 500 });
   const [functions, setFunctions] = useState<{ expr: string; color: string }[]>([{ expr: "sin(x)", color: "#8b5cf6" }]);
   const [xMin, setXMin] = useState(-10);
   const [xMax, setXMax] = useState(10);
@@ -1921,6 +1923,25 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
   const [tangentPoint, setTangentPoint] = useState<{ x: number; y: number; m: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
+  const touchStartRef = useRef<{ dist: number; cx: number; cy: number } | null>(null);
+
+  /* ── Responsive canvas sizing ── */
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const w = Math.round(entry.contentRect.width * (window.devicePixelRatio || 1));
+        const h = Math.round(w * 0.625); // 5:8 ratio
+        setCanvasSize({ w, h });
+      }
+    });
+    ro.observe(container);
+    // Initial size
+    const w = Math.round(container.clientWidth * (window.devicePixelRatio || 1));
+    setCanvasSize({ w, h: Math.round(w * 0.625) });
+    return () => ro.disconnect();
+  }, []);
 
   const COLORS = ["#8b5cf6", "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#ec4899"];
 
@@ -2167,7 +2188,7 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
       ctx.font = "12px monospace";
       ctx.fillText(`(${mx.toFixed(2)}, ${my.toFixed(2)})`, mousePos.x + 10, mousePos.y - 10);
     }
-  }, [functions, xMin, xMax, yMin, yMax, mousePos, evalExpr, derivative, showDerivative, tangentPoint, paramMode, params, findIntersections]);
+  }, [functions, xMin, xMax, yMin, yMax, mousePos, evalExpr, derivative, showDerivative, tangentPoint, paramMode, params, findIntersections, canvasSize]);
 
   useEffect(() => { draw(); }, [draw]);
 
@@ -2217,6 +2238,53 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
     setXMin(cx - (w * px) / rect.width);
     setXMax(cx + (w * (rect.width - px)) / rect.width);
   };
+
+  /* ── Touch events for mobile ── */
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const rect = e.currentTarget.getBoundingClientRect();
+      const cx = ((e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left) / rect.width;
+      const cy = ((e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top) / rect.height;
+      touchStartRef.current = { dist, cx, cy };
+    } else if (e.touches.length === 1) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      setIsDragging(true);
+      setDragStart({ x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top });
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    if (e.touches.length === 2 && touchStartRef.current) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const factor = touchStartRef.current.dist / dist;
+      const cx = xMin + touchStartRef.current.cx * (xMax - xMin);
+      const w = (xMax - xMin) * factor;
+      const h = (yMax - yMin) * factor;
+      setXMin(cx - touchStartRef.current.cx * w);
+      setXMax(cx + (1 - touchStartRef.current.cx) * w);
+      const cy = yMin + (1 - touchStartRef.current.cy) * (yMax - yMin);
+      setYMin(cy - (1 - touchStartRef.current.cy) * h);
+      setYMax(cy + touchStartRef.current.cy * h);
+      touchStartRef.current.dist = dist;
+    } else if (e.touches.length === 1 && isDragging && dragStart) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.touches[0].clientX - rect.left;
+      const y = e.touches[0].clientY - rect.top;
+      const ddx = (dragStart.x - x) / rect.width * (xMax - xMin);
+      const ddy = (y - dragStart.y) / rect.height * (yMax - yMin);
+      setXMin(xMin + ddx); setXMax(xMax + ddx);
+      setYMin(yMin + ddy); setYMax(yMax + ddy);
+      setDragStart({ x, y });
+    }
+  };
+
+  const handleTouchEnd = () => { setIsDragging(false); setDragStart(null); touchStartRef.current = null; };
 
   const addFunction = () => {
     setFunctions([...functions, { expr: "", color: COLORS[functions.length % COLORS.length] }]);
@@ -2272,13 +2340,16 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
       </div>
 
       {paramMode && (
-        <div className="grid grid-cols-3 gap-3 mb-4 text-sm">
-          {Object.entries(params).map(([key, val]) => (
-            <div key={key}>
-              <label className="text-surface-600 block text-xs mb-1">{key} = {val.toFixed(1)}</label>
-              <input type="range" min="-10" max="10" step="0.1" value={val} onChange={(e) => setParams({ ...params, [key]: parseFloat(e.target.value) })} className="w-full" />
-            </div>
-          ))}
+        <div className="mb-4">
+          <p className="text-xs text-surface-400 mb-2">{t("math.plotParamHint") || "Verwende a, b, c in deiner Funktion, z.B. a*sin(b*x+c)"}</p>
+          <div className="grid grid-cols-3 gap-3 text-sm">
+            {Object.entries(params).map(([key, val]) => (
+              <div key={key}>
+                <label className="text-surface-600 block text-xs mb-1 font-mono font-semibold">{key} = {val.toFixed(1)}</label>
+                <input type="range" min="-10" max="10" step="0.1" value={val} onChange={(e) => setParams(prev => ({ ...prev, [key]: parseFloat(e.target.value) }))} className="w-full accent-brand-600" />
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -2298,7 +2369,13 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
         </div>
       </div>
 
-      <canvas ref={canvasRef} width={800} height={500} onMouseMove={handleMouseMove} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onClick={handleCanvasClick} onWheel={handleWheel} className="w-full rounded-xl border border-surface-200 cursor-crosshair" />
+      <div ref={containerRef} className="w-full">
+        <canvas ref={canvasRef} width={canvasSize.w} height={canvasSize.h}
+          onMouseMove={handleMouseMove} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onClick={handleCanvasClick} onWheel={handleWheel}
+          onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
+          className="w-full rounded-xl border border-surface-200 cursor-crosshair touch-none"
+          style={{ height: "auto", aspectRatio: "8 / 5" }} />
+      </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
         {["sin(x)", "cos(x)", "tan(x)", "x^2", "x^3", "sqrt(x)", "1/x", "ln(x)", "e^x", "abs(x)"].map((f) => (

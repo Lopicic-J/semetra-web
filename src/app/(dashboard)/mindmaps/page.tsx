@@ -761,7 +761,29 @@ function MindMapEditor({ map, modules, onBack }: {
       }
       const h2c = (window as any).html2canvas;
       if (!h2c) { alert(t("mindmaps.exportFailed")); return; }
-      const canvas = await h2c(el, { scale: 2, backgroundColor: "#f8fafc", useCORS: true });
+
+      // Temporarily reset transform so html2canvas captures correctly
+      const origTransform = el.style.transform;
+      const origOrigin = el.style.transformOrigin;
+      el.style.transform = "none";
+      el.style.transformOrigin = "0 0";
+
+      const canvas = await h2c(el, {
+        scale: 2,
+        backgroundColor: "#f8fafc",
+        useCORS: true,
+        width: parseInt(String(el.style.width)) || el.scrollWidth,
+        height: parseInt(String(el.style.height)) || el.scrollHeight,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: parseInt(String(el.style.width)) || el.scrollWidth,
+        windowHeight: parseInt(String(el.style.height)) || el.scrollHeight,
+      });
+
+      // Restore transform
+      el.style.transform = origTransform;
+      el.style.transformOrigin = origOrigin;
+
       const url = canvas.toDataURL("image/png");
       const a = document.createElement("a");
       a.href = url;

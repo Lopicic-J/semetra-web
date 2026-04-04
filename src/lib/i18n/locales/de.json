@@ -782,6 +782,7 @@
   "math.plotAnalysis": "Analyse",
   "math.plotDerivative": "Ableitung f'(x)",
   "math.plotParameters": "Parameter",
+  "math.plotParamHint": "Verwende a, b, c in deiner Funktion, z.B. a*sin(b*x+c)",
   "math.plotZeros": "Nullstellen",
   "math.plotExtrema": "Extrempunkte",
   "math.plotInflections": "Wendepunkte",

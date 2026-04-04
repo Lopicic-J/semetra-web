@@ -955,6 +955,7 @@
   "math.plotAnalysis": "Análisis",
   "math.plotDerivative": "Derivada f'(x)",
   "math.plotParameters": "Parámetros",
+  "math.plotParamHint": "Usa a, b, c en tu función, ej. a*sin(b*x+c)",
   "math.plotZeros": "Ceros",
   "math.plotExtrema": "Extremos",
   "math.plotInflections": "Puntos de inflexión",
