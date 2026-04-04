@@ -1322,7 +1322,6 @@
   "exams.timeInvested": "Time invested",
   "exams.proFeature": "Pro feature",
   "exams.upgradeForPlan": "Upgrade to Pro for automatic study plans",
-  "nav.aiAssistant": "AI Assistant",
   "ai.title": "AI Study Assistant",
   "ai.subtitle": "Your personal tutor",
   "ai.actionsLeft": "left",
@@ -1657,5 +1656,12 @@
   "math.unit.megahertz": "Megahertz",
   "math.unit.gigahertz": "Gigahertz",
   "math.unit.rpm": "Revolutions/minute",
-  "math.unit.fluidOunce": "Fluid ounce"
+  "math.unit.fluidOunce": "Fluid ounce",
+  "dashboard.taskOverdue": "Overdue",
+  "dashboard.taskModule": "Module",
+  "dashboard.taskOpenFull": "Open in tasks",
+  "tasks.detailDescription": "Description",
+  "tasks.detailModule": "Module",
+  "tasks.detailDue": "Due",
+  "tasks.detailCreated": "Created"
 }

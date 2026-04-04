@@ -1319,7 +1319,6 @@
   "exams.timeInvested": "Temps investi",
   "exams.proFeature": "Fonction Pro",
   "exams.upgradeForPlan": "Passe à Pro pour des plans d'étude automatiques",
-  "nav.aiAssistant": "Assistant IA",
   "ai.title": "Assistant IA d'apprentissage",
   "ai.subtitle": "Ton tuteur personnel",
   "ai.actionsLeft": "restantes",
@@ -1654,5 +1653,12 @@
   "math.unit.megahertz": "Mégahertz",
   "math.unit.gigahertz": "Gigahertz",
   "math.unit.rpm": "Tours/minute",
-  "math.unit.fluidOunce": "Once liquide"
+  "math.unit.fluidOunce": "Once liquide",
+  "dashboard.taskOverdue": "En retard",
+  "dashboard.taskModule": "Module",
+  "dashboard.taskOpenFull": "Ouvrir dans les tâches",
+  "tasks.detailDescription": "Description",
+  "tasks.detailModule": "Module",
+  "tasks.detailDue": "Échéance",
+  "tasks.detailCreated": "Créé"
 }

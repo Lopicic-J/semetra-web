@@ -965,7 +965,6 @@
   "math.unit.weight": "Gewicht",
   "math.unitsConstants": "Einheiten & Konstanten",
   "math.useStandardModes": "Utilizzare le modalità standard per le soluzioni esatte",
-  "math.variable": "Variabile",
   "math.vieta": "Vieta",
   "math.modeSolve": "Risolvere",
   "math.modeRearrange": "Riordinare",
@@ -1320,7 +1319,6 @@
   "exams.timeInvested": "Tempo investito",
   "exams.proFeature": "Funzione Pro",
   "exams.upgradeForPlan": "Passa a Pro per piani di studio automatici",
-  "nav.aiAssistant": "Assistente IA",
   "ai.title": "Assistente IA di studio",
   "ai.subtitle": "Il tuo tutor personale",
   "ai.actionsLeft": "rimanenti",
@@ -1655,5 +1653,12 @@
   "math.unit.megahertz": "Megahertz",
   "math.unit.gigahertz": "Gigahertz",
   "math.unit.rpm": "Giri/minuto",
-  "math.unit.fluidOunce": "Oncia liquida"
+  "math.unit.fluidOunce": "Oncia liquida",
+  "dashboard.taskOverdue": "Scaduta",
+  "dashboard.taskModule": "Modulo",
+  "dashboard.taskOpenFull": "Apri nelle attività",
+  "tasks.detailDescription": "Descrizione",
+  "tasks.detailModule": "Modulo",
+  "tasks.detailDue": "Scadenza",
+  "tasks.detailCreated": "Creato"
 }

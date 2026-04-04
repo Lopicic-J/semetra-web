@@ -12,7 +12,7 @@ import { formatDate, formatDuration, ectsWeightedAvg, roundGrade } from "@/lib/u
 import {
   BookOpen, CheckSquare, Clock, TrendingUp, AlertCircle, Calendar,
   GraduationCap, Brain, AlertTriangle, Flame, Target, Zap, Trophy,
-  Timer, ArrowRight,
+  Timer, ArrowRight, ChevronDown, Paperclip, Link2, FileText,
 } from "lucide-react";
 import Link from "next/link";
 import type { CalendarEvent, Topic } from "@/types/database";
@@ -31,6 +31,8 @@ export default function DashboardPage() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [expandedExam, setExpandedExam] = useState<string | null>(null);
   const [examAttachments, setExamAttachments] = useState<Record<string, any[]>>({});
+  const [expandedTask, setExpandedTask] = useState<string | null>(null);
+  const [taskAttachments, setTaskAttachments] = useState<Record<string, any[]>>({});
   const supabase = createClient();
 
   const fetchExams = useCallback(async () => {
@@ -71,6 +73,26 @@ export default function DashboardPage() {
       setExpandedExam(examId);
       if (!examAttachments[examId]) {
         fetchExamDetails(examId);
+      }
+    }
+  };
+
+  const fetchTaskDetails = useCallback(async (taskId: string) => {
+    const { data } = await supabase
+      .from("task_attachments")
+      .select("*")
+      .eq("task_id", taskId)
+      .order("created_at", { ascending: false });
+    setTaskAttachments(prev => ({ ...prev, [taskId]: data ?? [] }));
+  }, [supabase]);
+
+  const toggleTaskExpand = (taskId: string) => {
+    if (expandedTask === taskId) {
+      setExpandedTask(null);
+    } else {
+      setExpandedTask(taskId);
+      if (!taskAttachments[taskId]) {
+        fetchTaskDetails(taskId);
       }
     }
   };
@@ -360,7 +382,7 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Urgent tasks */}
+        {/* Urgent tasks — expandable like exams */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-surface-900 flex items-center gap-2">
@@ -371,26 +393,94 @@ export default function DashboardPage() {
           {overdue.length === 0 && openTasks.length === 0 ? (
             <p className="text-sm text-surface-400 text-center py-4">{t("dashboard.allDone")}</p>
           ) : (
-            <ul className="space-y-2">
-              {[...overdue, ...openTasks.filter(t => !overdue.includes(t))].slice(0, 6).map(task => (
-                <li key={task.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-surface-50">
-                  <span className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${
-                    task.priority === "high" ? "bg-red-500" :
-                    task.priority === "medium" ? "bg-yellow-500" : "bg-surface-300"
-                  }`} />
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium truncate ${task.status === "done" ? "line-through text-surface-400" : "text-surface-800"}`}>
-                      {task.title}
-                    </p>
-                    {task.due_date && (
-                      <p className={`text-xs mt-0.5 ${new Date(task.due_date) < new Date() ? "text-red-500 font-medium" : "text-surface-400"}`}>
-                        {t("dashboard.dueDate", { date: formatDate(task.due_date) })}
-                      </p>
+            <div className="space-y-2">
+              {[...overdue, ...openTasks.filter(t => !overdue.includes(t))].slice(0, 6).map(task => {
+                const isOverdue = task.due_date && new Date(task.due_date) < new Date();
+                const isExpanded = expandedTask === task.id;
+                const attachments = taskAttachments[task.id] ?? [];
+                const mod = modules.find(m => m.id === task.module_id);
+
+                return (
+                  <div key={task.id}>
+                    <button
+                      onClick={() => toggleTaskExpand(task.id)}
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${
+                        isOverdue ? "bg-red-50 border border-red-200" :
+                        task.priority === "high" ? "bg-orange-50 border border-orange-200" :
+                        "bg-surface-50 hover:bg-surface-100 border border-transparent"
+                      } ${isExpanded ? "rounded-b-none border-b-0" : ""}`}
+                    >
+                      <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                        task.priority === "high" ? "bg-red-500" :
+                        task.priority === "medium" ? "bg-yellow-500" : "bg-surface-300"
+                      }`} />
+                      <div className="flex-1 min-w-0 text-left">
+                        <p className="text-sm font-semibold text-surface-900 truncate">{task.title}</p>
+                        <p className="text-xs text-surface-500 mt-0.5">
+                          {task.due_date && formatDate(task.due_date)}
+                          {mod ? ` · ${mod.name}` : ""}
+                        </p>
+                      </div>
+                      {isOverdue && (
+                        <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-100 text-red-700 shrink-0">
+                          {t("dashboard.taskOverdue")}
+                        </span>
+                      )}
+                      <ChevronDown size={14} className={`text-surface-400 shrink-0 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                    </button>
+
+                    {isExpanded && (
+                      <div className={`border border-t-0 rounded-b-xl p-3 text-sm space-y-2 ${
+                        isOverdue ? "bg-red-50/50 border-red-200" :
+                        task.priority === "high" ? "bg-orange-50/50 border-orange-200" :
+                        "bg-surface-50 border-surface-200"
+                      }`}>
+                        {task.description && (
+                          <div>
+                            <p className="text-xs font-medium text-surface-500 mb-1">{t("dashboard.description")}</p>
+                            <p className="text-xs text-surface-700 whitespace-pre-line">{task.description}</p>
+                          </div>
+                        )}
+                        {mod && (
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs font-medium text-surface-500">{t("dashboard.taskModule")}:</p>
+                            <span className="flex items-center gap-1.5 text-xs text-surface-700">
+                              <span className="w-2.5 h-2.5 rounded-full" style={{ background: mod.color }} />
+                              {mod.name}
+                            </span>
+                          </div>
+                        )}
+                        {attachments.length > 0 && (
+                          <div>
+                            <p className="text-xs font-medium text-surface-500 mb-1">{t("dashboard.attachments")}</p>
+                            <div className="space-y-1">
+                              {attachments.slice(0, 4).map((att: any) => (
+                                <a key={att.id} href={att.url} target="_blank" rel="noopener noreferrer"
+                                  className="flex items-center gap-2 text-xs text-surface-600 hover:text-brand-600 transition-colors">
+                                  {att.kind === "link" ? <Link2 size={11} /> : <Paperclip size={11} />}
+                                  <span className="truncate">{att.label || att.url}</span>
+                                </a>
+                              ))}
+                              {attachments.length > 4 && (
+                                <p className="text-[10px] text-surface-400">+{attachments.length - 4} {t("dashboard.more")}</p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        {!task.description && !mod && attachments.length === 0 && (
+                          <p className="text-xs text-surface-400">{t("dashboard.noDetails")}</p>
+                        )}
+                        <div className="pt-1">
+                          <Link href="/tasks" className="text-xs text-brand-600 hover:underline font-medium">
+                            {t("dashboard.taskOpenFull")} →
+                          </Link>
+                        </div>
+                      </div>
                     )}
                   </div>
-                </li>
-              ))}
-            </ul>
+                );
+              })}
+            </div>
           )}
         </div>
       </div>

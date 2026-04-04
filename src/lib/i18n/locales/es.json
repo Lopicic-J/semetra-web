@@ -20,7 +20,7 @@
   "nav.credits": "Créditos y ECTS",
   "nav.settings": "Configuración",
   "nav.about": "Acerca de Semetra Workspace",
-  "nav.aiAssistant": "Asistente de IA",
+  "nav.aiAssistant": "Asistente IA",
   "navGroup.study": "Estudios",
   "navGroup.learning": "Aprendizaje",
   "navGroup.tools": "Herramientas",
@@ -965,7 +965,6 @@
   "math.unit.weight": "Gewicht",
   "math.unitsConstants": "Einheiten & Konstanten",
   "math.useStandardModes": "Utiliza los modos estándar para soluciones exactas",
-  "math.variable": "Variable",
   "math.vieta": "Vieta",
   "math.modeSolve": "Resolver",
   "math.modeRearrange": "Despejar",
@@ -1320,7 +1319,6 @@
   "exams.timeInvested": "Tiempo invertido",
   "exams.proFeature": "Función Pro",
   "exams.upgradeForPlan": "Actualiza a Pro para planes de estudio automáticos",
-  "nav.aiAssistant": "Asistente IA",
   "ai.title": "Asistente IA de estudio",
   "ai.subtitle": "Tu tutor personal",
   "ai.actionsLeft": "restantes",
@@ -1655,5 +1653,12 @@
   "math.unit.megahertz": "Megahercio",
   "math.unit.gigahertz": "Gigahercio",
   "math.unit.rpm": "Revoluciones/minuto",
-  "math.unit.fluidOunce": "Onza líquida"
+  "math.unit.fluidOunce": "Onza líquida",
+  "dashboard.taskOverdue": "Vencida",
+  "dashboard.taskModule": "Módulo",
+  "dashboard.taskOpenFull": "Abrir en tareas",
+  "tasks.detailDescription": "Descripción",
+  "tasks.detailModule": "Módulo",
+  "tasks.detailDue": "Vence",
+  "tasks.detailCreated": "Creado"
 }

@@ -20,7 +20,7 @@
   "nav.credits": "Studiepunten en ECTS",
   "nav.settings": "Instellingen",
   "nav.about": "Over Semetra Workspace",
-  "nav.aiAssistant": "AI-assistent",
+  "nav.aiAssistant": "AI-Assistent",
   "navGroup.study": "Studie",
   "navGroup.learning": "Leren",
   "navGroup.tools": "Gereedschap",
@@ -965,7 +965,6 @@
   "math.unit.weight": "Gewicht",
   "math.unitsConstants": "Einheiten & Konstanten",
   "math.useStandardModes": "Gebruik de standaardmodi voor exacte oplossingen",
-  "math.variable": "Variabele",
   "math.vieta": "Vieta",
   "math.modeSolve": "Oplossen",
   "math.modeRearrange": "Herschikken",
@@ -1320,7 +1319,6 @@
   "exams.timeInvested": "Geïnvesteerde tijd",
   "exams.proFeature": "Pro-functie",
   "exams.upgradeForPlan": "Upgrade naar Pro voor automatische studieplannen",
-  "nav.aiAssistant": "AI-Assistent",
   "ai.title": "AI-Studieassistent",
   "ai.subtitle": "Je persoonlijke tutor",
   "ai.actionsLeft": "over",
@@ -1655,5 +1653,12 @@
   "math.unit.megahertz": "Megahertz",
   "math.unit.gigahertz": "Gigahertz",
   "math.unit.rpm": "Omwentelingen/minuut",
-  "math.unit.fluidOunce": "Vloeistofons"
+  "math.unit.fluidOunce": "Vloeistofons",
+  "dashboard.taskOverdue": "Achterstallig",
+  "dashboard.taskModule": "Module",
+  "dashboard.taskOpenFull": "Open in taken",
+  "tasks.detailDescription": "Beschrijving",
+  "tasks.detailModule": "Module",
+  "tasks.detailDue": "Deadline",
+  "tasks.detailCreated": "Aangemaakt"
 }

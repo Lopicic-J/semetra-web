@@ -6,7 +6,7 @@ import { useModules } from "@/lib/hooks/useModules";
 import { useTaskAttachments } from "@/lib/hooks/useTaskAttachments";
 import { createClient } from "@/lib/supabase/client";
 import { formatDate } from "@/lib/utils";
-import { Plus, CheckSquare, X, Pencil, Trash2, Check, Paperclip, Link2, Upload, ExternalLink, FileText } from "lucide-react";
+import { Plus, CheckSquare, X, Pencil, Trash2, Check, Paperclip, Link2, Upload, ExternalLink, FileText, ChevronDown, BookOpen } from "lucide-react";
 import type { Task, TaskStatus, TaskPriority, TaskAttachment } from "@/types/database";
 
 // Note: Status and priority labels are moved to i18n translations
@@ -104,7 +104,7 @@ export default function TasksPage() {
                 onToggleExpand={() => setExpandedTask(expandedTask === task.id ? null : task.id)}
               />
               {expandedTask === task.id && (
-                <TaskAttachmentsPanel taskId={task.id} />
+                <TaskDetailPanel task={task} modules={modules} />
               )}
             </div>
           ))}
@@ -136,8 +136,9 @@ function TaskRow({ task, modules, onToggle, onEdit, onDelete, isExpanded, onTogg
   const isOverdue = task.status !== "done" && task.due_date && new Date(task.due_date) < new Date();
 
   return (
-    <div className={`flex items-center gap-3 p-3 rounded-xl border transition-colors group ${task.status === "done" ? "bg-surface-50 border-surface-100" : "bg-white border-surface-100 hover:border-brand-200"} ${isExpanded ? "rounded-b-none border-b-0" : ""}`}>
-      <button onClick={() => onToggle(task)}
+    <div className={`flex items-center gap-3 p-3 rounded-xl border transition-colors group cursor-pointer ${task.status === "done" ? "bg-surface-50 border-surface-100" : "bg-white border-surface-100 hover:border-brand-200"} ${isExpanded ? "rounded-b-none border-b-0" : ""}`}
+      onClick={onToggleExpand}>
+      <button onClick={(e) => { e.stopPropagation(); onToggle(task); }}
         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${task.status === "done" ? "bg-green-500 border-green-500 text-white" : "border-surface-300 hover:border-brand-400"}`}>
         {task.status === "done" && <Check size={11} />}
       </button>
@@ -160,11 +161,6 @@ function TaskRow({ task, modules, onToggle, onEdit, onDelete, isExpanded, onTogg
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
-        <button onClick={onToggleExpand}
-          className={`p-1.5 rounded-lg transition-colors ${isExpanded ? "bg-brand-100 text-brand-600" : "text-surface-400 hover:bg-surface-100"}`}
-          title={t("tasks.attachments")}>
-          <Paperclip size={14} />
-        </button>
         <span className={`badge text-[10px] ${task.priority === "high" ? "bg-red-100 text-red-600" : task.priority === "medium" ? "bg-yellow-100 text-yellow-700" : "badge-surface"}`}>
           {task.priority === "high" ? t("tasks.statusHigh") : task.priority === "medium" ? t("tasks.statusMedium") : t("tasks.statusLow")}
         </span>
@@ -172,22 +168,28 @@ function TaskRow({ task, modules, onToggle, onEdit, onDelete, isExpanded, onTogg
           {task.status === "done" ? t("tasks.statusDone") : task.status === "in_progress" ? t("tasks.statusInProgress") : t("tasks.statusOpen")}
         </span>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button onClick={() => onEdit(task)} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400"><Pencil size={13} /></button>
-          <button onClick={() => onDelete(task.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500"><Trash2 size={13} /></button>
+          <button onClick={(e) => { e.stopPropagation(); onEdit(task); }} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400"><Pencil size={13} /></button>
+          <button onClick={(e) => { e.stopPropagation(); onDelete(task.id); }} className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500"><Trash2 size={13} /></button>
         </div>
+        <ChevronDown size={14} className={`text-surface-400 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
       </div>
     </div>
   );
 }
 
-/** Expandable panel showing attachments for a task */
-function TaskAttachmentsPanel({ taskId }: { taskId: string }) {
+/** Expandable detail panel showing description, module, and attachments */
+function TaskDetailPanel({ task, modules }: {
+  task: Task & { modules?: { name: string; color: string } | null };
+  modules: ReturnType<typeof useModules>["modules"];
+}) {
   const { t } = useTranslation();
-  const { attachments, loading, addLink, uploadFile, remove, getDownloadUrl } = useTaskAttachments(taskId);
+  const { attachments, loading, addLink, uploadFile, remove, getDownloadUrl } = useTaskAttachments(task.id);
   const [showLinkForm, setShowLinkForm] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [linkLabel, setLinkLabel] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const mod = (task as any).modules || modules.find(m => m.id === task.module_id);
 
   async function handleAddLink(e: React.FormEvent) {
     e.preventDefault();
@@ -209,68 +211,103 @@ function TaskAttachmentsPanel({ taskId }: { taskId: string }) {
   }
 
   return (
-    <div className="bg-surface-50 border border-t-0 border-surface-100 rounded-b-xl p-4">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-semibold text-surface-500 uppercase tracking-wider flex items-center gap-1.5">
-          <Paperclip size={12} /> {t("tasks.attachments")}
-        </h3>
-        <div className="flex gap-2">
-          <button onClick={() => setShowLinkForm(!showLinkForm)}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
-            <Link2 size={12} /> {t("tasks.addLink")}
-          </button>
-          <button onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
-            <Upload size={12} /> {t("tasks.addFile")}
-          </button>
-          <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileUpload}
-            accept=".pdf,.docx,.doc,.xlsx,.xls,.csv,.pptx,.ppt,.png,.jpg,.jpeg,.gif,.svg,.zip,.rar,.txt,.py,.js,.ts,.html,.mp4,.mp3" />
+    <div className="bg-surface-50 border border-t-0 border-surface-100 rounded-b-xl p-4 space-y-3">
+      {/* Description */}
+      {task.description && (
+        <div>
+          <p className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-1">{t("tasks.detailDescription")}</p>
+          <p className="text-sm text-surface-700 whitespace-pre-line bg-white rounded-lg p-3 border border-surface-100">{task.description}</p>
         </div>
+      )}
+
+      {/* Module */}
+      {mod && (
+        <div className="flex items-center gap-2">
+          <BookOpen size={13} className="text-surface-400" />
+          <span className="text-xs font-medium text-surface-500">{t("tasks.detailModule")}:</span>
+          <span className="flex items-center gap-1.5 text-xs text-surface-700 font-medium">
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: mod.color }} />
+            {mod.name}
+          </span>
+        </div>
+      )}
+
+      {/* Task info row */}
+      <div className="flex flex-wrap gap-3 text-xs text-surface-500">
+        {task.due_date && (
+          <span className="flex items-center gap-1">
+            📅 {t("tasks.detailDue")}: <span className={`font-medium ${new Date(task.due_date) < new Date() && task.status !== "done" ? "text-red-600" : "text-surface-700"}`}>{formatDate(task.due_date)}</span>
+          </span>
+        )}
+        <span>
+          {t("tasks.detailCreated")}: {formatDate(task.created_at)}
+        </span>
       </div>
 
-      {/* Link form */}
-      {showLinkForm && (
-        <form onSubmit={handleAddLink} className="flex gap-2 mb-3">
-          <input value={linkUrl} onChange={e => setLinkUrl(e.target.value)}
-            placeholder="https://..." className="input flex-1 text-sm" required />
-          <input value={linkLabel} onChange={e => setLinkLabel(e.target.value)}
-            placeholder={t("tasks.addAttachment")} className="input w-40 text-sm" />
-          <button type="submit" className="btn-primary text-xs px-3 py-1.5">{t("tasks.addAttachment")}</button>
-          <button type="button" onClick={() => setShowLinkForm(false)}
-            className="p-1.5 rounded-lg hover:bg-surface-200 text-surface-400"><X size={14} /></button>
-        </form>
-      )}
-
-      {/* Attachment list */}
-      {loading ? (
-        <div className="h-8 bg-surface-200 rounded animate-pulse" />
-      ) : attachments.length === 0 ? (
-        <p className="text-xs text-surface-400 text-center py-3">{t("tasks.noAttachments")}</p>
-      ) : (
-        <div className="space-y-1.5">
-          {attachments.map(att => (
-            <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-surface-100 group/att hover:border-brand-200 transition-colors">
-              <span className="text-sm shrink-0">{fileIcon(att.kind, att.file_type)}</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-surface-800 truncate">{att.label || att.url}</p>
-                {att.kind === "file" && att.file_size > 0 && (
-                  <p className="text-[10px] text-surface-400">{att.file_type?.toUpperCase()} · {humanSize(att.file_size)}</p>
-                )}
-              </div>
-              <a href={getDownloadUrl(att) ?? att.url} target="_blank" rel="noopener noreferrer"
-                className="p-1 rounded hover:bg-surface-100 text-surface-400 hover:text-brand-600 transition-colors"
-                title={t("tasks.openLink")}>
-                <ExternalLink size={13} />
-              </a>
-              <button onClick={() => remove(att)}
-                className="p-1 rounded hover:bg-red-50 text-surface-300 hover:text-red-500 opacity-0 group-hover/att:opacity-100 transition-all"
-                title={t("tasks.removeAttachment")}>
-                <Trash2 size={13} />
-              </button>
-            </div>
-          ))}
+      {/* Attachments section */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-xs font-semibold text-surface-500 uppercase tracking-wider flex items-center gap-1.5">
+            <Paperclip size={12} /> {t("tasks.attachments")}
+          </h3>
+          <div className="flex gap-2">
+            <button onClick={() => setShowLinkForm(!showLinkForm)}
+              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
+              <Link2 size={12} /> {t("tasks.addLink")}
+            </button>
+            <button onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
+              <Upload size={12} /> {t("tasks.addFile")}
+            </button>
+            <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileUpload}
+              accept=".pdf,.docx,.doc,.xlsx,.xls,.csv,.pptx,.ppt,.png,.jpg,.jpeg,.gif,.svg,.zip,.rar,.txt,.py,.js,.ts,.html,.mp4,.mp3" />
+          </div>
         </div>
-      )}
+
+        {/* Link form */}
+        {showLinkForm && (
+          <form onSubmit={handleAddLink} className="flex gap-2 mb-3">
+            <input value={linkUrl} onChange={e => setLinkUrl(e.target.value)}
+              placeholder="https://..." className="input flex-1 text-sm" required />
+            <input value={linkLabel} onChange={e => setLinkLabel(e.target.value)}
+              placeholder={t("tasks.addAttachment")} className="input w-40 text-sm" />
+            <button type="submit" className="btn-primary text-xs px-3 py-1.5">{t("tasks.addAttachment")}</button>
+            <button type="button" onClick={() => setShowLinkForm(false)}
+              className="p-1.5 rounded-lg hover:bg-surface-200 text-surface-400"><X size={14} /></button>
+          </form>
+        )}
+
+        {/* Attachment list */}
+        {loading ? (
+          <div className="h-8 bg-surface-200 rounded animate-pulse" />
+        ) : attachments.length === 0 ? (
+          <p className="text-xs text-surface-400 text-center py-3">{t("tasks.noAttachments")}</p>
+        ) : (
+          <div className="space-y-1.5">
+            {attachments.map(att => (
+              <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-surface-100 group/att hover:border-brand-200 transition-colors">
+                <span className="text-sm shrink-0">{fileIcon(att.kind, att.file_type)}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-surface-800 truncate">{att.label || att.url}</p>
+                  {att.kind === "file" && att.file_size > 0 && (
+                    <p className="text-[10px] text-surface-400">{att.file_type?.toUpperCase()} · {humanSize(att.file_size)}</p>
+                  )}
+                </div>
+                <a href={getDownloadUrl(att) ?? att.url} target="_blank" rel="noopener noreferrer"
+                  className="p-1 rounded hover:bg-surface-100 text-surface-400 hover:text-brand-600 transition-colors"
+                  title={t("tasks.openLink")}>
+                  <ExternalLink size={13} />
+                </a>
+                <button onClick={() => remove(att)}
+                  className="p-1 rounded hover:bg-red-50 text-surface-300 hover:text-red-500 opacity-0 group-hover/att:opacity-100 transition-all"
+                  title={t("tasks.removeAttachment")}>
+                  <Trash2 size={13} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
