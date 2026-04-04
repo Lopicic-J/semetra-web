@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/lib/i18n";
 import { useModules } from "@/lib/hooks/useModules";
@@ -30,7 +30,7 @@ export default function StundenplanPage() {
   const [moveDialog, setMoveDialog] = useState<{ entry: StundenplanEntry; newDay: string; newStart: string; newEnd: string; siblings: StundenplanEntry[] } | null>(null);
   const [draggedEntry, setDraggedEntry] = useState<StundenplanEntry | null>(null);
   const [editEntry, setEditEntry] = useState<StundenplanEntry | null>(null);
-  const [dragIndicator, setDragIndicator] = useState<{x: number; y: number; text: string} | null>(null);
+  const [dragIndicator, setDragIndicator] = useState<{dayIdx: number; startMin: number; endMin: number; text: string} | null>(null);
   const [newEntry, setNewEntry] = useState({
     day: "Mo",
     time_start: "08:00",
@@ -116,25 +116,23 @@ export default function StundenplanPage() {
     e.dataTransfer.effectAllowed = "move";
   }
 
-  function handleDayDropZoneDragOver(e: React.DragEvent) {
+  function handleDayDropZoneDragOver(e: React.DragEvent, dayIndex: number) {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
 
-    // Show drag indicator with time range
+    // Calculate drop position in minutes
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const dropY = e.clientY - rect.top;
     const gridStart = 7 * 60;
     const minutes = Math.round((dropY / 56) * 60) + gridStart;
     const rounded = Math.round(minutes / 15) * 15;
-    const timeStart = minutesToTime(rounded);
-    // Show end time based on dragged entry duration
     const duration = draggedEntry ? (timeToMinutes(draggedEntry.time_end) - timeToMinutes(draggedEntry.time_start)) : 60;
-    const timeEnd = minutesToTime(rounded + duration);
 
     setDragIndicator({
-      x: rect.left + rect.width / 2,
-      y: e.clientY,
-      text: `${timeStart} – ${timeEnd}`,
+      dayIdx: dayIndex,
+      startMin: rounded,
+      endMin: rounded + duration,
+      text: `${minutesToTime(rounded)} – ${minutesToTime(rounded + duration)}`,
     });
   }
 
@@ -229,6 +227,60 @@ export default function StundenplanPage() {
     const height = Math.max(((end - start) / 60) * 56, 28);
     return { top, height };
   }
+
+  // Calculate overlap layout — entries on same day that overlap in time
+  // are displayed side-by-side (like Google Calendar)
+  function getOverlapLayout(entries: StundenplanEntry[]) {
+    const layout = new Map<string, { col: number; totalCols: number }>();
+
+    // Group entries by day
+    const byDay = new Map<string, StundenplanEntry[]>();
+    entries.forEach(e => {
+      const list = byDay.get(e.day) ?? [];
+      list.push(e);
+      byDay.set(e.day, list);
+    });
+
+    byDay.forEach((dayEntries) => {
+      // Sort by start time
+      const sorted = [...dayEntries].sort((a, b) =>
+        timeToMinutes(a.time_start) - timeToMinutes(b.time_start)
+      );
+
+      // Build overlap groups using a sweep-line approach
+      const groups: StundenplanEntry[][] = [];
+      let currentGroup: StundenplanEntry[] = [];
+      let groupEnd = 0;
+
+      sorted.forEach(entry => {
+        const start = timeToMinutes(entry.time_start);
+        const end = timeToMinutes(entry.time_end);
+        if (currentGroup.length === 0 || start < groupEnd) {
+          // Overlaps with current group
+          currentGroup.push(entry);
+          groupEnd = Math.max(groupEnd, end);
+        } else {
+          // No overlap — finalize current group and start new
+          if (currentGroup.length > 0) groups.push(currentGroup);
+          currentGroup = [entry];
+          groupEnd = end;
+        }
+      });
+      if (currentGroup.length > 0) groups.push(currentGroup);
+
+      // Assign columns within each group
+      groups.forEach(group => {
+        const totalCols = group.length;
+        group.forEach((entry, i) => {
+          layout.set(entry.id, { col: i, totalCols });
+        });
+      });
+    });
+
+    return layout;
+  }
+
+  const overlapLayout = useMemo(() => getOverlapLayout(currentEntries), [currentEntries]);
 
   return (
     <div className="p-3 sm:p-6 max-w-6xl mx-auto">
@@ -340,7 +392,7 @@ export default function StundenplanPage() {
               {DAYS.map((_, i) => (
                 <div key={i}
                   className="border-l border-surface-100 transition-colors cursor-pointer hover:bg-brand-50/30"
-                  onDragOver={handleDayDropZoneDragOver}
+                  onDragOver={(e) => handleDayDropZoneDragOver(e, i)}
                   onDrop={(e) => handleDayDropZoneDrop(e, i)}
                   onClick={(e) => {
                     // Only create entry if clicking on empty area (not on an existing entry)
@@ -367,19 +419,23 @@ export default function StundenplanPage() {
                 if (dayIdx < 0) return null;
                 const { top, height } = getEntryStyle(entry);
                 const mod = modules.find(m => m.id === entry.module_id);
+                const overlap = overlapLayout.get(entry.id) ?? { col: 0, totalCols: 1 };
+                const dayWidth = 1 / 6;
+                const colWidth = dayWidth / overlap.totalCols;
                 return (
                   <div key={entry.id}
                     draggable
                     onDragStart={(e) => { handleEntryDragStart(e, entry); e.stopPropagation(); }}
                     onDoubleClick={(e) => { setEditEntry(entry); e.stopPropagation(); }}
-                    className="absolute px-1 group cursor-grab active:cursor-grabbing"
+                    className="absolute px-0.5 group cursor-grab active:cursor-grabbing"
                     style={{
-                      left: `${(dayIdx / 6) * 100}%`,
-                      width: `${(1 / 6) * 100}%`,
+                      left: `${(dayIdx * dayWidth + overlap.col * colWidth) * 100}%`,
+                      width: `${colWidth * 100}%`,
                       top: `${top}px`,
                       height: `${height}px`,
-                      padding: "2px",
-                      opacity: draggedEntry?.id === entry.id ? 0.5 : 1,
+                      padding: "1px",
+                      opacity: draggedEntry?.id === entry.id ? 0.4 : 1,
+                      zIndex: draggedEntry?.id === entry.id ? 5 : 1,
                     }}>
                     <div className="w-full h-full rounded-lg px-1.5 py-1 overflow-hidden text-white relative"
                       style={{ background: entry.color ?? mod?.color ?? "#6d28d9" }}>
@@ -394,6 +450,28 @@ export default function StundenplanPage() {
                   </div>
                 );
               })}
+
+              {/* Drag ghost preview — shows where the entry will land */}
+              {dragIndicator && draggedEntry && (
+                <div
+                  className="absolute pointer-events-none px-1"
+                  style={{
+                    left: `${(dragIndicator.dayIdx / 6) * 100}%`,
+                    width: `${(1 / 6) * 100}%`,
+                    top: `${((dragIndicator.startMin - 7 * 60) / 60) * 56}px`,
+                    height: `${Math.max(((dragIndicator.endMin - dragIndicator.startMin) / 60) * 56, 28)}px`,
+                    padding: "2px",
+                    zIndex: 30,
+                  }}
+                >
+                  <div className="w-full h-full rounded-lg border-2 border-dashed border-brand-400 bg-brand-100/50 backdrop-blur-sm flex flex-col items-center justify-center">
+                    <span className="text-[11px] font-bold text-brand-700">{dragIndicator.text}</span>
+                    {draggedEntry.title && (
+                      <span className="text-[10px] text-brand-500 truncate max-w-full px-1">{draggedEntry.title}</span>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -464,21 +542,7 @@ export default function StundenplanPage() {
         </div>
       )}
 
-      {dragIndicator && (
-        <div className="fixed z-50 pointer-events-none"
-          style={{
-            left: `${dragIndicator.x}px`,
-            top: `${dragIndicator.y - 56}px`,
-            transform: "translateX(-50%)",
-          }}>
-          <div className="flex flex-col items-center">
-            <div className="bg-white/95 backdrop-blur-sm border border-brand-200 text-brand-700 text-[11px] font-semibold px-3.5 py-1.5 rounded-lg shadow-lg whitespace-nowrap">
-              {dragIndicator.text}
-            </div>
-            <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[5px] border-t-brand-200" />
-          </div>
-        </div>
-      )}
+      {/* Drag indicator is rendered inside the grid as a ghost preview */}
 
       {moveDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
