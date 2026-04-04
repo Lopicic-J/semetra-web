@@ -1270,6 +1270,7 @@
   "dashboard.streakDay": "1 day",
   "dashboard.streakToday": "Done today ✓",
   "dashboard.streakTodayMissing": "Not studied yet today",
+  "dashboard.streakThreshold": "A streak day counts after 15 min of study time",
   "dashboard.longestStreak": "Longest streak",
   "dashboard.totalStudyDays": "Total study days",
   "dashboard.totalStudyTime": "Total study time",

@@ -1267,6 +1267,7 @@
   "dashboard.streakDay": "1 giorno",
   "dashboard.streakToday": "Fatto oggi ✓",
   "dashboard.streakTodayMissing": "Non hai ancora studiato oggi",
+  "dashboard.streakThreshold": "Un giorno di serie conta dopo 15 min di studio",
   "dashboard.longestStreak": "Serie più lunga",
   "dashboard.totalStudyDays": "Giorni di studio totali",
   "dashboard.totalStudyTime": "Tempo di studio totale",

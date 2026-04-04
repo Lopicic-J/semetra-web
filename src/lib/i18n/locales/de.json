@@ -1270,6 +1270,7 @@
   "dashboard.streakDay": "1 Tag",
   "dashboard.streakToday": "Heute erledigt ✓",
   "dashboard.streakTodayMissing": "Heute noch nicht gelernt",
+  "dashboard.streakThreshold": "Ab 15 Min. Lernzeit pro Tag zählt ein Strähnen-Tag",
   "dashboard.longestStreak": "Längste Strähne",
   "dashboard.totalStudyDays": "Lerntage gesamt",
   "dashboard.totalStudyTime": "Lernzeit gesamt",

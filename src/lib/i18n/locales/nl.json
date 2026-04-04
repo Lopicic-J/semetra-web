@@ -1267,6 +1267,7 @@
   "dashboard.streakDay": "1 dag",
   "dashboard.streakToday": "Vandaag gedaan ✓",
   "dashboard.streakTodayMissing": "Vandaag nog niet gestudeerd",
+  "dashboard.streakThreshold": "Een streekdag telt vanaf 15 min studietijd",
   "dashboard.longestStreak": "Langste serie",
   "dashboard.totalStudyDays": "Totaal studiedagen",
   "dashboard.totalStudyTime": "Totale studietijd",

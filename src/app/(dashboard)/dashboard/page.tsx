@@ -187,6 +187,9 @@ export default function DashboardPage() {
               {streak.todayDone ? t("dashboard.streakToday") : t("dashboard.streakTodayMissing")}
             </span>
           </div>
+          {!streak.todayDone && (
+            <p className="text-[10px] text-orange-500/70 mt-1.5">{t("dashboard.streakThreshold")}</p>
+          )}
           <div className="flex gap-4 mt-3 pt-3 border-t border-orange-200/50 text-xs text-orange-700/70">
             <span><Trophy size={11} className="inline mr-1" />{t("dashboard.longestStreak")}: <strong>{streak.longestStreak}</strong></span>
             <span>{t("dashboard.totalStudyDays")}: <strong>{streak.totalDays}</strong></span>

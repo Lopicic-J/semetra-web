@@ -1267,6 +1267,7 @@
   "dashboard.streakDay": "1 día",
   "dashboard.streakToday": "Hecho hoy ✓",
   "dashboard.streakTodayMissing": "Aún no has estudiado hoy",
+  "dashboard.streakThreshold": "Un día de racha cuenta después de 15 min de estudio",
   "dashboard.longestStreak": "Racha más larga",
   "dashboard.totalStudyDays": "Días de estudio totales",
   "dashboard.totalStudyTime": "Tiempo de estudio total",
