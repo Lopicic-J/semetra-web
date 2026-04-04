@@ -10,7 +10,7 @@ import {
   Eye, Check, X, Loader2, Keyboard, Maximize2, Minimize2,
   Flame, AlertTriangle, CheckCircle2, XCircle, BarChart3,
   Calendar, Tag, FileText, Zap, Copy, Clock, Target,
-  TrendingUp, ArrowRight, CheckSquare, Square, type LucideIcon,
+  TrendingUp, ArrowRight, CheckSquare, Square, Filter, type LucideIcon,
 } from "lucide-react";
 import type { Flashcard, Module, CalendarEvent } from "@/types/database";
 import { useTranslation } from "@/lib/i18n";
@@ -69,6 +69,7 @@ function sm2(
     correct_count,
     next_review: next.toISOString(),
     last_reviewed: new Date().toISOString(),
+    last_quality: quality,
   };
 }
 
@@ -976,6 +977,7 @@ export default function FlashcardsPage() {
   const [editCard, setEditCard] = useState<Flashcard | undefined>();
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [studyMode, setStudyMode] = useState(false);
+  const [studyRatings, setStudyRatings] = useState<Set<number>>(new Set([0, 1, 2])); // default: ratings 1-3 (quality 0-2)
   const [showBulk, setShowBulk] = useState(false);
   const [showAiGen, setShowAiGen] = useState(false);
   const [showStats, setShowStats] = useState(true);
@@ -1032,15 +1034,22 @@ export default function FlashcardsPage() {
   // Due cards
   const dueCards = useMemo(() => {
     const now = new Date();
-    return filtered.filter(c => !c.next_review || new Date(c.next_review) <= now);
-  }, [filtered]);
+    return filtered.filter(c => {
+      // Always include cards that are naturally due (no next_review or past due)
+      if (!c.next_review || new Date(c.next_review) <= now) return true;
+      // For non-due cards: include if their last rating matches the study filter
+      // This lets students re-study specific difficulty levels even if not yet due
+      if (c.last_quality != null && studyRatings.has(c.last_quality)) return true;
+      return false;
+    });
+  }, [filtered, studyRatings]);
 
   // Stats
   const stats = useMemo(() => {
     const total = cards.length;
-    const mastered = cards.filter(c => (c.repetitions ?? 0) >= 5).length;
-    const learning = cards.filter(c => (c.repetitions ?? 0) > 0 && (c.repetitions ?? 0) < 5).length;
-    const newCards = cards.filter(c => (c.repetitions ?? 0) === 0).length;
+    const mastered = cards.filter(c => (c.repetitions ?? 0) >= 5 || c.last_quality === 3).length;
+    const learning = cards.filter(c => (c.repetitions ?? 0) > 0 && !((c.repetitions ?? 0) >= 5 || c.last_quality === 3)).length;
+    const newCards = cards.filter(c => (c.repetitions ?? 0) === 0 && c.last_quality == null).length;
     const avgEase = total > 0 ? cards.reduce((s, c) => s + c.ease_factor, 0) / total : 2.5;
     const avgStreak = total > 0 ? cards.reduce((s, c) => s + (c.streak ?? 0), 0) / total : 0;
     return { total, mastered, learning, newCards, avgEase, avgStreak, due: dueCards.length };
@@ -1107,7 +1116,12 @@ export default function FlashcardsPage() {
     const card = cards.find(c => c.id === id);
     if (!card) return;
     const updates = sm2(card, quality, daysUntilExam);
-    await supabase.from("flashcards").update(updates).eq("id", id);
+    const { error } = await supabase.from("flashcards").update(updates).eq("id", id);
+    // Fallback: if last_quality column doesn't exist yet, retry without it
+    if (error) {
+      const { last_quality, ...rest } = updates as any;
+      await supabase.from("flashcards").update(rest).eq("id", id);
+    }
     reviewCount.current += 1;
   }
 
@@ -1177,7 +1191,7 @@ export default function FlashcardsPage() {
           <LimitCounter current={decks.length} max={FREE_LIMITS.flashcardSets} isPro={isPro} />
           {dueCards.length > 0 && (
             <button onClick={() => setStudyMode(true)} className="btn-primary gap-2 text-sm">
-              <Brain size={16} /> {t("fc.study")} ({dueCards.length})
+              <Brain size={16} /> {t("fc.study") || "Lernen"} ({dueCards.length})
             </button>
           )}
         </div>
@@ -1296,6 +1310,44 @@ export default function FlashcardsPage() {
         </button>
       </div>
 
+      {/* ── Study Rating Filter — choose which ratings to include ── */}
+      <div className="bg-white border border-surface-200 rounded-xl p-3 mb-6">
+        <p className="text-xs font-semibold text-surface-600 mb-2 flex items-center gap-1.5">
+          <Filter size={12} /> {t("fc.studyFilter") || "Lernfilter — Welche Bewertungen wiederholen?"}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { quality: 0, label: t("fc.rateFail") || "Nochmal", shortLabel: "1", activeClass: "bg-red-50 text-red-700 border-red-300" },
+            { quality: 1, label: t("fc.rateHard") || "Schwer", shortLabel: "2", activeClass: "bg-amber-50 text-amber-700 border-amber-300" },
+            { quality: 2, label: t("fc.rateGood") || "Gut", shortLabel: "3", activeClass: "bg-green-50 text-green-700 border-green-300" },
+            { quality: 3, label: t("fc.ratePerfect") || "Perfekt", shortLabel: "4", activeClass: "bg-blue-50 text-blue-700 border-blue-300" },
+          ].map(r => {
+            const active = studyRatings.has(r.quality);
+            return (
+              <button
+                key={r.quality}
+                onClick={() => {
+                  const next = new Set(studyRatings);
+                  if (active) next.delete(r.quality); else next.add(r.quality);
+                  setStudyRatings(next);
+                }}
+                className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
+                  active
+                    ? r.activeClass
+                    : "bg-surface-50 text-surface-400 border-surface-200 hover:bg-surface-100"
+                }`}
+              >
+                {r.shortLabel} — {r.label}
+                {active && <span className="ml-1">✓</span>}
+              </button>
+            );
+          })}
+        </div>
+        <p className="text-[10px] text-surface-400 mt-1.5">
+          {t("fc.studyFilterHint") || "Aktive Bewertungen werden auch wiederholt, wenn sie noch nicht fällig sind."}
+        </p>
+      </div>
+
       {/* ── Filters ── */}
       <div className="flex flex-wrap gap-2 mb-6">
         <select className="input text-sm py-1.5" value={filterModule} onChange={e => setFilterModule(e.target.value)}>
@@ -1336,7 +1388,7 @@ export default function FlashcardsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.map(card => {
             const isDue = !card.next_review || new Date(card.next_review) <= new Date();
-            const isMastered = (card.repetitions ?? 0) >= 5;
+            const isMastered = (card.repetitions ?? 0) >= 5 || card.last_quality === 3;
             const isLearning = (card.repetitions ?? 0) > 0 && !isMastered;
             const cardType = card.card_type ?? "basic";
             const typeColor = cardType === "cloze" ? "purple" : cardType === "mc" ? "cyan" : "brand";
@@ -1363,6 +1415,17 @@ export default function FlashcardsPage() {
                   {isLearning && !isDue && (
                     <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
                       <TrendingUp size={8} /> {t("fc.learning")}
+                    </span>
+                  )}
+                  {card.last_quality != null && (
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      card.last_quality === 0 ? "bg-red-50 text-red-600" :
+                      card.last_quality === 1 ? "bg-amber-50 text-amber-600" :
+                      card.last_quality === 2 ? "bg-green-50 text-green-600" :
+                      "bg-blue-50 text-blue-600"
+                    }`}>
+                      {card.last_quality === 0 ? "✗" : card.last_quality === 1 ? "⚠" : card.last_quality === 2 ? "✓" : "★"}
+                      {" "}{[t("fc.rateFail"), t("fc.rateHard"), t("fc.rateGood"), t("fc.ratePerfect")][card.last_quality]}
                     </span>
                   )}
                   {card.source === "ai" && (

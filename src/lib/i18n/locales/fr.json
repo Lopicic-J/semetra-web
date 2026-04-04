@@ -1417,6 +1417,8 @@
   "fc.rateHard": "Difficile",
   "fc.rateGood": "Bien",
   "fc.ratePerfect": "Parfait",
+  "fc.studyFilter": "Filtre d'étude — Quelles évaluations répéter ?",
+  "fc.studyFilterHint": "Les évaluations actives seront également répétées, même si elles ne sont pas encore dues.",
   "fc.rateHint": "Appuie sur 1-4 pour evaluer",
   "fc.rateKeys": "Choisir l'evaluation",
   "fc.pressSpace": "Espace pour reveler",

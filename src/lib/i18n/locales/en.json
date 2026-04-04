@@ -1420,6 +1420,8 @@
   "fc.rateHard": "Hard",
   "fc.rateGood": "Good",
   "fc.ratePerfect": "Perfect",
+  "fc.studyFilter": "Study filter — Which ratings to repeat?",
+  "fc.studyFilterHint": "Active ratings will also be repeated, even if not yet due.",
   "fc.rateHint": "Press 1-4 to rate",
   "fc.rateKeys": "Choose rating",
   "fc.pressSpace": "Press Space to reveal",

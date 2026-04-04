@@ -1418,6 +1418,8 @@
   "fc.rateHard": "Dificil",
   "fc.rateGood": "Bien",
   "fc.ratePerfect": "Perfecto",
+  "fc.studyFilter": "Filtro de estudio — ¿Qué calificaciones repetir?",
+  "fc.studyFilterHint": "Las calificaciones activas se repetirán, aunque no estén pendientes.",
   "fc.rateHint": "Presiona 1-4 para calificar",
   "fc.rateKeys": "Elegir calificacion",
   "fc.pressSpace": "Espacio para revelar",

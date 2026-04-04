@@ -1418,6 +1418,8 @@
   "fc.rateHard": "Difficile",
   "fc.rateGood": "Bene",
   "fc.ratePerfect": "Perfetto",
+  "fc.studyFilter": "Filtro studio — Quali valutazioni ripetere?",
+  "fc.studyFilterHint": "Le valutazioni attive verranno ripetute anche se non ancora in scadenza.",
   "fc.rateHint": "Premi 1-4 per valutare",
   "fc.rateKeys": "Scegli valutazione",
   "fc.pressSpace": "Spazio per rivelare",

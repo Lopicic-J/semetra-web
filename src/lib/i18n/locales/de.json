@@ -1420,6 +1420,8 @@
   "fc.rateHard": "Schwer",
   "fc.rateGood": "Gut",
   "fc.ratePerfect": "Perfekt",
+  "fc.studyFilter": "Lernfilter — Welche Bewertungen wiederholen?",
+  "fc.studyFilterHint": "Aktive Bewertungen werden auch wiederholt, wenn sie noch nicht fällig sind.",
   "fc.rateHint": "Druecke 1-4 fuer die Bewertung",
   "fc.rateKeys": "Bewertung waehlen",
   "fc.pressSpace": "Leertaste zum Aufdecken",

@@ -1418,6 +1418,8 @@
   "fc.rateHard": "Moeilijk",
   "fc.rateGood": "Goed",
   "fc.ratePerfect": "Perfect",
+  "fc.studyFilter": "Studiefilter — Welke beoordelingen herhalen?",
+  "fc.studyFilterHint": "Actieve beoordelingen worden ook herhaald, zelfs als ze nog niet aan de beurt zijn.",
   "fc.rateHint": "Druk 1-4 om te beoordelen",
   "fc.rateKeys": "Beoordeling kiezen",
   "fc.pressSpace": "Spatie om te onthullen",

@@ -183,6 +183,7 @@ export interface Flashcard {
   correct_count: number;
   next_review: string | null;
   last_reviewed: string | null;
+  last_quality: number | null;   // 0-3: last rating given (0=fail, 1=hard, 2=good, 3=perfect)
   created_at: string;
   updated_at: string;
   module?: Module;
