@@ -177,6 +177,8 @@ function UpgradeContent() {
               t("upgrade.free.f8"),
               t("upgrade.free.f9"),
               t("upgrade.free.f10"),
+              t("upgrade.free.f11"),
+              t("upgrade.free.f12"),
             ].map(f => (
               <div key={f} className="flex items-start gap-2 text-xs text-surface-600">
                 <Check size={12} className="text-surface-400 shrink-0 mt-0.5" />

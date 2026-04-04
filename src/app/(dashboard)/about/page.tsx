@@ -11,6 +11,11 @@ import {
   Zap,
   ExternalLink,
   Crown,
+  FileText,
+  Network,
+  BarChart3,
+  Sparkles,
+  History,
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslation } from "@/lib/i18n";
@@ -55,7 +60,7 @@ export default function AboutPage() {
           {t("about.whySemetra")}
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {/* Feature 1: AI-Learning */}
           <div className="card p-8 border border-brand-100 hover:shadow-md transition-shadow">
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-brand-100 text-brand-600 mb-5">
@@ -106,6 +111,112 @@ export default function AboutPage() {
             <p className="text-surface-600 text-sm leading-relaxed">
               {t("about.featureSecurityDesc")}
             </p>
+          </div>
+
+          {/* Feature 5: PDF Tools */}
+          <div className="card p-8 border border-brand-100 hover:shadow-md transition-shadow">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-red-100 text-red-600 mb-5">
+              <FileText size={28} />
+            </div>
+            <h3 className="text-xl font-semibold text-surface-900 mb-3">
+              {t("about.featurePdfTools")}
+            </h3>
+            <p className="text-surface-600 text-sm leading-relaxed">
+              {t("about.featurePdfToolsDesc")}
+            </p>
+          </div>
+
+          {/* Feature 6: Mind Maps */}
+          <div className="card p-8 border border-brand-100 hover:shadow-md transition-shadow">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-violet-100 text-violet-600 mb-5">
+              <Network size={28} />
+            </div>
+            <h3 className="text-xl font-semibold text-surface-900 mb-3">
+              {t("about.featureMindMaps")}
+            </h3>
+            <p className="text-surface-600 text-sm leading-relaxed">
+              {t("about.featureMindMapsDesc")}
+            </p>
+          </div>
+
+          {/* Feature 7: Grade Analytics */}
+          <div className="card p-8 border border-brand-100 hover:shadow-md transition-shadow">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-emerald-100 text-emerald-600 mb-5">
+              <BarChart3 size={28} />
+            </div>
+            <h3 className="text-xl font-semibold text-surface-900 mb-3">
+              {t("about.featureGradeAnalytics")}
+            </h3>
+            <p className="text-surface-600 text-sm leading-relaxed">
+              {t("about.featureGradeAnalyticsDesc")}
+            </p>
+          </div>
+
+          {/* Feature 8: 20+ Tools */}
+          <div className="card p-8 border border-brand-100 hover:shadow-md transition-shadow">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-amber-100 text-amber-600 mb-5">
+              <Sparkles size={28} />
+            </div>
+            <h3 className="text-xl font-semibold text-surface-900 mb-3">
+              {t("about.featureToolkit")}
+            </h3>
+            <p className="text-surface-600 text-sm leading-relaxed">
+              {t("about.featureToolkitDesc")}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* What's New / Changelog */}
+      <div className="bg-gradient-to-b from-white to-surface-50 py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-center gap-3 mb-12">
+            <History size={24} className="text-brand-600" />
+            <h2 className="text-3xl font-bold text-surface-900">
+              {t("about.whatsNew")}
+            </h2>
+          </div>
+
+          <div className="space-y-6">
+            {/* April 2026 */}
+            <div className="card p-6 border border-surface-200 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-semibold">
+                  v2.5
+                </span>
+                <span className="text-sm text-surface-500">{t("about.changelogApril2026")}</span>
+              </div>
+              <ul className="space-y-2">
+                {t("about.changelog2_5").split("|").map((item, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-surface-700">
+                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-bold">✓</span>
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Earlier */}
+            <div className="card p-6 border border-surface-200">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-surface-200 text-surface-600 text-xs font-semibold">
+                  v2.0
+                </span>
+                <span className="text-sm text-surface-500">{t("about.changelogV2")}</span>
+              </div>
+              <ul className="space-y-2">
+                {t("about.changelog2_0").split("|").map((item, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-surface-700">
+                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-surface-100 text-surface-500 flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-bold">✓</span>
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </div>
