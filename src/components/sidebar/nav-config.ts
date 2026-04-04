@@ -3,7 +3,7 @@ import {
   Target, Calendar, BarChart3, Clock3, Award,
   FileText, FolderOpen, Brain, Network, Lightbulb, Layers, Calculator, Timer,
   TrendingUp, Medal, Sparkles,
-  Settings, Info,
+  Settings, Info, UserCircle,
   type LucideIcon,
 } from "lucide-react";
 
@@ -75,8 +75,9 @@ export const NAV_GROUPS: NavGroup[] = [
 ];
 
 export const BOTTOM_ITEMS: NavItem[] = [
-  { href: "/settings", icon: Settings, labelKey: "nav.settings", pro: false },
-  { href: "/about",    icon: Info,     labelKey: "nav.about",    pro: false },
+  { href: "/profile",  icon: UserCircle, labelKey: "nav.profile",  pro: false },
+  { href: "/settings", icon: Settings,   labelKey: "nav.settings", pro: false },
+  { href: "/about",    icon: Info,       labelKey: "nav.about",    pro: false },
 ];
 
 export function getAllNavItems(): NavItem[] {
