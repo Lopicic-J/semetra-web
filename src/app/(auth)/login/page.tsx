@@ -3,11 +3,11 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Gem, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
+import { Gem, AtSign, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { getEnabledProviders } from "@/lib/oauth-providers";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,11 +21,27 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    let email = identifier.trim();
+
+    // If it doesn't look like an email, resolve username → email
+    if (!email.includes("@")) {
+      const { data, error: rpcError } = await supabase.rpc("get_email_by_username", {
+        lookup_username: email,
+      });
+      if (rpcError || !data) {
+        setError("Benutzername nicht gefunden");
+        setLoading(false);
+        return;
+      }
+      email = data;
+    }
+
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setError(
         error.message === "Invalid login credentials"
-          ? "E-Mail oder Passwort falsch"
+          ? "Benutzername/E-Mail oder Passwort falsch"
           : error.message
       );
       setLoading(false);
@@ -101,17 +117,17 @@ export default function LoginPage() {
           {/* Email/Password Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1.5">E-Mail</label>
+              <label className="block text-sm font-medium text-surface-700 mb-1.5">Benutzername oder E-Mail</label>
               <div className="relative">
-                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                <AtSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
                 <input
                   className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
-                  type="email"
-                  placeholder="deine@email.ch"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  type="text"
+                  placeholder="max_muster oder deine@email.ch"
+                  value={identifier}
+                  onChange={e => setIdentifier(e.target.value)}
                   required
-                  autoComplete="email"
+                  autoComplete="username email"
                 />
               </div>
             </div>

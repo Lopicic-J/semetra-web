@@ -10,12 +10,16 @@ export type PlanType = "free" | "subscription" | "lifetime";
 export interface Profile {
   id: string;
   email: string | null;
+  username: string | null;
   full_name: string | null;
   avatar_url: string | null;
   plan: Plan;
   plan_type: PlanType | null;
   plan_tier: PlanTier | null;       // "basic" | "full"
   country: CountryCode | null;
+  university: string | null;
+  study_program: string | null;
+  semester: number | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
   stripe_subscription_status: string | null;

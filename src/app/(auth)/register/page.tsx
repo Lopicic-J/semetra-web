@@ -3,14 +3,18 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Gem, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, Globe } from "lucide-react";
+import { Gem, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, Globe, GraduationCap, BookOpen, AtSign } from "lucide-react";
 import { getEnabledProviders } from "@/lib/oauth-providers";
 import { COUNTRY_LIST, DEFAULT_COUNTRY, type CountryCode } from "@/lib/grading-systems";
 
 export default function RegisterPage() {
+  const [username, setUsername] = useState("");
+  const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [country, setCountry] = useState<CountryCode>(DEFAULT_COUNTRY);
+  const [university, setUniversity] = useState("");
+  const [studyProgram, setStudyProgram] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -19,6 +23,24 @@ export default function RegisterPage() {
   const router = useRouter();
   const supabase = createClient();
   const enabledProviders = getEnabledProviders();
+
+  const usernameValid = /^[a-z0-9_-]{3,30}$/.test(username);
+
+  // Debounced username availability check
+  const checkTimerRef = { current: null as ReturnType<typeof setTimeout> | null };
+  function handleUsernameChange(val: string) {
+    const clean = val.toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    setUsername(clean);
+    setUsernameStatus("idle");
+    if (checkTimerRef.current) clearTimeout(checkTimerRef.current);
+    if (clean.length < 3) return;
+    if (!/^[a-z0-9_-]{3,30}$/.test(clean)) return;
+    setUsernameStatus("checking");
+    checkTimerRef.current = setTimeout(async () => {
+      const { data } = await supabase.rpc("get_email_by_username", { lookup_username: clean });
+      setUsernameStatus(data ? "taken" : "available");
+    }, 500);
+  }
 
   const pwStrength = (() => {
     if (password.length < 8) return 0;
@@ -33,9 +55,20 @@ export default function RegisterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!usernameValid) { setError("Benutzername muss 3–30 Zeichen lang sein (Kleinbuchstaben, Zahlen, _ oder -)"); return; }
+    if (usernameStatus === "taken") { setError("Dieser Benutzername ist bereits vergeben"); return; }
     if (password.length < 8) { setError("Passwort muss mind. 8 Zeichen haben"); return; }
     setLoading(true);
     setError(null);
+
+    // Final availability check
+    const { data: existingEmail } = await supabase.rpc("get_email_by_username", { lookup_username: username });
+    if (existingEmail) {
+      setError("Dieser Benutzername ist bereits vergeben");
+      setLoading(false);
+      return;
+    }
+
     const { error, data } = await supabase.auth.signUp({
       email,
       password,
@@ -44,9 +77,12 @@ export default function RegisterPage() {
         data: { country },
       },
     });
-    // Also save country to profile directly (in case trigger doesn't pass metadata)
+    // Also save country + optional fields to profile directly
     if (data?.user?.id) {
-      await supabase.from("profiles").update({ country }).eq("id", data.user.id);
+      const profileData: Record<string, unknown> = { country, username };
+      if (university.trim()) profileData.university = university.trim();
+      if (studyProgram.trim()) profileData.study_program = studyProgram.trim();
+      await supabase.from("profiles").update(profileData).eq("id", data.user.id);
     }
     if (error) {
       setError(error.message);
@@ -133,6 +169,37 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Username */}
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1.5">Benutzername</label>
+              <div className="relative">
+                <AtSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                <input
+                  className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+                  type="text"
+                  placeholder="z. B. max_muster"
+                  value={username}
+                  onChange={e => handleUsernameChange(e.target.value)}
+                  required
+                  minLength={3}
+                  maxLength={30}
+                  autoComplete="username"
+                />
+              </div>
+              <p className={`text-[10px] mt-1 ${
+                usernameStatus === "available" ? "text-green-600" :
+                usernameStatus === "taken" ? "text-red-500" :
+                username.length > 0 && !usernameValid ? "text-red-500" :
+                "text-surface-400"
+              }`}>
+                {usernameStatus === "checking" ? "Wird geprüft..." :
+                 usernameStatus === "available" ? "✓ Verfügbar" :
+                 usernameStatus === "taken" ? "✗ Bereits vergeben" :
+                 username.length > 0 && !usernameValid ? "3–30 Zeichen: Kleinbuchstaben, Zahlen, _ und -" :
+                 "Dein eindeutiger Benutzername zum Anmelden"}
+              </p>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-surface-700 mb-1.5">E-Mail</label>
               <div className="relative">
@@ -180,6 +247,39 @@ export default function RegisterPage() {
                   </p>
                 </div>
               )}
+            </div>
+
+            {/* University */}
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1.5">Universität / Fachhochschule</label>
+              <div className="relative">
+                <GraduationCap size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                <input
+                  className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+                  type="text"
+                  placeholder="z. B. ETH Zürich, ZHAW, FHNW…"
+                  value={university}
+                  onChange={e => setUniversity(e.target.value)}
+                  autoComplete="organization"
+                />
+              </div>
+              <p className="text-[10px] text-surface-400 mt-1">Optional. Kann später im Profil geändert werden.</p>
+            </div>
+
+            {/* Study Program */}
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1.5">Studienrichtung</label>
+              <div className="relative">
+                <BookOpen size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                <input
+                  className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+                  type="text"
+                  placeholder="z. B. Informatik, BWL, Medizin…"
+                  value={studyProgram}
+                  onChange={e => setStudyProgram(e.target.value)}
+                />
+              </div>
+              <p className="text-[10px] text-surface-400 mt-1">Optional. Kann später im Profil geändert werden.</p>
             </div>
 
             {/* Country / Grading system */}
