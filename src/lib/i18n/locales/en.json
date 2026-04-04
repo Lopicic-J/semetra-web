@@ -1362,6 +1362,8 @@
   "mindmaps.shortcutMultiSelect": "Select multiple nodes",
   "mindmaps.shortcutEscape": "Clear selection / Close",
   "mindmaps.uploadFile": "Upload document",
+  "mindmaps.nodeImage": "Image",
+  "mindmaps.uploadImage": "Upload image",
   "brainstorming.techniques": "Techniques",
   "brainstorming.yourSessions": "Your Sessions",
   "brainstorming.sessionTitle": "Title",

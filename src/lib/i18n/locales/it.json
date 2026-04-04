@@ -1360,6 +1360,8 @@
   "mindmaps.shortcutMultiSelect": "Seleziona più nodi",
   "mindmaps.shortcutEscape": "Deseleziona / Chiudi",
   "mindmaps.uploadFile": "Carica documento",
+  "mindmaps.nodeImage": "Immagine",
+  "mindmaps.uploadImage": "Carica immagine",
   "brainstorming.techniques": "Tecniche",
   "brainstorming.yourSessions": "Le tue sessioni",
   "brainstorming.sessionTitle": "Titolo",

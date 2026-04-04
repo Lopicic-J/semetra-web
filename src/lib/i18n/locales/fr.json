@@ -1359,6 +1359,8 @@
   "mindmaps.shortcutMultiSelect": "Sélectionner plusieurs nœuds",
   "mindmaps.shortcutEscape": "Désélectionner / Fermer",
   "mindmaps.uploadFile": "Télécharger un document",
+  "mindmaps.nodeImage": "Image",
+  "mindmaps.uploadImage": "Télécharger une image",
   "brainstorming.techniques": "Techniques",
   "brainstorming.yourSessions": "Tes sessions",
   "brainstorming.sessionTitle": "Titre",

@@ -10,7 +10,7 @@ import {
   ChevronRight, ChevronDown, Link2, ExternalLink, StickyNote,
   Network, LayoutGrid, ZoomIn, ZoomOut, Maximize2, GraduationCap,
   Copy, Download, Image, FileText, Search, Keyboard, Eye, EyeOff,
-  CornerDownRight, ArrowRight, Undo2, CheckSquare, Square
+  CornerDownRight, ArrowRight, Undo2, CheckSquare, Square, Upload
 } from "lucide-react";
 import type { MindMap, MindMapNode, CalendarEvent, Task } from "@/types/database";
 import { useTranslation } from "@/lib/i18n";
@@ -250,7 +250,7 @@ function CreateMapModal({ modules, exams, tasks, onClose, onCreated }: {
   );
 }
 
-// ─── Mind Map Editor (completely rewritten) ────────────────────────────
+// ─── Mind Map Editor ────────────────────────────────────────────────────
 function MindMapEditor({ map, modules, onBack }: {
   map: MindMap; modules: any[]; onBack: () => void;
 }) {
@@ -266,7 +266,7 @@ function MindMapEditor({ map, modules, onBack }: {
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [showGrid, setShowGrid] = useState(true);
-  const [focusNodeId, setFocusNodeId] = useState<string | null>(null); // focus mode
+  const [focusNodeId, setFocusNodeId] = useState<string | null>(null);
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
@@ -309,14 +309,12 @@ function MindMapEditor({ map, modules, onBack }: {
   // Visible nodes (focus mode or all)
   const visibleNodes = useMemo(() => {
     if (!focusNodeId) return nodes;
-    // Show focus node and all descendants
     const visible = new Set<string>();
     function walk(id: string) {
       visible.add(id);
       childrenOf(id).forEach(c => walk(c.id));
     }
     walk(focusNodeId);
-    // Also add parent chain for context
     let current = nodes.find(n => n.id === focusNodeId);
     while (current?.parent_id) {
       visible.add(current.parent_id);
@@ -335,18 +333,20 @@ function MindMapEditor({ map, modules, onBack }: {
     ).map(n => n.id));
   }, [nodes, searchQuery]);
 
-  // Selected node (primary — first in set)
+  // Selected node (primary)
   const primarySelected = useMemo(() => {
     const first = selectedNodes.values().next().value;
     return first ? nodes.find(n => n.id === first) : null;
   }, [selectedNodes, nodes]);
 
-  // Auto-layout tree positions
+  // Auto-layout tree positions with improved spacing
   const treePositions = useMemo(() => {
     if (layoutMode !== "tree" || !rootNode) return new Map<string, { x: number; y: number }>();
     const pos = new Map<string, { x: number; y: number }>();
-    const NODE_W = 180;
-    const NODE_H = 56;
+    const NODE_W = 200;
+    const NODE_H = 64;
+    const HORIZONTAL_GAP = 80;
+    const VERTICAL_GAP = 40;
 
     function countVisibleLeaves(id: string): number {
       const node = nodes.find(n => n.id === id);
@@ -359,9 +359,9 @@ function MindMapEditor({ map, modules, onBack }: {
     function layout(id: string, depth: number, startLeaf: number): number {
       const node = nodes.find(n => n.id === id);
       const children = node?.collapsed ? [] : childrenOf(id);
-      const x = 60 + depth * (NODE_W + 60);
+      const x = 80 + depth * (NODE_W + HORIZONTAL_GAP);
       if (children.length === 0) {
-        pos.set(id, { x, y: 60 + startLeaf * NODE_H });
+        pos.set(id, { x, y: 100 + startLeaf * (NODE_H + VERTICAL_GAP) });
         return startLeaf + 1;
       }
       let currentLeaf = startLeaf;
@@ -383,34 +383,62 @@ function MindMapEditor({ map, modules, onBack }: {
     return { x: node.pos_x, y: node.pos_y };
   }
 
-  // Generate SVG path for connections based on relative positions
+  // Generate SVG path for connections with proper edge detection
   function generateConnectionPath(from: { x: number; y: number }, to: { x: number; y: number }, nodeW: number) {
-    const NODE_H = 56;
-    const fromCenterX = from.x + nodeW / 2;
-    const fromCenterY = from.y + NODE_H / 2;
-    const toCenterX = to.x + nodeW / 2;
-    const toCenterY = to.y + NODE_H / 2;
+    const NODE_H = 64;
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
 
-    const dx = toCenterX - fromCenterX;
-    const dy = toCenterY - fromCenterY;
+    let fromPoint = { x: from.x + nodeW / 2, y: from.y + NODE_H / 2 };
+    let toPoint = { x: to.x + nodeW / 2, y: to.y + NODE_H / 2 };
 
-    // Determine direction based on position
-    const absX = Math.abs(dx);
-    const absY = Math.abs(dy);
-
-    if (absX > absY) {
-      // Horizontal connection (left or right)
-      const isRight = dx > 0;
-      const startX = isRight ? from.x + nodeW : from.x;
-      const controlOffset = 40;
-      return `M${startX} ${fromCenterY} C${startX + (isRight ? controlOffset : -controlOffset)} ${fromCenterY}, ${toCenterX - (isRight ? controlOffset : -controlOffset)} ${toCenterY}, ${toCenterX} ${toCenterY}`;
+    // In tree mode, connect from right edge of parent to left edge of child
+    if (layoutMode === "tree" && dx > 0) {
+      fromPoint = { x: from.x + nodeW, y: from.y + NODE_H / 2 };
+      toPoint = { x: to.x, y: to.y + NODE_H / 2 };
+    } else if (layoutMode === "tree" && dx < 0) {
+      fromPoint = { x: from.x, y: from.y + NODE_H / 2 };
+      toPoint = { x: to.x + nodeW, y: to.y + NODE_H / 2 };
     } else {
-      // Vertical connection (top or bottom)
-      const isBottom = dy > 0;
-      const startY = isBottom ? from.y + NODE_H : from.y;
-      const controlOffset = 40;
-      return `M${fromCenterX} ${startY} C${fromCenterX} ${startY + (isBottom ? controlOffset : -controlOffset)}, ${toCenterX} ${toCenterY - (isBottom ? controlOffset : -controlOffset)}, ${toCenterX} ${toCenterY}`;
+      // Free mode: pick closest edges
+      const absX = Math.abs(dx);
+      const absY = Math.abs(dy);
+      if (absX > absY) {
+        // Horizontal
+        if (dx > 0) {
+          fromPoint = { x: from.x + nodeW, y: from.y + NODE_H / 2 };
+          toPoint = { x: to.x, y: to.y + NODE_H / 2 };
+        } else {
+          fromPoint = { x: from.x, y: from.y + NODE_H / 2 };
+          toPoint = { x: to.x + nodeW, y: to.y + NODE_H / 2 };
+        }
+      } else {
+        // Vertical
+        if (dy > 0) {
+          fromPoint = { x: from.x + nodeW / 2, y: from.y + NODE_H };
+          toPoint = { x: to.x + nodeW / 2, y: to.y };
+        } else {
+          fromPoint = { x: from.x + nodeW / 2, y: from.y };
+          toPoint = { x: to.x + nodeW / 2, y: to.y + NODE_H };
+        }
+      }
     }
+
+    // Cubic Bezier with control points offset by 50% of distance
+    const ctrlOffset = Math.hypot(toPoint.x - fromPoint.x, toPoint.y - fromPoint.y) * 0.5;
+    let ctrl1, ctrl2;
+
+    if (Math.abs(toPoint.x - fromPoint.x) > Math.abs(toPoint.y - fromPoint.y)) {
+      // Horizontal-dominant
+      ctrl1 = { x: fromPoint.x + ctrlOffset, y: fromPoint.y };
+      ctrl2 = { x: toPoint.x - ctrlOffset, y: toPoint.y };
+    } else {
+      // Vertical-dominant
+      ctrl1 = { x: fromPoint.x, y: fromPoint.y + ctrlOffset };
+      ctrl2 = { x: toPoint.x, y: toPoint.y - ctrlOffset };
+    }
+
+    return `M${fromPoint.x} ${fromPoint.y} C${ctrl1.x} ${ctrl1.y}, ${ctrl2.x} ${ctrl2.y}, ${toPoint.x} ${toPoint.y}`;
   }
 
   // ── Pointer helpers ──
@@ -465,7 +493,6 @@ function MindMapEditor({ map, modules, onBack }: {
         e.preventDefault();
         const dx = (p.x - dragRef.current.startX) / zoom;
         const dy = (p.y - dragRef.current.startY) / zoom;
-        // Move all selected nodes if dragging one of them
         const draggingSelected = selectedNodes.has(dragRef.current.id) && selectedNodes.size > 1;
         setNodes(prev => prev.map(n => {
           if (n.id === dragRef.current!.id) {
@@ -510,7 +537,7 @@ function MindMapEditor({ map, modules, onBack }: {
       window.removeEventListener("touchend", handlePointerUp);
       window.removeEventListener("touchcancel", handlePointerUp);
     };
-  }, [nodes, zoom, supabase, selectedNodes]);
+  }, [nodes, zoom, supabase, selectedNodes, layoutMode]);
 
   // ── Node operations ──
   function pushUndo() {
@@ -524,12 +551,10 @@ function MindMapEditor({ map, modules, onBack }: {
     if (!user) return;
     const parent = nodes.find(n => n.id === parentId);
     const siblings = childrenOf(parentId);
-    // Uncollapse parent if collapsed
     if (parent?.collapsed) {
       await supabase.from("mindmap_nodes").update({ collapsed: false }).eq("id", parentId);
     }
 
-    // Calculate position based on direction
     const baseX = parent?.pos_x ?? 200;
     const baseY = parent?.pos_y ?? 50;
     const offsets = {
@@ -553,7 +578,6 @@ function MindMapEditor({ map, modules, onBack }: {
     if (data) {
       await supabase.from("mindmaps").update({ updated_at: new Date().toISOString() }).eq("id", map.id);
       await fetchNodes();
-      // Start inline editing immediately
       setInlineEditId(data.id);
       setInlineEditText("");
       setSelectedNodes(new Set([data.id]));
@@ -562,7 +586,7 @@ function MindMapEditor({ map, modules, onBack }: {
 
   async function addSibling(nodeId: string) {
     const node = nodes.find(n => n.id === nodeId);
-    if (!node?.parent_id) return; // Can't add sibling to root
+    if (!node?.parent_id) return;
     pushUndo();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -635,7 +659,6 @@ function MindMapEditor({ map, modules, onBack }: {
     const prev = undoStack[undoStack.length - 1];
     setUndoStack(s => s.slice(0, -1));
     setNodes(prev);
-    // Re-sync to DB (simplified: save all positions)
     for (const n of prev) {
       await supabase.from("mindmap_nodes").update({ label: n.label, pos_x: n.pos_x, pos_y: n.pos_y, collapsed: n.collapsed, color: n.color, icon: n.icon, notes: n.notes }).eq("id", n.id);
     }
@@ -665,23 +688,22 @@ function MindMapEditor({ map, modules, onBack }: {
   // ── Keyboard shortcuts ──
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      // Don't capture when editing inline or in a modal
       if (inlineEditId || editNode) return;
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
       const sel = primarySelected;
 
       switch (e.key) {
-        case "Tab": // Tab = add child
+        case "Tab":
           e.preventDefault();
           if (sel) addChild(sel.id);
           break;
-        case "Enter": // Enter = add sibling
+        case "Enter":
           e.preventDefault();
           if (sel) addSibling(sel.id);
           break;
-        case "F2": // F2 = inline edit
-        case " ": // Space = inline edit
+        case "F2":
+        case " ":
           e.preventDefault();
           if (sel) {
             setInlineEditId(sel.id);
@@ -764,7 +786,7 @@ function MindMapEditor({ map, modules, onBack }: {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visibleNodes, treePositions, layoutMode]);
   const canvasH = useMemo(() => {
-    const maxY = Math.max(500, ...visibleNodes.map(n => getPos(n).y + 80));
+    const maxY = Math.max(500, ...visibleNodes.map(n => getPos(n).y + 100));
     return maxY + 200;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visibleNodes, treePositions, layoutMode]);
@@ -784,7 +806,7 @@ function MindMapEditor({ map, modules, onBack }: {
       minX = Math.min(minX, p.x);
       minY = Math.min(minY, p.y);
       maxX = Math.max(maxX, p.x + 200);
-      maxY = Math.max(maxY, p.y + 50);
+      maxY = Math.max(maxY, p.y + 64);
     }
     const contentW = maxX - minX + 100;
     const contentH = maxY - minY + 100;
@@ -805,7 +827,6 @@ function MindMapEditor({ map, modules, onBack }: {
     const el = document.getElementById("mindmap-canvas");
     if (!el) return;
     try {
-      // Load html2canvas from CDN if not already loaded
       if (!(window as any).html2canvas) {
         await new Promise<void>((resolve, reject) => {
           const s = document.createElement("script");
@@ -818,7 +839,6 @@ function MindMapEditor({ map, modules, onBack }: {
       const h2c = (window as any).html2canvas;
       if (!h2c) { alert(t("mindmaps.exportFailed")); return; }
 
-      // Temporarily reset transform so html2canvas captures correctly
       const origTransform = el.style.transform;
       const origOrigin = el.style.transformOrigin;
       el.style.transform = "none";
@@ -836,7 +856,6 @@ function MindMapEditor({ map, modules, onBack }: {
         windowHeight: parseInt(String(el.style.height)) || el.scrollHeight,
       });
 
-      // Restore transform
       el.style.transform = origTransform;
       el.style.transformOrigin = origOrigin;
 
@@ -894,7 +913,6 @@ function MindMapEditor({ map, modules, onBack }: {
         <h2 className="font-semibold text-surface-900 text-sm truncate">{map.title}</h2>
         <div className="flex-1" />
 
-        {/* Focus mode indicator */}
         {focusNodeId && (
           <button onClick={() => setFocusNodeId(null)}
             className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-amber-100 text-amber-700 shrink-0">
@@ -1021,16 +1039,27 @@ function MindMapEditor({ map, modules, onBack }: {
               overflow: "visible",
             }}
           >
-            {/* SVG connections */}
+            {/* SVG connections with gradient strokes */}
             <svg className="absolute inset-0 pointer-events-none" style={{ overflow: "visible" }} width={canvasW} height={canvasH}>
+              <defs>
+                {visibleNodes.filter(n => n.parent_id).map(n => {
+                  const parent = visibleNodes.find(p => p.id === n.parent_id);
+                  if (!parent) return null;
+                  return (
+                    <linearGradient key={`grad-${n.id}`} id={`grad-${n.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor={parent.color || "#d1d5db"} />
+                      <stop offset="100%" stopColor={n.color || "#d1d5db"} />
+                    </linearGradient>
+                  );
+                })}
+              </defs>
               {visibleNodes.filter(n => n.parent_id).map(n => {
                 const parent = visibleNodes.find(p => p.id === n.parent_id);
                 if (!parent) return null;
-                // Don't draw connections to collapsed children
                 if (parent.collapsed && parent.id !== focusNodeId) return null;
                 const from = getPos(parent);
                 const to = getPos(n);
-                const NODE_W = 160;
+                const NODE_W = 200;
                 const isHighlighted = searchMatches.has(n.id) || searchMatches.has(parent.id);
                 const pathD = generateConnectionPath(from, to, NODE_W);
                 return (
@@ -1038,9 +1067,11 @@ function MindMapEditor({ map, modules, onBack }: {
                     key={n.id}
                     d={pathD}
                     fill="none"
-                    stroke={isHighlighted ? "#f59e0b" : (n.color || "#d1d5db")}
-                    strokeWidth={isHighlighted ? 3 : 2}
-                    strokeOpacity={isHighlighted ? 0.8 : 0.4}
+                    stroke={isHighlighted ? "#f59e0b" : `url(#grad-${n.id})`}
+                    strokeWidth={isHighlighted ? 3 : 2.5}
+                    strokeOpacity={isHighlighted ? 0.9 : 0.6}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 );
               })}
@@ -1055,6 +1086,8 @@ function MindMapEditor({ map, modules, onBack }: {
               const hasChildren = children.length > 0;
               const isSearchMatch = searchMatches.has(n.id);
               const isInlineEditing = inlineEditId === n.id;
+              const documentLinks = (n.links ?? []).filter(l => l.url.includes("mindmap-files")).slice(0, 2);
+              const hasMoreFiles = (n.links ?? []).filter(l => l.url.includes("mindmap-files")).length > 2;
 
               return (
                 <div
@@ -1071,7 +1104,6 @@ function MindMapEditor({ map, modules, onBack }: {
                   onClick={(e) => {
                     e.stopPropagation();
                     if (e.ctrlKey || e.metaKey) {
-                      // Multi-select with Ctrl/Cmd
                       setSelectedNodes(prev => {
                         const next = new Set(prev);
                         if (next.has(n.id)) next.delete(n.id);
@@ -1089,109 +1121,162 @@ function MindMapEditor({ map, modules, onBack }: {
                   }}
                 >
                   <div style={{ position: "relative" }}>
-                    <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 bg-white shadow-sm transition-all min-w-[100px] max-w-[220px] ${
-                      isSelected ? "ring-2 ring-brand-400 border-brand-300" :
+                    {/* Modern node design with gradient background */}
+                    <div className={`flex flex-col items-start gap-1.5 px-3 py-2.5 rounded-2xl border-2 transition-all min-w-[180px] max-w-[220px] ${
+                      isSelected ? "ring-2 ring-brand-400 border-brand-300 shadow-md" :
                       isSearchMatch ? "ring-2 ring-amber-400 border-amber-300" :
-                      "border-surface-200 hover:border-surface-300"
-                    } ${isRoot ? "border-l-4" : ""}`}
-                      style={isRoot ? { borderLeftColor: n.color } : {}}
+                      "border-surface-200 hover:border-surface-300 shadow-sm hover:shadow-md"
+                    }`}
+                      style={{
+                        background: isRoot
+                          ? `linear-gradient(135deg, ${n.color}15 0%, ${n.color}05 100%)`
+                          : `linear-gradient(135deg, ${n.color}20 0%, ${n.color}08 100%)`,
+                        backdropFilter: "blur(4px)",
+                        borderLeftWidth: isRoot ? "4px" : "2px",
+                        borderLeftColor: isRoot ? n.color : "inherit",
+                      }}
                     >
-                    {/* Collapse toggle */}
-                    {hasChildren && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); toggleCollapse(n.id); }}
-                        className="text-surface-400 hover:text-surface-600 shrink-0 -ml-1"
-                      >
-                        {n.collapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
-                      </button>
-                    )}
+                      {/* Node image */}
+                      {n.image_url && (
+                        <div className="w-full -mt-0.5 mb-1">
+                          <img
+                            src={n.image_url}
+                            alt={n.label}
+                            className="w-full max-h-[100px] object-cover rounded-xl"
+                            loading="lazy"
+                          />
+                        </div>
+                      )}
 
-                    {n.icon && <span className="text-sm shrink-0">{n.icon}</span>}
+                      <div className="flex items-center gap-2 w-full">
+                        {/* Collapse toggle */}
+                        {hasChildren && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); toggleCollapse(n.id); }}
+                            className="text-surface-400 hover:text-surface-600 shrink-0 transition-transform"
+                          >
+                            {n.collapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+                          </button>
+                        )}
 
-                    {isInlineEditing ? (
-                      <input
-                        ref={inlineInputRef}
-                        className="text-sm font-medium text-surface-800 bg-transparent outline-none border-none flex-1 min-w-[60px]"
-                        value={inlineEditText}
-                        onChange={e => setInlineEditText(e.target.value)}
-                        onKeyDown={e => {
-                          if (e.key === "Enter") { e.preventDefault(); handleInlineEditSubmit(n.id); }
-                          if (e.key === "Escape") { setInlineEditId(null); }
-                          if (e.key === "Tab") { e.preventDefault(); handleInlineEditSubmit(n.id); addChild(n.id); }
-                        }}
-                        onBlur={() => handleInlineEditSubmit(n.id)}
-                      />
-                    ) : (
-                      <span className={`text-sm truncate ${isRoot ? "font-semibold" : "font-medium"} text-surface-800`}>
-                        {n.label || t("mindmaps.newNode")}
-                      </span>
-                    )}
+                        {n.icon && <span className="text-sm shrink-0">{n.icon}</span>}
 
-                    {n.notes && <StickyNote size={10} className="text-amber-400 shrink-0" />}
-                    {(n.links?.length ?? 0) > 0 && <Link2 size={10} className="text-blue-400 shrink-0" />}
-                    {n.collapsed && hasChildren && (
-                      <span className="text-[9px] bg-surface-200 text-surface-500 px-1 rounded-full shrink-0">{children.length}</span>
-                    )}
+                        {isInlineEditing ? (
+                          <input
+                            ref={inlineInputRef}
+                            className="text-sm font-medium text-surface-800 bg-transparent outline-none border-none flex-1 min-w-[60px]"
+                            value={inlineEditText}
+                            onChange={e => setInlineEditText(e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === "Enter") { e.preventDefault(); handleInlineEditSubmit(n.id); }
+                              if (e.key === "Escape") { setInlineEditId(null); }
+                              if (e.key === "Tab") { e.preventDefault(); handleInlineEditSubmit(n.id); addChild(n.id); }
+                            }}
+                            onBlur={() => handleInlineEditSubmit(n.id)}
+                          />
+                        ) : (
+                          <span className={`text-sm truncate ${isRoot ? "font-bold" : "font-medium"} text-surface-900`}>
+                            {n.label || t("mindmaps.newNode")}
+                          </span>
+                        )}
+
+                        {n.notes && <StickyNote size={12} className="text-amber-400 shrink-0" />}
+                        {(n.links?.length ?? 0) > 0 && <Link2 size={12} className="text-blue-400 shrink-0" />}
+                      </div>
+
+                      {/* File badges */}
+                      {documentLinks.length > 0 && (
+                        <div className="flex gap-1 flex-wrap w-full">
+                          {documentLinks.map((link, idx) => {
+                            const fileName = link.label.replace(/^[^a-zA-Z0-9]*/, "").split("/").pop() || "file";
+                            const shortName = fileName.length > 12 ? fileName.substring(0, 10) + ".." : fileName;
+                            return (
+                              <a
+                                key={idx}
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors truncate max-w-full"
+                                title={fileName}
+                              >
+                                📎 {shortName}
+                              </a>
+                            );
+                          })}
+                          {hasMoreFiles && (
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-surface-200 text-surface-600">
+                              +{(n.links ?? []).filter(l => l.url.includes("mindmap-files")).length - 2}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Collapsed indicator */}
+                      {n.collapsed && hasChildren && (
+                        <div className="flex items-center gap-1.5 w-full">
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-brand-100 text-brand-700 font-medium animate-pulse">
+                            +{children.length}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Quick actions on select */}
-                  {isSelected && !isInlineEditing && (
-                    <>
-                      {/* Direction buttons for adding children */}
-                      <button
-                        onClick={(e) => { e.stopPropagation(); addChild(n.id, "top"); }}
-                        className="absolute -top-5 left-1/2 -translate-x-1/2 p-0.5 rounded-full bg-brand-600 text-white hover:bg-brand-700 w-5 h-5 flex items-center justify-center text-[8px]"
-                        title="Add child (top)"
-                      >
-                        ↑
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); addChild(n.id, "left"); }}
-                        className="absolute top-1/2 -left-5 -translate-y-1/2 p-0.5 rounded-full bg-brand-600 text-white hover:bg-brand-700 w-5 h-5 flex items-center justify-center text-[8px]"
-                        title="Add child (left)"
-                      >
-                        ←
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); addChild(n.id, "right"); }}
-                        className="absolute top-1/2 -right-5 -translate-y-1/2 p-0.5 rounded-full bg-brand-600 text-white hover:bg-brand-700 w-5 h-5 flex items-center justify-center text-[8px]"
-                        title="Add child (right)"
-                      >
-                        →
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); addChild(n.id, "bottom"); }}
-                        className="absolute -bottom-5 left-1/2 -translate-x-1/2 p-0.5 rounded-full bg-brand-600 text-white hover:bg-brand-700 w-5 h-5 flex items-center justify-center text-[8px]"
-                        title="Add child (bottom)"
-                      >
-                        ↓
-                      </button>
+                    {isSelected && !isInlineEditing && (
+                      <>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); addChild(n.id, "top"); }}
+                          className="absolute -top-5 left-1/2 -translate-x-1/2 p-1 rounded-full bg-brand-600 text-white hover:bg-brand-700 w-6 h-6 flex items-center justify-center text-[10px] font-bold transition-transform hover:scale-110"
+                          title="Add child (top)"
+                        >
+                          ↑
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); addChild(n.id, "left"); }}
+                          className="absolute top-1/2 -left-5 -translate-y-1/2 p-1 rounded-full bg-brand-600 text-white hover:bg-brand-700 w-6 h-6 flex items-center justify-center text-[10px] font-bold transition-transform hover:scale-110"
+                          title="Add child (left)"
+                        >
+                          ←
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); addChild(n.id, "right"); }}
+                          className="absolute top-1/2 -right-5 -translate-y-1/2 p-1 rounded-full bg-brand-600 text-white hover:bg-brand-700 w-6 h-6 flex items-center justify-center text-[10px] font-bold transition-transform hover:scale-110"
+                          title="Add child (right)"
+                        >
+                          →
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); addChild(n.id, "bottom"); }}
+                          className="absolute -bottom-5 left-1/2 -translate-x-1/2 p-1 rounded-full bg-brand-600 text-white hover:bg-brand-700 w-6 h-6 flex items-center justify-center text-[10px] font-bold transition-transform hover:scale-110"
+                          title="Add child (bottom)"
+                        >
+                          ↓
+                        </button>
 
-                      {/* Main action buttons below node */}
-                      <div className="flex gap-0.5 mt-1 justify-center">
-                        {!isRoot && (
-                          <button onClick={(e) => { e.stopPropagation(); addSibling(n.id); }}
-                            className="p-1 rounded bg-brand-100 text-brand-700 hover:bg-brand-200" title="Enter">
-                            <CornerDownRight size={11} />
+                        <div className="flex gap-1 mt-2 justify-center">
+                          {!isRoot && (
+                            <button onClick={(e) => { e.stopPropagation(); addSibling(n.id); }}
+                              className="p-1.5 rounded-lg bg-brand-100 text-brand-700 hover:bg-brand-200 transition-colors" title="Enter">
+                              <CornerDownRight size={12} />
+                            </button>
+                          )}
+                          <button onClick={(e) => { e.stopPropagation(); setEditNode(n); }}
+                            className="p-1.5 rounded-lg bg-surface-200 text-surface-600 hover:bg-surface-300 transition-colors" title="Space">
+                            <Pencil size={12} />
                           </button>
-                        )}
-                        <button onClick={(e) => { e.stopPropagation(); setEditNode(n); }}
-                          className="p-1 rounded bg-surface-200 text-surface-600 hover:bg-surface-300" title="Space">
-                          <Pencil size={11} />
-                        </button>
-                        <button onClick={(e) => { e.stopPropagation(); setFocusNodeId(focusNodeId === n.id ? null : n.id); }}
-                          className={`p-1 rounded ${focusNodeId === n.id ? "bg-amber-200 text-amber-700" : "bg-surface-200 text-surface-600 hover:bg-surface-300"}`} title="F">
-                          {focusNodeId === n.id ? <EyeOff size={11} /> : <Eye size={11} />}
-                        </button>
-                        {!isRoot && (
-                          <button onClick={(e) => { e.stopPropagation(); deleteNode(n.id); }}
-                            className="p-1 rounded bg-red-100 text-red-500 hover:bg-red-200" title="Del">
-                            <Trash2 size={11} />
+                          <button onClick={(e) => { e.stopPropagation(); setFocusNodeId(focusNodeId === n.id ? null : n.id); }}
+                            className={`p-1.5 rounded-lg transition-colors ${focusNodeId === n.id ? "bg-amber-200 text-amber-700" : "bg-surface-200 text-surface-600 hover:bg-surface-300"}`} title="F">
+                            {focusNodeId === n.id ? <EyeOff size={12} /> : <Eye size={12} />}
                           </button>
-                        )}
-                      </div>
-                    </>
-                  )}
+                          {!isRoot && (
+                            <button onClick={(e) => { e.stopPropagation(); deleteNode(n.id); }}
+                              className="p-1.5 rounded-lg bg-red-100 text-red-500 hover:bg-red-200 transition-colors" title="Del">
+                              <Trash2 size={12} />
+                            </button>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               );
@@ -1268,11 +1353,32 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
   const [notes, setNotes] = useState(node.notes ?? "");
   const [color, setColor] = useState(node.color);
   const [icon, setIcon] = useState(node.icon ?? "");
+  const [imageUrl, setImageUrl] = useState(node.image_url ?? "");
   const [links, setLinks] = useState<{ label: string; url: string }[]>(node.links ?? []);
   const [newLinkUrl, setNewLinkUrl] = useState("");
   const [newLinkLabel, setNewLinkLabel] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setUploadingImage(false); return; }
+    try {
+      const fileName = `${node.id}/img-${Date.now()}-${file.name}`;
+      const { error } = await supabase.storage.from("mindmap-files").upload(fileName, file, { upsert: false });
+      if (error) { console.error("Image upload error:", error); return; }
+      const { data: { publicUrl } } = supabase.storage.from("mindmap-files").getPublicUrl(fileName);
+      setImageUrl(publicUrl);
+    } finally {
+      setUploadingImage(false);
+      if (imageInputRef.current) imageInputRef.current.value = "";
+    }
+  }
 
   function addLink() {
     if (!newLinkUrl.trim()) return;
@@ -1323,7 +1429,6 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
 
     try {
       for (const file of Array.from(files)) {
-        // Check file type
         const allowedTypes = [
           "application/pdf",
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -1358,7 +1463,6 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
             .from("mindmap-files")
             .getPublicUrl(fileName);
 
-          // Add as link with document marker
           const displayName = `${getFileIcon(file.name)} ${file.name}`;
           setLinks([...links, { label: displayName, url: publicUrl }]);
         }
@@ -1415,6 +1519,40 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
               placeholder={t("mindmaps.placeholder")} />
           </div>
 
+          {/* Image upload */}
+          <div>
+            <label className="block text-sm font-medium text-surface-700 mb-2">{t("mindmaps.nodeImage") || "Bild"}</label>
+            {imageUrl ? (
+              <div className="relative rounded-xl overflow-hidden border border-surface-200 mb-2">
+                <img src={imageUrl} alt={label} className="w-full max-h-[140px] object-cover" />
+                <button
+                  onClick={() => setImageUrl("")}
+                  className="absolute top-1 right-1 p-1 rounded-full bg-red-500 text-white hover:bg-red-600"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ) : (
+              <div>
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/gif,image/webp"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => imageInputRef.current?.click()}
+                  disabled={uploadingImage}
+                  className="w-full px-2 py-2 rounded-lg border-2 border-dashed border-surface-300 text-surface-500 text-xs hover:border-brand-400 hover:text-brand-600 disabled:opacity-50 transition-colors flex items-center justify-center gap-1.5"
+                >
+                  <Image size={14} />
+                  {uploadingImage ? "Uploading..." : (t("mindmaps.uploadImage") || "Bild hochladen")}
+                </button>
+              </div>
+            )}
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-surface-700 mb-2">{t("mindmaps.nodeLinks")}</label>
             {links.length > 0 && (
@@ -1460,8 +1598,9 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
-                  className="w-full px-2 py-2 rounded-lg bg-amber-100 text-amber-700 text-xs hover:bg-amber-200 disabled:opacity-50"
+                  className="w-full px-2 py-2 rounded-lg bg-amber-100 text-amber-700 text-xs hover:bg-amber-200 disabled:opacity-50 flex items-center justify-center gap-2"
                 >
+                  <Upload size={14} />
                   {uploading ? "Uploading..." : t("mindmaps.uploadFile")}
                 </button>
               </div>
@@ -1477,7 +1616,7 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
             <div className="flex-1" />
             <button onClick={onClose} className="btn-secondary">{t("mindmaps.cancel")}</button>
             <button
-              onClick={() => onSave({ label, notes: notes || null, color, icon: icon || null, links })}
+              onClick={() => onSave({ label, notes: notes || null, color, icon: icon || null, image_url: imageUrl || null, links })}
               className="btn-primary gap-1.5"
             >
               <Save size={14} /> {t("mindmaps.save")}

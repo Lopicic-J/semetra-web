@@ -1360,6 +1360,8 @@
   "mindmaps.shortcutMultiSelect": "Meerdere nodes selecteren",
   "mindmaps.shortcutEscape": "Selectie opheffen / Sluiten",
   "mindmaps.uploadFile": "Document uploaden",
+  "mindmaps.nodeImage": "Afbeelding",
+  "mindmaps.uploadImage": "Afbeelding uploaden",
   "brainstorming.techniques": "Technieken",
   "brainstorming.yourSessions": "Jouw sessies",
   "brainstorming.sessionTitle": "Titel",

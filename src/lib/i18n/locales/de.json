@@ -1362,6 +1362,8 @@
   "mindmaps.shortcutMultiSelect": "Mehrere Knoten auswählen",
   "mindmaps.shortcutEscape": "Auswahl aufheben / Schliessen",
   "mindmaps.uploadFile": "Dokument hochladen",
+  "mindmaps.nodeImage": "Bild",
+  "mindmaps.uploadImage": "Bild hochladen",
   "brainstorming.techniques": "Methoden",
   "brainstorming.yourSessions": "Deine Sessions",
   "brainstorming.sessionTitle": "Titel",
