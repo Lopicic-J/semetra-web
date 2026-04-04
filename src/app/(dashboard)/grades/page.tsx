@@ -25,7 +25,7 @@ function displaySemester(raw: string | null | undefined): string {
   return raw;
 }
 
-/** Best grade per module – determines if ECTS are earned.
+/** Best grade per module – for display / ranking.
  *  For "higher_better" systems (CH, FR, IT…) this is Math.max,
  *  for "lower_better" systems (DE, AT) this is Math.min. */
 function bestGradeForModule(moduleId: string, grades: Grade[], direction: "higher_better" | "lower_better" = "higher_better"): number | null {
@@ -34,6 +34,27 @@ function bestGradeForModule(moduleId: string, grades: Grade[], direction: "highe
   return direction === "higher_better"
     ? Math.max(...mg.map(g => g.grade!))
     : Math.min(...mg.map(g => g.grade!));
+}
+
+/** Weighted average of all grades in a module — this determines if ECTS are earned.
+ *  ECTS are only credited when the module average ≥ passing grade (e.g. 4.0 for CH). */
+function moduleWeightedAvg(moduleId: string, grades: Grade[]): number | null {
+  const mg = grades.filter(g => g.module_id === moduleId && g.grade != null);
+  if (mg.length === 0) return null;
+  const totalWeight = mg.reduce((s, g) => s + (g.weight ?? 1), 0);
+  if (totalWeight === 0) return null;
+  return mg.reduce((s, g) => s + g.grade! * (g.weight ?? 1), 0) / totalWeight;
+}
+
+/** Calculate what grade is needed on the next exam to reach a target average for a module */
+function neededGradeForTarget(moduleId: string, grades: Grade[], target: number, nextWeight: number = 1): number | null {
+  const mg = grades.filter(g => g.module_id === moduleId && g.grade != null);
+  if (mg.length === 0) return target; // no grades yet → need exactly target
+  const currentSum = mg.reduce((s, g) => s + g.grade! * (g.weight ?? 1), 0);
+  const currentWeight = mg.reduce((s, g) => s + (g.weight ?? 1), 0);
+  // target = (currentSum + needed * nextWeight) / (currentWeight + nextWeight)
+  const needed = (target * (currentWeight + nextWeight) - currentSum) / nextWeight;
+  return Math.round(needed * 100) / 100;
 }
 
 /** Safe grade average that handles null grades */
@@ -78,11 +99,12 @@ export default function GradesPage() {
 
   const avg = safeGradeAvg(filtered);
 
-  // ECTS calculations (dynamic per grading system)
+  // ECTS calculations — based on module AVERAGE (not best single grade)
+  // ECTS are credited when the weighted average of all exams ≥ passing grade
   const totalEcts = modules.reduce((s, m) => s + (m.ects ?? 0), 0);
   const earnedEcts = modules.reduce((s, m) => {
-    const best = bestGradeForModule(m.id, grades, gs.direction);
-    if (best !== null && gs.isPassing(best)) return s + (m.ects ?? 0);
+    const avg = moduleWeightedAvg(m.id, grades);
+    if (avg !== null && gs.isPassing(avg)) return s + (m.ects ?? 0);
     return s;
   }, 0);
   // Also count manually entered ECTS from grades
@@ -90,8 +112,8 @@ export default function GradesPage() {
   const totalEarnedEcts = earnedEcts + manualEcts;
 
   const failedModules = modules.filter(m => {
-    const best = bestGradeForModule(m.id, grades, gs.direction);
-    return best !== null && !gs.isPassing(best);
+    const avg = moduleWeightedAvg(m.id, grades);
+    return avg !== null && !gs.isPassing(avg);
   });
   const gradedModules = modules.filter(m => bestGradeForModule(m.id, grades) !== null);
   const ungradedModules = modules.filter(m => bestGradeForModule(m.id, grades) === null);
@@ -108,11 +130,12 @@ export default function GradesPage() {
     return ectsWeightedAvg(moduleGrades);
   })();
 
-  // Group by module with ECTS info
+  // Group by module with ECTS info — pass/fail based on module average
   const byModule = modules.map(m => {
     const mGrades = grades.filter(g => g.module_id === m.id);
     const best = bestGradeForModule(m.id, grades, gs.direction);
-    return { module: m, grades: mGrades, bestGrade: best, passed: best !== null && gs.isPassing(best) };
+    const avg = moduleWeightedAvg(m.id, grades);
+    return { module: m, grades: mGrades, bestGrade: best, moduleAvg: avg, passed: avg !== null && gs.isPassing(avg) };
   }).filter(x => x.grades.length > 0);
 
   // Exams with grades (for filter)
@@ -379,6 +402,7 @@ export default function GradesPage() {
           initial={editing}
           modules={modules}
           exams={exams}
+          allGrades={grades}
           gs={gs}
           onClose={() => setShowForm(false)}
           onSaved={() => { setShowForm(false); refetch(); fetchExams(); }}
@@ -449,10 +473,11 @@ function GradeRow({ grade, exams, gs, onEdit, onDelete }: {
   );
 }
 
-function GradeModal({ initial, modules, exams, gs, onClose, onSaved }: {
+function GradeModal({ initial, modules, exams, allGrades, gs, onClose, onSaved }: {
   initial: Grade | null;
   modules: Module[];
   exams: Exam[];
+  allGrades: Grade[];
   gs: GradingSystem;
   onClose: () => void;
   onSaved: () => void;
@@ -585,23 +610,72 @@ function GradeModal({ initial, modules, exams, gs, onClose, onSaved }: {
           </div>
 
           {/* Status Preview */}
-          {(gradeNum !== null || ectsNum !== null) && (
-            <div className={`p-3 rounded-xl text-sm ${
-              gradeNum !== null && gs.isPassing(gradeNum) ? "bg-green-50 text-green-700" :
-              gradeNum !== null && !gs.isPassing(gradeNum) ? "bg-red-50 text-red-700" :
-              "bg-blue-50 text-blue-700"
-            }`}>
-              {gradeNum !== null && gs.isPassing(gradeNum) && (
-                <>✓ {t("grades.modal.statusPassed", { label: getGradeLabelText(gradeNum, gs.country), ects: selectedModule?.ects ? ` — <strong>${selectedModule.ects} ${gs.creditLabel}</strong> werden gutgeschrieben` : "", exam: form.exam_id ? " · Prüfung wird als abgehakt markiert" : "" })}</>
-              )}
-              {gradeNum !== null && !gs.isPassing(gradeNum) && (
-                <>✗ {t("grades.modal.statusFailed", { label: getGradeLabelText(gradeNum, gs.country), exam: form.exam_id ? " · Prüfung wird als zu wiederholen markiert" : "" })}</>
-              )}
-              {gradeNum === null && ectsNum !== null && (
-                <>📊 {t("grades.modal.statusEcs", { count: ectsNum, creditLabel: gs.creditLabel })}</>
-              )}
-            </div>
-          )}
+          {(gradeNum !== null || ectsNum !== null) && (() => {
+            // Calculate what the module average would be WITH this new grade
+            const moduleId = form.module_id;
+            const otherGrades = moduleId
+              ? allGrades.filter(g => g.module_id === moduleId && g.grade != null && g.id !== initial?.id)
+              : [];
+            const allWeights = otherGrades.reduce((s, g) => s + (g.weight ?? 1), 0) + (gradeNum !== null ? parseFloat(form.weight || "1") : 0);
+            const allSum = otherGrades.reduce((s, g) => s + g.grade! * (g.weight ?? 1), 0) + (gradeNum !== null ? gradeNum * parseFloat(form.weight || "1") : 0);
+            const projectedAvg = allWeights > 0 ? allSum / allWeights : null;
+            const modulePassing = projectedAvg !== null && gs.isPassing(projectedAvg);
+            const hasMultipleGrades = otherGrades.length > 0;
+
+            return (
+              <div className={`p-3 rounded-xl text-sm space-y-1 ${
+                gradeNum !== null && gs.isPassing(gradeNum) ? "bg-green-50 text-green-700" :
+                gradeNum !== null && !gs.isPassing(gradeNum) ? "bg-red-50 text-red-700" :
+                "bg-blue-50 text-blue-700"
+              }`}>
+                {gradeNum !== null && gs.isPassing(gradeNum) && (
+                  <p>✓ <strong>{t("grades.modal.passed")}</strong> — {getGradeLabelText(gradeNum, gs.country)}
+                    {form.exam_id ? ` · ${t("grades.modal.examMarked")}` : ""}
+                  </p>
+                )}
+                {gradeNum !== null && !gs.isPassing(gradeNum) && (
+                  <p>✗ <strong>{t("grades.modal.failed")}</strong> — {getGradeLabelText(gradeNum, gs.country)}
+                    {form.exam_id ? ` · ${t("grades.modal.examRetake")}` : ""}
+                  </p>
+                )}
+                {gradeNum === null && ectsNum !== null && (
+                  <p>📊 {ectsNum} {gs.creditLabel} {t("grades.modal.manualEcts")}</p>
+                )}
+                {/* Module average info */}
+                {moduleId && projectedAvg !== null && hasMultipleGrades && (
+                  <p className="text-xs opacity-80">
+                    {t("grades.modal.moduleAvg")}: <strong>{projectedAvg.toFixed(2)}</strong>
+                    {modulePassing
+                      ? ` — ${selectedModule?.ects ?? 0} ${gs.creditLabel} ${t("grades.modal.ectsEarned")}`
+                      : ` — ${t("grades.modal.ectsNotYet")}`
+                    }
+                  </p>
+                )}
+                {moduleId && projectedAvg !== null && !hasMultipleGrades && gs.isPassing(gradeNum ?? 0) && selectedModule?.ects && (
+                  <p className="text-xs opacity-80">
+                    {selectedModule.ects} {gs.creditLabel} {t("grades.modal.ectsIfAvgHolds")}
+                  </p>
+                )}
+                {/* Needed grade hint when module avg is below passing */}
+                {moduleId && projectedAvg !== null && !modulePassing && (() => {
+                  const currentGrades = [...otherGrades];
+                  if (gradeNum !== null) currentGrades.push({ grade: gradeNum, weight: parseFloat(form.weight || "1"), module_id: moduleId } as any);
+                  const cSum = currentGrades.reduce((s: number, g: any) => s + (g.grade ?? 0) * (g.weight ?? 1), 0);
+                  const cWeight = currentGrades.reduce((s: number, g: any) => s + (g.weight ?? 1), 0);
+                  const needed = (gs.passingGrade * (cWeight + 1) - cSum) / 1;
+                  const rounded = Math.round(needed * 100) / 100;
+                  if (rounded > gs.max) return (
+                    <p className="text-xs font-medium">⚠️ {t("grades.modal.targetUnreachable", { target: gs.passingGrade.toFixed(1) })}</p>
+                  );
+                  return (
+                    <p className="text-xs font-medium">
+                      📌 {t("grades.modal.needsGrade", { grade: rounded.toFixed(1), target: gs.passingGrade.toFixed(1) })}
+                    </p>
+                  );
+                })()}
+              </div>
+            );
+          })()}
 
           <div>
             <label className="block text-sm font-medium text-surface-700 mb-1">{t("grades.modal.typeLabel")}</label>

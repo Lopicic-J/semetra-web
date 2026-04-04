@@ -1,6 +1,7 @@
 "use client";
 import { useMemo } from "react";
-import { TrendingUp, TrendingDown, Minus, Target, BarChart2, AlertTriangle, Award } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Target, BarChart2, AlertTriangle, Award, BookOpen } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 import type { Grade, Module } from "@/types/database";
 import type { GradingSystem } from "@/lib/grading-systems";
 
@@ -17,6 +18,7 @@ interface GradeAnalyticsProps {
  * Berechnet: Trend, Prognose, Stärken/Schwächen, Zielnotenberechnung.
  */
 export function GradeAnalytics({ grades, modules, gs }: GradeAnalyticsProps) {
+  const { t } = useTranslation();
   const gradesWithDate = useMemo(() =>
     grades
       .filter(g => g.grade != null && g.created_at)
@@ -102,6 +104,45 @@ export function GradeAnalytics({ grades, modules, gs }: GradeAnalyticsProps) {
         ? needed <= gs.max && needed >= gs.min
         : needed >= gs.min && needed <= gs.max,
     };
+  }, [grades, modules, gs]);
+
+  // ─── Per-Module Prognose: Welche Note brauche ich als nächstes? ───
+  const modulePrognosis = useMemo(() => {
+    const targets = gs.direction === "higher_better"
+      ? [gs.passingGrade, 4.5, 5.0]  // CH: 4.0, 4.5, 5.0
+      : [gs.passingGrade, 3.0, 2.0]; // DE: 4.0, 3.0, 2.0
+
+    return modules
+      .map(m => {
+        const mg = grades.filter(g => g.module_id === m.id && g.grade != null);
+        if (mg.length === 0) return null;
+
+        const totalWeight = mg.reduce((s, g) => s + (g.weight ?? 1), 0);
+        const weightedSum = mg.reduce((s, g) => s + g.grade! * (g.weight ?? 1), 0);
+        const currentAvg = totalWeight > 0 ? weightedSum / totalWeight : 0;
+
+        const prognosis = targets.map(target => {
+          // needed = (target * (totalWeight + 1) - weightedSum) / 1
+          const needed = target * (totalWeight + 1) - weightedSum;
+          const rounded = Math.round(needed * 100) / 100;
+          const achievable = gs.direction === "higher_better"
+            ? rounded <= gs.max
+            : rounded >= gs.min;
+          const alreadyMet = gs.direction === "higher_better"
+            ? currentAvg >= target
+            : currentAvg <= target;
+          return { target, needed: rounded, achievable, alreadyMet };
+        });
+
+        return {
+          module: m,
+          currentAvg,
+          gradeCount: mg.length,
+          prognosis,
+        };
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null)
+      .filter(x => x.prognosis.some(p => !p.alreadyMet)); // only show modules that still need work
   }, [grades, modules, gs]);
 
   // ─── Notenverteilung ───
@@ -261,12 +302,12 @@ export function GradeAnalytics({ grades, modules, gs }: GradeAnalyticsProps) {
         <div className="bg-[rgb(var(--card-bg))] border border-surface-200 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-3">
             <Target size={18} className="text-brand-600" />
-            <h3 className="text-sm font-semibold text-surface-900">Zielnotenberechnung</h3>
+            <h3 className="text-sm font-semibold text-surface-900">{t("grades.analytics.targetCalc")}</h3>
           </div>
           <p className="text-xs text-surface-600">
-            Aktueller Schnitt: <span className="font-bold">{targetCalc.currentAvg.toFixed(2)}</span> ·
-            Ziel: <span className="font-bold">{targetCalc.targetAvg.toFixed(1)}</span> ·
-            Noch {targetCalc.remaining} Noten offen
+            {t("grades.analytics.currentAvg")}: <span className="font-bold">{targetCalc.currentAvg.toFixed(2)}</span> ·
+            {t("grades.analytics.target")}: <span className="font-bold">{targetCalc.targetAvg.toFixed(1)}</span> ·
+            {t("grades.analytics.remaining", { count: targetCalc.remaining })}
           </p>
           <div className={`mt-2 p-3 rounded-lg text-sm ${
             targetCalc.achievable
@@ -274,10 +315,53 @@ export function GradeAnalytics({ grades, modules, gs }: GradeAnalyticsProps) {
               : "bg-amber-50 text-amber-800"
           }`}>
             {targetCalc.achievable ? (
-              <>Du brauchst im Schnitt <span className="font-bold">{targetCalc.needed.toFixed(1)}</span> in den restlichen Prüfungen, um einen Schnitt von {targetCalc.targetAvg.toFixed(1)} zu erreichen.</>
+              <>{t("grades.analytics.needAvg", { grade: targetCalc.needed.toFixed(1), target: targetCalc.targetAvg.toFixed(1) })}</>
             ) : (
-              <>Ein Schnitt von {targetCalc.targetAvg.toFixed(1)} ist mit den verbleibenden Prüfungen rechnerisch nicht mehr erreichbar. Konzentriere dich auf einzelne Module!</>
+              <>{t("grades.analytics.unreachable", { target: targetCalc.targetAvg.toFixed(1) })}</>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Per-Module Prognose: Welche Note brauche ich als nächstes? */}
+      {modulePrognosis.length > 0 && (
+        <div className="bg-[rgb(var(--card-bg))] border border-surface-200 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <BookOpen size={18} className="text-brand-600" />
+            <h3 className="text-sm font-semibold text-surface-900">{t("grades.analytics.modulePrognosis")}</h3>
+          </div>
+          <p className="text-xs text-surface-500 mb-3">{t("grades.analytics.modulePrognosisDesc")}</p>
+          <div className="space-y-2.5">
+            {modulePrognosis.map(mp => (
+              <div key={mp.module.id} className="border border-surface-100 rounded-lg p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: mp.module.color ?? "#6366f1" }} />
+                  <span className="text-xs font-semibold text-surface-800 flex-1">{mp.module.name}</span>
+                  <span className="text-xs text-surface-500">
+                    ⌀ {mp.currentAvg.toFixed(2)} ({mp.gradeCount} {mp.gradeCount === 1 ? t("grades.analytics.gradesSg") : t("grades.analytics.gradesPl")})
+                  </span>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  {mp.prognosis.map(p => {
+                    if (p.alreadyMet) return (
+                      <span key={p.target} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-50 text-green-700 text-[10px] font-medium">
+                        ✓ ⌀ {p.target.toFixed(1)}
+                      </span>
+                    );
+                    if (!p.achievable) return (
+                      <span key={p.target} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-50 text-red-600 text-[10px] font-medium">
+                        ✗ ⌀ {p.target.toFixed(1)}
+                      </span>
+                    );
+                    return (
+                      <span key={p.target} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-50 text-amber-700 text-[10px] font-medium">
+                        → {t("grades.analytics.need")} <strong>{p.needed.toFixed(1)}</strong> {t("grades.analytics.forAvg")} {p.target.toFixed(1)}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
