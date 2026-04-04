@@ -206,7 +206,7 @@ function StudyMode({
       } else if (e.key === "f" || e.key === "F") {
         if (!flipped) return;
         setFocusMode(f => !f);
-      } else if (flipped && !card?.choices) {
+      } else if (flipped) {
         const num = parseInt(e.key);
         if (num >= 1 && num <= 4) {
           e.preventDefault();
@@ -227,6 +227,14 @@ function StudyMode({
     }
     setMcSelected(null);
   }, [idx, card?.card_type]);
+
+  // MC correctness check: support multiple correct answers
+  // IMPORTANT: All hooks must be called before any early return!
+  const mcCorrectSet = useMemo(() => {
+    if (!card?.choices) return new Set<string>();
+    if (card.correct_answers && card.correct_answers.length > 0) return new Set(card.correct_answers);
+    return new Set([card.back]); // fallback: single correct
+  }, [card?.choices, card?.correct_answers, card?.back]);
 
   if (!card) {
     return (
@@ -266,14 +274,8 @@ function StudyMode({
 
   const cloze = card.card_type === "cloze" ? parseCloze(card.front) : null;
   const isCorrectCloze = cloze && clozeInput.trim().toLowerCase() === cloze.answer.toLowerCase();
-  // MC correctness check: support multiple correct answers
-  const mcCorrectSet = useMemo(() => {
-    if (!card?.choices) return new Set<string>();
-    if (card.correct_answers && card.correct_answers.length > 0) return new Set(card.correct_answers);
-    return new Set([card.back]); // fallback: single correct
-  }, [card?.choices, card?.correct_answers, card?.back]);
   const isMultiCorrectMc = mcCorrectSet.size > 1;
-  const isCorrectMc = card?.choices && mcSelected !== null && mcCorrectSet.has(card.choices[mcSelected]);
+  const isCorrectMc = card.choices && mcSelected !== null && mcCorrectSet.has(card.choices[mcSelected]);
 
   const progress = idx / cards.length;
 
