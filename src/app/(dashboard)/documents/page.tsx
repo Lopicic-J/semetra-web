@@ -10,7 +10,8 @@ import {
   Link2, File, Image, Video, Pin, PinOff, BookOpen, FolderOpen,
   LayoutGrid, ListIcon, Workflow, GraduationCap, CheckSquare,
   CircleDot, Tag, Download, Globe, FileSpreadsheet, FileCode,
-  Presentation, Archive, Upload, Loader2
+  Presentation, Archive, Upload, Loader2, Scissors, Combine,
+  GripVertical, ChevronUp, ChevronDown, ArrowDownToLine
 } from "lucide-react";
 import type {
   Document as Doc, CalendarEvent, Task, Module,
@@ -68,7 +69,7 @@ export default function DocumentsPage() {
   const [searchQ, setSearchQ] = useState("");
   const [filterModule, setFilterModule] = useState("");
   const [filterKind, setFilterKind] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "list" | "flow">("flow");
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "flow" | "pdftools">("flow");
   const [flowItems, setFlowItems] = useState<DocFlowItem[]>([]);
 
   const fetchDocs = useCallback(async () => {
@@ -365,14 +366,14 @@ export default function DocumentsPage() {
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
         <div className="flex rounded-lg overflow-hidden border border-surface-200">
-          {(["flow", "grid", "list"] as const).map(v => (
+          {(["flow", "grid", "list", "pdftools"] as const).map(v => (
             <button
               key={v}
               onClick={() => setViewMode(v)}
               className={`p-1 sm:p-2 transition ${viewMode === v ? "bg-brand-600 text-white" : "bg-white text-surface-500 hover:text-surface-900"}`}
-              title={v === "flow" ? t("documents.viewFlow") : v === "grid" ? t("documents.viewCards") : t("documents.viewList")}
+              title={v === "flow" ? t("documents.viewFlow") : v === "grid" ? t("documents.viewCards") : v === "list" ? t("documents.viewList") : t("documents.pdfTools")}
             >
-              {v === "grid" ? <LayoutGrid size={14} /> : v === "list" ? <ListIcon size={14} /> : <Workflow size={14} />}
+              {v === "grid" ? <LayoutGrid size={14} /> : v === "list" ? <ListIcon size={14} /> : v === "pdftools" ? <Scissors size={14} /> : <Workflow size={14} />}
             </button>
           ))}
         </div>
@@ -389,6 +390,8 @@ export default function DocumentsPage() {
       {/* Content */}
       {loading ? (
         <p className="text-surface-500 text-sm">{t("documents.typeDocument")}</p>
+      ) : viewMode === "pdftools" ? (
+        <PdfToolsView />
       ) : viewMode === "flow" ? (
         <DocFlowView items={filteredFlow} onOpenDoc={(d) => { setEditDoc(d); setShowCreate(true); }} />
       ) : viewMode === "grid" ? (
@@ -637,6 +640,393 @@ function DocFlowView({ items, onOpenDoc }: { items: DocFlowItem[]; onOpenDoc: (d
           </div>
         );
       })}
+    </div>
+  );
+}
+
+/* ── PDF Tools View ────────────────────────────────────────────────── */
+function PdfToolsView() {
+  const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState<"merge" | "split">("merge");
+
+  return (
+    <div className="space-y-4">
+      {/* Tab selector */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setActiveTab("merge")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition ${
+            activeTab === "merge"
+              ? "bg-brand-600 text-white shadow-sm"
+              : "bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600"
+          }`}
+        >
+          <Combine size={16} /> {t("documents.pdfMerge")}
+        </button>
+        <button
+          onClick={() => setActiveTab("split")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition ${
+            activeTab === "split"
+              ? "bg-brand-600 text-white shadow-sm"
+              : "bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600"
+          }`}
+        >
+          <Scissors size={16} /> {t("documents.pdfSplit")}
+        </button>
+      </div>
+
+      {activeTab === "merge" ? <PdfMergePanel /> : <PdfSplitPanel />}
+    </div>
+  );
+}
+
+/* ── PDF Merge Panel ─────────────────────────────────────────────────── */
+function PdfMergePanel() {
+  const { t } = useTranslation();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [files, setFiles] = useState<{ file: File; name: string; pages: number }[]>([]);
+  const [processing, setProcessing] = useState(false);
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+
+  async function addFiles(fileList: FileList) {
+    const newFiles: typeof files = [];
+    for (const file of Array.from(fileList)) {
+      if (file.type !== "application/pdf") continue;
+      try {
+        const buf = await file.arrayBuffer();
+        const { PDFDocument } = await import("pdf-lib");
+        const pdf = await PDFDocument.load(buf, { ignoreEncryption: true });
+        newFiles.push({ file, name: file.name, pages: pdf.getPageCount() });
+      } catch {
+        newFiles.push({ file, name: file.name, pages: 0 });
+      }
+    }
+    setFiles(prev => [...prev, ...newFiles]);
+  }
+
+  function removeFile(idx: number) {
+    setFiles(prev => prev.filter((_, i) => i !== idx));
+  }
+
+  function moveFile(from: number, to: number) {
+    if (from === to) return;
+    setFiles(prev => {
+      const arr = [...prev];
+      const [item] = arr.splice(from, 1);
+      arr.splice(to, 0, item);
+      return arr;
+    });
+  }
+
+  function handleDragStart(idx: number) {
+    setDragIdx(idx);
+  }
+
+  function handleDragOver(e: React.DragEvent, idx: number) {
+    e.preventDefault();
+    setDragOverIdx(idx);
+  }
+
+  function handleDrop(idx: number) {
+    if (dragIdx !== null && dragIdx !== idx) moveFile(dragIdx, idx);
+    setDragIdx(null);
+    setDragOverIdx(null);
+  }
+
+  async function mergePdfs() {
+    if (files.length < 2) return;
+    setProcessing(true);
+    try {
+      const { PDFDocument } = await import("pdf-lib");
+      const merged = await PDFDocument.create();
+      for (const { file } of files) {
+        const buf = await file.arrayBuffer();
+        const src = await PDFDocument.load(buf, { ignoreEncryption: true });
+        const pages = await merged.copyPages(src, src.getPageIndices());
+        pages.forEach((p: any) => merged.addPage(p));
+      }
+      const bytes = await merged.save();
+      const blob = new Blob([bytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "zusammengefuegt.pdf";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("PDF merge error:", err);
+      alert(t("documents.pdfError"));
+    } finally {
+      setProcessing(false);
+    }
+  }
+
+  return (
+    <div className="bg-white border border-surface-200 rounded-2xl p-4 sm:p-6">
+      <div className="mb-4">
+        <h3 className="text-base font-semibold text-surface-900 mb-1">{t("documents.pdfMerge")}</h3>
+        <p className="text-xs text-surface-500">{t("documents.pdfMergeDesc")}</p>
+      </div>
+
+      {/* Drop zone / file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf"
+        multiple
+        className="hidden"
+        onChange={e => { if (e.target.files) addFiles(e.target.files); e.target.value = ""; }}
+      />
+      <button
+        onClick={() => fileInputRef.current?.click()}
+        className="w-full mb-4 px-4 py-6 rounded-xl border-2 border-dashed border-surface-300 text-surface-500 text-sm hover:border-brand-400 hover:text-brand-600 transition flex flex-col items-center gap-2"
+      >
+        <Upload size={20} />
+        {t("documents.pdfAddFiles")}
+      </button>
+
+      {/* File list with drag reorder */}
+      {files.length > 0 && (
+        <div className="space-y-1.5 mb-4">
+          {files.map((f, i) => (
+            <div
+              key={`${f.name}-${i}`}
+              draggable
+              onDragStart={() => handleDragStart(i)}
+              onDragOver={e => handleDragOver(e, i)}
+              onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
+              onDrop={() => handleDrop(i)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition cursor-grab active:cursor-grabbing ${
+                dragOverIdx === i ? "border-brand-400 bg-brand-50" : dragIdx === i ? "opacity-50 border-surface-300" : "border-surface-200 bg-white hover:border-surface-300"
+              }`}
+            >
+              <GripVertical size={14} className="text-surface-400 shrink-0" />
+              <span className="text-xs font-bold text-surface-400 w-5">{i + 1}</span>
+              <FileText size={16} className="text-red-400 shrink-0" />
+              <span className="text-sm text-surface-800 flex-1 truncate">{f.name}</span>
+              <span className="text-xs text-surface-400 shrink-0">
+                {f.pages > 0 ? `${f.pages} ${t("documents.pdfPages")}` : "—"}
+              </span>
+              <div className="flex gap-0.5 shrink-0">
+                <button onClick={() => moveFile(i, Math.max(0, i - 1))} disabled={i === 0}
+                  className="p-1 rounded hover:bg-surface-100 text-surface-400 disabled:opacity-30">
+                  <ChevronUp size={14} />
+                </button>
+                <button onClick={() => moveFile(i, Math.min(files.length - 1, i + 1))} disabled={i === files.length - 1}
+                  className="p-1 rounded hover:bg-surface-100 text-surface-400 disabled:opacity-30">
+                  <ChevronDown size={14} />
+                </button>
+              </div>
+              <button onClick={() => removeFile(i)} className="p-1 rounded hover:bg-red-50 text-surface-400 hover:text-red-500 shrink-0">
+                <Trash2 size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Summary + merge button */}
+      {files.length > 0 && (
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-surface-500">
+            {files.length} PDFs · {files.reduce((s, f) => s + f.pages, 0)} {t("documents.pdfPages")}
+          </span>
+          <button
+            onClick={mergePdfs}
+            disabled={files.length < 2 || processing}
+            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
+          >
+            {processing ? <Loader2 size={14} className="animate-spin" /> : <ArrowDownToLine size={14} />}
+            {processing ? t("documents.pdfProcessing") : t("documents.pdfMergeAction")}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── PDF Split Panel ─────────────────────────────────────────────────── */
+function PdfSplitPanel() {
+  const { t } = useTranslation();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [pageCount, setPageCount] = useState(0);
+  const [splitMode, setSplitMode] = useState<"all" | "ranges">("all");
+  const [ranges, setRanges] = useState("");
+  const [processing, setProcessing] = useState(false);
+
+  async function loadFile(f: File) {
+    if (f.type !== "application/pdf") return;
+    try {
+      const buf = await f.arrayBuffer();
+      const { PDFDocument } = await import("pdf-lib");
+      const pdf = await PDFDocument.load(buf, { ignoreEncryption: true });
+      setFile(f);
+      setPageCount(pdf.getPageCount());
+    } catch {
+      setFile(f);
+      setPageCount(0);
+    }
+  }
+
+  function parseRanges(input: string, max: number): number[][] {
+    const groups: number[][] = [];
+    for (const part of input.split(",").map(s => s.trim()).filter(Boolean)) {
+      const m = part.match(/^(\d+)\s*-\s*(\d+)$/);
+      if (m) {
+        const start = Math.max(1, parseInt(m[1]));
+        const end = Math.min(max, parseInt(m[2]));
+        if (start <= end) {
+          const pages: number[] = [];
+          for (let i = start; i <= end; i++) pages.push(i - 1);
+          groups.push(pages);
+        }
+      } else {
+        const n = parseInt(part);
+        if (!isNaN(n) && n >= 1 && n <= max) groups.push([n - 1]);
+      }
+    }
+    return groups;
+  }
+
+  async function splitPdf() {
+    if (!file || pageCount === 0) return;
+    setProcessing(true);
+    try {
+      const { PDFDocument } = await import("pdf-lib");
+      const buf = await file.arrayBuffer();
+      const src = await PDFDocument.load(buf, { ignoreEncryption: true });
+      const baseName = file.name.replace(/\.pdf$/i, "");
+
+      if (splitMode === "all") {
+        // Each page as separate PDF
+        for (let i = 0; i < pageCount; i++) {
+          const newDoc = await PDFDocument.create();
+          const [page] = await newDoc.copyPages(src, [i]);
+          newDoc.addPage(page);
+          const bytes = await newDoc.save();
+          const blob = new Blob([bytes], { type: "application/pdf" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `${baseName}_${t("documents.pdfPage")}_${i + 1}.pdf`;
+          a.click();
+          URL.revokeObjectURL(url);
+          // Small delay to prevent browser blocking multiple downloads
+          await new Promise(r => setTimeout(r, 100));
+        }
+      } else {
+        // Split by ranges
+        const groups = parseRanges(ranges, pageCount);
+        for (let g = 0; g < groups.length; g++) {
+          const newDoc = await PDFDocument.create();
+          const pages = await newDoc.copyPages(src, groups[g]);
+          pages.forEach(p => newDoc.addPage(p));
+          const bytes = await newDoc.save();
+          const blob = new Blob([bytes], { type: "application/pdf" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `${baseName}_${t("documents.pdfPart")}_${g + 1}.pdf`;
+          a.click();
+          URL.revokeObjectURL(url);
+          await new Promise(r => setTimeout(r, 100));
+        }
+      }
+    } catch (err) {
+      console.error("PDF split error:", err);
+      alert(t("documents.pdfError"));
+    } finally {
+      setProcessing(false);
+    }
+  }
+
+  return (
+    <div className="bg-white border border-surface-200 rounded-2xl p-4 sm:p-6">
+      <div className="mb-4">
+        <h3 className="text-base font-semibold text-surface-900 mb-1">{t("documents.pdfSplit")}</h3>
+        <p className="text-xs text-surface-500">{t("documents.pdfSplitDesc")}</p>
+      </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf"
+        className="hidden"
+        onChange={e => { if (e.target.files?.[0]) loadFile(e.target.files[0]); e.target.value = ""; }}
+      />
+
+      {!file ? (
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full px-4 py-6 rounded-xl border-2 border-dashed border-surface-300 text-surface-500 text-sm hover:border-brand-400 hover:text-brand-600 transition flex flex-col items-center gap-2"
+        >
+          <Upload size={20} />
+          {t("documents.pdfSelectFile")}
+        </button>
+      ) : (
+        <div className="space-y-4">
+          {/* File info */}
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-surface-200 bg-surface-50">
+            <FileText size={18} className="text-red-400 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-surface-800 truncate">{file.name}</p>
+              <p className="text-xs text-surface-400">{pageCount} {t("documents.pdfPages")}</p>
+            </div>
+            <button onClick={() => { setFile(null); setPageCount(0); setRanges(""); }}
+              className="p-1.5 rounded-lg hover:bg-surface-200 text-surface-400 hover:text-red-500 transition">
+              <X size={14} />
+            </button>
+          </div>
+
+          {/* Split mode */}
+          <div className="space-y-2">
+            <label className="block text-xs font-medium text-surface-700">{t("documents.pdfSplitMode")}</label>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setSplitMode("all")}
+                className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition border ${
+                  splitMode === "all" ? "border-brand-500 bg-brand-50 text-brand-700" : "border-surface-200 text-surface-600 hover:border-surface-300"
+                }`}
+              >
+                {t("documents.pdfSplitAll")}
+              </button>
+              <button
+                onClick={() => setSplitMode("ranges")}
+                className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition border ${
+                  splitMode === "ranges" ? "border-brand-500 bg-brand-50 text-brand-700" : "border-surface-200 text-surface-600 hover:border-surface-300"
+                }`}
+              >
+                {t("documents.pdfSplitRanges")}
+              </button>
+            </div>
+          </div>
+
+          {/* Range input */}
+          {splitMode === "ranges" && (
+            <div>
+              <input
+                value={ranges}
+                onChange={e => setRanges(e.target.value)}
+                placeholder={t("documents.pdfRangesPlaceholder")}
+                className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-2 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none transition"
+              />
+              <p className="text-[10px] text-surface-400 mt-1">{t("documents.pdfRangesHint")}</p>
+            </div>
+          )}
+
+          {/* Split button */}
+          <button
+            onClick={splitPdf}
+            disabled={processing || (splitMode === "ranges" && !ranges.trim())}
+            className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50"
+          >
+            {processing ? <Loader2 size={14} className="animate-spin" /> : <ArrowDownToLine size={14} />}
+            {processing ? t("documents.pdfProcessing") : t("documents.pdfSplitAction")}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
