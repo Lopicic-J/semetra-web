@@ -1107,6 +1107,7 @@ export default function FlashcardsPage() {
   const [filterDeck, setFilterDeck] = useState("");
   const [filterType, setFilterType] = useState<"all" | "basic" | "cloze" | "mc">("all");
   const [filterLevel, setFilterLevel] = useState<"all" | "1" | "2" | "3" | "4">("all");
+  const [studyExamId, setStudyExamId] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -1126,6 +1127,14 @@ export default function FlashcardsPage() {
   // Filtered cards
   const filtered = useMemo(() => {
     let result = cards;
+    if (studyExamId) {
+      // Filter by exam: cards directly linked OR linked via module matching exam title
+      const exam = exams.find(e => e.id === studyExamId);
+      result = result.filter(c =>
+        c.exam_id === studyExamId ||
+        (exam && c.module_id && modules.some(m => m.id === c.module_id && exam.title?.toLowerCase().includes(m.name.toLowerCase().slice(0, 5))))
+      );
+    }
     if (filterModule) result = result.filter(c => c.module_id === filterModule);
     if (filterDeck) result = result.filter(c => c.deck_name === filterDeck);
     if (filterType !== "all") result = result.filter(c => (c.card_type ?? "basic") === filterType);
@@ -1139,13 +1148,13 @@ export default function FlashcardsPage() {
       }
     }
     return result;
-  }, [cards, filterModule, filterDeck, filterType, filterLevel]);
+  }, [cards, filterModule, filterDeck, filterType, filterLevel, studyExamId, exams, modules]);
 
   // Decks
   const decks = useMemo(() => Array.from(new Set(cards.map(c => c.deck_name))).sort(), [cards]);
 
   // Due cards — when a filter is active, ALL filtered cards are studyable
-  const hasActiveFilter = !!(filterModule || filterDeck || filterType !== "all" || filterLevel !== "all");
+  const hasActiveFilter = !!(filterModule || filterDeck || filterType !== "all" || filterLevel !== "all" || studyExamId);
   const dueCards = useMemo(() => {
     // If user has explicitly filtered (module, deck, type, level), include ALL matching cards
     if (hasActiveFilter) return filtered;
@@ -1190,13 +1199,32 @@ export default function FlashcardsPage() {
   }, [exams, cards, modules]);
 
   async function handleSave(data: Partial<Flashcard>) {
-    if (editCard) {
-      await supabase.from("flashcards").update(data).eq("id", editCard.id);
-    } else {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      await supabase.from("flashcards").insert({ ...data, user_id: user.id, source: "user" });
+    // Try saving with all fields first; if it fails (e.g. new columns not yet migrated),
+    // retry without the new columns
+    const tryFields = [data, (() => {
+      const { task_id, correct_answers, ...rest } = data as Record<string, unknown>;
+      return rest as Partial<Flashcard>;
+    })()];
+
+    for (const payload of tryFields) {
+      let res;
+      if (editCard) {
+        res = await supabase.from("flashcards").update(payload).eq("id", editCard.id);
+      } else {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        res = await supabase.from("flashcards").insert({ ...payload, user_id: user.id, source: "user" });
+      }
+      if (!res.error) {
+        setShowDialog(false);
+        setEditCard(undefined);
+        load();
+        return;
+      }
+      // If first attempt failed, try fallback without new columns
+      console.warn("Flashcard save attempt failed, retrying without new columns:", res.error.message);
     }
+    // Both attempts failed
     setShowDialog(false);
     setEditCard(undefined);
     load();
@@ -1277,6 +1305,7 @@ export default function FlashcardsPage() {
       studyStartTime.current = null;
       reviewCount.current = 0;
       currentModuleId.current = null;
+      setStudyExamId("");
       setStudyMode(false);
       load();
     };
@@ -1387,7 +1416,7 @@ export default function FlashcardsPage() {
               </div>
               <button
                 onClick={() => {
-                  setFilterModule(ep.exam.id);
+                  setStudyExamId(ep.exam.id);
                   setStudyMode(true);
                 }}
                 className="text-xs text-brand-600 font-medium hover:text-brand-500 flex items-center gap-1"
