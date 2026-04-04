@@ -548,7 +548,7 @@
   "flashcards.clozePlaceholder": "La capital de Suiza es [Berna].",
   "flashcards.select": "Seleccionar",
   "flashcards.cancel": "Cancelar",
-  "flashcards.selected": "{count} seleccionados",
+  "flashcards.selected": "seleccionados",
   "flashcards.deleteSelected": "Eliminar seleccionados",
   "flashcards.selectAll": "Seleccionar todo",
   "flashcards.deselectAll": "Deseleccionar todo",

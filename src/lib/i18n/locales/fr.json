@@ -548,7 +548,7 @@
   "flashcards.clozePlaceholder": "La capitale de la Suisse est [Berne].",
   "flashcards.select": "Sélectionner",
   "flashcards.cancel": "Annuler",
-  "flashcards.selected": "{count} sélectionnés",
+  "flashcards.selected": "sélectionnés",
   "flashcards.deleteSelected": "Supprimer les sélectionnés",
   "flashcards.selectAll": "Tout sélectionner",
   "flashcards.deselectAll": "Tout désélectionner",

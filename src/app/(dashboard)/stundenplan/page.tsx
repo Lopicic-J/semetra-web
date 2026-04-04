@@ -133,7 +133,7 @@ export default function StundenplanPage() {
 
     setDragIndicator({
       x: rect.left + rect.width / 2,
-      y: rect.top + (dropY / (14 * 56)) * (14 * 56),
+      y: e.clientY,
       text: `${timeStart} – ${timeEnd}`,
     });
   }
@@ -468,11 +468,14 @@ export default function StundenplanPage() {
         <div className="fixed z-50 pointer-events-none"
           style={{
             left: `${dragIndicator.x}px`,
-            top: `${dragIndicator.y - 36}px`,
+            top: `${dragIndicator.y - 56}px`,
             transform: "translateX(-50%)",
           }}>
-          <div className="bg-brand-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-full shadow-lg whitespace-nowrap">
-            {dragIndicator.text}
+          <div className="flex flex-col items-center">
+            <div className="bg-white/95 backdrop-blur-sm border border-brand-200 text-brand-700 text-[11px] font-semibold px-3.5 py-1.5 rounded-lg shadow-lg whitespace-nowrap">
+              {dragIndicator.text}
+            </div>
+            <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[5px] border-t-brand-200" />
           </div>
         </div>
       )}

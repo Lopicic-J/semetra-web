@@ -548,7 +548,7 @@
   "flashcards.clozePlaceholder": "De hoofdstad van Zwitserland is [Bern].",
   "flashcards.select": "Selecteren",
   "flashcards.cancel": "Annuleren",
-  "flashcards.selected": "{count} geselecteerd",
+  "flashcards.selected": "geselecteerd",
   "flashcards.deleteSelected": "Geselecteerde verwijderen",
   "flashcards.selectAll": "Alles selecteren",
   "flashcards.deselectAll": "Alles deselecteren",
