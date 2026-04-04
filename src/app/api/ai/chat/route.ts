@@ -106,8 +106,9 @@ Modus: Freier Chat / Lernhilfe
  * Uses Claude API with SSE streaming.
  */
 export async function POST(req: NextRequest) {
-  if (!ANTHROPIC_API_KEY) {
-    return new Response(JSON.stringify({ error: "AI nicht konfiguriert" }), {
+  if (!ANTHROPIC_API_KEY || !SUPABASE_SERVICE_KEY) {
+    console.error("Missing env vars:", { hasAnthropicKey: !!ANTHROPIC_API_KEY, hasServiceKey: !!SUPABASE_SERVICE_KEY });
+    return new Response(JSON.stringify({ error: "KI-Service nicht konfiguriert. Bitte ANTHROPIC_API_KEY und SUPABASE_SERVICE_ROLE_KEY in .env.local setzen." }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
@@ -154,7 +155,7 @@ export async function POST(req: NextRequest) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-sonnet-4-6",
         max_tokens: 2048,
         stream: true,
         system: buildSystemPrompt(mode, context),

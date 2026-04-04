@@ -15,8 +15,9 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
  * Returns: { cards: Array<{ front: string, back: string }> }
  */
 export async function POST(req: NextRequest) {
-  if (!ANTHROPIC_API_KEY) {
-    return NextResponse.json({ error: "AI nicht konfiguriert" }, { status: 500 });
+  if (!ANTHROPIC_API_KEY || !SUPABASE_SERVICE_KEY) {
+    console.error("Missing env vars:", { hasAnthropicKey: !!ANTHROPIC_API_KEY, hasServiceKey: !!SUPABASE_SERVICE_KEY });
+    return NextResponse.json({ error: "KI-Service nicht konfiguriert. Bitte ANTHROPIC_API_KEY und SUPABASE_SERVICE_ROLE_KEY in .env.local setzen." }, { status: 500 });
   }
 
   // Auth check
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-sonnet-4-6",
         max_tokens: 4096,
         system: `Du bist ein Lernassistent für Schweizer FH-Studierende. Erstelle Karteikarten aus dem gegebenen Text.
 
