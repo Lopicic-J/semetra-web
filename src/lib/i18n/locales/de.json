@@ -1372,6 +1372,7 @@
   "brainstorming.aiEmpty": "Starte mit einer Schnellaktion oder stelle eine Frage",
   "brainstorming.aiEmptyHint": "Die KI kennt deine aktuellen Ideen und die gewählte Methode",
   "brainstorming.aiInputPlaceholder": "Frage stellen oder Ideen besprechen…",
+  "brainstorming.aiApply": "Ideen übernehmen",
   "brainstorming.copied": "Kopiert!",
   "brainstorming.copyResult": "Ergebnis kopieren",
   "fc.rateFail": "Falsch",

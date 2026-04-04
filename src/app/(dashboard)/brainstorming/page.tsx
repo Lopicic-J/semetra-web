@@ -1035,6 +1035,50 @@ function BrainstormEditor({
     setAiLoading(false);
   }
 
+  /* ── Apply AI ideas into brainstorming list ──────────────────────── */
+  function applyAiIdeas(text: string) {
+    // Extract bullet points / numbered items from AI response
+    const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+    const extracted: { content: string; indent: number }[] = [];
+
+    for (const line of lines) {
+      // Match lines starting with -, *, •, or numbered (1., 2., etc.)
+      const bulletMatch = line.match(/^(?:[-*•]|\d+[.)]\s*)\s*(.+)/);
+      if (bulletMatch) {
+        // Detect indentation level based on leading whitespace in original text
+        const origLine = text.split("\n").find(l => l.trim() === line) || line;
+        const leadingSpaces = origLine.search(/\S/);
+        const indent = leadingSpaces >= 4 ? 1 : 0;
+        const content = bulletMatch[1].replace(/^\*\*(.+?)\*\*:?\s*/, "$1: ").trim();
+        if (content.length > 2) {
+          extracted.push({ content, indent });
+        }
+      }
+    }
+
+    if (extracted.length === 0) return;
+
+    pushUndo();
+    const newIdeas: LocalIdea[] = extracted.map((item, i) => ({
+      id: crypto.randomUUID(),
+      content: item.content,
+      indent_level: item.indent,
+      color: IDEA_COLORS[(ideas.length + i) % IDEA_COLORS.length],
+      category: "",
+      notes: "",
+      priority: "none",
+      votes: 0,
+      sort_order: ideas.length + i,
+      collapsed: false,
+      isNew: true,
+    }));
+
+    const updated = [...ideas, ...newIdeas];
+    updated.forEach((idea, i) => { idea.sort_order = i; });
+    setIdeas(updated);
+    saveIdeas(updated);
+  }
+
   /* ── Delete session ─────────────────────────────────────────────── */
   async function handleDeleteSession() {
     if (!confirm(t("brainstorming.deleteConfirm"))) return;
@@ -1218,12 +1262,20 @@ function BrainstormEditor({
                   )}
                   <div className="whitespace-pre-wrap text-xs sm:text-sm">{msg.content}</div>
                   {msg.role === "assistant" && (
-                    <button
-                      onClick={() => copyToClipboard(msg.content)}
-                      className="mt-1.5 text-[10px] text-surface-400 hover:text-surface-600 flex items-center gap-1 transition"
-                    >
-                      {copied ? <Check size={10} /> : <Copy size={10} />} {copied ? t("brainstorming.copied") : t("brainstorming.copyResult")}
-                    </button>
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <button
+                        onClick={() => applyAiIdeas(msg.content)}
+                        className="text-[10px] text-brand-500 hover:text-brand-700 flex items-center gap-1 transition font-medium"
+                      >
+                        <Plus size={10} /> {t("brainstorming.aiApply")}
+                      </button>
+                      <button
+                        onClick={() => copyToClipboard(msg.content)}
+                        className="text-[10px] text-surface-400 hover:text-surface-600 flex items-center gap-1 transition"
+                      >
+                        {copied ? <Check size={10} /> : <Copy size={10} />} {copied ? t("brainstorming.copied") : t("brainstorming.copyResult")}
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>

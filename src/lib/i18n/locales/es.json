@@ -1373,6 +1373,7 @@
   "brainstorming.aiEmpty": "Empieza con una accion rapida o haz una pregunta",
   "brainstorming.aiEmptyHint": "La IA conoce tus ideas actuales y el metodo elegido",
   "brainstorming.aiInputPlaceholder": "Haz una pregunta o discute ideas…",
+  "brainstorming.aiApply": "Aplicar ideas",
   "brainstorming.copied": "Copiado!",
   "brainstorming.copyResult": "Copiar resultado",
   "fc.rateFail": "Mal",
