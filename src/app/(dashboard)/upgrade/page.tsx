@@ -15,12 +15,20 @@ import Link from "next/link";
 import { useTranslation } from "@/lib/i18n";
 
 const STRIPE_PAYMENT_LINKS: Record<string, string> = {
-  // Pro Basic (old prices)
+  // Pro Basic
   "price_1TG9kaRNHcFqFbgIthnElTOy": "https://buy.stripe.com/14A3cxbsw2Oo7ui9arfYY01",
   "price_1TG9kdRNHcFqFbgIlTDxPRla": "https://buy.stripe.com/dRmdRb548agQdSGcmDfYY00",
   "price_1TG9kZRNHcFqFbgI6F0O2tqs": "https://buy.stripe.com/7sY5kFfIM9cM9Cq5YffYY02",
+  // Pro Full
+  "price_1TIZvpRNHcFqFbgIR9miASA6": "https://buy.stripe.com/bJe7sN68c1Kk7uicmDfYY05",
+  "price_1TIZxJRNHcFqFbgIqiptOa6o": "https://buy.stripe.com/7sYcN7548ex63e20DVfYY06",
+  "price_1TIZzGRNHcFqFbgIB1I4KOMC": "https://buy.stripe.com/5kQ6oJbswbkU9CqbizfYY07",
   // Lifetime Basic
   [LIFETIME_BASIC_PRICE.priceId]: LIFETIME_BASIC_PRICE.paymentLink,
+  // Lifetime Full
+  [LIFETIME_FULL_PRICE.priceId]: LIFETIME_FULL_PRICE.paymentLink,
+  // KI Add-on
+  [AI_ADDON_PRICE.priceId]: AI_ADDON_PRICE.paymentLink,
 };
 
 function UpgradeContent() {
@@ -409,7 +417,12 @@ function AddonButton() {
             return;
           }
         } catch {
-          // ignore
+          // API failed — fall through to direct link
+        }
+        const directLink = STRIPE_PAYMENT_LINKS[AI_ADDON_PRICE.priceId];
+        if (directLink) {
+          window.location.href = directLink;
+          return;
         }
         setLoading(false);
       }}
@@ -442,7 +455,12 @@ function LifetimeFullButton() {
             return;
           }
         } catch {
-          // ignore
+          // API failed — fall through to direct link
+        }
+        const directLink = STRIPE_PAYMENT_LINKS[LIFETIME_FULL_PRICE.priceId];
+        if (directLink) {
+          window.location.href = directLink;
+          return;
         }
         setLoading(false);
       }}

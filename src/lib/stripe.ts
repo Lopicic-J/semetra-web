@@ -50,10 +50,9 @@ export const PRO_BASIC_PRICES = {
 } as const;
 
 // ─── Pro Full Subscription Tiers ─── (9.90 CHF/mo — alle Features, 100 KI/Monat)
-// TODO: Create these products in Stripe Dashboard and update priceId values
 export const PRO_FULL_PRICES = {
   monthly: {
-    priceId: "price_TODO_FULL_MONTHLY",    // TODO: update after Stripe creation
+    priceId: "price_1TIZvpRNHcFqFbgIR9miASA6",
     price: 9.9,
     currency: "CHF",
     interval: "Monat",
@@ -65,7 +64,7 @@ export const PRO_FULL_PRICES = {
     aiLabel: "100 Requests / Monat",
   },
   halfYearly: {
-    priceId: "price_TODO_FULL_HALFYEARLY", // TODO: update after Stripe creation
+    priceId: "price_1TIZxJRNHcFqFbgIqiptOa6o",
     price: 49.9,
     currency: "CHF",
     interval: "6 Monate",
@@ -78,7 +77,7 @@ export const PRO_FULL_PRICES = {
     aiLabel: "600 Requests / 6 Monate",
   },
   yearly: {
-    priceId: "price_TODO_FULL_YEARLY",     // TODO: update after Stripe creation
+    priceId: "price_1TIZzGRNHcFqFbgIB1I4KOMC",
     price: 94.9,
     currency: "CHF",
     interval: "Jahr",
@@ -91,6 +90,13 @@ export const PRO_FULL_PRICES = {
     aiTotal: 1200,
     aiLabel: "1200 Requests / 12 Monate",
   },
+} as const;
+
+// ─── Pro Full Payment Links ───
+export const PRO_FULL_PAYMENT_LINKS = {
+  monthly: "https://buy.stripe.com/bJe7sN68c1Kk7uicmDfYY05",
+  halfYearly: "https://buy.stripe.com/7sYcN7548ex63e20DVfYY06",
+  yearly: "https://buy.stripe.com/5kQ6oJbswbkU9CqbizfYY07",
 } as const;
 
 // Legacy alias — keep for backward compatibility
@@ -109,31 +115,30 @@ export const LIFETIME_BASIC_PRICE = {
   tier: "basic" as const,
 } as const;
 
-// TODO: Create Lifetime Full product in Stripe Dashboard and update priceId/paymentLink
 export const LIFETIME_FULL_PRICE = {
-  priceId: "price_TODO_LIFETIME_FULL",     // TODO: update after Stripe creation
-  productId: "prod_TODO_LIFETIME_FULL",    // TODO: update after Stripe creation
+  priceId: "price_1TIa6bRNHcFqFbgIJnssi2NB",
+  productId: "prod_UH8NFpGnl2G3QD",
   price: 129.9,
   currency: "CHF",
   label: "Lifetime Full",
   note: "Alle Features + 20 KI-Requests/Monat",
-  paymentLink: "",                          // TODO: update after Stripe creation
+  paymentLink: "https://buy.stripe.com/eVq28t1RW74E3e2dqHfYY08",
   tier: "full" as const,
 } as const;
 
 // Legacy alias
 export const LIFETIME_PRICE = LIFETIME_BASIC_PRICE;
 
-// ─── KI Add-on (für alle Pro/Lifetime — monatlich, verfällt am Monatsende) ───
-// TODO: Create this product in Stripe Dashboard and update priceId
+// ─── KI Add-on (Einzelkauf, jederzeit nachkaufbar) ───
 export const AI_ADDON_PRICE = {
-  priceId: "price_TODO_AI_ADDON",          // TODO: set after Stripe product creation
-  productId: "prod_TODO_AI_ADDON",         // TODO: set after Stripe product creation
+  priceId: "price_1TIa3PRNHcFqFbgIQmYFON6Z",
+  productId: "prod_UH8KY5vd45x0Mi",
   credits: 200,
   price: 6.9,
   currency: "CHF",
   label: "+200 KI-Requests",
-  note: "Gültig für den aktuellen Monat",
+  note: "Einmalig — jederzeit nachkaufbar",
+  paymentLink: "https://buy.stripe.com/bJe8wRbsw9cMaGu1HZfYY09",
 } as const;
 
 export type PriceTier = keyof typeof PRO_BASIC_PRICES;
@@ -223,7 +228,7 @@ export const PLANS = {
       "Smart Spaced Repetition",
       "Desktop ↔ Web Echtzeit-Sync",
       "Benutzerdefinierte Themes",
-      "Add-on: +200 Requests (CHF 6.90/Monat)",
+      "Add-on: +200 Requests (CHF 6.90, nachkaufbar)",
     ],
   },
   proFull: {
@@ -263,7 +268,4 @@ export const PLANS = {
       "Alle Pro-Features — für immer",
       "Keine monatlichen Kosten",
       "20 KI-Requests / Monat inkludiert",
-      "Erweiterbar über Add-on (+200 für CHF 6.90)",
-    ],
-  },
-} as const;
+      "Erweiterbar über Add-on (+200 für CHF
