@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
@@ -287,17 +287,21 @@ function MindMapEditor({ map, modules, onBack }: {
 
   useEffect(() => { fetchNodes(); }, [fetchNodes]);
 
-  // Close export dropdown when clicking outside
+  // Close export dropdown when clicking outside (use mousedown + skip first frame)
+  const exportOpenedRef = useRef(false);
   useEffect(() => {
-    if (!showExport) return;
-    const handleClickOutside = (e: MouseEvent) => {
+    if (!showExport) { exportOpenedRef.current = false; return; }
+    // Skip the first frame so the opening click doesn't immediately close
+    requestAnimationFrame(() => { exportOpenedRef.current = true; });
+    function handleClickOutside(e: MouseEvent) {
+      if (!exportOpenedRef.current) return;
       const target = e.target as HTMLElement;
       if (!target.closest('.export-dropdown')) {
         setShowExport(false);
       }
-    };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showExport]);
 
   // Build tree helpers
@@ -308,19 +312,40 @@ function MindMapEditor({ map, modules, onBack }: {
 
   // Visible nodes (focus mode or all)
   const visibleNodes = useMemo(() => {
-    if (!focusNodeId) return nodes;
-    const visible = new Set<string>();
-    function walk(id: string) {
-      visible.add(id);
-      childrenOf(id).forEach(c => walk(c.id));
+    // Build set of visible nodes: exclude descendants of collapsed nodes
+    const hidden = new Set<string>();
+    function markHidden(parentId: string) {
+      childrenOf(parentId).forEach(c => {
+        hidden.add(c.id);
+        markHidden(c.id);
+      });
     }
-    walk(focusNodeId);
-    let current = nodes.find(n => n.id === focusNodeId);
-    while (current?.parent_id) {
-      visible.add(current.parent_id);
-      current = nodes.find(n => n.id === current!.parent_id);
+    // Find all collapsed nodes and hide their descendants
+    nodes.forEach(n => {
+      if (n.collapsed) markHidden(n.id);
+    });
+
+    let result = nodes.filter(n => !hidden.has(n.id));
+
+    // If focus mode, further filter to only focus subtree + ancestors
+    if (focusNodeId) {
+      const visible = new Set<string>();
+      function walk(id: string) {
+        visible.add(id);
+        const node = nodes.find(nn => nn.id === id);
+        if (node?.collapsed) return; // Don't walk into collapsed
+        childrenOf(id).forEach(c => walk(c.id));
+      }
+      walk(focusNodeId);
+      let current = nodes.find(n => n.id === focusNodeId);
+      while (current?.parent_id) {
+        visible.add(current.parent_id);
+        current = nodes.find(n => n.id === current!.parent_id);
+      }
+      result = result.filter(n => visible.has(n.id));
     }
-    return nodes.filter(n => visible.has(n.id));
+
+    return result;
   }, [nodes, focusNodeId, childrenOf]);
 
   // Search filtering
@@ -384,59 +409,120 @@ function MindMapEditor({ map, modules, onBack }: {
   }
 
   // Generate SVG path for connections with proper edge detection
-  function generateConnectionPath(from: { x: number; y: number }, to: { x: number; y: number }, nodeW: number) {
-    const NODE_H = 64;
-    const dx = to.x - from.x;
-    const dy = to.y - from.y;
+  // Measure actual node dimensions from DOM for accurate connections
+  const nodeDimsRef = useRef<Map<string, { w: number; h: number }>>(new Map());
+  const [dimsTick, setDimsTick] = useState(0);
 
-    let fromPoint = { x: from.x + nodeW / 2, y: from.y + NODE_H / 2 };
-    let toPoint = { x: to.x + nodeW / 2, y: to.y + NODE_H / 2 };
-
-    // In tree mode, connect from right edge of parent to left edge of child
-    if (layoutMode === "tree" && dx > 0) {
-      fromPoint = { x: from.x + nodeW, y: from.y + NODE_H / 2 };
-      toPoint = { x: to.x, y: to.y + NODE_H / 2 };
-    } else if (layoutMode === "tree" && dx < 0) {
-      fromPoint = { x: from.x, y: from.y + NODE_H / 2 };
-      toPoint = { x: to.x + nodeW, y: to.y + NODE_H / 2 };
-    } else {
-      // Free mode: pick closest edges
-      const absX = Math.abs(dx);
-      const absY = Math.abs(dy);
-      if (absX > absY) {
-        // Horizontal
-        if (dx > 0) {
-          fromPoint = { x: from.x + nodeW, y: from.y + NODE_H / 2 };
-          toPoint = { x: to.x, y: to.y + NODE_H / 2 };
-        } else {
-          fromPoint = { x: from.x, y: from.y + NODE_H / 2 };
-          toPoint = { x: to.x + nodeW, y: to.y + NODE_H / 2 };
+  // Use useLayoutEffect to measure BEFORE paint, then trigger one re-render
+  // so SVG paths use accurate dimensions
+  useLayoutEffect(() => {
+    const canvas = document.getElementById("mindmap-canvas");
+    if (!canvas) return;
+    const nodeEls = canvas.querySelectorAll("[data-nodeid]");
+    let changed = false;
+    nodeEls.forEach(el => {
+      const id = el.getAttribute("data-nodeid");
+      if (id) {
+        const box = el.querySelector(".node-box");
+        if (box) {
+          const rect = box.getBoundingClientRect();
+          const z = zoom || 1;
+          const newW = Math.round(rect.width / z);
+          const newH = Math.round(rect.height / z);
+          const prev = nodeDimsRef.current.get(id);
+          if (!prev || prev.w !== newW || prev.h !== newH) {
+            nodeDimsRef.current.set(id, { w: newW, h: newH });
+            changed = true;
+          }
         }
+      }
+    });
+    if (changed) {
+      setDimsTick(t => t + 1);
+    }
+  });
+
+  function getNodeDims(nodeId: string) {
+    // dimsTick dependency ensures this is called after measurement
+    void dimsTick;
+    return nodeDimsRef.current.get(nodeId) ?? { w: 180, h: 48 };
+  }
+
+  function generateConnectionPath(parentId: string, childId: string, from: { x: number; y: number }, to: { x: number; y: number }) {
+    const parentDims = getNodeDims(parentId);
+    const childDims = getNodeDims(childId);
+
+    // Parent center & child center
+    const pcx = from.x + parentDims.w / 2;
+    const pcy = from.y + parentDims.h / 2;
+    const ccx = to.x + childDims.w / 2;
+    const ccy = to.y + childDims.h / 2;
+
+    const dx = ccx - pcx;
+    const dy = ccy - pcy;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+
+    let fromPoint: { x: number; y: number };
+    let toPoint: { x: number; y: number };
+
+    if (layoutMode === "tree") {
+      // Tree: always right→left
+      if (dx > 0) {
+        fromPoint = { x: from.x + parentDims.w, y: pcy };
+        toPoint = { x: to.x, y: ccy };
       } else {
-        // Vertical
-        if (dy > 0) {
-          fromPoint = { x: from.x + nodeW / 2, y: from.y + NODE_H };
-          toPoint = { x: to.x + nodeW / 2, y: to.y };
-        } else {
-          fromPoint = { x: from.x + nodeW / 2, y: from.y };
-          toPoint = { x: to.x + nodeW / 2, y: to.y + NODE_H };
-        }
+        fromPoint = { x: from.x, y: pcy };
+        toPoint = { x: to.x + childDims.w, y: ccy };
+      }
+    } else {
+      // Free mode: pick best exit/entry edges based on angle
+      const angle = Math.atan2(dy, dx);
+      const PI = Math.PI;
+
+      // Parent exit point
+      if (angle > -PI/4 && angle <= PI/4) {
+        // → right
+        fromPoint = { x: from.x + parentDims.w, y: pcy };
+      } else if (angle > PI/4 && angle <= 3*PI/4) {
+        // ↓ bottom
+        fromPoint = { x: pcx, y: from.y + parentDims.h };
+      } else if (angle > -3*PI/4 && angle <= -PI/4) {
+        // ↑ top
+        fromPoint = { x: pcx, y: from.y };
+      } else {
+        // ← left
+        fromPoint = { x: from.x, y: pcy };
+      }
+
+      // Child entry point (opposite side)
+      const revAngle = Math.atan2(-dy, -dx);
+      if (revAngle > -PI/4 && revAngle <= PI/4) {
+        toPoint = { x: to.x + childDims.w, y: ccy };
+      } else if (revAngle > PI/4 && revAngle <= 3*PI/4) {
+        toPoint = { x: ccx, y: to.y + childDims.h };
+      } else if (revAngle > -3*PI/4 && revAngle <= -PI/4) {
+        toPoint = { x: ccx, y: to.y };
+      } else {
+        toPoint = { x: to.x, y: ccy };
       }
     }
 
-    // Cubic Bezier with control points offset by 50% of distance
-    const ctrlOffset = Math.hypot(toPoint.x - fromPoint.x, toPoint.y - fromPoint.y) * 0.5;
-    let ctrl1, ctrl2;
+    // Smooth cubic Bezier — control points follow the exit/entry direction
+    const dist = Math.hypot(toPoint.x - fromPoint.x, toPoint.y - fromPoint.y);
+    const tension = Math.max(30, dist * 0.4);
 
-    if (Math.abs(toPoint.x - fromPoint.x) > Math.abs(toPoint.y - fromPoint.y)) {
-      // Horizontal-dominant
-      ctrl1 = { x: fromPoint.x + ctrlOffset, y: fromPoint.y };
-      ctrl2 = { x: toPoint.x - ctrlOffset, y: toPoint.y };
-    } else {
-      // Vertical-dominant
-      ctrl1 = { x: fromPoint.x, y: fromPoint.y + ctrlOffset };
-      ctrl2 = { x: toPoint.x, y: toPoint.y - ctrlOffset };
-    }
+    // Determine control point direction from exit/entry edges
+    const fromIsHoriz = fromPoint.y === pcy;
+    const toIsHoriz = toPoint.y === ccy;
+
+    const ctrl1 = fromIsHoriz
+      ? { x: fromPoint.x + (dx > 0 ? tension : -tension), y: fromPoint.y }
+      : { x: fromPoint.x, y: fromPoint.y + (dy > 0 ? tension : -tension) };
+
+    const ctrl2 = toIsHoriz
+      ? { x: toPoint.x + (dx > 0 ? -tension : tension), y: toPoint.y }
+      : { x: toPoint.x, y: toPoint.y + (dy > 0 ? -tension : tension) };
 
     return `M${fromPoint.x} ${fromPoint.y} C${ctrl1.x} ${ctrl1.y}, ${ctrl2.x} ${ctrl2.y}, ${toPoint.x} ${toPoint.y}`;
   }
@@ -844,16 +930,23 @@ function MindMapEditor({ map, modules, onBack }: {
       el.style.transform = "none";
       el.style.transformOrigin = "0 0";
 
+      // Compute actual content bounds for accurate export
+      const elW = el.scrollWidth || parseInt(String(el.style.width)) || 2000;
+      const elH = el.scrollHeight || parseInt(String(el.style.height)) || 1500;
+
       const canvas = await h2c(el, {
         scale: 2,
         backgroundColor: "#f8fafc",
         useCORS: true,
-        width: parseInt(String(el.style.width)) || el.scrollWidth,
-        height: parseInt(String(el.style.height)) || el.scrollHeight,
+        allowTaint: true,
+        width: elW,
+        height: elH,
         scrollX: 0,
         scrollY: 0,
-        windowWidth: parseInt(String(el.style.width)) || el.scrollWidth,
-        windowHeight: parseInt(String(el.style.height)) || el.scrollHeight,
+        windowWidth: elW,
+        windowHeight: elH,
+        foreignObjectRendering: false,
+        logging: false,
       });
 
       el.style.transform = origTransform;
@@ -1059,9 +1152,8 @@ function MindMapEditor({ map, modules, onBack }: {
                 if (parent.collapsed && parent.id !== focusNodeId) return null;
                 const from = getPos(parent);
                 const to = getPos(n);
-                const NODE_W = 200;
                 const isHighlighted = searchMatches.has(n.id) || searchMatches.has(parent.id);
-                const pathD = generateConnectionPath(from, to, NODE_W);
+                const pathD = generateConnectionPath(parent.id, n.id, from, to);
                 return (
                   <path
                     key={n.id}
@@ -1092,6 +1184,7 @@ function MindMapEditor({ map, modules, onBack }: {
               return (
                 <div
                   key={n.id}
+                  data-nodeid={n.id}
                   className={`absolute select-none ${layoutMode === "free" ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
                   style={{
                     left: pos.x, top: pos.y, zIndex: isSelected ? 10 : 1,
@@ -1122,7 +1215,7 @@ function MindMapEditor({ map, modules, onBack }: {
                 >
                   <div style={{ position: "relative" }}>
                     {/* Modern node design with gradient background */}
-                    <div className={`flex flex-col items-start gap-1.5 px-3 py-2.5 rounded-2xl border-2 transition-all min-w-[180px] max-w-[220px] ${
+                    <div className={`node-box flex flex-col items-start gap-1.5 px-3 py-2.5 rounded-2xl border-2 transition-all min-w-[180px] max-w-[220px] ${
                       isSelected ? "ring-2 ring-brand-400 border-brand-300 shadow-md" :
                       isSearchMatch ? "ring-2 ring-amber-400 border-amber-300" :
                       "border-surface-200 hover:border-surface-300 shadow-sm hover:shadow-md"
@@ -1464,7 +1557,7 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
             .getPublicUrl(fileName);
 
           const displayName = `${getFileIcon(file.name)} ${file.name}`;
-          setLinks([...links, { label: displayName, url: publicUrl }]);
+          setLinks(prev => [...prev, { label: displayName, url: publicUrl }]);
         }
       }
     } finally {

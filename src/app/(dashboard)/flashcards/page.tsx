@@ -1157,15 +1157,6 @@ export default function FlashcardsPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <LimitCounter current={decks.length} max={FREE_LIMITS.flashcardSets} isPro={isPro} />
-          <button
-            onClick={() => {
-              setSelectMode(!selectMode);
-              if (!selectMode) setSelectedCards(new Set());
-            }}
-            className={`text-sm px-3 py-1.5 rounded-lg transition flex items-center gap-2 ${selectMode ? "bg-brand-50 text-brand-700 border border-brand-300" : "text-surface-600 hover:bg-surface-100"}`}
-          >
-            <CheckSquare size={16} /> {t("flashcards.select")}
-          </button>
           {dueCards.length > 0 && (
             <button onClick={() => setStudyMode(true)} className="btn-primary gap-2 text-sm">
               <Brain size={16} /> {t("fc.study")} ({dueCards.length})
@@ -1276,6 +1267,15 @@ export default function FlashcardsPage() {
         <button onClick={() => setShowAiGen(true)} className="btn-secondary text-sm gap-1.5">
           <Sparkles size={14} /> {t("fc.aiGenerate")}
         </button>
+        <button
+          onClick={() => {
+            setSelectMode(!selectMode);
+            if (!selectMode) setSelectedCards(new Set());
+          }}
+          className={`text-sm px-3 py-1.5 rounded-lg transition flex items-center gap-2 ${selectMode ? "bg-brand-50 text-brand-700 border border-brand-300" : "text-surface-600 hover:bg-surface-100 border border-surface-200"}`}
+        >
+          <CheckSquare size={16} /> {t("flashcards.select")}
+        </button>
       </div>
 
       {/* ── Filters ── */}
@@ -1373,31 +1373,30 @@ export default function FlashcardsPage() {
                   )}
                 </div>
 
-                {/* Checkbox in select mode */}
-                {selectMode && (
-                  <div className="absolute top-3 left-3">
-                    {isSelected ? (
+                {/* Hover actions / Checkbox in select mode */}
+                <div className={`absolute top-3 right-3 flex gap-1 ${selectMode ? "" : "opacity-0 group-hover:opacity-100"} transition-opacity`}>
+                  {selectMode ? (
+                    isSelected ? (
                       <CheckSquare size={20} className="text-brand-600" />
                     ) : (
                       <Square size={20} className="text-surface-300" />
-                    )}
-                  </div>
-                )}
-
-                {/* Hover actions */}
-                <div className={`absolute top-3 right-3 ${selectMode ? "opacity-0" : "opacity-0 group-hover:opacity-100"} transition-opacity flex gap-1`}>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setEditCard(card); setShowDialog(true); }}
-                    className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400 hover:text-surface-600"
-                  >
-                    <BookOpen size={14} />
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleDelete(card.id); }}
-                    className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                    )
+                  ) : (
+                    <>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setEditCard(card); setShowDialog(true); }}
+                        className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400 hover:text-surface-600"
+                      >
+                        <BookOpen size={14} />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDelete(card.id); }}
+                        className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             );

@@ -120,18 +120,21 @@ export default function StundenplanPage() {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
 
-    // Show drag indicator with time
+    // Show drag indicator with time range
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const dropY = e.clientY - rect.top;
     const gridStart = 7 * 60;
     const minutes = Math.round((dropY / 56) * 60) + gridStart;
     const rounded = Math.round(minutes / 15) * 15;
-    const timeText = minutesToTime(rounded);
+    const timeStart = minutesToTime(rounded);
+    // Show end time based on dragged entry duration
+    const duration = draggedEntry ? (timeToMinutes(draggedEntry.time_end) - timeToMinutes(draggedEntry.time_start)) : 60;
+    const timeEnd = minutesToTime(rounded + duration);
 
     setDragIndicator({
-      x: e.clientX,
-      y: e.clientY,
-      text: timeText,
+      x: rect.left + rect.width / 2,
+      y: rect.top + (dropY / (14 * 56)) * (14 * 56),
+      text: `${timeStart} – ${timeEnd}`,
     });
   }
 
@@ -462,12 +465,15 @@ export default function StundenplanPage() {
       )}
 
       {dragIndicator && (
-        <div className="fixed z-50 bg-surface-800 text-white text-xs px-2 py-1 rounded pointer-events-none"
+        <div className="fixed z-50 pointer-events-none"
           style={{
-            left: `${dragIndicator.x + 10}px`,
-            top: `${dragIndicator.y + 10}px`,
+            left: `${dragIndicator.x}px`,
+            top: `${dragIndicator.y - 36}px`,
+            transform: "translateX(-50%)",
           }}>
-          {dragIndicator.text}
+          <div className="bg-brand-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-full shadow-lg whitespace-nowrap">
+            {dragIndicator.text}
+          </div>
         </div>
       )}
 
