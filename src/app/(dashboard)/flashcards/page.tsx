@@ -993,6 +993,7 @@ export default function FlashcardsPage() {
   const [filterModule, setFilterModule] = useState("");
   const [filterDeck, setFilterDeck] = useState("");
   const [filterType, setFilterType] = useState<"all" | "basic" | "cloze" | "mc">("all");
+  const [filterLevel, setFilterLevel] = useState<"all" | "1" | "2" | "3" | "4">("all");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -1013,8 +1014,17 @@ export default function FlashcardsPage() {
     if (filterModule) result = result.filter(c => c.module_id === filterModule);
     if (filterDeck) result = result.filter(c => c.deck_name === filterDeck);
     if (filterType !== "all") result = result.filter(c => (c.card_type ?? "basic") === filterType);
+    if (filterLevel !== "all") {
+      const rep = (c: Flashcard) => c.repetitions ?? 0;
+      switch (filterLevel) {
+        case "1": result = result.filter(c => rep(c) === 0); break;
+        case "2": result = result.filter(c => rep(c) >= 1 && rep(c) <= 2); break;
+        case "3": result = result.filter(c => rep(c) >= 3 && rep(c) <= 4); break;
+        case "4": result = result.filter(c => rep(c) >= 5); break;
+      }
+    }
     return result;
-  }, [cards, filterModule, filterDeck, filterType]);
+  }, [cards, filterModule, filterDeck, filterType, filterLevel]);
 
   // Decks
   const decks = useMemo(() => Array.from(new Set(cards.map(c => c.deck_name))).sort(), [cards]);
@@ -1303,6 +1313,13 @@ export default function FlashcardsPage() {
           <option value="basic">{t("fc.typeBasic")}</option>
           <option value="cloze">{t("fc.typeCloze")}</option>
           <option value="mc">{t("fc.typeMC")}</option>
+        </select>
+        <select className="input text-sm py-1.5" value={filterLevel} onChange={e => setFilterLevel(e.target.value as any)}>
+          <option value="all">— {t("fc.allLevels") || "Wissensstand"} —</option>
+          <option value="1">{t("fc.level1") || "Neu"} (0x)</option>
+          <option value="2">{t("fc.level2") || "Anfänger"} (1-2x)</option>
+          <option value="3">{t("fc.level3") || "Fortgeschritten"} (3-4x)</option>
+          <option value="4">{t("fc.level4") || "Gemeistert"} (5x+)</option>
         </select>
       </div>
 
