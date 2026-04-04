@@ -383,6 +383,36 @@ function MindMapEditor({ map, modules, onBack }: {
     return { x: node.pos_x, y: node.pos_y };
   }
 
+  // Generate SVG path for connections based on relative positions
+  function generateConnectionPath(from: { x: number; y: number }, to: { x: number; y: number }, nodeW: number) {
+    const NODE_H = 56;
+    const fromCenterX = from.x + nodeW / 2;
+    const fromCenterY = from.y + NODE_H / 2;
+    const toCenterX = to.x + nodeW / 2;
+    const toCenterY = to.y + NODE_H / 2;
+
+    const dx = toCenterX - fromCenterX;
+    const dy = toCenterY - fromCenterY;
+
+    // Determine direction based on position
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+
+    if (absX > absY) {
+      // Horizontal connection (left or right)
+      const isRight = dx > 0;
+      const startX = isRight ? from.x + nodeW : from.x;
+      const controlOffset = 40;
+      return `M${startX} ${fromCenterY} C${startX + (isRight ? controlOffset : -controlOffset)} ${fromCenterY}, ${toCenterX - (isRight ? controlOffset : -controlOffset)} ${toCenterY}, ${toCenterX} ${toCenterY}`;
+    } else {
+      // Vertical connection (top or bottom)
+      const isBottom = dy > 0;
+      const startY = isBottom ? from.y + NODE_H : from.y;
+      const controlOffset = 40;
+      return `M${fromCenterX} ${startY} C${fromCenterX} ${startY + (isBottom ? controlOffset : -controlOffset)}, ${toCenterX} ${toCenterY - (isBottom ? controlOffset : -controlOffset)}, ${toCenterX} ${toCenterY}`;
+    }
+  }
+
   // ── Pointer helpers ──
   function getPointerPos(e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) {
     if ("touches" in e) {
@@ -488,7 +518,7 @@ function MindMapEditor({ map, modules, onBack }: {
     setRedoStack([]);
   }
 
-  async function addChild(parentId: string) {
+  async function addChild(parentId: string, direction: "right" | "left" | "top" | "bottom" = "right") {
     pushUndo();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -498,14 +528,26 @@ function MindMapEditor({ map, modules, onBack }: {
     if (parent?.collapsed) {
       await supabase.from("mindmap_nodes").update({ collapsed: false }).eq("id", parentId);
     }
+
+    // Calculate position based on direction
+    const baseX = parent?.pos_x ?? 200;
+    const baseY = parent?.pos_y ?? 50;
+    const offsets = {
+      right: { x: baseX + 220, y: baseY + siblings.length * 60 },
+      left: { x: baseX - 220, y: baseY + siblings.length * 60 },
+      top: { x: baseX + siblings.length * 200, y: baseY - 120 },
+      bottom: { x: baseX + siblings.length * 200, y: baseY + 120 },
+    };
+    const pos = offsets[direction];
+
     const { data } = await supabase.from("mindmap_nodes").insert({
       user_id: user.id,
       mindmap_id: map.id,
       parent_id: parentId,
       label: "",
       color: parent?.color ?? map.color,
-      pos_x: (parent?.pos_x ?? 200) + 220,
-      pos_y: (parent?.pos_y ?? 50) + siblings.length * 60,
+      pos_x: pos.x,
+      pos_y: pos.y,
       sort_order: siblings.length,
     }).select().single();
     if (data) {
@@ -990,10 +1032,11 @@ function MindMapEditor({ map, modules, onBack }: {
                 const to = getPos(n);
                 const NODE_W = 160;
                 const isHighlighted = searchMatches.has(n.id) || searchMatches.has(parent.id);
+                const pathD = generateConnectionPath(from, to, NODE_W);
                 return (
                   <path
                     key={n.id}
-                    d={`M${from.x + NODE_W} ${from.y + 20} C${from.x + NODE_W + 40} ${from.y + 20}, ${to.x - 40} ${to.y + 20}, ${to.x} ${to.y + 20}`}
+                    d={pathD}
                     fill="none"
                     stroke={isHighlighted ? "#f59e0b" : (n.color || "#d1d5db")}
                     strokeWidth={isHighlighted ? 3 : 2}
@@ -1021,6 +1064,7 @@ function MindMapEditor({ map, modules, onBack }: {
                     left: pos.x, top: pos.y, zIndex: isSelected ? 10 : 1,
                     opacity: searchQuery && !isSearchMatch && searchMatches.size > 0 ? 0.3 : 1,
                     transition: "opacity 0.2s",
+                    position: "absolute",
                   }}
                   onMouseDown={(e) => handlePointerDownNode(e, n.id)}
                   onTouchStart={(e) => handlePointerDownNode(e, n.id)}
@@ -1044,13 +1088,14 @@ function MindMapEditor({ map, modules, onBack }: {
                     setInlineEditText(n.label);
                   }}
                 >
-                  <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 bg-white shadow-sm transition-all min-w-[100px] max-w-[220px] ${
-                    isSelected ? "ring-2 ring-brand-400 border-brand-300" :
-                    isSearchMatch ? "ring-2 ring-amber-400 border-amber-300" :
-                    "border-surface-200 hover:border-surface-300"
-                  } ${isRoot ? "border-l-4" : ""}`}
-                    style={isRoot ? { borderLeftColor: n.color } : {}}
-                  >
+                  <div style={{ position: "relative" }}>
+                    <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 bg-white shadow-sm transition-all min-w-[100px] max-w-[220px] ${
+                      isSelected ? "ring-2 ring-brand-400 border-brand-300" :
+                      isSearchMatch ? "ring-2 ring-amber-400 border-amber-300" :
+                      "border-surface-200 hover:border-surface-300"
+                    } ${isRoot ? "border-l-4" : ""}`}
+                      style={isRoot ? { borderLeftColor: n.color } : {}}
+                    >
                     {/* Collapse toggle */}
                     {hasChildren && (
                       <button
@@ -1087,37 +1132,67 @@ function MindMapEditor({ map, modules, onBack }: {
                     {n.collapsed && hasChildren && (
                       <span className="text-[9px] bg-surface-200 text-surface-500 px-1 rounded-full shrink-0">{children.length}</span>
                     )}
-                  </div>
-
-                  {/* Quick actions on select */}
-                  {isSelected && !isInlineEditing && (
-                    <div className="flex gap-0.5 mt-1 justify-center">
-                      <button onClick={(e) => { e.stopPropagation(); addChild(n.id); }}
-                        className="p-1 rounded bg-brand-600 text-white hover:bg-brand-700" title="Tab">
-                        <Plus size={11} />
-                      </button>
-                      {!isRoot && (
-                        <button onClick={(e) => { e.stopPropagation(); addSibling(n.id); }}
-                          className="p-1 rounded bg-brand-100 text-brand-700 hover:bg-brand-200" title="Enter">
-                          <CornerDownRight size={11} />
-                        </button>
-                      )}
-                      <button onClick={(e) => { e.stopPropagation(); setEditNode(n); }}
-                        className="p-1 rounded bg-surface-200 text-surface-600 hover:bg-surface-300" title="Space">
-                        <Pencil size={11} />
-                      </button>
-                      <button onClick={(e) => { e.stopPropagation(); setFocusNodeId(focusNodeId === n.id ? null : n.id); }}
-                        className={`p-1 rounded ${focusNodeId === n.id ? "bg-amber-200 text-amber-700" : "bg-surface-200 text-surface-600 hover:bg-surface-300"}`} title="F">
-                        {focusNodeId === n.id ? <EyeOff size={11} /> : <Eye size={11} />}
-                      </button>
-                      {!isRoot && (
-                        <button onClick={(e) => { e.stopPropagation(); deleteNode(n.id); }}
-                          className="p-1 rounded bg-red-100 text-red-500 hover:bg-red-200" title="Del">
-                          <Trash2 size={11} />
-                        </button>
-                      )}
                     </div>
+
+                    {/* Quick actions on select */}
+                  {isSelected && !isInlineEditing && (
+                    <>
+                      {/* Direction buttons for adding children */}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); addChild(n.id, "top"); }}
+                        className="absolute -top-5 left-1/2 -translate-x-1/2 p-0.5 rounded-full bg-brand-600 text-white hover:bg-brand-700 w-5 h-5 flex items-center justify-center text-[8px]"
+                        title="Add child (top)"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); addChild(n.id, "left"); }}
+                        className="absolute top-1/2 -left-5 -translate-y-1/2 p-0.5 rounded-full bg-brand-600 text-white hover:bg-brand-700 w-5 h-5 flex items-center justify-center text-[8px]"
+                        title="Add child (left)"
+                      >
+                        ←
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); addChild(n.id, "right"); }}
+                        className="absolute top-1/2 -right-5 -translate-y-1/2 p-0.5 rounded-full bg-brand-600 text-white hover:bg-brand-700 w-5 h-5 flex items-center justify-center text-[8px]"
+                        title="Add child (right)"
+                      >
+                        →
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); addChild(n.id, "bottom"); }}
+                        className="absolute -bottom-5 left-1/2 -translate-x-1/2 p-0.5 rounded-full bg-brand-600 text-white hover:bg-brand-700 w-5 h-5 flex items-center justify-center text-[8px]"
+                        title="Add child (bottom)"
+                      >
+                        ↓
+                      </button>
+
+                      {/* Main action buttons below node */}
+                      <div className="flex gap-0.5 mt-1 justify-center">
+                        {!isRoot && (
+                          <button onClick={(e) => { e.stopPropagation(); addSibling(n.id); }}
+                            className="p-1 rounded bg-brand-100 text-brand-700 hover:bg-brand-200" title="Enter">
+                            <CornerDownRight size={11} />
+                          </button>
+                        )}
+                        <button onClick={(e) => { e.stopPropagation(); setEditNode(n); }}
+                          className="p-1 rounded bg-surface-200 text-surface-600 hover:bg-surface-300" title="Space">
+                          <Pencil size={11} />
+                        </button>
+                        <button onClick={(e) => { e.stopPropagation(); setFocusNodeId(focusNodeId === n.id ? null : n.id); }}
+                          className={`p-1 rounded ${focusNodeId === n.id ? "bg-amber-200 text-amber-700" : "bg-surface-200 text-surface-600 hover:bg-surface-300"}`} title="F">
+                          {focusNodeId === n.id ? <EyeOff size={11} /> : <Eye size={11} />}
+                        </button>
+                        {!isRoot && (
+                          <button onClick={(e) => { e.stopPropagation(); deleteNode(n.id); }}
+                            className="p-1 rounded bg-red-100 text-red-500 hover:bg-red-200" title="Del">
+                            <Trash2 size={11} />
+                          </button>
+                        )}
+                      </div>
+                    </>
                   )}
+                  </div>
                 </div>
               );
             })}
@@ -1188,6 +1263,7 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
   onDelete: () => void;
 }) {
   const { t } = useTranslation();
+  const supabase = createClient();
   const [label, setLabel] = useState(node.label);
   const [notes, setNotes] = useState(node.notes ?? "");
   const [color, setColor] = useState(node.color);
@@ -1195,6 +1271,8 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
   const [links, setLinks] = useState<{ label: string; url: string }[]>(node.links ?? []);
   const [newLinkUrl, setNewLinkUrl] = useState("");
   const [newLinkLabel, setNewLinkLabel] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function addLink() {
     if (!newLinkUrl.trim()) return;
@@ -1206,6 +1284,91 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
 
   function removeLink(i: number) {
     setLinks(links.filter((_, idx) => idx !== i));
+  }
+
+  function isDocumentLink(url: string): boolean {
+    return url.startsWith("https://") && url.includes("mindmap-files");
+  }
+
+  function getFileIcon(filename: string): string {
+    const ext = filename.split(".").pop()?.toLowerCase() ?? "";
+    const iconMap: { [key: string]: string } = {
+      pdf: "📄",
+      docx: "📄",
+      doc: "📄",
+      pptx: "📊",
+      ppt: "📊",
+      xlsx: "📈",
+      xls: "📈",
+      txt: "📝",
+      md: "📝",
+      png: "🖼️",
+      jpg: "🖼️",
+      jpeg: "🖼️",
+      gif: "🖼️",
+    };
+    return iconMap[ext] ?? "📎";
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setUploading(false);
+      return;
+    }
+
+    try {
+      for (const file of Array.from(files)) {
+        // Check file type
+        const allowedTypes = [
+          "application/pdf",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+          "application/vnd.ms-powerpoint",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "application/vnd.ms-excel",
+          "text/plain",
+          "text/markdown",
+          "image/png",
+          "image/jpeg",
+          "image/gif",
+        ];
+
+        if (!allowedTypes.includes(file.type)) {
+          continue;
+        }
+
+        const fileName = `${node.id}/${Date.now()}-${file.name}`;
+        const { data, error } = await supabase.storage
+          .from("mindmap-files")
+          .upload(fileName, file, { upsert: false });
+
+        if (error) {
+          console.error("Upload error:", error);
+          continue;
+        }
+
+        if (data) {
+          const { data: { publicUrl } } = supabase.storage
+            .from("mindmap-files")
+            .getPublicUrl(fileName);
+
+          // Add as link with document marker
+          const displayName = `${getFileIcon(file.name)} ${file.name}`;
+          setLinks([...links, { label: displayName, url: publicUrl }]);
+        }
+      }
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
   }
 
   return (
@@ -1256,26 +1419,52 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
             <label className="block text-sm font-medium text-surface-700 mb-2">{t("mindmaps.nodeLinks")}</label>
             {links.length > 0 && (
               <div className="space-y-1.5 mb-2">
-                {links.map((l, i) => (
-                  <div key={i} className="flex items-center gap-2 p-2 bg-surface-50 rounded-lg text-xs">
-                    <Link2 size={12} className="text-blue-500 shrink-0" />
-                    <span className="flex-1 truncate text-surface-700">{l.label}</span>
-                    <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
-                      <ExternalLink size={12} />
-                    </a>
-                    <button onClick={() => removeLink(i)} className="text-surface-400 hover:text-red-500">
-                      <Trash2 size={12} />
-                    </button>
-                  </div>
-                ))}
+                {links.map((l, i) => {
+                  const isDoc = isDocumentLink(l.url);
+                  return (
+                    <div key={i} className={`flex items-center gap-2 p-2 rounded-lg text-xs ${isDoc ? "bg-amber-50" : "bg-surface-50"}`}>
+                      {isDoc ? (
+                        <span className="text-base shrink-0">{l.label.match(/^[^a-zA-Z0-9]/)?.[0] ?? "📎"}</span>
+                      ) : (
+                        <Link2 size={12} className="text-blue-500 shrink-0" />
+                      )}
+                      <span className="flex-1 truncate text-surface-700">{l.label}</span>
+                      <a href={l.url} target="_blank" rel="noopener noreferrer" className={isDoc ? "text-amber-600 hover:text-amber-700" : "text-blue-500 hover:text-blue-700"}>
+                        <ExternalLink size={12} />
+                      </a>
+                      <button onClick={() => removeLink(i)} className="text-surface-400 hover:text-red-500">
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
-            <div className="flex gap-1.5">
-              <input className="input flex-1 text-xs" value={newLinkUrl} onChange={e => setNewLinkUrl(e.target.value)}
-                placeholder="https://..." onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addLink())} />
-              <input className="input w-28 text-xs" value={newLinkLabel} onChange={e => setNewLinkLabel(e.target.value)}
-                placeholder={t("mindmaps.linkTitle")} />
-              <button onClick={addLink} className="px-2 py-1 rounded-lg bg-brand-600 text-white text-xs hover:bg-brand-700">+</button>
+            <div className="space-y-2">
+              <div className="flex gap-1.5">
+                <input className="input flex-1 text-xs" value={newLinkUrl} onChange={e => setNewLinkUrl(e.target.value)}
+                  placeholder="https://..." onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addLink())} />
+                <input className="input w-28 text-xs" value={newLinkLabel} onChange={e => setNewLinkLabel(e.target.value)}
+                  placeholder={t("mindmaps.linkTitle")} />
+                <button onClick={addLink} className="px-2 py-1 rounded-lg bg-brand-600 text-white text-xs hover:bg-brand-700">+</button>
+              </div>
+              <div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept=".pdf,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.txt,.md,.png,.jpg,.jpeg,.gif"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="w-full px-2 py-2 rounded-lg bg-amber-100 text-amber-700 text-xs hover:bg-amber-200 disabled:opacity-50"
+                >
+                  {uploading ? "Uploading..." : t("mindmaps.uploadFile")}
+                </button>
+              </div>
             </div>
           </div>
 

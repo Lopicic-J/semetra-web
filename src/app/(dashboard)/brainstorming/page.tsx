@@ -31,6 +31,7 @@ interface LocalIdea {
   votes: number;
   sort_order: number;
   collapsed: boolean;
+  done: boolean; // checkoff state
   isNew?: boolean; // not yet saved
 }
 
@@ -540,6 +541,7 @@ function BrainstormEditor({
       votes: d.votes ?? 0,
       sort_order: d.sort_order ?? 0,
       collapsed: false,
+      done: d.done ?? false,
     }));
     setIdeas(loaded);
     setLoading(false);
@@ -570,6 +572,7 @@ function BrainstormEditor({
             priority: idea.priority,
             votes: idea.votes,
             sort_order: i,
+            done: idea.done,
           });
         } else {
           await supabase.from("brainstorm_ideas").update({
@@ -581,6 +584,7 @@ function BrainstormEditor({
             priority: idea.priority,
             votes: idea.votes,
             sort_order: i,
+            done: idea.done,
           }).eq("id", idea.id);
         }
       }
@@ -649,6 +653,7 @@ function BrainstormEditor({
       votes: 0,
       sort_order: afterIdx + 1,
       collapsed: false,
+      done: false,
       isNew: true,
     };
     const updated = [...ideas];
@@ -680,6 +685,7 @@ function BrainstormEditor({
       votes: 0,
       sort_order: ideas.length,
       collapsed: false,
+      done: false,
       isNew: true,
     };
     const updated = [...ideas, newIdea];
@@ -727,6 +733,14 @@ function BrainstormEditor({
     const updated = [...ideas];
     updated[idx] = { ...updated[idx], collapsed: !updated[idx].collapsed };
     setIdeas(updated);
+  }
+
+  function toggleDone(idx: number) {
+    pushUndo();
+    const updated = [...ideas];
+    updated[idx] = { ...updated[idx], done: !updated[idx].done };
+    setIdeas(updated);
+    saveIdeas(updated);
   }
 
   function cyclePriority(idx: number) {
@@ -1070,6 +1084,7 @@ function BrainstormEditor({
       votes: 0,
       sort_order: ideas.length + i,
       collapsed: false,
+      done: false,
       isNew: true,
     }));
 
@@ -1436,6 +1451,19 @@ function BrainstormEditor({
                 {idea.collapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
               </button>
 
+              {/* Done checkbox */}
+              <button
+                onClick={() => toggleDone(idx)}
+                className="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all"
+                style={{
+                  borderColor: idea.done ? "#22c55e" : "#cbd5e1",
+                  backgroundColor: idea.done ? "#22c55e" : "transparent",
+                }}
+                title={t("brainstorming.markDone")}
+              >
+                {idea.done && <Check size={10} className="text-white" />}
+              </button>
+
               {/* Priority dot */}
               {idea.priority !== "none" && (
                 <span
@@ -1462,7 +1490,9 @@ function BrainstormEditor({
                   />
                 ) : (
                   <div
-                    className="text-sm text-surface-800 py-0.5 cursor-text min-h-[24px]"
+                    className={`text-sm py-0.5 cursor-text min-h-[24px] ${
+                      idea.done ? "line-through text-surface-400 opacity-60" : "text-surface-800"
+                    }`}
                     onClick={() => { setEditIdx(idx); setEditText(idea.content); }}
                   >
                     {idea.content ? (

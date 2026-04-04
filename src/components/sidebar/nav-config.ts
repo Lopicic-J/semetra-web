@@ -22,44 +22,54 @@ export interface NavGroup {
 }
 
 export const NAV_GROUPS: NavGroup[] = [
+  // Group 1: Übersicht (no label)
   {
     labelKey: "",
     items: [
-      { href: "/dashboard",      icon: LayoutDashboard, labelKey: "nav.dashboard",      pro: false },
-      { href: "/navigator",      icon: Compass,         labelKey: "nav.navigator",      pro: false },
-      { href: "/modules",        icon: BookOpen,        labelKey: "nav.modules",        pro: false },
-      { href: "/tasks",          icon: CheckSquare,     labelKey: "nav.tasks",          pro: false },
+      { href: "/dashboard",  icon: LayoutDashboard, labelKey: "nav.dashboard",  pro: false },
+      { href: "/navigator",  icon: Compass,         labelKey: "nav.navigator",  pro: false },
     ],
   },
+  // Group 2: Studium
   {
-    labelKey: "navGroup.planning",
+    labelKey: "navGroup.study",
     items: [
-      { href: "/studienplan",  icon: Target,     labelKey: "nav.studienplan",  pro: false },
-      { href: "/calendar",     icon: Calendar,   labelKey: "nav.calendar",     pro: false },
-      { href: "/timeline",     icon: BarChart3,  labelKey: "nav.timeline",     pro: false },
-      { href: "/stundenplan",  icon: Clock3,     labelKey: "nav.stundenplan",  pro: false },
-      { href: "/exams",        icon: Award,      labelKey: "nav.exams",        pro: false },
+      { href: "/modules",    icon: BookOpen,  labelKey: "nav.modules",     pro: false },
+      { href: "/tasks",      icon: CheckSquare, labelKey: "nav.tasks",       pro: false },
+      { href: "/calendar",   icon: Calendar,  labelKey: "nav.calendar",    pro: false },
+      { href: "/stundenplan", icon: Clock3,    labelKey: "nav.stundenplan", pro: false },
+      { href: "/exams",      icon: Award,     labelKey: "nav.exams",       pro: false },
     ],
   },
+  // Group 3: Lernen
   {
-    labelKey: "navGroup.knowledge",
+    labelKey: "navGroup.learning",
     items: [
+      { href: "/flashcards",    icon: Layers,      labelKey: "nav.flashcards",    pro: false },
+      { href: "/knowledge",     icon: Brain,       labelKey: "nav.knowledge",     pro: false },
       { href: "/notes",         icon: FileText,    labelKey: "nav.notes",         pro: false },
       { href: "/documents",     icon: FolderOpen,  labelKey: "nav.documents",     pro: false },
-      { href: "/ai-assistant",   icon: Sparkles,    labelKey: "nav.aiAssistant",   pro: false },
-      { href: "/knowledge",     icon: Brain,       labelKey: "nav.knowledge",     pro: false },
+    ],
+  },
+  // Group 4: Werkzeuge
+  {
+    labelKey: "navGroup.tools",
+    items: [
+      { href: "/ai-assistant",  icon: Sparkles,    labelKey: "nav.aiAssistant",   pro: false },
       { href: "/mindmaps",      icon: Network,     labelKey: "nav.mindmaps",      pro: false },
       { href: "/brainstorming", icon: Lightbulb,   labelKey: "nav.brainstorming", pro: false },
-      { href: "/flashcards",    icon: Layers,      labelKey: "nav.flashcards",    pro: false },
       { href: "/math",          icon: Calculator,  labelKey: "nav.math",          pro: false },
       { href: "/timer",         icon: Timer,       labelKey: "nav.timer",         pro: false },
     ],
   },
+  // Group 5: Fortschritt
   {
-    labelKey: "navGroup.analytics",
+    labelKey: "navGroup.progress",
     items: [
-      { href: "/grades",   icon: TrendingUp,  labelKey: "nav.grades",   pro: false },
-      { href: "/credits",  icon: Medal,        labelKey: "nav.credits",  pro: false },
+      { href: "/studienplan", icon: Target,      labelKey: "nav.studienplan", pro: false },
+      { href: "/grades",      icon: TrendingUp,  labelKey: "nav.grades",      pro: false },
+      { href: "/credits",     icon: Medal,       labelKey: "nav.credits",     pro: false },
+      { href: "/timeline",    icon: BarChart3,   labelKey: "nav.timeline",    pro: false },
     ],
   },
 ];

@@ -66,8 +66,11 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 space-y-0.5 overflow-y-auto pr-0.5 -mr-0.5">
-        {NAV_GROUPS.map((group) => (
+        {NAV_GROUPS.map((group, idx) => (
           <div key={group.labelKey}>
+            {idx > 0 && group.labelKey && (
+              <div className="border-t border-surface-100 mx-3 my-1" />
+            )}
             {group.labelKey && (
               <p className="px-3 pt-4 pb-1.5 text-[10px] font-semibold text-surface-400 tracking-wider uppercase select-none">
                 {t(group.labelKey)}

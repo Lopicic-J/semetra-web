@@ -6,7 +6,7 @@ import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { FREE_LIMITS } from "@/lib/gates";
 import { UpgradeModal } from "@/components/ui/ProGate";
-import { Plus, X, Trash2, ChevronLeft, ChevronRight, Copy } from "lucide-react";
+import { Plus, X, Trash2, ChevronLeft, ChevronRight, Copy, GripHorizontal } from "lucide-react";
 import type { StundenplanEntry } from "@/types/database";
 
 const DAYS_SHORT = ["Mo","Di","Mi","Do","Fr","Sa"];
@@ -26,6 +26,9 @@ export default function StundenplanPage() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [currentKw, setCurrentKw] = useState(1);
   const [currentSemester, setCurrentSemester] = useState("Semester 1");
+  const [deleteDialog, setDeleteDialog] = useState<{ entry: StundenplanEntry; siblings: StundenplanEntry[] } | null>(null);
+  const [moveDialog, setMoveDialog] = useState<{ entry: StundenplanEntry; newDay: string; newStart: string; newEnd: string; siblings: StundenplanEntry[] } | null>(null);
+  const [draggedEntry, setDraggedEntry] = useState<StundenplanEntry | null>(null);
   const { modules } = useModules();
   const { isPro } = useProfile();
   const supabase = createClient();
@@ -48,9 +51,128 @@ export default function StundenplanPage() {
     entries.filter(e => e.semester === currentSemester || !e.semester).map(e => e.kw ?? 1)
   );
 
+  function findSiblings(entry: StundenplanEntry): StundenplanEntry[] {
+    return entries.filter(e =>
+      e.id !== entry.id &&
+      e.title === entry.title &&
+      e.day === entry.day &&
+      e.time_start === entry.time_start &&
+      e.time_end === entry.time_end &&
+      e.semester === entry.semester
+    );
+  }
+
+  function handleDeleteClick(entry: StundenplanEntry) {
+    const siblings = findSiblings(entry);
+    if (siblings.length > 0) {
+      setDeleteDialog({ entry, siblings });
+    } else {
+      if (confirm(t("stundenplan.deleteConfirm") || "Delete this entry?")) {
+        deleteEntry(entry.id);
+      }
+    }
+  }
+
+  async function handleDeleteChoice(mode: "this" | "all") {
+    if (!deleteDialog) return;
+    const { entry, siblings } = deleteDialog;
+
+    if (mode === "this") {
+      await supabase.from("stundenplan").delete().eq("id", entry.id);
+    } else {
+      const idsToDelete = [entry.id, ...siblings.map(s => s.id)];
+      await supabase.from("stundenplan").delete().in("id", idsToDelete);
+    }
+
+    setDeleteDialog(null);
+    fetchEntries();
+  }
+
   async function deleteEntry(id: string) {
     await supabase.from("stundenplan").delete().eq("id", id);
     fetchEntries();
+  }
+
+  function timeToMinutes(t: string) {
+    const [h, m] = t.split(":").map(Number);
+    return h * 60 + m;
+  }
+
+  function minutesToTime(mins: number): string {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+  }
+
+  function handleEntryDragStart(e: React.DragEvent, entry: StundenplanEntry) {
+    setDraggedEntry(entry);
+    e.dataTransfer.effectAllowed = "move";
+  }
+
+  function handleDayDropZoneDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  }
+
+  function handleDayDropZoneDrop(e: React.DragEvent, dayIndex: number) {
+    e.preventDefault();
+    if (!draggedEntry) return;
+
+    const gridContainer = e.currentTarget;
+    const rect = gridContainer.getBoundingClientRect();
+    const dropY = e.clientY - rect.top;
+
+    const gridStart = 7 * 60;
+    const newStartMinutes = Math.round((dropY / 56) * 60) + gridStart;
+    const roundedStart = Math.round(newStartMinutes / 15) * 15;
+
+    const duration = timeToMinutes(draggedEntry.time_end) - timeToMinutes(draggedEntry.time_start);
+    const newEndMinutes = roundedStart + duration;
+
+    const newDay = DAYS_SHORT[dayIndex];
+    const newStart = minutesToTime(roundedStart);
+    const newEnd = minutesToTime(newEndMinutes);
+
+    const siblings = findSiblings(draggedEntry);
+    if (siblings.length > 0) {
+      setMoveDialog({
+        entry: draggedEntry,
+        newDay,
+        newStart,
+        newEnd,
+        siblings,
+      });
+    } else {
+      updateEntryPosition(draggedEntry.id, newDay, newStart, newEnd);
+    }
+
+    setDraggedEntry(null);
+  }
+
+  async function updateEntryPosition(id: string, newDay: string, newStart: string, newEnd: string) {
+    await supabase
+      .from("stundenplan")
+      .update({ day: newDay, time_start: newStart, time_end: newEnd })
+      .eq("id", id);
+    fetchEntries();
+  }
+
+  async function handleMoveChoice(mode: "this" | "all") {
+    if (!moveDialog) return;
+    const { entry, newDay, newStart, newEnd, siblings } = moveDialog;
+
+    if (mode === "this") {
+      await updateEntryPosition(entry.id, newDay, newStart, newEnd);
+    } else {
+      const idsToUpdate = [entry.id, ...siblings.map(s => s.id)];
+      await supabase
+        .from("stundenplan")
+        .update({ day: newDay, time_start: newStart, time_end: newEnd })
+        .in("id", idsToUpdate);
+      fetchEntries();
+    }
+
+    setMoveDialog(null);
   }
 
   async function copyToKw(targetKw: number) {
@@ -72,11 +194,6 @@ export default function StundenplanPage() {
     await supabase.from("stundenplan").insert(toCopy);
     fetchEntries();
     setCurrentKw(targetKw);
-  }
-
-  function timeToMinutes(t: string) {
-    const [h, m] = t.split(":").map(Number);
-    return h * 60 + m;
   }
 
   function getEntryStyle(entry: StundenplanEntry) {
@@ -196,7 +313,11 @@ export default function StundenplanPage() {
 
             <div className="ml-12 grid relative" style={{ gridTemplateColumns: "repeat(6, 1fr)", height: `${14 * 56}px` }}>
               {DAYS.map((_, i) => (
-                <div key={i} className="border-l border-surface-100" />
+                <div key={i}
+                  className="border-l border-surface-100 transition-colors"
+                  onDragOver={handleDayDropZoneDragOver}
+                  onDrop={(e) => handleDayDropZoneDrop(e, i)}
+                />
               ))}
 
               {currentEntries.map(entry => {
@@ -206,20 +327,23 @@ export default function StundenplanPage() {
                 const mod = modules.find(m => m.id === entry.module_id);
                 return (
                   <div key={entry.id}
-                    className="absolute px-1 group"
+                    draggable
+                    onDragStart={(e) => handleEntryDragStart(e, entry)}
+                    className="absolute px-1 group cursor-grab active:cursor-grabbing"
                     style={{
                       left: `${(dayIdx / 6) * 100}%`,
                       width: `${(1 / 6) * 100}%`,
                       top: `${top}px`,
                       height: `${height}px`,
                       padding: "2px",
+                      opacity: draggedEntry?.id === entry.id ? 0.5 : 1,
                     }}>
                     <div className="w-full h-full rounded-lg px-1.5 py-1 overflow-hidden text-white relative"
                       style={{ background: entry.color ?? mod?.color ?? "#6d28d9" }}>
                       <p className="text-[11px] font-semibold leading-tight truncate">{entry.title}</p>
                       {entry.room && <p className="text-[10px] opacity-80 truncate">{entry.room}</p>}
                       <p className="text-[10px] opacity-70">{entry.time_start} – {entry.time_end}</p>
-                      <button onClick={() => deleteEntry(entry.id)}
+                      <button onClick={() => handleDeleteClick(entry)}
                         className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 p-0.5 rounded bg-black/20 hover:bg-black/40">
                         <X size={10} />
                       </button>
@@ -250,6 +374,76 @@ export default function StundenplanPage() {
 
       {showUpgrade && (
         <UpgradeModal onClose={() => setShowUpgrade(false)} />
+      )}
+
+      {deleteDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm">
+            <div className="p-5 border-b border-surface-100">
+              <h2 className="font-semibold text-surface-900">{t("stundenplan.deleteDialogTitle")}</h2>
+            </div>
+            <div className="p-5">
+              <p className="text-sm text-surface-600 mb-6">
+                {t("stundenplan.deleteDialogText", { count: deleteDialog.siblings.length + 1 })}
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeleteDialog(null)}
+                  className="btn-secondary flex-1"
+                >
+                  {t("stundenplan.modal.cancel")}
+                </button>
+                <button
+                  onClick={() => handleDeleteChoice("this")}
+                  className="btn-secondary flex-1"
+                >
+                  {t("stundenplan.deleteThisWeek")}
+                </button>
+                <button
+                  onClick={() => handleDeleteChoice("all")}
+                  className="btn-primary flex-1"
+                >
+                  {t("stundenplan.deleteAllWeeks")}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {moveDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm">
+            <div className="p-5 border-b border-surface-100">
+              <h2 className="font-semibold text-surface-900">{t("stundenplan.moveDialogTitle")}</h2>
+            </div>
+            <div className="p-5">
+              <p className="text-sm text-surface-600 mb-6">
+                {t("stundenplan.moveDialogText", { day: moveDialog.newDay, time: `${moveDialog.newStart} – ${moveDialog.newEnd}` })}
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setMoveDialog(null)}
+                  className="btn-secondary flex-1"
+                >
+                  {t("stundenplan.modal.cancel")}
+                </button>
+                <button
+                  onClick={() => handleMoveChoice("this")}
+                  className="btn-secondary flex-1"
+                >
+                  {t("stundenplan.moveThisWeek")}
+                </button>
+                <button
+                  onClick={() => handleMoveChoice("all")}
+                  className="btn-primary flex-1"
+                >
+                  {t("stundenplan.moveAllWeeks")}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
