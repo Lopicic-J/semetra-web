@@ -29,6 +29,13 @@ export default function StundenplanPage() {
   const [deleteDialog, setDeleteDialog] = useState<{ entry: StundenplanEntry; siblings: StundenplanEntry[] } | null>(null);
   const [moveDialog, setMoveDialog] = useState<{ entry: StundenplanEntry; newDay: string; newStart: string; newEnd: string; siblings: StundenplanEntry[] } | null>(null);
   const [draggedEntry, setDraggedEntry] = useState<StundenplanEntry | null>(null);
+  const [editEntry, setEditEntry] = useState<StundenplanEntry | null>(null);
+  const [dragIndicator, setDragIndicator] = useState<{x: number; y: number; text: string} | null>(null);
+  const [newEntry, setNewEntry] = useState({
+    day: "Mo",
+    time_start: "08:00",
+    time_end: "09:00",
+  });
   const { modules } = useModules();
   const { isPro } = useProfile();
   const supabase = createClient();
@@ -112,6 +119,20 @@ export default function StundenplanPage() {
   function handleDayDropZoneDragOver(e: React.DragEvent) {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
+
+    // Show drag indicator with time
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const dropY = e.clientY - rect.top;
+    const gridStart = 7 * 60;
+    const minutes = Math.round((dropY / 56) * 60) + gridStart;
+    const rounded = Math.round(minutes / 15) * 15;
+    const timeText = minutesToTime(rounded);
+
+    setDragIndicator({
+      x: e.clientX,
+      y: e.clientY,
+      text: timeText,
+    });
   }
 
   function handleDayDropZoneDrop(e: React.DragEvent, dayIndex: number) {
@@ -147,6 +168,7 @@ export default function StundenplanPage() {
     }
 
     setDraggedEntry(null);
+    setDragIndicator(null);
   }
 
   async function updateEntryPosition(id: string, newDay: string, newStart: string, newEnd: string) {
@@ -314,9 +336,26 @@ export default function StundenplanPage() {
             <div className="ml-12 grid relative" style={{ gridTemplateColumns: "repeat(6, 1fr)", height: `${14 * 56}px` }}>
               {DAYS.map((_, i) => (
                 <div key={i}
-                  className="border-l border-surface-100 transition-colors"
+                  className="border-l border-surface-100 transition-colors cursor-pointer hover:bg-brand-50/30"
                   onDragOver={handleDayDropZoneDragOver}
                   onDrop={(e) => handleDayDropZoneDrop(e, i)}
+                  onClick={(e) => {
+                    // Only create entry if clicking on empty area (not on an existing entry)
+                    if ((e.target as HTMLElement).closest('[draggable="true"]')) return;
+
+                    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                    const dropY = e.clientY - rect.top;
+                    const gridStart = 7 * 60;
+                    const minutes = Math.round((dropY / 56) * 60) + gridStart;
+                    const rounded = Math.round(minutes / 15) * 15;
+
+                    setNewEntry({
+                      day: DAYS_SHORT[i],
+                      time_start: minutesToTime(rounded),
+                      time_end: minutesToTime(rounded + 60),
+                    });
+                    setShowForm(true);
+                  }}
                 />
               ))}
 
@@ -328,7 +367,8 @@ export default function StundenplanPage() {
                 return (
                   <div key={entry.id}
                     draggable
-                    onDragStart={(e) => handleEntryDragStart(e, entry)}
+                    onDragStart={(e) => { handleEntryDragStart(e, entry); e.stopPropagation(); }}
+                    onDoubleClick={(e) => { setEditEntry(entry); e.stopPropagation(); }}
                     className="absolute px-1 group cursor-grab active:cursor-grabbing"
                     style={{
                       left: `${(dayIdx / 6) * 100}%`,
@@ -343,7 +383,7 @@ export default function StundenplanPage() {
                       <p className="text-[11px] font-semibold leading-tight truncate">{entry.title}</p>
                       {entry.room && <p className="text-[10px] opacity-80 truncate">{entry.room}</p>}
                       <p className="text-[10px] opacity-70">{entry.time_start} – {entry.time_end}</p>
-                      <button onClick={() => handleDeleteClick(entry)}
+                      <button onClick={(e) => { handleDeleteClick(entry); e.stopPropagation(); }}
                         className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 p-0.5 rounded bg-black/20 hover:bg-black/40">
                         <X size={10} />
                       </button>
@@ -367,8 +407,18 @@ export default function StundenplanPage() {
           modules={modules}
           currentKw={currentKw}
           currentSemester={currentSemester}
-          onClose={() => setShowForm(false)}
-          onSaved={() => { setShowForm(false); fetchEntries(); }}
+          prefilledEntry={newEntry}
+          onClose={() => { setShowForm(false); setNewEntry({ day: "Mo", time_start: "08:00", time_end: "09:00" }); }}
+          onSaved={() => { setShowForm(false); setNewEntry({ day: "Mo", time_start: "08:00", time_end: "09:00" }); fetchEntries(); }}
+        />
+      )}
+
+      {editEntry && (
+        <StundenplanEditModal
+          modules={modules}
+          entry={editEntry}
+          onClose={() => setEditEntry(null)}
+          onSaved={() => { setEditEntry(null); fetchEntries(); }}
         />
       )}
 
@@ -411,6 +461,16 @@ export default function StundenplanPage() {
         </div>
       )}
 
+      {dragIndicator && (
+        <div className="fixed z-50 bg-surface-800 text-white text-xs px-2 py-1 rounded pointer-events-none"
+          style={{
+            left: `${dragIndicator.x + 10}px`,
+            top: `${dragIndicator.y + 10}px`,
+          }}>
+          {dragIndicator.text}
+        </div>
+      )}
+
       {moveDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm">
@@ -449,10 +509,11 @@ export default function StundenplanPage() {
   );
 }
 
-function StundenplanModal({ modules, currentKw, currentSemester, onClose, onSaved }: {
+function StundenplanModal({ modules, currentKw, currentSemester, prefilledEntry, onClose, onSaved }: {
   modules: ReturnType<typeof useModules>["modules"];
   currentKw: number;
   currentSemester: string;
+  prefilledEntry?: { day: string; time_start: string; time_end: string };
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -462,9 +523,9 @@ function StundenplanModal({ modules, currentKw, currentSemester, onClose, onSave
 
   const [form, setForm] = useState({
     title: "",
-    day: "Mo",
-    time_start: "08:00",
-    time_end: "10:00",
+    day: prefilledEntry?.day ?? "Mo",
+    time_start: prefilledEntry?.time_start ?? "08:00",
+    time_end: prefilledEntry?.time_end ?? "10:00",
     room: "",
     module_id: "",
     color: COLORS[0],
@@ -550,6 +611,114 @@ function StundenplanModal({ modules, currentKw, currentSemester, onClose, onSave
               {t("stundenplan.modal.kwWarning", { count: parseInt(form.kw_to) - parseInt(form.kw_from) + 1, from: form.kw_from, to: form.kw_to })}
             </p>
           )}
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.roomLabel")}</label>
+              <input className="input" value={form.room} onChange={e => set("room", e.target.value)} placeholder={t("stundenplan.modal.roomPlaceholder")} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.moduleLabel")}</label>
+              <select className="input" value={form.module_id} onChange={e => set("module_id", e.target.value)}>
+                <option value="">—</option>
+                {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-surface-700 mb-2">{t("stundenplan.modal.colorLabel")}</label>
+            <div className="flex gap-2 flex-wrap">
+              {COLORS.map(c => (
+                <button key={c} type="button" onClick={() => set("color", c)}
+                  className={`w-7 h-7 rounded-full border-2 transition-transform ${form.color === c ? "border-surface-800 scale-110" : "border-transparent"}`}
+                  style={{ background: c }} />
+              ))}
+            </div>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={onClose} className="btn-secondary flex-1">{t("stundenplan.modal.cancel")}</button>
+            <button type="submit" disabled={saving} className="btn-primary flex-1 justify-center">
+              {saving ? t("stundenplan.modal.saving") : t("stundenplan.modal.save")}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function StundenplanEditModal({ modules, entry, onClose, onSaved }: {
+  modules: ReturnType<typeof useModules>["modules"];
+  entry: StundenplanEntry;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const { t } = useTranslation();
+  const supabase = createClient();
+  const COLORS = ["#6d28d9","#2563eb","#dc2626","#059669","#d97706","#db2777","#0891b2","#7c3aed"];
+
+  const [form, setForm] = useState({
+    title: entry.title,
+    day: entry.day,
+    time_start: entry.time_start,
+    time_end: entry.time_end,
+    room: entry.room ?? "",
+    module_id: entry.module_id ?? "",
+    color: entry.color ?? COLORS[0],
+  });
+  const [saving, setSaving] = useState(false);
+
+  function set(k: string, v: string) { setForm(f => ({ ...f, [k]: v })); }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+
+    await supabase
+      .from("stundenplan")
+      .update({
+        title: form.title,
+        day: form.day,
+        time_start: form.time_start,
+        time_end: form.time_end,
+        room: form.room || null,
+        module_id: form.module_id || null,
+        color: form.color,
+      })
+      .eq("id", entry.id);
+
+    setSaving(false);
+    onSaved();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+        <div className="flex items-center justify-between p-5 border-b border-surface-100">
+          <h2 className="font-semibold text-surface-900">{t("stundenplan.modal.editTitle") || "Edit Entry"}</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.nameLabel")} *</label>
+            <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("stundenplan.modal.namePlaceholder")} />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.dayLabel")}</label>
+              <select className="input" value={form.day} onChange={e => set("day", e.target.value)}>
+                {DAYS_SHORT.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.fromLabel")}</label>
+              <input className="input" type="time" value={form.time_start} onChange={e => set("time_start", e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.toLabel")}</label>
+              <input className="input" type="time" value={form.time_end} onChange={e => set("time_end", e.target.value)} />
+            </div>
+          </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>

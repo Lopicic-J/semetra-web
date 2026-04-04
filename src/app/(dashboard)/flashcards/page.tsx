@@ -1162,9 +1162,9 @@ export default function FlashcardsPage() {
               setSelectMode(!selectMode);
               if (!selectMode) setSelectedCards(new Set());
             }}
-            className={`text-sm px-3 py-1.5 rounded-lg transition ${selectMode ? "bg-brand-50 text-brand-700 border border-brand-300" : "text-surface-600 hover:bg-surface-100"}`}
+            className={`text-sm px-3 py-1.5 rounded-lg transition flex items-center gap-2 ${selectMode ? "bg-brand-50 text-brand-700 border border-brand-300" : "text-surface-600 hover:bg-surface-100"}`}
           >
-            {t("flashcards.select")}
+            <CheckSquare size={16} /> {t("flashcards.select")}
           </button>
           {dueCards.length > 0 && (
             <button onClick={() => setStudyMode(true)} className="btn-primary gap-2 text-sm">
@@ -1406,26 +1406,60 @@ export default function FlashcardsPage() {
       )}
 
       {/* ── Floating Action Bar (Multi-select) ── */}
-      {selectMode && selectedCards.size > 0 && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white border border-surface-200 rounded-lg shadow-lg p-4 flex items-center gap-4 z-40">
-          <span className="text-sm font-medium text-surface-700">
-            {t("flashcards.selected", { count: String(selectedCards.size) })}
-          </span>
-          <button
-            onClick={handleDeleteSelected}
-            className="btn-danger text-sm gap-2"
-          >
-            <Trash2 size={14} /> {t("flashcards.deleteSelected")}
-          </button>
-          <button
-            onClick={() => {
-              setSelectMode(false);
-              setSelectedCards(new Set());
-            }}
-            className="text-sm px-3 py-1.5 rounded-lg text-surface-600 hover:bg-surface-100"
-          >
-            {t("flashcards.cancel")}
-          </button>
+      {selectMode && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white border border-surface-200 rounded-lg shadow-lg p-4 flex items-center justify-center gap-4 z-40">
+          <div className="flex items-center gap-4">
+            {/* Select All / Deselect All Toggle */}
+            <button
+              onClick={() => {
+                if (selectedCards.size === filtered.length && filtered.length > 0) {
+                  // All selected → deselect all
+                  setSelectedCards(new Set());
+                } else {
+                  // Select all
+                  setSelectedCards(new Set(filtered.map(c => c.id)));
+                }
+              }}
+              className="text-sm px-3 py-1.5 rounded-lg transition flex items-center gap-2 bg-surface-100 hover:bg-surface-200 text-surface-700"
+              title={selectedCards.size === filtered.length && filtered.length > 0 ? t("flashcards.deselectAll") : t("flashcards.selectAll")}
+            >
+              {selectedCards.size === filtered.length && filtered.length > 0 ? (
+                <>
+                  <Square size={14} /> {t("flashcards.deselectAll")}
+                </>
+              ) : (
+                <>
+                  <CheckSquare size={14} /> {t("flashcards.selectAll")}
+                </>
+              )}
+            </button>
+
+            {/* Count Display */}
+            <span className="text-sm font-medium text-surface-700 whitespace-nowrap">
+              {selectedCards.size} {t("flashcards.of")} {filtered.length} {t("flashcards.selected")}
+            </span>
+
+            {/* Delete Button */}
+            {selectedCards.size > 0 && (
+              <button
+                onClick={handleDeleteSelected}
+                className="btn-danger text-sm gap-2"
+              >
+                <Trash2 size={14} /> {t("flashcards.delete")}
+              </button>
+            )}
+
+            {/* Cancel Button */}
+            <button
+              onClick={() => {
+                setSelectMode(false);
+                setSelectedCards(new Set());
+              }}
+              className="text-sm px-3 py-1.5 rounded-lg text-surface-600 hover:bg-surface-100"
+            >
+              {t("flashcards.cancel")}
+            </button>
+          </div>
         </div>
       )}
 

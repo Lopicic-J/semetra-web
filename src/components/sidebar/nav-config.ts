@@ -49,6 +49,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/knowledge",     icon: Brain,       labelKey: "nav.knowledge",     pro: false },
       { href: "/notes",         icon: FileText,    labelKey: "nav.notes",         pro: false },
       { href: "/documents",     icon: FolderOpen,  labelKey: "nav.documents",     pro: false },
+      { href: "/timer",         icon: Timer,       labelKey: "nav.timer",         pro: false },
     ],
   },
   // Group 4: Werkzeuge
@@ -59,7 +60,6 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/mindmaps",      icon: Network,     labelKey: "nav.mindmaps",      pro: false },
       { href: "/brainstorming", icon: Lightbulb,   labelKey: "nav.brainstorming", pro: false },
       { href: "/math",          icon: Calculator,  labelKey: "nav.math",          pro: false },
-      { href: "/timer",         icon: Timer,       labelKey: "nav.timer",         pro: false },
     ],
   },
   // Group 5: Fortschritt
