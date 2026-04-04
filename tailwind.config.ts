@@ -58,6 +58,7 @@ const config: Config = {
           500: "#ef4444",
           600: "#dc2626",
           700: "#b91c1c",
+          800: "#991b1b",
         },
         info: {
           50:  "#eff6ff",
