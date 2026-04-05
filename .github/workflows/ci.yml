@@ -16,30 +16,20 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: semetra-web/package-lock.json
 
       - name: Install dependencies
-        working-directory: semetra-web
         run: npm ci
 
       - name: TypeScript check
-        working-directory: semetra-web
         run: npx tsc --noEmit
 
       - name: Lint
-        working-directory: semetra-web
         run: npx next lint
 
       - name: Unit Tests
-        working-directory: semetra-web
         run: npx vitest run --reporter=verbose
 
-      - name: Test Coverage
-        working-directory: semetra-web
-        run: npx vitest run --coverage
-
       - name: Build
-        working-directory: semetra-web
         run: npm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
