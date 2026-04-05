@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/logger";
+
+const log = logger("api:attempts");
 
 /**
  * GET /api/academic/enrollments/:enrollmentId/attempts
@@ -156,7 +159,7 @@ export async function POST(
         .select();
 
       if (crErr) {
-        console.error("[attempts POST] component_results", crErr);
+        log.error("POST component_results insert failed", { error: crErr });
       }
       componentResults = crData || [];
     }
@@ -172,7 +175,7 @@ export async function POST(
       { status: 201 }
     );
   } catch (err: unknown) {
-    console.error("[attempts POST]", err);
+    log.error("POST failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }

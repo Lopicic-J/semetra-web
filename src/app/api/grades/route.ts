@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { syncGradeToEngine, unsyncGradeFromEngine } from "@/lib/academic/grade-bridge";
+import { logger } from "@/lib/logger";
 import type { LegacyGradeInput } from "@/lib/academic/grade-bridge";
 import type { CountryCode } from "@/lib/grading-systems";
+
+const log = logger("api:grades");
 
 /**
  * GET /api/grades
@@ -136,7 +139,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (err: unknown) {
-    console.error("[grades POST]", err);
+    log.error("POST failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }
@@ -229,7 +232,7 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ grade: gradeRow, bridge: bridgeResult });
   } catch (err: unknown) {
-    console.error("[grades PATCH]", err);
+    log.error("PATCH failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }
@@ -280,7 +283,7 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({ deleted: true, bridge: bridgeResult });
   } catch (err: unknown) {
-    console.error("[grades DELETE]", err);
+    log.error("DELETE failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }

@@ -306,12 +306,12 @@ export default function ProfilePage() {
             )}
             <div className="flex gap-2">
               {!isPro ? (
-                <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white text-surface-900 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-surface-100 transition">
+                <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-surface-100/50 text-surface-900 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-surface-100 transition">
                   <Zap size={12} /> Upgrade auf Pro
                 </Link>
               ) : (
                 <>
-                  <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white text-surface-900 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-surface-100 transition">
+                  <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-surface-100/50 text-surface-900 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-surface-100 transition">
                     Abo verwalten
                   </Link>
                   <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white/10 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/20 transition">

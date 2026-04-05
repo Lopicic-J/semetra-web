@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/logger";
+
+const log = logger("api:modules");
 
 /**
  * GET /api/academic/modules/[id]
@@ -28,7 +31,7 @@ export async function GET(
           { status: 404 }
         );
       }
-      console.error("[academic/modules/[id] GET]", moduleError);
+      log.error("GET fetch failed", { error: moduleError });
       return NextResponse.json({ error: moduleError.message }, { status: 500 });
     }
 
@@ -40,7 +43,7 @@ export async function GET(
       .order("sequence_order", { ascending: true });
 
     if (componentsError) {
-      console.error("[academic/modules/[id] GET components]", componentsError);
+      log.error("GET components fetch failed", { error: componentsError });
       return NextResponse.json({ error: componentsError.message }, { status: 500 });
     }
 
@@ -49,7 +52,7 @@ export async function GET(
       components: components || [],
     });
   } catch (err: unknown) {
-    console.error("[academic/modules/[id] GET]", err);
+    log.error("GET failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }
@@ -137,13 +140,13 @@ export async function PATCH(
       .single();
 
     if (error) {
-      console.error("[academic/modules/[id] PATCH]", error);
+      log.error("PATCH update failed", { error });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ module: data });
   } catch (err: unknown) {
-    console.error("[academic/modules/[id] PATCH]", err);
+    log.error("PATCH failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }

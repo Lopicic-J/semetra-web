@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/logger";
+
+const log = logger("api:module-validate");
 
 /**
  * POST /api/academic/modules/[id]/validate
@@ -114,7 +117,7 @@ export async function POST(
       warnings,
     });
   } catch (err: unknown) {
-    console.error("[academic/modules/[id]/validate POST]", err);
+    log.error("POST failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }

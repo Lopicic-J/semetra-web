@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/logger";
+
+const log = logger("api:module-prerequisites");
 
 /**
  * GET /api/academic/modules/[id]/prerequisites
@@ -40,7 +43,7 @@ export async function GET(
       prerequisites,
     });
   } catch (err: unknown) {
-    console.error("[academic/modules/[id]/prerequisites GET]", err);
+    log.error("GET failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }
@@ -164,7 +167,7 @@ export async function POST(
       .single();
 
     if (updateError) {
-      console.error("[academic/modules/[id]/prerequisites POST]", updateError);
+      log.error("POST update failed", { error: updateError });
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
@@ -174,7 +177,7 @@ export async function POST(
       prerequisites: updated.prerequisites_json,
     }, { status: 201 });
   } catch (err: unknown) {
-    console.error("[academic/modules/[id]/prerequisites POST]", err);
+    log.error("POST failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }

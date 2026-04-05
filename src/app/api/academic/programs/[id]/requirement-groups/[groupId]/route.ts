@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/logger";
+
+const log = logger("api:requirement-groups");
 
 /**
  * DELETE /api/academic/programs/[id]/requirement-groups/[groupId]
@@ -42,13 +45,13 @@ export async function DELETE(
       .eq("id", groupId);
 
     if (error) {
-      console.error("[academic/programs/[id]/requirement-groups/[groupId] DELETE]", error);
+      log.error("DELETE failed", { error });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (err: unknown) {
-    console.error("[academic/programs/[id]/requirement-groups/[groupId] DELETE]", err);
+    log.error("DELETE failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }

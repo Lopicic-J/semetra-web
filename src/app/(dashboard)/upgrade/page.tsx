@@ -325,7 +325,7 @@ function UpgradeContent() {
             <p className="text-xs text-white/50 mt-1">{t("upgrade.lifetimeBasicDesc")}</p>
             <a
               href={LIFETIME_BASIC_PRICE.paymentLink}
-              className="mt-3 inline-block bg-white text-surface-900 px-5 py-2 rounded-xl font-semibold text-xs hover:bg-surface-100 transition-all"
+              className="mt-3 inline-block bg-surface-100/50 text-surface-900 px-5 py-2 rounded-xl font-semibold text-xs hover:bg-surface-100 transition-all"
             >
               {t("upgrade.buyLifetime")}
             </a>
@@ -343,7 +343,7 @@ function UpgradeContent() {
             {LIFETIME_FULL_PRICE.paymentLink ? (
               <a
                 href={LIFETIME_FULL_PRICE.paymentLink}
-                className="mt-3 inline-block bg-white text-surface-900 px-5 py-2 rounded-xl font-semibold text-xs hover:bg-surface-100 transition-all"
+                className="mt-3 inline-block bg-surface-100/50 text-surface-900 px-5 py-2 rounded-xl font-semibold text-xs hover:bg-surface-100 transition-all"
               >
                 {t("upgrade.buyLifetime")}
               </a>
@@ -464,7 +464,7 @@ function LifetimeFullButton() {
         }
         setLoading(false);
       }}
-      className="mt-3 inline-block bg-white text-surface-900 px-5 py-2 rounded-xl font-semibold text-xs hover:bg-surface-100 transition-all disabled:opacity-60"
+      className="mt-3 inline-block bg-surface-100/50 text-surface-900 px-5 py-2 rounded-xl font-semibold text-xs hover:bg-surface-100 transition-all disabled:opacity-60"
     >
       {loading ? t("upgrade.upgrading") : t("upgrade.buyLifetime")}
     </button>

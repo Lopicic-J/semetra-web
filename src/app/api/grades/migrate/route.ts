@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { migrateUserGrades } from "@/lib/academic/grade-bridge";
 import type { CountryCode } from "@/lib/grading-systems";
+import { logger } from "@/lib/logger";
+
+const log = logger("api:grades-migrate");
 
 /**
  * POST /api/grades/migrate
@@ -41,7 +44,7 @@ export async function POST() {
           : `${result.migrated} Noten erfolgreich migriert`,
     });
   } catch (err: unknown) {
-    console.error("[grades/migrate POST]", err);
+    log.error("POST migration failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }

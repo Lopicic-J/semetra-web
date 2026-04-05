@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/logger";
+
+const log = logger("api:institutions");
 
 /**
  * GET /api/academic/institutions
@@ -23,13 +26,13 @@ export async function GET(req: NextRequest) {
     const { data, error } = await query;
 
     if (error) {
-      console.error("[academic/institutions GET]", error);
+      log.error("GET failed", { error });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ institutions: data || [] });
   } catch (err: unknown) {
-    console.error("[academic/institutions GET]", err);
+    log.error("GET failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }
@@ -90,13 +93,13 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error) {
-      console.error("[academic/institutions POST]", error);
+      log.error("POST insert failed", { error });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ institution: data }, { status: 201 });
   } catch (err: unknown) {
-    console.error("[academic/institutions POST]", err);
+    log.error("POST failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }

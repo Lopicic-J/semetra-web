@@ -15,6 +15,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <I18nWrapper>
       <OfflineBanner />
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-primary-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
+      >
+        Zum Hauptinhalt springen
+      </a>
       <div className="flex h-screen bg-surface-50 overflow-hidden">
         {/* Desktop sidebar — hidden on mobile */}
         <div className="hidden md:flex">
@@ -25,7 +31,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           {/* Mobile header — visible only on mobile */}
           <MobileHeader />
 
-          <main className="flex-1 overflow-y-auto">
+          <main id="main-content" className="flex-1 overflow-y-auto">
             {children}
           </main>
         </div>

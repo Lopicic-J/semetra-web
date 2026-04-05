@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/logger";
+
+const log = logger("api:programs");
 
 /**
  * GET /api/academic/programs/[id]
@@ -28,7 +31,7 @@ export async function GET(
           { status: 404 }
         );
       }
-      console.error("[academic/programs/[id] GET]", programError);
+      log.error("GET fetch failed", { error: programError });
       return NextResponse.json({ error: programError.message }, { status: 500 });
     }
 
@@ -39,7 +42,7 @@ export async function GET(
       .eq("program_id", id);
 
     if (groupsError) {
-      console.error("[academic/programs/[id] GET groups]", groupsError);
+      log.error("GET groups fetch failed", { error: groupsError });
       return NextResponse.json({ error: groupsError.message }, { status: 500 });
     }
 
@@ -50,7 +53,7 @@ export async function GET(
       .eq("program_id", id);
 
     if (modulesError) {
-      console.error("[academic/programs/[id] GET modules]", modulesError);
+      log.error("GET modules fetch failed", { error: modulesError });
       return NextResponse.json({ error: modulesError.message }, { status: 500 });
     }
 
@@ -60,7 +63,7 @@ export async function GET(
       modules: modules || [],
     });
   } catch (err: unknown) {
-    console.error("[academic/programs/[id] GET]", err);
+    log.error("GET failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }
@@ -137,13 +140,13 @@ export async function PATCH(
       .single();
 
     if (error) {
-      console.error("[academic/programs/[id] PATCH]", error);
+      log.error("PATCH update failed", { error });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ program: data });
   } catch (err: unknown) {
-    console.error("[academic/programs/[id] PATCH]", err);
+    log.error("PATCH failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }

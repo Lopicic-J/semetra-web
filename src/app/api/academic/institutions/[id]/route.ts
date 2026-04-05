@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/logger";
+
+const log = logger("api:institutions");
 
 /**
  * GET /api/academic/institutions/[id]
@@ -28,7 +31,7 @@ export async function GET(
           { status: 404 }
         );
       }
-      console.error("[academic/institutions/[id] GET]", institutionError);
+      log.error("GET fetch failed", { error: institutionError });
       return NextResponse.json({ error: institutionError.message }, { status: 500 });
     }
 
@@ -39,7 +42,7 @@ export async function GET(
       .eq("institution_id", id);
 
     if (facultiesError) {
-      console.error("[academic/institutions/[id] GET faculties]", facultiesError);
+      log.error("GET faculties fetch failed", { error: facultiesError });
       return NextResponse.json({ error: facultiesError.message }, { status: 500 });
     }
 
@@ -50,7 +53,7 @@ export async function GET(
       .eq("institution_id", id);
 
     if (programsError) {
-      console.error("[academic/institutions/[id] GET programs]", programsError);
+      log.error("GET programs fetch failed", { error: programsError });
       return NextResponse.json({ error: programsError.message }, { status: 500 });
     }
 
@@ -60,7 +63,7 @@ export async function GET(
       programs: programs || [],
     });
   } catch (err: unknown) {
-    console.error("[academic/institutions/[id] GET]", err);
+    log.error("GET failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }
@@ -126,13 +129,13 @@ export async function PATCH(
       .single();
 
     if (error) {
-      console.error("[academic/institutions/[id] PATCH]", error);
+      log.error("PATCH update failed", { error });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ institution: data });
   } catch (err: unknown) {
-    console.error("[academic/institutions/[id] PATCH]", err);
+    log.error("PATCH failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }
@@ -178,13 +181,13 @@ export async function DELETE(
       .eq("id", id);
 
     if (error) {
-      console.error("[academic/institutions/[id] DELETE]", error);
+      log.error("DELETE failed", { error });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err: unknown) {
-    console.error("[academic/institutions/[id] DELETE]", err);
+    log.error("DELETE failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }

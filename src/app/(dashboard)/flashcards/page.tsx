@@ -1408,7 +1408,7 @@ export default function FlashcardsPage() {
       {examProgress.length > 0 && (
         <div className="mb-6 space-y-2">
           {examProgress.map(ep => (
-            <div key={ep.exam.id} className="bg-white border border-surface-200 rounded-xl p-3 flex items-center gap-4">
+            <div key={ep.exam.id} className="bg-surface-100/50 border border-surface-200 rounded-xl p-3 flex items-center gap-4">
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold ${
                 ep.days <= 3 ? "bg-red-100 text-red-700" : ep.days <= 7 ? "bg-amber-100 text-amber-700" : "bg-surface-100 text-surface-700"
               }`}>
@@ -1468,7 +1468,7 @@ export default function FlashcardsPage() {
       </div>
 
       {/* ── Study Rating Filter — choose which ratings to include ── */}
-      <div className="bg-white border border-surface-200 rounded-xl p-3 mb-6">
+      <div className="bg-surface-100/50 border border-surface-200 rounded-xl p-3 mb-6">
         <p className="text-xs font-semibold text-surface-600 mb-2 flex items-center gap-1.5">
           <Filter size={12} /> {t("fc.studyFilter") || "Lernfilter — Welche Bewertungen wiederholen?"}
         </p>

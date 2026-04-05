@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/logger";
+
+const log = logger("api:module-components");
 
 /**
  * DELETE /api/academic/modules/[id]/components/[componentId]
@@ -42,13 +45,13 @@ export async function DELETE(
       .eq("id", componentId);
 
     if (error) {
-      console.error("[academic/modules/[id]/components/[componentId] DELETE]", error);
+      log.error("DELETE failed", { error });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (err: unknown) {
-    console.error("[academic/modules/[id]/components/[componentId] DELETE]", err);
+    log.error("DELETE failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }

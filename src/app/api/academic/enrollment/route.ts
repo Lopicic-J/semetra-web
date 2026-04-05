@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/logger";
+
+const log = logger("api:enrollment");
 
 /**
  * GET /api/academic/enrollment
@@ -28,7 +31,7 @@ export async function GET() {
       .single();
 
     if (profileError) {
-      console.error("[enrollment GET] profile", profileError);
+      log.error("GET profile failed", { error: profileError });
       return NextResponse.json(
         { error: profileError.message },
         { status: 500 }
@@ -51,7 +54,7 @@ export async function GET() {
       .order("created_at", { ascending: false });
 
     if (enrollError) {
-      console.error("[enrollment GET] enrollments", enrollError);
+      log.error("GET enrollments failed", { error: enrollError });
       return NextResponse.json(
         { error: enrollError.message },
         { status: 500 }
@@ -77,7 +80,7 @@ export async function GET() {
       enrollments: enrollments || [],
     });
   } catch (err: unknown) {
-    console.error("[enrollment GET]", err);
+    log.error("GET failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }
@@ -166,7 +169,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (updateErr) {
-      console.error("[enrollment POST] update", updateErr);
+      log.error("POST profile update failed", { error: updateErr });
       return NextResponse.json(
         { error: updateErr.message },
         { status: 500 }
@@ -197,7 +200,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (err: unknown) {
-    console.error("[enrollment POST]", err);
+    log.error("POST failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }
@@ -252,13 +255,13 @@ export async function PATCH(req: NextRequest) {
       .single();
 
     if (error) {
-      console.error("[enrollment PATCH]", error);
+      log.error("PATCH failed", { error });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ profile: data });
   } catch (err: unknown) {
-    console.error("[enrollment PATCH]", err);
+    log.error("PATCH failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
       { status: 500 }
