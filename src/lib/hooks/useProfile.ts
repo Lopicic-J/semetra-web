@@ -27,6 +27,11 @@ export interface Profile {
   study_start: string | null;
   study_end: string | null;
   ai_credits: number;               // Legacy add-on credits
+  language: string | null;
+  // Academic Engine fields (Migration 041)
+  institution_id: string | null;
+  active_program_id: string | null;
+  current_semester: number | null;
 }
 
 export function useProfile() {

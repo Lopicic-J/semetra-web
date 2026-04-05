@@ -256,7 +256,7 @@ export default function NavigatorPage() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder={t("navigator.searchPlaceholder") || "Suche nach Funktionen, Tools, Seiten..."}
-          className="w-full bg-white text-surface-900 rounded-2xl px-12 py-3.5 border border-surface-200 text-sm focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-all shadow-sm"
+          className="w-full bg-surface-100 text-surface-900 rounded-2xl px-12 py-3.5 border border-surface-200 text-sm focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-all shadow-sm"
         />
         {search ? (
           <button onClick={() => setSearch("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-surface-300 hover:text-surface-600 transition">
@@ -278,7 +278,7 @@ export default function NavigatorPage() {
               <Link
                 key={stat.label}
                 href={stat.href}
-                className={`bg-white rounded-xl border p-3.5 hover:shadow-md transition-all group ${
+                className={`bg-surface-100 rounded-xl border p-3.5 hover:shadow-md transition-all group ${
                   stat.urgent ? "border-red-200 bg-red-50/30" : "border-surface-200"
                 }`}
               >
@@ -341,7 +341,7 @@ export default function NavigatorPage() {
         <button
           onClick={() => setActiveGroup(null)}
           className={`px-3.5 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
-            !activeGroup ? "bg-brand-600 text-white shadow-sm" : "bg-white text-surface-500 border border-surface-200 hover:border-brand-300 hover:text-brand-600"
+            !activeGroup ? "bg-brand-600 text-white shadow-sm" : "bg-surface-100 text-surface-500 border border-surface-200 hover:border-brand-300 hover:text-brand-600"
           }`}
         >
           {t("navigator.all") || "Alle"} ({FEATURES.length})
@@ -356,7 +356,7 @@ export default function NavigatorPage() {
               key={gKey}
               onClick={() => setActiveGroup(active ? null : gKey)}
               className={`px-3.5 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${
-                active ? "bg-brand-600 text-white shadow-sm" : "bg-white text-surface-500 border border-surface-200 hover:border-brand-300 hover:text-brand-600"
+                active ? "bg-brand-600 text-white shadow-sm" : "bg-surface-100 text-surface-500 border border-surface-200 hover:border-brand-300 hover:text-brand-600"
               }`}
             >
               <Icon size={13} />
@@ -383,7 +383,7 @@ export default function NavigatorPage() {
                   <Link
                     key={f.href}
                     href={f.href}
-                    className="bg-white rounded-xl border border-surface-200 p-3.5 hover:border-brand-300 hover:shadow-md transition-all group relative"
+                    className="bg-surface-100 rounded-xl border border-surface-200 p-3.5 hover:border-brand-300 hover:shadow-md transition-all group relative"
                   >
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: f.color + "12" }}>

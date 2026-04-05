@@ -13,10 +13,13 @@
  */
 
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/logger";
 import { AI_POOL } from "@/lib/gates";
 import type { PlanTier } from "@/lib/gates";
 import type { AiActionType } from "@/lib/ai-weights";
 import { AI_WEIGHTS } from "@/lib/ai-weights";
+
+const log = logger("ai:usage");
 
 function currentMonth(): string {
   const d = new Date();
@@ -98,7 +101,7 @@ export async function checkAndIncrementAiUsage(
   });
 
   if (error) {
-    console.error("AI usage check failed:", error);
+    log.error("AI usage check failed", error);
     return { allowed: true, used: 0, remaining: 0, cost: weight, source: "pool", monthlyPool, addonCredits: 0 };
   }
 

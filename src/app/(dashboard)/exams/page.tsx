@@ -222,6 +222,14 @@ export default function ExamsPage() {
                         {t("exams.topicsDone", { done: todayPlan.length, total: studyPlan.length })}
                       </button>
                     )}
+                    {/* Link to persistent Lernplan */}
+                    <Link
+                      href="/lernplan"
+                      className="w-full flex items-center justify-center gap-2 py-2.5 mt-2 bg-brand-50 text-brand-600 rounded-xl text-sm font-medium hover:bg-brand-100 transition-colors"
+                    >
+                      <CalendarDays size={15} />
+                      {t("exams.openLernplan")}
+                    </Link>
                   </div>
                 )
               ) : (
@@ -603,15 +611,15 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
         </h3>
         <div className="flex gap-2">
           <button onClick={() => { setShowNoteForm(!showNoteForm); setShowLinkForm(false); }}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-surface-100 border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
             <StickyNote size={12} /> {t("exams.note")}
           </button>
           <button onClick={() => { setShowLinkForm(!showLinkForm); setShowNoteForm(false); }}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-surface-100 border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
             <Link2 size={12} /> {t("exams.link")}
           </button>
           <button onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-surface-100 border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
             <Upload size={12} /> {t("exams.file")}
           </button>
           <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileUpload}
@@ -698,7 +706,7 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
               <p className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider mb-1.5">{t("exams.linksSection")}</p>
               <div className="space-y-1.5">
                 {links.map(att => (
-                  <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-surface-100 group/att hover:border-brand-200 transition-colors">
+                  <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-surface-100 border border-surface-100 group/att hover:border-brand-200 transition-colors">
                     <span className="text-sm shrink-0">🔗</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-surface-800 truncate">{att.label || att.url}</p>
@@ -724,7 +732,7 @@ function ExamAttachmentsPanel({ examId }: { examId: string }) {
               <p className="text-[10px] font-semibold text-surface-400 uppercase tracking-wider mb-1.5">{t("exams.filesSection")}</p>
               <div className="space-y-1.5">
                 {files.map(att => (
-                  <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-surface-100 group/att hover:border-brand-200 transition-colors">
+                  <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-surface-100 border border-surface-100 group/att hover:border-brand-200 transition-colors">
                     <span className="text-sm shrink-0">{fileIcon(att.kind, att.file_type)}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-surface-800 truncate">{att.label || att.url}</p>
@@ -798,7 +806,7 @@ function ExamModal({ initial, modules, onClose, onSaved }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between p-5 border-b border-surface-100">
           <h2 className="font-semibold text-surface-900">{initial ? t("exams.modal.editTitle") : t("exams.modal.title")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>

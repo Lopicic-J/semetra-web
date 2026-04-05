@@ -4,16 +4,26 @@ import { createClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/lib/i18n";
 import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
-import { aiUsageToday, aiUsageIncrement } from "@/lib/gates";
+import { aiUsageThisMonth, aiUsageIncrement } from "@/lib/gates";
 import Link from "next/link";
 import {
   Sparkles, Send, Brain, BookOpen, HelpCircle, FileText,
   ChevronDown, X, Loader2, Zap, MessageSquare, RotateCcw,
-  GraduationCap, Target, Lightbulb, Lock
+  GraduationCap, Target, Lightbulb, Lock, CalendarClock,
+  Compass, History, Trash2, PanelLeftClose, PanelLeft
 } from "lucide-react";
 import type { CalendarEvent, Topic } from "@/types/database";
 
-type ChatMode = "chat" | "explain" | "quiz" | "summarize";
+type ChatMode = "chat" | "explain" | "quiz" | "summarize" | "study_plan" | "module_advice";
+
+interface Conversation {
+  id: string;
+  title: string;
+  mode: string;
+  message_count: number;
+  last_message_at: string | null;
+  created_at: string;
+}
 
 interface ChatMessage {
   id: string;
@@ -34,10 +44,12 @@ interface ChatContext {
 }
 
 const MODE_CONFIGS: Record<ChatMode, { icon: React.ReactNode; colorClass: string }> = {
-  chat:      { icon: <MessageSquare size={14} />, colorClass: "bg-brand-100 text-brand-700" },
-  explain:   { icon: <Lightbulb size={14} />,     colorClass: "bg-amber-100 text-amber-700" },
-  quiz:      { icon: <Target size={14} />,         colorClass: "bg-green-100 text-green-700" },
-  summarize: { icon: <FileText size={14} />,       colorClass: "bg-blue-100 text-blue-700" },
+  chat:           { icon: <MessageSquare size={14} />,  colorClass: "bg-brand-100 text-brand-700" },
+  explain:        { icon: <Lightbulb size={14} />,      colorClass: "bg-amber-100 text-amber-700" },
+  quiz:           { icon: <Target size={14} />,          colorClass: "bg-green-100 text-green-700" },
+  summarize:      { icon: <FileText size={14} />,        colorClass: "bg-blue-100 text-blue-700" },
+  study_plan:     { icon: <CalendarClock size={14} />,   colorClass: "bg-rose-100 text-rose-700" },
+  module_advice:  { icon: <Compass size={14} />,         colorClass: "bg-teal-100 text-teal-700" },
 };
 
 export default function AIAssistantPage() {
@@ -54,7 +66,13 @@ export default function AIAssistantPage() {
   const [context, setContext] = useState<ChatContext>({});
   const [exams, setExams] = useState<CalendarEvent[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
-  const [usage, setUsage] = useState(aiUsageToday(isPro));
+  const [usage, setUsage] = useState(aiUsageThisMonth(isPro));
+
+  // Conversation history state
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [activeConvId, setActiveConvId] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -62,7 +80,7 @@ export default function AIAssistantPage() {
 
   // Fetch exams and topics for context selector
   useEffect(() => {
-    async function fetch() {
+    async function fetchData() {
       const [examRes, topicRes] = await Promise.all([
         supabase.from("events").select("*").eq("event_type", "exam").order("start_dt", { ascending: true }),
         supabase.from("topics").select("*").order("title", { ascending: true }),
@@ -70,8 +88,93 @@ export default function AIAssistantPage() {
       setExams(examRes.data ?? []);
       setTopics(topicRes.data ?? []);
     }
-    fetch();
+    fetchData();
   }, [supabase]);
+
+  // Load conversation history
+  const loadConversations = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await globalThis.fetch("/api/ai/conversations?limit=30", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setConversations(json.conversations || []);
+      }
+    } catch { /* non-fatal */ }
+  }, [supabase]);
+
+  useEffect(() => { loadConversations(); }, [loadConversations]);
+
+  // Load a specific conversation's messages
+  const loadConversation = useCallback(async (convId: string) => {
+    setLoadingHistory(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await globalThis.fetch(`/api/ai/conversations/${convId}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const conv = json.conversation;
+        const msgs: ChatMessage[] = (json.messages || []).map((m: { id: string; role: string; content: string; created_at: string }) => ({
+          id: m.id,
+          role: m.role as "user" | "assistant",
+          content: m.content,
+          timestamp: new Date(m.created_at).getTime(),
+        }));
+        setMessages(msgs);
+        setActiveConvId(convId);
+        setMode((conv.mode as ChatMode) || "chat");
+        setShowHistory(false);
+      }
+    } catch { /* non-fatal */ }
+    setLoadingHistory(false);
+  }, [supabase]);
+
+  // Create new conversation server-side
+  const createConversation = useCallback(async (): Promise<string | null> => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return null;
+      const res = await globalThis.fetch("/api/ai/conversations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ mode, context }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const conv = json.conversation;
+        setActiveConvId(conv.id);
+        loadConversations();
+        return conv.id;
+      }
+    } catch { /* non-fatal */ }
+    return null;
+  }, [supabase, mode, context, loadConversations]);
+
+  // Delete a conversation
+  const deleteConversation = useCallback(async (convId: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      await globalThis.fetch(`/api/ai/conversations/${convId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      setConversations(prev => prev.filter(c => c.id !== convId));
+      if (activeConvId === convId) {
+        setActiveConvId(null);
+        setMessages([]);
+      }
+    } catch { /* non-fatal */ }
+  }, [supabase, activeConvId]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -80,7 +183,7 @@ export default function AIAssistantPage() {
 
   // Refresh usage on mount
   useEffect(() => {
-    setUsage(aiUsageToday(isPro));
+    setUsage(aiUsageThisMonth(isPro));
   }, [isPro]);
 
   const sendMessage = useCallback(async () => {
@@ -88,7 +191,7 @@ export default function AIAssistantPage() {
     if (!text || streaming) return;
 
     // Check usage limit
-    const currentUsage = aiUsageToday(isPro);
+    const currentUsage = aiUsageThisMonth(isPro);
     if (!currentUsage.allowed) {
       setUsage(currentUsage);
       return;
@@ -114,7 +217,7 @@ export default function AIAssistantPage() {
 
     // Increment usage counter
     aiUsageIncrement();
-    setUsage(aiUsageToday(isPro));
+    setUsage(aiUsageThisMonth(isPro));
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -135,6 +238,12 @@ export default function AIAssistantPage() {
       const abortController = new AbortController();
       abortRef.current = abortController;
 
+      // Ensure a conversation exists for persistence
+      let convId = activeConvId;
+      if (!convId && isPro) {
+        convId = await createConversation();
+      }
+
       const res = await fetch("/api/ai/chat", {
         method: "POST",
         headers: {
@@ -144,6 +253,7 @@ export default function AIAssistantPage() {
         body: JSON.stringify({
           messages: allMessages,
           mode,
+          conversationId: convId,
           context: { ...context, language: locale },
         }),
         signal: abortController.signal,
@@ -228,6 +338,8 @@ export default function AIAssistantPage() {
   function newChat() {
     setMessages([]);
     setInput("");
+    setActiveConvId(null);
+    loadConversations();
     inputRef.current?.focus();
   }
 
@@ -238,11 +350,62 @@ export default function AIAssistantPage() {
   if (context.topicTitle) contextParts.push(context.topicTitle);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-3.5rem)]">
+    <div className="flex h-[calc(100vh-3.5rem)]">
+      {/* ── History Sidebar ── */}
+      {showHistory && (
+        <div className="w-72 shrink-0 border-r border-surface-100 bg-surface-50 flex flex-col">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-surface-100">
+            <div className="flex items-center gap-2 text-sm font-semibold text-surface-700">
+              <History size={16} />
+              {t("ai.history") || "Verlauf"}
+            </div>
+            <button onClick={() => setShowHistory(false)} className="p-1 rounded hover:bg-surface-200 text-surface-400">
+              <PanelLeftClose size={16} />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-2 space-y-1">
+            {conversations.length === 0 ? (
+              <p className="text-xs text-surface-400 text-center py-8">{t("ai.noHistory") || "Noch keine Gespräche"}</p>
+            ) : (
+              conversations.map(conv => (
+                <div
+                  key={conv.id}
+                  className={`group flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer text-xs transition-all ${
+                    activeConvId === conv.id
+                      ? "bg-brand-100 text-brand-700"
+                      : "text-surface-600 hover:bg-surface-100"
+                  }`}
+                  onClick={() => loadConversation(conv.id)}
+                >
+                  <MessageSquare size={12} className="shrink-0" />
+                  <span className="flex-1 truncate">{conv.title}</span>
+                  <button
+                    onClick={e => { e.stopPropagation(); deleteConversation(conv.id); }}
+                    className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-red-100 text-surface-400 hover:text-red-500 transition-all"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Main Chat Area ── */}
+      <div className="flex-1 flex flex-col min-w-0">
       {/* Header */}
       <div className="shrink-0 border-b border-surface-100 bg-white px-6 py-3">
         <div className="flex items-center justify-between max-w-3xl mx-auto">
           <div className="flex items-center gap-3">
+            {/* History toggle */}
+            <button
+              onClick={() => setShowHistory(!showHistory)}
+              className="p-2 rounded-lg hover:bg-surface-100 text-surface-400"
+              title={t("ai.history") || "Verlauf"}
+            >
+              {showHistory ? <PanelLeftClose size={16} /> : <PanelLeft size={16} />}
+            </button>
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-white">
               <Sparkles size={18} />
             </div>
@@ -270,7 +433,7 @@ export default function AIAssistantPage() {
       <div className="shrink-0 bg-surface-50 border-b border-surface-100 px-6 py-2">
         <div className="flex items-center gap-2 max-w-3xl mx-auto flex-wrap">
           {/* Mode pills */}
-          {(["chat", "explain", "quiz", "summarize"] as ChatMode[]).map(m => {
+          {(["chat", "explain", "quiz", "summarize", "study_plan", "module_advice"] as ChatMode[]).map(m => {
             const cfg = MODE_CONFIGS[m];
             return (
               <button
@@ -437,6 +600,7 @@ export default function AIAssistantPage() {
           <p className="text-[10px] text-surface-400 mt-1.5 text-center">{t("ai.disclaimer")}</p>
         </div>
       </div>
+      </div>{/* end Main Chat Area */}
     </div>
   );
 }

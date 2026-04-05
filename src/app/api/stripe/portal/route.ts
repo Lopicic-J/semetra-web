@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe";
+import { logger } from "@/lib/logger";
+
+const log = logger("stripe:portal");
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (err: unknown) {
-    console.error("[stripe/portal]", err);
+    log.error("[stripe/portal]", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Portal-Fehler." },
       { status: 500 }

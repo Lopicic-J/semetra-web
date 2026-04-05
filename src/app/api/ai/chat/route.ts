@@ -1,18 +1,23 @@
 import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { logger } from "@/lib/logger";
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY ?? "";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+const log = logger("ai:chat");
 
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
 }
 
+type ChatMode = "explain" | "quiz" | "chat" | "summarize" | "study_plan" | "module_advice";
+
 interface ChatRequestBody {
   messages: ChatMessage[];
-  mode: "explain" | "quiz" | "chat" | "summarize";
+  mode: ChatMode;
+  conversationId?: string;        // For persistence
   context?: {
     moduleId?: string;
     moduleName?: string;
@@ -87,6 +92,33 @@ Mode: Summary
 - Add 3-5 possible exam questions at the end
 - Maintain technical accuracy${contextBlock}${docBlock}`;
 
+    case "study_plan":
+      return `${basePersona}
+
+Mode: Personalized Study Plan Generator
+- Based on the student's academic profile (grades, progress, upcoming events), create a personalized study plan
+- Consider which modules need the most attention (lowest grades, upcoming exams)
+- Structure the plan as a daily/weekly schedule
+- Factor in spaced repetition principles
+- Balance workload across available time
+- Prioritize modules with upcoming deadlines
+- Include specific study methods per topic (active recall, practice problems, etc.)
+- Be realistic about time estimates
+- If the student has exams coming up, focus the plan on exam preparation${contextBlock}${docBlock}`;
+
+    case "module_advice":
+      return `${basePersona}
+
+Mode: Module Advisor / Course Selection
+- Help the student choose elective modules and plan their remaining semesters
+- Analyze their strength/weakness profile based on existing grades
+- Recommend modules that build on their strengths or help improve weak areas
+- Consider prerequisites and module dependencies
+- Factor in workload balance per semester
+- Take into account the student's interests and career goals
+- Suggest an optimal module sequence for remaining semesters
+- Be honest about challenging modules but encouraging${contextBlock}${docBlock}`;
+
     default: // chat
       return `${basePersona}
 
@@ -107,7 +139,7 @@ Mode: Free chat / Study help
  */
 export async function POST(req: NextRequest) {
   if (!ANTHROPIC_API_KEY || !SUPABASE_SERVICE_KEY) {
-    console.error("Missing env vars:", { hasAnthropicKey: !!ANTHROPIC_API_KEY, hasServiceKey: !!SUPABASE_SERVICE_KEY });
+    log.error("Missing env vars", { hasAnthropicKey: !!ANTHROPIC_API_KEY, hasServiceKey: !!SUPABASE_SERVICE_KEY });
     return new Response(JSON.stringify({ error: "KI-Service nicht konfiguriert. Bitte ANTHROPIC_API_KEY und SUPABASE_SERVICE_ROLE_KEY in .env.local setzen." }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
@@ -134,7 +166,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body: ChatRequestBody = await req.json();
-  const { messages, mode, context } = body;
+  const { messages, mode, context, conversationId } = body;
 
   if (!messages || messages.length === 0) {
     return new Response(JSON.stringify({ error: "Keine Nachrichten" }), {
@@ -143,11 +175,23 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // ── Build Academic Engine Context ──
+  const { buildEngineContext, formatEngineContextBlock } = await import("@/lib/ai/engine-context");
+  let engineContextBlock = "";
+  try {
+    const engineCtx = await buildEngineContext(supabase, user.id);
+    engineContextBlock = formatEngineContextBlock(engineCtx);
+  } catch (err) {
+    log.warn("Engine context build failed (non-fatal)", err);
+  }
+
   // ── Determine action type + token limits ──
   const { classifyChatAction, AI_TOKEN_LIMITS, truncateToTokenLimit } = await import("@/lib/ai-weights");
   const lastMsg = messages[messages.length - 1]?.content ?? "";
   const actionType = mode === "summarize" ? "notes_summarize" as const
     : mode === "explain" ? "chat_explain" as const
+    : mode === "study_plan" ? "chat_explain" as const
+    : mode === "module_advice" ? "chat_explain" as const
     : classifyChatAction(lastMsg);
   const limits = AI_TOKEN_LIMITS[actionType];
 
@@ -182,14 +226,14 @@ export async function POST(req: NextRequest) {
         model: "claude-sonnet-4-6",
         max_tokens: limits.maxOutput,
         stream: true,
-        system: buildSystemPrompt(mode, context),
+        system: buildSystemPrompt(mode, context) + engineContextBlock,
         messages: trimmedMessages,
       }),
     });
 
     if (!res.ok) {
       const err = await res.text();
-      console.error("Claude API error:", err);
+      log.error("Claude API error", err);
       return new Response(JSON.stringify({ error: "KI-Fehler" }), {
         status: 502,
         headers: { "Content-Type": "application/json" },
@@ -208,6 +252,7 @@ export async function POST(req: NextRequest) {
 
         const decoder = new TextDecoder();
         let buffer = "";
+        let fullAssistantResponse = "";
 
         try {
           while (true) {
@@ -226,6 +271,7 @@ export async function POST(req: NextRequest) {
                 try {
                   const parsed = JSON.parse(data);
                   if (parsed.type === "content_block_delta" && parsed.delta?.text) {
+                    fullAssistantResponse += parsed.delta.text;
                     controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: parsed.delta.text })}\n\n`));
                   } else if (parsed.type === "message_stop") {
                     controller.enqueue(encoder.encode("data: [DONE]\n\n"));
@@ -237,10 +283,43 @@ export async function POST(req: NextRequest) {
             }
           }
         } catch (err) {
-          console.error("Stream error:", err);
+          log.error("Stream error", err);
         } finally {
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
+
+          // ── Persist messages to chat history (fire-and-forget) ──
+          if (conversationId && fullAssistantResponse) {
+            try {
+              const lastUserMsg = messages[messages.length - 1];
+              // Save user message
+              if (lastUserMsg) {
+                await supabase.from("chat_messages").insert({
+                  conversation_id: conversationId,
+                  role: lastUserMsg.role,
+                  content: lastUserMsg.content,
+                });
+              }
+              // Save assistant response
+              await supabase.from("chat_messages").insert({
+                conversation_id: conversationId,
+                role: "assistant",
+                content: fullAssistantResponse,
+              });
+              // Update conversation metadata
+              await supabase.from("chat_conversations").update({
+                message_count: messages.length + 1,
+                last_message_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                ...(messages.length <= 1 ? {
+                  title: (lastUserMsg?.content ?? "").slice(0, 60) +
+                    ((lastUserMsg?.content ?? "").length > 60 ? "…" : ""),
+                } : {}),
+              }).eq("id", conversationId);
+            } catch (persistErr) {
+              log.warn("Chat persistence failed (non-fatal)", persistErr);
+            }
+          }
         }
       },
     });
@@ -253,7 +332,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (err) {
-    console.error("AI chat error:", err);
+    log.error("AI chat error", err);
     return new Response(JSON.stringify({ error: "Interner Fehler" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

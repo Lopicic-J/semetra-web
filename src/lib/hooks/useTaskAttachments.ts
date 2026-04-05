@@ -1,7 +1,10 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 import type { TaskAttachment } from "@/types/database";
+
+const log = logger("hook:attachments");
 
 export function useTaskAttachments(taskId?: string) {
   const [attachments, setAttachments] = useState<TaskAttachment[]>([]);
@@ -50,7 +53,7 @@ export function useTaskAttachments(taskId?: string) {
       .upload(storagePath, file);
 
     if (uploadError) {
-      console.error("Upload failed:", uploadError);
+      log.error("Upload failed", uploadError);
       return;
     }
 

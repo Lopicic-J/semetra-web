@@ -509,7 +509,7 @@ export default function StundenplanPage() {
 
       {deleteDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm">
+          <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-sm">
             <div className="p-5 border-b border-surface-100">
               <h2 className="font-semibold text-surface-900">{t("stundenplan.deleteDialogTitle")}</h2>
             </div>
@@ -546,7 +546,7 @@ export default function StundenplanPage() {
 
       {moveDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm">
+          <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-sm">
             <div className="p-5 border-b border-surface-100">
               <h2 className="font-semibold text-surface-900">{t("stundenplan.moveDialogTitle")}</h2>
             </div>
@@ -641,7 +641,7 @@ function StundenplanModal({ modules, currentKw, currentSemester, prefilledEntry,
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between p-5 border-b border-surface-100">
           <h2 className="font-semibold text-surface-900">{t("stundenplan.modal.title")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
@@ -766,7 +766,7 @@ function StundenplanEditModal({ modules, entry, onClose, onSaved }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between p-5 border-b border-surface-100">
           <h2 className="font-semibold text-surface-900">{t("stundenplan.modal.editTitle") || "Edit Entry"}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>

@@ -285,20 +285,20 @@ export default function DocumentsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
         <button
           onClick={() => setViewMode("flow")}
-          className={`bg-white border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-brand-500" : "border-surface-200 hover:border-surface-300"}`}
+          className={`bg-surface-100 border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-brand-500" : "border-surface-200 hover:border-surface-300"}`}
         >
           <p className="text-lg sm:text-2xl font-bold text-surface-900">{stats.total}</p>
           <p className="text-xs text-surface-500">{t("documents.totalDocs") || "Gesamt"}</p>
         </button>
-        <div className="bg-white border border-surface-200 rounded-xl p-2 sm:p-3 text-center">
+        <div className="bg-surface-100 border border-surface-200 rounded-xl p-2 sm:p-3 text-center">
           <p className="text-lg sm:text-2xl font-bold text-brand-400">{stats.own}</p>
           <p className="text-xs text-surface-500">{t("documents.typeDocument")}</p>
         </div>
-        <div className="bg-white border border-surface-200 rounded-xl p-2 sm:p-3 text-center">
+        <div className="bg-surface-100 border border-surface-200 rounded-xl p-2 sm:p-3 text-center">
           <p className="text-lg sm:text-2xl font-bold text-blue-400">{stats.fromTasks + stats.fromExams}</p>
           <p className="text-xs text-surface-500">{t("documents.typeTaskAttachment")}</p>
         </div>
-        <div className="bg-white border border-surface-200 rounded-xl p-2 sm:p-3 text-center">
+        <div className="bg-surface-100 border border-surface-200 rounded-xl p-2 sm:p-3 text-center">
           <p className="text-lg sm:text-2xl font-bold text-cyan-400">{stats.fromModules}</p>
           <p className="text-xs text-surface-500">{t("documents.typeModuleLink")}</p>
         </div>
@@ -306,7 +306,7 @@ export default function DocumentsPage() {
 
       {/* Module distribution */}
       {stats.byModule.length > 0 && (
-        <div className="mb-4 sm:mb-6 bg-white border border-surface-200 rounded-xl p-3 sm:p-4">
+        <div className="mb-4 sm:mb-6 bg-surface-100 border border-surface-200 rounded-xl p-3 sm:p-4">
           <h3 className="text-xs sm:text-sm font-semibold text-surface-800 mb-2 sm:mb-3 flex items-center gap-2">
             <FolderOpen size={14} className="text-blue-400" /> {t("nav.modules")}
           </h3>
@@ -361,13 +361,13 @@ export default function DocumentsPage() {
             value={searchQ}
             onChange={e => setSearchQ(e.target.value)}
             placeholder={t("documents.search")}
-            className="w-full bg-white border border-surface-200 rounded-lg pl-10 pr-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none transition"
+            className="w-full bg-surface-100 border border-surface-200 rounded-lg pl-10 pr-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none transition"
           />
         </div>
         <select
           value={filterModule}
           onChange={e => setFilterModule(e.target.value)}
-          className="bg-white border border-surface-200 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900"
+          className="bg-surface-100 border border-surface-200 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900"
         >
           <option value="">{t("nav.modules")}</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -377,7 +377,7 @@ export default function DocumentsPage() {
             <button
               key={v}
               onClick={() => setViewMode(v)}
-              className={`p-1 sm:p-2 transition ${viewMode === v ? "bg-brand-600 text-white" : "bg-white text-surface-500 hover:text-surface-900"}`}
+              className={`p-1 sm:p-2 transition ${viewMode === v ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:text-surface-900"}`}
               title={v === "flow" ? t("documents.viewFlow") : v === "grid" ? t("documents.viewCards") : t("documents.viewList")}
             >
               {v === "grid" ? <LayoutGrid size={14} /> : v === "list" ? <ListIcon size={14} /> : <Workflow size={14} />}
@@ -481,7 +481,7 @@ function DocCard({ doc, modules, onEdit, onDelete, onTogglePin }: {
 
   return (
     <div
-      className="bg-white border border-surface-200 rounded-xl p-2 sm:p-4 hover:border-surface-300 transition group"
+      className="bg-surface-100 border border-surface-200 rounded-xl p-2 sm:p-4 hover:border-surface-300 transition group"
       style={{ borderTopWidth: 3, borderTopColor: cfg.color }}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
@@ -536,7 +536,7 @@ function DocListRow({ doc, modules, onEdit, onDelete }: {
   const cfg = KIND_CONFIG[doc.kind] ?? KIND_CONFIG.other;
 
   return (
-    <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-white border border-surface-200 rounded-lg hover:border-surface-300 transition group">
+    <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-surface-100 border border-surface-200 rounded-lg hover:border-surface-300 transition group">
       <span style={{ color: cfg.color }}>{cfg.icon}</span>
       {doc.pinned && <Pin size={12} className="text-amber-400 flex-shrink-0" />}
       <div className="flex-1 min-w-0">
@@ -619,7 +619,7 @@ function DocFlowView({ items, onOpenDoc }: { items: DocFlowItem[]; onOpenDoc: (d
                 return (
                   <div
                     key={item.id}
-                    className={`flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-white border border-surface-200 rounded-lg transition ${
+                    className={`flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-surface-100 border border-surface-200 rounded-lg transition ${
                       isOwn ? "hover:border-surface-300 cursor-pointer" : ""
                     } group`}
                     onClick={() => { if (isOwn && item.original) onOpenDoc(item.original); }}
@@ -724,7 +724,7 @@ function PdfToolsModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="bg-surface-100 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-surface-200">
           <div className="flex items-center gap-4">
@@ -732,14 +732,14 @@ function PdfToolsModal({ onClose }: { onClose: () => void }) {
             <div className="flex bg-surface-100 rounded-lg p-0.5">
               <button onClick={() => setActiveTab("merge")}
                 className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
-                  activeTab === "merge" ? "bg-white shadow text-brand-700" : "text-surface-500 hover:text-surface-700"
+                  activeTab === "merge" ? "bg-surface-100 shadow text-brand-700" : "text-surface-500 hover:text-surface-700"
                 }`}>
                 <Combine size={13} className="inline mr-1.5 -mt-0.5" />
                 {t("documents.pdfMerge")}
               </button>
               <button onClick={() => setActiveTab("split")}
                 className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
-                  activeTab === "split" ? "bg-white shadow text-brand-700" : "text-surface-500 hover:text-surface-700"
+                  activeTab === "split" ? "bg-surface-100 shadow text-brand-700" : "text-surface-500 hover:text-surface-700"
                 }`}>
                 <Scissors size={13} className="inline mr-1.5 -mt-0.5" />
                 {t("documents.pdfSplit")}
@@ -1226,7 +1226,7 @@ function DocModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
-      <div className="bg-white border border-surface-200 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      <div className="bg-surface-100 border border-surface-200 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center gap-2 mb-4 sm:mb-5">
           <h2 className="text-base sm:text-lg font-bold text-surface-900">{isEdit ? t("documents.edit") : t("documents.modal.title")}</h2>
           <button onClick={onClose} className="text-surface-500 hover:text-surface-900 transition flex-shrink-0"><X size={20} /></button>
@@ -1238,7 +1238,7 @@ function DocModal({
             <button
               onClick={() => setMode("link")}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs sm:text-sm font-medium transition ${
-                mode === "link" ? "bg-white text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"
+                mode === "link" ? "bg-surface-100 text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"
               }`}
             >
               <Globe size={14} /> {t("documents.typeLink")}
@@ -1246,7 +1246,7 @@ function DocModal({
             <button
               onClick={() => setMode("upload")}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs sm:text-sm font-medium transition ${
-                mode === "upload" ? "bg-white text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"
+                mode === "upload" ? "bg-surface-100 text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"
               }`}
             >
               <Upload size={14} /> {t("documents.typeFile")}

@@ -36,6 +36,8 @@ export function Button({
   return (
     <button
       disabled={disabled || loading}
+      aria-disabled={disabled || loading}
+      aria-busy={loading}
       className={clsx(baseStyles, variantStyles[variant], sizeStyles[size], className)}
       {...props}
     >

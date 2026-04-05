@@ -248,7 +248,7 @@ export default function KnowledgePage() {
                 </p>
               </div>
               <button onClick={() => startExamReview(w.exam.id)}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-white border border-surface-200 hover:border-brand-300 hover:text-brand-600 transition-colors shrink-0">
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-100 border border-surface-200 hover:border-brand-300 hover:text-brand-600 transition-colors shrink-0">
                 <Brain size={12} /> {t("knowledge.title")}
               </button>
             </div>
@@ -569,7 +569,7 @@ function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; con
   if (topics.length === 0) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md text-center p-8">
+        <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md text-center p-8">
           <Check size={32} className="mx-auto mb-4 text-green-500" />
           <h2 className="text-lg font-bold text-surface-900 mb-2">{t("knowledge.title")}</h2>
           <p className="text-surface-500 text-sm mb-4">{t("knowledge.statusUnderstood")}</p>
@@ -582,7 +582,7 @@ function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; con
   if (done) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md text-center p-8">
+        <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md text-center p-8">
           <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
             <Check size={32} className="text-green-600" />
           </div>
@@ -611,7 +611,7 @@ function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; con
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-lg">
         <div className="flex items-center justify-between p-5 border-b border-surface-100">
           <div className="flex items-center gap-3">
             <Brain size={18} className="text-brand-600" />
@@ -717,7 +717,7 @@ function TopicModal({ initial, parentId, modules, exams, tasks, presetExam, pres
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-5 border-b border-surface-100">
           <h2 className="font-semibold text-surface-900">{initial ? t("knowledge.editTopic") : parentId ? t("knowledge.addSubtopic") : t("knowledge.newTopic")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>

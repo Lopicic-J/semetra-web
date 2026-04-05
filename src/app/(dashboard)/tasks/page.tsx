@@ -76,7 +76,7 @@ export default function TasksPage() {
                        t("tasks.filterDone");
           return (
             <button key={s} onClick={() => setFilter(s)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === s ? "bg-white text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"}`}>
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === s ? "bg-surface-100 text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"}`}>
               {label}
             </button>
           );
@@ -136,7 +136,7 @@ function TaskRow({ task, modules, onToggle, onEdit, onDelete, isExpanded, onTogg
   const isOverdue = task.status !== "done" && task.due_date && new Date(task.due_date) < new Date();
 
   return (
-    <div className={`flex items-center gap-3 p-3 rounded-xl border transition-colors group cursor-pointer ${task.status === "done" ? "bg-surface-50 border-surface-100" : "bg-white border-surface-100 hover:border-brand-200"} ${isExpanded ? "rounded-b-none border-b-0" : ""}`}
+    <div className={`flex items-center gap-3 p-3 rounded-xl border transition-colors group cursor-pointer ${task.status === "done" ? "bg-surface-50 border-surface-100" : "bg-surface-100 border-surface-100 hover:border-brand-200"} ${isExpanded ? "rounded-b-none border-b-0" : ""}`}
       onClick={onToggleExpand}>
       <button onClick={(e) => { e.stopPropagation(); onToggle(task); }}
         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${task.status === "done" ? "bg-green-500 border-green-500 text-white" : "border-surface-300 hover:border-brand-400"}`}>
@@ -216,7 +216,7 @@ function TaskDetailPanel({ task, modules }: {
       {task.description && (
         <div>
           <p className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-1">{t("tasks.detailDescription")}</p>
-          <p className="text-sm text-surface-700 whitespace-pre-line bg-white rounded-lg p-3 border border-surface-100">{task.description}</p>
+          <p className="text-sm text-surface-700 whitespace-pre-line bg-surface-100 rounded-lg p-3 border border-surface-100">{task.description}</p>
         </div>
       )}
 
@@ -252,11 +252,11 @@ function TaskDetailPanel({ task, modules }: {
           </h3>
           <div className="flex gap-2">
             <button onClick={() => setShowLinkForm(!showLinkForm)}
-              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
+              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-surface-100 border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
               <Link2 size={12} /> {t("tasks.addLink")}
             </button>
             <button onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
+              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-surface-100 border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
               <Upload size={12} /> {t("tasks.addFile")}
             </button>
             <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileUpload}
@@ -285,7 +285,7 @@ function TaskDetailPanel({ task, modules }: {
         ) : (
           <div className="space-y-1.5">
             {attachments.map(att => (
-              <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-surface-100 group/att hover:border-brand-200 transition-colors">
+              <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-surface-100 border border-surface-100 group/att hover:border-brand-200 transition-colors">
                 <span className="text-sm shrink-0">{fileIcon(att.kind, att.file_type)}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-surface-800 truncate">{att.label || att.url}</p>
@@ -356,7 +356,7 @@ function TaskModal({ initial, modules, onClose, onSaved }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between p-5 border-b border-surface-100">
           <h2 className="font-semibold text-surface-900">{initial ? t("tasks.modal.editTitle") : t("tasks.modal.title")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>

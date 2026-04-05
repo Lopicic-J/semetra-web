@@ -324,7 +324,7 @@ export default function ProfilePage() {
         </div>
 
         {/* AI Usage Card */}
-        <div className="bg-white rounded-2xl border border-surface-200 p-5">
+        <div className="bg-surface-100 rounded-2xl border border-surface-200 p-5">
           <div className="flex items-center gap-1.5 text-surface-400 text-[10px] font-semibold uppercase tracking-wide mb-3">
             <Sparkles size={12} /> KI-Nutzung (Monat)
           </div>
@@ -352,7 +352,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Study Info */}
-      <div className="bg-white rounded-2xl border border-surface-200 p-5 mb-4">
+      <div className="bg-surface-100 rounded-2xl border border-surface-200 p-5 mb-4">
         <div className="flex items-center gap-1.5 text-surface-400 text-[10px] font-semibold uppercase tracking-wide mb-4">
           <GraduationCap size={12} /> Studium
         </div>
@@ -400,7 +400,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Account Details */}
-      <div className="bg-white rounded-2xl border border-surface-200 p-5 mb-4">
+      <div className="bg-surface-100 rounded-2xl border border-surface-200 p-5 mb-4">
         <div className="flex items-center gap-1.5 text-surface-400 text-[10px] font-semibold uppercase tracking-wide mb-4">
           <User size={12} /> Konto-Details
         </div>
@@ -457,7 +457,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-2xl border border-surface-200 p-5">
+      <div className="bg-surface-100 rounded-2xl border border-surface-200 p-5">
         <div className="flex items-center gap-1.5 text-surface-400 text-[10px] font-semibold uppercase tracking-wide mb-4">
           Schnellzugriff
         </div>
@@ -546,7 +546,7 @@ function EditableRow({
             <select
               value={editValue}
               onChange={e => onEditChange(e.target.value)}
-              className="border border-surface-200 rounded-lg px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none bg-white"
+              className="border border-surface-200 rounded-lg px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none bg-surface-100"
               autoFocus
             >
               {options.map(o => (

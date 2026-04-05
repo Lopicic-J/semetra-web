@@ -1,9 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Gem, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, Globe, GraduationCap, BookOpen, AtSign } from "lucide-react";
+import { Gem, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, Globe, GraduationCap, BookOpen, AtSign, Building2 } from "lucide-react";
 import { getEnabledProviders } from "@/lib/oauth-providers";
 import { COUNTRY_LIST, DEFAULT_COUNTRY, type CountryCode } from "@/lib/grading-systems";
 
@@ -15,6 +15,12 @@ export default function RegisterPage() {
   const [country, setCountry] = useState<CountryCode>(DEFAULT_COUNTRY);
   const [university, setUniversity] = useState("");
   const [studyProgram, setStudyProgram] = useState("");
+  // Structured institution/program selection
+  const [institutions, setInstitutions] = useState<{ id: string; name: string }[]>([]);
+  const [programs, setPrograms] = useState<{ id: string; name: string; degree_level: string }[]>([]);
+  const [selectedInstId, setSelectedInstId] = useState("");
+  const [selectedProgId, setSelectedProgId] = useState("");
+  const [useStructured, setUseStructured] = useState(true); // toggle between structured/freetext
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -23,6 +29,34 @@ export default function RegisterPage() {
   const router = useRouter();
   const supabase = createClient();
   const enabledProviders = getEnabledProviders();
+
+  // Load institutions when country changes
+  const loadInstitutions = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/academic/institutions?country=${country}`);
+      const data = await res.json();
+      setInstitutions(data.institutions || []);
+      setSelectedInstId("");
+      setSelectedProgId("");
+      setPrograms([]);
+      // Auto-switch to freetext if no institutions available
+      if ((data.institutions || []).length === 0) setUseStructured(false);
+      else setUseStructured(true);
+    } catch {
+      setInstitutions([]);
+    }
+  }, [country]);
+
+  useEffect(() => { loadInstitutions(); }, [loadInstitutions]);
+
+  // Load programs when institution changes
+  useEffect(() => {
+    if (!selectedInstId) { setPrograms([]); return; }
+    fetch(`/api/academic/programs?institution_id=${selectedInstId}`)
+      .then(r => r.json())
+      .then(data => setPrograms(data.programs || []))
+      .catch(() => setPrograms([]));
+  }, [selectedInstId]);
 
   const usernameValid = /^[a-z0-9_-]{3,30}$/.test(username);
 
@@ -77,11 +111,23 @@ export default function RegisterPage() {
         data: { country },
       },
     });
-    // Also save country + optional fields to profile directly
+    // Save country + optional fields to profile directly
     if (data?.user?.id) {
       const profileData: Record<string, unknown> = { country, username };
-      if (university.trim()) profileData.university = university.trim();
-      if (studyProgram.trim()) profileData.study_program = studyProgram.trim();
+      if (useStructured && selectedInstId) {
+        // Structured enrollment: set FK references (trigger will create student_programs row)
+        profileData.institution_id = selectedInstId;
+        if (selectedProgId) profileData.active_program_id = selectedProgId;
+        // Also set legacy freetext for backward compat
+        const inst = institutions.find(i => i.id === selectedInstId);
+        const prog = programs.find(p => p.id === selectedProgId);
+        if (inst) profileData.university = inst.name;
+        if (prog) profileData.study_program = prog.name;
+      } else {
+        // Freetext fallback
+        if (university.trim()) profileData.university = university.trim();
+        if (studyProgram.trim()) profileData.study_program = studyProgram.trim();
+      }
       await supabase.from("profiles").update(profileData).eq("id", data.user.id);
     }
     if (error) {
@@ -249,38 +295,87 @@ export default function RegisterPage() {
               )}
             </div>
 
-            {/* University */}
-            <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1.5">Universität / Fachhochschule</label>
-              <div className="relative">
-                <GraduationCap size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
-                <input
-                  className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
-                  type="text"
-                  placeholder="z. B. ETH Zürich, ZHAW, FHNW…"
-                  value={university}
-                  onChange={e => setUniversity(e.target.value)}
-                  autoComplete="organization"
-                />
-              </div>
-              <p className="text-[10px] text-surface-400 mt-1">Optional. Kann später im Profil geändert werden.</p>
-            </div>
-
-            {/* Study Program */}
-            <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1.5">Studienrichtung</label>
-              <div className="relative">
-                <BookOpen size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
-                <input
-                  className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
-                  type="text"
-                  placeholder="z. B. Informatik, BWL, Medizin…"
-                  value={studyProgram}
-                  onChange={e => setStudyProgram(e.target.value)}
-                />
-              </div>
-              <p className="text-[10px] text-surface-400 mt-1">Optional. Kann später im Profil geändert werden.</p>
-            </div>
+            {/* University / Program — structured or freetext */}
+            {useStructured && institutions.length > 0 ? (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 mb-1.5">Hochschule</label>
+                  <div className="relative">
+                    <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                    <select
+                      value={selectedInstId}
+                      onChange={e => { setSelectedInstId(e.target.value); setSelectedProgId(""); }}
+                      className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition appearance-none"
+                    >
+                      <option value="">-- Hochschule waehlen --</option>
+                      {institutions.map(inst => (
+                        <option key={inst.id} value={inst.id}>{inst.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                {selectedInstId && (
+                  <div>
+                    <label className="block text-sm font-medium text-surface-700 mb-1.5">Studiengang</label>
+                    <div className="relative">
+                      <BookOpen size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                      <select
+                        value={selectedProgId}
+                        onChange={e => setSelectedProgId(e.target.value)}
+                        className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition appearance-none"
+                      >
+                        <option value="">{programs.length === 0 ? "Keine Studiengaenge verfuegbar" : "-- Studiengang waehlen --"}</option>
+                        {programs.map(prog => (
+                          <option key={prog.id} value={prog.id}>{prog.name} ({prog.degree_level})</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                )}
+                <button type="button" onClick={() => setUseStructured(false)}
+                  className="text-[10px] text-brand-500 hover:text-brand-600 text-left">
+                  Meine Hochschule ist nicht in der Liste? Freitext eingeben
+                </button>
+              </>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 mb-1.5">Universitaet / Fachhochschule</label>
+                  <div className="relative">
+                    <GraduationCap size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                    <input
+                      className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+                      type="text"
+                      placeholder="z. B. ETH Zuerich, ZHAW, FHNW..."
+                      value={university}
+                      onChange={e => setUniversity(e.target.value)}
+                      autoComplete="organization"
+                    />
+                  </div>
+                  <p className="text-[10px] text-surface-400 mt-1">Optional. Kann spaeter im Profil geaendert werden.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 mb-1.5">Studienrichtung</label>
+                  <div className="relative">
+                    <BookOpen size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                    <input
+                      className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+                      type="text"
+                      placeholder="z. B. Informatik, BWL, Medizin..."
+                      value={studyProgram}
+                      onChange={e => setStudyProgram(e.target.value)}
+                    />
+                  </div>
+                  <p className="text-[10px] text-surface-400 mt-1">Optional. Kann spaeter im Profil geaendert werden.</p>
+                </div>
+                {institutions.length > 0 && (
+                  <button type="button" onClick={() => setUseStructured(true)}
+                    className="text-[10px] text-brand-500 hover:text-brand-600 text-left">
+                    Aus der Hochschul-Datenbank waehlen
+                  </button>
+                )}
+              </>
+            )}
 
             {/* Country / Grading system */}
             <div>

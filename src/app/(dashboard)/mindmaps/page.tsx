@@ -208,7 +208,7 @@ function CreateMapModal({ modules, exams, tasks, onClose, onCreated }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between p-5 border-b border-surface-100">
           <h2 className="font-semibold text-surface-900">{t("mindmaps.newMindmap")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
@@ -352,7 +352,7 @@ function MindMapEditor({ map, modules, onBack }: {
     // If focus mode, further filter to only focus subtree + ancestors
     if (focusNodeId) {
       const visible = new Set<string>();
-      function walk(id: string) {
+      const walk = (id: string): void => {
         visible.add(id);
         const node = nodes.find(nn => nn.id === id);
         if (node?.collapsed) return; // Don't walk into collapsed
@@ -1120,7 +1120,7 @@ function MindMapEditor({ map, modules, onBack }: {
   return (
     <div className="flex flex-col h-[calc(100vh-64px)]">
       {/* Toolbar */}
-      <div className="flex items-center gap-2 px-3 py-2 bg-white border-b border-surface-100 shrink-0 overflow-x-auto relative z-30">
+      <div className="flex items-center gap-2 px-3 py-2 bg-surface-100 border-b border-surface-100 shrink-0 overflow-x-auto relative z-30">
         <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-surface-500 hover:text-brand-600 shrink-0">
           <ArrowLeft size={16} /> {t("mindmaps.back")}
         </button>
@@ -1188,7 +1188,7 @@ function MindMapEditor({ map, modules, onBack }: {
       {showExport && exportBtnRef.current && (() => {
         const rect = exportBtnRef.current!.getBoundingClientRect();
         return (
-          <div className="fixed bg-white border border-surface-200 rounded-xl shadow-lg py-1 w-40 export-dropdown"
+          <div className="fixed bg-surface-100 border border-surface-200 rounded-xl shadow-lg py-1 w-40 export-dropdown"
             style={{ top: rect.bottom + 4, left: rect.right - 160, zIndex: 9999 }}
             onClick={e => e.stopPropagation()}>
             <button onClick={() => { exportPNG(); setShowExport(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-surface-700 hover:bg-surface-50">
@@ -1535,7 +1535,7 @@ function MindMapEditor({ map, modules, onBack }: {
       {/* Keyboard shortcuts help */}
       {showKeyboardHelp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setShowKeyboardHelp(false)}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5" onClick={e => e.stopPropagation()}>
+          <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-sm p-5" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-surface-900">{t("mindmaps.shortcuts")}</h2>
               <button onClick={() => setShowKeyboardHelp(false)} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
@@ -1707,7 +1707,7 @@ function NodeEditModal({ node, isRoot, onClose, onSave, onDelete }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[85vh] overflow-y-auto">
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md max-h-[85vh] overflow-y-auto">
         <div className="flex items-center justify-between p-5 border-b border-surface-100">
           <h2 className="font-semibold text-surface-900">{t("mindmaps.editNode")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>

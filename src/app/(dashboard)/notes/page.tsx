@@ -281,7 +281,7 @@ export default function NotesPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         <button
           onClick={() => setViewMode("flow")}
-          className={`bg-white border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-brand-500" : "border-surface-200 hover:border-surface-300"}`}
+          className={`bg-surface-100 border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-brand-500" : "border-surface-200 hover:border-surface-300"}`}
         >
           <p className="text-lg sm:text-2xl font-bold text-surface-900">{flowItems.length}</p>
           <p className="text-xs text-surface-500">{t("notes.allNotes")}</p>
@@ -293,21 +293,21 @@ export default function NotesPage() {
         </button>
         <button
           onClick={() => setFilterStatus(filterStatus === "draft" ? "" : "draft")}
-          className={`bg-white border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "draft" ? "border-surface-300" : "border-surface-200 hover:border-surface-300"}`}
+          className={`bg-surface-100 border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "draft" ? "border-surface-300" : "border-surface-200 hover:border-surface-300"}`}
         >
           <p className="text-lg sm:text-2xl font-bold text-surface-500">{stats.draft}</p>
           <p className="text-xs text-surface-500">{t("notes.statusDraft")}</p>
         </button>
         <button
           onClick={() => setFilterStatus(filterStatus === "in_progress" ? "" : "in_progress")}
-          className={`bg-white border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "in_progress" ? "border-amber-500" : "border-surface-200 hover:border-surface-300"}`}
+          className={`bg-surface-100 border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "in_progress" ? "border-amber-500" : "border-surface-200 hover:border-surface-300"}`}
         >
           <p className="text-lg sm:text-2xl font-bold text-amber-400">{stats.inProgress}</p>
           <p className="text-xs text-surface-500">{t("notes.statusInProgress")}</p>
         </button>
         <button
           onClick={() => setFilterStatus(filterStatus === "done" ? "" : "done")}
-          className={`bg-white border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "done" ? "border-green-500" : "border-surface-200 hover:border-surface-300"}`}
+          className={`bg-surface-100 border rounded-xl p-2 sm:p-3 text-center transition ${filterStatus === "done" ? "border-green-500" : "border-surface-200 hover:border-surface-300"}`}
         >
           <p className="text-lg sm:text-2xl font-bold text-green-400">{stats.done}</p>
           <p className="text-xs text-surface-500">{t("notes.statusDone")}</p>
@@ -315,7 +315,7 @@ export default function NotesPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-white border border-surface-200 rounded-xl p-3 sm:p-4 space-y-3">
+      <div className="bg-surface-100 border border-surface-200 rounded-xl p-3 sm:p-4 space-y-3">
         {/* Row 1: Search + View Toggle + New Note (compact) */}
         <div className="flex gap-2 flex-wrap items-center">
           <div className="relative flex-1 min-w-[160px]">
@@ -335,7 +335,7 @@ export default function NotesPage() {
                 <button
                   key={mode}
                   onClick={() => setViewMode(mode)}
-                  className={`p-2 transition ${viewMode === mode ? "bg-brand-600 text-white" : "bg-white text-surface-500 hover:text-surface-900"}`}
+                  className={`p-2 transition ${viewMode === mode ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:text-surface-900"}`}
                   title={titles[mode]}
                 >
                   {icons[mode]}
@@ -596,7 +596,7 @@ function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: No
 
                     {/* Card */}
                     <div
-                      className={`bg-white border border-surface-200 rounded-lg p-2.5 sm:p-3.5 transition ${
+                      className={`bg-surface-100 border border-surface-200 rounded-lg p-2.5 sm:p-3.5 transition ${
                         isClickable ? "hover:border-surface-400 hover:bg-surface-200/50" : ""
                       }`}
                       style={{ borderLeftWidth: 3, borderLeftColor: item.module_color ?? typeColor }}
@@ -670,7 +670,7 @@ function NoteCard({ note, modules, onClick }: { note: Note; modules: Module[]; o
   return (
     <button
       onClick={onClick}
-      className="bg-white border border-surface-200 rounded-xl p-4 text-left hover:border-surface-400 transition group"
+      className="bg-surface-100 border border-surface-200 rounded-xl p-4 text-left hover:border-surface-400 transition group"
       style={{ borderTopWidth: 3, borderTopColor: note.color }}
     >
       <div className="flex items-start justify-between mb-2">
@@ -717,7 +717,7 @@ function NoteListRow({ note, modules, onClick }: { note: Note; modules: Module[]
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-3 p-3 bg-white border border-surface-200 rounded-lg hover:border-surface-400 transition group text-left"
+      className="w-full flex items-center gap-3 p-3 bg-surface-100 border border-surface-200 rounded-lg hover:border-surface-400 transition group text-left"
     >
       <div className="w-1 h-8 rounded-full flex-shrink-0" style={{ backgroundColor: note.color }} />
       {note.pinned && <Pin size={14} className="text-amber-400 flex-shrink-0" />}
@@ -789,7 +789,7 @@ function CreateNoteModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
-      <div className="bg-white border border-surface-300 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+      <div className="bg-surface-100 border border-surface-300 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-4 sm:mb-5">
           <h2 className="text-base sm:text-lg font-bold text-surface-900">{t("notes.newNote")}</h2>
           <button onClick={onClose} className="text-surface-500 hover:text-surface-900 transition"><X size={20} /></button>
@@ -1075,7 +1075,7 @@ function NoteEditor({
         <select
           value={moduleId}
           onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); scheduleAutoSave(); }}
-          className="bg-white border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-surface-900 flex-shrink-0"
+          className="bg-surface-100 border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-surface-900 flex-shrink-0"
         >
           <option value="">{t("notes.editorNoModule")}</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -1085,7 +1085,7 @@ function NoteEditor({
             <select
               value={examId}
               onChange={e => { setExamId(e.target.value); scheduleAutoSave(); }}
-              className="bg-white border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-surface-900 flex-shrink-0"
+              className="bg-surface-100 border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-surface-900 flex-shrink-0"
             >
               <option value="">{t("notes.editorNoExam")}</option>
               {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
@@ -1093,7 +1093,7 @@ function NoteEditor({
             <select
               value={taskId}
               onChange={e => { setTaskId(e.target.value); scheduleAutoSave(); }}
-              className="bg-white border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-surface-900 flex-shrink-0"
+              className="bg-surface-100 border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-surface-900 flex-shrink-0"
             >
               <option value="">{t("notes.editorNoTask")}</option>
               {filteredTasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
@@ -1103,7 +1103,7 @@ function NoteEditor({
         <select
           value={categoryId}
           onChange={e => { setCategoryId(e.target.value); scheduleAutoSave(); }}
-          className="bg-white border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-surface-900 flex-shrink-0"
+          className="bg-surface-100 border border-surface-200 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs text-surface-900 flex-shrink-0"
         >
           <option value="">{t("notes.editorNoRubrik")}</option>
           {rubriken.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
@@ -1111,7 +1111,7 @@ function NoteEditor({
       </div>
 
       {/* Rich Text Toolbar */}
-      <div className="flex items-center gap-0.5 p-1.5 sm:p-2 bg-white border border-surface-200 rounded-t-xl flex-wrap overflow-x-auto">
+      <div className="flex items-center gap-0.5 p-1.5 sm:p-2 bg-surface-100 border border-surface-200 rounded-t-xl flex-wrap overflow-x-auto">
         <TBtn onClick={() => execCmd("bold")} title={t("notes.bold")}><Bold size={14} /></TBtn>
         <TBtn onClick={() => execCmd("italic")} title={t("notes.italic")}><Italic size={14} /></TBtn>
         <TBtn onClick={() => execCmd("underline")} title={t("notes.underline")}><Underline size={14} /></TBtn>
@@ -1136,13 +1136,13 @@ function NoteEditor({
         ref={editorRef}
         contentEditable
         onInput={scheduleAutoSave}
-        className="min-h-[300px] bg-white border-x border-b border-surface-200 rounded-b-xl p-3 sm:p-4 text-xs sm:text-sm text-surface-900 focus:outline-none prose prose-sm max-w-none [&_h1]:text-lg sm:[&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-surface-900 [&_h1]:mt-3 sm:[&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-base sm:[&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-surface-200 [&_h2]:mt-2 sm:[&_h2]:mt-3 [&_h2]:mb-1.5 [&_ul]:list-disc [&_ul]:pl-4 sm:[&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-4 sm:[&_ol]:pl-5 [&_a]:text-brand-400 [&_a]:underline [&_li]:text-surface-800 [&_p]:text-surface-800 [&_p]:leading-relaxed"
+        className="min-h-[300px] bg-surface-100 border-x border-b border-surface-200 rounded-b-xl p-3 sm:p-4 text-xs sm:text-sm text-surface-900 focus:outline-none prose prose-sm max-w-none [&_h1]:text-lg sm:[&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-surface-900 [&_h1]:mt-3 sm:[&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-base sm:[&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-surface-200 [&_h2]:mt-2 sm:[&_h2]:mt-3 [&_h2]:mb-1.5 [&_ul]:list-disc [&_ul]:pl-4 sm:[&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-4 sm:[&_ol]:pl-5 [&_a]:text-brand-400 [&_a]:underline [&_li]:text-surface-800 [&_p]:text-surface-800 [&_p]:leading-relaxed"
         data-placeholder={t("notes.startTyping")}
         suppressContentEditableWarning
       />
 
       {/* Checklist */}
-      <div className="mt-3 sm:mt-4 bg-white border border-surface-200 rounded-xl">
+      <div className="mt-3 sm:mt-4 bg-surface-100 border border-surface-200 rounded-xl">
         <button
           onClick={() => setShowChecklist(!showChecklist)}
           className="w-full flex items-center justify-between p-2.5 sm:p-3 text-left"
@@ -1246,7 +1246,7 @@ function RubrikCreateModal({ onClose, onCreated }: { onClose: () => void; onCrea
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm">
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-sm">
         <div className="flex items-center justify-between p-4 border-b border-surface-100">
           <h2 className="font-semibold text-surface-900 text-sm">{t("notes.rubrikCreateTitle")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>

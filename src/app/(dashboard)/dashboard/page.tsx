@@ -18,6 +18,7 @@ import Link from "next/link";
 import type { CalendarEvent, Topic } from "@/types/database";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { DK, dk } from "@/lib/design-tokens";
+import StudyStatusBanner from "@/components/dashboard/StudyStatusBanner";
 
 type Exam = CalendarEvent & { daysLeft?: number };
 
@@ -27,7 +28,7 @@ export default function DashboardPage() {
   const isDark = resolvedMode === "dark";
   const { modules, loading: ml } = useModules();
   const { tasks } = useTasks();
-  const { grades } = useGrades();
+  const { grades, triggerMigration } = useGrades();
   const { logs } = useTimeLogs();
   const streak = useStreaks();
   const { profile } = useProfile();
@@ -103,6 +104,9 @@ export default function DashboardPage() {
 
   useEffect(() => { fetchExams(); fetchTopics(); }, [fetchExams, fetchTopics]);
 
+  // Lazy-migrate existing grades to Academic Engine (runs once, skips already-synced)
+  useEffect(() => { triggerMigration(); }, [triggerMigration]);
+
   // ECTS calculations
   const totalEcts = useMemo(() => modules.reduce((s, m) => s + (m.ects ?? 0), 0), [modules]);
   const earnedEcts = useMemo(() => {
@@ -170,6 +174,9 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold text-surface-900">{t("dashboard.title")}</h1>
         <p className="text-surface-500 text-sm mt-0.5">{t("dashboard.subtitle")}</p>
       </div>
+
+      {/* ═══ Program Status Banner (if enrolled) ═══ */}
+      <StudyStatusBanner />
 
       {/* ═══ Row 1: Streak Hero + ECTS Ring + GPA ═══ */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">

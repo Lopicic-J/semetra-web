@@ -1,8 +1,8 @@
 import {
   LayoutDashboard, Compass, BookOpen, CheckSquare,
-  Target, Calendar, BarChart3, Clock3, Award,
+  Target, Calendar, BarChart3, Clock3, Award, CalendarClock, Users, Trophy,
   FileText, FolderOpen, Brain, Network, Lightbulb, Layers, Calculator, Timer,
-  TrendingUp, Medal, Sparkles,
+  TrendingUp, Medal, Sparkles, ClipboardList, GraduationCap, Wrench, Code, Puzzle,
   Settings, Info, UserCircle,
   type LucideIcon,
 } from "lucide-react";
@@ -45,10 +45,12 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     labelKey: "navGroup.learning",
     items: [
+      { href: "/lernplan",       icon: CalendarClock, labelKey: "nav.lernplan",      pro: false },
       { href: "/flashcards",    icon: Layers,      labelKey: "nav.flashcards",    pro: false },
       { href: "/knowledge",     icon: Brain,       labelKey: "nav.knowledge",     pro: false },
       { href: "/notes",         icon: FileText,    labelKey: "nav.notes",         pro: false },
       { href: "/documents",     icon: FolderOpen,  labelKey: "nav.documents",     pro: false },
+      { href: "/groups",        icon: Users,       labelKey: "nav.groups",        pro: false },
       { href: "/timer",         icon: Timer,       labelKey: "nav.timer",         pro: false },
     ],
   },
@@ -66,10 +68,23 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     labelKey: "navGroup.progress",
     items: [
-      { href: "/studienplan", icon: Target,      labelKey: "nav.studienplan", pro: false },
-      { href: "/grades",      icon: TrendingUp,  labelKey: "nav.grades",      pro: false },
-      { href: "/credits",     icon: Medal,       labelKey: "nav.credits",     pro: false },
-      { href: "/timeline",    icon: BarChart3,   labelKey: "nav.timeline",    pro: false },
+      { href: "/studienplan", icon: Target,         labelKey: "nav.studienplan",  pro: false },
+      { href: "/grades",      icon: TrendingUp,    labelKey: "nav.grades",       pro: false },
+      { href: "/credits",     icon: Medal,          labelKey: "nav.credits",      pro: false },
+      { href: "/transcript",  icon: ClipboardList,  labelKey: "nav.transcript",   pro: false },
+      { href: "/progress",    icon: GraduationCap,  labelKey: "nav.progress",     pro: false },
+      { href: "/timeline",      icon: BarChart3,      labelKey: "nav.timeline",      pro: false },
+      { href: "/achievements",  icon: Trophy,         labelKey: "nav.achievements",  pro: false },
+      { href: "/leaderboard",   icon: Medal,          labelKey: "nav.leaderboard",   pro: false },
+    ],
+  },
+  // Group 6: Builder (Admin)
+  {
+    labelKey: "navGroup.builder",
+    items: [
+      { href: "/builder",     icon: Wrench,        labelKey: "nav.builder",      pro: false },
+      { href: "/plugins",     icon: Puzzle,        labelKey: "nav.plugins",      pro: false },
+      { href: "/developer",   icon: Code,          labelKey: "nav.developer",    pro: true  },
     ],
   },
 ];

@@ -3,6 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import Sidebar from "@/components/sidebar/Sidebar";
 import MobileHeader from "@/components/sidebar/MobileHeader";
 import I18nWrapper from "@/components/providers/I18nWrapper";
+import InstallPrompt from "@/components/pwa/InstallPrompt";
+import OfflineBanner from "@/components/pwa/OfflineBanner";
+import { AchievementUnlockPortal } from "@/components/achievements/UnlockAnimation";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -11,6 +14,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <I18nWrapper>
+      <OfflineBanner />
       <div className="flex h-screen bg-surface-50 overflow-hidden">
         {/* Desktop sidebar — hidden on mobile */}
         <div className="hidden md:flex">
@@ -26,6 +30,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </main>
         </div>
       </div>
+      <InstallPrompt />
+      <AchievementUnlockPortal />
     </I18nWrapper>
   );
 }

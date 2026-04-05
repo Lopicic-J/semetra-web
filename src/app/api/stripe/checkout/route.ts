@@ -8,6 +8,9 @@ import {
   isLifetimeBasicPrice,
   isLifetimeFullPrice,
 } from "@/lib/stripe";
+import { logger } from "@/lib/logger";
+
+const log = logger("stripe:checkout");
 
 export async function POST(req: NextRequest) {
   try {
@@ -72,7 +75,8 @@ export async function POST(req: NextRequest) {
     const origin = req.headers.get("origin") ?? "https://semetra-web.vercel.app";
 
     // Build checkout session params
-    const sessionParams: Parameters<typeof stripe.checkout.sessions.create>[0] = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sessionParams: Record<string, any> = {
       customer: customerId,
       mode: isOneTime ? "payment" : "subscription",
       payment_method_types: ["card"],
@@ -90,11 +94,11 @@ export async function POST(req: NextRequest) {
       };
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
+    const session = await stripe.checkout.sessions.create(sessionParams as Parameters<typeof stripe.checkout.sessions.create>[0]);
 
     return NextResponse.json({ url: session.url });
   } catch (err: unknown) {
-    console.error("[stripe/checkout]", err);
+    log.error("[stripe/checkout]", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Checkout-Fehler." },
       { status: 500 }

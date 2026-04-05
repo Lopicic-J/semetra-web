@@ -238,7 +238,7 @@ function StudyMode({
 
   if (!card) {
     return (
-      <div className={`${focusMode ? "fixed inset-0 z-50 bg-white" : ""} flex items-center justify-center min-h-[60vh]`}>
+      <div className={`${focusMode ? "fixed inset-0 z-50 bg-surface-50" : ""} flex items-center justify-center min-h-[60vh]`}>
         <div className="text-center py-16">
           <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
             <Check className="text-green-600" size={36} />
@@ -282,7 +282,7 @@ function StudyMode({
   return (
     <div
       ref={containerRef}
-      className={`${focusMode ? "fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-6" : "max-w-2xl mx-auto"}`}
+      className={`${focusMode ? "fixed inset-0 z-50 bg-surface-50 flex flex-col items-center justify-center p-6" : "max-w-2xl mx-auto"}`}
     >
       {/* Header */}
       <div className={`flex items-center justify-between mb-6 w-full ${focusMode ? "max-w-2xl" : ""}`}>
@@ -312,7 +312,7 @@ function StudyMode({
         {card.card_type === "basic" && (
           <div
             onClick={() => !flipped && setFlipped(true)}
-            className={`bg-white border border-surface-200 rounded-2xl p-8 sm:p-12 min-h-[280px] flex items-center justify-center cursor-pointer
+            className={`bg-surface-100 border border-surface-200 rounded-2xl p-8 sm:p-12 min-h-[280px] flex items-center justify-center cursor-pointer
               hover:shadow-lg transition-all select-none ${focusMode ? "min-h-[360px]" : ""}`}
           >
             <div className="text-center max-w-lg">
@@ -333,7 +333,7 @@ function StudyMode({
 
         {/* ── Cloze card ── */}
         {card.card_type === "cloze" && cloze && (
-          <div className={`bg-white border border-surface-200 rounded-2xl p-8 sm:p-12 min-h-[280px] flex flex-col items-center justify-center ${focusMode ? "min-h-[360px]" : ""}`}>
+          <div className={`bg-surface-100 border border-surface-200 rounded-2xl p-8 sm:p-12 min-h-[280px] flex flex-col items-center justify-center ${focusMode ? "min-h-[360px]" : ""}`}>
             <p className="text-xs font-semibold text-purple-600 mb-4 tracking-wider uppercase">{t("fc.cloze")}</p>
             <p className={`text-surface-800 whitespace-pre-wrap leading-relaxed text-center mb-6 ${focusMode ? "text-2xl" : "text-lg"}`}>
               {cloze.display}
@@ -369,7 +369,7 @@ function StudyMode({
 
         {/* ── Multiple Choice card ── */}
         {card.card_type === "mc" && card.choices && (
-          <div className={`bg-white border border-surface-200 rounded-2xl p-8 sm:p-12 min-h-[280px] ${focusMode ? "min-h-[360px]" : ""}`}>
+          <div className={`bg-surface-100 border border-surface-200 rounded-2xl p-8 sm:p-12 min-h-[280px] ${focusMode ? "min-h-[360px]" : ""}`}>
             <p className="text-xs font-semibold text-cyan-600 mb-4 tracking-wider uppercase text-center">
               {t("fc.multipleChoice")}
               {isMultiCorrectMc && <span className="ml-2 text-surface-400">({mcCorrectSet.size} {t("fc.mcCorrectLabel")})</span>}
@@ -537,7 +537,7 @@ function CardDialog({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold text-surface-900">
             {card ? t("flashcards.editCard") : t("flashcards.newCard")}
@@ -806,7 +806,7 @@ function BulkCreatePanel({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold text-surface-900">{t("fc.bulkCreate")}</h3>
           <button onClick={onClose} className="text-surface-500 hover:text-surface-900"><X size={20} /></button>
@@ -950,7 +950,7 @@ function AIGeneratePanel({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold text-surface-900 flex items-center gap-2">
             <Sparkles size={20} className="text-brand-600" /> {t("fc.aiGenerate")}
@@ -1038,7 +1038,7 @@ function Heatmap() {
   }
 
   return (
-    <div className="bg-white border border-surface-200 rounded-xl p-4">
+    <div className="bg-surface-100 border border-surface-200 rounded-xl p-4">
       <h3 className="text-sm font-semibold text-surface-800 mb-3 flex items-center gap-2">
         <BarChart3 size={14} className="text-brand-600" /> {t("fc.activity")}
       </h3>
@@ -1361,7 +1361,7 @@ export default function FlashcardsPage() {
       {showStats && stats.total > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
           {/* Progress overview */}
-          <div className="bg-white border border-surface-200 rounded-xl p-4">
+          <div className="bg-surface-100 border border-surface-200 rounded-xl p-4">
             <h3 className="text-sm font-semibold text-surface-800 mb-3 flex items-center gap-2">
               <Target size={14} className="text-brand-600" /> {t("fc.progress")}
             </h3>
@@ -1555,7 +1555,7 @@ export default function FlashcardsPage() {
               <div
                 key={card.id}
                 onClick={() => selectMode && toggleCardSelection(card.id)}
-                className={`bg-white border rounded-xl p-4 hover:shadow-md transition-all group relative cursor-pointer ${
+                className={`bg-surface-100 border rounded-xl p-4 hover:shadow-md transition-all group relative cursor-pointer ${
                   selectMode ? "cursor-pointer" : ""
                 } ${isSelected ? "bg-brand-50 border-brand-300" : isMastered ? "border-green-200 bg-green-50/30" : "border-surface-200"}`}
               >
@@ -1663,7 +1663,7 @@ export default function FlashcardsPage() {
 
       {/* ── Floating Action Bar (Multi-select) ── */}
       {selectMode && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white border border-surface-200 rounded-lg shadow-lg p-4 flex items-center justify-center gap-4 z-40">
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-surface-100 border border-surface-200 rounded-lg shadow-lg p-4 flex items-center justify-center gap-4 z-40">
           <div className="flex items-center gap-4">
             {/* Select All / Deselect All Toggle */}
             <button

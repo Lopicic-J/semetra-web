@@ -283,7 +283,7 @@ export default function BrainstormingPage() {
             <button
               key={tech.key}
               onClick={() => { setPreselectedTech(tech.key); setShowCreate(true); }}
-              className="bg-white border border-surface-200 rounded-lg p-3.5 text-left hover:border-surface-300 hover:bg-surface-50 transition group"
+              className="bg-surface-100 border border-surface-200 rounded-lg p-3.5 text-left hover:border-surface-300 hover:bg-surface-100 transition group"
             >
               <div className="flex items-center gap-2 mb-1.5">
                 <span style={{ color: tech.color }}>{tech.icon}</span>
@@ -314,7 +314,7 @@ export default function BrainstormingPage() {
               <button
                 key={s.id}
                 onClick={() => setActiveSession(s)}
-                className="bg-white border border-surface-200 rounded-xl p-4 text-left hover:border-brand-500/60 hover:bg-surface-50 transition group"
+                className="bg-surface-100 border border-surface-200 rounded-xl p-4 text-left hover:border-brand-500/60 hover:bg-surface-100 transition group"
               >
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-semibold text-surface-800 text-sm group-hover:text-brand-300 transition line-clamp-1">
@@ -405,7 +405,7 @@ function CreateSessionModal({
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-white border border-surface-200 rounded-2xl w-full max-w-lg p-3 sm:p-6 mx-4 max-h-[85vh] overflow-y-auto shadow-2xl"
+        className="bg-surface-100 border border-surface-200 rounded-2xl w-full max-w-lg p-3 sm:p-6 mx-4 max-h-[85vh] overflow-y-auto shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-5">
@@ -1267,7 +1267,7 @@ function BrainstormEditor({
                 <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
                   msg.role === "user"
                     ? "bg-brand-600 text-white rounded-br-md"
-                    : "bg-white border border-surface-200 text-surface-800 rounded-bl-md shadow-sm"
+                    : "bg-surface-100 border border-surface-200 text-surface-800 rounded-bl-md shadow-sm"
                 }`}>
                   {msg.role === "assistant" && (
                     <div className="flex items-center gap-1.5 mb-1.5">
@@ -1299,7 +1299,7 @@ function BrainstormEditor({
             {/* Streaming result (not yet in history) */}
             {aiLoading && aiResult && (
               <div className="flex justify-start">
-                <div className="max-w-[85%] rounded-2xl rounded-bl-md px-3.5 py-2.5 bg-white border border-surface-200 text-surface-800 shadow-sm">
+                <div className="max-w-[85%] rounded-2xl rounded-bl-md px-3.5 py-2.5 bg-surface-100 border border-surface-200 text-surface-800 shadow-sm">
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <Bot size={11} className="text-brand-500" />
                     <span className="text-[10px] font-medium text-brand-500">Semetra KI</span>
@@ -1311,7 +1311,7 @@ function BrainstormEditor({
 
             {aiLoading && !aiResult && (
               <div className="flex justify-start">
-                <div className="rounded-2xl rounded-bl-md px-4 py-3 bg-white border border-surface-200 shadow-sm">
+                <div className="rounded-2xl rounded-bl-md px-4 py-3 bg-surface-100 border border-surface-200 shadow-sm">
                   <div className="flex items-center gap-2">
                     <div className="flex gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: "0ms" }} />
@@ -1379,7 +1379,7 @@ function BrainstormEditor({
       {/* ── Shortcuts Modal ────────────────────────────────────────── */}
       {showShortcuts && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setShowShortcuts(false)}>
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-surface-100 rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-surface-900">{t("brainstorming.shortcuts")}</h2>
               <button onClick={() => setShowShortcuts(false)} className="text-surface-500 hover:text-surface-900"><X size={20} /></button>
@@ -1557,7 +1557,7 @@ function BrainstormEditor({
 
       {/* ── Summary stats ──────────────────────────────────────────── */}
       {ideas.length > 0 && (
-        <div className="mt-6 p-3 sm:p-4 bg-white border border-surface-200 rounded-xl">
+        <div className="mt-6 p-3 sm:p-4 bg-surface-100 border border-surface-200 rounded-xl">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-center">
             <div>
               <p className="text-lg sm:text-2xl font-bold text-surface-900">{ideas.length}</p>

@@ -8,6 +8,9 @@ import {
 } from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
+import { logger } from "@/lib/logger";
+
+const log = logger("stripe:webhook");
 
 // Use service-role key so webhook can bypass RLS
 const supabaseAdmin = createClient(
@@ -30,7 +33,7 @@ export async function POST(req: NextRequest) {
   try {
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
   } catch (err: unknown) {
-    console.error("[webhook] signature verification failed:", err);
+    log.error("[webhook] signature verification failed", err);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -61,7 +64,7 @@ export async function POST(req: NextRequest) {
         break;
     }
   } catch (err) {
-    console.error("[webhook] handler error:", err);
+    log.error("[webhook] handler error", err);
     return NextResponse.json({ error: "Handler failed" }, { status: 500 });
   }
 
@@ -96,7 +99,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 
   if (!userId) {
-    console.warn("[webhook] No user found for session:", session.id);
+    log.warn("[webhook] No user found for session", session.id);
     return;
   }
 
@@ -114,7 +117,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         p_month: month,
         p_credits: credits,
       });
-      console.log(`[webhook] AI Add-on: +${credits} credits for user ${userId} (month: ${month})`);
+      log.info(`[webhook] AI Add-on: +${credits} credits for user ${userId} (month: ${month})`);
       return;
     }
 
@@ -130,14 +133,14 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       stripe_customer_id: (session.customer as string) ?? null,
       plan_expires_at: null,
     }).eq("id", userId);
-    console.log(`[webhook] Lifetime ${tier} activated for user:`, userId);
+    log.info(`[webhook] Lifetime ${tier} activated for user:`, userId);
     return;
   }
 
   // Subscription-based purchase
   const subscriptionId = session.subscription as string;
   if (!subscriptionId) {
-    console.warn("[webhook] No subscription in session:", session.id);
+    log.warn("[webhook] No subscription in session", session.id);
     return;
   }
 
@@ -156,7 +159,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     stripe_customer_id: session.customer as string,
   }).eq("id", userId);
 
-  console.log(`[webhook] Pro ${tier} subscription activated for user:`, userId);
+  log.info(`[webhook] Pro ${tier} subscription activated for user:`, userId);
 }
 
 async function handleSubscriptionChange(sub: Stripe.Subscription) {

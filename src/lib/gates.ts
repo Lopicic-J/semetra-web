@@ -162,10 +162,6 @@ export function aiUsageThisMonth(isPro: boolean): {
   };
 }
 
-// Legacy aliases
-export const aiUsageToday = aiUsageThisMonth;
-export const aiUsageThisWeek = aiUsageThisMonth;
-
 /** Increment AI monthly usage counter (Free tier — localStorage) */
 export function aiUsageIncrement(): void {
   if (typeof window === "undefined") return;

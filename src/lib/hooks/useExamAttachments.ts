@@ -1,7 +1,10 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 import type { ExamAttachment } from "@/types/database";
+
+const log = logger("hook:exam-attachments");
 
 export function useExamAttachments(examId?: string) {
   const [attachments, setAttachments] = useState<ExamAttachment[]>([]);
@@ -72,7 +75,7 @@ export function useExamAttachments(examId?: string) {
       .upload(storagePath, file);
 
     if (uploadError) {
-      console.error("Upload failed:", uploadError);
+      log.error("Upload failed", uploadError);
       return;
     }
 

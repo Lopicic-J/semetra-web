@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { logger } from "@/lib/logger";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+const log = logger("api:extract");
 
 /**
  * POST /api/extract-text
@@ -58,7 +60,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ text: text.slice(0, 12000) });
   } catch (err) {
-    console.error("Text extraction error:", err);
+    log.error("Text extraction error", err);
     return NextResponse.json({ error: "Failed to extract text from file" }, { status: 400 });
   }
 }

@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { logger } from "@/lib/logger";
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY ?? "";
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+const log = logger("api:flashcards");
 
 /**
  * POST /api/flashcards/generate
@@ -16,7 +18,7 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
  */
 export async function POST(req: NextRequest) {
   if (!ANTHROPIC_API_KEY || !SUPABASE_SERVICE_KEY) {
-    console.error("Missing env vars:", { hasAnthropicKey: !!ANTHROPIC_API_KEY, hasServiceKey: !!SUPABASE_SERVICE_KEY });
+    log.error("Missing env vars", { hasAnthropicKey: !!ANTHROPIC_API_KEY, hasServiceKey: !!SUPABASE_SERVICE_KEY });
     return NextResponse.json({ error: "KI-Service nicht konfiguriert. Bitte ANTHROPIC_API_KEY und SUPABASE_SERVICE_ROLE_KEY in .env.local setzen." }, { status: 500 });
   }
 
@@ -101,7 +103,7 @@ Output format (STRICT JSON):
 
     if (!res.ok) {
       const err = await res.text();
-      console.error("Claude API error:", err);
+      log.error("Claude API error", err);
       return NextResponse.json({ error: "KI-Fehler" }, { status: 502 });
     }
 
@@ -114,7 +116,7 @@ Output format (STRICT JSON):
       const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
       cardsJson = JSON.parse(cleaned);
     } catch {
-      console.error("Failed to parse Claude response:", content);
+      log.error("Failed to parse Claude response", content);
       return NextResponse.json({ error: "KI-Antwort konnte nicht verarbeitet werden" }, { status: 502 });
     }
 
@@ -135,7 +137,7 @@ Output format (STRICT JSON):
 
     const { error: insertError } = await supabase.from("flashcards").insert(rows);
     if (insertError) {
-      console.error("Insert error:", insertError);
+      log.error("Insert error", insertError);
       return NextResponse.json({ error: "Speichern fehlgeschlagen" }, { status: 500 });
     }
 
@@ -145,7 +147,7 @@ Output format (STRICT JSON):
       message: `${cardsJson.length} Karteikarten erstellt`,
     });
   } catch (err) {
-    console.error("Generate flashcards error:", err);
+    log.error("Generate flashcards error", err);
     return NextResponse.json({ error: "Interner Fehler" }, { status: 500 });
   }
 }

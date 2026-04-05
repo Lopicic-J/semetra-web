@@ -110,7 +110,7 @@ function UpgradeContent() {
             onClick={() => setSelectedPlan("basic")}
             className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
               selectedPlan === "basic"
-                ? "bg-white text-surface-900 shadow-sm"
+                ? "bg-surface-100 text-surface-900 shadow-sm"
                 : "text-surface-500 hover:text-surface-700"
             }`}
           >
@@ -120,7 +120,7 @@ function UpgradeContent() {
             onClick={() => setSelectedPlan("full")}
             className={`relative px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
               selectedPlan === "full"
-                ? "bg-white text-surface-900 shadow-sm"
+                ? "bg-surface-100 text-surface-900 shadow-sm"
                 : "text-surface-500 hover:text-surface-700"
             }`}
           >
@@ -148,7 +148,7 @@ function UpgradeContent() {
                 onClick={() => setSelectedTier(tier.key)}
                 className={`relative px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   selectedTier === tier.key
-                    ? "bg-white text-surface-900 shadow-sm"
+                    ? "bg-surface-100 text-surface-900 shadow-sm"
                     : "text-surface-500 hover:text-surface-700"
                 }`}
               >
@@ -167,7 +167,7 @@ function UpgradeContent() {
       {/* Cards: Free / Basic / Full */}
       <div className="grid sm:grid-cols-3 gap-5 max-w-4xl mx-auto mb-8">
         {/* Free */}
-        <div className="bg-white rounded-2xl border-2 border-surface-200 p-5">
+        <div className="bg-surface-100 rounded-2xl border-2 border-surface-200 p-5">
           <div className="mb-4">
             <p className="text-sm font-semibold text-surface-500 uppercase tracking-wide mb-1">Free</p>
             <p className="text-2xl font-bold text-surface-900">CHF 0</p>
@@ -202,7 +202,7 @@ function UpgradeContent() {
         </div>
 
         {/* Pro Basic */}
-        <div className={`bg-white rounded-2xl border-2 p-5 relative ${
+        <div className={`bg-surface-100 rounded-2xl border-2 p-5 relative ${
           selectedPlan === "basic" ? "border-brand-500" : "border-surface-200"
         }`}>
           <div className="absolute top-0 right-0 bg-brand-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-bl-xl">
@@ -255,7 +255,7 @@ function UpgradeContent() {
         </div>
 
         {/* Pro Full */}
-        <div className={`bg-white rounded-2xl border-2 p-5 relative overflow-hidden ${
+        <div className={`bg-surface-100 rounded-2xl border-2 p-5 relative overflow-hidden ${
           selectedPlan === "full" ? "border-brand-500" : "border-surface-200"
         }`}>
           <div className="absolute top-0 right-0 bg-gradient-to-l from-violet-600 to-brand-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-bl-xl flex items-center gap-1">

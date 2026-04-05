@@ -13,6 +13,7 @@ import { FREE_LIMITS } from "@/lib/gates";
 import { UpgradeModal, ProGate } from "@/components/ui/ProGate";
 import { Plus, X, Trash2, Pencil, BarChart2, TrendingUp, AlertTriangle, Award, Target, GraduationCap, RotateCcw } from "lucide-react";
 import { GradeAnalytics } from "@/components/grades/GradeAnalytics";
+import ComponentGradePanel from "@/components/grades/ComponentGradePanel";
 import type { Grade, Module, CalendarEvent } from "@/types/database";
 
 type Exam = CalendarEvent & { daysLeft?: number };
@@ -67,7 +68,7 @@ export default function GradesPage() {
   const { t } = useTranslation();
   const { grades, loading, refetch } = useGrades();
   const { modules } = useModules();
-  const { isPro } = useProfile();
+  const { isPro, profile } = useProfile();
   const gs = useGradingSystem();
   const [exams, setExams] = useState<Exam[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -75,7 +76,26 @@ export default function GradesPage() {
   const [filterModule, setFilterModule] = useState<string>("all");
   const [filterExam, setFilterExam] = useState<string>("all");
   const [showUpgrade, setShowUpgrade] = useState(false);
+  // Engine enrollments per module (for component grade panel)
+  const [enrollmentMap, setEnrollmentMap] = useState<Record<string, string>>({});
   const supabase = createClient();
+
+  // Load enrollment IDs for each module (for component grade panel)
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("enrollments")
+        .select("id, module_id")
+        .eq("user_id", user.id);
+      if (data) {
+        const map: Record<string, string> = {};
+        for (const e of data) if (e.module_id) map[e.module_id] = e.id;
+        setEnrollmentMap(map);
+      }
+    })();
+  }, [supabase, grades]); // re-run when grades change (bridge may create new enrollments)
 
   const fetchExams = useCallback(async () => {
     const { data } = await supabase
@@ -373,6 +393,14 @@ export default function GradesPage() {
                   {mGrades.map(g => (
                     <GradeRow key={g.id} grade={g} exams={exams} gs={gs} onEdit={e => { setEditing(e); setShowForm(true); }} onDelete={handleDelete} />
                   ))}
+                </div>
+                {/* Assessment component grades (from Academic Engine) */}
+                <div className="px-4 pb-3">
+                  <ComponentGradePanel
+                    moduleId={m.id}
+                    enrollmentId={enrollmentMap[m.id] || null}
+                    countryCode={profile?.country || null}
+                  />
                 </div>
               </div>
             );

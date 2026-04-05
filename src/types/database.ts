@@ -33,6 +33,25 @@ export interface Module {
   in_plan: boolean;
   target_grade: number | null;
   created_at: string;
+  // Academic fields (migration 032)
+  credit_scheme_id: string | null;
+  grade_scale_id: string | null;
+  pass_policy_id: string | null;
+  retake_policy_id: string | null;
+  rounding_policy_id: string | null;
+  program_id: string | null;
+  requirement_group_id: string | null;
+  term_type: string | null;
+  default_term_number: number | null;
+  is_compulsory: boolean;
+  is_repeatable: boolean;
+  attendance_required: boolean;
+  language: string | null;
+  delivery_mode: string;
+  prerequisites_json: string[];
+  description: string | null;
+  module_code: string | null;
+  ects_equivalent: number | null;
 }
 
 export interface Task {
@@ -386,4 +405,153 @@ export interface MathFormula {
   created_at: string;
   updated_at: string;
   module?: Module;
+}
+
+// ── Academic Builder Types (migrations 032–038) ─────────────────────────────
+
+export interface Institution {
+  id: string;
+  name: string;
+  code: string | null;
+  country_code: string;
+  institution_type: string;
+  official_language: string | null;
+  academic_year_start_month: number;
+  default_credit_scheme_id: string | null;
+  default_grade_scale_id: string | null;
+  default_rounding_policy_id: string | null;
+  default_pass_policy_id: string | null;
+  default_retake_policy_id: string | null;
+  default_classification_scheme_id: string | null;
+  default_gpa_scheme_id: string | null;
+  timezone: string | null;
+  website: string | null;
+  is_active: boolean;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Faculty {
+  id: string;
+  institution_id: string;
+  name: string;
+  code: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Program {
+  id: string;
+  institution_id: string | null;
+  faculty_id: string | null;
+  code: string | null;
+  name: string;
+  degree_level: string;
+  required_total_credits: number;
+  credit_scheme_id: string | null;
+  ects_total: number | null;
+  ects_equivalent_total: number | null;
+  duration_standard_terms: number;
+  classification_scheme_id: string | null;
+  gpa_scheme_id: string | null;
+  completion_rules: Record<string, unknown>;
+  thesis_required: boolean;
+  internship_required: boolean;
+  final_exam_required: boolean;
+  is_active: boolean;
+  status: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RequirementGroup {
+  id: string;
+  program_id: string;
+  parent_group_id: string | null;
+  name: string;
+  group_type: string;
+  rule_type: string;
+  min_credits_required: number | null;
+  min_modules_required: number | null;
+  max_modules_counted: number | null;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AssessmentComponent {
+  id: string;
+  module_id: string;
+  name: string;
+  component_type: string;
+  weight_percent: number;
+  grade_scale_id: string | null;
+  pass_policy_id: string | null;
+  min_pass_required: boolean;
+  contributes_to_final: boolean;
+  mandatory_to_pass: boolean;
+  sequence_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ModulePrerequisite {
+  id: string;
+  module_id: string;
+  prerequisite_module_id: string;
+  prerequisite_type: string;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface AcademicTerm {
+  id: string;
+  user_id: string;
+  institution_id: string | null;
+  academic_year_label: string;
+  term_type: string;
+  term_number: number;
+  term_label: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  created_at: string;
+}
+
+export interface Enrollment {
+  id: string;
+  user_id: string;
+  module_id: string;
+  program_id: string | null;
+  academic_year: string | null;
+  term_id: string | null;
+  status: string;
+  attempts_used: number;
+  current_final_grade: number | null;
+  current_grade_label: string | null;
+  current_passed: boolean | null;
+  credits_awarded: number;
+  local_grade_value: number | null;
+  local_grade_label: string | null;
+  normalized_score_0_100: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StudentProgram {
+  id: string;
+  user_id: string;
+  program_id: string;
+  institution_id: string | null;
+  enrollment_date: string | null;
+  expected_graduation: string | null;
+  status: string;
+  matriculation_number: string | null;
+  specialisation: string | null;
+  created_at: string;
+  updated_at: string;
 }

@@ -7,12 +7,13 @@ import { useProfile } from "@/lib/hooks/useProfile";
 import { COUNTRY_LIST, GRADING_SYSTEMS, type CountryCode } from "@/lib/grading-systems";
 import { useTranslation, LOCALES, LOCALE_LABELS, LOCALE_FLAGS, type Locale } from "@/lib/i18n";
 import Link from "next/link";
+import StudyProgramCard from "@/components/settings/StudyProgramCard";
 
 export default function SettingsPage() {
   const { t } = useTranslation();
   const supabase = createClient();
   const router = useRouter();
-  const { profile, isPro, isLifetime } = useProfile();
+  const { profile, isPro, isLifetime, refetch } = useProfile();
   const [user, setUser] = useState<{ email?: string; created_at?: string } | null>(null);
   const [activeTab, setActiveTab] = useState("account");
 
@@ -61,7 +62,7 @@ export default function SettingsPage() {
 
         {/* Content */}
         <div className="flex-1">
-          {activeTab === "account"       && <AccountTab user={user} profile={profile} />}
+          {activeTab === "account"       && <AccountTab user={user} profile={profile} refetch={refetch} />}
           {activeTab === "plan"          && <PlanTab isPro={isPro} isLifetime={isLifetime} profile={profile} />}
           {activeTab === "appearance"    && <AppearanceTab />}
           {activeTab === "notifications" && <NotificationsTab />}
@@ -72,7 +73,7 @@ export default function SettingsPage() {
   );
 }
 
-function AccountTab({ user, profile }: { user: { email?: string; created_at?: string } | null; profile: { country?: string | null } | null }) {
+function AccountTab({ user, profile, refetch }: { user: { email?: string; created_at?: string } | null; profile: { country?: string | null } | null; refetch: () => Promise<void> }) {
   const { t, locale } = useTranslation();
   const supabase = createClient();
   const [newPassword, setNewPassword] = useState("");
@@ -106,8 +107,12 @@ function AccountTab({ user, profile }: { user: { email?: string; created_at?: st
     if (!authUser) { setCountrySaving(false); return; }
     const { error } = await supabase.from("profiles").update({ country: selectedCountry }).eq("id", authUser.id);
     setCountrySaving(false);
-    if (error) setCountryMsg({ type: "error", text: error.message });
-    else setCountryMsg({ type: "success", text: t("settings.gradingSystemUpdated") });
+    if (error) {
+      setCountryMsg({ type: "error", text: error.message });
+    } else {
+      await refetch();
+      setCountryMsg({ type: "success", text: t("settings.gradingSystemUpdated") });
+    }
   }
 
   const currentSystem = GRADING_SYSTEMS[selectedCountry as CountryCode] ?? GRADING_SYSTEMS.CH;
@@ -166,6 +171,9 @@ function AccountTab({ user, profile }: { user: { email?: string; created_at?: st
           </p>
         )}
       </div>
+
+      {/* Mein Studium — structured enrollment */}
+      <StudyProgramCard country={selectedCountry} onEnrolled={refetch} />
 
       {/* Language */}
       <LanguageCard />

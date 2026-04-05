@@ -321,7 +321,7 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md mx-4">
         <div className="p-4 sm:p-6">
           {/* Header */}
           <div className="flex items-center gap-3 mb-4">
@@ -621,7 +621,7 @@ function ModuleModal({ initial, onClose, onSaved }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto mx-4">
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto mx-4">
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-surface-100">
           <h2 className="font-semibold text-surface-900">{initial ? t("modules.moduleEdit") : t("modules.newModule")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
@@ -941,7 +941,7 @@ function FhImportModal({ isPro, onClose, onImported }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] overflow-hidden mx-4 flex flex-col" onClick={e => e.stopPropagation()}>
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] overflow-hidden mx-4 flex flex-col" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-surface-100 shrink-0">
           <div className="flex items-center gap-3">
@@ -1022,7 +1022,7 @@ function FhImportModal({ isPro, onClose, onImported }: {
                         <button
                           key={p.id}
                           onClick={() => pickProgram(p)}
-                          className="bg-white border border-surface-200 rounded-xl p-3 text-left hover:border-brand-300 hover:shadow-sm transition-all group"
+                          className="bg-surface-100 border border-surface-200 rounded-xl p-3 text-left hover:border-brand-300 hover:shadow-sm transition-all group"
                         >
                           <div className="flex items-center gap-3">
                             <div
