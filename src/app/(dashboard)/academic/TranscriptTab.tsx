@@ -96,7 +96,7 @@ export default function TranscriptTab() {
       const isPassed = bestGrade != null && (
         gradeScale
           ? isPassingGrade(bestGrade, gradeScale)
-          : gs.direction === "higher_better" ? bestGrade >= gs.passingGrade : bestGrade <= gs.passingGrade
+          : gs.direction === "higher_better" ? bestGrade >= gs.passingGradeingGrade : bestGrade <= gs.passingGradeingGrade
       );
 
       const credits = mod.ects ?? 0;
@@ -130,7 +130,7 @@ export default function TranscriptTab() {
           const p = m.bestGrade != null && (
             gradeScale
               ? isPassingGrade(m.bestGrade, gradeScale)
-              : gs.direction === "higher_better" ? m.bestGrade >= gs.pass : m.bestGrade <= gs.pass
+              : gs.direction === "higher_better" ? m.bestGrade >= gs.passingGrade : m.bestGrade <= gs.passingGrade
           );
           return s + (p ? (m.module.ects ?? 0) : 0);
         }, 0),
@@ -198,12 +198,12 @@ export default function TranscriptTab() {
               {semModules.map(({ module: mod, bestGrade }) => {
                 const isPassed = bestGrade != null && (
                   gradeScale ? isPassingGrade(bestGrade, gradeScale) :
-                  gs.direction === "higher_better" ? bestGrade >= gs.pass : bestGrade <= gs.pass
+                  gs.direction === "higher_better" ? bestGrade >= gs.passingGrade : bestGrade <= gs.passingGrade
                 );
                 const band = bestGrade != null && gradeScale
                   ? getGradeBand(bestGrade, scaleBands) : null;
                 const colorClass = bestGrade != null
-                  ? getGradeColor(bestGrade, gs) : "";
+                  ? getGradeColor(bestGrade, gs.country) : "";
 
                 return (
                   <div key={mod.id} className="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-surface-50/50 dark:hover:bg-surface-800/30">
@@ -224,7 +224,7 @@ export default function TranscriptTab() {
                     <div className="col-span-2">
                       {bestGrade != null ? (
                         <span className={`text-sm font-semibold px-1.5 py-0.5 rounded ${colorClass}`}>
-                          {gradeScale ? formatGradeValue(bestGrade, gradeScale) : formatGrade(bestGrade, gs)}
+                          {gradeScale ? formatGradeValue(bestGrade, gradeScale) : formatGrade(bestGrade, gs.country)}
                         </span>
                       ) : (
                         <span className="text-xs text-surface-400">–</span>

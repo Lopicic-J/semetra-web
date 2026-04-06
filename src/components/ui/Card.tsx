@@ -2,7 +2,7 @@
 import { clsx } from "clsx";
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  padding?: "sm" | "md" | "lg";
+  padding?: "none" | "sm" | "md" | "lg";
   interactive?: boolean;
   children: React.ReactNode;
 }
@@ -15,6 +15,7 @@ export function Card({
   ...props
 }: CardProps) {
   const paddingStyles = {
+    none: "p-0",
     sm: "p-3",
     md: "p-5",
     lg: "p-6",
