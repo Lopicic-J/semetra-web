@@ -395,7 +395,7 @@ export default function AIAssistantPage() {
       {/* ── Main Chat Area ── */}
       <div className="flex-1 flex flex-col min-w-0">
       {/* Header */}
-      <div className="shrink-0 border-b border-surface-100 bg-white px-6 py-3">
+      <div className="shrink-0 border-b border-surface-100 bg-[rgb(var(--card-bg))] px-6 py-3">
         <div className="flex items-center justify-between max-w-3xl mx-auto">
           <div className="flex items-center gap-3">
             {/* History toggle */}
@@ -468,7 +468,7 @@ export default function AIAssistantPage() {
 
         {/* Context dropdown */}
         {showContext && (
-          <div className="max-w-3xl mx-auto mt-2 p-3 bg-white rounded-xl border border-surface-100 shadow-sm">
+          <div className="max-w-3xl mx-auto mt-2 p-3 bg-[rgb(var(--card-bg))] rounded-xl border border-surface-100 shadow-sm">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {/* Module */}
               <div>
@@ -549,7 +549,7 @@ export default function AIAssistantPage() {
       </div>
 
       {/* Input Area */}
-      <div className="shrink-0 border-t border-surface-100 bg-white px-6 py-3">
+      <div className="shrink-0 border-t border-surface-100 bg-[rgb(var(--card-bg))] px-6 py-3">
         <div className="max-w-3xl mx-auto">
           {/* Usage limit warning */}
           {!isPro && !usage.allowed && (

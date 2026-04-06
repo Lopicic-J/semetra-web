@@ -113,9 +113,14 @@ function hasCloze(text: string): boolean {
    REVIEW HISTORY (localStorage for heatmap)
    ═══════════════════════════════════════════════════════════════════════ */
 
+/** Format a Date as YYYY-MM-DD in LOCAL time (avoids DST duplicate-key bugs with toISOString/UTC) */
+function localDateStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function recordReview() {
   if (typeof window === "undefined") return;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDateStr(new Date());
   const key = "semetra_fc_history";
   const raw = localStorage.getItem(key);
   const data: Record<string, number> = raw ? JSON.parse(raw) : {};
@@ -123,7 +128,7 @@ function recordReview() {
   // Keep 90 days
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 90);
-  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  const cutoffStr = localDateStr(cutoff);
   for (const k of Object.keys(data)) {
     if (k < cutoffStr) delete data[k];
   }
@@ -138,7 +143,7 @@ function getReviewHistory(): Record<string, number> {
 
 function getTodayReviews(): number {
   const h = getReviewHistory();
-  return h[new Date().toISOString().slice(0, 10)] ?? 0;
+  return h[localDateStr(new Date())] ?? 0;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -1013,7 +1018,7 @@ function Heatmap() {
   for (let i = 89; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const key = d.toISOString().slice(0, 10);
+    const key = localDateStr(d);
     days.push({ date: key, count: history[key] ?? 0 });
   }
 

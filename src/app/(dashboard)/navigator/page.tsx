@@ -81,9 +81,9 @@ function getFeatures(t: (k: string) => string): Feature[] {
       description: t("navigator.timerDesc"), keywords: ["timer", "pomodoro", "stoppuhr", "lernzeit"], color: "#16a34a", pro: false },
 
     // Analyse
-    { href: "/grades", icon: BarChart3, label: t("nav.grades") || "Noten", group: "analytics",
+    { href: "/studium?tab=noten", icon: BarChart3, label: t("nav.grades") || "Noten", group: "analytics",
       description: t("navigator.gradesDesc"), keywords: ["note", "durchschnitt", "bestanden"], color: "#059669", pro: false },
-    { href: "/credits", icon: Trophy, label: t("nav.credits") || "Credits", group: "analytics",
+    { href: "/studium?tab=uebersicht", icon: Trophy, label: t("nav.credits") || "Credits & ECTS", group: "analytics",
       description: t("navigator.creditsDesc"), keywords: ["ects", "credits", "fortschritt"], color: "#d97706", pro: false },
 
     // System

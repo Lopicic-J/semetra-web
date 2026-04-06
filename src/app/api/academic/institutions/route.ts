@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
+import {
+  requireRole,
+  logBuilderAction,
+  errorResponse,
+  isErrorResponse,
+  createServiceClient,
+} from "@/lib/api-helpers";
 
 const log = logger("api:institutions");
 
@@ -8,8 +15,7 @@ const log = logger("api:institutions");
  * GET /api/academic/institutions
  *
  * List institutions with optional country filter.
- * Query params:
- *   - country: ISO country code (optional, e.g., 'CH', 'DE')
+ * Accessible to ALL authenticated users (students need to browse for enrollment).
  */
 export async function GET(req: NextRequest) {
   try {
@@ -33,9 +39,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ institutions: data || [] });
   } catch (err: unknown) {
     log.error("GET failed", { error: err });
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Interner Fehler" },
-      { status: 500 }
+    return errorResponse(
+      err instanceof Error ? err.message : "Interner Fehler",
+      500,
     );
   }
 }
@@ -43,66 +49,59 @@ export async function GET(req: NextRequest) {
 /**
  * POST /api/academic/institutions
  *
- * Create a new institution.
- * Required fields: name, country_code
- * Optional fields: institution_type, official_language, academic_year_start_month, etc.
+ * Create a new institution. Admin only.
  */
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
-    }
+    const rc = await requireRole(["admin"]);
+    if (isErrorResponse(rc)) return rc;
+    const { user } = rc;
+    const db = rc.adminClient ?? createServiceClient();
 
     const body = await req.json();
     const { name, country_code, institution_type, official_language } = body;
 
-    // Validate required fields
     if (!name || !country_code) {
-      return NextResponse.json(
-        { error: "Name und Ländercode sind erforderlich" },
-        { status: 400 }
-      );
+      return errorResponse("Name und Ländercode sind erforderlich", 400);
     }
 
-    // Validate country code exists
-    const { data: countryExists, error: countryError } = await supabase
+    // Validate country code
+    const { data: countryExists, error: countryError } = await db
       .from("country_systems")
       .select("country_code")
       .eq("country_code", country_code)
       .single();
 
     if (countryError || !countryExists) {
-      return NextResponse.json(
-        { error: "Ungültiger Ländercode" },
-        { status: 400 }
-      );
+      return errorResponse("Ungültiger Ländercode", 400);
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("institutions")
       .insert({
         name,
         country_code,
         institution_type: institution_type || "university",
         official_language: official_language || null,
+        website: body.website || null,
+        academic_year_start_month: body.academic_year_start_month || 9,
       })
       .select()
       .single();
 
     if (error) {
       log.error("POST insert failed", { error });
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return errorResponse(error.message, 500);
     }
+
+    await logBuilderAction(db, user.id, "create", "institution", data.id, name);
 
     return NextResponse.json({ institution: data }, { status: 201 });
   } catch (err: unknown) {
     log.error("POST failed", { error: err });
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Interner Fehler" },
-      { status: 500 }
+    return errorResponse(
+      err instanceof Error ? err.message : "Interner Fehler",
+      500,
     );
   }
 }

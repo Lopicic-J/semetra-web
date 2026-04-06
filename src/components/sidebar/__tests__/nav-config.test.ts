@@ -5,19 +5,18 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { NAV_GROUPS, BOTTOM_ITEMS, getAllNavItems } from "../nav-config";
+import { NAV_GROUPS, BOTTOM_ITEMS, getAllNavItems, getFilteredNavGroups } from "../nav-config";
 
 describe("nav-config", () => {
   it("hat mindestens 5 Navigationsgruppen", () => {
     expect(NAV_GROUPS.length).toBeGreaterThanOrEqual(5);
   });
 
-  it("hat Bottom-Items (Profile, Settings, About)", () => {
-    expect(BOTTOM_ITEMS.length).toBeGreaterThanOrEqual(3);
+  it("hat Bottom-Items (Profile, Settings)", () => {
+    expect(BOTTOM_ITEMS.length).toBeGreaterThanOrEqual(2);
     const hrefs = BOTTOM_ITEMS.map(i => i.href);
     expect(hrefs).toContain("/profile");
     expect(hrefs).toContain("/settings");
-    expect(hrefs).toContain("/about");
   });
 
   it("getAllNavItems() enthält alle Items", () => {
@@ -67,15 +66,40 @@ describe("nav-config", () => {
     expect(first?.href).toBe("/dashboard");
   });
 
-  it("Developer ist als Pro markiert", () => {
-    const devItem = getAllNavItems().find(i => i.href === "/developer");
-    expect(devItem?.pro).toBe(true);
+  // ── Role-based filtering tests ──
+
+  it("getFilteredNavGroups: student sieht keine Admin-Gruppe", () => {
+    const groups = getFilteredNavGroups("student");
+    const adminGroup = groups.find(g => g.labelKey === "navGroup.admin");
+    expect(adminGroup).toBeUndefined();
   });
 
-  it("Leaderboard existiert in Fortschritt-Gruppe", () => {
-    const progressGroup = NAV_GROUPS.find(g => g.labelKey === "navGroup.progress");
-    expect(progressGroup).toBeDefined();
-    const leaderboard = progressGroup?.items.find(i => i.href === "/leaderboard");
-    expect(leaderboard).toBeDefined();
+  it("getFilteredNavGroups: admin sieht Admin-Gruppe mit /admin", () => {
+    const groups = getFilteredNavGroups("admin");
+    const adminGroup = groups.find(g => g.labelKey === "navGroup.admin");
+    expect(adminGroup).toBeDefined();
+    const adminItem = adminGroup?.items.find(i => i.href === "/admin");
+    expect(adminItem).toBeDefined();
+  });
+
+  it("getFilteredNavGroups: institution sieht Builder aber nicht /admin", () => {
+    const groups = getFilteredNavGroups("institution");
+    const adminGroup = groups.find(g => g.labelKey === "navGroup.admin");
+    expect(adminGroup).toBeDefined();
+    const builderItem = adminGroup?.items.find(i => i.href === "/builder");
+    expect(builderItem).toBeDefined();
+    const developerItem = adminGroup?.items.find(i => i.href === "/developer");
+    expect(developerItem).toBeDefined();
+    const adminItem = adminGroup?.items.find(i => i.href === "/admin");
+    expect(adminItem).toBeUndefined();
+  });
+
+  it("getFilteredNavGroups: student sieht alle Basis-Gruppen", () => {
+    const groups = getFilteredNavGroups("student");
+    const labelKeys = groups.map(g => g.labelKey);
+    expect(labelKeys).toContain("navGroup.study");
+    expect(labelKeys).toContain("navGroup.learning");
+    expect(labelKeys).toContain("navGroup.tools");
+    expect(labelKeys).toContain("navGroup.progress");
   });
 });

@@ -18,7 +18,7 @@ export default function InstallPrompt() {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 md:w-80 z-50 animate-in slide-in-from-bottom-4">
-      <div className="bg-white border border-surface-200 rounded-2xl shadow-xl p-4">
+      <div className="bg-[rgb(var(--card-bg))] border border-surface-200 rounded-2xl shadow-xl p-4">
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 bg-brand-100 rounded-xl flex items-center justify-center shrink-0">
             <Smartphone size={20} className="text-brand-600" />

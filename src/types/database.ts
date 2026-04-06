@@ -52,6 +52,10 @@ export interface Module {
   description: string | null;
   module_code: string | null;
   ects_equivalent: number | null;
+  // Source tracking (migration 056)
+  source: "institution" | "manual";
+  studiengang_id: string | null;
+  hidden_at: string | null;
 }
 
 export interface Task {
@@ -78,6 +82,7 @@ export interface CalendarEvent {
   description: string | null;
   color: string;
   event_type: string;
+  module_id: string | null; // Added in migration 050
   created_at: string;
 }
 

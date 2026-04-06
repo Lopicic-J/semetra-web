@@ -32,12 +32,13 @@ export async function GET(
       return NextResponse.json({ error: "Link abgelaufen" }, { status: 410 });
     }
 
-    // Increment view count (fire-and-forget)
-    supabase
-      .from("share_links")
-      .update({ view_count: (link.view_count ?? 0) + 1 })
-      .eq("id", link.id)
-      .then(() => {});
+    // Increment view count (non-critical, fire-and-forget)
+    try {
+      await supabase
+        .from("share_links")
+        .update({ view_count: (link.view_count ?? 0) + 1 })
+        .eq("id", link.id);
+    } catch { /* non-critical */ }
 
     // Fetch resource
     if (link.resource_type === "note") {

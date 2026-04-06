@@ -89,7 +89,10 @@ export function GradeAnalytics({ grades, modules, gs }: GradeAnalyticsProps) {
     if (allGrades.length < 2) return null;
 
     const currentAvg = allGrades.reduce((s, g) => s + g.grade!, 0) / allGrades.length;
-    const targetAvg = gs.direction === "higher_better" ? 5.0 : 2.0; // CH: 5.0, DE: 2.0
+    // Dynamic target: ~83% of max for higher_better, midpoint of min–pass for lower_better
+    const targetAvg = gs.direction === "lower_better"
+      ? Math.round((gs.min + gs.passingGrade) / 2 * 10) / 10    // e.g. DE: (1+4)/2 = 2.5
+      : Math.round(gs.max * 0.83 * 10) / 10;                     // e.g. CH: 6*0.83 ≈ 5.0
     const remaining = Math.max(1, modules.length - allGrades.length);
 
     // Was muss der Schnitt der restlichen Noten sein?
@@ -108,9 +111,19 @@ export function GradeAnalytics({ grades, modules, gs }: GradeAnalyticsProps) {
 
   // ─── Per-Module Prognose: Welche Note brauche ich als nächstes? ───
   const modulePrognosis = useMemo(() => {
+    // Dynamic targets: passing, mid-range good, excellent — scale-relative
+    const range = gs.max - gs.min;
     const targets = gs.direction === "higher_better"
-      ? [gs.passingGrade, 4.5, 5.0]  // CH: 4.0, 4.5, 5.0
-      : [gs.passingGrade, 3.0, 2.0]; // DE: 4.0, 3.0, 2.0
+      ? [
+          gs.passingGrade,                                           // e.g. CH: 4.0
+          Math.round((gs.passingGrade + (gs.max - gs.passingGrade) * 0.5) * 10) / 10, // e.g. CH: 5.0
+          Math.round((gs.passingGrade + (gs.max - gs.passingGrade) * 0.8) * 10) / 10, // e.g. CH: 5.6
+        ]
+      : [
+          gs.passingGrade,                                           // e.g. DE: 4.0
+          Math.round((gs.min + (gs.passingGrade - gs.min) * 0.5) * 10) / 10, // e.g. DE: 2.5
+          Math.round((gs.min + (gs.passingGrade - gs.min) * 0.2) * 10) / 10, // e.g. DE: 1.6
+        ];
 
     return modules
       .map(m => {

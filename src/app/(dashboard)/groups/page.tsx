@@ -175,14 +175,14 @@ export default function GroupsPage() {
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder={t("groups.namePlaceholder")}
-              className="w-full px-3 py-2 border border-surface-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
+              className="w-full px-3 py-2 border border-surface-200 rounded-xl text-sm bg-[rgb(var(--card-bg))] text-surface-900 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-300"
             />
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder={t("groups.descPlaceholder")}
               rows={2}
-              className="w-full px-3 py-2 border border-surface-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 resize-none"
+              className="w-full px-3 py-2 border border-surface-200 rounded-xl text-sm bg-[rgb(var(--card-bg))] text-surface-900 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-300 resize-none"
             />
             {error && <p className="text-xs text-red-500">{error}</p>}
             <button
@@ -211,7 +211,7 @@ export default function GroupsPage() {
               onChange={e => setInviteCode(e.target.value)}
               onKeyDown={e => e.key === "Enter" && joinGroup()}
               placeholder={t("groups.codePlaceholder")}
-              className="flex-1 px-3 py-2 border border-surface-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="flex-1 px-3 py-2 border border-surface-200 rounded-xl text-sm font-mono bg-[rgb(var(--card-bg))] text-surface-900 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
             <button
               onClick={joinGroup}

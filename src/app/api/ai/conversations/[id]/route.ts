@@ -22,11 +22,12 @@ export async function GET(
 
     const { id } = params;
 
-    // Fetch conversation (RLS ensures ownership)
+    // Fetch conversation with explicit ownership check
     const { data: conversation, error: convErr } = await supabase
       .from("chat_conversations")
       .select("*")
       .eq("id", id)
+      .eq("user_id", user.id)
       .single();
 
     if (convErr || !conversation) {
@@ -79,6 +80,7 @@ export async function PATCH(
       .from("chat_conversations")
       .update({ title, updated_at: new Date().toISOString() })
       .eq("id", params.id)
+      .eq("user_id", user.id)
       .select()
       .single();
 
@@ -114,7 +116,8 @@ export async function DELETE(
     const { error } = await supabase
       .from("chat_conversations")
       .delete()
-      .eq("id", params.id);
+      .eq("id", params.id)
+      .eq("user_id", user.id);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

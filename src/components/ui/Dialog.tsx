@@ -85,11 +85,11 @@ export function Dialog({
         aria-labelledby={title ? titleId : undefined}
       >
         {title && (
-          <div className="flex items-center justify-between p-5 border-b border-gray-100">
-            <h2 id={titleId} className="font-semibold text-gray-900">{title}</h2>
+          <div className="flex items-center justify-between p-5 border-b border-surface-100">
+            <h2 id={titleId} className="font-semibold text-surface-900">{title}</h2>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400"
+              className="p-1.5 rounded-lg hover:bg-surface-100 transition-colors text-surface-400"
               aria-label="Close dialog"
             >
               <X size={16} />

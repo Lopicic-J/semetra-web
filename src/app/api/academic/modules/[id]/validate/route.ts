@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
+import {
+  requireRole,
+  errorResponse,
+  isErrorResponse,
+  createServiceClient,
+} from "@/lib/api-helpers";
 
 const log = logger("api:module-validate");
 
@@ -8,6 +14,7 @@ const log = logger("api:module-validate");
  * POST /api/academic/modules/[id]/validate
  *
  * Validate a module for publishing readiness.
+ * Admin only (admin or institution)
  * Checks: name, code, ECTS, grade scale, assessment weights sum to 100%.
  */
 export async function POST(
@@ -16,40 +23,29 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
-    }
+    const rc = await requireRole(["admin", "institution"]);
+    if (isErrorResponse(rc)) return rc;
+    const db = rc.adminClient ?? createServiceClient();
 
     // Fetch module
-    const { data: module, error: moduleError } = await supabase
+    const { data: module, error: moduleError } = await db
       .from("modules")
       .select("*")
       .eq("id", id)
       .single();
 
     if (moduleError || !module) {
-      return NextResponse.json(
-        { error: "Modul nicht gefunden" },
-        { status: 404 }
-      );
+      return errorResponse("Modul nicht gefunden", 404);
     }
 
     // Fetch assessment components
-    const { data: components, error: componentsError } = await supabase
+    const { data: components, error: componentsError } = await db
       .from("assessment_components")
       .select("*")
       .eq("module_id", id);
 
     if (componentsError) {
-      return NextResponse.json(
-        { error: componentsError.message },
-        { status: 500 }
-      );
+      return errorResponse(componentsError.message, 500);
     }
 
     const errors: string[] = [];
@@ -118,9 +114,9 @@ export async function POST(
     });
   } catch (err: unknown) {
     log.error("POST failed", { error: err });
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Interner Fehler" },
-      { status: 500 }
+    return errorResponse(
+      err instanceof Error ? err.message : "Interner Fehler",
+      500
     );
   }
 }

@@ -43,7 +43,7 @@ export default function ResetPasswordPage() {
           <p className="text-surface-500 text-sm mt-1">Wir senden dir einen Link per E-Mail</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl shadow-surface-200/50 border border-surface-200/60 p-6 sm:p-8">
+        <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-xl shadow-surface-200/50 border border-surface-200/60 p-6 sm:p-8">
           {sent ? (
             <div className="text-center py-4">
               <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-100 text-green-600 mb-4">

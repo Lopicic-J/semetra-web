@@ -8,14 +8,14 @@ import { clsx } from "clsx";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { useTranslation } from "@/lib/i18n";
 import { ProBadge } from "@/components/ui/ProGate";
-import { NAV_GROUPS, BOTTOM_ITEMS, getAllNavItems } from "./nav-config";
+import { BOTTOM_ITEMS, getFilteredNavGroups, getAllNavItems } from "./nav-config";
 
 export default function MobileHeader() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
-  const { isPro } = useProfile();
+  const { isPro, userRole } = useProfile();
   const { t } = useTranslation();
 
   async function handleLogout() {
@@ -92,7 +92,7 @@ export default function MobileHeader() {
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-0.5">
-          {NAV_GROUPS.map((group) => (
+          {getFilteredNavGroups(userRole).map((group) => (
             <div key={group.labelKey}>
               {group.labelKey && (
                 <p className="px-3 pt-4 pb-1.5 text-[10px] font-semibold text-surface-400 tracking-wider uppercase select-none">

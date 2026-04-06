@@ -3,7 +3,7 @@
 // Version-based cache busting + stale-while-revalidate
 // ═══════════════════════════════════════════════════════════════
 
-const SW_VERSION = "2.0.0";
+const SW_VERSION = "2.1.0";
 const CACHE_STATIC = `semetra-static-${SW_VERSION}`;
 const CACHE_PAGES = `semetra-pages-${SW_VERSION}`;
 const CACHE_IMAGES = `semetra-images-${SW_VERSION}`;
@@ -81,13 +81,14 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET, external, and API/auth requests
+  // Skip non-GET, external, API/auth, and all dev-mode _next requests
   if (
     request.method !== "GET" ||
     url.origin !== self.location.origin ||
     url.pathname.startsWith("/api/") ||
     url.pathname.startsWith("/auth/") ||
-    url.pathname.startsWith("/_next/webpack-hmr")
+    url.pathname.startsWith("/_next/webpack-hmr") ||
+    url.pathname.includes("/_next/static/chunks/")
   ) {
     return;
   }

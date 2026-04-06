@@ -185,6 +185,21 @@ export async function POST(req: NextRequest) {
     log.warn("Engine context build failed (non-fatal)", err);
   }
 
+  // ── Build Decision Engine Context ──
+  const { buildDecisionContextBlock } = await import("@/lib/ai/decision-context");
+  let decisionContextBlock = "";
+  try {
+    decisionContextBlock = await buildDecisionContextBlock(
+      supabase,
+      user.id,
+      context?.moduleId ?? null
+    );
+  } catch (err) {
+    log.warn("Decision context build failed (non-fatal)", err);
+  }
+  // Merge both context blocks
+  engineContextBlock = engineContextBlock + decisionContextBlock;
+
   // ── Determine action type + token limits ──
   const { classifyChatAction, AI_TOKEN_LIMITS, truncateToTokenLimit } = await import("@/lib/ai-weights");
   const lastMsg = messages[messages.length - 1]?.content ?? "";

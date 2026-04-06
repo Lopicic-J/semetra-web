@@ -52,17 +52,20 @@ export async function GET(
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-    const result = (messages || []).map((m: any) => ({
-      id: m.id,
-      group_id: m.group_id,
-      user_id: m.user_id,
-      content: m.content,
-      reply_to: m.reply_to,
-      edited_at: m.edited_at,
-      created_at: m.created_at,
-      username: m.profiles?.username || "Unbekannt",
-      avatar_url: m.profiles?.avatar_url || null,
-    } as MessageData));
+    const result = (messages || []).map((m: any) => {
+      const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
+      return {
+        id: m.id,
+        group_id: m.group_id,
+        user_id: m.user_id,
+        content: m.content,
+        reply_to: m.reply_to,
+        edited_at: m.edited_at,
+        created_at: m.created_at,
+        username: profile?.username || "Unbekannt",
+        avatar_url: profile?.avatar_url || null,
+      } as MessageData;
+    });
 
     // Reverse to get chronological order
     result.reverse();

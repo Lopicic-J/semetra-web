@@ -4,19 +4,41 @@ import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useTranslation } from "@/lib/i18n";
 import {
   Plus, Loader2, AlertCircle, ChevronLeft, Save, GripVertical,
-  Trash2, ChevronDown, ChevronUp
+  Trash2, ChevronDown, ChevronUp, X
 } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { Card } from "@/components/ui/Card";
-import type { Studiengang, Module, RequirementGroup } from "@/types/database";
+import { useBuilderGuard } from "@/lib/hooks/useBuilderGuard";
+import type { Studiengang, Module, RequirementGroup, Faculty } from "@/types/database";
 
 interface ProgramWithDetails extends Studiengang {
   requirement_groups?: RequirementGroup[];
   modules?: Module[];
 }
 
-const DEGREE_LEVELS = ["bachelor", "master", "diplom"];
+interface FacultyOption {
+  id: string;
+  name: string;
+}
+
+const DEGREE_LEVELS = [
+  { value: "short_cycle", label: "Kurzstudium", defaultEcts: 120, defaultTerms: 4 },
+  { value: "bachelor", label: "Bachelor", defaultEcts: 180, defaultTerms: 6 },
+  { value: "master", label: "Master", defaultEcts: 120, defaultTerms: 4 },
+  { value: "phd", label: "Doktorat", defaultEcts: 180, defaultTerms: 6 },
+  { value: "diploma", label: "Diplom", defaultEcts: 180, defaultTerms: 6 },
+];
+
+const GROUP_TYPES = [
+  { value: "compulsory", label: "Pflicht" },
+  { value: "elective_required", label: "Wahlpflicht" },
+  { value: "elective_free", label: "Wahlfrei" },
+  { value: "specialisation", label: "Spezialisierung" },
+  { value: "minor", label: "Minor" },
+  { value: "thesis", label: "Thesis" },
+  { value: "internship", label: "Praktikum" },
+];
 
 export default function ProgramDetailPage() {
   const { t } = useTranslation();
@@ -26,18 +48,31 @@ export default function ProgramDetailPage() {
   const id = params.id as string;
   const institutionId = searchParams.get("institution_id") || "";
 
+  // Access control: verify builder access + institution ownership
+  const { authorized, loading: guardLoading } = useBuilderGuard(institutionId || null);
+
   const [program, setProgram] = useState<ProgramWithDetails | null>(null);
   const [requirementGroups, setRequirementGroups] = useState<RequirementGroup[]>([]);
   const [modules, setModules] = useState<Module[]>([]);
+  const [faculties, setFaculties] = useState<FacultyOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
+  const [showNewGroupForm, setShowNewGroupForm] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [newGroupType, setNewGroupType] = useState("compulsory");
+  const [newGroupMinCredits, setNewGroupMinCredits] = useState("0");
 
   // Form fields
   const [name, setName] = useState("");
   const [degreeLevel, setDegreeLevel] = useState("bachelor");
   const [totalEcts, setTotalEcts] = useState("180");
+  const [durationTerms, setDurationTerms] = useState("6");
+  const [facultyId, setFacultyId] = useState("");
+  const [thesisRequired, setThesisRequired] = useState(false);
+  const [internshipRequired, setInternshipRequired] = useState(false);
+  const [finalExamRequired, setFinalExamRequired] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
 
   useEffect(() => {
@@ -45,6 +80,15 @@ export default function ProgramDetailPage() {
       try {
         setLoading(true);
         setError(null);
+
+        // Fetch faculties for the institution
+        if (institutionId) {
+          const facultyResponse = await fetch(`/api/academic/institutions/${institutionId}`);
+          if (facultyResponse.ok) {
+            const facultyData = await facultyResponse.json();
+            setFaculties(facultyData.faculties || []);
+          }
+        }
 
         if (id === "new") {
           setLoading(false);
@@ -60,6 +104,11 @@ export default function ProgramDetailPage() {
         setName(data.program.name);
         setDegreeLevel(data.program.degree_level || "bachelor");
         setTotalEcts(data.program.required_total_credits?.toString() || "180");
+        setDurationTerms(data.program.duration_standard_terms?.toString() || "6");
+        setFacultyId(data.program.faculty_id || "");
+        setThesisRequired(data.program.thesis_required || false);
+        setInternshipRequired(data.program.internship_required || false);
+        setFinalExamRequired(data.program.final_exam_required || false);
         setIsPublished(data.program.is_published || false);
 
         // Requirement groups and modules are already included in the program GET response
@@ -75,7 +124,17 @@ export default function ProgramDetailPage() {
     };
 
     fetchProgram();
-  }, [id]);
+  }, [id, institutionId]);
+
+  // Auto-adjust ECTS and duration when degree level changes
+  const handleDegreeLevelChange = (newLevel: string) => {
+    setDegreeLevel(newLevel);
+    const degreeConfig = DEGREE_LEVELS.find((d) => d.value === newLevel);
+    if (degreeConfig) {
+      setTotalEcts(degreeConfig.defaultEcts.toString());
+      setDurationTerms(degreeConfig.defaultTerms.toString());
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -95,6 +154,11 @@ export default function ProgramDetailPage() {
             name,
             degree_level: degreeLevel,
             required_total_credits: parseInt(totalEcts),
+            duration_standard_terms: parseInt(durationTerms),
+            faculty_id: facultyId || null,
+            thesis_required: thesisRequired,
+            internship_required: internshipRequired,
+            final_exam_required: finalExamRequired,
           }),
         });
 
@@ -113,6 +177,11 @@ export default function ProgramDetailPage() {
             name,
             degree_level: degreeLevel,
             required_total_credits: parseInt(totalEcts),
+            duration_standard_terms: parseInt(durationTerms),
+            faculty_id: facultyId || null,
+            thesis_required: thesisRequired,
+            internship_required: internshipRequired,
+            final_exam_required: finalExamRequired,
           }),
         });
 
@@ -148,13 +217,14 @@ export default function ProgramDetailPage() {
     }
 
     try {
-      const groupName = prompt("Name der Anforderungsgruppe:");
-      if (!groupName) return;
-
       const response = await fetch(`/api/academic/programs/${id}/requirement-groups`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: groupName }),
+        body: JSON.stringify({
+          name: newGroupName,
+          group_type: newGroupType,
+          min_credits_required: parseInt(newGroupMinCredits),
+        }),
       });
 
       if (!response.ok) {
@@ -164,6 +234,10 @@ export default function ProgramDetailPage() {
       const data = await response.json();
       setRequirementGroups([...requirementGroups, data.requirement_group]);
       toast.success("Gruppe erstellt");
+      setShowNewGroupForm(false);
+      setNewGroupName("");
+      setNewGroupType("compulsory");
+      setNewGroupMinCredits("0");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Fehler beim Erstellen der Gruppe";
       toast.error(message);
@@ -191,6 +265,17 @@ export default function ProgramDetailPage() {
     }
   };
 
+  if (guardLoading || !authorized) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-blue-500" />
+          <p className="text-surface-600">Zugriff wird geprüft...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -204,6 +289,10 @@ export default function ProgramDetailPage() {
 
   const groupModules = (groupId: string) =>
     modules.filter((m) => m.requirement_group_id === groupId);
+
+  const calculateGroupEcts = (groupId: string): number => {
+    return groupModules(groupId).reduce((sum, mod) => sum + (mod.ects || 0), 0);
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -255,16 +344,16 @@ export default function ProgramDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-surface-900 mb-2">
-                Studienabschluss
+                Studienabschluss *
               </label>
               <select
                 value={degreeLevel}
-                onChange={(e) => setDegreeLevel(e.target.value)}
+                onChange={(e) => handleDegreeLevelChange(e.target.value)}
                 className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                {DEGREE_LEVELS.map((l) => (
-                  <option key={l} value={l}>
-                    {l.charAt(0).toUpperCase() + l.slice(1)}
+                {DEGREE_LEVELS.map((d) => (
+                  <option key={d.value} value={d.value}>
+                    {d.label}
                   </option>
                 ))}
               </select>
@@ -272,7 +361,27 @@ export default function ProgramDetailPage() {
 
             <div>
               <label className="block text-sm font-medium text-surface-900 mb-2">
-                Gesamt ECTS
+                Fakultät
+              </label>
+              <select
+                value={facultyId}
+                onChange={(e) => setFacultyId(e.target.value)}
+                className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Keine Auswahl</option>
+                {faculties.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-surface-900 mb-2">
+                Gesamt ECTS *
               </label>
               <input
                 type="number"
@@ -281,6 +390,56 @@ export default function ProgramDetailPage() {
                 className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-surface-900 mb-2">
+                Standard Semester *
+              </label>
+              <input
+                type="number"
+                value={durationTerms}
+                onChange={(e) => setDurationTerms(e.target.value)}
+                className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-2">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={thesisRequired}
+                onChange={(e) => setThesisRequired(e.target.checked)}
+                className="w-4 h-4 rounded border-surface-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm font-medium text-surface-900">
+                Thesis erforderlich
+              </span>
+            </label>
+
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={internshipRequired}
+                onChange={(e) => setInternshipRequired(e.target.checked)}
+                className="w-4 h-4 rounded border-surface-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm font-medium text-surface-900">
+                Praktikum erforderlich
+              </span>
+            </label>
+
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={finalExamRequired}
+                onChange={(e) => setFinalExamRequired(e.target.checked)}
+                className="w-4 h-4 rounded border-surface-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm font-medium text-surface-900">
+                Abschlussprüfung erforderlich
+              </span>
+            </label>
           </div>
 
           <div className="flex gap-3 pt-4">
@@ -310,14 +469,90 @@ export default function ProgramDetailPage() {
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold text-surface-900">Anforderungsgruppen</h2>
-            <button
-              onClick={handleNewGroup}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            >
-              <Plus className="w-5 h-5" />
-              Gruppe hinzufügen
-            </button>
+            {!showNewGroupForm && (
+              <button
+                onClick={() => setShowNewGroupForm(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                <Plus className="w-5 h-5" />
+                Gruppe hinzufügen
+              </button>
+            )}
           </div>
+
+          {/* New Group Form */}
+          {showNewGroupForm && (
+            <Card padding="lg" className="bg-blue-50 border-blue-200">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-surface-900 mb-2">
+                    Gruppennname *
+                  </label>
+                  <input
+                    type="text"
+                    value={newGroupName}
+                    onChange={(e) => setNewGroupName(e.target.value)}
+                    placeholder="z.B. Pflichtmodule Semester 1"
+                    className="w-full px-4 py-2 bg-white border border-surface-300 rounded-lg text-surface-900 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-surface-900 mb-2">
+                      Gruppentyp *
+                    </label>
+                    <select
+                      value={newGroupType}
+                      onChange={(e) => setNewGroupType(e.target.value)}
+                      className="w-full px-4 py-2 bg-white border border-surface-300 rounded-lg text-surface-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      {GROUP_TYPES.map((t) => (
+                        <option key={t.value} value={t.value}>
+                          {t.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-surface-900 mb-2">
+                      Min. ECTS erforderlich
+                    </label>
+                    <input
+                      type="number"
+                      value={newGroupMinCredits}
+                      onChange={(e) => setNewGroupMinCredits(e.target.value)}
+                      min="0"
+                      className="w-full px-4 py-2 bg-white border border-surface-300 rounded-lg text-surface-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={handleNewGroup}
+                    disabled={!newGroupName.trim()}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Erstellen
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowNewGroupForm(false);
+                      setNewGroupName("");
+                      setNewGroupType("compulsory");
+                      setNewGroupMinCredits("0");
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 bg-surface-200 text-surface-900 rounded-lg hover:bg-surface-300 transition-colors font-medium"
+                  >
+                    Abbrechen
+                  </button>
+                </div>
+              </div>
+            </Card>
+          )}
 
           {requirementGroups.length === 0 ? (
             <Card className="text-center py-8">
@@ -327,7 +562,11 @@ export default function ProgramDetailPage() {
             <div className="space-y-3">
               {requirementGroups.map((group) => {
                 const groupModuleList = groupModules(group.id);
+                const groupEcts = calculateGroupEcts(group.id);
+                const minCreditsRequired = (group as any).min_credits_required || 0;
+                const ectsPercentage = minCreditsRequired > 0 ? (groupEcts / minCreditsRequired) * 100 : 100;
                 const isExpanded = expandedGroup === group.id;
+                const groupTypeLabel = GROUP_TYPES.find((t) => t.value === (group as any).group_type)?.label || (group as any).group_type;
 
                 return (
                   <Card key={group.id} padding="md">
@@ -339,13 +578,31 @@ export default function ProgramDetailPage() {
                     >
                       <div className="flex items-center gap-3 flex-1">
                         <GripVertical className="w-5 h-5 text-surface-400 flex-shrink-0" />
-                        <div>
-                          <h3 className="font-semibold text-surface-900">
-                            {group.name}
-                          </h3>
-                          <p className="text-sm text-surface-600">
-                            {groupModuleList.length} Module
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-surface-900">
+                              {group.name}
+                            </h3>
+                            {groupTypeLabel && (
+                              <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
+                                {groupTypeLabel}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-surface-600 mt-1">
+                            {groupModuleList.length} Module · {groupEcts} ECTS
+                            {minCreditsRequired > 0 && ` / ${minCreditsRequired} erforderlich`}
                           </p>
+                          {minCreditsRequired > 0 && (
+                            <div className="mt-2 h-2 bg-surface-200 rounded-full overflow-hidden w-32">
+                              <div
+                                className={`h-full transition-all ${
+                                  ectsPercentage >= 100 ? "bg-green-500" : "bg-amber-500"
+                                }`}
+                                style={{ width: `${Math.min(ectsPercentage, 100)}%` }}
+                              />
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -373,13 +630,16 @@ export default function ProgramDetailPage() {
                         ) : (
                           groupModuleList.map((mod) => (
                             <Link key={mod.id} href={`/builder/module/${mod.id}`}>
-                              <div className="flex items-center justify-between p-2 hover:bg-surface-100 rounded transition-colors">
-                                <div>
+                              <div className="flex items-center justify-between p-3 hover:bg-surface-100 rounded transition-colors border border-surface-200">
+                                <div className="flex-1">
                                   <p className="text-sm font-medium text-surface-900">
+                                    {mod.code && `[${mod.code}] `}
                                     {mod.name}
                                   </p>
-                                  <p className="text-xs text-surface-600">
+                                  <p className="text-xs text-surface-600 mt-1">
                                     {mod.ects} ECTS
+                                    {mod.semester && ` · Semester ${mod.semester}`}
+                                    {mod.status === "active" && ` · Veröffentlicht`}
                                   </p>
                                 </div>
                                 <ChevronLeft className="w-4 h-4 text-surface-400 rotate-180" />

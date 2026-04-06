@@ -7,18 +7,23 @@ import { FREE_LIMITS, mathUsageToday, mathUsageIncrement } from "@/lib/gates";
 import { LimitNudge, UpgradeModal } from "@/components/ui/ProGate";
 import type { Module, MathHistory, MathFormula, MathTool, FormulaCategory } from "@/types/database";
 import { useTranslation } from "@/lib/i18n";
+import {
+  Calculator, Scale, Grid3X3, TrendingUp,
+  BarChart3, RefreshCw, ClipboardList, ScrollText,
+  ZoomIn, ZoomOut, RotateCcw, Save, Trash2,
+} from "lucide-react";
 
 /* ─── Constants ───────────────────────────────────────────────────────────── */
 
-function getTools(t: (key: string) => string): { key: MathTool; label: string; icon: string; desc: string }[] {
+function getTools(t: (key: string) => string): { key: MathTool; label: string; icon: React.ComponentType<{ size?: number; className?: string }>; desc: string }[] {
   return [
-    { key: "calculator",  label: t("math.calculator"),    icon: "🧮", desc: t("math.scientific") },
-    { key: "equations",   label: t("math.equations"),     icon: "⚖️", desc: t("math.solver") },
-    { key: "matrices",    label: t("math.matrices"),      icon: "📐", desc: t("math.matricesCalc") },
-    { key: "plotter",     label: t("math.plotter"),       icon: "📈", desc: t("math.functionGraphs") },
-    { key: "statistics",  label: t("math.statistics"),    icon: "📊", desc: t("math.analysis") },
-    { key: "units",       label: t("math.units"),         icon: "🔄", desc: t("math.converter") },
-    { key: "formulas",    label: t("math.formulas"),      icon: "📋", desc: t("math.formulas") },
+    { key: "calculator",  label: t("math.calculator"),    icon: Calculator,    desc: t("math.scientific") },
+    { key: "equations",   label: t("math.equations"),     icon: Scale,         desc: t("math.solver") },
+    { key: "matrices",    label: t("math.matrices"),      icon: Grid3X3,       desc: t("math.matricesCalc") },
+    { key: "plotter",     label: t("math.plotter"),       icon: TrendingUp,    desc: t("math.functionGraphs") },
+    { key: "statistics",  label: t("math.statistics"),    icon: BarChart3,     desc: t("math.analysis") },
+    { key: "units",       label: t("math.units"),         icon: RefreshCw,     desc: t("math.converter") },
+    { key: "formulas",    label: t("math.formulas"),      icon: ClipboardList, desc: t("math.formulas") },
   ];
 }
 
@@ -505,11 +510,11 @@ export default function MathPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 flex items-center gap-2">🧮 {t("math.title")}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 flex items-center gap-2"><Calculator size={24} className="text-brand-600" /> {t("math.title")}</h1>
           <p className="text-surface-500 text-xs sm:text-sm mt-1">{t("math.subtitle")}</p>
         </div>
         <button onClick={() => setShowHistory(!showHistory)} className="px-3 sm:px-4 py-2 rounded-lg bg-surface-100 text-surface-700 hover:bg-surface-200 text-sm flex items-center gap-2 self-start sm:self-auto">
-          📜 {t("math.history")} {history.length > 0 && <span className="bg-brand-600 text-white text-xs rounded-full px-2">{history.length}</span>}
+          <ScrollText size={16} /> {t("math.history")} {history.length > 0 && <span className="bg-brand-600 text-white text-xs rounded-full px-2">{history.length}</span>}
         </button>
       </div>
 
@@ -517,7 +522,7 @@ export default function MathPage() {
       <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 -mx-1 px-1">
         {tools.map((tool) => (
           <button key={tool.key} onClick={() => setActiveTool(tool.key)} className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${activeTool === tool.key ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:bg-surface-200 hover:text-surface-800"}`}>
-            <span>{tool.icon}</span>
+            <tool.icon size={16} />
             <span className="hidden sm:inline">{tool.label}</span>
           </button>
         ))}
@@ -525,7 +530,7 @@ export default function MathPage() {
 
       {/* History Sidebar */}
       {showHistory && (
-        <div className="bg-white rounded-xl border border-surface-200 p-4">
+        <div className="bg-[rgb(var(--card-bg))] rounded-xl border border-surface-200 p-4">
           <h3 className="text-surface-900 font-semibold mb-3">{t("math.historyTitle")}</h3>
           {history.length === 0 ? (
             <p className="text-surface-400 text-sm">{t("math.noHistoryYet")}</p>
@@ -569,7 +574,7 @@ export default function MathPage() {
       )}
 
       {/* Tool Content */}
-      <div className="bg-white rounded-xl border border-surface-200 p-3 sm:p-6">
+      <div className="bg-[rgb(var(--card-bg))] rounded-xl border border-surface-200 p-3 sm:p-6">
         {activeTool === "calculator" && <CalculatorTool onSave={saveToHistory} modules={modules} checkLimit={() => checkMathLimit("calculator")} />}
         {activeTool === "equations" && <EquationsTool onSave={saveToHistory} modules={modules} checkLimit={() => checkMathLimit("equations")} />}
         {activeTool === "matrices" && <MatricesTool onSave={saveToHistory} modules={modules} checkLimit={() => checkMathLimit("matrices")} />}
@@ -807,14 +812,14 @@ function CalculatorTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
         <div className="bg-surface-50 rounded-lg p-3 mb-3 border border-surface-200">
           <p className="text-xs font-medium text-surface-700 mb-2">{t("math.calc.variables")}</p>
           <div className="flex gap-2 mb-2">
-            <input value={varName} onChange={e => setVarName(e.target.value.replace(/[^a-zA-Z]/g, ""))} placeholder={t("math.calc.varName")} className="flex-1 bg-white text-surface-900 rounded px-2 py-1.5 border border-surface-200 text-xs font-mono" maxLength={5} />
+            <input value={varName} onChange={e => setVarName(e.target.value.replace(/[^a-zA-Z]/g, ""))} placeholder={t("math.calc.varName")} className="flex-1 bg-[rgb(var(--card-bg))] text-surface-900 rounded px-2 py-1.5 border border-surface-200 text-xs font-mono" maxLength={5} />
             <span className="text-xs text-surface-400 self-center">= {result || "?"}</span>
             <button onClick={saveVar} disabled={!varName || !result} className="px-3 py-1.5 rounded bg-brand-600 text-white text-xs disabled:opacity-40">{t("math.save")}</button>
           </div>
           {Object.keys(vars).length > 0 && (
             <div className="flex flex-wrap gap-2">
               {Object.entries(vars).map(([vn, vv]) => (
-                <div key={vn} className="flex items-center gap-1 bg-white rounded px-2 py-1 border border-surface-200">
+                <div key={vn} className="flex items-center gap-1 bg-[rgb(var(--card-bg))] rounded px-2 py-1 border border-surface-200">
                   <span className="text-xs font-mono text-brand-600 cursor-pointer" onClick={() => setDisplay(p => p + vn)}>{vn}={vv}</span>
                   <button onClick={() => setVars(prev => { const n = { ...prev }; delete n[vn]; return n; })} className="text-surface-400 hover:text-danger-600 text-xs ml-1">\u00d7</button>
                 </div>
@@ -1151,11 +1156,11 @@ function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, 
               onChange={e => setEquation(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter") handleSolve(); }}
               placeholder={t("math.equationPlaceholder")}
-              className="w-full bg-white text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-base focus:border-brand-500 focus:outline-none"
+              className="w-full bg-[rgb(var(--card-bg))] text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-base focus:border-brand-500 focus:outline-none"
             />
             <div className="flex items-center gap-3 mt-2">
               <span className="text-xs text-surface-500">{t("math.variable")}:</span>
-              <input value={variable} onChange={e => setVariable(e.target.value)} className="bg-white text-surface-900 rounded px-2 py-1 border border-surface-200 font-mono w-12 text-center text-sm" />
+              <input value={variable} onChange={e => setVariable(e.target.value)} className="bg-[rgb(var(--card-bg))] text-surface-900 rounded px-2 py-1 border border-surface-200 font-mono w-12 text-center text-sm" />
             </div>
           </div>
           <p className="text-xs text-surface-400">{t("math.solveExamples")}</p>
@@ -1173,11 +1178,11 @@ function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, 
               onChange={e => setEquation(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter") handleSolve(); }}
               placeholder={t("math.formulaPlaceholder")}
-              className="w-full bg-white text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-base focus:border-brand-500 focus:outline-none"
+              className="w-full bg-[rgb(var(--card-bg))] text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-base focus:border-brand-500 focus:outline-none"
             />
             <div className="flex items-center gap-3 mt-2">
               <span className="text-xs text-surface-500">{t("math.rearrangeFor")}:</span>
-              <input value={targetVar} onChange={e => setTargetVar(e.target.value)} placeholder="U" className="bg-white text-surface-900 rounded px-2 py-1 border border-surface-200 font-mono w-16 text-center text-sm" />
+              <input value={targetVar} onChange={e => setTargetVar(e.target.value)} placeholder="U" className="bg-[rgb(var(--card-bg))] text-surface-900 rounded px-2 py-1 border border-surface-200 font-mono w-16 text-center text-sm" />
             </div>
           </div>
           <p className="text-xs text-surface-400">{t("math.rearrangeExamples")}</p>
@@ -1253,7 +1258,7 @@ function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, 
 
       {/* ── Step-by-Step Result ── */}
       {result && (
-        <div className="bg-white border border-surface-200 rounded-xl overflow-hidden mb-4">
+        <div className="bg-[rgb(var(--card-bg))] border border-surface-200 rounded-xl overflow-hidden mb-4">
           {/* Type badge */}
           <div className="flex items-center justify-between px-4 py-2.5 bg-surface-50 border-b border-surface-200">
             <span className="text-xs font-medium text-brand-600 uppercase tracking-wider">{result.type}</span>
@@ -1494,7 +1499,7 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
           {matA.map((row, r) => (
             <div key={r} className="flex gap-1">
               {row.map((v, c) => (
-                <input key={c} type="number" value={v || ""} onChange={(e) => { const copy = matA.map(r => [...r]); copy[r][c] = Number(e.target.value) || 0; setMatA(copy); }} className="w-12 h-9 bg-white text-surface-900 text-center rounded border border-surface-200 text-sm font-mono" />
+                <input key={c} type="number" value={v || ""} onChange={(e) => { const copy = matA.map(r => [...r]); copy[r][c] = Number(e.target.value) || 0; setMatA(copy); }} className="w-12 h-9 bg-[rgb(var(--card-bg))] text-surface-900 text-center rounded border border-surface-200 text-sm font-mono" />
               ))}
             </div>
           ))}
@@ -1508,7 +1513,7 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
             {matB.map((row, r) => (
               <div key={r} className="flex gap-1">
                 {row.map((v, c) => (
-                  <input key={c} type="number" value={v || ""} onChange={(e) => { const copy = matB.map(r => [...r]); copy[r][c] = Number(e.target.value) || 0; setMatB(copy); }} className="w-12 h-9 bg-white text-surface-900 text-center rounded border border-surface-200 text-sm font-mono" />
+                  <input key={c} type="number" value={v || ""} onChange={(e) => { const copy = matB.map(r => [...r]); copy[r][c] = Number(e.target.value) || 0; setMatB(copy); }} className="w-12 h-9 bg-[rgb(var(--card-bg))] text-surface-900 text-center rounded border border-surface-200 text-sm font-mono" />
                 ))}
               </div>
             ))}
@@ -1519,7 +1524,7 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
       {operation === "scalar_mul" && (
         <div className="bg-surface-50 rounded-lg p-3 border border-surface-200">
           <label className="text-sm text-surface-600">{t("math.matScalar")} k</label>
-          <input type="number" value={scalar} onChange={(e) => setScalar(Number(e.target.value))} className="w-20 h-9 bg-white text-surface-900 px-2 rounded border border-surface-200 text-sm font-mono mt-1" />
+          <input type="number" value={scalar} onChange={(e) => setScalar(Number(e.target.value))} className="w-20 h-9 bg-[rgb(var(--card-bg))] text-surface-900 px-2 rounded border border-surface-200 text-sm font-mono mt-1" />
         </div>
       )}
 
@@ -1639,7 +1644,7 @@ function MatricesTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e
             {augmentedMat.map((row, r) => (
               <div key={r} className="flex gap-1 items-center">
                 {row.map((v, c) => (
-                  <input key={c} type="number" value={v || ""} onChange={(e) => { const copy = augmentedMat.map(r => [...r]); copy[r][c] = Number(e.target.value) || 0; setAugmentedMat(copy); }} className={`w-12 h-9 bg-white text-surface-900 text-center rounded border ${c === n ? "border-brand-400" : "border-surface-200"} text-sm font-mono`} />
+                  <input key={c} type="number" value={v || ""} onChange={(e) => { const copy = augmentedMat.map(r => [...r]); copy[r][c] = Number(e.target.value) || 0; setAugmentedMat(copy); }} className={`w-12 h-9 bg-[rgb(var(--card-bg))] text-surface-900 text-center rounded border ${c === n ? "border-brand-400" : "border-surface-200"} text-sm font-mono`} />
                 ))}
               </div>
             ))}
@@ -2205,10 +2210,12 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
       setXMax(xMax + dx);
       setYMin(yMin + dy);
       setYMax(yMax + dy);
+      setDragStart({ x, y }); // update so next move is a delta, not cumulative
     }
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    e.preventDefault(); // prevent text selection while dragging
     const rect = e.currentTarget.getBoundingClientRect();
     setIsDragging(true);
     setDragStart({ x: e.clientX - rect.left, y: e.clientY - rect.top });
@@ -2229,16 +2236,32 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
     }
   };
 
-  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+  /* Native wheel handler (passive: false) so preventDefault() actually blocks page zoom */
+  const handleWheelNative = useCallback((e: WheelEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     const factor = e.deltaY > 0 ? 1.2 : 0.8;
-    const rect = e.currentTarget.getBoundingClientRect();
+    const rect = (e.currentTarget as HTMLCanvasElement).getBoundingClientRect();
     const px = e.clientX - rect.left;
-    const cx = xMin + (px / rect.width) * (xMax - xMin);
-    const w = (xMax - xMin) * factor;
-    setXMin(cx - (w * px) / rect.width);
-    setXMax(cx + (w * (rect.width - px)) / rect.width);
-  };
+    setXMin((prev) => {
+      const cx = prev + (px / rect.width) * (xMax - prev);
+      const w = (xMax - prev) * factor;
+      return cx - (w * px) / rect.width;
+    });
+    setXMax((prev) => {
+      const cx = xMin + (px / rect.width) * (prev - xMin);
+      const w = (prev - xMin) * factor;
+      return cx + (w * (rect.width - px)) / rect.width;
+    });
+  }, [xMin, xMax]);
+
+  /* Attach wheel with { passive: false } to actually prevent page zoom */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    canvas.addEventListener("wheel", handleWheelNative, { passive: false });
+    return () => canvas.removeEventListener("wheel", handleWheelNative);
+  }, [handleWheelNative]);
 
   /* ── Touch events for mobile ── */
   const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
@@ -2318,7 +2341,7 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
             <option value="">{t("math.noModule")}</option>
             {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
-          <button onClick={savePlot} className="px-3 py-1.5 rounded-lg bg-surface-100 text-surface-700 text-sm hover:bg-surface-200 whitespace-nowrap">💾 {t("math.save")}</button>
+          <button onClick={savePlot} className="px-3 py-1.5 rounded-lg bg-surface-100 text-surface-700 text-sm hover:bg-surface-200 whitespace-nowrap"><Save size={14} className="inline -mt-0.5 mr-1" />{t("math.save")}</button>
         </div>
       </div>
 
@@ -2364,15 +2387,15 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
           {t("math.to")} <input value={yMax} onChange={(e) => setYMax(Number(e.target.value))} className="w-12 sm:w-16 bg-surface-100 text-surface-900 rounded px-1 sm:px-2 py-1 border border-surface-200 font-mono text-center text-xs sm:text-sm" />
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={() => { setXMin(xMin * 0.5); setXMax(xMax * 0.5); setYMin(yMin * 0.5); setYMax(yMax * 0.5); }} className="px-2 py-1 bg-surface-100 text-surface-700 rounded hover:bg-surface-200 text-xs">🔍+</button>
-          <button onClick={() => { setXMin(xMin * 2); setXMax(xMax * 2); setYMin(yMin * 2); setYMax(yMax * 2); }} className="px-2 py-1 bg-surface-100 text-surface-700 rounded hover:bg-surface-200 text-xs">🔍−</button>
-          <button onClick={() => { setXMin(-10); setXMax(10); setYMin(-5); setYMax(5); }} className="px-2 py-1 bg-surface-100 text-surface-700 rounded hover:bg-surface-200 text-xs">↺</button>
+          <button onClick={() => { setXMin(xMin * 0.5); setXMax(xMax * 0.5); setYMin(yMin * 0.5); setYMax(yMax * 0.5); }} className="px-2 py-1 bg-surface-100 text-surface-700 rounded hover:bg-surface-200 text-xs"><ZoomIn size={14} /></button>
+          <button onClick={() => { setXMin(xMin * 2); setXMax(xMax * 2); setYMin(yMin * 2); setYMax(yMax * 2); }} className="px-2 py-1 bg-surface-100 text-surface-700 rounded hover:bg-surface-200 text-xs"><ZoomOut size={14} /></button>
+          <button onClick={() => { setXMin(-10); setXMax(10); setYMin(-5); setYMax(5); }} className="px-2 py-1 bg-surface-100 text-surface-700 rounded hover:bg-surface-200 text-xs"><RotateCcw size={14} /></button>
         </div>
       </div>
 
       <div ref={containerRef} className="w-full">
         <canvas ref={canvasRef} width={canvasSize.w} height={canvasSize.h}
-          onMouseMove={handleMouseMove} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onClick={handleCanvasClick} onWheel={handleWheel}
+          onMouseMove={handleMouseMove} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onClick={handleCanvasClick}
           onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
           className="w-full rounded-xl border border-surface-200 cursor-crosshair touch-none"
           style={{ height: "auto", aspectRatio: "8 / 5" }} />
@@ -2693,7 +2716,7 @@ function StatisticsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
             <option value="">{t("math.noModule")}</option>
             {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
           </select>
-          <button onClick={handleSave} className="px-3 py-1.5 rounded-lg bg-surface-100 text-surface-700 text-sm hover:bg-surface-200 whitespace-nowrap">💾 {t("math.save")}</button>
+          <button onClick={handleSave} className="px-3 py-1.5 rounded-lg bg-surface-100 text-surface-700 text-sm hover:bg-surface-200 whitespace-nowrap"><Save size={14} className="inline -mt-0.5 mr-1" />{t("math.save")}</button>
         </div>
       </div>
 
@@ -3335,7 +3358,7 @@ function UnitsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: s
         <div className="space-y-4">
           <div className="bg-surface-100 rounded-xl p-4 sm:p-6">
             <label className="block text-sm font-medium text-surface-900 mb-2">{t("math.units.enterConversion")}</label>
-            <input value={convInput} onChange={e => setConvInput(e.target.value)} placeholder={t("math.units.exampleConversion")} className="w-full bg-white text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-sm" autoFocus />
+            <input value={convInput} onChange={e => setConvInput(e.target.value)} placeholder={t("math.units.exampleConversion")} className="w-full bg-[rgb(var(--card-bg))] text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-sm" autoFocus />
 
             {convResult && "error" in convResult && (
               <div className="mt-3 bg-danger-600/10 border border-danger-600/30 rounded-lg px-4 py-3">
@@ -3355,7 +3378,7 @@ function UnitsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: s
                     {showSteps ? t("math.units.hideSteps") : t("math.units.showSteps")}
                   </button>
                   {showSteps && (
-                    <div className="mt-2 bg-white rounded-lg p-3 space-y-1">
+                    <div className="mt-2 bg-[rgb(var(--card-bg))] rounded-lg p-3 space-y-1">
                       {cr.steps.map((step: string, i: number) => (
                         <div key={i} className="flex items-center gap-2">
                           <span className="text-brand-600 text-xs font-mono w-5">{i + 1}.</span>
@@ -3379,7 +3402,7 @@ function UnitsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: s
             <p className="text-xs font-medium text-surface-700 mb-2">{t("math.units.favorites")}</p>
             <div className="flex flex-wrap gap-2">
               {favorites.map(f => (
-                <button key={f.label} onClick={() => setConvInput(f.q)} className="px-3 py-1.5 rounded-lg bg-white border border-surface-200 text-surface-700 hover:bg-surface-200 text-xs font-mono">{f.label}</button>
+                <button key={f.label} onClick={() => setConvInput(f.q)} className="px-3 py-1.5 rounded-lg bg-[rgb(var(--card-bg))] border border-surface-200 text-surface-700 hover:bg-surface-200 text-xs font-mono">{f.label}</button>
               ))}
             </div>
           </div>
@@ -3438,12 +3461,12 @@ function UnitsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: s
         <div className="space-y-4">
           <div className="bg-surface-100 rounded-xl p-4 sm:p-6">
             <label className="block text-sm font-medium text-surface-900 mb-2">{t("math.units.enterFormula")}</label>
-            <input value={fExpr} onChange={e => setFExpr(e.target.value)} placeholder="E = m * c^2" className="w-full bg-white text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-sm" />
+            <input value={fExpr} onChange={e => setFExpr(e.target.value)} placeholder="E = m * c^2" className="w-full bg-[rgb(var(--card-bg))] text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-sm" />
 
             {/* Preset formulas */}
             <div className="flex flex-wrap gap-2 mt-3">
               {presetFormulas.map(pf => (
-                <button key={pf.expr} onClick={() => setFExpr(pf.expr)} className={`px-3 py-1.5 rounded-lg text-xs border transition ${fExpr === pf.expr ? "bg-brand-600 text-white border-brand-600" : "bg-white border-surface-200 text-surface-700 hover:bg-surface-200"}`} title={pf.hint}>
+                <button key={pf.expr} onClick={() => setFExpr(pf.expr)} className={`px-3 py-1.5 rounded-lg text-xs border transition ${fExpr === pf.expr ? "bg-brand-600 text-white border-brand-600" : "bg-[rgb(var(--card-bg))] border-surface-200 text-surface-700 hover:bg-surface-200"}`} title={pf.hint}>
                   {pf.label}
                 </button>
               ))}
@@ -3451,7 +3474,7 @@ function UnitsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: s
 
             {/* Variable inputs */}
             {fParsed && fParsed.vars.length > 0 && (
-              <div className="mt-4 bg-white rounded-lg p-4 space-y-3">
+              <div className="mt-4 bg-[rgb(var(--card-bg))] rounded-lg p-4 space-y-3">
                 <p className="text-xs font-medium text-surface-700">{t("math.units.variables")}</p>
                 {fParsed.vars.map(v => (
                   <div key={v} className="flex items-center gap-3">
@@ -3464,7 +3487,7 @@ function UnitsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: s
 
             {/* Result */}
             {fResult && (
-              <div className="mt-4 bg-white rounded-lg p-4">
+              <div className="mt-4 bg-[rgb(var(--card-bg))] rounded-lg p-4">
                 <div className="flex items-baseline gap-2">
                   <span className="text-surface-700 font-mono text-sm">{fResult.lhs} =</span>
                   <span className="text-success-600 text-xl font-mono font-semibold">{fResult.display}</span>
@@ -3486,25 +3509,25 @@ function UnitsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: s
         <div className="space-y-4">
           <div className="bg-surface-100 rounded-xl p-4 sm:p-6">
             <label className="block text-sm font-medium text-surface-900 mb-2">{t("math.units.dimAnalysis")}</label>
-            <input value={dimInput} onChange={e => setDimInput(e.target.value)} placeholder={t("math.units.dimPlaceholder")} className="w-full bg-white text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-sm" />
+            <input value={dimInput} onChange={e => setDimInput(e.target.value)} placeholder={t("math.units.dimPlaceholder")} className="w-full bg-[rgb(var(--card-bg))] text-surface-900 rounded-lg px-4 py-3 border border-surface-200 font-mono text-sm" />
 
             {/* Quick unit chips */}
             <div className="flex flex-wrap gap-1.5 mt-3">
               {["N", "J", "Pa", "W", "V", "Hz", "T", "C"].map(u => (
-                <button key={u} onClick={() => setDimInput(u)} className={`px-2.5 py-1 rounded text-xs font-mono transition ${dimInput === u ? "bg-brand-600 text-white" : "bg-white border border-surface-200 text-surface-700 hover:bg-surface-200"}`}>{u}</button>
+                <button key={u} onClick={() => setDimInput(u)} className={`px-2.5 py-1 rounded text-xs font-mono transition ${dimInput === u ? "bg-brand-600 text-white" : "bg-[rgb(var(--card-bg))] border border-surface-200 text-surface-700 hover:bg-surface-200"}`}>{u}</button>
               ))}
             </div>
 
             {dimResult && (
               <div className="mt-4 space-y-3">
                 {/* SI Decomposition */}
-                <div className="bg-white rounded-lg p-3">
+                <div className="bg-[rgb(var(--card-bg))] rounded-lg p-3">
                   <p className="text-xs text-surface-400 font-medium mb-1">{t("math.units.siDecomposition")}</p>
                   <p className="text-surface-900 font-mono text-lg">{dimResult.siDecomp}</p>
                 </div>
 
                 {/* Dimension Vector */}
-                <div className="bg-white rounded-lg p-3">
+                <div className="bg-[rgb(var(--card-bg))] rounded-lg p-3">
                   <p className="text-xs text-surface-400 font-medium mb-2">{t("math.units.dimVector")}</p>
                   <div className="flex gap-2">
                     {dimResult.dim.map((v, i) => (
@@ -3517,14 +3540,14 @@ function UnitsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: s
                 </div>
 
                 {/* Physical Quantity */}
-                <div className="bg-white rounded-lg p-3">
+                <div className="bg-[rgb(var(--card-bg))] rounded-lg p-3">
                   <p className="text-xs text-surface-400 font-medium mb-1">{t("math.units.physicalQuantity")}</p>
                   <p className="text-success-600 font-medium">{dimResult.quantity}</p>
                 </div>
 
                 {/* Equivalent Units */}
                 {dimResult.equivalents.length > 0 && (
-                  <div className="bg-white rounded-lg p-3">
+                  <div className="bg-[rgb(var(--card-bg))] rounded-lg p-3">
                     <p className="text-xs text-surface-400 font-medium mb-2">{t("math.units.equivalent")}</p>
                     <div className="flex flex-wrap gap-2">
                       {dimResult.equivalents.map(eq => (
@@ -3547,8 +3570,8 @@ function UnitsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: s
       {tab === "bases" && (
         <div className="bg-surface-100 rounded-xl p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mb-6">
-            <input value={baseInput} onChange={e => setBaseInput(e.target.value)} className="flex-1 bg-white text-surface-900 text-lg rounded-lg px-4 py-3 border border-surface-200 font-mono min-w-0" placeholder={t("math.enterNumber")} />
-            <select value={baseFrom} onChange={e => setBaseFrom(Number(e.target.value))} className="bg-white text-surface-700 rounded-lg px-3 py-3 border border-surface-200 text-sm">
+            <input value={baseInput} onChange={e => setBaseInput(e.target.value)} className="flex-1 bg-[rgb(var(--card-bg))] text-surface-900 text-lg rounded-lg px-4 py-3 border border-surface-200 font-mono min-w-0" placeholder={t("math.enterNumber")} />
+            <select value={baseFrom} onChange={e => setBaseFrom(Number(e.target.value))} className="bg-[rgb(var(--card-bg))] text-surface-700 rounded-lg px-3 py-3 border border-surface-200 text-sm">
               <option value={2}>{t("math.binary")} (2)</option>
               <option value={8}>{t("math.octal")} (8)</option>
               <option value={10}>{t("math.decimal")} (10)</option>
@@ -3564,7 +3587,7 @@ function UnitsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: s
                   [t("math.decimal") + " (10)", baseResults.dec, "DEC"],
                   [t("math.hexadecimal") + " (16)", baseResults.hex, "HEX"],
                 ] as [string, string, string][]).map(([label, val, tag]) => (
-                  <div key={label} className="bg-white rounded-lg px-4 py-3">
+                  <div key={label} className="bg-[rgb(var(--card-bg))] rounded-lg px-4 py-3">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-surface-400 text-xs">{label}</span>
                       <span className="text-brand-600 text-xs font-mono">{tag}</span>
@@ -3574,7 +3597,7 @@ function UnitsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: s
                 ))}
               </div>
               {baseResults.bits && (
-                <div className="bg-white rounded-lg px-4 py-3">
+                <div className="bg-[rgb(var(--card-bg))] rounded-lg px-4 py-3">
                   <p className="text-xs text-surface-400 font-medium mb-2">{t("math.units.bitView")}</p>
                   <div className="flex gap-1 justify-center">
                     {baseResults.bits.split(" ").map((bit, i) => (
@@ -3587,7 +3610,7 @@ function UnitsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e: s
                 </div>
               )}
               {baseResults.ascii && (
-                <div className="bg-white rounded-lg px-4 py-3">
+                <div className="bg-[rgb(var(--card-bg))] rounded-lg px-4 py-3">
                   <p className="text-xs text-surface-400 font-medium mb-1">{t("math.units.asciiChar")}</p>
                   <p className="text-brand-600 text-2xl font-mono">&quot;{baseResults.ascii}&quot;</p>
                 </div>
@@ -3753,8 +3776,8 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules, builti
                   </div>
                   {f.isCustom && (
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                      <button onClick={e => { e.stopPropagation(); openEdit(f as MathFormula); }} className="text-surface-400 hover:text-brand-600 text-sm px-1">✏️</button>
-                      <button onClick={e => { e.stopPropagation(); remove(f.id); }} className="text-surface-400 hover:text-danger-600 text-sm px-1">🗑️</button>
+                      <button onClick={e => { e.stopPropagation(); openEdit(f as MathFormula); }} className="text-surface-400 hover:text-brand-600 text-sm px-1"><span className="text-xs">Edit</span></button>
+                      <button onClick={e => { e.stopPropagation(); remove(f.id); }} className="text-surface-400 hover:text-danger-600 text-sm px-1"><Trash2 size={13} /></button>
                     </div>
                   )}
                 </div>
@@ -3778,7 +3801,7 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules, builti
                   {/* Example */}
                   <div>
                     <p className="text-xs font-semibold text-surface-700 mb-1">{t("math.fc.example")}</p>
-                    <div className="bg-white rounded-lg px-3 py-2 font-mono text-xs text-surface-900">{rf.example}</div>
+                    <div className="bg-[rgb(var(--card-bg))] rounded-lg px-3 py-2 font-mono text-xs text-surface-900">{rf.example}</div>
                   </div>
 
                   {/* Common mistakes */}
@@ -3789,7 +3812,7 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules, builti
 
                   {/* Interactive Calculator */}
                   {rf.calc && (
-                    <div className="bg-white rounded-lg p-3">
+                    <div className="bg-[rgb(var(--card-bg))] rounded-lg p-3">
                       <p className="text-xs font-semibold text-brand-600 mb-2">{t("math.fc.tryIt")}</p>
                       <div className="flex flex-wrap gap-2 items-center">
                         {rf.calc.vars.map(v => (
@@ -3844,7 +3867,7 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules, builti
       {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowModal(false)}>
-          <div className="bg-white rounded-2xl p-6 w-full max-w-lg border border-surface-200" onClick={e => e.stopPropagation()}>
+          <div className="bg-[rgb(var(--card-bg))] rounded-2xl p-6 w-full max-w-lg border border-surface-200" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-semibold text-surface-900 mb-4">{editId ? t("math.editFormula") : t("math.newFormula")}</h3>
             <div className="space-y-3">
               <input value={fTitle} onChange={e => setFTitle(e.target.value)} placeholder={t("math.title")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />

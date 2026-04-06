@@ -141,6 +141,20 @@ export const AI_ADDON_PRICE = {
   paymentLink: "https://buy.stripe.com/bJe8wRbsw9cMaGu1HZfYY09",
 } as const;
 
+// ─── Plugin Einzelkauf ───
+export const PLUGIN_PRICE = {
+  priceId: "price_1TJ1k9RNHcFqFbgIliLNvqzh",
+  price: 1.90,
+  currency: "CHF",
+  label: "Plugin-Einzelkauf",
+  note: "Einmaliger Kauf — dauerhafter Zugang",
+} as const;
+
+/** Check if price ID is a plugin purchase */
+export function isPluginPrice(priceId: string): boolean {
+  return priceId === PLUGIN_PRICE.priceId;
+}
+
 export type PriceTier = keyof typeof PRO_BASIC_PRICES;
 
 // All valid subscription price IDs (both Basic and Full)

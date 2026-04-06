@@ -1,30 +1,25 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useMemo } from "react";
+import { useSupabaseQuery } from "./useSupabaseQuery";
 import type { Task } from "@/types/database";
 
+/**
+ * Tasks mit Realtime-Subscription und optionalem Modul-Filter.
+ * Migriert auf einheitlichen useSupabaseQuery-Hook.
+ */
 export function useTasks(moduleId?: string) {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const filter = useMemo(() => {
+    if (!moduleId) return undefined;
+    return (q: any) => q.eq("module_id", moduleId);
+  }, [moduleId]);
 
-  const fetch = useCallback(async () => {
-    setLoading(true);
-    let q = supabase.from("tasks").select("*, modules(name, color)").order("due_date", { ascending: true, nullsFirst: false });
-    if (moduleId) q = q.eq("module_id", moduleId);
-    const { data } = await q;
-    setTasks(data ?? []);
-    setLoading(false);
-  }, [supabase, moduleId]);
+  const { data: tasks, loading, refetch } = useSupabaseQuery<Task>({
+    table: "tasks",
+    select: "*, modules(name, color)",
+    filter,
+    order: { column: "due_date", ascending: true, nullsFirst: false },
+    realtime: true,
+  });
 
-  useEffect(() => {
-    fetch();
-    const channel = supabase
-      .channel("tasks")
-      .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, fetch)
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [fetch, supabase]);
-
-  return { tasks, loading, refetch: fetch };
+  return { tasks, loading, refetch };
 }

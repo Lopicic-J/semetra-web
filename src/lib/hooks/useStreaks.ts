@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export interface StreakData {
@@ -22,42 +22,62 @@ function dateStr(d: Date): string {
 }
 
 export function useStreaks(): StreakData {
-  const supabase = createClient();
+  // Stable ref — singleton client, never triggers re-render
+  const supabaseRef = useRef(createClient());
   const [logs, setLogs] = useState<{ started_at: string; duration_seconds: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetch = useCallback(async () => {
-    // Fetch all time_logs (only started_at + duration_seconds for efficiency)
-    const { data } = await supabase
+  // Guards against parallel fetches and post-unmount updates
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  // Core fetch — zero dependencies (uses refs only)
+  const fetchLogs = useCallback(async () => {
+    const { data } = await supabaseRef.current
       .from("time_logs")
       .select("started_at, duration_seconds")
       .order("started_at", { ascending: false });
-    setLogs(data ?? []);
-    setLoading(false);
-  }, [supabase]);
+    if (mountedRef.current) {
+      setLogs(data ?? []);
+      setLoading(false);
+    }
+  }, []);
 
-  useEffect(() => { fetch(); }, [fetch]);
+  // Debounced fetch — collapses rapid-fire events into a single query
+  const debouncedFetch = useCallback(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(fetchLogs, 600);
+  }, [fetchLogs]);
+
+  // Initial fetch (runs once)
+  useEffect(() => { fetchLogs(); }, [fetchLogs]);
 
   // Re-fetch when a time log is saved anywhere in the app
   useEffect(() => {
-    const handler = () => { setTimeout(fetch, 500); }; // small delay so DB write completes
+    const handler = () => debouncedFetch();
     window.addEventListener("time-log-updated", handler);
     return () => window.removeEventListener("time-log-updated", handler);
-  }, [fetch]);
+  }, [debouncedFetch]);
 
-  // Re-fetch when tab becomes visible (user switches back from another tab)
+  // Re-fetch when tab becomes visible again.
+  // NOTE: Removed the separate "focus" listener — it fired on every
+  // window click which was way too aggressive. visibilitychange alone
+  // covers the tab-switch case correctly.
   useEffect(() => {
-    const handler = () => { if (document.visibilityState === "visible") fetch(); };
+    const handler = () => {
+      if (document.visibilityState === "visible") debouncedFetch();
+    };
     document.addEventListener("visibilitychange", handler);
     return () => document.removeEventListener("visibilitychange", handler);
-  }, [fetch]);
-
-  // Also re-fetch on route changes (Next.js client navigation)
-  useEffect(() => {
-    const handler = () => fetch();
-    window.addEventListener("focus", handler);
-    return () => window.removeEventListener("focus", handler);
-  }, [fetch]);
+  }, [debouncedFetch]);
 
   return useMemo(() => {
     if (loading || logs.length === 0) {
@@ -94,7 +114,6 @@ export function useStreaks(): StreakData {
     // Calculate current streak (walking backwards from today or yesterday)
     let currentStreak = 0;
     const checkDate = new Date(today);
-    // If today has no study time yet, start from yesterday
     if (!todayDone) {
       checkDate.setDate(checkDate.getDate() - 1);
     }

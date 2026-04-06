@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
+import {
+  requireRole,
+  logBuilderAction,
+  errorResponse,
+  isErrorResponse,
+  createServiceClient,
+} from "@/lib/api-helpers";
 
 const log = logger("api:module-publish");
 
@@ -8,6 +15,7 @@ const log = logger("api:module-publish");
  * POST /api/academic/modules/[id]/publish
  *
  * Validate and publish a module.
+ * Admin only (admin or institution)
  * Calls RPC function: publish_module(p_module_id uuid)
  *
  * Returns validation result and published module data.
@@ -18,29 +26,24 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
-    }
+    const rc = await requireRole(["admin", "institution"]);
+    if (isErrorResponse(rc)) return rc;
+    const { user } = rc;
+    const db = rc.adminClient ?? createServiceClient();
 
     // Verify module exists
-    const { data: module, error: moduleError } = await supabase
+    const { data: module, error: moduleError } = await db
       .from("modules")
       .select("id, name, module_code")
       .eq("id", id)
       .single();
 
     if (moduleError || !module) {
-      return NextResponse.json(
-        { error: "Modul nicht gefunden" },
-        { status: 404 }
-      );
+      return errorResponse("Modul nicht gefunden", 404);
     }
 
     // Call the publish_module RPC function
-    const { data: publishResult, error: publishError } = await supabase.rpc(
+    const { data: publishResult, error: publishError } = await db.rpc(
       "publish_module",
       {
         p_module_id: id,
@@ -56,11 +59,11 @@ export async function POST(
           { status: 422 }
         );
       }
-      return NextResponse.json({ error: publishError.message }, { status: 500 });
+      return errorResponse(publishError.message, 500);
     }
 
     // Fetch updated module to return
-    const { data: updatedModule, error: fetchError } = await supabase
+    const { data: updatedModule, error: fetchError } = await db
       .from("modules")
       .select("*")
       .eq("id", id)
@@ -68,8 +71,10 @@ export async function POST(
 
     if (fetchError) {
       log.error("POST fetch updated module failed", { error: fetchError });
-      return NextResponse.json({ error: fetchError.message }, { status: 500 });
+      return errorResponse(fetchError.message, 500);
     }
+
+    await logBuilderAction(db, user.id, "update", "module", id, module.name, { published: true });
 
     return NextResponse.json({
       message: "Modul erfolgreich veröffentlicht",
@@ -78,9 +83,9 @@ export async function POST(
     });
   } catch (err: unknown) {
     log.error("POST failed", { error: err });
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Interner Fehler" },
-      { status: 500 }
+    return errorResponse(
+      err instanceof Error ? err.message : "Interner Fehler",
+      500
     );
   }
 }

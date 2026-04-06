@@ -1,31 +1,19 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useSupabaseQuery } from "./useSupabaseQuery";
 import type { Module } from "@/types/database";
 
-export function useModules() {
-  const [modules, setModules] = useState<Module[]>([]);
-  const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+/**
+ * Modules mit Realtime-Subscription.
+ * Filters out soft-deleted (hidden) institution modules by default.
+ */
+export function useModules(includeHidden = false) {
+  const { data: modules, loading, refetch } = useSupabaseQuery<Module>({
+    table: "modules",
+    select: "*",
+    order: { column: "created_at", ascending: false },
+    filter: includeHidden ? undefined : (q) => q.is("hidden_at", null),
+    realtime: true,
+  });
 
-  const fetch = useCallback(async () => {
-    setLoading(true);
-    const { data } = await supabase
-      .from("modules")
-      .select("*")
-      .order("created_at", { ascending: false });
-    setModules(data ?? []);
-    setLoading(false);
-  }, [supabase]);
-
-  useEffect(() => {
-    fetch();
-    const channel = supabase
-      .channel("modules")
-      .on("postgres_changes", { event: "*", schema: "public", table: "modules" }, fetch)
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [fetch, supabase]);
-
-  return { modules, loading, refetch: fetch };
+  return { modules, loading, refetch };
 }

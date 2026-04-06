@@ -17,7 +17,7 @@ export default function DashboardError({
   return (
     <div className="flex items-center justify-center min-h-screen bg-surface-50 p-4">
       <div className="w-full max-w-md">
-        <div className="card bg-white rounded-2xl shadow-lg border border-red-100">
+        <div className="card bg-[rgb(var(--card-bg))] rounded-2xl shadow-lg border border-red-100">
           {/* Error Icon */}
           <div className="flex justify-center mb-4">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 text-red-600 text-3xl">

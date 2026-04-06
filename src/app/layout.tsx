@@ -63,8 +63,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
         <meta name="theme-color" content="#6366f1" />
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e1b4b" />
-        {/* Anti-flicker: apply dark class before first paint */}
-        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var m=localStorage.getItem("semetra_theme_mode");var d=m==="dark"||(m!=="light"&&matchMedia("(prefers-color-scheme:dark)").matches);if(d)document.documentElement.classList.add("dark")}catch(e){}})()` }} />
+        {/* Anti-flicker: apply dark class before first paint (avoids white flash for dark-mode users) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var m=localStorage.getItem("semetra_theme_mode");var d=m==="dark"||(m!=="light"&&matchMedia("(prefers-color-scheme:dark)").matches);if(d)document.documentElement.classList.add("dark")}catch(e){}})();`,
+          }}
+        />
       </head>
       <body>
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-brand-600 focus:text-white focus:rounded-lg focus:outline-none">

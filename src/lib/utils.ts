@@ -19,6 +19,7 @@ export function formatDuration(seconds: number): string {
   return `${s}s`;
 }
 
+/** @deprecated Use getGradeColor() from @/lib/grading-systems instead (supports all countries) */
 export function gradeColor(grade: number): string {
   if (grade >= 5.5) return "text-green-600";   // sehr gut
   if (grade >= 5.0) return "text-emerald-600"; // gut
@@ -28,7 +29,7 @@ export function gradeColor(grade: number): string {
   return "text-red-600";                       // ungenügend
 }
 
-/** Grade label for Swiss system */
+/** @deprecated Use getGradeLabelText() from @/lib/grading-systems instead (supports all countries) */
 export function gradeLabel(grade: number): string {
   if (grade >= 5.5) return "sehr gut";
   if (grade >= 5.0) return "gut";
@@ -37,7 +38,7 @@ export function gradeLabel(grade: number): string {
   return "ungenügend";
 }
 
-/** Round to nearest 0.25 (Swiss standard) */
+/** @deprecated Swiss-specific 0.25 rounding — use formatGrade() from @/lib/grading-systems for display */
 export function roundGrade(grade: number): number {
   return Math.round(grade * 4) / 4;
 }

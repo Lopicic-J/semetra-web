@@ -197,7 +197,7 @@ function EventModal({ defaultDate, onClose, onSaved }: { defaultDate: string; on
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
+      <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-xl w-full max-w-md mx-4">
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-surface-100">
           <h2 className="font-semibold text-surface-900">{t("calendar.modal.title")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>

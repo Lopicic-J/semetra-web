@@ -8,13 +8,13 @@ import { useProfile } from "@/lib/hooks/useProfile";
 import { useStreaks } from "@/lib/hooks/useStreaks";
 import { useTranslation } from "@/lib/i18n";
 import { ProBadge } from "@/components/ui/ProGate";
-import { NAV_GROUPS, BOTTOM_ITEMS, type NavItem as NavItemType } from "./nav-config";
+import { BOTTOM_ITEMS, getFilteredNavGroups, type NavItem as NavItemType } from "./nav-config";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router   = useRouter();
   const supabase = createClient();
-  const { isPro } = useProfile();
+  const { isPro, userRole } = useProfile();
   const streak = useStreaks();
   const { t } = useTranslation();
 
@@ -66,7 +66,7 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 space-y-0.5 overflow-y-auto pr-0.5 -mr-0.5">
-        {NAV_GROUPS.map((group, idx) => (
+        {getFilteredNavGroups(userRole).map((group, idx) => (
           <div key={group.labelKey}>
             {idx > 0 && group.labelKey && (
               <div className="border-t border-surface-100 mx-3 my-1" />

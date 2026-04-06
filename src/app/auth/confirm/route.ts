@@ -10,11 +10,19 @@ import type { EmailOtpType } from "@supabase/supabase-js";
  * Email template links should point to:
  *   {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/update-password
  */
+function safeRedirectPath(path: string | null): string {
+  const fallback = "/dashboard";
+  if (!path) return fallback;
+  if (!path.startsWith("/") || path.startsWith("//") || path.includes("://")) return fallback;
+  if (path.includes("\\") || path.includes("%2f") || path.includes("%2F")) return fallback;
+  return path;
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
-  const next = searchParams.get("next") ?? "/dashboard";
+  const next = safeRedirectPath(searchParams.get("next"));
 
   if (!token_hash || !type) {
     return NextResponse.redirect(`${origin}/login?error=missing_params`);

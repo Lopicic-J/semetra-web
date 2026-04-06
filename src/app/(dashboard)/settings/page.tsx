@@ -1,7 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Settings, User, Bell, Palette, Shield, LogOut, Zap, CreditCard, CheckCircle, Monitor, ExternalLink, Download, Loader2, FileJson, HardDrive, Database, Globe, Languages } from "lucide-react";
+import { Settings, User, Bell, Palette, Shield, LogOut, Zap, CreditCard, CheckCircle, Monitor, ExternalLink, Download, Loader2, FileJson, HardDrive, Database, Globe, Languages, Info } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const AboutPage = dynamic(() => import("@/app/(dashboard)/about/page"), { loading: () => <div className="flex items-center gap-2 text-surface-400 py-8"><Loader2 size={16} className="animate-spin" /> Laden…</div> });
 import { useRouter } from "next/navigation";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { COUNTRY_LIST, GRADING_SYSTEMS, type CountryCode } from "@/lib/grading-systems";
@@ -34,6 +37,7 @@ export default function SettingsPage() {
     { id: "appearance",    label: t("settings.appearanceTab"),    icon: Palette },
     { id: "notifications", label: t("settings.notificationsTab"), icon: Bell },
     { id: "privacy",       label: t("settings.privacyTab"),       icon: Shield },
+    { id: "about",          label: t("settings.aboutTab"),         icon: Info },
   ];
 
   return (
@@ -67,6 +71,7 @@ export default function SettingsPage() {
           {activeTab === "appearance"    && <AppearanceTab />}
           {activeTab === "notifications" && <NotificationsTab />}
           {activeTab === "privacy"       && <PrivacyTab />}
+          {activeTab === "about"         && <div className="-mx-6 -mt-2"><AboutPage /></div>}
         </div>
       </div>
     </div>
@@ -461,7 +466,7 @@ function AppearanceTab() {
               style={{ background: p.swatch }}
             >
               {accent === p.key && (
-                <CheckCircle size={16} className="absolute -top-1 -right-1 text-surface-900 bg-white rounded-full" />
+                <CheckCircle size={16} className="absolute -top-1 -right-1 text-surface-900 bg-[rgb(var(--card-bg))] rounded-full" />
               )}
             </button>
           ))}
@@ -500,7 +505,7 @@ function NotificationsTab() {
             </div>
             <button onClick={() => setSettings(s => ({ ...s, [item.key]: !s[item.key] }))}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings[item.key] ? "bg-brand-600" : "bg-surface-200"}`}>
-              <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transform transition-transform ${settings[item.key] ? "translate-x-6" : "translate-x-1"}`} />
+              <span className={`inline-block h-4 w-4 rounded-full bg-[rgb(var(--card-bg))] shadow transform transition-transform ${settings[item.key] ? "translate-x-6" : "translate-x-1"}`} />
             </button>
           </div>
         ))}

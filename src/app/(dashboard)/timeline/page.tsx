@@ -184,7 +184,7 @@ export default function TimelinePage() {
           {RANGES.map(r => (
             <button key={r.days} onClick={() => setRangeDays(r.days)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                rangeDays === r.days ? "bg-white text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"
+                rangeDays === r.days ? "bg-[rgb(var(--card-bg))] text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"
               }`}>
               {r.label}
             </button>
@@ -240,7 +240,7 @@ export default function TimelinePage() {
                         <div className={`rounded-xl border transition-colors ${
                           isOverdue
                             ? "border-red-200 bg-red-50/50"
-                            : "border-surface-100 hover:border-brand-200 bg-white"
+                            : "border-surface-100 hover:border-brand-200 bg-[rgb(var(--card-bg))]"
                         }`}>
                           {/* Header - clickable */}
                           <button

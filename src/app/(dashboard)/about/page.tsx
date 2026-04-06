@@ -10,12 +10,13 @@ import {
   Shield,
   Zap,
   ExternalLink,
-  Crown,
+  Check,
   FileText,
   Network,
   BarChart3,
   Sparkles,
   History,
+  GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslation } from "@/lib/i18n";
@@ -23,9 +24,9 @@ import { useTranslation } from "@/lib/i18n";
 export default function AboutPage() {
   const { t } = useTranslation();
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-brand-50 to-white py-16 px-4 sm:px-6 lg:px-8">
+      <div className="relative overflow-hidden bg-gradient-to-b from-brand-50 to-transparent dark:from-brand-950/20 dark:to-transparent py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           {/* Logo */}
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white mb-6 shadow-lg">
@@ -41,7 +42,7 @@ export default function AboutPage() {
           </p>
 
           {/* Version Badge */}
-          <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-surface-100 text-surface-600 text-sm font-medium">
+          <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-300 text-sm font-medium">
             <span>{t("about.version")}</span>
           </div>
         </div>
@@ -62,8 +63,8 @@ export default function AboutPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {/* Feature 1: AI-Learning */}
-          <div className="card p-8 border border-brand-100 hover:shadow-md transition-shadow">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-brand-100 text-brand-600 mb-5">
+          <div className="card p-8 border border-brand-100 dark:border-brand-900/30 hover:shadow-md transition-shadow">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-brand-100 dark:bg-brand-900/30 text-brand-600 mb-5">
               <Brain size={28} />
             </div>
             <h3 className="text-xl font-semibold text-surface-900 mb-3">
@@ -75,8 +76,8 @@ export default function AboutPage() {
           </div>
 
           {/* Feature 2: Module Planning */}
-          <div className="card p-8 border border-brand-100 hover:shadow-md transition-shadow">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-brand-100 text-brand-600 mb-5">
+          <div className="card p-8 border border-brand-100 dark:border-brand-900/30 hover:shadow-md transition-shadow">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-brand-100 dark:bg-brand-900/30 text-brand-600 mb-5">
               <BookOpen size={28} />
             </div>
             <h3 className="text-xl font-semibold text-surface-900 mb-3">
@@ -88,8 +89,8 @@ export default function AboutPage() {
           </div>
 
           {/* Feature 3: Cross-Platform */}
-          <div className="card p-8 border border-brand-100 hover:shadow-md transition-shadow">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-brand-100 text-brand-600 mb-5">
+          <div className="card p-8 border border-brand-100 dark:border-brand-900/30 hover:shadow-md transition-shadow">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-brand-100 dark:bg-brand-900/30 text-brand-600 mb-5">
               <Layers size={28} />
             </div>
             <h3 className="text-xl font-semibold text-surface-900 mb-3">
@@ -101,8 +102,8 @@ export default function AboutPage() {
           </div>
 
           {/* Feature 4: Data Security */}
-          <div className="card p-8 border border-brand-100 hover:shadow-md transition-shadow">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-brand-100 text-brand-600 mb-5">
+          <div className="card p-8 border border-brand-100 dark:border-brand-900/30 hover:shadow-md transition-shadow">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-brand-100 dark:bg-brand-900/30 text-brand-600 mb-5">
               <Shield size={28} />
             </div>
             <h3 className="text-xl font-semibold text-surface-900 mb-3">
@@ -114,8 +115,8 @@ export default function AboutPage() {
           </div>
 
           {/* Feature 5: PDF Tools */}
-          <div className="card p-8 border border-brand-100 hover:shadow-md transition-shadow">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-red-100 text-red-600 mb-5">
+          <div className="card p-8 border border-brand-100 dark:border-brand-900/30 hover:shadow-md transition-shadow">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-600 mb-5">
               <FileText size={28} />
             </div>
             <h3 className="text-xl font-semibold text-surface-900 mb-3">
@@ -127,8 +128,8 @@ export default function AboutPage() {
           </div>
 
           {/* Feature 6: Mind Maps */}
-          <div className="card p-8 border border-brand-100 hover:shadow-md transition-shadow">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-violet-100 text-violet-600 mb-5">
+          <div className="card p-8 border border-brand-100 dark:border-brand-900/30 hover:shadow-md transition-shadow">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-violet-100 dark:bg-violet-900/30 text-violet-600 mb-5">
               <Network size={28} />
             </div>
             <h3 className="text-xl font-semibold text-surface-900 mb-3">
@@ -140,8 +141,8 @@ export default function AboutPage() {
           </div>
 
           {/* Feature 7: Grade Analytics */}
-          <div className="card p-8 border border-brand-100 hover:shadow-md transition-shadow">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-emerald-100 text-emerald-600 mb-5">
+          <div className="card p-8 border border-brand-100 dark:border-brand-900/30 hover:shadow-md transition-shadow">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 mb-5">
               <BarChart3 size={28} />
             </div>
             <h3 className="text-xl font-semibold text-surface-900 mb-3">
@@ -152,9 +153,22 @@ export default function AboutPage() {
             </p>
           </div>
 
-          {/* Feature 8: 20+ Tools */}
-          <div className="card p-8 border border-brand-100 hover:shadow-md transition-shadow">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-amber-100 text-amber-600 mb-5">
+          {/* Feature 8: Academic Builder */}
+          <div className="card p-8 border border-brand-100 dark:border-brand-900/30 hover:shadow-md transition-shadow">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-teal-100 dark:bg-teal-900/30 text-teal-600 mb-5">
+              <GraduationCap size={28} />
+            </div>
+            <h3 className="text-xl font-semibold text-surface-900 mb-3">
+              {t("about.featureBuilder")}
+            </h3>
+            <p className="text-surface-600 text-sm leading-relaxed">
+              {t("about.featureBuilderDesc")}
+            </p>
+          </div>
+
+          {/* Feature 9: 20+ Tools */}
+          <div className="card p-8 border border-brand-100 dark:border-brand-900/30 hover:shadow-md transition-shadow">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 mb-5">
               <Sparkles size={28} />
             </div>
             <h3 className="text-xl font-semibold text-surface-900 mb-3">
@@ -168,7 +182,7 @@ export default function AboutPage() {
       </div>
 
       {/* What's New / Changelog */}
-      <div className="bg-gradient-to-b from-white to-surface-50 py-16 px-4 sm:px-6 lg:px-8">
+      <div className="bg-gradient-to-b from-transparent to-surface-50 dark:to-surface-50/5 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-center gap-3 mb-12">
             <History size={24} className="text-brand-600" />
@@ -178,18 +192,59 @@ export default function AboutPage() {
           </div>
 
           <div className="space-y-6">
-            {/* April 2026 */}
-            <div className="card p-6 border border-surface-200 hover:shadow-md transition-shadow">
+            {/* v2.7 — April 2026 */}
+            <div className="card p-6 border border-surface-200 dark:border-surface-700 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-4">
-                <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-semibold">
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-600 text-white text-xs font-semibold">
+                  v2.7
+                </span>
+                <span className="text-sm text-surface-500">{t("about.changelogApril2026v2_7")}</span>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-semibold">NEU</span>
+              </div>
+              <ul className="space-y-2">
+                {t("about.changelog2_7").split("|").map((item, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-surface-700 dark:text-surface-400">
+                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-600 flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-bold">✓</span>
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* v2.6 — April 2026 */}
+            <div className="card p-6 border border-surface-200 dark:border-surface-700">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-xs font-semibold">
+                  v2.6
+                </span>
+                <span className="text-sm text-surface-500">{t("about.changelogApril2026")}</span>
+              </div>
+              <ul className="space-y-2">
+                {t("about.changelog2_6").split("|").map((item, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-surface-700 dark:text-surface-400">
+                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-600 flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-bold">✓</span>
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* v2.5 */}
+            <div className="card p-6 border border-surface-200 dark:border-surface-700">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-xs font-semibold">
                   v2.5
                 </span>
                 <span className="text-sm text-surface-500">{t("about.changelogApril2026")}</span>
               </div>
               <ul className="space-y-2">
                 {t("about.changelog2_5").split("|").map((item, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-surface-700">
-                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex-shrink-0 mt-0.5">
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-surface-700 dark:text-surface-400">
+                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex-shrink-0 mt-0.5">
                       <span className="text-xs font-bold">✓</span>
                     </span>
                     {item}
@@ -199,17 +254,17 @@ export default function AboutPage() {
             </div>
 
             {/* Earlier */}
-            <div className="card p-6 border border-surface-200">
+            <div className="card p-6 border border-surface-200 dark:border-surface-700">
               <div className="flex items-center gap-3 mb-4">
-                <span className="inline-flex items-center px-3 py-1 rounded-full bg-surface-200 text-surface-600 text-xs font-semibold">
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-300 text-xs font-semibold">
                   v2.0
                 </span>
                 <span className="text-sm text-surface-500">{t("about.changelogV2")}</span>
               </div>
               <ul className="space-y-2">
                 {t("about.changelog2_0").split("|").map((item, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-surface-700">
-                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-surface-100 text-surface-500 flex-shrink-0 mt-0.5">
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-surface-700 dark:text-surface-400">
+                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-surface-100 dark:bg-surface-700 text-surface-500 dark:text-surface-400 flex-shrink-0 mt-0.5">
                       <span className="text-xs font-bold">✓</span>
                     </span>
                     {item}
@@ -222,7 +277,7 @@ export default function AboutPage() {
       </div>
 
       {/* Platform Section */}
-      <div className="bg-surface-50 py-16 px-4 sm:px-6 lg:px-8">
+      <div className="bg-surface-50 dark:bg-surface-800/30 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-surface-900 text-center mb-12">
             {t("about.platformTitle")}
@@ -230,12 +285,12 @@ export default function AboutPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Web */}
-            <div className="card p-8 border border-surface-200">
+            <div className="card p-8 border border-surface-200 dark:border-surface-700">
               <div className="flex items-center justify-between mb-5">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-brand-100 text-brand-600">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-brand-100 dark:bg-brand-900/30 text-brand-600">
                   <Globe size={24} />
                 </div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
                   <span className="w-2 h-2 rounded-full bg-emerald-600" />
                   {t("about.platformStatus")}
                 </span>
@@ -252,14 +307,14 @@ export default function AboutPage() {
             </div>
 
             {/* Desktop */}
-            <div className="card p-8 border border-surface-200">
+            <div className="card p-8 border border-surface-200 dark:border-surface-700 opacity-75">
               <div className="flex items-center justify-between mb-5">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-brand-100 text-brand-600">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-surface-200 dark:bg-surface-700 text-surface-500">
                   <Monitor size={24} />
                 </div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-emerald-600" />
-                  {t("about.platformStatus")}
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-300 text-xs font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-surface-400" />
+                  {t("about.platformStatusDevelopment")}
                 </span>
               </div>
               <h3 className="text-lg font-semibold text-surface-900 mb-2">
@@ -274,12 +329,12 @@ export default function AboutPage() {
             </div>
 
             {/* Mobile */}
-            <div className="card p-8 border border-surface-200 opacity-75">
+            <div className="card p-8 border border-surface-200 dark:border-surface-700 opacity-75">
               <div className="flex items-center justify-between mb-5">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-surface-200 text-surface-500">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-surface-200 dark:bg-surface-700 text-surface-500">
                   <Smartphone size={24} />
                 </div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-200 text-surface-600 text-xs font-semibold">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-300 text-xs font-semibold">
                   <span className="w-2 h-2 rounded-full bg-surface-400" />
                   {t("about.platformStatusDevelopment")}
                 </span>
@@ -298,110 +353,89 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Pricing Overview */}
+      {/* Pricing Overview — same card style as /upgrade */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h2 className="text-3xl font-bold text-surface-900 text-center mb-12">
           {t("about.pricingTitle")}
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          {/* Free Plan */}
-          <div className="card p-8 border border-surface-200">
-            <h3 className="text-2xl font-bold text-surface-900 mb-2">
-              {t("about.planFree")}
-            </h3>
-            <p className="text-surface-600 text-sm mb-6">
-              {t("about.planFreeSubtitle")}
-            </p>
-
-            <ul className="space-y-3 mb-8">
+        <div className="grid sm:grid-cols-3 gap-5 max-w-4xl mx-auto mb-8">
+          {/* Free */}
+          <div className="bg-surface-100 rounded-2xl border-2 border-surface-200 p-5">
+            <div className="mb-4">
+              <p className="text-sm font-semibold text-surface-500 uppercase tracking-wide mb-1">{t("about.planFree")}</p>
+              <p className="text-2xl font-bold text-surface-900">CHF 0</p>
+              <p className="text-xs text-surface-400 mt-1">{t("about.planFreeSubtitle")}</p>
+            </div>
+            <div className="space-y-2 mb-5">
               {t("about.freeFeatures").split("|").map((feature, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 text-brand-600 flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold">✓</span>
-                  </span>
-                  <span className="text-surface-700 text-sm">
-                    {feature}
-                  </span>
-                </li>
+                <div key={i} className="flex items-start gap-2 text-xs text-surface-600">
+                  <Check size={12} className="text-surface-400 shrink-0 mt-0.5" />
+                  <span>{feature}</span>
+                </div>
               ))}
-            </ul>
-
-            <Link
-              href="/upgrade"
-              className="inline-flex w-full items-center justify-center px-4 py-3 rounded-lg border border-surface-300 text-surface-900 font-medium hover:bg-surface-50 transition-colors text-sm"
-            >
+            </div>
+            <div className="w-full py-2 rounded-xl border-2 border-surface-200 text-surface-500 text-xs text-center font-medium">
               {t("about.startFree")}
-            </Link>
+            </div>
           </div>
 
-          {/* Pro Plan */}
-          <div className="card p-8 bg-gradient-to-br from-brand-50 to-brand-25 border-2 border-brand-300 relative">
-            <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-600 text-white text-xs font-semibold">
-              <Crown size={12} />
-              {t("about.planProPopular")}
+          {/* Pro Basic */}
+          <div className="bg-surface-100 rounded-2xl border-2 border-brand-500 p-5 relative">
+            <div className="absolute top-0 right-0 bg-brand-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-bl-xl">
+              BASIC
             </div>
-
-            <h3 className="text-2xl font-bold text-surface-900 mb-2">
-              {t("about.planPro")}
-            </h3>
-            <p className="text-surface-600 text-sm mb-2">
-              {t("about.planProSubtitle")}
-            </p>
-            <div className="text-3xl font-bold text-brand-600 mb-6">
-              {t("about.planProPrice")}
-              <span className="text-lg text-surface-600 font-normal">{t("about.planProPerMonth")}</span>
-            </div>
-
-            <ul className="space-y-3 mb-8">
-              {t("about.proFeatures").split("|").map((feature, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-600 text-white flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold">✓</span>
-                  </span>
-                  <span className="text-surface-700 text-sm">
-                    {feature}
-                  </span>
-                </li>
-              ))}
-            </ul>
-
-            <Link
-              href="/upgrade"
-              className="inline-flex w-full items-center justify-center px-4 py-3 rounded-lg bg-brand-600 text-white font-medium hover:bg-brand-700 transition-colors text-sm"
-            >
-              <Zap size={14} className="mr-2" />
-              {t("about.upgradePro")}
-            </Link>
-          </div>
-        </div>
-
-        {/* Lifetime Plan */}
-        <div className="card p-8 border border-surface-200 max-w-2xl mx-auto bg-surface-900 text-white">
-          <div className="flex items-center gap-4">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-white/10 text-white">
-              <Zap size={24} />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-white mb-1">
-                {t("about.planLifetime")}
-              </h3>
-              <p className="text-white/60 text-sm">
-                {t("about.planLifetimeDesc")}
-              </p>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-white">
-                {t("about.planLifetimePrice")}
+            <div className="mb-4">
+              <p className="text-sm font-semibold text-brand-600 uppercase tracking-wide mb-1">Pro Basic</p>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-bold text-surface-900">{t("about.planProPrice")}</span>
+                <span className="text-xs text-surface-400">{t("about.planProPerMonth")}</span>
               </div>
-              <p className="text-xs text-white/50">{t("about.planLifetimeOneTime")}</p>
+              <p className="text-xs text-surface-400 mt-1">{t("about.planProSubtitle")}</p>
+            </div>
+            <div className="space-y-2 mb-5">
+              {t("about.proFeatures").split("|").map((feature, i) => (
+                <div key={i} className="flex items-start gap-2 text-xs text-surface-700">
+                  <Check size={12} className="text-brand-600 shrink-0 mt-0.5" />
+                  <span>{feature}</span>
+                </div>
+              ))}
+            </div>
+            <div className="w-full py-2 rounded-xl bg-amber-50 border-2 border-amber-200 text-amber-700 text-xs text-center font-semibold">
+              Coming Soon
+            </div>
+          </div>
+
+          {/* Pro Full */}
+          <div className="bg-surface-100 rounded-2xl border-2 border-surface-200 p-5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 bg-gradient-to-l from-violet-600 to-brand-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-bl-xl flex items-center gap-1">
+              <Sparkles size={9} />
+              FULL
+            </div>
+            <div className="mb-4">
+              <p className="text-sm font-semibold text-violet-600 uppercase tracking-wide mb-1">Pro Full</p>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-bold text-surface-900">{t("about.planLifetimePrice")}</span>
+              </div>
+              <p className="text-xs text-surface-400 mt-1">{t("about.planLifetimeDesc")}</p>
+            </div>
+            <div className="space-y-2 mb-5">
+              {t("about.proFeatures").split("|").map((feature, i) => (
+                <div key={i} className="flex items-start gap-2 text-xs text-surface-700">
+                  <Check size={12} className="text-violet-600 shrink-0 mt-0.5" />
+                  <span>{feature}</span>
+                </div>
+              ))}
+            </div>
+            <div className="w-full py-2 rounded-xl bg-amber-50 border-2 border-amber-200 text-amber-700 text-xs text-center font-semibold">
+              Coming Soon
             </div>
           </div>
         </div>
       </div>
 
       {/* Company Footer */}
-      <div className="bg-surface-50 border-t border-surface-200 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="bg-surface-50 dark:bg-surface-800/30 border-t border-surface-200 dark:border-surface-700 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-surface-700 font-medium mb-4">
             {t("about.company")}

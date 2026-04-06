@@ -345,26 +345,23 @@ export function useRecognitions() {
 // Requirement groups (for progress tracking)
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function useRequirementGroups(programId: string | null) {
+export function useRequirementGroups(programId?: string | null) {
   const [groups, setGroups] = useState<ProgramRequirementGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
-    if (!programId) {
-      setGroups([]);
-      setLoading(false);
-      return;
-    }
-
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const { data } = await supabase
+      let query = supabase
         .from("program_requirement_groups")
         .select("*")
-        .eq("program_id", programId)
         .order("sort_order");
+      if (programId) {
+        query = query.eq("program_id", programId);
+      }
+      const { data } = await query;
       if (!cancelled) {
         setGroups((data ?? []) as unknown as ProgramRequirementGroup[]);
         setLoading(false);
@@ -372,7 +369,208 @@ export function useRequirementGroups(programId: string | null) {
     })();
 
     return () => { cancelled = true; };
-  }, [programId, supabase]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [programId]);
 
-  return { groups, loading };
+  return { requirementGroups: groups, loading };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Attempts (standalone — decoupled from enrollments)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function useAttempts() {
+  const [attempts, setAttempts] = useState<Attempt[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from("attempts")
+        .select("*")
+        .order("attempt_number", { ascending: false });
+      if (!cancelled) {
+        setAttempts((data ?? []) as unknown as Attempt[]);
+        setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return { attempts, loading };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Academic Modules (from academic_modules table)
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface AcademicModuleRow {
+  id: string;
+  program_id: string | null;
+  requirement_group_id: string | null;
+  code: string | null;
+  name: string;
+  credits: number | null;
+  semester: string | null;
+  description: string | null;
+  delivery_mode: string | null;
+  language: string | null;
+  is_active: boolean;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export function useAcademicModules(programId?: string | null) {
+  const [modules, setModules] = useState<AcademicModuleRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      let query = supabase.from("academic_modules").select("*").order("name");
+      if (programId) {
+        query = query.eq("program_id", programId);
+      }
+      const { data } = await query;
+      if (!cancelled) {
+        setModules((data ?? []) as unknown as AcademicModuleRow[]);
+        setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [programId]);
+
+  return { modules, loading };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Module Prerequisites
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function usePrerequisites(moduleId?: string | null) {
+  const [prerequisites, setPrerequisites] = useState<unknown[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      let query = supabase.from("module_prerequisites").select("*");
+      if (moduleId) {
+        query = query.eq("module_id", moduleId);
+      }
+      const { data } = await query;
+      if (!cancelled) {
+        setPrerequisites(data ?? []);
+        setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moduleId]);
+
+  return { prerequisites, loading };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Combined hook — loads ALL academic page data in a single Promise.all
+// This avoids >8 parallel auth-token checks that cause GoTrue lock timeouts
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface AcademicPageData {
+  programs: Program[];
+  requirementGroups: ProgramRequirementGroup[];
+  enrollments: Enrollment[];
+  attempts: Attempt[];
+  creditAwards: CreditAward[];
+  academicModules: unknown[];
+  prerequisites: unknown[];
+  recognitions: Recognition[];
+  institutions: Institution[];
+  academicTerms: AcademicTerm[];
+  loading: boolean;
+}
+
+let cachedPageData: Omit<AcademicPageData, "loading"> | null = null;
+
+export function useAcademicPageData(): AcademicPageData {
+  const [data, setData] = useState<Omit<AcademicPageData, "loading">>(
+    cachedPageData ?? {
+      programs: [],
+      requirementGroups: [],
+      enrollments: [],
+      attempts: [],
+      creditAwards: [],
+      academicModules: [],
+      prerequisites: [],
+      recognitions: [],
+      institutions: [],
+      academicTerms: [],
+    }
+  );
+  const [loading, setLoading] = useState(!cachedPageData);
+  const supabase = createClient();
+
+  useEffect(() => {
+    if (cachedPageData) return;
+    let cancelled = false;
+
+    (async () => {
+      const [
+        { data: progs },
+        { data: reqGroups },
+        { data: enrs },
+        { data: atts },
+        { data: awards },
+        { data: acMods },
+        { data: prereqs },
+        { data: recs },
+        { data: insts },
+        { data: terms },
+      ] = await Promise.all([
+        supabase.from("programs").select("*"),
+        supabase.from("program_requirement_groups").select("*").order("sort_order"),
+        supabase.from("enrollments").select("*, attempts(*, component_results(*))").order("created_at", { ascending: false }),
+        supabase.from("attempts").select("*").order("attempt_number", { ascending: false }),
+        supabase.from("credit_awards").select("*").order("awarded_at", { ascending: false }),
+        supabase.from("academic_modules").select("*").order("name"),
+        supabase.from("module_prerequisites").select("*"),
+        supabase.from("recognitions").select("*").order("created_at", { ascending: false }),
+        supabase.from("institutions").select("*").order("name"),
+        supabase.from("academic_terms").select("*").order("academic_year_label").order("term_number"),
+      ]);
+
+      if (cancelled) return;
+
+      const result = {
+        programs: (progs ?? []) as unknown as Program[],
+        requirementGroups: (reqGroups ?? []) as unknown as ProgramRequirementGroup[],
+        enrollments: (enrs ?? []) as unknown as Enrollment[],
+        attempts: (atts ?? []) as unknown as Attempt[],
+        creditAwards: (awards ?? []) as unknown as CreditAward[],
+        academicModules: acMods ?? [],
+        prerequisites: prereqs ?? [],
+        recognitions: (recs ?? []) as unknown as Recognition[],
+        institutions: (insts ?? []) as unknown as Institution[],
+        academicTerms: (terms ?? []) as unknown as AcademicTerm[],
+      };
+      cachedPageData = result;
+      setData(result);
+      setLoading(false);
+    })();
+
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return { ...data, loading };
 }

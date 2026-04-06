@@ -1,12 +1,13 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/lib/i18n";
-import { Plus, Loader2, AlertCircle } from "lucide-react";
+import { Plus, Loader2, AlertCircle, Search, X } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { Card } from "@/components/ui/Card";
+import { useProfile } from "@/lib/hooks/useProfile";
 import type { Institution } from "@/types/database";
 
 // Country code to flag emoji mapping
@@ -54,33 +55,60 @@ export default function BuilderPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const supabase = createClient();
+  const { profile, loading: profileLoading, canAccessBuilder, isAdmin, userRole } = useProfile();
 
   const [institutions, setInstitutions] = useState<InstitutionWithCounts[]>([]);
+  const [managedInstitutionIds, setManagedInstitutionIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [countryFilter, setCountryFilter] = useState<string>("all");
 
   const fetchInstitutions = async () => {
     try {
       setLoading(true);
       setError(null);
+
+      // Fetch all institutions
       const response = await fetch("/api/academic/institutions");
-      if (!response.ok) {
-        throw new Error("Failed to fetch institutions");
-      }
+      if (!response.ok) throw new Error("Failed to fetch institutions");
       const data = await response.json();
-      setInstitutions(data.institutions || []);
+      let allInstitutions: InstitutionWithCounts[] = data.institutions || [];
+
+      // For institution admins, also fetch their assigned institution IDs
+      if (userRole === "institution" && profile?.id) {
+        const { data: assignments } = await supabase
+          .from("institution_admins")
+          .select("institution_id")
+          .eq("user_id", profile.id);
+
+        const ids = new Set((assignments || []).map((a: { institution_id: string }) => a.institution_id));
+        setManagedInstitutionIds(ids);
+        // Filter to only show their managed institutions
+        allInstitutions = allInstitutions.filter((inst) => ids.has(inst.id));
+      }
+
+      setInstitutions(allInstitutions);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Fehler beim Laden der Institutionen";
       setError(message);
-      console.error("Error fetching institutions:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchInstitutions();
-  }, []);
+    if (!profileLoading && canAccessBuilder) {
+      fetchInstitutions();
+    }
+  }, [profileLoading, canAccessBuilder, userRole]);
+
+  // Redirect students away from builder
+  useEffect(() => {
+    if (!profileLoading && !canAccessBuilder) {
+      router.replace("/dashboard");
+    }
+  }, [profileLoading, canAccessBuilder, router]);
 
   const handleNewInstitution = () => {
     router.push("/builder/institution/new");
@@ -96,16 +124,54 @@ export default function BuilderPage() {
     return COUNTRY_NAMES[code] || code;
   };
 
-  if (loading) {
+  // Derived: available countries from loaded institutions
+  const availableCountries = useMemo(() => {
+    const codes = new Set(institutions.map(i => i.country_code).filter(Boolean));
+    return Array.from(codes).sort((a, b) => {
+      const nameA = COUNTRY_NAMES[a!] ?? a!;
+      const nameB = COUNTRY_NAMES[b!] ?? b!;
+      return nameA.localeCompare(nameB, "de");
+    }) as string[];
+  }, [institutions]);
+
+  // Derived: filtered + sorted institutions
+  const filtered = useMemo(() => {
+    let list = [...institutions];
+
+    // Country filter
+    if (countryFilter !== "all") {
+      list = list.filter(i => i.country_code === countryFilter);
+    }
+
+    // Search filter
+    if (search.trim()) {
+      const q = search.toLowerCase().trim();
+      list = list.filter(i =>
+        i.name.toLowerCase().includes(q) ||
+        (i.code ?? "").toLowerCase().includes(q) ||
+        (i.country_code ?? "").toLowerCase().includes(q) ||
+        (COUNTRY_NAMES[i.country_code ?? ""] ?? "").toLowerCase().includes(q)
+      );
+    }
+
+    // Alphabetical sort
+    list.sort((a, b) => a.name.localeCompare(b.name, "de"));
+
+    return list;
+  }, [institutions, countryFilter, search]);
+
+  if (loading || profileLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-blue-500" />
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-brand-500" />
           <p className="text-surface-600">{t("common.loading") || "Wird geladen..."}</p>
         </div>
       </div>
     );
   }
+
+  if (!canAccessBuilder) return null;
 
   return (
     <div className="p-6 space-y-6">
@@ -119,14 +185,71 @@ export default function BuilderPage() {
             {t("builder.subtitle") || "Verwalte Institutionen, Programme und Module"}
           </p>
         </div>
-        <button
-          onClick={handleNewInstitution}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-        >
-          <Plus className="w-5 h-5" />
-          {t("builder.newInstitution") || "Neue Institution"}
-        </button>
+        {canAccessBuilder && (
+          <button
+            onClick={handleNewInstitution}
+            className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors font-medium"
+          >
+            <Plus className="w-5 h-5" />
+            {t("builder.newInstitution") || "Neue Institution"}
+          </button>
+        )}
       </div>
+
+      {/* Search & Country Filter */}
+      {institutions.length > 0 && (
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Search */}
+          <div className="relative flex-1">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Institution suchen..."
+              className="input w-full pl-9 pr-9"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
+          {/* Country filter */}
+          <div className="flex gap-1.5 flex-wrap">
+            <button
+              onClick={() => setCountryFilter("all")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                countryFilter === "all"
+                  ? "bg-brand-600 text-white"
+                  : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700"
+              }`}
+            >
+              Alle ({institutions.length})
+            </button>
+            {availableCountries.map(code => {
+              const count = institutions.filter(i => i.country_code === code).length;
+              return (
+                <button
+                  key={code}
+                  onClick={() => setCountryFilter(code === countryFilter ? "all" : code)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    countryFilter === code
+                      ? "bg-brand-600 text-white"
+                      : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700"
+                  }`}
+                >
+                  {COUNTRY_FLAGS[code] || ""} {COUNTRY_NAMES[code] || code} ({count})
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Error State */}
       {error && (
@@ -155,9 +278,23 @@ export default function BuilderPage() {
             {t("builder.newInstitution") || "Neue Institution"}
           </button>
         </Card>
+      ) : filtered.length === 0 ? (
+        <Card className="text-center py-12">
+          <Search size={36} className="mx-auto mb-3 text-surface-300 opacity-50" />
+          <p className="text-surface-600 mb-1 font-medium">Keine Ergebnisse</p>
+          <p className="text-surface-400 text-sm">
+            {search ? `Keine Institution für "${search}" gefunden.` : "Keine Institutionen in diesem Land."}
+          </p>
+          <button
+            onClick={() => { setSearch(""); setCountryFilter("all"); }}
+            className="mt-3 text-sm text-brand-600 hover:text-brand-700 font-medium"
+          >
+            Filter zurücksetzen
+          </button>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {institutions.map((inst) => (
+          {filtered.map((inst) => (
             <Link key={inst.id} href={`/builder/institution/${inst.id}`}>
               <Card interactive padding="md">
                 <div className="space-y-3">

@@ -6,8 +6,9 @@ import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { FREE_LIMITS } from "@/lib/gates";
 import { UpgradeModal } from "@/components/ui/ProGate";
-import { Plus, X, Trash2, ChevronLeft, ChevronRight, Copy, GripHorizontal } from "lucide-react";
+import { Plus, X, Trash2, ChevronLeft, ChevronRight, Copy, GripHorizontal, RefreshCw, PanelRightOpen, PanelRightClose } from "lucide-react";
 import type { StundenplanEntry } from "@/types/database";
+import SmartSchedulePanel from "@/components/dashboard/SmartSchedulePanel";
 
 const DAYS_SHORT = ["Mo","Di","Mi","Do","Fr","Sa"];
 const HOURS = Array.from({ length: 14 }, (_, i) => i + 7); // 7:00 – 20:00
@@ -31,6 +32,7 @@ export default function StundenplanPage() {
   const [draggedEntry, setDraggedEntry] = useState<StundenplanEntry | null>(null);
   const [editEntry, setEditEntry] = useState<StundenplanEntry | null>(null);
   const [dragIndicator, setDragIndicator] = useState<{dayIdx: number; startMin: number; endMin: number; text: string} | null>(null);
+  const [showSchedulePanel, setShowSchedulePanel] = useState(true);
   const [newEntry, setNewEntry] = useState({
     day: "Mo",
     time_start: "08:00",
@@ -283,20 +285,25 @@ export default function StundenplanPage() {
   const overlapLayout = useMemo(() => getOverlapLayout(currentEntries), [currentEntries]);
 
   return (
-    <div className="p-3 sm:p-6 max-w-6xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-surface-900">{t("nav.stundenplan")}</h1>
-          <p className="text-surface-500 text-sm mt-0.5">
-            {t("stundenplan.subtitle")}
-          </p>
+    <div className="flex h-[calc(100vh-64px)]">
+      {/* ── LEFT: Stundenplan ──────────────────────────────────────── */}
+      <div className={"flex-1 overflow-y-auto p-3 sm:p-5 " + (showSchedulePanel ? "max-w-[calc(100%-320px)]" : "")}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+          <div>
+            <h1 className="text-xl font-bold text-surface-900">{t("nav.stundenplan")}</h1>
+            <p className="text-surface-500 text-xs mt-0.5">{t("stundenplan.subtitle")}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setShowSchedulePanel(!showSchedulePanel)}
+              className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500"
+              title={showSchedulePanel ? "Smart Schedule ausblenden" : "Smart Schedule einblenden"}>
+              {showSchedulePanel ? <PanelRightClose size={16} /> : <PanelRightOpen size={16} />}
+            </button>
+            <button onClick={() => { setShowForm(true); }} className="btn-primary gap-2">
+              <Plus size={16} /> {t("stundenplan.addEntry")}
+            </button>
+          </div>
         </div>
-        <button onClick={() => {
-          setShowForm(true);
-        }} className="btn-primary gap-2">
-          <Plus size={16} /> {t("stundenplan.addEntry")}
-        </button>
-      </div>
 
       {/* Semester selector */}
       <div className="flex gap-2 mb-4 flex-wrap">
@@ -576,6 +583,14 @@ export default function StundenplanPage() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+      </div>
+
+      {/* ── RIGHT: Smart Schedule Panel ────────────────────────────── */}
+      {showSchedulePanel && (
+        <div className="hidden lg:flex w-[320px] shrink-0 border-l border-gray-100 dark:border-gray-800 bg-[rgb(var(--card-bg))] dark:bg-gray-900/50">
+          <SmartSchedulePanel />
         </div>
       )}
     </div>

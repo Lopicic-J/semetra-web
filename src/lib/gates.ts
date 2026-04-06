@@ -216,3 +216,49 @@ export function hasAiAccess(
   if (isLifetime && planTier === "basic" && !isPro) return aiCredits > 0;
   return true; // Pro or Lifetime Full — has pool
 }
+
+/* ─── Server-side resource limit checks ─── */
+
+type ResourceLimitKey = "modules" | "notes" | "mindMaps" | "flashcardSets" | "brainstormSessions" | "documents";
+
+const RESOURCE_TABLE_MAP: Record<ResourceLimitKey, string> = {
+  modules: "modules",
+  notes: "notes",
+  mindMaps: "mindmaps",
+  flashcardSets: "flashcard_sets",
+  brainstormSessions: "brainstorm_sessions",
+  documents: "documents",
+};
+
+/**
+ * Server-side resource limit check.
+ * Call from API routes to enforce Free-tier limits server-side.
+ * Returns { allowed, current, max } or throws if Supabase query fails.
+ */
+export async function checkResourceLimitServer(
+  supabase: { from: (table: string) => { select: (s: string, opts?: { count: string; head: boolean }) => { eq: (col: string, val: string) => Promise<{ count: number | null; error: unknown }> } } },
+  userId: string,
+  resource: ResourceLimitKey,
+  isPro: boolean,
+): Promise<{ allowed: boolean; current: number; max: number }> {
+  if (isPro) {
+    return { allowed: true, current: 0, max: Infinity };
+  }
+
+  const max = FREE_LIMITS[resource] as number;
+  if (max === Infinity) return { allowed: true, current: 0, max };
+
+  const table = RESOURCE_TABLE_MAP[resource];
+  const { count, error } = await (supabase as any)
+    .from(table)
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId);
+
+  if (error) {
+    // If query fails, allow to avoid blocking users unnecessarily
+    return { allowed: true, current: 0, max };
+  }
+
+  const current = count ?? 0;
+  return { allowed: current < max, current, max };
+}

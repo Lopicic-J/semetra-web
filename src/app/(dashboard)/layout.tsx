@@ -6,6 +6,7 @@ import I18nWrapper from "@/components/providers/I18nWrapper";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
 import OfflineBanner from "@/components/pwa/OfflineBanner";
 import { AchievementUnlockPortal } from "@/components/achievements/UnlockAnimation";
+import { VerificationBanner } from "@/components/ui/VerificationBanner";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -31,6 +32,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           {/* Mobile header — visible only on mobile */}
           <MobileHeader />
 
+          <VerificationBanner />
           <main id="main-content" className="flex-1 overflow-y-auto">
             {children}
           </main>

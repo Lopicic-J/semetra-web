@@ -29,11 +29,12 @@ export async function POST(
       return NextResponse.json({ error: "role und content erforderlich" }, { status: 400 });
     }
 
-    // Verify conversation ownership
+    // Verify conversation ownership (explicit user_id check)
     const { data: conv } = await supabase
       .from("chat_conversations")
       .select("id")
       .eq("id", conversationId)
+      .eq("user_id", user.id)
       .single();
 
     if (!conv) {

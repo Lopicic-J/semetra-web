@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
+import {
+  requireRole,
+  canManageInstitution,
+  logBuilderAction,
+  errorResponse,
+  isErrorResponse,
+  createServiceClient,
+} from "@/lib/api-helpers";
 
 const log = logger("api:institutions");
 
@@ -8,17 +16,17 @@ const log = logger("api:institutions");
  * GET /api/academic/institutions/[id]
  *
  * Get institution by ID with faculties and programs.
+ * Accessible to all authenticated users (read-only).
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
-    const supabase = await createClient();
+    const db = createServiceClient();
 
-    // Fetch institution
-    const { data: institution, error: institutionError } = await supabase
+    const { data: institution, error: institutionError } = await db
       .from("institutions")
       .select("*")
       .eq("id", id)
@@ -26,36 +34,21 @@ export async function GET(
 
     if (institutionError) {
       if (institutionError.code === "PGRST116") {
-        return NextResponse.json(
-          { error: "Institution nicht gefunden" },
-          { status: 404 }
-        );
+        return errorResponse("Institution nicht gefunden", 404);
       }
       log.error("GET fetch failed", { error: institutionError });
-      return NextResponse.json({ error: institutionError.message }, { status: 500 });
+      return errorResponse(institutionError.message, 500);
     }
 
-    // Fetch faculties
-    const { data: faculties, error: facultiesError } = await supabase
+    const { data: faculties } = await db
       .from("faculties")
       .select("*")
       .eq("institution_id", id);
 
-    if (facultiesError) {
-      log.error("GET faculties fetch failed", { error: facultiesError });
-      return NextResponse.json({ error: facultiesError.message }, { status: 500 });
-    }
-
-    // Fetch programs
-    const { data: programs, error: programsError } = await supabase
+    const { data: programs } = await db
       .from("programs")
       .select("*")
       .eq("institution_id", id);
-
-    if (programsError) {
-      log.error("GET programs fetch failed", { error: programsError });
-      return NextResponse.json({ error: programsError.message }, { status: 500 });
-    }
 
     return NextResponse.json({
       institution,
@@ -64,9 +57,9 @@ export async function GET(
     });
   } catch (err: unknown) {
     log.error("GET failed", { error: err });
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Interner Fehler" },
-      { status: 500 }
+    return errorResponse(
+      err instanceof Error ? err.message : "Interner Fehler",
+      500,
     );
   }
 }
@@ -75,70 +68,83 @@ export async function GET(
  * PATCH /api/academic/institutions/[id]
  *
  * Update institution fields.
+ * Requires: admin or institution for this institution.
  */
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const rc = await requireRole(["admin", "institution"]);
+    if (isErrorResponse(rc)) return rc;
+    const { user, userRole } = rc;
+    const db = rc.adminClient ?? createServiceClient();
 
-    if (!user) {
-      return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
+    // Check institution-level permission
+    if (!(await canManageInstitution(db, user.id, id, userRole))) {
+      return errorResponse("Keine Berechtigung für diese Institution", 403);
     }
 
     const body = await req.json();
 
-    // Validate that institution exists
-    const { data: existing, error: existingError } = await supabase
+    // Verify institution exists
+    const { data: existing, error: existingError } = await db
       .from("institutions")
-      .select("id")
+      .select("id, name")
       .eq("id", id)
       .single();
 
     if (existingError || !existing) {
-      return NextResponse.json(
-        { error: "Institution nicht gefunden" },
-        { status: 404 }
-      );
+      return errorResponse("Institution nicht gefunden", 404);
     }
 
-    // If country_code is being updated, validate it exists
+    // Validate country code if provided
     if (body.country_code) {
-      const { data: countryExists, error: countryError } = await supabase
+      const { data: countryExists, error: countryError } = await db
         .from("country_systems")
         .select("country_code")
         .eq("country_code", body.country_code)
         .single();
 
       if (countryError || !countryExists) {
-        return NextResponse.json(
-          { error: "Ungültiger Ländercode" },
-          { status: 400 }
-        );
+        return errorResponse("Ungültiger Ländercode", 400);
       }
     }
 
-    const { data, error } = await supabase
+    // Whitelist allowed fields
+    const allowedFields = [
+      "name", "country_code", "institution_type", "official_language",
+      "website", "academic_year_start_month",
+    ];
+    const updateData: Record<string, unknown> = {};
+    for (const key of allowedFields) {
+      if (body[key] !== undefined) updateData[key] = body[key];
+    }
+
+    const { data, error } = await db
       .from("institutions")
-      .update(body)
+      .update(updateData)
       .eq("id", id)
       .select()
       .single();
 
     if (error) {
       log.error("PATCH update failed", { error });
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return errorResponse(error.message, 500);
     }
+
+    await logBuilderAction(
+      db, user.id, "update", "institution", id,
+      existing.name, updateData,
+    );
 
     return NextResponse.json({ institution: data });
   } catch (err: unknown) {
     log.error("PATCH failed", { error: err });
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Interner Fehler" },
-      { status: 500 }
+    return errorResponse(
+      err instanceof Error ? err.message : "Interner Fehler",
+      500,
     );
   }
 }
@@ -146,51 +152,49 @@ export async function PATCH(
 /**
  * DELETE /api/academic/institutions/[id]
  *
- * Delete institution (cascades to faculties, programs, modules, etc.).
+ * Delete institution. Admin only.
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const rc = await requireRole(["admin"]);
+    if (isErrorResponse(rc)) return rc;
+    const { user } = rc;
+    const db = rc.adminClient ?? createServiceClient();
 
-    if (!user) {
-      return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
-    }
-
-    // Verify institution exists
-    const { data: existing, error: existingError } = await supabase
+    const { data: existing, error: existingError } = await db
       .from("institutions")
-      .select("id")
+      .select("id, name")
       .eq("id", id)
       .single();
 
     if (existingError || !existing) {
-      return NextResponse.json(
-        { error: "Institution nicht gefunden" },
-        { status: 404 }
-      );
+      return errorResponse("Institution nicht gefunden", 404);
     }
 
-    const { error } = await supabase
+    const { error } = await db
       .from("institutions")
       .delete()
       .eq("id", id);
 
     if (error) {
       log.error("DELETE failed", { error });
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return errorResponse(error.message, 500);
     }
 
-    return NextResponse.json({ success: true }, { status: 200 });
+    await logBuilderAction(
+      db, user.id, "delete", "institution", id, existing.name,
+    );
+
+    return NextResponse.json({ success: true });
   } catch (err: unknown) {
     log.error("DELETE failed", { error: err });
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Interner Fehler" },
-      { status: 500 }
+    return errorResponse(
+      err instanceof Error ? err.message : "Interner Fehler",
+      500,
     );
   }
 }

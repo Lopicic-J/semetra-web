@@ -887,7 +887,7 @@ function PdfMergePanel() {
                 </button>
                 {/* Thumbnail */}
                 <img src={pg.dataUrl} alt={`Page ${pg.pageIndex + 1}`}
-                  className="w-full h-auto bg-white" draggable={false} />
+                  className="w-full h-auto bg-[rgb(var(--card-bg))]" draggable={false} />
                 {/* File label */}
                 <div className="px-1.5 py-1 bg-surface-50 border-t border-surface-200">
                   <p className="text-[9px] text-surface-500 truncate">{pg.fileName}</p>
@@ -1094,7 +1094,7 @@ function PdfSplitPanel() {
                     </div>
                     {/* Thumbnail */}
                     <img src={pg.dataUrl} alt={`Page ${pg.pageIndex + 1}`}
-                      className="w-full h-auto bg-white" draggable={false} />
+                      className="w-full h-auto bg-[rgb(var(--card-bg))]" draggable={false} />
                     {/* Page label */}
                     <div className="px-1.5 py-1 border-t" style={{ borderColor: GROUP_COLORS[assignments[i] ?? 0], backgroundColor: `${GROUP_COLORS[assignments[i] ?? 0]}10` }}>
                       <p className="text-[10px] font-medium text-surface-700">{t("documents.pdfPage")} {pg.pageIndex + 1}</p>

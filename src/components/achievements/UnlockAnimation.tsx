@@ -25,7 +25,7 @@ export function triggerAchievementUnlock(achievement: Achievement) {
 function AchievementToastItem({ achievement, onDismiss }: { achievement: Achievement; onDismiss: () => void }) {
   const TIER_COLORS = {
     bronze: { bg: "from-amber-400 to-amber-600", light: "bg-amber-100", text: "text-amber-700" },
-    silver: { bg: "from-slate-400 to-slate-600", light: "bg-slate-100", text: "text-slate-700" },
+    silver: { bg: "from-slate-400 to-slate-600", light: "bg-surface-200 dark:bg-surface-700", text: "text-surface-700 dark:text-surface-300" },
     gold: { bg: "from-yellow-400 to-amber-500", light: "bg-yellow-100", text: "text-yellow-700" },
     diamond: { bg: "from-cyan-400 to-blue-500", light: "bg-cyan-100", text: "text-cyan-700" },
   };
@@ -42,7 +42,7 @@ function AchievementToastItem({ achievement, onDismiss }: { achievement: Achieve
       className="animate-in slide-in-from-right-full duration-500 ease-out"
       onClick={onDismiss}
     >
-      <div className="bg-white rounded-2xl shadow-2xl p-4 max-w-sm border border-surface-100 overflow-hidden relative">
+      <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-2xl p-4 max-w-sm border border-surface-100 overflow-hidden relative">
         {/* Animated confetti background */}
         <div className="absolute inset-0 opacity-20 pointer-events-none">
           <div className="absolute top-2 left-2 w-2 h-2 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: "0s" }} />

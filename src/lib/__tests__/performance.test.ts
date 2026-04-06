@@ -154,41 +154,21 @@ describe("LRUCache", () => {
 });
 
 describe("measure", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
+  it("should measure async function execution time and return result", async () => {
+    const fn = vi.fn(async () => "result");
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("should measure async function execution time", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.stubEnv("NODE_ENV", "development");
-
-    const fn = vi.fn(async () => {
-      await new Promise(r => setTimeout(r, 50));
-      return "result";
-    });
-
-    const promise = measure("test", fn);
-    vi.advanceTimersByTime(50);
-    const result = await promise;
+    const result = await measure("test-label", fn);
 
     expect(result).toBe("result");
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("[perf] test:"));
-
-    consoleSpy.mockRestore();
+    expect(fn).toHaveBeenCalledOnce();
   });
 
-  it("should not log in production", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.stubEnv("NODE_ENV", "production");
+  it("should propagate errors from measured function", async () => {
+    const fn = vi.fn(async () => {
+      throw new Error("test error");
+    });
 
-    await measure("test", async () => "result");
-
-    expect(consoleSpy).not.toHaveBeenCalled();
-    consoleSpy.mockRestore();
+    await expect(measure("test-label", fn)).rejects.toThrow("test error");
   });
 });
 

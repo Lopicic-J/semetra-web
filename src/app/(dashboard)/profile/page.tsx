@@ -5,6 +5,7 @@ import { useProfile } from "@/lib/hooks/useProfile";
 import { useTranslation, LOCALE_LABELS, LOCALE_FLAGS, type Locale } from "@/lib/i18n";
 import { COUNTRY_LIST, type CountryCode } from "@/lib/grading-systems";
 import Link from "next/link";
+import StudyProgramCard from "@/components/settings/StudyProgramCard";
 import {
   User,
   Mail,
@@ -24,9 +25,11 @@ import {
   Loader2,
   Camera,
   GraduationCap,
-  BookOpen,
-  Hash,
   AtSign,
+  Shield,
+  Building2,
+  UserCircle,
+  Clock,
 } from "lucide-react";
 
 interface AiUsage {
@@ -37,7 +40,7 @@ interface AiUsage {
 export default function ProfilePage() {
   const { t } = useTranslation();
   const supabase = createClient();
-  const { profile, isPro, isLifetime, planTier, loading, refetch } = useProfile();
+  const { profile, isPro, isLifetime, planTier, loading, refetch, userRole, verificationStatus } = useProfile();
   const [user, setUser] = useState<{ email?: string; created_at?: string } | null>(null);
   const [aiUsage, setAiUsage] = useState<AiUsage>({ used: 0, addon_credits: 0 });
 
@@ -274,6 +277,45 @@ export default function ProfilePage() {
               {isPro && planTier === "full" && <Sparkles size={10} />}
               {planLabel}
             </span>
+            {/* Role Badge */}
+            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+              userRole === "admin"
+                ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                : userRole === "institution"
+                  ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+                  : userRole === "student"
+                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                    : "bg-surface-200 text-surface-600 dark:bg-surface-700 dark:text-surface-300"
+            }`}>
+              {userRole === "admin" && <Shield size={10} />}
+              {userRole === "institution" && <Building2 size={10} />}
+              {userRole === "student" && <GraduationCap size={10} />}
+              {userRole === "non_student" && <UserCircle size={10} />}
+              {userRole === "admin" ? "Admin"
+                : userRole === "institution" ? "Institution"
+                : userRole === "student" ? "Student"
+                : "Non-Student"}
+            </span>
+            {/* Verification status for student/institution */}
+            {(userRole === "student" || userRole === "institution") && verificationStatus !== "verified" && (
+              <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium ${
+                verificationStatus === "pending"
+                  ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
+                  : verificationStatus === "rejected"
+                    ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                    : "bg-surface-200 text-surface-600"
+              }`}>
+                <Clock size={10} />
+                {verificationStatus === "pending" ? "Ausstehend"
+                  : verificationStatus === "rejected" ? "Abgelehnt"
+                  : "Nicht verifiziert"}
+              </span>
+            )}
+            {(userRole === "student" || userRole === "institution") && verificationStatus === "verified" && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                <CheckCircle size={10} /> Verifiziert
+              </span>
+            )}
             {profile?.university && (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-surface-100 text-surface-600">
                 <GraduationCap size={10} /> {profile.university}
@@ -289,7 +331,7 @@ export default function ProfilePage() {
       {/* Cards grid */}
       <div className="grid sm:grid-cols-2 gap-4 mb-4">
         {/* Plan Card */}
-        <div className="bg-surface-900 text-white rounded-2xl p-5 relative overflow-hidden">
+        <div className="bg-gray-900 dark:bg-gray-800 text-white rounded-2xl p-5 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
             <div className="flex items-center gap-1.5 text-white/50 text-[10px] font-semibold uppercase tracking-wide mb-3">
@@ -306,12 +348,12 @@ export default function ProfilePage() {
             )}
             <div className="flex gap-2">
               {!isPro ? (
-                <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-surface-100/50 text-surface-900 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-surface-100 transition">
+                <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white/15 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/25 transition">
                   <Zap size={12} /> Upgrade auf Pro
                 </Link>
               ) : (
                 <>
-                  <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-surface-100/50 text-surface-900 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-surface-100 transition">
+                  <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white/15 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/25 transition">
                     Abo verwalten
                   </Link>
                   <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white/10 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/20 transition">
@@ -332,7 +374,7 @@ export default function ProfilePage() {
             <span className="text-3xl font-bold text-surface-900">{aiUsage.used}</span>
             <span className="text-sm text-surface-400 font-medium">/ {totalPool}</span>
           </div>
-          <div className="h-2 bg-surface-100 rounded-full overflow-hidden mb-2">
+          <div className="h-2 bg-surface-200 rounded-full overflow-hidden mb-2">
             <div className="h-full rounded-full bg-gradient-to-r from-brand-500 to-violet-500 transition-all duration-500" style={{ width: `${aiPercent}%` }} />
           </div>
           <div className="flex justify-between text-xs text-surface-400">
@@ -351,52 +393,9 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Study Info */}
-      <div className="bg-surface-100 rounded-2xl border border-surface-200 p-5 mb-4">
-        <div className="flex items-center gap-1.5 text-surface-400 text-[10px] font-semibold uppercase tracking-wide mb-4">
-          <GraduationCap size={12} /> Studium
-        </div>
-
-        <EditableRow
-          icon={<GraduationCap size={14} />}
-          label="Hochschule / Universität"
-          value={profile?.university || "—"}
-          editing={editingField === "university"}
-          onEdit={() => startEdit("university", profile?.university || "")}
-          editValue={fieldValue}
-          onEditChange={setFieldValue}
-          onSave={saveEdit}
-          onCancel={() => setEditingField(null)}
-          saving={saving}
-          placeholder="z.B. ETH Zürich, ZHAW, Uni Wien"
-        />
-        <EditableRow
-          icon={<BookOpen size={14} />}
-          label="Studienrichtung"
-          value={profile?.study_program || "—"}
-          editing={editingField === "study_program"}
-          onEdit={() => startEdit("study_program", profile?.study_program || "")}
-          editValue={fieldValue}
-          onEditChange={setFieldValue}
-          onSave={saveEdit}
-          onCancel={() => setEditingField(null)}
-          saving={saving}
-          placeholder="z.B. Informatik, BWL, Medizin"
-        />
-        <EditableRow
-          icon={<Hash size={14} />}
-          label="Semester"
-          value={profile?.semester ? `${profile.semester}. Semester` : "—"}
-          editing={editingField === "semester"}
-          onEdit={() => startEdit("semester", profile?.semester?.toString() || "")}
-          editValue={fieldValue}
-          onEditChange={setFieldValue}
-          onSave={saveEdit}
-          onCancel={() => setEditingField(null)}
-          saving={saving}
-          placeholder="z.B. 3"
-          type="number"
-        />
+      {/* Study Info — uses the same structured StudyProgramCard as Settings */}
+      <div className="mb-4">
+        <StudyProgramCard country={profile?.country || "CH"} onEnrolled={refetch} />
       </div>
 
       {/* Account Details */}

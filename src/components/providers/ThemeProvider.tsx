@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
 /* ACCENT COLOR PALETTES                                                      */
@@ -176,8 +176,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_ACCENT, a);
   }, []);
 
+  // Memoize context value — prevents ALL useTheme consumers from
+  // re-rendering when ThemeProvider's parent re-renders
+  const contextValue = useMemo<ThemeContextValue>(
+    () => ({ mode, setMode, accent, setAccent, resolvedMode, palettes: ACCENT_PALETTES }),
+    [mode, setMode, accent, setAccent, resolvedMode]
+  );
+
   return (
-    <ThemeContext.Provider value={{ mode, setMode, accent, setAccent, resolvedMode, palettes: ACCENT_PALETTES }}>
+    <ThemeContext.Provider value={contextValue}>
       {children}
     </ThemeContext.Provider>
   );

@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
 /* BASE — Design Tokens & Defaults                                            */
@@ -98,9 +98,35 @@
     background-color: rgb(var(--card-bg)) !important;
   }
 
+  /* ── Dark Mode: ensure all inputs/textareas have dark backgrounds ── */
+  .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  .dark textarea,
+  .dark select {
+    background-color: rgb(var(--card-bg));
+    color: rgb(var(--text-primary));
+  }
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: rgb(var(--sf-400));
+  }
+
   /* Dark mode shadows should be darker */
   .dark {
     --tw-shadow-color: rgba(0,0,0,.35);
+  }
+
+  /* ── PageTabs: hide redundant sub-page headers when embedded ── */
+  /* Sub-pages keep their action buttons but the h1 title + static
+     subtitle are hidden since PageTabs already provides the context. */
+  .page-tab-content > div > :first-child h1 {
+    display: none;
+  }
+  .page-tab-content > div > :first-child h1 + p {
+    display: none;
+  }
+  /* Collapse the icon that accompanies the hidden h1 */
+  .page-tab-content > div > :first-child h1 > svg {
+    display: none;
   }
 }
 

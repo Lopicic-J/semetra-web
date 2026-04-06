@@ -103,8 +103,31 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return;
   }
 
-  // One-time payment: could be Lifetime Basic, Lifetime Full, or AI Add-on
+  // One-time payment: could be Lifetime Basic, Lifetime Full, AI Add-on, or Plugin Purchase
   if (session.mode === "payment") {
+    // ── Plugin purchase ──
+    if (session.metadata?.type === "plugin_purchase" && session.metadata?.plugin_id) {
+      const pluginId = session.metadata.plugin_id;
+      await supabaseAdmin.from("plugin_purchases").upsert({
+        user_id: userId,
+        plugin_id: pluginId,
+        stripe_payment_intent_id: session.payment_intent as string,
+        stripe_checkout_session_id: session.id,
+        amount_chf: 1.90,
+        status: "completed",
+        granted_via: "purchase",
+      }, { onConflict: "user_id,plugin_id" });
+
+      // Auto-install the plugin
+      await supabaseAdmin.from("user_plugins").upsert(
+        { user_id: userId, plugin_id: pluginId, enabled: true },
+        { onConflict: "user_id,plugin_id" }
+      );
+
+      log.info(`[webhook] Plugin ${pluginId} purchased by user ${userId}`);
+      return;
+    }
+
     const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 5 });
 
     // Check for AI Add-on purchase

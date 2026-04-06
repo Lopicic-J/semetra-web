@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Send, AlertCircle } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
+import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import { logger } from "@/lib/logger";
 
@@ -31,6 +32,7 @@ export default function GroupChat({ groupId, currentUserId }: GroupChatProps) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const supabaseRef = useRef(createClient());
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -58,11 +60,29 @@ export default function GroupChat({ groupId, currentUserId }: GroupChatProps) {
     loadMessages();
   }, [loadMessages]);
 
-  // Poll for new messages every 10 seconds
+  // Supabase Realtime subscription instead of polling
   useEffect(() => {
-    const interval = setInterval(loadMessages, 10000);
-    return () => clearInterval(interval);
-  }, [loadMessages]);
+    const channel = supabaseRef.current
+      .channel(`group-chat-${groupId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "group_messages",
+          filter: `group_id=eq.${groupId}`,
+        },
+        () => {
+          // Reload full message list to get profile data
+          loadMessages();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabaseRef.current.removeChannel(channel);
+    };
+  }, [groupId, loadMessages]);
 
   const handleSend = async () => {
     if (!content.trim()) return;
@@ -83,7 +103,12 @@ export default function GroupChat({ groupId, currentUserId }: GroupChatProps) {
 
       setContent("");
       setError("");
-      await loadMessages();
+      // Realtime subscription will handle the reload, but we also
+      // optimistically add the message for immediate feedback
+      if (json.message) {
+        setMessages(prev => [...prev, json.message]);
+        setTimeout(scrollToBottom, 0);
+      }
     } catch (err) {
       log.error("send failed", err);
       toast.error(t("groups.chat.sendError") || "Nachricht konnte nicht gesendet werden");
@@ -107,7 +132,7 @@ export default function GroupChat({ groupId, currentUserId }: GroupChatProps) {
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (minutes < 1) return "Gerade eben";
+    if (minutes < 1) return t("groups.chat.justNow") || "Gerade eben";
     if (minutes < 60) return `vor ${minutes}m`;
     if (hours < 24) return `vor ${hours}h`;
     if (days < 7) return `vor ${days}d`;
@@ -135,7 +160,7 @@ export default function GroupChat({ groupId, currentUserId }: GroupChatProps) {
           <div className="flex items-center justify-center h-full text-center py-12">
             <div>
               <p className="text-sm text-surface-500">
-                {t("groups.chat.empty")}
+                {t("groups.chat.empty") || "Noch keine Nachrichten. Schreibe die erste!"}
               </p>
             </div>
           </div>
@@ -155,7 +180,7 @@ export default function GroupChat({ groupId, currentUserId }: GroupChatProps) {
                   />
                 ) : (
                   <div className="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center text-brand-600 text-xs font-bold">
-                    {msg.username[0]?.toUpperCase() || "?"}
+                    {(msg.username ?? "?").charAt(0).toUpperCase()}
                   </div>
                 )}
               </div>
@@ -163,9 +188,7 @@ export default function GroupChat({ groupId, currentUserId }: GroupChatProps) {
               {/* Message bubble */}
               <div
                 className={`flex-1 max-w-xs ${
-                  msg.user_id === currentUserId
-                    ? "items-end"
-                    : "items-start"
+                  msg.user_id === currentUserId ? "items-end" : "items-start"
                 }`}
               >
                 <div className="text-[10px] text-surface-500 px-3 mb-1">
@@ -190,14 +213,14 @@ export default function GroupChat({ groupId, currentUserId }: GroupChatProps) {
 
       {/* Error display */}
       {error && (
-        <div className="px-4 py-2 bg-red-50 border-t border-red-200 flex items-center gap-2 text-xs text-red-700">
+        <div className="px-4 py-2 bg-red-50 dark:bg-red-950/30 border-t border-red-200 dark:border-red-800 flex items-center gap-2 text-xs text-red-700 dark:text-red-400">
           <AlertCircle size={14} />
           {error}
         </div>
       )}
 
       {/* Input area */}
-      <div className="border-t border-surface-200 p-4 bg-white">
+      <div className="border-t border-surface-200 p-4 bg-[rgb(var(--card-bg))]">
         <div className="flex gap-2">
           <textarea
             value={content}
@@ -206,19 +229,19 @@ export default function GroupChat({ groupId, currentUserId }: GroupChatProps) {
             placeholder={t("groups.chat.placeholder") || "Nachricht schreiben..."}
             disabled={sending}
             rows={3}
-            className="flex-1 px-3 py-2 border border-surface-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 resize-none disabled:opacity-50"
+            className="flex-1 px-3 py-2 border border-surface-200 rounded-xl text-sm bg-surface-50 text-surface-900 focus:outline-none focus:ring-2 focus:ring-brand-300 resize-none disabled:opacity-50"
           />
           <button
             onClick={handleSend}
             disabled={!content.trim() || sending}
             className="p-2 bg-brand-600 text-white rounded-xl hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
-            title={t("groups.chat.send")}
+            title={t("groups.chat.send") || "Senden"}
           >
             <Send size={16} />
           </button>
         </div>
         <p className="text-[10px] text-surface-400 mt-1">
-          Enter = senden • Shift+Enter = Zeilenumbruch
+          Enter = {t("groups.chat.sendAction") || "senden"} • Shift+Enter = {t("groups.chat.newLine") || "Zeilenumbruch"}
         </p>
       </div>
     </div>

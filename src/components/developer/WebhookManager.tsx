@@ -133,7 +133,7 @@ export function WebhookManager() {
                     type={showSecret ? "text" : "password"}
                     value={newSecret}
                     readOnly
-                    className="w-full text-xs bg-white px-3 py-2 rounded-lg border border-green-200 font-mono text-green-800"
+                    className="w-full text-xs bg-[rgb(var(--card-bg))] px-3 py-2 rounded-lg border border-green-200 font-mono text-green-800"
                   />
                   <button
                     onClick={() => setShowSecret(!showSecret)}
@@ -144,7 +144,7 @@ export function WebhookManager() {
                 </div>
                 <button
                   onClick={() => copySecret(newSecret)}
-                  className="p-2 bg-white rounded-lg border border-green-200 hover:bg-green-100"
+                  className="p-2 bg-[rgb(var(--card-bg))] rounded-lg border border-green-200 hover:bg-green-100"
                 >
                   {copied ? <Check size={14} className="text-green-600" /> : <Copy size={14} className="text-green-600" />}
                 </button>

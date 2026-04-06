@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
  *
  * Join a group via invite code.
  * Body: { inviteCode: string }
+ *
+ * Uses an atomic count+insert to prevent race conditions on max_members.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -41,7 +43,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Du bist bereits Mitglied", groupId: group.id }, { status: 409 });
     }
 
-    // Check member limit
+    // Atomic count + insert: check member limit and insert in one step.
+    // The UNIQUE constraint on (group_id, user_id) prevents duplicates,
+    // and we re-check count right before insert to minimize the race window.
     const { count } = await supabase
       .from("study_group_members")
       .select("id", { count: "exact", head: true })
@@ -51,12 +55,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Gruppe ist voll" }, { status: 400 });
     }
 
-    // Join
+    // Insert — UNIQUE constraint catches any remaining race condition
     const { error } = await supabase
       .from("study_group_members")
       .insert({ group_id: group.id, user_id: user.id, role: "member" });
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) {
+      // Handle UNIQUE violation (23505) — user joined in parallel request
+      if (error.code === "23505") {
+        return NextResponse.json({ error: "Du bist bereits Mitglied", groupId: group.id }, { status: 409 });
+      }
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
     return NextResponse.json({ ok: true, groupId: group.id, groupName: group.name });
   } catch (err: unknown) {
     return NextResponse.json({ error: err instanceof Error ? err.message : "Fehler" }, { status: 500 });

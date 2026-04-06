@@ -29,6 +29,12 @@ import {
   Zap,
   Clock
 } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const ModuleControlCenter = dynamic(
+  () => import("@/components/command-center/ModuleControlCenter"),
+  { ssr: false }
+);
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -235,6 +241,9 @@ export default function ModuleDetailPage() {
             <ArrowLeft className="w-5 h-5" />
             {t("back") || "Back"}
           </button>
+
+          {/* Decision Engine Module Control Center */}
+          <ModuleControlCenter moduleId={moduleId} />
 
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-4 flex-1">

@@ -73,7 +73,7 @@ export default function RoleManager({ groupId, members, myRole, onUpdate }: Role
               />
             ) : (
               <div className="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center text-brand-600 text-xs font-bold">
-                {(member.profiles?.full_name || member.profiles?.username || "?")[0].toUpperCase()}
+                {(member.profiles?.full_name ?? member.profiles?.username ?? "?").charAt(0).toUpperCase()}
               </div>
             )}
             <div>
@@ -89,7 +89,7 @@ export default function RoleManager({ groupId, members, myRole, onUpdate }: Role
             <div className="relative group">
               <button
                 disabled={updating === member.user_id}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-surface-200 rounded-lg text-xs font-medium text-surface-700 hover:border-surface-300 disabled:opacity-50 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[rgb(var(--card-bg))] border border-surface-200 rounded-lg text-xs font-medium text-surface-700 hover:border-surface-300 disabled:opacity-50 transition-colors"
               >
                 {updating === member.user_id ? "..." : getRoleLabel(member.role)}
                 <ChevronDown size={12} />
@@ -97,7 +97,7 @@ export default function RoleManager({ groupId, members, myRole, onUpdate }: Role
 
               {/* Dropdown menu */}
               {!updating && (
-                <div className="absolute right-0 mt-1 w-32 bg-white border border-surface-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity z-10">
+                <div className="absolute right-0 mt-1 w-32 bg-[rgb(var(--card-bg))] border border-surface-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity z-10">
                   {["member", "admin"].map(role => (
                     <button
                       key={role}

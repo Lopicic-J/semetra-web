@@ -14,19 +14,19 @@ export default function AuthError({
   }, [error]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 to-indigo-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-surface-950 dark:to-surface-900 p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-red-600 text-white text-3xl mb-4 shadow-lg">
             ⚠️
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Fehler</h1>
-          <p className="text-gray-500 text-sm mt-1">Es ist ein Fehler aufgetreten</p>
+          <h1 className="text-2xl font-bold text-surface-900">Fehler</h1>
+          <p className="text-surface-500 text-sm mt-1">Es ist ein Fehler aufgetreten</p>
         </div>
 
         <div className="card">
-          <p className="text-gray-600 text-center mb-4">
+          <p className="text-surface-600 text-center mb-4">
             Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut.
           </p>
 

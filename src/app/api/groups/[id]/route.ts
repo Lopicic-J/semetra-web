@@ -68,17 +68,32 @@ export async function PATCH(
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
 
+    // Check if user is owner or admin
+    const { data: membership } = await supabase
+      .from("study_group_members")
+      .select("role")
+      .eq("group_id", id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (!membership || !["owner", "admin"].includes(membership.role)) {
+      return NextResponse.json({ error: "Nur Owner und Admins dürfen die Gruppe bearbeiten" }, { status: 403 });
+    }
+
     const body = await req.json();
     const updates: Record<string, unknown> = {};
     if (body.name) updates.name = body.name.trim();
     if (body.description !== undefined) updates.description = body.description?.trim() || null;
     if (body.color) updates.color = body.color;
 
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json({ error: "Keine Änderungen" }, { status: 400 });
+    }
+
     const { error } = await supabase
       .from("study_groups")
       .update(updates)
-      .eq("id", id)
-      .eq("owner_id", user.id);
+      .eq("id", id);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ ok: true });
@@ -101,6 +116,18 @@ export async function DELETE(
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
+
+    // Verify ownership first
+    const { data: group } = await supabase
+      .from("study_groups")
+      .select("id")
+      .eq("id", id)
+      .eq("owner_id", user.id)
+      .single();
+
+    if (!group) {
+      return NextResponse.json({ error: "Gruppe nicht gefunden oder keine Berechtigung" }, { status: 404 });
+    }
 
     const { error } = await supabase
       .from("study_groups")

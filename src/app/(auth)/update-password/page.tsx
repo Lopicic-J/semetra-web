@@ -105,7 +105,7 @@ export default function UpdatePasswordPage() {
           <p className="text-surface-500 text-sm mt-1">Wähle ein starkes neues Passwort</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl shadow-surface-200/50 border border-surface-200/60 p-6 sm:p-8">
+        <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-xl shadow-surface-200/50 border border-surface-200/60 p-6 sm:p-8">
           {!sessionReady ? (
             <div className="text-center py-6">
               <Loader2 size={24} className="animate-spin text-brand-500 mx-auto mb-3" />

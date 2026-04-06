@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
+import {
+  requireRole,
+  canManageInstitution,
+  logBuilderAction,
+  errorResponse,
+  isErrorResponse,
+  createServiceClient,
+} from "@/lib/api-helpers";
 
 const log = logger("api:requirement-groups");
 
@@ -8,6 +16,7 @@ const log = logger("api:requirement-groups");
  * DELETE /api/academic/programs/[id]/requirement-groups/[groupId]
  *
  * Delete a requirement group from a program.
+ * Institution or admin only.
  */
 export async function DELETE(
   req: NextRequest,
@@ -15,17 +24,13 @@ export async function DELETE(
 ) {
   try {
     const { id, groupId } = await params;
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
-    }
+    const rc = await requireRole(["admin", "institution"]);
+    if (isErrorResponse(rc)) return rc;
+    const { user, userRole } = rc;
+    const db = rc.adminClient ?? createServiceClient();
 
     // Verify group belongs to this program
-    const { data: existing, error: existingError } = await supabase
+    const { data: existing, error: existingError } = await db
       .from("program_requirement_groups")
       .select("id, program_id")
       .eq("id", groupId)
@@ -33,28 +38,42 @@ export async function DELETE(
       .single();
 
     if (existingError || !existing) {
-      return NextResponse.json(
-        { error: "Anforderungsgruppe nicht gefunden" },
-        { status: 404 }
-      );
+      return errorResponse("Anforderungsgruppe nicht gefunden", 404);
     }
 
-    const { error } = await supabase
+    // Verify program and check institution permission
+    const { data: program, error: programError } = await db
+      .from("programs")
+      .select("id, institution_id")
+      .eq("id", id)
+      .single();
+
+    if (programError || !program) {
+      return errorResponse("Studiengang nicht gefunden", 404);
+    }
+
+    if (!(await canManageInstitution(db, user.id, program.institution_id, userRole))) {
+      return errorResponse("Keine Berechtigung für diese Institution", 403);
+    }
+
+    const { error } = await db
       .from("program_requirement_groups")
       .delete()
       .eq("id", groupId);
 
     if (error) {
       log.error("DELETE failed", { error });
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return errorResponse(error.message, 500);
     }
+
+    await logBuilderAction(db, user.id, "delete", "requirement_group", groupId);
 
     return NextResponse.json({ success: true });
   } catch (err: unknown) {
     log.error("DELETE failed", { error: err });
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Interner Fehler" },
-      { status: 500 }
+    return errorResponse(
+      err instanceof Error ? err.message : "Interner Fehler",
+      500
     );
   }
 }

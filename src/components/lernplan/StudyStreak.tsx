@@ -45,7 +45,7 @@ export function StudyStreak({ items }: StudyStreakProps) {
   // Determine color based on streak length
   const getStreakColor = (count: number) => {
     if (count === 0) return { bg: "bg-surface-100", text: "text-surface-400" };
-    if (count <= 2) return { bg: "bg-gray-100", text: "text-gray-600", flame: "text-gray-400" };
+    if (count <= 2) return { bg: "bg-surface-100", text: "text-surface-600", flame: "text-surface-400" };
     if (count <= 6) return { bg: "bg-amber-50", text: "text-amber-700", flame: "text-amber-500" };
     if (count <= 13) return { bg: "bg-orange-50", text: "text-orange-700", flame: "text-orange-500" };
     return { bg: "bg-red-50", text: "text-red-700", flame: "text-red-500" };

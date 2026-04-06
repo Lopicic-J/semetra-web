@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
+import {
+  requireRole,
+  canManageInstitution,
+  logBuilderAction,
+  errorResponse,
+  isErrorResponse,
+  createServiceClient,
+} from "@/lib/api-helpers";
 
 const log = logger("api:requirement-groups");
 
@@ -15,23 +23,20 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createClient();
+    const db = createServiceClient();
 
     // Verify program exists
-    const { data: program, error: programError } = await supabase
+    const { data: program, error: programError } = await db
       .from("programs")
       .select("id")
       .eq("id", id)
       .single();
 
     if (programError || !program) {
-      return NextResponse.json(
-        { error: "Studiengang nicht gefunden" },
-        { status: 404 }
-      );
+      return errorResponse("Studiengang nicht gefunden", 404);
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("program_requirement_groups")
       .select("*")
       .eq("program_id", id)
@@ -39,15 +44,15 @@ export async function GET(
 
     if (error) {
       log.error("GET failed", { error });
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return errorResponse(error.message, 500);
     }
 
     return NextResponse.json({ requirementGroups: data || [] });
   } catch (err: unknown) {
     log.error("GET failed", { error: err });
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Interner Fehler" },
-      { status: 500 }
+    return errorResponse(
+      err instanceof Error ? err.message : "Interner Fehler",
+      500
     );
   }
 }
@@ -56,6 +61,7 @@ export async function GET(
  * POST /api/academic/programs/[id]/requirement-groups
  *
  * Create a new requirement group for a program.
+ * Institution or admin only.
  * Required fields: name, group_type
  * Optional fields: min_credits_required, min_modules_required, etc.
  */
@@ -65,25 +71,25 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
-    }
+    const rc = await requireRole(["admin", "institution"]);
+    if (isErrorResponse(rc)) return rc;
+    const { user, userRole } = rc;
+    const db = rc.adminClient ?? createServiceClient();
 
     // Verify program exists
-    const { data: program, error: programError } = await supabase
+    const { data: program, error: programError } = await db
       .from("programs")
-      .select("id")
+      .select("id, institution_id")
       .eq("id", id)
       .single();
 
     if (programError || !program) {
-      return NextResponse.json(
-        { error: "Studiengang nicht gefunden" },
-        { status: 404 }
-      );
+      return errorResponse("Studiengang nicht gefunden", 404);
+    }
+
+    // Check institution permission
+    if (!(await canManageInstitution(db, user.id, program.institution_id, userRole))) {
+      return errorResponse("Keine Berechtigung für diese Institution", 403);
     }
 
     const body = await req.json();
@@ -91,10 +97,7 @@ export async function POST(
 
     // Validate required fields
     if (!name || !group_type) {
-      return NextResponse.json(
-        { error: "Name und Gruppentyp sind erforderlich" },
-        { status: 400 }
-      );
+      return errorResponse("Name und Gruppentyp sind erforderlich", 400);
     }
 
     // Validate group_type
@@ -108,13 +111,10 @@ export async function POST(
       "internship",
     ];
     if (!validGroupTypes.includes(group_type)) {
-      return NextResponse.json(
-        { error: "Ungültiger Gruppentyp" },
-        { status: 400 }
-      );
+      return errorResponse("Ungültiger Gruppentyp", 400);
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("program_requirement_groups")
       .insert({
         program_id: id,
@@ -129,15 +129,17 @@ export async function POST(
 
     if (error) {
       log.error("POST insert failed", { error });
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return errorResponse(error.message, 500);
     }
+
+    await logBuilderAction(db, user.id, "create", "requirement_group", data.id, name);
 
     return NextResponse.json({ requirementGroup: data }, { status: 201 });
   } catch (err: unknown) {
     log.error("POST failed", { error: err });
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Interner Fehler" },
-      { status: 500 }
+    return errorResponse(
+      err instanceof Error ? err.message : "Interner Fehler",
+      500
     );
   }
 }

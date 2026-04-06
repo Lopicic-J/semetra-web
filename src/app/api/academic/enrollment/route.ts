@@ -44,10 +44,10 @@ export async function GET() {
       .select(
         `
         id, user_id, program_id, institution_id, status,
-        enrollment_date, expected_graduation, current_semester,
+        enrollment_date, expected_graduation,
         created_at, updated_at,
-        program:programs(id, name, degree_level, required_total_credits),
-        institution:institutions(id, name, country_code, institution_type)
+        program:programs!program_id(id, name, degree_level, required_total_credits),
+        institution:institutions!institution_id(id, name, country_code, institution_type)
       `
       )
       .eq("user_id", user.id)
@@ -62,11 +62,17 @@ export async function GET() {
     }
 
     // Find the active enrollment (matching profile's active_program_id)
-    const active =
+    const activeEnrollment =
       enrollments?.find(
         (e) =>
           e.program_id === profile.active_program_id && e.status === "active"
       ) || null;
+
+    // Merge current_semester from profile into active enrollment
+    // (current_semester lives on profiles, not student_programs)
+    const active = activeEnrollment
+      ? { ...activeEnrollment, current_semester: profile.current_semester }
+      : null;
 
     return NextResponse.json({
       profile: {
@@ -153,6 +159,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Update profile — the DB trigger sync_student_program() handles student_programs
+    // Reset institution_modules_loaded so the modules page re-imports for the new program
     const { data: updated, error: updateErr } = await supabase
       .from("profiles")
       .update({
@@ -161,6 +168,7 @@ export async function POST(req: NextRequest) {
         current_semester: current_semester || 1,
         university: inst.name, // keep legacy field in sync
         study_program: prog.name, // keep legacy field in sync
+        institution_modules_loaded: false, // triggers re-import on modules page
       })
       .eq("id", user.id)
       .select(
@@ -182,9 +190,9 @@ export async function POST(req: NextRequest) {
       .select(
         `
         id, user_id, program_id, institution_id, status,
-        enrollment_date, current_semester,
-        program:programs(id, name, degree_level, required_total_credits),
-        institution:institutions(id, name, country_code)
+        enrollment_date,
+        program:programs!program_id(id, name, degree_level, required_total_credits),
+        institution:institutions!institution_id(id, name, country_code)
       `
       )
       .eq("user_id", user.id)

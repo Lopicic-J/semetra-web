@@ -1,8 +1,7 @@
 "use client";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
-import { useGradingSystem } from "@/lib/hooks/useGradingSystem";
 import { createClient } from "@/lib/supabase/client";
 import { MODULE_COLORS } from "@/lib/utils";
 import { FREE_LIMITS, withinFreeLimit } from "@/lib/gates";
@@ -11,11 +10,10 @@ import {
   Plus, BookOpen, Pencil, Trash2, X, ExternalLink, Github,
   FileText, Link2, CheckCircle, Clock, AlertCircle, PauseCircle,
   CheckSquare, Square, XSquare, AlertTriangle, Loader2,
-  GraduationCap, Building2, ChevronRight, Lock
+  Building2, RotateCcw
 } from "lucide-react";
 import { ProGate } from "@/components/ui/ProGate";
 import type { Module } from "@/types/database";
-import type { Studiengang, StudiengangModuleTemplate } from "@/types/database";
 import { useTranslation } from "@/lib/i18n";
 
 const SEMESTERS = ["Semester 1","Semester 2","Semester 3","Semester 4","Semester 5","Semester 6","Semester 7","Semester 8","Semester 9"];
@@ -42,16 +40,146 @@ const STATUS_CONFIG: Record<string, { label: string; icon: React.ElementType; cl
 export default function ModulesPage() {
   const { t } = useTranslation();
   const { modules, loading, refetch } = useModules();
-  const { isPro } = useProfile();
+  const { profile, isPro, loading: profileLoading, refetch: refetchProfile } = useProfile();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Module | null>(null);
   const [filter, setFilter] = useState<string>("all");
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [showUpgrade, setShowUpgrade] = useState(false);
-  const [showFhImport, setShowFhImport] = useState(false);
+  const [showRestore, setShowRestore] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ ids: string[]; names: string[] } | null>(null);
+  const [autoImporting, setAutoImporting] = useState(false);
+  const autoImportTriggered = useRef(false);
   const supabase = createClient();
+
+  // ── Auto-import: Builder template modules (program → student) ──
+  // Runs when institution_modules_loaded is false (reset by enrollment API on program switch).
+  // 1. Deletes ALL institution modules that don't belong to the current program
+  // 2. Imports template modules from the new program
+  useEffect(() => {
+    if (autoImportTriggered.current) return;
+    if (loading || profileLoading || !profile) return;
+    // Only run when enrollment API signals a re-import is needed
+    if (profile.institution_modules_loaded) return;
+    // Need a program to import from
+    if (!profile.active_program_id) return;
+    autoImportTriggered.current = true;
+
+    (async () => {
+      setAutoImporting(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const currentProgram = profile.active_program_id!;
+
+        // ── Step 1: Remove ALL institution modules not matching current program ──
+        // This catches old-program modules, legacy modules without program_id, etc.
+        const { data: staleModules } = await supabase
+          .from("modules")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("source", "institution")
+          .neq("program_id", currentProgram);
+
+        if (staleModules && staleModules.length > 0) {
+          await supabase
+            .from("modules")
+            .delete()
+            .in("id", staleModules.map(m => m.id));
+        }
+
+        // Also clean up institution modules with NULL program_id (legacy imports)
+        await supabase
+          .from("modules")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("source", "institution")
+          .is("program_id", null);
+
+        // ── Step 2: Import template modules from current program ──
+        const { data: templates } = await supabase
+          .from("modules")
+          .select("*")
+          .eq("program_id", currentProgram)
+          .is("user_id", null);
+
+        if (templates && templates.length > 0) {
+          // Check which templates the student doesn't already have
+          const { data: existing } = await supabase
+            .from("modules")
+            .select("module_code, code")
+            .eq("user_id", user.id)
+            .eq("program_id", currentProgram);
+
+          const existingCodes = new Set(
+            (existing ?? []).map(m => m.module_code ?? m.code).filter(Boolean)
+          );
+
+          const newTemplates = templates.filter(t => {
+            const tCode = t.module_code ?? t.code;
+            return !tCode || !existingCodes.has(tCode);
+          });
+
+          if (newTemplates.length > 0) {
+            const toImport = isPro ? newTemplates : newTemplates.slice(0, FREE_LIMITS.modules);
+            const rows = toImport.map((t: any) => ({
+              user_id: user.id,
+              name: t.name,
+              code: t.code,
+              module_code: t.module_code,
+              professor: t.professor,
+              ects: t.ects,
+              semester: t.semester,
+              module_type: t.module_type,
+              color: t.color ?? "#6366f1",
+              notes: t.notes,
+              program_id: currentProgram,
+              source: "institution",
+              status: "planned",
+              in_plan: true,
+              language: t.language,
+              delivery_mode: t.delivery_mode,
+              description: t.description,
+              ects_equivalent: t.ects_equivalent,
+              is_compulsory: t.is_compulsory,
+              term_type: t.term_type,
+              default_term_number: t.default_term_number,
+            }));
+            await supabase.from("modules").insert(rows);
+          }
+        }
+
+        // ── Step 3: Mark as loaded ──
+        await supabase
+          .from("profiles")
+          .update({ institution_modules_loaded: true })
+          .eq("id", user.id);
+        refetchProfile();
+        refetch();
+      } catch (err) {
+        console.error("Auto-import failed:", err);
+      } finally {
+        setAutoImporting(false);
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, profileLoading, profile]);
+
+  // Count hidden institution modules for restore badge
+  const [hiddenCount, setHiddenCount] = useState(0);
+  useEffect(() => {
+    if (!profile) return;
+    (async () => {
+      const { count } = await supabase
+        .from("modules")
+        .select("id", { count: "exact", head: true })
+        .not("hidden_at", "is", null)
+        .eq("source", "institution");
+      setHiddenCount(count ?? 0);
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile, modules]);
 
   function openNew() {
     const check = withinFreeLimit("modules", modules.length, isPro);
@@ -96,11 +224,13 @@ export default function ModulesPage() {
 
   const filtered = filter === "all" ? modules : modules.filter(m => (m.status ?? "active") === filter);
 
+  const isPageLoading = loading || profileLoading || autoImporting;
+
   return (
     <div className="p-3 sm:p-6 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-surface-900">Module</h1>
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-surface-900 dark:text-surface-100">Module</h1>
           <p className="text-surface-500 text-sm mt-0.5">
             {modules.length} Module · {modules.reduce((s, m) => s + (m.ects ?? 0), 0)} ECTS total
           </p>
@@ -116,18 +246,34 @@ export default function ModulesPage() {
               {selectMode ? t("common.cancel") : t("modules.select")}
             </button>
           )}
-          <button onClick={() => setShowFhImport(true)} className="btn-secondary gap-2 text-sm">
-            <GraduationCap size={15} /> {t("modules.newModule")}
-          </button>
+          {hiddenCount > 0 && (
+            <button onClick={() => setShowRestore(true)} className="btn-secondary gap-2 text-sm text-amber-600 border-amber-200 hover:bg-amber-50 dark:hover:bg-amber-900/20">
+              <RotateCcw size={15} /> Wiederherstellen
+              <span className="ml-1 text-[10px] font-bold bg-amber-100 dark:bg-amber-900/40 text-amber-700 px-1.5 py-0.5 rounded-full">{hiddenCount}</span>
+            </button>
+          )}
           <button onClick={openNew} className="btn-primary gap-2">
             <Plus size={16} /> {t("modules.moduleName")}
           </button>
         </div>
       </div>
 
+      {/* Auto-import banner */}
+      {autoImporting && (
+        <div className="flex items-center gap-3 mb-4 p-4 bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800 rounded-xl">
+          <Loader2 size={18} className="animate-spin text-brand-600" />
+          <div>
+            <p className="text-sm font-medium text-brand-800 dark:text-brand-200">Module werden geladen...</p>
+            <p className="text-xs text-brand-600 dark:text-brand-400">
+              Dein Studiengang ({profile?.study_program} an {profile?.university}) wird automatisch importiert.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Bulk actions bar */}
       {selectMode && (
-        <div className="flex items-center gap-3 mb-4 p-3 bg-surface-50 rounded-xl border border-surface-200">
+        <div className="flex items-center gap-3 mb-4 p-3 bg-surface-50 dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700">
           <button
             onClick={selectAll}
             className="text-sm font-medium text-brand-600 hover:text-brand-800"
@@ -156,7 +302,7 @@ export default function ModulesPage() {
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               filter === s
                 ? "bg-brand-600 text-white"
-                : "bg-surface-100 text-surface-600 hover:bg-surface-200"
+                : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700"
             }`}
           >
             {s === "all" ? t("tasks.filterAll") : (s === "planned" ? t("studienplan.statusPlanned") : s === "active" ? t("studienplan.statusActive") : s === "completed" ? t("studienplan.statusCompleted") : s === "paused" ? t("timer.paused") : s)}
@@ -169,23 +315,25 @@ export default function ModulesPage() {
         ))}
       </div>
 
-      {loading ? (
+      {isPageLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1,2,3,4,5,6].map(i => <div key={i} className="h-44 bg-surface-100 rounded-2xl animate-pulse" />)}
+          {[1,2,3].map(i => <div key={i} className="h-44 bg-surface-100 dark:bg-surface-800 rounded-2xl animate-pulse" />)}
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16">
           <BookOpen size={48} className="mx-auto mb-4 text-surface-300 opacity-40" />
-          <p className="font-medium text-surface-600">{t("credits.noModules")}</p>
+          <p className="font-medium text-surface-600 dark:text-surface-300">{t("credits.noModules")}</p>
           <p className="text-sm mt-1 text-surface-400 mb-6">{t("studienplan.noModulesHint")}</p>
           <div className="flex gap-3 justify-center">
-            <button onClick={() => setShowFhImport(true)} className="btn-primary gap-2">
-              <GraduationCap size={16} /> FH-Module importieren
-            </button>
-            <button onClick={openNew} className="btn-secondary gap-2">
-              <Plus size={16} /> Manuell erstellen
+            <button onClick={openNew} className="btn-primary gap-2">
+              <Plus size={16} /> {t("modules.moduleName")}
             </button>
           </div>
+          {!profile?.active_program_id && (
+            <p className="text-xs text-surface-400 mt-3">
+              Tipp: Wähle im Profil deine Institution und deinen Studiengang — die Module werden automatisch importiert.
+            </p>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -211,14 +359,6 @@ export default function ModulesPage() {
         />
       )}
 
-      {showFhImport && (
-        <FhImportModal
-          isPro={isPro}
-          onClose={() => setShowFhImport(false)}
-          onImported={() => { setShowFhImport(false); refetch(); }}
-        />
-      )}
-
       <LimitNudge current={modules.length} max={FREE_LIMITS.modules} isPro={isPro} label="Module" />
 
       {showUpgrade && (
@@ -229,6 +369,7 @@ export default function ModulesPage() {
         <DeleteModuleModal
           moduleIds={deleteTarget.ids}
           moduleNames={deleteTarget.names}
+          modules={modules}
           onClose={() => setDeleteTarget(null)}
           onDeleted={() => {
             setDeleteTarget(null);
@@ -238,14 +379,25 @@ export default function ModulesPage() {
           }}
         />
       )}
+
+      {showRestore && (
+        <RestoreModulesModal
+          onClose={() => setShowRestore(false)}
+          onRestored={() => {
+            setShowRestore(false);
+            refetch();
+          }}
+        />
+      )}
     </div>
   );
 }
 
 /** Modal that shows related data and offers "delete all" vs "module only" */
-function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
+function DeleteModuleModal({ moduleIds, moduleNames, modules, onClose, onDeleted }: {
   moduleIds: string[];
   moduleNames: string[];
+  modules: Module[];
   onClose: () => void;
   onDeleted: () => void;
 }) {
@@ -287,9 +439,21 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
     ? `„${moduleNames[0]}" löschen?`
     : `${moduleIds.length} Module löschen?`;
 
+  // Determine which modules are institution-sourced (soft-delete) vs manual (hard-delete)
+  const institutionIds = moduleIds.filter(id => modules.find(m => m.id === id)?.source === "institution");
+  const manualIds = moduleIds.filter(id => modules.find(m => m.id === id)?.source !== "institution");
+
   async function deleteModuleOnly() {
     setDeleting(true);
-    for (const id of moduleIds) {
+    // Soft-delete institution modules (set hidden_at)
+    if (institutionIds.length > 0) {
+      await supabase
+        .from("modules")
+        .update({ hidden_at: new Date().toISOString() })
+        .in("id", institutionIds);
+    }
+    // Hard-delete manually created modules
+    for (const id of manualIds) {
       await supabase.from("modules").delete().eq("id", id);
     }
     onDeleted();
@@ -297,7 +461,7 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
 
   async function deleteWithAll() {
     setDeleting(true);
-    // Delete related data first, then the module
+    // Delete related data for ALL modules
     for (const id of moduleIds) {
       await Promise.all([
         supabase.from("tasks").delete().eq("module_id", id),
@@ -306,6 +470,15 @@ function DeleteModuleModal({ moduleIds, moduleNames, onClose, onDeleted }: {
         supabase.from("time_logs").delete().eq("module_id", id),
         supabase.from("stundenplan").delete().eq("module_id", id),
       ]);
+    }
+    // Soft-delete institution modules, hard-delete manual
+    if (institutionIds.length > 0) {
+      await supabase
+        .from("modules")
+        .update({ hidden_at: new Date().toISOString() })
+        .in("id", institutionIds);
+    }
+    for (const id of manualIds) {
       await supabase.from("modules").delete().eq("id", id);
     }
     onDeleted();
@@ -493,6 +666,11 @@ function ModuleCard({ mod, onEdit, onDelete, selectMode, isSelected, onToggleSel
           <span className="badge bg-amber-50 text-amber-700">{mod.module_type}</span>
         )}
         {mod.day && <span className="badge badge-gray">{mod.day} {mod.time_start ?? ""}</span>}
+        {mod.source === "institution" && (
+          <span className="badge bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-400">
+            <Building2 size={10} className="mr-0.5" /> FH
+          </span>
+        )}
       </div>
 
       {/* Status + links */}
@@ -607,7 +785,7 @@ function ModuleModal({ initial, onClose, onSaved }: {
     if (initial) {
       await supabase.from("modules").update(payload).eq("id", initial.id);
     } else {
-      await supabase.from("modules").insert({ ...payload, user_id: user.id });
+      await supabase.from("modules").insert({ ...payload, user_id: user.id, source: "manual" });
     }
     setSaving(false);
     onSaved();
@@ -800,373 +978,148 @@ function ModuleModal({ initial, onClose, onSaved }: {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/* FH Import Modal                                                            */
+/* Restore Modules Modal                                                       */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
-const FH_INFO: Record<string, { full: string; color: string; country: string }> = {
-  // Schweiz
-  "FFHS":   { full: "Fernfachhochschule Schweiz",                       color: "#6d28d9", country: "CH" },
-  "ZHAW":   { full: "Zürcher Hochschule für Angewandte Wissenschaften", color: "#2563eb", country: "CH" },
-  "FHNW":   { full: "Fachhochschule Nordwestschweiz",                   color: "#dc2626", country: "CH" },
-  "BFH":    { full: "Berner Fachhochschule",                            color: "#059669", country: "CH" },
-  "OST":    { full: "Ostschweizer Fachhochschule",                      color: "#d97706", country: "CH" },
-  "HES-SO": { full: "Haute École Spécialisée de Suisse Occidentale",    color: "#0891b2", country: "CH" },
-  "HSLU":   { full: "Hochschule Luzern",                                color: "#7c3aed", country: "CH" },
-  "FHGR":   { full: "Fachhochschule Graubünden",                        color: "#0d9488", country: "CH" },
-  "SUPSI":  { full: "Scuola Universitaria della Svizzera Italiana",     color: "#ea580c", country: "CH" },
-  // Deutschland
-  "TH Köln":     { full: "Technische Hochschule Köln",                  color: "#e11d48", country: "DE" },
-  "HAW Hamburg":  { full: "Hochschule für Angewandte Wissenschaften Hamburg", color: "#1d4ed8", country: "DE" },
-  "DHBW":         { full: "Duale Hochschule Baden-Württemberg",         color: "#b91c1c", country: "DE" },
-  "FH Aachen":    { full: "Fachhochschule Aachen",                      color: "#15803d", country: "DE" },
-  // Österreich
-  "FH Technikum Wien": { full: "FH Technikum Wien",                     color: "#7c2d12", country: "AT" },
-  "FH Campus Wien":    { full: "FH Campus Wien",                        color: "#4338ca", country: "AT" },
-  "FH Joanneum":       { full: "FH Joanneum Graz",                      color: "#0f766e", country: "AT" },
-  // Frankreich
-  "IUT Paris":   { full: "Institut Universitaire de Technologie Paris",  color: "#1e40af", country: "FR" },
-  "INSA Lyon":   { full: "Institut National des Sciences Appliquées Lyon", color: "#9f1239", country: "FR" },
-  "École 42":    { full: "École 42 Paris",                               color: "#171717", country: "FR" },
-  // Italien
-  "Politecnico di Milano": { full: "Politecnico di Milano",             color: "#1e3a5f", country: "IT" },
-  "Sapienza Roma":         { full: "Sapienza Università di Roma",       color: "#7f1d1d", country: "IT" },
-  "Università di Bologna": { full: "Alma Mater Studiorum Bologna",     color: "#92400e", country: "IT" },
-  // Niederlande
-  "HvA Amsterdam": { full: "Hogeschool van Amsterdam",                  color: "#ea580c", country: "NL" },
-  "Fontys":        { full: "Fontys Hogescholen",                        color: "#7c3aed", country: "NL" },
-  // Spanien
-  "UPM Madrid":   { full: "Universidad Politécnica de Madrid",          color: "#1e3a5f", country: "ES" },
-  "UPC Barcelona": { full: "Universitat Politècnica de Catalunya",      color: "#0369a1", country: "ES" },
-  // UK
-  "Imperial College":          { full: "Imperial College London",       color: "#1e3a5f", country: "UK" },
-  "University of Manchester":  { full: "University of Manchester",      color: "#7c2d12", country: "UK" },
-};
-
-const COUNTRY_TABS: { code: string; flag: string; label: string }[] = [
-  { code: "CH", flag: "🇨🇭", label: "Schweiz" },
-  { code: "DE", flag: "🇩🇪", label: "Deutschland" },
-  { code: "AT", flag: "🇦🇹", label: "Österreich" },
-  { code: "FR", flag: "🇫🇷", label: "France" },
-  { code: "IT", flag: "🇮🇹", label: "Italia" },
-  { code: "NL", flag: "🇳🇱", label: "Nederland" },
-  { code: "ES", flag: "🇪🇸", label: "España" },
-  { code: "UK", flag: "🇬🇧", label: "UK" },
-];
-
-function FhImportModal({ isPro, onClose, onImported }: {
-  isPro: boolean;
+function RestoreModulesModal({ onClose, onRestored }: {
   onClose: () => void;
-  onImported: () => void;
+  onRestored: () => void;
 }) {
   const { t } = useTranslation();
   const supabase = createClient();
-  const gs = useGradingSystem();
-  const [programmes, setProgrammes] = useState<Studiengang[]>([]);
-  const [selected, setSelected] = useState<Studiengang | null>(null);
-  const [importing, setImporting] = useState(false);
-  const [customSemester, setCustomSemester] = useState<Record<string, string>>({});
-  const [step, setStep] = useState<"choose" | "preview" | "done">("choose");
-  const [activeFh, setActiveFh] = useState<string | null>(null);
-  const [activeCountry, setActiveCountry] = useState<string>(gs.country);
+  const [restoring, setRestoring] = useState(false);
+  const [hiddenModules, setHiddenModules] = useState<Module[]>([]);
+  const [loadingHidden, setLoadingHidden] = useState(true);
+  const [manualCount, setManualCount] = useState(0);
 
   useEffect(() => {
-    supabase.from("studiengaenge").select("*").order("fh").order("name")
-      .then(({ data }) => setProgrammes(data ?? []));
-  }, [supabase]);
+    (async () => {
+      // Load hidden institution modules
+      const { data: hidden } = await supabase
+        .from("modules")
+        .select("*")
+        .eq("source", "institution")
+        .not("hidden_at", "is", null)
+        .order("name");
+      setHiddenModules((hidden ?? []) as Module[]);
 
-  // Filter by country first, then group by FH
-  const countryProgrammes = useMemo(() =>
-    programmes.filter(p => (p.country ?? "CH") === activeCountry),
-    [programmes, activeCountry]
-  );
+      // Count manual modules that will be removed
+      const { count } = await supabase
+        .from("modules")
+        .select("id", { count: "exact", head: true })
+        .eq("source", "manual")
+        .is("hidden_at", null);
+      setManualCount(count ?? 0);
 
-  const fhList = useMemo(() => {
-    const map = new Map<string, Studiengang[]>();
-    for (const p of countryProgrammes) {
-      if (!map.has(p.fh)) map.set(p.fh, []);
-      map.get(p.fh)!.push(p);
-    }
-    return Array.from(map.entries());
-  }, [countryProgrammes]);
+      setLoadingHidden(false);
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const visibleFhs = activeFh ? fhList.filter(([fh]) => fh === activeFh) : fhList;
-
-  function normalizeSemester(raw: string, semCount: number): string {
-    const match = raw.match(/[HF]S?(\d+)/i);
-    if (match) {
-      const n = parseInt(match[1]);
-      if (n >= 1 && n <= semCount) return `Semester ${n}`;
-    }
-    if (raw.startsWith("Semester ")) return raw;
-    return `Semester 1`;
-  }
-
-  function pickProgram(p: Studiengang) {
-    setSelected(p);
-    const init: Record<string, string> = {};
-    const semCount = p.semester_count ?? 6;
-    (p.modules_json ?? []).forEach((m: StudiengangModuleTemplate, i: number) => {
-      init[i] = normalizeSemester(m.semester, semCount);
-    });
-    setCustomSemester(init);
-    setStep("preview");
-  }
-
-  const maxImport = isPro ? Infinity : FREE_LIMITS.modules;
-
-  async function doImport() {
-    if (!selected?.modules_json) return;
-    setImporting(true);
+  async function handleRestore() {
+    setRestoring(true);
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setImporting(false); return; }
-    const modulesToImport = isPro ? selected.modules_json : selected.modules_json.slice(0, FREE_LIMITS.modules);
-    const rows = modulesToImport.map((m: StudiengangModuleTemplate, i: number) => ({
-      user_id: user.id,
-      name: m.name,
-      code: m.code,
-      ects: m.ects,
-      semester: customSemester[i] ?? m.semester,
-      module_type: m.module_type,
-      color: m.color,
-      status: "planned",
-      in_plan: true,
-    }));
-    await supabase.from("modules").insert(rows);
-    setImporting(false);
-    setStep("done");
-  }
+    if (!user) { setRestoring(false); return; }
 
-  const semesterCount = selected?.semester_count ?? 6;
-  const SEMESTER_OPTIONS = Array.from({ length: semesterCount }, (_, i) => `Semester ${i + 1}`);
+    // 1. Restore all hidden institution modules (clear hidden_at)
+    await supabase
+      .from("modules")
+      .update({ hidden_at: null })
+      .eq("user_id", user.id)
+      .eq("source", "institution")
+      .not("hidden_at", "is", null);
+
+    // 2. Delete all manually created modules
+    await supabase
+      .from("modules")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("source", "manual");
+
+    setRestoring(false);
+    onRestored();
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] overflow-hidden mx-4 flex flex-col" onClick={e => e.stopPropagation()}>
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-surface-100 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-brand-50 flex items-center justify-center">
-              <GraduationCap size={18} className="text-brand-600" />
+      <div className="bg-surface-100 dark:bg-surface-800 rounded-2xl shadow-xl w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
+        <div className="p-4 sm:p-6">
+          {/* Header */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+              <RotateCcw size={20} className="text-amber-600" />
             </div>
             <div>
-              <h2 className="font-semibold text-surface-900">Studiengang importieren</h2>
-              <p className="text-xs text-surface-500">{t("modules.selectCountry")}</p>
+              <h2 className="font-semibold text-surface-900 dark:text-surface-100">Module wiederherstellen</h2>
+              <p className="text-sm text-surface-500">Studiengang-Module zurücksetzen</p>
             </div>
+            <button onClick={onClose} className="ml-auto p-1.5 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400">
+              <X size={16} />
+            </button>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400"><X size={16} /></button>
-        </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5">
-          {step === "choose" ? (
+          {loadingHidden ? (
+            <div className="flex items-center justify-center py-6">
+              <Loader2 size={20} className="animate-spin text-surface-400" />
+            </div>
+          ) : (
             <>
-              {/* Country Tabs */}
-              <div className="flex flex-wrap gap-1.5 mb-4 pb-3 border-b border-surface-100">
-                {COUNTRY_TABS.map(ct => (
-                  <button
-                    key={ct.code}
-                    onClick={() => { setActiveCountry(ct.code); setActiveFh(null); }}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                      activeCountry === ct.code
-                        ? "bg-brand-600 text-white"
-                        : "bg-surface-50 text-surface-600 hover:bg-surface-100"
-                    }`}
-                  >
-                    {ct.flag} {ct.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* FH Filter Chips */}
-              <div className="flex flex-wrap gap-2 mb-5">
-                <button
-                  onClick={() => setActiveFh(null)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    activeFh === null ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-600 hover:bg-surface-200"
-                  }`}
-                >
-                  Alle ({countryProgrammes.length})
-                </button>
-                {fhList.map(([fh, progs]) => (
-                  <button
-                    key={fh}
-                    onClick={() => setActiveFh(activeFh === fh ? null : fh)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                      activeFh === fh ? "text-white" : "bg-surface-100 text-surface-600 hover:bg-surface-200"
-                    }`}
-                    style={activeFh === fh ? { background: FH_INFO[fh]?.color ?? "#6d28d9" } : undefined}
-                  >
-                    {fh} ({progs.length})
-                  </button>
-                ))}
-              </div>
-
-              {/* FH Groups */}
-              <div className="space-y-6">
-                {visibleFhs.map(([fh, progs]) => (
-                  <div key={fh}>
-                    <div className="flex items-center gap-3 mb-2">
-                      <div
-                        className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0"
-                        style={{ background: FH_INFO[fh]?.color ?? "#6d28d9" }}
-                      >
-                        <Building2 size={14} />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-surface-900 text-sm">{fh}</p>
-                        <p className="text-xs text-surface-400">{FH_INFO[fh]?.full ?? fh}</p>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {progs.map(p => (
-                        <button
-                          key={p.id}
-                          onClick={() => pickProgram(p)}
-                          className="bg-surface-100 border border-surface-200 rounded-xl p-3 text-left hover:border-brand-300 hover:shadow-sm transition-all group"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div
-                              className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                              style={{ background: `${FH_INFO[fh]?.color ?? "#6d28d9"}12` }}
-                            >
-                              <BookOpen style={{ color: FH_INFO[fh]?.color ?? "#6d28d9" }} size={16} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-surface-900 text-sm truncate">{p.name}</p>
-                              <p className="text-xs text-surface-500">{p.abschluss} · {p.semester_count} Sem. · {p.ects_total} {gs.creditLabel} · {(p.modules_json ?? []).length} Module</p>
-                            </div>
-                            <ChevronRight size={14} className="text-surface-300 group-hover:text-brand-500 shrink-0 transition-colors" />
-                          </div>
-                        </button>
+              {/* What will happen */}
+              <div className="space-y-3 mb-5">
+                {hiddenModules.length > 0 && (
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-3">
+                    <p className="text-sm font-medium text-green-800 dark:text-green-300 flex items-center gap-2">
+                      <CheckCircle size={14} /> {hiddenModules.length} ausgeblendete Module werden wiederhergestellt
+                    </p>
+                    <div className="mt-2 space-y-1">
+                      {hiddenModules.slice(0, 5).map(m => (
+                        <p key={m.id} className="text-xs text-green-700 dark:text-green-400 flex items-center gap-1.5">
+                          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: m.color }} />
+                          {m.name}
+                        </p>
                       ))}
+                      {hiddenModules.length > 5 && (
+                        <p className="text-xs text-green-600 dark:text-green-500">
+                          + {hiddenModules.length - 5} weitere
+                        </p>
+                      )}
                     </div>
                   </div>
-                ))}
+                )}
+
+                {manualCount > 0 && (
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3">
+                    <p className="text-sm font-medium text-red-800 dark:text-red-300 flex items-center gap-2">
+                      <AlertTriangle size={14} /> {manualCount} eigene Module werden entfernt
+                    </p>
+                    <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                      Manuell erstellte Module werden gelöscht. Verknüpfte Daten (Noten, Aufgaben) bleiben erhalten.
+                    </p>
+                  </div>
+                )}
               </div>
 
-              {programmes.length === 0 && (
-                <div className="text-center py-8 text-surface-400">
-                  <Loader2 size={24} className="mx-auto mb-2 animate-spin" />
-                  <p className="text-sm">{t("modules.loadingProgrammes")}</p>
-                </div>
-              )}
-
-              {/* Disclaimer */}
-              <p className="text-[10px] text-surface-400 mt-5 leading-relaxed">
-                Kein offizielles Angebot der genannten Hochschulen. Basiert auf öffentlich zugänglichen Informationen.
-                Verbindlich sind die Angaben der jeweiligen Institution.
-              </p>
-            </>
-          ) : step === "preview" && selected ? (
-            <>
-              <div className="flex items-center gap-3 mb-4">
-                <button onClick={() => setStep("choose")} className="btn-ghost text-sm gap-1 shrink-0">
-                  <ChevronRight size={14} className="rotate-180" /> Zurück
+              {/* Actions */}
+              <div className="flex gap-3">
+                <button onClick={onClose} disabled={restoring} className="btn-secondary flex-1">
+                  {t("common.cancel")}
                 </button>
-                <div className="min-w-0">
-                  <h3 className="font-semibold text-surface-800 text-sm truncate">{selected.name}</h3>
-                  <p className="text-xs text-surface-500">{selected.fh} · {selected.abschluss} · {selected.semester_count} Semester</p>
-                </div>
-              </div>
-
-              {/* Module table */}
-              <div className="border border-surface-200 rounded-xl overflow-hidden mb-4">
-                <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-surface-50 text-[10px] sm:text-xs font-semibold text-surface-500 border-b border-surface-100">
-                  <div className="col-span-5 sm:col-span-4">Modul</div>
-                  <div className="col-span-2 hidden sm:block">Code</div>
-                  <div className="col-span-2">{gs.creditLabel}</div>
-                  <div className="col-span-2 hidden sm:block">Typ</div>
-                  <div className="col-span-3 sm:col-span-2">Semester</div>
-                </div>
-                <div className="divide-y divide-surface-50 max-h-[40vh] overflow-y-auto">
-                  {(selected.modules_json ?? []).map((m: StudiengangModuleTemplate, i: number) => {
-                    const locked = !isPro && i >= FREE_LIMITS.modules;
-                    return (
-                    <div key={i} className={`grid grid-cols-12 gap-2 px-3 py-2.5 items-center ${locked ? "opacity-40" : "hover:bg-surface-50/50"}`}>
-                      <div className="col-span-5 sm:col-span-4 flex items-center gap-1.5">
-                        {locked ? <Lock size={10} className="text-surface-400 shrink-0" /> : <div className="w-2 h-2 rounded-full shrink-0" style={{ background: m.color }} />}
-                        <span className="text-xs sm:text-sm font-medium text-surface-800 truncate">{m.name}</span>
-                      </div>
-                      <div className="col-span-2 hidden sm:block">
-                        <span className="text-[10px] font-mono bg-surface-100 text-surface-600 px-1.5 py-0.5 rounded">{m.code}</span>
-                      </div>
-                      <div className="col-span-2">
-                        <span className="text-xs text-surface-600">{m.ects}</span>
-                      </div>
-                      <div className="col-span-2 hidden sm:block">
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${m.module_type === "pflicht" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}>
-                          {m.module_type}
-                        </span>
-                      </div>
-                      <div className="col-span-3 sm:col-span-2">
-                        {locked ? (
-                          <span className="text-[10px] text-surface-400">Pro</span>
-                        ) : (
-                        <select
-                          className="input py-0.5 text-[10px] sm:text-xs"
-                          value={customSemester[i] ?? m.semester}
-                          onChange={e => setCustomSemester(s => ({ ...s, [i]: e.target.value }))}
-                        >
-                          {SEMESTER_OPTIONS.map(s => (
-                            <option key={s} value={s}>{s}</option>
-                          ))}
-                        </select>
-                        )}
-                      </div>
-                    </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {!isPro && (selected.modules_json ?? []).length > FREE_LIMITS.modules && (
-                <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-3 flex items-center gap-2">
-                  <Lock size={14} className="text-amber-600 shrink-0" />
-                  <p className="text-xs text-amber-800">
-                    Im Free-Plan werden die ersten <strong>{FREE_LIMITS.modules} Module</strong> importiert.
-                    Mit Pro erhältst du alle {(selected.modules_json ?? []).length} Module.
-                  </p>
-                  <a href="/upgrade" className="text-xs font-semibold text-amber-700 hover:text-amber-900 whitespace-nowrap ml-auto">Upgrade →</a>
-                </div>
-              )}
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-surface-500">
-                  {isPro
-                    ? `${(selected.modules_json ?? []).length} Module · ${selected.ects_total} ${gs.creditLabel}`
-                    : `${Math.min((selected.modules_json ?? []).length, FREE_LIMITS.modules)} von ${(selected.modules_json ?? []).length} Modulen`
-                  }
-                </p>
                 <button
-                  onClick={doImport}
-                  disabled={importing}
-                  className="btn-primary gap-2"
+                  onClick={handleRestore}
+                  disabled={restoring}
+                  className="flex-1 px-4 py-2 rounded-xl bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
                 >
-                  {importing ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
-                  {importing ? "Importiere…" : "Importieren"}
+                  {restoring ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={14} />}
+                  Wiederherstellen
                 </button>
               </div>
             </>
-          ) : step === "done" ? (
-            <div className="text-center py-10">
-              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="text-green-600" size={28} />
-              </div>
-              <h3 className="text-lg font-bold text-surface-900 mb-1">Import erfolgreich!</h3>
-              <p className="text-sm text-surface-500 mb-6">
-                Alle Module von <strong>{selected?.name}</strong> ({selected?.fh}) wurden importiert.
-              </p>
-              <div className="flex gap-3 justify-center">
-                <button onClick={() => { setStep("choose"); setSelected(null); }} className="btn-secondary">
-                  Weiteren Studiengang
-                </button>
-                <button onClick={onImported} className="btn-primary">
-                  Fertig
-                </button>
-              </div>
-            </div>
-          ) : null}
+          )}
         </div>
       </div>
     </div>
   );
 }
+
+/* FH Import Modal removed — modules are now auto-imported from the Academic Builder */
+

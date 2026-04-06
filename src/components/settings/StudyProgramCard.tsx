@@ -124,12 +124,12 @@ export default function StudyProgramCard({ country, onEnrolled }: Props) {
 
       {/* Current enrollment badge */}
       {active && (
-        <div className="flex items-center gap-2 bg-brand-50 border border-brand-100 rounded-xl px-3 py-2 mb-4">
-          <Check size={14} className="text-brand-600" />
-          <span className="text-sm text-brand-700 font-medium">
+        <div className="flex items-center gap-2 bg-brand-50 dark:bg-brand-950/30 border border-brand-100 dark:border-brand-800 rounded-xl px-3 py-2 mb-4">
+          <Check size={14} className="text-brand-600 dark:text-brand-400" />
+          <span className="text-sm text-brand-700 dark:text-brand-300 font-medium">
             {active.program?.name} @ {active.institution?.name}
           </span>
-          <span className="text-xs text-brand-500 ml-auto">
+          <span className="text-xs text-brand-500 dark:text-brand-400 ml-auto">
             Semester {active.current_semester || enrollmentProfile?.current_semester || "?"}
           </span>
         </div>
@@ -138,7 +138,7 @@ export default function StudyProgramCard({ country, onEnrolled }: Props) {
       <div className="space-y-3">
         {/* Institution */}
         <div>
-          <label className="block text-sm font-medium text-surface-700 mb-1">
+          <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
             <Building2 size={13} className="inline mr-1.5 -mt-0.5" />
             {t("settings.studyInstitution") || "Hochschule / Universitaet"}
           </label>
@@ -171,7 +171,7 @@ export default function StudyProgramCard({ country, onEnrolled }: Props) {
 
         {/* Program */}
         <div>
-          <label className="block text-sm font-medium text-surface-700 mb-1">
+          <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
             <BookOpen size={13} className="inline mr-1.5 -mt-0.5" />
             {t("settings.studyProgram") || "Studiengang"}
           </label>
@@ -203,7 +203,7 @@ export default function StudyProgramCard({ country, onEnrolled }: Props) {
 
         {/* Semester */}
         <div>
-          <label className="block text-sm font-medium text-surface-700 mb-1">
+          <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
             {t("settings.studySemester") || "Aktuelles Semester"}
           </label>
           <select
@@ -244,8 +244,8 @@ export default function StudyProgramCard({ country, onEnrolled }: Props) {
         <p
           className={`text-sm px-3 py-2 rounded-lg mt-3 ${
             msg.type === "success"
-              ? "bg-green-50 text-green-700"
-              : "bg-red-50 text-red-600"
+              ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400"
+              : "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
           }`}
         >
           {msg.text}
