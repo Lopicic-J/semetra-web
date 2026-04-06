@@ -20,8 +20,8 @@ export default function RecognitionTab() {
   const isLoading = refLoading || pageLoading;
 
   const currentGradeScale = useMemo(
-    () => gradeScales.find(s => s.code === gs.code) ?? gradeScales[0] ?? null,
-    [gradeScales, gs.code]
+    () => gradeScales.find(s => s.code === gs.scaleCode) ?? gradeScales[0] ?? null,
+    [gradeScales, gs.scaleCode]
   );
 
   const currentCreditScheme = useMemo(

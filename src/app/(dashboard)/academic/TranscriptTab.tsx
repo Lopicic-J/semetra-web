@@ -52,8 +52,8 @@ export default function TranscriptTab() {
 
   // Grade scale
   const gradeScale = useMemo(
-    () => gradeScales.find(s => s.code === gs.code) ?? gradeScales[0] ?? null,
-    [gradeScales, gs.code]
+    () => gradeScales.find(s => s.code === gs.scaleCode) ?? gradeScales[0] ?? null,
+    [gradeScales, gs.scaleCode]
   );
   const scaleBands = useMemo(
     () => gradeScale ? gradeBands.filter(b => b.gradeScaleId === gradeScale.id) : [],
@@ -68,8 +68,10 @@ export default function TranscriptTab() {
 
     const gradeMap = new Map<string, Grade[]>();
     for (const g of grades) {
-      if (!gradeMap.has(g.module_id)) gradeMap.set(g.module_id, []);
-      gradeMap.get(g.module_id)!.push(g);
+      const mid = g.module_id;
+      if (!mid) continue;
+      if (!gradeMap.has(mid)) gradeMap.set(mid, []);
+      gradeMap.get(mid)!.push(g);
     }
 
     const semMap = new Map<string, { module: Module; grades: Grade[]; bestGrade: number | null }[]>();
@@ -94,7 +96,7 @@ export default function TranscriptTab() {
       const isPassed = bestGrade != null && (
         gradeScale
           ? isPassingGrade(bestGrade, gradeScale)
-          : gs.direction === "higher_better" ? bestGrade >= gs.pass : bestGrade <= gs.pass
+          : gs.direction === "higher_better" ? bestGrade >= gs.passingGrade : bestGrade <= gs.passingGrade
       );
 
       const credits = mod.ects ?? 0;

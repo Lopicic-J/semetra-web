@@ -36,8 +36,8 @@ export default function ProgramMapTab() {
 
   // Grade scale for the user's country
   const gradeScale = useMemo(
-    () => gradeScales.find(s => s.code === gs.code) ?? gradeScales[0] ?? null,
-    [gradeScales, gs.code]
+    () => gradeScales.find(s => s.code === gs.scaleCode) ?? gradeScales[0] ?? null,
+    [gradeScales, gs.scaleCode]
   );
 
   // Filter requirement groups for active program
