@@ -242,7 +242,7 @@ async function handleConnect(userId: string, body: any, supabase: any) {
       token,
       username: result.siteInfo?.username || "unknown",
       site_name: result.siteInfo?.sitename || "Moodle",
-      last_sync: null,
+      last_sync: undefined,
       synced_courses: [],
     };
 

@@ -33,7 +33,7 @@ function addDays(d: string, n: number) {
 
 // ── Icons ───────────────────────────────────────────────────────────────────
 
-const ICONS: Record<string, React.FC<{ size?: number }>> = {
+const ICONS: Record<string, React.ElementType> = {
   GraduationCap, BookOpen, RefreshCw, Target, Layers, Brain, Coffee, AlertTriangle, Clock,
 };
 function BIcon({ type, size = 12 }: { type: BlockType; size?: number }) {

@@ -38,6 +38,10 @@
   "exclude": [
     "node_modules",
     "sentry.client.config.ts",
-    "sentry.server.config.ts"
+    "sentry.server.config.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.test.example.ts",
+    "**/__tests__/**"
   ]
 }

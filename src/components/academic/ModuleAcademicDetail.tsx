@@ -130,7 +130,7 @@ function AttemptBadge({ attempt, gradeScale, gradeBands }: {
         <div className="text-right shrink-0">
           <p className="text-xs text-surface-400">Normalisiert</p>
           <p className="text-sm font-semibold text-surface-600 dark:text-surface-300">
-            {normalizeGrade(grade, gradeScale)?.toFixed(1) ?? "–"}/100
+            {normalizeGrade(grade, gradeScale)?.normalizedScore0to100?.toFixed(1) ?? "–"}/100
           </p>
         </div>
       )}
@@ -214,7 +214,7 @@ export function ModuleAcademicDetail({
     if (attempts.length === 0) return null;
     if (!retakePolicy) return attempts[attempts.length - 1] ?? null;
     try {
-      return resolveEffectiveAttempt(attempts, retakePolicy);
+      return resolveEffectiveAttempt(attempts, retakePolicy, gradeScale);
     } catch {
       return attempts[attempts.length - 1] ?? null;
     }
@@ -227,7 +227,7 @@ export function ModuleAcademicDetail({
   const passResult = useMemo(() => {
     if (effectiveGrade == null || !passPolicy) return null;
     try {
-      return evaluatePassPolicy(effectiveGrade, components, componentResults, passPolicy, gradeScale);
+      return evaluatePassPolicy(effectiveGrade, gradeScale, passPolicy, calculatedGrade?.allMandatoryPassed ?? true);
     } catch {
       return null;
     }
@@ -237,7 +237,7 @@ export function ModuleAcademicDetail({
   const retakeEligible = useMemo(() => {
     if (!retakePolicy || attempts.length === 0) return null;
     try {
-      return checkRetakeEligibility(attempts, retakePolicy);
+      return checkRetakeEligibility(enrollment, retakePolicy, attempts.length > 0 ? (attemptGradedAt(attempts[attempts.length - 1]) ?? null) : null);
     } catch {
       return null;
     }
@@ -247,7 +247,13 @@ export function ModuleAcademicDetail({
   const prereqCheck = useMemo(() => {
     if (prerequisites.length === 0) return null;
     try {
-      return checkPrerequisites(prerequisites, allEnrollments, allAttempts, gradeScale);
+      const passedIds = new Set(
+        (allAttempts as any[])
+          .filter((a: any) => a.status === "graded" && attemptGrade(a) != null && isPassingGrade(attemptGrade(a)!, gradeScale))
+          .map((a: any) => f(a, "moduleId", "module_id") as string)
+          .filter(Boolean)
+      );
+      return checkPrerequisites(prerequisites, passedIds);
     } catch {
       return null;
     }
@@ -263,8 +269,8 @@ export function ModuleAcademicDetail({
 
   // Module fields (handle snake/camel)
   const moduleName = module.name ?? (module as any).module_name ?? "Modul";
-  const moduleCode = module.code ?? (module as any).module_code ?? null;
-  const moduleCredits = module.credits ?? (module as any).ects ?? 0;
+  const moduleCode = (module as any).moduleCode ?? (module as any).module_code ?? null;
+  const moduleCredits = (module as any).ects ?? (module as any).credits ?? 0;
   const moduleSemester = (module as any).semester ?? null;
   const moduleDescription = module.description ?? (module as any).module_description ?? null;
 
@@ -304,7 +310,7 @@ export function ModuleAcademicDetail({
         </div>
 
         {/* Prerequisites warning */}
-        {prereqCheck && !prereqCheck.satisfied && (
+        {prereqCheck && !prereqCheck.canEnroll && (
           <div className="mt-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start gap-2">
             <AlertTriangle size={16} className="text-amber-600 mt-0.5 shrink-0" />
             <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
@@ -360,7 +366,7 @@ export function ModuleAcademicDetail({
                 {t("academic.calculatedGrade") || "Berechnete Gesamtnote"}
               </span>
               <span className="text-lg font-bold text-brand-600">
-                {formatGradeValue(calculatedGrade, gradeScale)}
+                {formatGradeValue(calculatedGrade.finalGradeRounded ?? calculatedGrade.finalGrade ?? 0, gradeScale)}
               </span>
             </div>
           )}

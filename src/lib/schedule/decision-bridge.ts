@@ -302,6 +302,9 @@ export function bridgeDecisionToSchedule(
       estimated_minutes: duration,
       is_locked: false,
       source: "decision_engine",
+      stundenplan_id: null,
+      event_id: null,
+      study_plan_item_id: null,
     });
 
     // Update slot: consume time + add break
@@ -347,6 +350,9 @@ export function bridgeDecisionToSchedule(
         estimated_minutes: Math.round(gap),
         is_locked: false,
         source: "decision_engine",
+        stundenplan_id: null,
+        event_id: null,
+        study_plan_item_id: null,
       });
     }
   }

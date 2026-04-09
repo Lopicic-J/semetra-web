@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     const rc = await requireRole(["admin"]);
     if (isErrorResponse(rc)) return rc;
 
-    const db = rc.adminClient ?? rc.db;
+    const db = rc.adminClient ?? rc.supabase;
     const status = request.nextUrl.searchParams.get("status") || "pending";
     const role = request.nextUrl.searchParams.get("role");
 

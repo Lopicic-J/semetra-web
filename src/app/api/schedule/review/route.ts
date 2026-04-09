@@ -25,7 +25,8 @@ import { DEFAULT_PREFERENCES } from "@/lib/schedule";
 
 const log = logger("api:review");
 
-export const GET = withErrorHandler(async (req: NextRequest) => {
+export async function GET(req: NextRequest) {
+  return withErrorHandler("api:review", async () => {
   const auth = await requireAuth();
   if (isErrorResponse(auth)) return auth;
   const { supabase, user } = auth;
@@ -64,9 +65,11 @@ export const GET = withErrorHandler(async (req: NextRequest) => {
   // Generate on-the-fly
   const review = await generateReviewForWeek(supabase, user.id, weekStart);
   return successResponse(review);
-});
+  });
+}
 
-export const POST = withErrorHandler(async (req: NextRequest) => {
+export async function POST(req: NextRequest) {
+  return withErrorHandler("api:review", async () => {
   const auth = await requireAuth();
   if (isErrorResponse(auth)) return auth;
   const { supabase, user } = auth;
@@ -120,9 +123,11 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
   }
 
   return errorResponse("Unbekannte Aktion", 400);
-});
+  });
+}
 
-export const PATCH = withErrorHandler(async (req: NextRequest) => {
+export async function PATCH(req: NextRequest) {
+  return withErrorHandler("api:review", async () => {
   const auth = await requireAuth();
   if (isErrorResponse(auth)) return auth;
   const { supabase, user } = auth;
@@ -151,7 +156,8 @@ export const PATCH = withErrorHandler(async (req: NextRequest) => {
 
   if (error) return errorResponse("Fehler beim Aktualisieren", 500);
   return successResponse(data);
-});
+  });
+}
 
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

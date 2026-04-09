@@ -44,7 +44,7 @@ function addDays(date: string, n: number): string {
 
 // ── Block Icon ──────────────────────────────────────────────────────────────
 
-const ICON_MAP: Record<string, React.FC<{ size?: number }>> = {
+const ICON_MAP: Record<string, React.ElementType> = {
   GraduationCap, BookOpen, RefreshCw, Target, Layers, Brain, Coffee, AlertTriangle, Clock,
 };
 

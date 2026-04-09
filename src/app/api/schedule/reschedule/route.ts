@@ -38,7 +38,8 @@ import type {
 
 const log = logger("api:reschedule");
 
-export const GET = withErrorHandler(async (req: NextRequest) => {
+export async function GET(req: NextRequest) {
+  return withErrorHandler("api:reschedule", async () => {
   const auth = await requireAuth();
   if (isErrorResponse(auth)) return auth;
   const { supabase, user } = auth;
@@ -79,9 +80,11 @@ export const GET = withErrorHandler(async (req: NextRequest) => {
     })),
     count: detected.length,
   });
-});
+  });
+}
 
-export const POST = withErrorHandler(async (req: NextRequest) => {
+export async function POST(req: NextRequest) {
+  return withErrorHandler("api:reschedule", async () => {
   const auth = await requireAuth();
   if (isErrorResponse(auth)) return auth;
   const { supabase, user } = auth;
@@ -217,7 +220,8 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
   }
 
   return errorResponse("Unbekannte Aktion", 400);
-});
+  });
+}
 
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

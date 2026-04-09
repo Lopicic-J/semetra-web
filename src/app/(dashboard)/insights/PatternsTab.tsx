@@ -42,11 +42,11 @@ export default function PatternsTab() {
 
   // Best hours (from hour patterns)
   const bestHours = useMemo(() => {
-    if (!patterns.hourPatterns?.length) return [];
-    return [...patterns.hourPatterns]
+    if (!patterns.allHours?.length) return [];
+    return [...patterns.allHours]
       .sort((a, b) => b.avgMinutes - a.avgMinutes)
       .slice(0, 3);
-  }, [patterns.hourPatterns]);
+  }, [patterns.allHours]);
 
   // Best days
   const bestDays = useMemo(() => {
@@ -55,7 +55,7 @@ export default function PatternsTab() {
     return [...patterns.dayPatterns]
       .sort((a, b) => b.avgMinutes - a.avgMinutes)
       .slice(0, 3)
-      .map(d => ({ ...d, label: dayNames[d.dayOfWeek] || `Tag ${d.dayOfWeek}` }));
+      .map(d => ({ ...d, label: dayNames[d.day] || `Tag ${d.day}` }));
   }, [patterns.dayPatterns]);
 
   // Average session length
@@ -142,7 +142,7 @@ export default function PatternsTab() {
           </h3>
           <div className="flex gap-3">
             {bestDays.map((d, i) => (
-              <div key={d.dayOfWeek} className="flex-1 text-center p-3 rounded-xl bg-surface-50 dark:bg-surface-800/40">
+              <div key={d.day} className="flex-1 text-center p-3 rounded-xl bg-surface-50 dark:bg-surface-800/40">
                 <p className="text-lg font-bold text-surface-800">{d.label}</p>
                 <p className="text-xs text-surface-400">Ø {Math.round(d.avgMinutes)} Min.</p>
               </div>
@@ -162,9 +162,9 @@ export default function PatternsTab() {
               <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-purple-50 dark:bg-purple-950/20">
                 <Target size={14} className="text-purple-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm text-surface-700">{insight.message || insight.title}</p>
-                  {insight.recommendation && (
-                    <p className="text-xs text-surface-500 mt-1">{insight.recommendation}</p>
+                  <p className="text-sm text-surface-700">{insight.descriptionKey || insight.titleKey}</p>
+                  {insight.data?.recommendation && (
+                    <p className="text-xs text-surface-500 mt-1">{insight.data.recommendation}</p>
                   )}
                 </div>
               </div>

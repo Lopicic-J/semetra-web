@@ -126,8 +126,8 @@ function ModuleCard({
           <p className="text-sm font-medium text-surface-900 dark:text-surface-100 truncate">
             {module.name}
           </p>
-          {module.code && (
-            <p className="text-[11px] font-mono text-surface-400 mt-0.5">{module.code}</p>
+          {((module as any).moduleCode ?? (module as any).module_code) && (
+            <p className="text-[11px] font-mono text-surface-400 mt-0.5">{(module as any).moduleCode ?? (module as any).module_code}</p>
           )}
           <div className="flex items-center gap-2 mt-1.5">
             <span className="text-xs text-surface-500">
@@ -185,7 +185,7 @@ function RequirementGroupCard({
     let completedCount = 0;
 
     for (const mod of groupModules) {
-      const credits = mod.credits ?? 0;
+      const credits = (mod as any).ects ?? (mod as any).credits ?? 0;
       totalCredits += credits;
       const status = getModuleStatus(mod.id, enrollments, attempts, gradeScale);
       if (status === "completed") {
@@ -324,7 +324,7 @@ export function ProgramMap({
       .filter(i => i.credits > 0);
 
     if (inputs.length === 0) return null;
-    return calculateGPA(inputs, gradeScale, "weighted");
+    return calculateGPA(inputs, gradeScale as any);
   }, [attempts, enrollments, modules, gradeScale]);
 
   // Sort groups by sort_order
@@ -369,7 +369,7 @@ export function ProgramMap({
           </div>
           <div className="text-center p-3 rounded-xl bg-surface-50 dark:bg-surface-800">
             <p className="text-2xl font-bold text-surface-900 dark:text-surface-100">
-              {gpa != null ? gpa.toFixed(2) : "–"}
+              {gpa?.gpa != null ? gpa.gpa.toFixed(2) : "–"}
             </p>
             <p className="text-xs text-surface-500 mt-0.5">{t("academic.gpa") || "Notenschnitt"}</p>
           </div>

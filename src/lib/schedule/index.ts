@@ -15,7 +15,7 @@ export type {
   ScheduleDay, ScheduleWeek, DailyStats, ModuleBreakdown,
   ModuleScheduleStats, BlockType, BlockLayer, BlockStatus,
   BlockSource, BlockPriority, Recurrence, SessionType,
-  SessionStatus, SessionAlignment, ScheduleViewMode, HourHeat,
+  SessionStatus, SessionAlignment, ScheduleViewMode,
 } from "./types";
 
 export {
@@ -42,6 +42,7 @@ export type {
   PlanVsReality,
   ScheduleConflict,
   DailyBudget,
+  HourHeat,
 } from "./engine";
 
 // Timer Engine (state machine)

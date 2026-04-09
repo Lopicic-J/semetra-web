@@ -15,7 +15,7 @@ import {
 
 /* ─── Constants ───────────────────────────────────────────────────────────── */
 
-function getTools(t: (key: string) => string): { key: MathTool; label: string; icon: React.ComponentType<{ size?: number; className?: string }>; desc: string }[] {
+function getTools(t: (key: string) => string): { key: MathTool; label: string; icon: React.ElementType; desc: string }[] {
   return [
     { key: "calculator",  label: t("math.calculator"),    icon: Calculator,    desc: t("math.scientific") },
     { key: "equations",   label: t("math.equations"),     icon: Scale,         desc: t("math.solver") },
@@ -539,7 +539,7 @@ export default function MathPage() {
               {history.slice(0, 30).map((h) => (
                 <div key={h.id} className="flex items-center justify-between bg-surface-100 rounded-lg px-3 py-2">
                   <div className="min-w-0">
-                    <span className="text-xs text-brand-600 mr-2">{tools.find((t) => t.key === h.tool)?.icon}</span>
+                    <span className="text-xs text-brand-600 mr-2">{(() => { const Icon = tools.find((t) => t.key === h.tool)?.icon; return Icon ? <Icon size={14} /> : null; })()}</span>
                     <span className="text-surface-700 text-sm font-mono truncate">{h.expression}</span>
                     <span className="text-surface-400 mx-2">=</span>
                     <span className="text-success-600 text-sm font-mono">{h.result}</span>
