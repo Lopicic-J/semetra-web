@@ -235,9 +235,9 @@ export function ModuleAcademicDetail({
 
   // Retake eligibility
   const retakeEligible = useMemo(() => {
-    if (!retakePolicy || attempts.length === 0) return null;
+    if (!retakePolicy || attempts.length === 0 || !enrollment) return null;
     try {
-      return checkRetakeEligibility(enrollment, retakePolicy, attempts.length > 0 ? (attemptGradedAt(attempts[attempts.length - 1]) ?? null) : null);
+      return checkRetakeEligibility(enrollment, retakePolicy, attemptGradedAt(attempts[attempts.length - 1]) ?? null);
     } catch {
       return null;
     }

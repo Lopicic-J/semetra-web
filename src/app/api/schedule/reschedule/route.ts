@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
   const body = await parseBody(req);
   if (isErrorResponse(body)) return body;
 
-  const date = body.date || new Date().toISOString().slice(0, 10);
+  const date = (body.date as string) || new Date().toISOString().slice(0, 10);
 
   if (body.action === "auto") {
     // Auto-detect and reschedule missed blocks

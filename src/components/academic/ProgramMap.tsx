@@ -319,7 +319,7 @@ export function ProgramMap({
         const enrollment = enrollments.find((e: any) => e.id === enrId);
         const modId = enrollment ? ff(enrollment, "moduleId", "module_id") : null;
         const mod = modId ? modules.find((m: any) => m.id === modId) : null;
-        return { grade: grade as number, credits: (mod as any)?.credits ?? (mod as any)?.ects ?? 0 };
+        return { grade: grade as number, credits: (mod as any)?.credits ?? (mod as any)?.ects ?? 0, passed: true, isRepeat: false };
       })
       .filter(i => i.credits > 0);
 

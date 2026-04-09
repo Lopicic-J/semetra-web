@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
   if (isErrorResponse(body)) return body;
 
   if (body.action === "generate") {
-    const weekStart = body.week || getMonday(new Date().toISOString().slice(0, 10));
+    const weekStart = (body.week as string) || getMonday(new Date().toISOString().slice(0, 10));
     const weekEnd = addDays(weekStart, 6);
 
     const review = await generateReviewForWeek(supabase, user.id, weekStart);
