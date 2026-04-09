@@ -62,8 +62,8 @@ vi.mock("@/lib/stripe", () => ({
   getTierFromPriceId: vi.fn(() => "basic"),
 }));
 
-vi.mock("@supabase/supabase-js", () => ({
-  createClient: mockCreateClient,
+vi.mock("@/lib/api-helpers", () => ({
+  createServiceClient: mockCreateClient,
 }));
 
 // Mock logger
