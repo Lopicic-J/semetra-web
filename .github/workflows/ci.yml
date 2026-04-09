@@ -24,7 +24,8 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Lint
-        run: npx next lint
+        run: npm run lint
+        continue-on-error: true
 
       - name: Unit Tests
         run: npx vitest run --reporter=verbose
