@@ -389,11 +389,25 @@ export default function PluginsPage() {
                           <span className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 text-amber-700 rounded-lg text-xs font-medium">
                             Coming Soon
                           </span>
+                        ) : !p.canAccess && p.requires_pro && !isPro ? (
+                          // Requires Pro — user needs to upgrade
+                          <a
+                            href="/upgrade"
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-600 text-white rounded-lg text-xs font-medium hover:bg-brand-700 transition-colors"
+                          >
+                            <Lock size={12} />
+                            Pro erforderlich
+                          </a>
                         ) : !p.canAccess ? (
-                          // Premium, not purchased — all purchases disabled (Coming Soon)
-                          <span className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 text-amber-700 rounded-lg text-xs font-medium">
-                            Coming Soon
-                          </span>
+                          // Premium, not purchased — offer purchase
+                          <button
+                            onClick={() => handlePurchase(p.id)}
+                            disabled={isPurchasing}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-600 text-white rounded-lg text-xs font-medium hover:bg-brand-700 disabled:opacity-50 transition-colors"
+                          >
+                            <ShoppingCart size={12} />
+                            {isPurchasing ? "Wird geladen..." : `CHF ${p.effectivePrice.toFixed(2)} kaufen`}
+                          </button>
                         ) : !p.installed ? (
                           <button
                             onClick={() => handleAction(p.id, "install")}

@@ -42,11 +42,13 @@ export async function GET() {
       const isFreeViaInstitution = isPremium && hasInstitution && isPro;
 
       // Access logic:
-      // - Free plugins: always accessible
+      // - Free plugins without requires_pro: always accessible
+      // - Free plugins with requires_pro: only if user is Pro
       // - Premium + institution Pro user: accessible (auto-granted)
       // - Premium + purchased: accessible
       // - Premium + not purchased + no institution: not accessible
-      const canAccess = !isPremium || hasPurchased || isFreeViaInstitution;
+      const needsPro = p.requires_pro && !isPro;
+      const canAccess = !needsPro && (!isPremium || hasPurchased || isFreeViaInstitution);
 
       return {
         ...p,

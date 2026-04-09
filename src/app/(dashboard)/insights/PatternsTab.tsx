@@ -21,6 +21,38 @@ export default function PatternsTab() {
   const { patterns, insights, loading } = useStudyPatterns(30);
   const streaks = useStreaks();
 
+  // ── Derived analytics (hooks MUST be called before any return) ─────────
+
+  // Best hours (from hour patterns)
+  const bestHours = useMemo(() => {
+    if (!patterns?.allHours?.length) return [];
+    return [...patterns.allHours]
+      .sort((a, b) => b.avgMinutes - a.avgMinutes)
+      .slice(0, 3);
+  }, [patterns?.allHours]);
+
+  // Best days
+  const bestDays = useMemo(() => {
+    if (!patterns?.dayPatterns?.length) return [];
+    const dayNames = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+    return [...patterns.dayPatterns]
+      .sort((a, b) => b.avgMinutes - a.avgMinutes)
+      .slice(0, 3)
+      .map(d => ({ ...d, label: dayNames[d.day] || `Tag ${d.day}` }));
+  }, [patterns?.dayPatterns]);
+
+  // Time of day preference
+  const timePreference = useMemo(() => {
+    if (!bestHours.length) return "keine Daten";
+    const topHour = bestHours[0].hour;
+    if (topHour < 10) return "Frühaufsteher";
+    if (topHour < 14) return "Vormittags-Lerner";
+    if (topHour < 18) return "Nachmittags-Lerner";
+    return "Nachtmensch";
+  }, [bestHours]);
+
+  // ── Early returns (after all hooks) ────────────────────────────────────
+
   if (loading || streaks.loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -38,38 +70,8 @@ export default function PatternsTab() {
     );
   }
 
-  // ── Derived analytics ──────────────────────────────────────────────────
-
-  // Best hours (from hour patterns)
-  const bestHours = useMemo(() => {
-    if (!patterns.allHours?.length) return [];
-    return [...patterns.allHours]
-      .sort((a, b) => b.avgMinutes - a.avgMinutes)
-      .slice(0, 3);
-  }, [patterns.allHours]);
-
-  // Best days
-  const bestDays = useMemo(() => {
-    if (!patterns.dayPatterns?.length) return [];
-    const dayNames = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
-    return [...patterns.dayPatterns]
-      .sort((a, b) => b.avgMinutes - a.avgMinutes)
-      .slice(0, 3)
-      .map(d => ({ ...d, label: dayNames[d.day] || `Tag ${d.day}` }));
-  }, [patterns.dayPatterns]);
-
   // Average session length
   const avgSessionMinutes = patterns.avgSessionMinutes || 0;
-
-  // Time of day preference
-  const timePreference = useMemo(() => {
-    if (!bestHours.length) return "keine Daten";
-    const topHour = bestHours[0].hour;
-    if (topHour < 10) return "Frühaufsteher";
-    if (topHour < 14) return "Vormittags-Lerner";
-    if (topHour < 18) return "Nachmittags-Lerner";
-    return "Nachtmensch";
-  }, [bestHours]);
 
   const TimeIcon = timePreference === "Frühaufsteher" || timePreference === "Vormittags-Lerner"
     ? Sun : timePreference === "Nachtmensch" ? Moon : Coffee;
