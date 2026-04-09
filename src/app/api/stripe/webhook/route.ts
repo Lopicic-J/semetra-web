@@ -12,11 +12,17 @@ import { logger } from "@/lib/logger";
 
 const log = logger("stripe:webhook");
 
-// Use service-role key so webhook can bypass RLS
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""
-);
+// Lazy-initialized service-role client (avoids build-time crash when env vars are missing)
+let _supabaseAdmin: ReturnType<typeof createClient> | null = null;
+function getSupabaseAdmin() {
+  if (!_supabaseAdmin) {
+    _supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    );
+  }
+  return _supabaseAdmin;
+}
 
 function currentMonth(): string {
   const d = new Date();
@@ -72,7 +78,7 @@ export async function POST(req: NextRequest) {
 }
 
 async function getUserIdFromCustomer(customerId: string): Promise<string | null> {
-  const { data } = await supabaseAdmin
+  const { data } = await getSupabaseAdmin()
     .from("profiles")
     .select("id")
     .eq("stripe_customer_id", customerId)
@@ -90,7 +96,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   // For one-time payments, also try by email
   if (!userId && session.customer_details?.email) {
-    const { data } = await supabaseAdmin
+    const { data } = await getSupabaseAdmin()
       .from("profiles")
       .select("id")
       .eq("email", session.customer_details.email)
@@ -108,7 +114,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     // ── Plugin purchase ──
     if (session.metadata?.type === "plugin_purchase" && session.metadata?.plugin_id) {
       const pluginId = session.metadata.plugin_id;
-      await supabaseAdmin.from("plugin_purchases").upsert({
+      await getSupabaseAdmin().from("plugin_purchases").upsert({
         user_id: userId,
         plugin_id: pluginId,
         stripe_payment_intent_id: session.payment_intent as string,
@@ -119,7 +125,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       }, { onConflict: "user_id,plugin_id" });
 
       // Auto-install the plugin
-      await supabaseAdmin.from("user_plugins").upsert(
+      await getSupabaseAdmin().from("user_plugins").upsert(
         { user_id: userId, plugin_id: pluginId, enabled: true },
         { onConflict: "user_id,plugin_id" }
       );
@@ -135,7 +141,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     if (addonItem) {
       const credits = AI_ADDON_PRICE.credits;
       const month = currentMonth();
-      await supabaseAdmin.rpc("add_addon_credits", {
+      await getSupabaseAdmin().rpc("add_addon_credits", {
         p_user_id: userId,
         p_month: month,
         p_credits: credits,
@@ -148,7 +154,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     const lifetimeFullItem = lineItems.data.find((item: Stripe.LineItem) => item.price && isLifetimeFullPrice(item.price.id));
     const tier = lifetimeFullItem ? "full" : "basic";
 
-    await supabaseAdmin.from("profiles").update({
+    await getSupabaseAdmin().from("profiles").update({
       plan: "pro",
       plan_type: "lifetime",
       plan_tier: tier,
@@ -171,7 +177,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const priceId = subscription.items.data[0]?.price.id ?? "";
   const tier = getTierFromPriceId(priceId) ?? "basic";
 
-  await supabaseAdmin.from("profiles").update({
+  await getSupabaseAdmin().from("profiles").update({
     plan: "pro",
     plan_type: "subscription",
     plan_tier: tier,
@@ -195,7 +201,7 @@ async function handleSubscriptionChange(sub: Stripe.Subscription) {
   const priceId = sub.items.data[0]?.price.id ?? "";
   const tier = getTierFromPriceId(priceId) ?? "basic";
 
-  await supabaseAdmin.from("profiles").update({
+  await getSupabaseAdmin().from("profiles").update({
     plan: isActive ? "pro" : "free",
     plan_tier: isActive ? tier : null,
     stripe_subscription_id: sub.id,
@@ -214,21 +220,21 @@ async function handleSubscriptionDeleted(sub: Stripe.Subscription) {
   if (!userId) return;
 
   // Don't downgrade Lifetime users when a subscription is deleted
-  const { data: profile } = await supabaseAdmin
+  const { data: profile } = await getSupabaseAdmin()
     .from("profiles")
     .select("plan_type")
     .eq("id", userId)
     .single();
 
   if (profile?.plan_type === "lifetime") {
-    await supabaseAdmin.from("profiles").update({
+    await getSupabaseAdmin().from("profiles").update({
       stripe_subscription_id: null,
       stripe_subscription_status: null,
     }).eq("id", userId);
     return;
   }
 
-  await supabaseAdmin.from("profiles").update({
+  await getSupabaseAdmin().from("profiles").update({
     plan: "free",
     plan_type: null,
     plan_tier: null,
@@ -242,7 +248,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
   const userId = await getUserIdFromCustomer(customerId);
   if (!userId) return;
 
-  await supabaseAdmin.from("profiles").update({
+  await getSupabaseAdmin().from("profiles").update({
     stripe_subscription_status: "past_due",
   }).eq("id", userId);
 }
