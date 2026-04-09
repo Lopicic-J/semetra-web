@@ -82,14 +82,14 @@ describe("nav-config", () => {
     expect(adminItem).toBeDefined();
   });
 
-  it("getFilteredNavGroups: institution sieht Builder aber nicht /admin", () => {
+  it("getFilteredNavGroups: institution sieht Builder aber nicht /admin und /developer", () => {
     const groups = getFilteredNavGroups("institution");
     const adminGroup = groups.find(g => g.labelKey === "navGroup.admin");
     expect(adminGroup).toBeDefined();
     const builderItem = adminGroup?.items.find(i => i.href === "/builder");
     expect(builderItem).toBeDefined();
     const developerItem = adminGroup?.items.find(i => i.href === "/developer");
-    expect(developerItem).toBeDefined();
+    expect(developerItem).toBeUndefined(); // /developer is admin-only
     const adminItem = adminGroup?.items.find(i => i.href === "/admin");
     expect(adminItem).toBeUndefined();
   });

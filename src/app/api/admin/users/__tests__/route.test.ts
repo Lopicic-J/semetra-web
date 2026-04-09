@@ -12,12 +12,14 @@ const mockCreateClient = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/supabase/server", () => ({ createClient: mockCreateClient }));
 
 // Mock api-helpers — keep real successResponse/errorResponse/isErrorResponse
+const mockServiceClient = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/api-helpers", async () => {
   const actual = await vi.importActual("@/lib/api-helpers");
   return {
     ...actual,
     requireRole: vi.fn(),
     parseBody: vi.fn(),
+    createServiceClient: mockServiceClient,
   };
 });
 
@@ -33,6 +35,7 @@ describe("GET /api/admin/users", () => {
     vi.clearAllMocks();
     mockSupabase = createMockSupabase();
     mockCreateClient.mockResolvedValue(mockSupabase);
+    mockServiceClient.mockReturnValue(mockSupabase);
   });
 
   it("sollte 403 zurückgeben wenn nicht platform_admin", async () => {
@@ -305,6 +308,7 @@ describe("PATCH /api/admin/users", () => {
     vi.clearAllMocks();
     mockSupabase = createMockSupabase();
     mockCreateClient.mockResolvedValue(mockSupabase);
+    mockServiceClient.mockReturnValue(mockSupabase);
   });
 
   it("sollte 403 zurückgeben wenn nicht platform_admin", async () => {
@@ -571,7 +575,7 @@ describe("PATCH /api/admin/users", () => {
     const json = await expectSuccess(res);
 
     expect(json).toHaveProperty("message");
-    expect(json.message).toContain("User role updated");
+    expect(json.message).toContain("User updated");
   });
 
   it("sollte nur gültige Rollen akzeptieren", async () => {

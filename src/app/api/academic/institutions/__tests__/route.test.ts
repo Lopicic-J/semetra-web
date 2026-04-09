@@ -12,6 +12,7 @@ const mockCreateClient = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/supabase/server", () => ({ createClient: mockCreateClient }));
 
 // Mock api-helpers — keep real successResponse/errorResponse/isErrorResponse
+const mockServiceClient = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/api-helpers", async () => {
   const actual = await vi.importActual("@/lib/api-helpers");
   return {
@@ -19,6 +20,7 @@ vi.mock("@/lib/api-helpers", async () => {
     requireRole: vi.fn(),
     canManageInstitution: vi.fn(),
     logBuilderAction: vi.fn().mockResolvedValue(undefined),
+    createServiceClient: mockServiceClient,
   };
 });
 
@@ -39,6 +41,7 @@ describe("GET /api/academic/institutions", () => {
     vi.clearAllMocks();
     mockSupabase = createMockSupabase();
     mockCreateClient.mockResolvedValue(mockSupabase);
+    mockServiceClient.mockReturnValue(mockSupabase);
   });
 
   it("sollte leere Institution-Liste zurückgeben", async () => {
@@ -149,6 +152,7 @@ describe("POST /api/academic/institutions", () => {
     vi.clearAllMocks();
     mockSupabase = createMockSupabase();
     mockCreateClient.mockResolvedValue(mockSupabase);
+    mockServiceClient.mockReturnValue(mockSupabase);
   });
 
   it("sollte 403 zurückgeben wenn nicht platform_admin", async () => {
@@ -374,6 +378,7 @@ describe("GET /api/academic/institutions/[id]", () => {
     vi.clearAllMocks();
     mockSupabase = createMockSupabase();
     mockCreateClient.mockResolvedValue(mockSupabase);
+    mockServiceClient.mockReturnValue(mockSupabase);
   });
 
   it("sollte 404 zurückgeben wenn Institution nicht existiert", async () => {
@@ -492,6 +497,7 @@ describe("PATCH /api/academic/institutions/[id]", () => {
     vi.clearAllMocks();
     mockSupabase = createMockSupabase();
     mockCreateClient.mockResolvedValue(mockSupabase);
+    mockServiceClient.mockReturnValue(mockSupabase);
   });
 
   it("sollte 403 zurückgeben wenn nicht berechtigt", async () => {
@@ -735,6 +741,7 @@ describe("DELETE /api/academic/institutions/[id]", () => {
     vi.clearAllMocks();
     mockSupabase = createMockSupabase();
     mockCreateClient.mockResolvedValue(mockSupabase);
+    mockServiceClient.mockReturnValue(mockSupabase);
   });
 
   it("sollte 403 zurückgeben wenn nicht platform_admin", async () => {
