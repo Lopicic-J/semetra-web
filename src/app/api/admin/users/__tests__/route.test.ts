@@ -202,7 +202,7 @@ describe("GET /api/admin/users", () => {
     expect(json.users[0].full_name).toContain("Smith");
   });
 
-  it("sollte Benutzer ohne Rolle als student einordnen", async () => {
+  it("sollte Benutzer ohne Rolle als non_student einordnen", async () => {
     vi.mocked(apiHelpers.requireRole).mockResolvedValue({
       supabase: mockSupabase,
       user: { id: "admin-user" },
@@ -225,7 +225,7 @@ describe("GET /api/admin/users", () => {
     const res = await GET(req);
     const json = await expectSuccess(res);
 
-    expect(json.users[0].user_role).toBe("student");
+    expect(json.users[0].user_role).toBe("non_student");
   });
 
   it("sollte alle Benutzerfelder zurückgeben", async () => {
