@@ -6,20 +6,18 @@ import {
   isLifetimeFullPrice,
   getTierFromPriceId,
 } from "@/lib/stripe";
-import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import { logger } from "@/lib/logger";
+import { createServiceClient } from "@/lib/api-helpers";
 
 const log = logger("stripe:webhook");
 
 // Lazy-initialized service-role client (avoids build-time crash when env vars are missing)
-let _supabaseAdmin: ReturnType<typeof createClient> | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _supabaseAdmin: any = null;
 function getSupabaseAdmin() {
   if (!_supabaseAdmin) {
-    _supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    );
+    _supabaseAdmin = createServiceClient();
   }
   return _supabaseAdmin;
 }
