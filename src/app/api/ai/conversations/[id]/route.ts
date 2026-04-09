@@ -11,16 +11,15 @@ const log = logger("ai:conversation");
  */
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
     }
-
-    const { id } = params;
 
     // Fetch conversation with explicit ownership check
     const { data: conversation, error: convErr } = await supabase
@@ -64,9 +63,10 @@ export async function GET(
  */
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -79,7 +79,7 @@ export async function PATCH(
     const { data, error } = await supabase
       .from("chat_conversations")
       .update({ title, updated_at: new Date().toISOString() })
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id)
       .select()
       .single();
@@ -104,9 +104,10 @@ export async function PATCH(
  */
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -116,7 +117,7 @@ export async function DELETE(
     const { error } = await supabase
       .from("chat_conversations")
       .delete()
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id);
 
     if (error) {

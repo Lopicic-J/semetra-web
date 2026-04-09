@@ -12,16 +12,17 @@ const log = logger("ai:messages");
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
     }
 
-    const conversationId = params.id;
+    const conversationId = id;
     const body = await req.json();
     const { role, content, tokens_used } = body;
 
