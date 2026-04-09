@@ -1130,7 +1130,7 @@ function BrainstormEditor({
 
   if (loading) {
     return (
-      <div className="p-6 text-center">
+      <div className="p-3 sm:p-6 text-center">
         <p className="text-surface-500">{t("brainstorming.loading")}</p>
       </div>
     );
@@ -1379,7 +1379,7 @@ function BrainstormEditor({
       {/* ── Shortcuts Modal ────────────────────────────────────────── */}
       {showShortcuts && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setShowShortcuts(false)}>
-          <div className="bg-surface-100 rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-surface-100 rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-surface-900">{t("brainstorming.shortcuts")}</h2>
               <button onClick={() => setShowShortcuts(false)} className="text-surface-500 hover:text-surface-900"><X size={20} /></button>

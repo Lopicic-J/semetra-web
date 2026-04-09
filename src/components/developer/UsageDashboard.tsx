@@ -52,7 +52,7 @@ export function UsageDashboard() {
     return (
       <div className="space-y-4">
         <div className="h-32 bg-surface-100 rounded-xl animate-pulse" />
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[1, 2, 3].map(i => <div key={i} className="h-20 bg-surface-100 rounded-xl animate-pulse" />)}
         </div>
       </div>
@@ -61,7 +61,7 @@ export function UsageDashboard() {
 
   if (!data) {
     return (
-      <div className="card p-6 text-center text-surface-500">
+      <div className="card p-4 sm:p-6 text-center text-surface-500">
         <p>{t("developer.usage.loadError") || "Fehler beim Laden"}</p>
       </div>
     );
@@ -89,7 +89,7 @@ export function UsageDashboard() {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="card p-4">
           <p className="text-xs text-surface-500 mb-2">{t("developer.usage.today")}</p>
           <div className="flex items-baseline gap-2">

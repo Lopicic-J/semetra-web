@@ -751,7 +751,7 @@ function PdfToolsModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-6">
           {activeTab === "merge" ? <PdfMergePanel /> : <PdfSplitPanel />}
         </div>
       </div>
@@ -1282,7 +1282,7 @@ function DocModal({
             {!uploadFile ? (
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full border-2 border-dashed border-surface-300 hover:border-brand-400 rounded-xl p-6 mb-3 flex flex-col items-center gap-2 transition-colors group"
+                className="w-full border-2 border-dashed border-surface-300 hover:border-brand-400 rounded-xl p-3 sm:p-6 mb-3 flex flex-col items-center gap-2 transition-colors group"
               >
                 <Upload size={28} className="text-surface-300 group-hover:text-brand-500 transition-colors" />
                 <span className="text-sm font-medium text-surface-500 group-hover:text-surface-700">{t("documents.typeFile")}</span>

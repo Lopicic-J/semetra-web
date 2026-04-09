@@ -171,7 +171,7 @@ export default function StudiengaengePage() {
   // Pro gate: FH import is Pro-only
   if (!isPro) {
     return (
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-4 sm:p-6 max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
             <GraduationCap className="text-brand-600" size={26} />
@@ -189,7 +189,7 @@ export default function StudiengaengePage() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
           <GraduationCap className="text-brand-600" size={26} />

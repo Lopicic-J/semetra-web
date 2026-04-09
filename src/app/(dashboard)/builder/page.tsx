@@ -174,11 +174,11 @@ export default function BuilderPage() {
   if (!canAccessBuilder) return null;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-surface-900">
+          <h1 className="text-2xl sm:text-3xl font-bold text-surface-900">
             {t("nav.builder") || "Academic Builder"}
           </h1>
           <p className="text-surface-600 mt-1">
@@ -299,7 +299,7 @@ export default function BuilderPage() {
               <Card interactive padding="md">
                 <div className="space-y-3">
                   <div className="flex items-start justify-between">
-                    <div className="text-4xl">{getCountryFlag(inst.country_code)}</div>
+                    <div className="text-2xl sm:text-4xl">{getCountryFlag(inst.country_code)}</div>
                     <div className="text-right">
                       <div className="text-2xl font-bold text-blue-600">
                         {inst.program_count ?? 0}

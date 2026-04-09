@@ -131,7 +131,7 @@ export default function AchievementsTabContent() {
 
   if (loading) {
     return (
-      <div className="p-6 max-w-5xl mx-auto animate-pulse">
+      <div className="p-4 sm:p-6 max-w-5xl mx-auto animate-pulse">
         <div className="h-8 bg-surface-100 rounded-xl w-48 mb-6" />
         <div className="h-24 bg-surface-100 rounded-2xl mb-6" />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -143,7 +143,7 @@ export default function AchievementsTabContent() {
 
   return (
     <ErrorBoundary feature="Achievements">
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="p-4 sm:p-6 max-w-5xl mx-auto">
         {/* XP & Level Card */}
         <div className="card mb-6">
           <div className="flex items-center gap-4 mb-3">

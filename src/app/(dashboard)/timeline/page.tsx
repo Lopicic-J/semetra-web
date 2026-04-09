@@ -165,7 +165,7 @@ export default function TimelinePage() {
   const overdueCount = items.filter(i => i.daysLeft < 0).length;
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">

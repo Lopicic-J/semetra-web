@@ -569,7 +569,7 @@ function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; con
   if (topics.length === 0) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-        <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md text-center p-8">
+        <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md text-center p-4 sm:p-8">
           <Check size={32} className="mx-auto mb-4 text-green-500" />
           <h2 className="text-lg font-bold text-surface-900 mb-2">{t("knowledge.title")}</h2>
           <p className="text-surface-500 text-sm mb-4">{t("knowledge.statusUnderstood")}</p>
@@ -582,7 +582,7 @@ function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; con
   if (done) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-        <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md text-center p-8">
+        <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md text-center p-4 sm:p-8">
           <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
             <Check size={32} className="text-green-600" />
           </div>

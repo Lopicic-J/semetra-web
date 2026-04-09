@@ -292,7 +292,7 @@ export default function LernplanPage() {
   return (
     <ErrorBoundary feature="Lernplan">
       {DeleteConfirm}
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-4 sm:p-6 max-w-4xl mx-auto">
         {loading ? (
           <div className="animate-pulse">
             <div className="h-8 bg-surface-100 rounded-xl w-48 mb-6" />

@@ -133,7 +133,7 @@ export default function GroupsPage() {
   return (
     <ErrorBoundary feature="Gruppen">
       {DeleteConfirm}
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-4 sm:p-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>

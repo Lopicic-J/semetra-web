@@ -3867,7 +3867,7 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules, builti
       {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setShowModal(false)}>
-          <div className="bg-[rgb(var(--card-bg))] rounded-2xl p-6 w-full max-w-lg border border-surface-200" onClick={e => e.stopPropagation()}>
+          <div className="bg-[rgb(var(--card-bg))] rounded-2xl p-4 sm:p-6 w-full max-w-lg border border-surface-200" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-semibold text-surface-900 mb-4">{editId ? t("math.editFormula") : t("math.newFormula")}</h3>
             <div className="space-y-3">
               <input value={fTitle} onChange={e => setFTitle(e.target.value)} placeholder={t("math.title")} className="w-full bg-surface-100 text-surface-900 rounded-lg px-4 py-2.5 border border-surface-200 text-sm" />

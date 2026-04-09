@@ -179,7 +179,7 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="bg-gradient-to-br from-brand-600 to-brand-800 p-6 text-white relative">
+        <div className="bg-gradient-to-br from-brand-600 to-brand-800 p-4 sm:p-6 text-white relative">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-white/20 transition-colors"
@@ -201,7 +201,7 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
           )}
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {/* Tier selector */}
           <div className="space-y-2 mb-5">
             {tiers.map(tier => (

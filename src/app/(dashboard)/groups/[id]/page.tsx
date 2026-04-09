@@ -165,16 +165,16 @@ export default function GroupDetailPage() {
       {RemoveConfirm}
       {LeaveConfirm}
       {loading ? (
-        <div className="p-6 max-w-4xl mx-auto animate-pulse">
+        <div className="p-4 sm:p-6 max-w-4xl mx-auto animate-pulse">
           <div className="h-8 bg-surface-100 rounded-xl w-48 mb-6" />
           <div className="h-32 bg-surface-100 rounded-2xl" />
         </div>
       ) : !group ? (
-        <div className="p-6 max-w-4xl mx-auto text-center py-20 text-surface-400">
+        <div className="p-4 sm:p-6 max-w-4xl mx-auto text-center py-20 text-surface-400">
           <p>{t("groups.notFound")}</p>
         </div>
       ) : (
-        <div className="p-6 max-w-4xl mx-auto">
+        <div className="p-4 sm:p-6 max-w-4xl mx-auto">
       {/* Back button */}
       <button
         onClick={() => router.push("/groups")}

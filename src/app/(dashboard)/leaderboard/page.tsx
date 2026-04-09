@@ -49,7 +49,7 @@ export default function LeaderboardPage() {
 
   if (loading) {
     return (
-      <div className="p-6 max-w-5xl mx-auto animate-pulse">
+      <div className="p-4 sm:p-6 max-w-5xl mx-auto animate-pulse">
         <div className="h-8 bg-surface-100 rounded-xl w-48 mb-6" />
         <div className="h-24 bg-surface-100 rounded-2xl mb-6" />
         <div className="space-y-2">
@@ -63,7 +63,7 @@ export default function LeaderboardPage() {
 
   return (
     <ErrorBoundary feature="Leaderboard">
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-4 sm:p-6 max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">

@@ -123,7 +123,7 @@ export function ConfirmDialog({
           <X className="w-4 h-4" />
         </button>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {/* Icon */}
           <div className={`mx-auto w-12 h-12 rounded-full ${style.iconBg} ${style.iconColor} flex items-center justify-center mb-4`}>
             {icon ?? style.defaultIcon}

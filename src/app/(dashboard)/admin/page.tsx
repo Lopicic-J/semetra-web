@@ -421,14 +421,14 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-8">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-8">
       {/* Header */}
       <div className="flex items-start gap-4">
         <div className="bg-brand-100 dark:bg-brand-900/30 rounded-xl p-3">
           <Shield className="w-6 h-6 text-brand-600" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-surface-900">
+          <h1 className="text-2xl sm:text-3xl font-bold text-surface-900">
             {isPlatformAdmin ? "Plattform-Administration" : "Institutions-Verwaltung"}
           </h1>
           <p className="text-surface-600 mt-1">
@@ -456,14 +456,14 @@ export default function AdminPage() {
             <StatsCard icon={<Building2 className="w-5 h-5" />} label="Institutionen" value={stats?.total_institutions ?? 0} loading={statsLoading} />
             <StatsCard icon={<BookOpen className="w-5 h-5" />} label="Studiengänge" value={stats?.total_programs ?? 0} loading={statsLoading} />
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <StatsCard icon={<CreditCard className="w-5 h-5" />} label="Abonnements" value={stats?.subscription_users ?? 0} loading={statsLoading} />
             <StatsCard icon={<Infinity className="w-5 h-5" />} label="Lifetime" value={stats?.lifetime_users ?? 0} loading={statsLoading} />
             <StatsCard icon={<BookOpen className="w-5 h-5" />} label="Module" value={stats?.total_modules ?? 0} loading={statsLoading} />
           </div>
         </>
       ) : (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StatsCard icon={<Users className="w-5 h-5" />} label="Studierende" value={stats?.total_users ?? 0} loading={statsLoading} />
           <StatsCard icon={<Activity className="w-5 h-5" />} label="Aktive Nutzer" value={stats?.active_users ?? 0} loading={statsLoading} accent />
           <StatsCard icon={<BookOpen className="w-5 h-5" />} label="Studiengänge" value={stats?.total_programs ?? 0} loading={statsLoading} />

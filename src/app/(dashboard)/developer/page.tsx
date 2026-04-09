@@ -388,7 +388,7 @@ export default function DeveloperPage() {
             <>
               <Card padding="md">
                 <p className="text-xs text-surface-500 uppercase tracking-wider font-semibold">Gesamt-Anfragen</p>
-                <p className="text-4xl font-bold text-surface-900 mt-1">{usage.total.toLocaleString("de-CH")}</p>
+                <p className="text-2xl sm:text-4xl font-bold text-surface-900 mt-1">{usage.total.toLocaleString("de-CH")}</p>
               </Card>
 
               <Card padding="md">

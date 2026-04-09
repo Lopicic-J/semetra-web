@@ -205,7 +205,7 @@ export function GradeAnalytics({ grades, modules, gs }: GradeAnalyticsProps) {
             <h3 className="text-sm font-semibold text-surface-900">Notentrend</h3>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <p className="text-xs text-surface-500">Durchschnitt</p>
               <p className="text-lg font-bold text-surface-900">{trend.avgGrade.toFixed(2)}</p>

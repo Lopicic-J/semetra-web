@@ -56,7 +56,7 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-surface-900">{t("tasks.title")}</h1>
@@ -370,7 +370,7 @@ function TaskModal({ initial, modules, onClose, onSaved }: {
             <label className="block text-sm font-medium text-surface-700 mb-1">{t("tasks.modal.descriptionLabel")}</label>
             <textarea className="input resize-none" rows={2} value={form.description} onChange={e => set("description", e.target.value)} placeholder={t("tasks.modal.descriptionPlaceholder")} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-surface-700 mb-1">{t("tasks.modal.dueDateLabel")}</label>
               <input className="input" type="date" value={form.due_date} onChange={e => set("due_date", e.target.value)} />
@@ -383,7 +383,7 @@ function TaskModal({ initial, modules, onClose, onSaved }: {
               </select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-surface-700 mb-1">{t("tasks.modal.priorityLabel")}</label>
               <select className="input" value={form.priority} onChange={e => set("priority", e.target.value)}>

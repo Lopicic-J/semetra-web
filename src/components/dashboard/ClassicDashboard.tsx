@@ -190,7 +190,7 @@ export default function ClassicDashboard() {
             </div>
             <div>
               <p className="text-sm font-medium text-orange-800">{t("dashboard.streak")}</p>
-              <p className="text-3xl font-bold text-orange-600">
+              <p className="text-2xl sm:text-3xl font-bold text-orange-600">
                 {streak.currentStreak === 1 ? t("dashboard.streakDay") : t("dashboard.streakDays", { count: String(streak.currentStreak) })}
               </p>
             </div>
@@ -217,7 +217,7 @@ export default function ClassicDashboard() {
             </div>
             <div>
               <p className="text-sm font-medium text-surface-500">{t("dashboard.ectsProgress")}</p>
-              <p className="text-3xl font-bold text-surface-900">{earnedEcts}<span className="text-lg text-surface-400">/{totalEcts || 180}</span></p>
+              <p className="text-2xl sm:text-3xl font-bold text-surface-900">{earnedEcts}<span className="text-lg text-surface-400">/{totalEcts || 180}</span></p>
             </div>
           </div>
           <div className="w-full h-2.5 bg-surface-100 rounded-full overflow-hidden">
@@ -234,7 +234,7 @@ export default function ClassicDashboard() {
             </div>
             <div>
               <p className="text-sm font-medium text-surface-500">{t("dashboard.gpa")}</p>
-              <p className="text-3xl font-bold text-surface-900">{ectsAvg ? ectsAvg.toFixed(2) : "—"}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-surface-900">{ectsAvg ? ectsAvg.toFixed(2) : "—"}</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2 mt-auto">

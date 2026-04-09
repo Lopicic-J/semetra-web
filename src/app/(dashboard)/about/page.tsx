@@ -57,7 +57,7 @@ export default function AboutPage() {
 
       {/* Feature Highlights */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="text-3xl font-bold text-surface-900 text-center mb-12">
+        <h2 className="text-2xl sm:text-3xl font-bold text-surface-900 text-center mb-12">
           {t("about.whySemetra")}
         </h2>
 
@@ -186,14 +186,14 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-center gap-3 mb-12">
             <History size={24} className="text-brand-600" />
-            <h2 className="text-3xl font-bold text-surface-900">
+            <h2 className="text-2xl sm:text-3xl font-bold text-surface-900">
               {t("about.whatsNew")}
             </h2>
           </div>
 
           <div className="space-y-6">
             {/* v2.7 — April 2026 */}
-            <div className="card p-6 border border-surface-200 dark:border-surface-700 hover:shadow-md transition-shadow">
+            <div className="card p-4 sm:p-6 border border-surface-200 dark:border-surface-700 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-4">
                 <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-600 text-white text-xs font-semibold">
                   v2.7
@@ -214,7 +214,7 @@ export default function AboutPage() {
             </div>
 
             {/* v2.6 — April 2026 */}
-            <div className="card p-6 border border-surface-200 dark:border-surface-700">
+            <div className="card p-4 sm:p-6 border border-surface-200 dark:border-surface-700">
               <div className="flex items-center gap-3 mb-4">
                 <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-xs font-semibold">
                   v2.6
@@ -234,7 +234,7 @@ export default function AboutPage() {
             </div>
 
             {/* v2.5 */}
-            <div className="card p-6 border border-surface-200 dark:border-surface-700">
+            <div className="card p-4 sm:p-6 border border-surface-200 dark:border-surface-700">
               <div className="flex items-center gap-3 mb-4">
                 <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-xs font-semibold">
                   v2.5
@@ -254,7 +254,7 @@ export default function AboutPage() {
             </div>
 
             {/* Earlier */}
-            <div className="card p-6 border border-surface-200 dark:border-surface-700">
+            <div className="card p-4 sm:p-6 border border-surface-200 dark:border-surface-700">
               <div className="flex items-center gap-3 mb-4">
                 <span className="inline-flex items-center px-3 py-1 rounded-full bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-300 text-xs font-semibold">
                   v2.0
@@ -279,7 +279,7 @@ export default function AboutPage() {
       {/* Platform Section */}
       <div className="bg-surface-50 dark:bg-surface-800/30 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold text-surface-900 text-center mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold text-surface-900 text-center mb-12">
             {t("about.platformTitle")}
           </h2>
 
@@ -355,7 +355,7 @@ export default function AboutPage() {
 
       {/* Pricing Overview — same card style as /upgrade */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="text-3xl font-bold text-surface-900 text-center mb-12">
+        <h2 className="text-2xl sm:text-3xl font-bold text-surface-900 text-center mb-12">
           {t("about.pricingTitle")}
         </h2>
 

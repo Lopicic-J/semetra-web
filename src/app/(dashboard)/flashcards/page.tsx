@@ -287,7 +287,7 @@ function StudyMode({
   return (
     <div
       ref={containerRef}
-      className={`${focusMode ? "fixed inset-0 z-50 bg-surface-50 flex flex-col items-center justify-center p-6" : "max-w-2xl mx-auto"}`}
+      className={`${focusMode ? "fixed inset-0 z-50 bg-surface-50 flex flex-col items-center justify-center p-3 sm:p-6" : "max-w-2xl mx-auto"}`}
     >
       {/* Header */}
       <div className={`flex items-center justify-between mb-6 w-full ${focusMode ? "max-w-2xl" : ""}`}>
@@ -542,7 +542,7 @@ function CardDialog({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-lg p-4 sm:p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold text-surface-900">
             {card ? t("flashcards.editCard") : t("flashcards.newCard")}
@@ -811,7 +811,7 @@ function BulkCreatePanel({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-2xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold text-surface-900">{t("fc.bulkCreate")}</h3>
           <button onClick={onClose} className="text-surface-500 hover:text-surface-900"><X size={20} /></button>
@@ -955,7 +955,7 @@ function AIGeneratePanel({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-2xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold text-surface-900 flex items-center gap-2">
             <Sparkles size={20} className="text-brand-600" /> {t("fc.aiGenerate")}

@@ -37,7 +37,7 @@ export default function DashboardPage() {
   const [view, setView] = useState<DashboardView>("command-center");
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-6xl mx-auto">
       {/* View Toggle */}
       <div className="flex items-center justify-end mb-6">
         <div className="flex items-center gap-1 bg-surface-200/60 rounded-lg p-1">
