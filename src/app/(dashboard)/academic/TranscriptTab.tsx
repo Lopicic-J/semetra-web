@@ -96,7 +96,7 @@ export default function TranscriptTab() {
       const isPassed = bestGrade != null && (
         gradeScale
           ? isPassingGrade(bestGrade, gradeScale)
-          : gs.direction === "higher_better" ? bestGrade >= gs.passingGradeingGrade : bestGrade <= gs.passingGradeingGrade
+          : gs.direction === "higher_better" ? bestGrade >= gs.passingGrade : bestGrade <= gs.passingGrade
       );
 
       const credits = mod.ects ?? 0;
