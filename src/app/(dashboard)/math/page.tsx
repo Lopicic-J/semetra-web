@@ -324,7 +324,7 @@ const RICH_FORMULAS: RichFormula[] = [
 
 function safeEval(expr: string, t?: (key: string) => string): string {
   try {
-    let e = expr
+    const e = expr
       .replace(/π/g, `(${Math.PI})`)
       .replace(/×/g, "*")
       .replace(/÷/g, "/")
@@ -1952,7 +1952,7 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
   const COLORS = ["#8b5cf6", "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#ec4899"];
 
   const evalExpr = useCallback((expr: string, x: number, p?: { a: number; b: number; c: number }): number => {
-    let e = expr
+    const e = expr
       .replace(/\ba\b/g, p ? `(${p.a})` : "a")
       .replace(/\bb\b/g, p ? `(${p.b})` : "b")
       .replace(/\bc\b/g, p ? `(${p.c})` : "c")
@@ -2700,7 +2700,7 @@ function StatisticsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
 
   const interpretation = () => {
     if (!stats) return "";
-    let hints = [];
+    const hints = [];
     if (stats.cv !== null && stats.cv > 30) hints.push(t("math.statHighSpread"));
     if (stats.skewness !== null && stats.skewness > 0.5) hints.push(t("math.statRightSkew"));
     if (stats.skewness !== null && stats.skewness < -0.5) hints.push(t("math.statLeftSkew"));

@@ -152,7 +152,7 @@ describe("POST /api/achievements", () => {
     ]);
 
     // Mock RPC calls for achievement unlocking
-    let rpcCalls: any[] = [];
+    const rpcCalls: any[] = [];
     mockSupabase.rpc.mockImplementation(async (name: string, params: any) => {
       rpcCalls.push({ name, params });
       // Simulate successful unlock

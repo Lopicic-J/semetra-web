@@ -27,7 +27,7 @@ export function StudyStreak({ items }: StudyStreakProps) {
     today.setHours(0, 0, 0, 0);
 
     let currentStreak = 0;
-    let checkDate = new Date(today);
+    const checkDate = new Date(today);
 
     while (true) {
       const dateStr = checkDate.toISOString().slice(0, 10);
