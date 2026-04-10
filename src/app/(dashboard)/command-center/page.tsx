@@ -157,8 +157,8 @@ export default function CommandCenterPage() {
     if (!state) return [];
     return [...state.moduleRankings].sort((a, b) => {
       const riskOrder: Record<RiskLevel, number> = { critical: 0, high: 1, medium: 2, low: 3, none: 4 };
-      const aRisk = state.risks.modules.get(a.moduleId)?.level ?? "none";
-      const bRisk = state.risks.modules.get(b.moduleId)?.level ?? "none";
+      const aRisk: RiskLevel = state.risks.modules.get(a.moduleId)?.overall ?? "none";
+      const bRisk: RiskLevel = state.risks.modules.get(b.moduleId)?.overall ?? "none";
       return riskOrder[aRisk] - riskOrder[bRisk];
     });
   }, [state]);
@@ -376,7 +376,9 @@ export default function CommandCenterPage() {
                 <div key={i} className="flex items-center justify-between py-1.5 border-b border-surface-50 last:border-0">
                   <div>
                     <p className="text-sm font-medium text-surface-700">{exam.title}</p>
-                    <p className="text-xs text-surface-400">{exam.moduleName}</p>
+                    <p className="text-xs text-surface-400">
+                      {exam.moduleId ? (modules.find(m => m.moduleId === exam.moduleId)?.moduleName ?? "") : ""}
+                    </p>
                   </div>
                   <span className="text-xs text-surface-500">
                     {new Date(exam.date).toLocaleDateString("de-CH", { day: "numeric", month: "short" })}
@@ -409,7 +411,7 @@ export default function CommandCenterPage() {
                 key={mp.moduleId}
                 name={mod.moduleName}
                 code={mod.moduleCode}
-                risk={risk?.level ?? "none"}
+                risk={risk?.overall ?? "none"}
                 color={mod.color}
                 daysUntilExam={mod.exams.daysUntilNext}
                 trend={mod.grades.trend}
