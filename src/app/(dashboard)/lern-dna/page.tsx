@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { clsx } from "clsx";
 import {
@@ -28,6 +28,28 @@ import { useStudyPatterns } from "@/lib/hooks/useStudyPatterns";
 import { useCommandCenter } from "@/lib/hooks/useCommandCenter";
 import type { RiskLevel, Action } from "@/lib/decision/types";
 import Link from "next/link";
+
+// ── Error Boundary for Engine Section (prevents page crash) ─────────────────
+
+class EngineErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: Error) {
+    console.error("[EngineContextSection] Error caught:", error);
+  }
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -319,9 +341,11 @@ function EngineContextSection({
 
   // Top 3 at-risk modules from engine
   const topRiskModules = useMemo(() => {
+    const riskModules = state?.risks?.modules;
+    if (!riskModules || typeof riskModules.get !== "function") return [];
     const entries: { name: string; code: string; risk: RiskLevel; color?: string }[] = [];
     for (const mod of modules) {
-      const risk = state.risks.modules.get(mod.moduleId);
+      const risk = riskModules.get(mod.moduleId);
       if (risk && (risk.overall === "critical" || risk.overall === "high" || risk.overall === "medium")) {
         entries.push({
           name: mod.moduleName,
@@ -332,10 +356,10 @@ function EngineContextSection({
       }
     }
     return entries.slice(0, 3);
-  }, [modules, state.risks]);
+  }, [modules, state?.risks]);
 
   // Top actions from today's plan
-  const topActions = today.actions.slice(0, 3);
+  const topActions = today?.actions?.slice(0, 3) ?? [];
 
   return (
     <Card padding="lg">
@@ -607,8 +631,10 @@ export default function LernDnaPage() {
             </Card>
           </div>
 
-          {/* Decision Engine Bridge — NEW INTEGRATION */}
-          <EngineContextSection snapshot={snapshot} />
+          {/* Decision Engine Bridge — wrapped in error boundary */}
+          <EngineErrorBoundary>
+            <EngineContextSection snapshot={snapshot} />
+          </EngineErrorBoundary>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
