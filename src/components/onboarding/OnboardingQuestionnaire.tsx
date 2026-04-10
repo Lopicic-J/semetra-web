@@ -273,15 +273,37 @@ export default function OnboardingQuestionnaire() {
     }
   }, [currentStep, goals, schedule, energy, learningStyle, situation]);
 
-  const getStepResponses = useCallback((step: number): Record<string, unknown> => {
-    switch (step) {
-      case 0: return { ...goals };
-      case 1: return { ...schedule };
-      case 2: return { ...energy };
-      case 3: return { ...learningStyle };
-      case 4: return { ...situation };
-      default: return {};
-    }
+  /** Build flat data object matching onboarding_responses columns */
+  const buildFlatData = useCallback((): Record<string, unknown> => {
+    return {
+      // Step 1: Goals
+      primary_goal: goals.primary_goal,
+      weekly_study_target_hours: goals.weekly_study_target_hours,
+      // Step 2: Schedule
+      typical_wake_time: schedule.wake_time,
+      typical_sleep_time: schedule.sleep_time,
+      available_from: schedule.available_from,
+      available_until: schedule.available_until,
+      busy_days: schedule.busy_days,
+      has_job: schedule.has_job,
+      job_hours_per_week: schedule.job_hours_per_week,
+      // Step 3: Energy
+      energy_morning: energy.energy_morning,
+      energy_afternoon: energy.energy_afternoon,
+      energy_evening: energy.energy_evening,
+      preferred_session_length: String(energy.preferred_session_length),
+      focus_challenge: energy.focus_challenge,
+      // Step 4: Learning Style
+      learning_style: learningStyle.learning_style,
+      prefers_group_study: learningStyle.prefers_group_study,
+      uses_flashcards: learningStyle.uses_flashcards,
+      uses_pomodoro: learningStyle.uses_pomodoro,
+      uses_notes: learningStyle.takes_notes,
+      // Step 5: Situation
+      semester_number: situation.semester_number,
+      modules_this_semester: situation.modules_this_semester,
+      exam_anxiety_level: situation.exam_anxiety_level,
+    };
   }, [goals, schedule, energy, learningStyle, situation]);
 
   const saveAndAdvance = useCallback(async () => {
@@ -292,32 +314,22 @@ export default function OnboardingQuestionnaire() {
     const isLastStep = currentStep === STEPS.length - 1;
 
     try {
-      // Build all steps to save (current + any previous)
-      const stepsToSave = [];
-      for (let i = 0; i <= currentStep; i++) {
-        stepsToSave.push({
-          step: i + 1,
-          step_name: STEPS[i].step_name,
-          responses: getStepResponses(i),
-        });
-      }
-
       const res = await fetch("/api/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          steps: stepsToSave,
+          data: buildFlatData(),
+          step: currentStep + 1,
           finalize: isLastStep,
         }),
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Speichern fehlgeschlagen");
+        const json = await res.json();
+        throw new Error(json.error || "Speichern fehlgeschlagen");
       }
 
       if (isLastStep) {
-        // Redirect to dashboard after a short celebration
         router.push("/dashboard");
       } else {
         setCurrentStep((s) => s + 1);
@@ -327,7 +339,7 @@ export default function OnboardingQuestionnaire() {
     } finally {
       setSaving(false);
     }
-  }, [canGoNext, currentStep, getStepResponses, router]);
+  }, [canGoNext, currentStep, buildFlatData, router]);
 
   const goBack = () => {
     if (currentStep > 0) setCurrentStep((s) => s - 1);

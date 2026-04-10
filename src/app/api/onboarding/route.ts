@@ -3,6 +3,8 @@
  *
  * POST /api/onboarding — Save onboarding responses and apply to preferences
  * GET  /api/onboarding — Check onboarding status
+ *
+ * Table `onboarding_responses` has a flat column structure (one row per user).
  */
 
 import { NextRequest } from "next/server";
@@ -31,32 +33,48 @@ export async function GET() {
       .eq("id", user.id)
       .single();
 
-    // Also check if there are existing responses
     const { data: responses } = await supabase
       .from("onboarding_responses")
-      .select("step, completed_at")
+      .select("completed_steps, is_complete")
       .eq("user_id", user.id)
-      .order("step", { ascending: true });
+      .maybeSingle();
 
     return successResponse({
       completed: profile?.onboarding_completed ?? false,
       completed_at: profile?.onboarding_completed_at ?? null,
-      steps: responses ?? [],
+      completed_steps: responses?.completed_steps ?? 0,
+      is_complete: responses?.is_complete ?? false,
     });
   });
 }
 
-// ── POST: Save responses and apply to preferences ───────────────────────────
+// ── POST: Save responses (flat columns) and optionally finalize ──────────────
 
-interface OnboardingStep {
-  step: number;
-  step_name: string;
-  responses: Record<string, unknown>;
-}
+// Allowed fields that map directly to onboarding_responses columns
+const ALLOWED_FIELDS = [
+  // Step 1: Goals
+  "primary_goal", "weekly_study_target_hours",
+  // Step 2: Schedule
+  "typical_wake_time", "typical_sleep_time", "available_from", "available_until",
+  "busy_days", "has_job", "job_hours_per_week",
+  // Step 3: Energy
+  "energy_morning", "energy_afternoon", "energy_evening",
+  "preferred_session_length", "focus_challenge",
+  // Step 4: Learning Style
+  "learning_style", "prefers_group_study", "uses_flashcards", "uses_pomodoro", "uses_notes",
+  // Step 5: Situation
+  "semester_number", "modules_this_semester", "exam_anxiety_level",
+  // Meta
+  "completed_steps",
+] as const;
 
 interface OnboardingBody {
-  steps: OnboardingStep[];
-  finalize?: boolean; // Set to true on last step to trigger preference application
+  /** Flat key-value pairs matching onboarding_responses columns */
+  data: Record<string, unknown>;
+  /** Current step number (1-5) */
+  step: number;
+  /** Set true on last step to finalize */
+  finalize?: boolean;
 }
 
 export async function POST(req: NextRequest) {
@@ -68,46 +86,50 @@ export async function POST(req: NextRequest) {
     const body = await parseBody<OnboardingBody>(req);
     if (isErrorResponse(body)) return body;
 
-    const { steps, finalize } = body;
+    const { data, step, finalize } = body;
 
-    if (!steps || !Array.isArray(steps) || steps.length === 0) {
-      return errorResponse("steps[] ist erforderlich", 400);
+    if (!data || typeof data !== "object") {
+      return errorResponse("data Objekt ist erforderlich", 400);
+    }
+    if (!step || step < 1 || step > 5) {
+      return errorResponse("step muss zwischen 1 und 5 sein", 400);
     }
 
-    // Validate each step
-    for (const step of steps) {
-      if (!step.step || !step.step_name || !step.responses) {
-        return errorResponse("Jeder Step braucht step, step_name und responses", 400);
-      }
-      if (step.step < 1 || step.step > 5) {
-        return errorResponse("step muss zwischen 1 und 5 sein", 400);
-      }
-    }
-
-    // Upsert each step's responses
-    for (const step of steps) {
-      const { error: upsertErr } = await supabase
-        .from("onboarding_responses")
-        .upsert(
-          {
-            user_id: user.id,
-            step: step.step,
-            step_name: step.step_name,
-            responses: step.responses,
-            completed_at: new Date().toISOString(),
-          },
-          { onConflict: "user_id,step" }
-        );
-
-      if (upsertErr) {
-        log.error(`Step ${step.step} upsert failed`, upsertErr);
-        return errorResponse(`Schritt ${step.step} konnte nicht gespeichert werden: ${upsertErr.message}`, 500);
+    // Filter to allowed fields only
+    const updates: Record<string, unknown> = {};
+    for (const key of ALLOWED_FIELDS) {
+      if (key in data) {
+        updates[key] = data[key];
       }
     }
 
-    // If finalizing (all steps done), apply to preferences
+    // Track step progress
+    updates.completed_steps = step;
+    updates.updated_at = new Date().toISOString();
+
     if (finalize) {
-      // Call the DB function that converts onboarding answers to preferences
+      updates.is_complete = true;
+      updates.completed_at = new Date().toISOString();
+    }
+
+    // Upsert (one row per user)
+    const { error: upsertErr } = await supabase
+      .from("onboarding_responses")
+      .upsert(
+        {
+          user_id: user.id,
+          ...updates,
+        },
+        { onConflict: "user_id" }
+      );
+
+    if (upsertErr) {
+      log.error("Onboarding upsert failed", upsertErr);
+      return errorResponse("Antworten konnten nicht gespeichert werden: " + upsertErr.message, 500);
+    }
+
+    // If finalizing, apply to preferences
+    if (finalize) {
       const { error: rpcErr } = await supabase.rpc(
         "apply_onboarding_to_preferences",
         { p_user_id: user.id }
@@ -115,10 +137,7 @@ export async function POST(req: NextRequest) {
 
       if (rpcErr) {
         log.error("apply_onboarding_to_preferences failed", rpcErr);
-        return errorResponse(
-          "Onboarding-Antworten gespeichert, aber Preferences konnten nicht angewendet werden: " + rpcErr.message,
-          500
-        );
+        // Non-fatal: responses saved, preferences just not auto-applied
       }
 
       // Mark profile as onboarding completed
@@ -138,6 +157,6 @@ export async function POST(req: NextRequest) {
       return successResponse({ completed: true, message: "Onboarding abgeschlossen!" });
     }
 
-    return successResponse({ saved: steps.map((s) => s.step) });
+    return successResponse({ saved_step: step });
   });
 }
