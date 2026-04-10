@@ -3,7 +3,7 @@ import {
   Calendar, Award, CalendarClock, Users, Trophy,
   FileText, Brain, Network, Calculator, Timer,
   TrendingUp, Sparkles, GraduationCap, Wrench, Code, Puzzle,
-  Shield, Settings, UserCircle, Terminal, Zap, BarChart3, Dna, Radar,
+  Shield, Settings, UserCircle, Terminal, Zap, BarChart3, Dna, Radar, ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRole } from "@/lib/hooks/useProfile";
@@ -43,7 +43,8 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/tasks",           icon: CheckSquare,  labelKey: "nav.tasks",          pro: false },
       { href: "/smart-schedule",  icon: Zap,          labelKey: "nav.smartSchedule",  pro: false },
       { href: "/schedule",        icon: Calendar,     labelKey: "nav.schedule",       pro: false },
-      { href: "/exams",           icon: Award,        labelKey: "nav.exams",          pro: false },
+      { href: "/exams",               icon: Award,        labelKey: "nav.exams",              pro: false },
+      { href: "/exam-intelligence",   icon: ShieldCheck,  labelKey: "nav.examIntelligence",   pro: false },
     ],
   },
   // ── Lernen ──
