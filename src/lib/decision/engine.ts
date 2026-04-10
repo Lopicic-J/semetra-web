@@ -31,6 +31,7 @@ import type {
   CommandCenterState,
   AIDecisionContext,
   DecisionEngineConfig,
+  DnaProfile,
   ExamSnapshot,
   TrendDirection,
 } from "./types";
@@ -1077,14 +1078,110 @@ function riskLevelToNumber(level: RiskLevel): number {
  * Baut den kompletten Command Center State auf.
  * Dies ist die Haupt-Funktion die alles orchestriert.
  */
+// ═══════════════════════════════════════════════════════════════
+// 6. DNA FEEDBACK LOOP
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Passt die Engine-Konfiguration basierend auf Lern-DNA-Scores an.
+ *
+ * Logik:
+ * - Niedrige Konsistenz → Aktivitätslücke-Gewicht steigt (früherer Alarm)
+ * - Niedriger Fokus → kürzere empfohlene Sessions (via estimates)
+ * - Niedrige Planung → Aufgabendringlichkeit-Gewicht steigt
+ * - Niedrige Ausdauer → niedrigere Session-Dauer-Schätzungen
+ * - Hohe Adaptabilität → tolerantere Schwellwerte bei Inaktivität
+ *
+ * Die Anpassung ist subtil (±5-15%) um Stabilität zu gewährleisten.
+ */
+export function applyDnaModifiers(
+  baseConfig: DecisionEngineConfig,
+  dna: DnaProfile
+): DecisionEngineConfig {
+  // Kopie um Mutation zu vermeiden
+  const config: DecisionEngineConfig = {
+    weights: { ...baseConfig.weights },
+    thresholds: { ...baseConfig.thresholds },
+    estimates: { ...baseConfig.estimates },
+  };
+
+  // ── Konsistenz beeinflusst Aktivitätslücke-Gewicht ──
+  // Niedrige Konsistenz → Inaktivität wiegt schwerer
+  if (dna.consistencyScore < 40) {
+    config.weights.activityGap = Math.round(baseConfig.weights.activityGap * 1.15);
+    // Früherer Alarm bei Inaktivität
+    config.thresholds.noActivityDays = Math.max(2, baseConfig.thresholds.noActivityDays - 1);
+  } else if (dna.consistencyScore >= 80) {
+    // Sehr konsistente Lerner brauchen weniger Aktivitäts-Nudging
+    config.weights.activityGap = Math.round(baseConfig.weights.activityGap * 0.9);
+  }
+
+  // ── Fokus beeinflusst Session-Dauer-Empfehlungen ──
+  if (dna.focusScore < 40) {
+    // Kürzere Sessions empfehlen (eher Pomodoro-Stil)
+    config.estimates.minutesPerTopic = Math.round(baseConfig.estimates.minutesPerTopic * 0.8);
+    config.estimates.minutesPerExamPrep = Math.round(baseConfig.estimates.minutesPerExamPrep * 0.85);
+  } else if (dna.focusScore >= 80) {
+    // Starker Fokus → längere Deep-Work-Sessions sinnvoll
+    config.estimates.minutesPerTopic = Math.round(baseConfig.estimates.minutesPerTopic * 1.1);
+  }
+
+  // ── Planung beeinflusst Aufgabendringlichkeit ──
+  if (dna.planningScore < 40) {
+    // Schlechte Planer brauchen mehr Aufgaben-Nudging
+    config.weights.taskUrgency = Math.round(baseConfig.weights.taskUrgency * 1.15);
+    config.thresholds.taskDueSoonDays = Math.min(5, baseConfig.thresholds.taskDueSoonDays + 1);
+  }
+
+  // ── Ausdauer beeinflusst Prüfungsvorbereitungs-Schätzung ──
+  if (dna.enduranceScore < 40) {
+    // Niedrige Ausdauer → mehr kurze Sessions statt Marathon-Lernen
+    config.estimates.minutesPerExamPrep = Math.round(baseConfig.estimates.minutesPerExamPrep * 0.8);
+  } else if (dna.enduranceScore >= 80) {
+    // Hohe Ausdauer → kann längere Prep-Blöcke nutzen
+    config.estimates.minutesPerExamPrep = Math.round(baseConfig.estimates.minutesPerExamPrep * 1.1);
+  }
+
+  // ── Adaptabilität beeinflusst Inaktivitätsschwelle ──
+  if (dna.adaptabilityScore >= 70) {
+    // Adaptive Lerner können Pausen besser kompensieren
+    config.thresholds.noActivityDays = Math.min(7, baseConfig.thresholds.noActivityDays + 1);
+  }
+
+  // Gewichte normalisieren (sollen sich zu ~100 addieren)
+  const totalW = config.weights.examProximity + config.weights.gradeRisk +
+    config.weights.taskUrgency + config.weights.activityGap + config.weights.knowledgeGap;
+  const baseTotalW = baseConfig.weights.examProximity + baseConfig.weights.gradeRisk +
+    baseConfig.weights.taskUrgency + baseConfig.weights.activityGap + baseConfig.weights.knowledgeGap;
+  if (totalW !== baseTotalW) {
+    const scale = baseTotalW / totalW;
+    config.weights.examProximity = Math.round(config.weights.examProximity * scale);
+    config.weights.gradeRisk = Math.round(config.weights.gradeRisk * scale);
+    config.weights.taskUrgency = Math.round(config.weights.taskUrgency * scale);
+    config.weights.activityGap = Math.round(config.weights.activityGap * scale);
+    config.weights.knowledgeGap = Math.round(config.weights.knowledgeGap * scale);
+  }
+
+  return config;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 7. COMMAND CENTER STATE
+// ═══════════════════════════════════════════════════════════════
+
 export function buildCommandCenterState(
   modules: ModuleIntelligence[],
-  config: DecisionEngineConfig = DEFAULT_ENGINE_CONFIG
+  config: DecisionEngineConfig = DEFAULT_ENGINE_CONFIG,
+  dnaProfile?: DnaProfile | null
 ): CommandCenterState {
+  // Apply DNA modifiers if available → personalized engine behavior
+  const effectiveConfig = dnaProfile
+    ? applyDnaModifiers(config, dnaProfile)
+    : config;
   const activeModules = modules.filter((m) => m.status === "active");
 
-  // 1. Risiko für jedes Modul
-  const allRisks = activeModules.map((m) => assessModuleRisk(m, config));
+  // 1. Risiko für jedes Modul (uses DNA-adjusted config)
+  const allRisks = activeModules.map((m) => assessModuleRisk(m, effectiveConfig));
   const riskMap = new Map<string, ModuleRisk>();
   const criticalRisks: ModuleRisk[] = [];
   const highRisks: ModuleRisk[] = [];
@@ -1097,9 +1194,9 @@ export function buildCommandCenterState(
     else if (risk.overall === "medium") mediumRisks.push(risk);
   }
 
-  // 2. Priorität für jedes Modul
+  // 2. Priorität für jedes Modul (uses DNA-adjusted config)
   const priorities = activeModules.map((m) =>
-    calculateModulePriority(m, riskMap.get(m.moduleId)!, config)
+    calculateModulePriority(m, riskMap.get(m.moduleId)!, effectiveConfig)
   );
   const moduleRankings = rankModules(priorities);
 
@@ -1109,8 +1206,8 @@ export function buildCommandCenterState(
     predictions.set(module.moduleId, predictOutcome(module));
   }
 
-  // 4. Tagesplan
-  const today = buildDailyPlan(modules, config);
+  // 4. Tagesplan (uses DNA-adjusted config)
+  const today = buildDailyPlan(modules, effectiveConfig);
 
   // 5. Globale Metriken
   const now = new Date();

@@ -29,6 +29,7 @@ export type {
   StudyBehavior,
   DailyPattern,
   DecisionEngineConfig,
+  DnaProfile,
 } from "./types";
 
 export { DEFAULT_ENGINE_CONFIG } from "./types";
@@ -49,6 +50,7 @@ export {
   groupActionsByModule,
   totalActionMinutes,
   buildDailySummary,
+  applyDnaModifiers,
 } from "./engine";
 
 // Automations

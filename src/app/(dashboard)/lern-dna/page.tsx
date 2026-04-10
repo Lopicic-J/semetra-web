@@ -325,7 +325,7 @@ function EngineContextSection({
       if (risk && (risk.overall === "critical" || risk.overall === "high" || risk.overall === "medium")) {
         entries.push({
           name: mod.moduleName,
-          code: mod.moduleCode,
+          code: mod.moduleCode ?? "",
           risk: risk.overall,
           color: mod.color,
         });

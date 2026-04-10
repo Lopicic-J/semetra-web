@@ -293,6 +293,18 @@ export interface DailyPattern {
   sessionCount: number;
 }
 
+// ─── Lern-DNA Profile ───────────────────────────────────────
+/** DNA-Scores aus learning_dna_snapshots, beeinflusst Engine-Gewichtung */
+export interface DnaProfile {
+  consistencyScore: number;   // 0-100
+  focusScore: number;         // 0-100
+  enduranceScore: number;     // 0-100
+  adaptabilityScore: number;  // 0-100
+  planningScore: number;      // 0-100
+  overallScore: number;       // 0-100
+  learnerType: string;
+}
+
 // ─── Engine Configuration ────────────────────────────────────
 export interface DecisionEngineConfig {
   // Gewichtungen für Priority-Score

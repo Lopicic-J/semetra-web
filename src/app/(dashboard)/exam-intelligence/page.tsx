@@ -37,6 +37,7 @@ import {
   type ModuleRisk,
   type OutcomePrediction,
   type RiskLevel,
+  type Scenario,
 } from "@/lib/decision";
 
 // ── Traffic Light Colors ─────────────────────────────────────────────────────
@@ -101,7 +102,9 @@ function EngineInsight({
       )}
       {enginePrediction && (
         <span className="text-[10px] px-1.5 py-0.5 rounded bg-brand-50 text-brand-700 font-medium">
-          Prognose {enginePrediction.currentTrajectory.toFixed(1)} · P(bestehen) {Math.round(enginePrediction.passProbability * 100)}%
+          {enginePrediction.currentTrajectory != null
+            ? `Prognose ${enginePrediction.currentTrajectory.toFixed(1)} · `
+            : ""}P(bestehen) {Math.round(enginePrediction.passProbability * 100)}%
         </span>
       )}
       {engineRisk && engineRisk.factors.length > 0 && (
@@ -248,20 +251,20 @@ function ExamCard({
               {engineRisk.factors.slice(0, 4).map((f, i) => (
                 <div key={i} className="flex items-center gap-2 text-xs">
                   <div className={clsx("w-1.5 h-1.5 rounded-full", TRAFFIC[f.severity]?.bg || "bg-surface-300")} />
-                  <span className="text-surface-600">{f.description}</span>
+                  <span className="text-surface-600">{f.message}</span>
                 </div>
               ))}
             </div>
           )}
 
           {/* Engine scenarios (from predictOutcome) */}
-          {enginePrediction && enginePrediction.scenarios.length > 0 && (
+          {enginePrediction && enginePrediction.scenarioAnalysis.length > 0 && (
             <div className="space-y-1">
               <p className="text-xs font-medium text-surface-600 flex items-center gap-1">
                 <Target size={10} /> Szenarien (Decision Engine)
               </p>
               <div className="grid grid-cols-3 gap-2">
-                {enginePrediction.scenarios.map((s, i) => (
+                {enginePrediction.scenarioAnalysis.map((s: Scenario, i: number) => (
                   <div key={i} className="text-center p-2 rounded-lg bg-white/60">
                     <p className="text-[10px] text-surface-400">{s.name}</p>
                     <p className={clsx("text-sm font-bold", s.passed ? "text-green-600" : "text-red-600")}>
@@ -313,8 +316,8 @@ function ScenarioSimulator({
 
   // Use engine prediction as base when available, fall back to simple formula
   const simulated = useMemo(() => {
-    // If we have engine prediction, use its scenarios as baseline
-    const engineBase = enginePrediction?.currentTrajectory;
+    // If we have engine prediction, use its trajectory as baseline (may be null)
+    const engineBase = enginePrediction?.currentTrajectory ?? null;
     const base = engineBase ?? pred?.grade ?? 4.0;
     const enginePassProb = enginePrediction?.passProbability;
     const basePassProb = enginePassProb ?? pred?.pass_prob ?? 0.5;
