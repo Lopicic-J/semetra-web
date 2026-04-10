@@ -306,10 +306,59 @@ export function useScheduleActions() {
     }
   }, []);
 
+  /** Auto-fill free slots with prioritized study blocks (DB function) */
+  const autoFillGaps = useCallback(async (date?: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/schedule", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "auto-fill", date }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error);
+      return await res.json();
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /** Auto-rescue missed blocks into future free slots */
+  const autoRescue = useCallback(async (lookAheadDays?: number) => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/schedule", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "auto-rescue", look_ahead_days: lookAheadDays }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error);
+      return await res.json();
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /** Generate exam prep study plan for upcoming exams */
+  const generateExamPlan = useCallback(async (horizonDays?: number) => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/schedule", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "exam-plan", horizon_days: horizonDays }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error);
+      return await res.json();
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     loading,
     createBlock, updateBlock, deleteBlock,
     skipBlock, rescheduleBlock,
     syncStundenplan, importStundenplan, autoPlan,
+    autoFillGaps, autoRescue, generateExamPlan,
   };
 }

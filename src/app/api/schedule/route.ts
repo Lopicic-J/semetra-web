@@ -16,6 +16,9 @@
  * POST /api/schedule                           → Create a schedule block
  * POST /api/schedule { action: "import" }      → Import stundenplan to schedule
  * POST /api/schedule { action: "auto-plan" }   → Auto-generate from Decision Engine
+ * POST /api/schedule { action: "auto-fill" }   → Fill free slots with prioritized study
+ * POST /api/schedule { action: "auto-rescue" } → Rescue missed blocks into future slots
+ * POST /api/schedule { action: "exam-plan" }   → Generate exam prep study plan
  *
  * PATCH /api/schedule/:id                      → Update a block
  * DELETE /api/schedule/:id                     → Delete a block
@@ -321,6 +324,57 @@ export async function POST(req: NextRequest) {
         created, updated, deleted,
         message: `Sync: ${created} erstellt, ${updated} aktualisiert, ${deleted} entfernt`,
       });
+    }
+
+    // ── Auto-fill free slots with prioritized study ──────────────────────
+    if (action === "auto-fill") {
+      const date = (body.date as string) || new Date().toISOString().slice(0, 10);
+
+      const { data, error } = await supabase.rpc("auto_fill_free_slots", {
+        p_user_id: user.id,
+        p_date: date,
+      });
+
+      if (error) {
+        log.error("Auto-fill failed", error);
+        return errorResponse("Auto-Fill fehlgeschlagen: " + error.message, 500);
+      }
+
+      return successResponse(data || { created: 0 });
+    }
+
+    // ── Auto-rescue missed blocks ──────────────────────────────────────
+    if (action === "auto-rescue") {
+      const lookAheadDays = (body.look_ahead_days as number) || 3;
+
+      const { data, error } = await supabase.rpc("auto_rescue_missed_blocks", {
+        p_user_id: user.id,
+        p_look_ahead_days: lookAheadDays,
+      });
+
+      if (error) {
+        log.error("Auto-rescue failed", error);
+        return errorResponse("Auto-Rescue fehlgeschlagen: " + error.message, 500);
+      }
+
+      return successResponse(data || { rescued: 0, dropped: 0, kept_pending: 0 });
+    }
+
+    // ── Compute exam study plan ────────────────────────────────────────
+    if (action === "exam-plan") {
+      const horizonDays = (body.horizon_days as number) || 30;
+
+      const { data, error } = await supabase.rpc("compute_exam_study_plan", {
+        p_user_id: user.id,
+        p_horizon_days: horizonDays,
+      });
+
+      if (error) {
+        log.error("Exam plan generation failed", error);
+        return errorResponse("Prüfungsplan-Generierung fehlgeschlagen: " + error.message, 500);
+      }
+
+      return successResponse(data || { exams_planned: 0, blocks_created: 0 });
     }
 
     // ── Auto-plan from Decision Engine ──────────────────────────────────

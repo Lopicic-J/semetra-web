@@ -340,6 +340,9 @@ function ScheduleSettingsModal({
     auto_fill_gaps: preferences.auto_fill_gaps ?? false,
     auto_plan_enabled: preferences.auto_plan_enabled ?? false,
     auto_reschedule_missed: preferences.auto_reschedule_missed ?? true,
+    exam_prep_start_days_before: preferences.exam_prep_start_days_before ?? 14,
+    exam_prep_min_hours: preferences.exam_prep_min_hours ?? 10,
+    exam_prep_daily_max_minutes: preferences.exam_prep_daily_max_minutes ?? 120,
   });
   const [saving, setSaving] = useState(false);
 
@@ -484,6 +487,41 @@ function ScheduleSettingsModal({
               ))}
             </div>
           </div>
+
+          {/* ── Prüfungsvorbereitung ── */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Prüfungsvorbereitung</h3>
+            <p className="text-xs text-gray-400 mb-3">Automatische Lernplan-Generierung für kommende Prüfungen</p>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="text-[11px] text-gray-500 mb-1 block">Start vor Prüfung</label>
+                <div className="flex items-center gap-1">
+                  <input type="number" value={form.exam_prep_start_days_before} min={3} max={60} step={1}
+                    onChange={(e) => setForm(prev => ({ ...prev, exam_prep_start_days_before: +e.target.value }))}
+                    className="w-full px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" />
+                  <span className="text-xs text-gray-400 shrink-0">Tage</span>
+                </div>
+              </div>
+              <div>
+                <label className="text-[11px] text-gray-500 mb-1 block">Min. Lernstunden</label>
+                <div className="flex items-center gap-1">
+                  <input type="number" value={form.exam_prep_min_hours} min={1} max={100} step={1}
+                    onChange={(e) => setForm(prev => ({ ...prev, exam_prep_min_hours: +e.target.value }))}
+                    className="w-full px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" />
+                  <span className="text-xs text-gray-400 shrink-0">h</span>
+                </div>
+              </div>
+              <div>
+                <label className="text-[11px] text-gray-500 mb-1 block">Max./Tag</label>
+                <div className="flex items-center gap-1">
+                  <input type="number" value={form.exam_prep_daily_max_minutes} min={30} max={480} step={15}
+                    onChange={(e) => setForm(prev => ({ ...prev, exam_prep_daily_max_minutes: +e.target.value }))}
+                    className="w-full px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" />
+                  <span className="text-xs text-gray-400 shrink-0">min</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="flex gap-2 p-4 border-t border-gray-100 dark:border-gray-800">
@@ -530,6 +568,9 @@ export default function SmartSchedulePage() {
   }, [actions, day]);
   const handleAutoPlan = useCallback(async () => { await actions.autoPlan(currentDate); day.refetch(); }, [actions, currentDate, day]);
   const handleResync = useCallback(async () => { await actions.syncStundenplan(); day.refetch(); }, [actions, day]);
+  const handleAutoFill = useCallback(async () => { await actions.autoFillGaps(currentDate); day.refetch(); }, [actions, currentDate, day]);
+  const handleAutoRescue = useCallback(async () => { await actions.autoRescue(); day.refetch(); }, [actions, day]);
+  const handleExamPlan = useCallback(async () => { await actions.generateExamPlan(); day.refetch(); }, [actions, day]);
 
   // Filtered data
   const filteredBlocks = useMemo(() => {
@@ -600,6 +641,14 @@ export default function SmartSchedulePage() {
           <button onClick={handleAutoPlan} disabled={actions.loading}
             className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-md bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50">
             <Zap size={12} /> Auto-Plan
+          </button>
+          <button onClick={handleAutoFill} disabled={actions.loading} title="Freie Slots mit Lernzeit füllen"
+            className="flex items-center gap-1 px-2 py-1 text-[11px] font-medium rounded-md border border-brand-200 dark:border-brand-800 bg-brand-50 dark:bg-brand-900/20 text-brand-600 hover:bg-brand-100 dark:hover:bg-brand-900/40 disabled:opacity-50">
+            <Plus size={11} /> Füllen
+          </button>
+          <button onClick={handleExamPlan} disabled={actions.loading} title="Prüfungs-Lernplan generieren"
+            className="flex items-center gap-1 px-2 py-1 text-[11px] font-medium rounded-md border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 disabled:opacity-50">
+            <Target size={11} /> Prüfung
           </button>
           <button onClick={handleResync} disabled={actions.loading} title="Stundenplan synchronisieren"
             className="p-1.5 rounded-md border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500">

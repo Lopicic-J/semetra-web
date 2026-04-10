@@ -17,7 +17,7 @@ export type BlockLayer = 1 | 2;
 
 export type BlockStatus = "scheduled" | "in_progress" | "completed" | "skipped" | "rescheduled";
 
-export type BlockSource = "manual" | "auto_plan" | "stundenplan_import" | "stundenplan_sync" | "calendar_sync" | "study_plan" | "decision_engine";
+export type BlockSource = "manual" | "auto_plan" | "stundenplan_import" | "stundenplan_sync" | "calendar_sync" | "study_plan" | "decision_engine" | "auto_fill" | "exam_prep_auto" | "auto_rescue";
 
 export type BlockPriority = "low" | "medium" | "high" | "critical";
 
@@ -121,6 +121,12 @@ export interface SchedulePreferences {
   auto_sync_stundenplan: boolean;
   /** Auto-fill detected free slots with study sessions */
   auto_fill_gaps: boolean;
+  /** Days before exam to start auto-generating prep blocks */
+  exam_prep_start_days_before: number;
+  /** Minimum total hours of exam prep to schedule */
+  exam_prep_min_hours: number;
+  /** Maximum exam prep minutes per day */
+  exam_prep_daily_max_minutes: number;
   pomodoro_focus_minutes: number;
   pomodoro_short_break: number;
   pomodoro_long_break: number;
@@ -147,6 +153,9 @@ export const DEFAULT_PREFERENCES: SchedulePreferences = {
   auto_reschedule_missed: true,
   auto_sync_stundenplan: true,
   auto_fill_gaps: false,
+  exam_prep_start_days_before: 14,
+  exam_prep_min_hours: 10,
+  exam_prep_daily_max_minutes: 120,
   pomodoro_focus_minutes: 25,
   pomodoro_short_break: 5,
   pomodoro_long_break: 15,

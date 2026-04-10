@@ -69,6 +69,7 @@ export async function PUT(req: NextRequest) {
       "prefer_consistent_times", "allow_weekend_study", "weekend_max_minutes",
       "auto_plan_enabled", "auto_reschedule_missed",
       "auto_sync_stundenplan", "auto_fill_gaps",
+      "exam_prep_start_days_before", "exam_prep_min_hours", "exam_prep_daily_max_minutes",
       "pomodoro_focus_minutes", "pomodoro_short_break",
       "pomodoro_long_break", "pomodoro_sessions_before_long",
     ];
