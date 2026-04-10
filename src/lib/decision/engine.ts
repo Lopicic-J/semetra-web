@@ -32,6 +32,7 @@ import type {
   AIDecisionContext,
   DecisionEngineConfig,
   DnaProfile,
+  OnboardingProfile,
   ExamSnapshot,
   TrendDirection,
 } from "./types";
