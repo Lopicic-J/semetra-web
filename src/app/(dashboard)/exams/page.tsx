@@ -774,6 +774,9 @@ function ExamModal({ initial, modules, onClose, onSaved }: {
     title: initial?.title ?? "",
     date: initial?.start_dt ? initial.start_dt.split("T")[0] : "",
     time: initial?.start_dt ? initial.start_dt.split("T")[1]?.slice(0, 5) ?? "09:00" : "09:00",
+    module_id: initial?.module_id ?? "",
+    exam_format: (initial as any)?.exam_format ?? "",
+    difficulty_estimate: (initial as any)?.difficulty_estimate ?? 3,
     location: initial?.location ?? "",
     description: initial?.description ?? "",
     color: initial?.color ?? COLORS[2],
@@ -785,12 +788,16 @@ function ExamModal({ initial, modules, onClose, onSaved }: {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    const selectedModule = modules.find(m => m.id === form.module_id);
     const payload = {
       title: form.title,
       start_dt: `${form.date}T${form.time}:00`,
+      module_id: form.module_id || null,
+      exam_format: form.exam_format || null,
+      difficulty_estimate: form.difficulty_estimate || null,
       location: form.location || null,
       description: form.description || null,
-      color: form.color,
+      color: selectedModule?.color || form.color,
       event_type: "exam",
     };
     const { data: { user } } = await supabase.auth.getUser();
@@ -816,6 +823,29 @@ function ExamModal({ initial, modules, onClose, onSaved }: {
             <label className="block text-sm font-medium text-surface-700 mb-1">{t("exams.modal.nameLabel")} *</label>
             <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("exams.modal.namePlaceholder")} />
           </div>
+          {/* Module selector */}
+          <div>
+            <label className="block text-sm font-medium text-surface-700 mb-1">Modul</label>
+            <select
+              className="input"
+              value={form.module_id}
+              onChange={e => {
+                const mod = modules.find(m => m.id === e.target.value);
+                setForm(f => ({
+                  ...f,
+                  module_id: e.target.value,
+                  color: mod?.color || f.color,
+                }));
+              }}
+            >
+              <option value="">— Kein Modul —</option>
+              {modules.map(m => (
+                <option key={m.id} value={m.id}>
+                  {m.code ? `${m.code} – ` : ""}{m.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-surface-700 mb-1">{t("exams.modal.dateLabel")} *</label>
@@ -824,6 +854,32 @@ function ExamModal({ initial, modules, onClose, onSaved }: {
             <div>
               <label className="block text-sm font-medium text-surface-700 mb-1">{t("exams.modal.timeLabel")}</label>
               <input className="input" type="time" value={form.time} onChange={e => set("time", e.target.value)} />
+            </div>
+          </div>
+          {/* Exam format & difficulty */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Format</label>
+              <select className="input" value={form.exam_format} onChange={e => set("exam_format", e.target.value)}>
+                <option value="">— Wählen —</option>
+                <option value="written">Schriftlich</option>
+                <option value="oral">Mündlich</option>
+                <option value="multiple_choice">Multiple Choice</option>
+                <option value="open_book">Open Book</option>
+                <option value="project">Projekt</option>
+                <option value="presentation">Präsentation</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Schwierigkeit (1-5)</label>
+              <input
+                className="input"
+                type="number"
+                min={1}
+                max={5}
+                value={form.difficulty_estimate}
+                onChange={e => setForm(f => ({ ...f, difficulty_estimate: parseInt(e.target.value) || 3 }))}
+              />
             </div>
           </div>
           <div>
