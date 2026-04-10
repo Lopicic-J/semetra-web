@@ -1,5 +1,7 @@
 {
   "nav.dashboard": "Dashboard",
+  "nav.fortschritt": "Progress",
+  "nav.werkzeuge": "Tools",
   "nav.navigator": "Navigator",
   "nav.modules": "Modules",
   "nav.tasks": "Tasks",

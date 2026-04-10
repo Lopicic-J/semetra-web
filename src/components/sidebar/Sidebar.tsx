@@ -1,8 +1,9 @@
 "use client";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { LogOut, Zap, Gem, Flame } from "lucide-react";
+import { LogOut, Zap, Gem, Flame, Pin, PinOff, ChevronDown, ChevronRight } from "lucide-react";
 import { clsx } from "clsx";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { useStreaks } from "@/lib/hooks/useStreaks";
@@ -10,13 +11,59 @@ import { useTranslation } from "@/lib/i18n";
 import { ProBadge } from "@/components/ui/ProGate";
 import { BOTTOM_ITEMS, getFilteredNavGroups, type NavItem as NavItemType } from "./nav-config";
 
+// ── Pin persistence (localStorage — syncs to Supabase later) ────────────────
+
+const PIN_STORAGE_KEY = "semetra_pinned_tabs";
+
+function loadPins(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem(PIN_STORAGE_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function savePins(pins: string[]) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(pins));
+}
+
+// ── Component ───────────────────────────────────────────────────────────────
+
 export default function Sidebar() {
   const pathname = usePathname();
-  const router   = useRouter();
+  const router = useRouter();
   const supabase = createClient();
   const { isPro, userRole } = useProfile();
   const streak = useStreaks();
   const { t } = useTranslation();
+  const [pins, setPins] = useState<string[]>([]);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+
+  // Load pins on mount
+  useEffect(() => {
+    setPins(loadPins());
+  }, []);
+
+  const togglePin = useCallback((href: string) => {
+    setPins((prev) => {
+      const next = prev.includes(href)
+        ? prev.filter((p) => p !== href)
+        : [...prev, href];
+      savePins(next);
+      return next;
+    });
+  }, []);
+
+  const toggleExpand = useCallback((href: string) => {
+    setExpandedItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(href)) next.delete(href);
+      else next.add(href);
+      return next;
+    });
+  }, []);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -24,24 +71,108 @@ export default function Sidebar() {
     router.refresh();
   }
 
-  function NavItem({ href, icon: Icon, labelKey, pro }: NavItemType) {
+  // Auto-expand the active parent
+  useEffect(() => {
+    const groups = getFilteredNavGroups(userRole);
+    for (const g of groups) {
+      for (const item of g.items) {
+        if (item.children && (pathname === item.href || pathname.startsWith(item.href))) {
+          setExpandedItems((prev) => new Set([...prev, item.href]));
+        }
+      }
+    }
+  }, [pathname, userRole]);
+
+  // ── Pinned items section ──────────────────────────────────────────────────
+
+  const allGroups = getFilteredNavGroups(userRole);
+  const allItems = allGroups.flatMap((g) => g.items);
+  const allChildren = allItems.flatMap((item) =>
+    (item.children ?? []).map((child) => ({
+      ...child,
+      parentIcon: item.icon,
+      parentLabel: t(item.labelKey),
+    }))
+  );
+
+  const pinnedChildren = allChildren.filter((c) => pins.includes(c.href));
+
+  // ── Render helpers ────────────────────────────────────────────────────────
+
+  function NavItem({ href, icon: Icon, labelKey, pro, children }: NavItemType) {
     const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
     const locked = pro && !isPro;
+    const hasChildren = children && children.length > 0;
+    const isExpanded = expandedItems.has(href);
 
     return (
-      <Link href={href}
-        className={clsx(
-          "flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-150",
-          active
-            ? "bg-brand-600 text-white shadow-sm"
-            : locked
-              ? "text-surface-400 hover:bg-surface-50"
-              : "text-surface-500 hover:bg-surface-100 hover:text-surface-800"
-        )}>
-        <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
-        <span className="flex-1 truncate">{t(labelKey)}</span>
-        {locked && !active && <ProBadge />}
-      </Link>
+      <div>
+        <div className="flex items-center">
+          <Link
+            href={href}
+            className={clsx(
+              "flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 flex-1 min-w-0",
+              active
+                ? "bg-brand-600 text-white shadow-sm"
+                : locked
+                  ? "text-surface-400 hover:bg-surface-50"
+                  : "text-surface-500 hover:bg-surface-100 hover:text-surface-800"
+            )}
+          >
+            <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
+            <span className="flex-1 truncate">{t(labelKey)}</span>
+            {locked && !active && <ProBadge />}
+          </Link>
+          {hasChildren && (
+            <button
+              onClick={() => toggleExpand(href)}
+              className="p-1.5 rounded-lg text-surface-400 hover:text-surface-600 hover:bg-surface-100 transition-colors shrink-0"
+            >
+              {isExpanded
+                ? <ChevronDown size={12} />
+                : <ChevronRight size={12} />}
+            </button>
+          )}
+        </div>
+
+        {/* Sub-items (expandable) */}
+        {hasChildren && isExpanded && (
+          <div className="ml-4 mt-0.5 space-y-0.5">
+            {children.map((child) => {
+              const childActive = pathname + (typeof window !== "undefined" ? window.location.search : "") === child.href;
+              const isPinned = pins.includes(child.href);
+
+              return (
+                <div key={child.href} className="flex items-center group">
+                  <Link
+                    href={child.href}
+                    className={clsx(
+                      "flex-1 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all truncate",
+                      childActive
+                        ? "text-brand-600 bg-brand-50"
+                        : "text-surface-400 hover:text-surface-600 hover:bg-surface-50"
+                    )}
+                  >
+                    {t(child.labelKey)}
+                  </Link>
+                  <button
+                    onClick={() => togglePin(child.href)}
+                    className={clsx(
+                      "p-1 rounded transition-all shrink-0",
+                      isPinned
+                        ? "text-brand-500 opacity-100"
+                        : "text-surface-300 opacity-0 group-hover:opacity-100 hover:text-brand-400"
+                    )}
+                    title={isPinned ? "Lösen" : "Anpinnen"}
+                  >
+                    {isPinned ? <PinOff size={11} /> : <Pin size={11} />}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     );
   }
 
@@ -53,7 +184,7 @@ export default function Sidebar() {
           <Gem size={16} strokeWidth={2.2} />
         </div>
         <div className="min-w-0">
-          <p className="font-bold text-surface-900 text-sm leading-tight tracking-tight">Semetra Workspace</p>
+          <p className="font-bold text-surface-900 text-sm leading-tight tracking-tight">Semetra</p>
           <p className="text-[10px] text-surface-400 leading-tight">Study Organizer</p>
         </div>
         <span className={clsx(
@@ -64,10 +195,44 @@ export default function Sidebar() {
         </span>
       </div>
 
+      {/* Pinned Quick Access */}
+      {pinnedChildren.length > 0 && (
+        <div className="mb-3">
+          <p className="px-3 pb-1.5 text-[10px] font-semibold text-surface-400 tracking-wider uppercase select-none flex items-center gap-1">
+            <Pin size={9} />
+            Favoriten
+          </p>
+          <div className="space-y-0.5">
+            {pinnedChildren.map((child) => {
+              const ParentIcon = child.parentIcon;
+              return (
+                <div key={child.href} className="flex items-center group">
+                  <Link
+                    href={child.href}
+                    className="flex items-center gap-2 flex-1 px-3 py-1.5 rounded-xl text-[12px] font-medium text-surface-500 hover:bg-surface-100 hover:text-surface-700 transition-all truncate"
+                  >
+                    <ParentIcon size={13} strokeWidth={1.6} className="shrink-0 text-surface-400" />
+                    <span className="truncate">{t(child.labelKey)}</span>
+                  </Link>
+                  <button
+                    onClick={() => togglePin(child.href)}
+                    className="p-1 rounded text-surface-300 opacity-0 group-hover:opacity-100 hover:text-danger-500 transition-all shrink-0"
+                    title="Lösen"
+                  >
+                    <PinOff size={11} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+          <div className="border-t border-surface-100 mx-3 mt-2" />
+        </div>
+      )}
+
       {/* Nav */}
       <nav className="flex-1 space-y-0.5 overflow-y-auto pr-0.5 -mr-0.5">
-        {getFilteredNavGroups(userRole).map((group, idx) => (
-          <div key={group.labelKey}>
+        {allGroups.map((group, idx) => (
+          <div key={group.labelKey || `g-${idx}`}>
             {idx > 0 && group.labelKey && (
               <div className="border-t border-surface-100 mx-3 my-1" />
             )}
@@ -85,10 +250,29 @@ export default function Sidebar() {
 
       {/* Bottom */}
       <div className="mt-2 pt-3 border-t border-surface-100 space-y-0.5">
-        {BOTTOM_ITEMS.map((item) => <NavItem key={item.href} {...item} />)}
+        {BOTTOM_ITEMS.map((item) => {
+          const active = pathname === item.href;
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={clsx(
+                "flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-150",
+                active
+                  ? "bg-brand-600 text-white shadow-sm"
+                  : "text-surface-500 hover:bg-surface-100 hover:text-surface-800"
+              )}
+            >
+              <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
+              <span className="flex-1 truncate">{t(item.labelKey)}</span>
+            </Link>
+          );
+        })}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-[13px] font-medium text-surface-400 hover:bg-danger-50 hover:text-danger-600 transition-all duration-150">
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-[13px] font-medium text-surface-400 hover:bg-danger-50 hover:text-danger-600 transition-all duration-150"
+        >
           <LogOut size={17} strokeWidth={1.8} className="shrink-0" />
           {t("sidebar.logout")}
         </button>

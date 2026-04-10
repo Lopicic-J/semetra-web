@@ -1,10 +1,11 @@
 "use client";
 
 import { Suspense, lazy } from "react";
-import { Calendar, Clock3 } from "lucide-react";
+import { Calendar, Clock3, Zap } from "lucide-react";
 import { PageTabs } from "@/components/ui/PageTabs";
 import { useTranslation } from "@/lib/i18n";
 
+const SmartScheduleContent = lazy(() => import("../smart-schedule/page"));
 const CalendarContent = lazy(() => import("../calendar/page"));
 const StundenplanContent = lazy(() => import("../stundenplan/page"));
 
@@ -16,6 +17,12 @@ export default function SchedulePage() {
   const { t } = useTranslation();
 
   const tabs = [
+    {
+      id: "smart",
+      label: t("nav.smartSchedule") || "Smart Schedule",
+      icon: Zap,
+      content: <Suspense fallback={<Loading />}><SmartScheduleContent /></Suspense>,
+    },
     {
       id: "calendar",
       label: t("nav.calendar") || "Kalender",
@@ -33,7 +40,7 @@ export default function SchedulePage() {
   return (
     <PageTabs
       title={t("nav.schedule") || "Zeitplan"}
-      subtitle={t("schedule.subtitle") || "Kalender & Stundenplan an einem Ort"}
+      subtitle="Smart Schedule, Kalender & Stundenplan"
       icon={<Calendar className="text-brand-600" size={26} />}
       tabs={tabs}
     />

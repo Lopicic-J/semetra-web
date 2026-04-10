@@ -1,9 +1,7 @@
 import {
-  LayoutDashboard, BookOpen, CheckSquare,
-  Calendar, Award, CalendarClock, Users, Trophy,
-  FileText, Brain, Network, Calculator, Timer,
-  TrendingUp, Sparkles, GraduationCap, Wrench, Code, Puzzle,
-  Shield, Settings, UserCircle, Terminal, Zap, BarChart3, Dna, Radar, ShieldCheck,
+  LayoutDashboard, BookOpen, Calendar, GraduationCap,
+  Brain, TrendingUp, Wrench,
+  Shield, Settings, UserCircle, Terminal, Puzzle,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRole } from "@/lib/hooks/useProfile";
@@ -16,6 +14,8 @@ export interface NavItem {
   pro: boolean;
   /** If set, item is only visible to users with one of these builder roles */
   requiredRoles?: UserRole[];
+  /** Sub-items shown as pinnable quick-links */
+  children?: { href: string; labelKey: string; tab?: string }[];
 }
 
 export interface NavGroup {
@@ -27,75 +27,112 @@ export interface NavGroup {
 }
 
 export const NAV_GROUPS: NavGroup[] = [
-  // ── Übersicht (no label) ──
+  // ── Hauptbereich ──
   {
     labelKey: "",
     items: [
-      { href: "/dashboard",        icon: LayoutDashboard, labelKey: "nav.dashboard",      pro: false },
-      { href: "/command-center",    icon: Radar,           labelKey: "nav.commandCenter",  pro: false },
+      {
+        href: "/dashboard",
+        icon: LayoutDashboard,
+        labelKey: "nav.dashboard",
+        pro: false,
+      },
     ],
   },
   // ── Studium ──
   {
     labelKey: "navGroup.study",
     items: [
-      { href: "/modules",         icon: BookOpen,     labelKey: "nav.modules",        pro: false },
-      { href: "/tasks",           icon: CheckSquare,  labelKey: "nav.tasks",          pro: false },
-      { href: "/smart-schedule",  icon: Zap,          labelKey: "nav.smartSchedule",  pro: false },
-      { href: "/schedule",        icon: Calendar,     labelKey: "nav.schedule",       pro: false },
-      { href: "/exams",               icon: Award,        labelKey: "nav.exams",              pro: false },
-      { href: "/exam-intelligence",   icon: ShieldCheck,  labelKey: "nav.examIntelligence",   pro: false },
+      {
+        href: "/modules",
+        icon: BookOpen,
+        labelKey: "nav.modules",
+        pro: false,
+        children: [
+          { href: "/tasks", labelKey: "nav.tasks" },
+        ],
+      },
+      {
+        href: "/schedule",
+        icon: Calendar,
+        labelKey: "nav.schedule",
+        pro: false,
+        children: [
+          { href: "/schedule?tab=smart", labelKey: "nav.smartSchedule", tab: "smart" },
+          { href: "/schedule?tab=calendar", labelKey: "nav.calendar", tab: "calendar" },
+          { href: "/schedule?tab=stundenplan", labelKey: "nav.stundenplan", tab: "stundenplan" },
+        ],
+      },
+      {
+        href: "/exams",
+        icon: GraduationCap,
+        labelKey: "nav.exams",
+        pro: false,
+        children: [
+          { href: "/exams?tab=intelligence", labelKey: "nav.examIntelligence", tab: "intelligence" },
+        ],
+      },
     ],
   },
-  // ── Lernen ──
+  // ── Lernen & Fortschritt ──
   {
     labelKey: "navGroup.learning",
     items: [
-      { href: "/learning",   icon: Brain,        labelKey: "nav.learning",    pro: false },
-      { href: "/materials",  icon: FileText,     labelKey: "nav.materials",   pro: false },
-      { href: "/groups",     icon: Users,        labelKey: "nav.groups",      pro: false },
+      {
+        href: "/learning",
+        icon: Brain,
+        labelKey: "nav.learning",
+        pro: false,
+        children: [
+          { href: "/learning?tab=timer", labelKey: "nav.timer", tab: "timer" },
+          { href: "/learning?tab=materials", labelKey: "nav.materials", tab: "materials" },
+          { href: "/learning?tab=groups", labelKey: "nav.groups", tab: "groups" },
+        ],
+      },
+      {
+        href: "/fortschritt",
+        icon: TrendingUp,
+        labelKey: "nav.fortschritt",
+        pro: false,
+        children: [
+          { href: "/fortschritt?tab=dna", labelKey: "nav.lernDna", tab: "dna" },
+          { href: "/fortschritt?tab=insights", labelKey: "nav.insights", tab: "insights" },
+          { href: "/fortschritt?tab=erfolge", labelKey: "nav.achievements", tab: "erfolge" },
+        ],
+      },
+      {
+        href: "/werkzeuge",
+        icon: Wrench,
+        labelKey: "nav.werkzeuge",
+        pro: false,
+        children: [
+          { href: "/werkzeuge?tab=ki", labelKey: "nav.aiAssistant", tab: "ki" },
+          { href: "/werkzeuge?tab=kreativ", labelKey: "nav.creative", tab: "kreativ" },
+          { href: "/werkzeuge?tab=mathe", labelKey: "nav.math", tab: "mathe" },
+        ],
+      },
     ],
   },
-  // ── Werkzeuge ──
-  {
-    labelKey: "navGroup.tools",
-    items: [
-      { href: "/ai-assistant",  icon: Sparkles,   labelKey: "nav.aiAssistant",   pro: false },
-      { href: "/creative",      icon: Network,    labelKey: "nav.creative",      pro: false },
-      { href: "/math",          icon: Calculator, labelKey: "nav.math",          pro: false },
-    ],
-  },
-  // ── Fortschritt ──
-  {
-    labelKey: "navGroup.progress",
-    items: [
-      { href: "/studium",       icon: GraduationCap, labelKey: "nav.studium",      pro: false },
-      { href: "/lern-dna",      icon: Dna,           labelKey: "nav.lernDna",      pro: false },
-      { href: "/insights",      icon: BarChart3,     labelKey: "nav.insights",     pro: false },
-      { href: "/achievements",  icon: Trophy,        labelKey: "nav.achievements", pro: false },
-    ],
-  },
-  // ── Verwaltung (Admin) — only visible to admins ──
+  // ── Verwaltung (Admin) — only visible to admins/institutions ──
   {
     labelKey: "navGroup.admin",
     requiredRoles: ["admin", "institution"],
     items: [
-      { href: "/builder",       icon: Wrench, labelKey: "nav.builder",      pro: false },
-      { href: "/admin",         icon: Shield, labelKey: "nav.admin",        pro: false, requiredRoles: ["admin", "institution"] },
-      { href: "/developer",    icon: Terminal, labelKey: "nav.developer",   pro: false, requiredRoles: ["admin"] },
-      { href: "/plugins",       icon: Puzzle, labelKey: "nav.plugins",      pro: false },
+      { href: "/builder", icon: Wrench, labelKey: "nav.builder", pro: false },
+      { href: "/admin", icon: Shield, labelKey: "nav.admin", pro: false, requiredRoles: ["admin", "institution"] },
+      { href: "/developer", icon: Terminal, labelKey: "nav.developer", pro: false, requiredRoles: ["admin"] },
+      { href: "/plugins", icon: Puzzle, labelKey: "nav.plugins", pro: false },
     ],
   },
 ];
 
 export const BOTTOM_ITEMS: NavItem[] = [
-  { href: "/profile",  icon: UserCircle, labelKey: "nav.profile",  pro: false },
-  { href: "/settings", icon: Settings,   labelKey: "nav.settings", pro: false },
+  { href: "/profile", icon: UserCircle, labelKey: "nav.profile", pro: false },
+  { href: "/settings", icon: Settings, labelKey: "nav.settings", pro: false },
 ];
 
 /**
  * Filter nav groups based on the user's builder role.
- * Groups and items with requiredRoles are only included if the user has one of the listed roles.
  */
 export function getFilteredNavGroups(userRole: UserRole): NavGroup[] {
   return NAV_GROUPS
@@ -111,4 +148,20 @@ export function getFilteredNavGroups(userRole: UserRole): NavGroup[] {
 
 export function getAllNavItems(): NavItem[] {
   return [...NAV_GROUPS.flatMap(g => g.items), ...BOTTOM_ITEMS];
+}
+
+/**
+ * All pinnable sub-items across all nav items.
+ * Used by the pin/favorites feature.
+ */
+export function getAllPinnableItems(): { href: string; labelKey: string; parentLabelKey: string }[] {
+  return NAV_GROUPS.flatMap(g =>
+    g.items.flatMap(item =>
+      (item.children ?? []).map(child => ({
+        href: child.href,
+        labelKey: child.labelKey,
+        parentLabelKey: item.labelKey,
+      }))
+    )
+  );
 }
