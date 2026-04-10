@@ -49,8 +49,11 @@ export function findFreeSlots(
   minDurationMinutes: number = 15,
 ): FreeSlot[] {
   const prefs = preferences || DEFAULT_PREFERENCES;
-  const dayStart = parseDateWithTime(date, prefs.wake_time);
-  const dayEnd = parseDateWithTime(date, prefs.sleep_time);
+  // Use available_from/until if set, otherwise fall back to wake/sleep
+  const availFrom = prefs.available_from || prefs.wake_time;
+  const availUntil = prefs.available_until || prefs.sleep_time;
+  const dayStart = parseDateWithTime(date, availFrom);
+  const dayEnd = parseDateWithTime(date, availUntil);
 
   // Collect all occupied intervals
   const occupied: Array<{ start: number; end: number }> = [];

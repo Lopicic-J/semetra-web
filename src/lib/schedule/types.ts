@@ -101,6 +101,10 @@ export interface SchedulePreferences {
   user_id: string;
   wake_time: string;       // "HH:MM"
   sleep_time: string;
+  /** Earliest time the student is available to study (e.g. "15:00" for students who work mornings) */
+  available_from: string;  // "HH:MM" — defaults to wake_time
+  /** Latest time the student is available to study (e.g. "23:00") */
+  available_until: string; // "HH:MM" — defaults to sleep_time
   min_study_block_minutes: number;
   max_study_block_minutes: number;
   preferred_break_minutes: number;
@@ -113,6 +117,10 @@ export interface SchedulePreferences {
   weekend_max_minutes: number;
   auto_plan_enabled: boolean;
   auto_reschedule_missed: boolean;
+  /** Auto-sync stundenplan changes to schedule_blocks */
+  auto_sync_stundenplan: boolean;
+  /** Auto-fill detected free slots with study sessions */
+  auto_fill_gaps: boolean;
   pomodoro_focus_minutes: number;
   pomodoro_short_break: number;
   pomodoro_long_break: number;
@@ -123,6 +131,8 @@ export const DEFAULT_PREFERENCES: SchedulePreferences = {
   user_id: "",
   wake_time: "07:00",
   sleep_time: "23:00",
+  available_from: "07:00",
+  available_until: "23:00",
   min_study_block_minutes: 25,
   max_study_block_minutes: 90,
   preferred_break_minutes: 10,
@@ -135,6 +145,8 @@ export const DEFAULT_PREFERENCES: SchedulePreferences = {
   weekend_max_minutes: 240,
   auto_plan_enabled: false,
   auto_reschedule_missed: true,
+  auto_sync_stundenplan: true,
+  auto_fill_gaps: false,
   pomodoro_focus_minutes: 25,
   pomodoro_short_break: 5,
   pomodoro_long_break: 15,

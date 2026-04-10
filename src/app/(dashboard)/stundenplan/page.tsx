@@ -87,19 +87,23 @@ export default function StundenplanPage() {
     const { entry, siblings } = deleteDialog;
 
     if (mode === "this") {
+      // Delete linked schedule_blocks first
+      await supabase.from("schedule_blocks").delete().eq("stundenplan_id", entry.id).eq("layer", 1);
       await supabase.from("stundenplan").delete().eq("id", entry.id);
     } else {
       const idsToDelete = [entry.id, ...siblings.map(s => s.id)];
+      await supabase.from("schedule_blocks").delete().in("stundenplan_id", idsToDelete).eq("layer", 1);
       await supabase.from("stundenplan").delete().in("id", idsToDelete);
     }
 
     setDeleteDialog(null);
-    fetchEntries();
+    await fetchEntries();
   }
 
   async function deleteEntry(id: string) {
+    await supabase.from("schedule_blocks").delete().eq("stundenplan_id", id).eq("layer", 1);
     await supabase.from("stundenplan").delete().eq("id", id);
-    fetchEntries();
+    await fetchEntries();
   }
 
   function timeToMinutes(t: string) {
@@ -179,7 +183,55 @@ export default function StundenplanPage() {
       .from("stundenplan")
       .update({ day: newDay, time_start: newStart, time_end: newEnd })
       .eq("id", id);
-    fetchEntries();
+    await fetchEntries();
+    // Sync: update corresponding schedule_block if it exists
+    await syncStundenplanToSchedule(id, newDay, newStart, newEnd);
+  }
+
+  /** Sync a moved stundenplan entry → its schedule_block (Layer 1) */
+  async function syncStundenplanToSchedule(
+    stundenplanId: string, day: string, timeStart: string, timeEnd: string,
+  ) {
+    // Find schedule_block linked to this stundenplan entry
+    const { data: blocks } = await supabase
+      .from("schedule_blocks")
+      .select("id, recurrence")
+      .eq("stundenplan_id", stundenplanId)
+      .eq("layer", 1);
+
+    if (!blocks || blocks.length === 0) return;
+
+    // Calculate new absolute timestamps for the current week
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0=Sun
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + mondayOffset);
+    monday.setHours(0, 0, 0, 0);
+
+    const dayOffsetMap: Record<string, number> = { Mo: 0, Di: 1, Mi: 2, Do: 3, Fr: 4, Sa: 5 };
+    const dayOffset = dayOffsetMap[day] ?? 0;
+
+    const targetDate = new Date(monday);
+    targetDate.setDate(monday.getDate() + dayOffset);
+
+    const [sh, sm] = timeStart.split(":").map(Number);
+    const [eh, em] = timeEnd.split(":").map(Number);
+
+    const startTime = new Date(targetDate);
+    startTime.setHours(sh, sm, 0, 0);
+    const endTime = new Date(targetDate);
+    endTime.setHours(eh, em, 0, 0);
+
+    for (const block of blocks) {
+      await supabase
+        .from("schedule_blocks")
+        .update({
+          start_time: startTime.toISOString(),
+          end_time: endTime.toISOString(),
+        })
+        .eq("id", block.id);
+    }
   }
 
   async function handleMoveChoice(mode: "this" | "all") {
@@ -194,7 +246,11 @@ export default function StundenplanPage() {
         .from("stundenplan")
         .update({ day: newDay, time_start: newStart, time_end: newEnd })
         .in("id", idsToUpdate);
-      fetchEntries();
+      await fetchEntries();
+      // Sync all moved entries to schedule_blocks
+      for (const id of idsToUpdate) {
+        await syncStundenplanToSchedule(id, newDay, newStart, newEnd);
+      }
     }
 
     setMoveDialog(null);
@@ -649,7 +705,45 @@ function StundenplanModal({ modules, currentKw, currentSemester, prefilledEntry,
       });
     }
 
-    await supabase.from("stundenplan").insert(rows);
+    const { data: inserted } = await supabase.from("stundenplan").insert(rows).select("id, day, time_start, time_end, title, color, module_id");
+    // Auto-create schedule_blocks for the new entries
+    if (inserted && inserted.length > 0) {
+      const today = new Date();
+      const dow = today.getDay();
+      const mondayOffset = dow === 0 ? -6 : 1 - dow;
+      const mondayDate = new Date(today);
+      mondayDate.setDate(today.getDate() + mondayOffset);
+      mondayDate.setHours(0, 0, 0, 0);
+
+      const dayMap: Record<string, number> = { Mo: 0, Di: 1, Mi: 2, Do: 3, Fr: 4, Sa: 5 };
+
+      const scheduleRows = inserted.map(entry => {
+        const offset = dayMap[entry.day] ?? 0;
+        const targetDate = new Date(mondayDate);
+        targetDate.setDate(mondayDate.getDate() + offset);
+        const [sh, sm] = entry.time_start.split(":").map(Number);
+        const [eh, em] = entry.time_end.split(":").map(Number);
+        const start = new Date(targetDate); start.setHours(sh, sm, 0, 0);
+        const end = new Date(targetDate); end.setHours(eh, em, 0, 0);
+
+        return {
+          user_id: user.id,
+          block_type: "lecture" as const,
+          layer: 1,
+          title: entry.title,
+          color: entry.color,
+          module_id: entry.module_id,
+          start_time: start.toISOString(),
+          end_time: end.toISOString(),
+          recurrence: "weekly" as const,
+          source: "stundenplan_sync" as const,
+          stundenplan_id: entry.id,
+          status: "scheduled" as const,
+          priority: "medium" as const,
+        };
+      });
+      await supabase.from("schedule_blocks").insert(scheduleRows);
+    }
     setSaving(false);
     onSaved();
   }

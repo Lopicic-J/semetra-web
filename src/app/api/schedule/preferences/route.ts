@@ -45,11 +45,11 @@ export async function PUT(req: NextRequest) {
     if (isErrorResponse(body)) return body;
 
     // Validate time fields
-    if (body.wake_time && !/^\d{2}:\d{2}$/.test(body.wake_time as string)) {
-      return errorResponse("wake_time muss im Format HH:MM sein", 400);
-    }
-    if (body.sleep_time && !/^\d{2}:\d{2}$/.test(body.sleep_time as string)) {
-      return errorResponse("sleep_time muss im Format HH:MM sein", 400);
+    const timeFields = ["wake_time", "sleep_time", "available_from", "available_until"];
+    for (const tf of timeFields) {
+      if (body[tf] && !/^\d{2}:\d{2}$/.test(body[tf] as string)) {
+        return errorResponse(`${tf} muss im Format HH:MM sein`, 400);
+      }
     }
 
     // Validate energy levels
@@ -62,11 +62,13 @@ export async function PUT(req: NextRequest) {
 
     const allowedFields = [
       "wake_time", "sleep_time",
+      "available_from", "available_until",
       "min_study_block_minutes", "max_study_block_minutes",
       "preferred_break_minutes", "max_daily_study_minutes",
       "energy_morning", "energy_afternoon", "energy_evening",
       "prefer_consistent_times", "allow_weekend_study", "weekend_max_minutes",
       "auto_plan_enabled", "auto_reschedule_missed",
+      "auto_sync_stundenplan", "auto_fill_gaps",
       "pomodoro_focus_minutes", "pomodoro_short_break",
       "pomodoro_long_break", "pomodoro_sessions_before_long",
     ];

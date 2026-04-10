@@ -187,18 +187,140 @@ export async function POST(req: NextRequest) {
 
     const action = body.action as string | undefined;
 
-    // ── Import stundenplan ──────────────────────────────────────────────
+    // ── Import stundenplan (legacy) ───────────────────────────────────
     if (action === "import") {
-      const { data, error } = await supabase.rpc("import_stundenplan_to_schedule", {
-        p_user_id: user.id,
-      });
+      // Redirect to new sync logic
+      body.action = "sync-stundenplan";
+    }
 
-      if (error) {
-        log.error("Stundenplan import failed", error);
-        return errorResponse("Import fehlgeschlagen: " + error.message, 500);
+    // ── Sync stundenplan → schedule_blocks (smart upsert) ──────────
+    if (action === "sync-stundenplan" || body.action === "sync-stundenplan") {
+      // 1. Fetch all stundenplan entries
+      const { data: entries, error: fetchErr } = await supabase
+        .from("stundenplan")
+        .select("*")
+        .eq("user_id", user.id);
+
+      if (fetchErr) {
+        log.error("Stundenplan fetch failed", fetchErr);
+        return errorResponse("Sync fehlgeschlagen: " + fetchErr.message, 500);
       }
 
-      return successResponse({ imported: data, message: `${data} Einträge importiert` });
+      // 2. Fetch existing synced blocks
+      const { data: existingBlocks } = await supabase
+        .from("schedule_blocks")
+        .select("id, stundenplan_id, start_time, end_time")
+        .eq("user_id", user.id)
+        .eq("source", "stundenplan_sync")
+        .eq("layer", 1);
+
+      const existingMap = new Map(
+        (existingBlocks || [])
+          .filter(b => b.stundenplan_id)
+          .map(b => [b.stundenplan_id!, b])
+      );
+
+      // Also check old 'stundenplan_import' blocks
+      const { data: legacyBlocks } = await supabase
+        .from("schedule_blocks")
+        .select("id, stundenplan_id, start_time, end_time")
+        .eq("user_id", user.id)
+        .eq("source", "stundenplan_import")
+        .eq("layer", 1);
+
+      for (const lb of (legacyBlocks || [])) {
+        if (lb.stundenplan_id && !existingMap.has(lb.stundenplan_id)) {
+          existingMap.set(lb.stundenplan_id, lb);
+        }
+      }
+
+      // 3. Calculate Monday of current week
+      const today = new Date();
+      const dow = today.getDay();
+      const mondayOffset = dow === 0 ? -6 : 1 - dow;
+      const monday = new Date(today);
+      monday.setDate(today.getDate() + mondayOffset);
+      monday.setHours(0, 0, 0, 0);
+
+      const dayOffsetMap: Record<string, number> = {
+        Mo: 0, Di: 1, Mi: 2, Do: 3, Fr: 4, Sa: 5,
+      };
+
+      let created = 0;
+      let updated = 0;
+      let deleted = 0;
+
+      const activeStundenplanIds = new Set<string>();
+
+      for (const entry of (entries || [])) {
+        const dayOffset = dayOffsetMap[entry.day];
+        if (dayOffset === undefined) continue;
+
+        activeStundenplanIds.add(entry.id);
+
+        const targetDate = new Date(monday);
+        targetDate.setDate(monday.getDate() + dayOffset);
+
+        const [sh, sm] = (entry.time_start as string).split(":").map(Number);
+        const [eh, em] = (entry.time_end as string).split(":").map(Number);
+
+        const startTime = new Date(targetDate);
+        startTime.setHours(sh, sm, 0, 0);
+        const endTime = new Date(targetDate);
+        endTime.setHours(eh, em, 0, 0);
+
+        const existing = existingMap.get(entry.id);
+        if (existing) {
+          // UPDATE: Stundenplan entry was moved → update schedule_block
+          const existingStart = new Date(existing.start_time);
+          const existingEnd = new Date(existing.end_time);
+          if (existingStart.getTime() !== startTime.getTime() || existingEnd.getTime() !== endTime.getTime()) {
+            await supabase
+              .from("schedule_blocks")
+              .update({
+                start_time: startTime.toISOString(),
+                end_time: endTime.toISOString(),
+                title: entry.title,
+                color: entry.color,
+                module_id: entry.module_id,
+                source: "stundenplan_sync",
+              })
+              .eq("id", existing.id);
+            updated++;
+          }
+        } else {
+          // INSERT: New stundenplan entry → create schedule_block
+          await supabase.from("schedule_blocks").insert({
+            user_id: user.id,
+            block_type: "lecture",
+            layer: 1,
+            title: entry.title,
+            color: entry.color,
+            module_id: entry.module_id,
+            start_time: startTime.toISOString(),
+            end_time: endTime.toISOString(),
+            recurrence: "weekly",
+            source: "stundenplan_sync",
+            stundenplan_id: entry.id,
+            status: "scheduled",
+            priority: "medium",
+          });
+          created++;
+        }
+      }
+
+      // 4. Delete orphaned schedule_blocks (stundenplan entry was deleted)
+      for (const [spId, block] of existingMap) {
+        if (!activeStundenplanIds.has(spId)) {
+          await supabase.from("schedule_blocks").delete().eq("id", block.id);
+          deleted++;
+        }
+      }
+
+      return successResponse({
+        created, updated, deleted,
+        message: `Sync: ${created} erstellt, ${updated} aktualisiert, ${deleted} entfernt`,
+      });
     }
 
     // ── Auto-plan from Decision Engine ──────────────────────────────────

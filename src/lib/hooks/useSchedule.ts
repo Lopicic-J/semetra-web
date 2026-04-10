@@ -272,13 +272,14 @@ export function useScheduleActions() {
     }
   }, []);
 
-  const importStundenplan = useCallback(async () => {
+  /** Sync stundenplan → schedule_blocks (upsert with stundenplan_id tracking) */
+  const syncStundenplan = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/schedule", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "import" }),
+        body: JSON.stringify({ action: "sync-stundenplan" }),
       });
       if (!res.ok) throw new Error((await res.json()).error);
       return await res.json();
@@ -286,6 +287,9 @@ export function useScheduleActions() {
       setLoading(false);
     }
   }, []);
+
+  /** @deprecated Use syncStundenplan instead */
+  const importStundenplan = syncStundenplan;
 
   const autoPlan = useCallback(async (date?: string) => {
     setLoading(true);
@@ -306,6 +310,6 @@ export function useScheduleActions() {
     loading,
     createBlock, updateBlock, deleteBlock,
     skipBlock, rescheduleBlock,
-    importStundenplan, autoPlan,
+    syncStundenplan, importStundenplan, autoPlan,
   };
 }
