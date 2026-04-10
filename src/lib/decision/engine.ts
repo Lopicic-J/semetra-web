@@ -1096,7 +1096,8 @@ function riskLevelToNumber(level: RiskLevel): number {
  */
 export function applyDnaModifiers(
   baseConfig: DecisionEngineConfig,
-  dna: DnaProfile
+  dna: DnaProfile,
+  onboarding?: OnboardingProfile | null
 ): DecisionEngineConfig {
   // Kopie um Mutation zu vermeiden
   const config: DecisionEngineConfig = {
@@ -1148,6 +1149,52 @@ export function applyDnaModifiers(
     config.thresholds.noActivityDays = Math.min(7, baseConfig.thresholds.noActivityDays + 1);
   }
 
+  // ══ Onboarding-basierte Modifikationen ══
+  if (onboarding) {
+    // ── Primary Goal beeinflusst Gewichte ──
+    switch (onboarding.primaryGoal) {
+      case "pass_exams":
+      case "exam_prep":
+        // Prüfungsfokus → Exam-Gewicht steigt, Wissenslücken wichtiger
+        config.weights.examProximity = Math.round(config.weights.examProximity * 1.12);
+        config.weights.knowledgeGap = Math.round(config.weights.knowledgeGap * 1.15);
+        break;
+      case "improve_grades":
+        // Notenverbesserung → Noten-Risiko-Gewicht steigt
+        config.weights.gradeRisk = Math.round(config.weights.gradeRisk * 1.15);
+        break;
+      case "time_management":
+      case "save_time":
+        // Zeitmanagement → Aufgabendringlichkeit und Aktivitätslücke wichtiger
+        config.weights.taskUrgency = Math.round(config.weights.taskUrgency * 1.10);
+        config.weights.activityGap = Math.round(config.weights.activityGap * 1.10);
+        break;
+      case "reduce_stress":
+        // Stressreduktion → konservativere Schwellwerte, weniger aggressive Warnungen
+        config.thresholds.examSoonDays = Math.max(baseConfig.thresholds.examSoonDays, 18);
+        config.thresholds.noActivityDays = Math.min(7, baseConfig.thresholds.noActivityDays + 1);
+        break;
+    }
+
+    // ── Exam Anxiety beeinflusst Prüfungsfrühwarnung ──
+    if (onboarding.examAnxietyLevel >= 4) {
+      // Hohe Prüfungsangst → frühere Warnung, Prüfungsgewicht etwas höher
+      config.thresholds.examSoonDays = Math.max(config.thresholds.examSoonDays, 21);
+      config.weights.examProximity = Math.round(config.weights.examProximity * 1.08);
+    } else if (onboarding.examAnxietyLevel <= 2) {
+      // Niedrige Angst → Standard-Schwelle reicht
+      config.thresholds.examSoonDays = Math.min(config.thresholds.examSoonDays, 14);
+    }
+
+    // ── Focus Challenge beeinflusst Session-Schätzungen ──
+    if (onboarding.focusChallenge === "easily_distracted") {
+      config.estimates.minutesPerTopic = Math.min(config.estimates.minutesPerTopic, 35);
+      config.estimates.minutesPerExamPrep = Math.min(config.estimates.minutesPerExamPrep, 90);
+    } else if (onboarding.focusChallenge === "very_focused") {
+      config.estimates.minutesPerTopic = Math.max(config.estimates.minutesPerTopic, 50);
+    }
+  }
+
   // Gewichte normalisieren (sollen sich zu ~100 addieren)
   const totalW = config.weights.examProximity + config.weights.gradeRisk +
     config.weights.taskUrgency + config.weights.activityGap + config.weights.knowledgeGap;
@@ -1172,11 +1219,12 @@ export function applyDnaModifiers(
 export function buildCommandCenterState(
   modules: ModuleIntelligence[],
   config: DecisionEngineConfig = DEFAULT_ENGINE_CONFIG,
-  dnaProfile?: DnaProfile | null
+  dnaProfile?: DnaProfile | null,
+  onboardingProfile?: OnboardingProfile | null
 ): CommandCenterState {
-  // Apply DNA modifiers if available → personalized engine behavior
+  // Apply DNA + Onboarding modifiers if available → personalized engine behavior
   const effectiveConfig = dnaProfile
-    ? applyDnaModifiers(config, dnaProfile)
+    ? applyDnaModifiers(config, dnaProfile, onboardingProfile)
     : config;
   const activeModules = modules.filter((m) => m.status === "active");
 

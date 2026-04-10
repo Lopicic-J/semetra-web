@@ -29,6 +29,7 @@ import type {
   DecisionEngineConfig,
   ModuleIntelligence,
   DnaProfile,
+  OnboardingProfile,
 } from "@/lib/decision/types";
 import { DEFAULT_ENGINE_CONFIG } from "@/lib/decision/types";
 
@@ -56,43 +57,61 @@ export function useCommandCenter(
   const supabase = createClient();
   const refreshCheckRef = useRef<NodeJS.Timeout | null>(null);
   const [dnaProfile, setDnaProfile] = useState<DnaProfile | null>(null);
-  const dnaLoadedRef = useRef(false);
+  const [onboardingProfile, setOnboardingProfile] = useState<OnboardingProfile | null>(null);
+  const profilesLoadedRef = useRef(false);
 
-  // ── Load latest DNA snapshot (once) ──
+  // ── Load DNA snapshot + Onboarding profile (once) ──
   useEffect(() => {
-    if (dnaLoadedRef.current) return;
-    dnaLoadedRef.current = true;
+    if (profilesLoadedRef.current) return;
+    profilesLoadedRef.current = true;
 
-    async function loadDna() {
+    async function loadProfiles() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data } = await supabase
-          .from("learning_dna_snapshots")
-          .select("consistency_score, focus_score, endurance_score, adaptability_score, planning_score, overall_score, learner_type")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
+        // Load DNA and Onboarding in parallel
+        const [dnaResult, onbResult] = await Promise.all([
+          supabase
+            .from("learning_dna_snapshots")
+            .select("consistency_score, focus_score, endurance_score, adaptability_score, planning_score, overall_score, learner_type")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle(),
+          supabase
+            .from("onboarding_responses")
+            .select("primary_goal, focus_challenge, exam_anxiety_level")
+            .eq("user_id", user.id)
+            .eq("is_complete", true)
+            .maybeSingle(),
+        ]);
 
-        if (data) {
+        if (dnaResult.data) {
           setDnaProfile({
-            consistencyScore: data.consistency_score,
-            focusScore: data.focus_score,
-            enduranceScore: data.endurance_score,
-            adaptabilityScore: data.adaptability_score,
-            planningScore: data.planning_score,
-            overallScore: data.overall_score,
-            learnerType: data.learner_type,
+            consistencyScore: dnaResult.data.consistency_score,
+            focusScore: dnaResult.data.focus_score,
+            enduranceScore: dnaResult.data.endurance_score,
+            adaptabilityScore: dnaResult.data.adaptability_score,
+            planningScore: dnaResult.data.planning_score,
+            overallScore: dnaResult.data.overall_score,
+            learnerType: dnaResult.data.learner_type,
+          });
+        }
+
+        if (onbResult.data) {
+          setOnboardingProfile({
+            primaryGoal: onbResult.data.primary_goal ?? "",
+            focusChallenge: onbResult.data.focus_challenge ?? "moderate",
+            examAnxietyLevel: onbResult.data.exam_anxiety_level ?? 3,
           });
         }
       } catch {
-        // Table may not exist yet or no snapshots → gracefully ignore
+        // Gracefully ignore — features are non-critical
       }
     }
 
-    loadDna();
+    loadProfiles();
   }, [supabase]);
 
   // Auto-Refresh: Prüfe periodisch ob ein Decision Engine Refresh nötig ist
@@ -156,8 +175,8 @@ export function useCommandCenter(
   // Build state with DNA-personalized config
   const state = useMemo<CommandCenterState | null>(() => {
     if (loading || modules.length === 0) return null;
-    return buildCommandCenterState(modules, config, dnaProfile);
-  }, [modules, loading, config, dnaProfile]);
+    return buildCommandCenterState(modules, config, dnaProfile, onboardingProfile);
+  }, [modules, loading, config, dnaProfile, onboardingProfile]);
 
   const getAIContext = useCallback(
     (moduleId: string): AIDecisionContext | null => {

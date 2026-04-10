@@ -30,6 +30,7 @@ export type {
   DailyPattern,
   DecisionEngineConfig,
   DnaProfile,
+  OnboardingProfile,
 } from "./types";
 
 export { DEFAULT_ENGINE_CONFIG } from "./types";

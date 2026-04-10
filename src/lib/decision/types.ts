@@ -305,6 +305,13 @@ export interface DnaProfile {
   learnerType: string;
 }
 
+/** Onboarding-Antworten die Engine-Gewichte beeinflussen */
+export interface OnboardingProfile {
+  primaryGoal: string;          // pass_exams, improve_grades, reduce_stress, etc.
+  focusChallenge: string;       // easily_distracted, moderate, very_focused
+  examAnxietyLevel: number;     // 1-5
+}
+
 // ─── Engine Configuration ────────────────────────────────────
 export interface DecisionEngineConfig {
   // Gewichtungen für Priority-Score
