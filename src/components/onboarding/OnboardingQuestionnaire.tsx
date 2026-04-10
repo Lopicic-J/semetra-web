@@ -275,9 +275,30 @@ export default function OnboardingQuestionnaire() {
 
   /** Build flat data object matching onboarding_responses columns */
   const buildFlatData = useCallback((): Record<string, unknown> => {
+    // Map frontend values → DB CHECK constraint values
+    const goalMap: Record<string, string> = {
+      pass_exams: "exam_prep",
+      improve_grades: "improve_grades",
+      time_management: "save_time",
+      reduce_stress: "reduce_stress",
+      learn_efficiently: "build_habits",
+    };
+
+    const focusMap: Record<string, string> = {
+      easily_distracted: "phone",       // most common distraction source
+      moderate: "none",                  // no major challenge
+      very_focused: "none",             // no challenge
+    };
+
+    const sessionLengthMap = (minutes: number): string => {
+      if (minutes <= 30) return "short";
+      if (minutes <= 60) return "medium";
+      return "long";
+    };
+
     return {
       // Step 1: Goals
-      primary_goal: goals.primary_goal,
+      primary_goal: goalMap[goals.primary_goal] ?? "explore",
       weekly_study_target_hours: goals.weekly_study_target_hours,
       // Step 2: Schedule
       typical_wake_time: schedule.wake_time,
@@ -291,8 +312,8 @@ export default function OnboardingQuestionnaire() {
       energy_morning: energy.energy_morning,
       energy_afternoon: energy.energy_afternoon,
       energy_evening: energy.energy_evening,
-      preferred_session_length: String(energy.preferred_session_length),
-      focus_challenge: energy.focus_challenge,
+      preferred_session_length: sessionLengthMap(energy.preferred_session_length),
+      focus_challenge: focusMap[energy.focus_challenge] ?? "none",
       // Step 4: Learning Style
       learning_style: learningStyle.learning_style,
       prefers_group_study: learningStyle.prefers_group_study,
