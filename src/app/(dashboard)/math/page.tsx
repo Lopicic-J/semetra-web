@@ -1920,31 +1920,36 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
   const [xMax, setXMax] = useState(10);
   const [yMin, setYMin] = useState(-5);
   const [yMax, setYMax] = useState(5);
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+  const mousePosRef = useRef<{ x: number; y: number } | null>(null);
   const [moduleId, setModuleId] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(true);
   const [showDerivative, setShowDerivative] = useState(false);
   const [paramMode, setParamMode] = useState(false);
   const [params, setParams] = useState({ a: 1, b: 0, c: 0 });
   const [tangentPoint, setTangentPoint] = useState<{ x: number; y: number; m: number } | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
+  const isDraggingRef = useRef(false);
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const touchStartRef = useRef<{ dist: number; cx: number; cy: number } | null>(null);
+  const rafRef = useRef<number>(0);
+  // Refs for viewport during active gestures (avoid state-per-frame)
+  const viewRef = useRef({ xMin: -10, xMax: 10, yMin: -5, yMax: 5 });
+  viewRef.current = { xMin, xMax, yMin, yMax };
 
-  /* ── Responsive canvas sizing ── */
+  /* ── Responsive canvas sizing (cap DPR at 2 to avoid huge canvases on mobile) ── */
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const ro = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        const w = Math.round(entry.contentRect.width * (window.devicePixelRatio || 1));
+        const w = Math.round(entry.contentRect.width * dpr);
         const h = Math.round(w * 0.625); // 5:8 ratio
         setCanvasSize({ w, h });
       }
     });
     ro.observe(container);
     // Initial size
-    const w = Math.round(container.clientWidth * (window.devicePixelRatio || 1));
+    const w = Math.round(container.clientWidth * dpr);
     setCanvasSize({ w, h: Math.round(w * 0.625) });
     return () => ro.disconnect();
   }, []);
@@ -2182,54 +2187,68 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
       ctx.beginPath(); ctx.arc(sx, sy, 4, 0, Math.PI * 2); ctx.fill();
     }
 
-    if (mousePos) {
-      ctx.strokeStyle = "#ffffff30";
+    const mp = mousePosRef.current;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    if (mp) {
+      // Convert CSS coords to canvas physical coords
+      const cpx = mp.x * dpr;
+      const cpy = mp.y * dpr;
+      ctx.strokeStyle = "#94a3b840";
       ctx.lineWidth = 1;
       ctx.setLineDash([4, 4]);
-      ctx.beginPath(); ctx.moveTo(mousePos.x, 0); ctx.lineTo(mousePos.x, H); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0, mousePos.y); ctx.lineTo(W, mousePos.y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cpx, 0); ctx.lineTo(cpx, H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, cpy); ctx.lineTo(W, cpy); ctx.stroke();
       ctx.setLineDash([]);
-      const [mx, my] = fromScreen(mousePos.x, mousePos.y);
+      const [mx, my] = fromScreen(cpx, cpy);
       ctx.fillStyle = "#475569";
-      ctx.font = "12px monospace";
-      ctx.fillText(`(${mx.toFixed(2)}, ${my.toFixed(2)})`, mousePos.x + 10, mousePos.y - 10);
+      ctx.font = `${Math.round(12 * dpr)}px monospace`;
+      ctx.fillText(`(${mx.toFixed(2)}, ${my.toFixed(2)})`, cpx + 10, cpy - 10);
     }
-  }, [functions, xMin, xMax, yMin, yMax, mousePos, evalExpr, derivative, showDerivative, tangentPoint, paramMode, params, findIntersections, canvasSize]);
+  }, [functions, xMin, xMax, yMin, yMax, evalExpr, derivative, showDerivative, tangentPoint, paramMode, params, findIntersections, canvasSize]);
 
-  useEffect(() => { draw(); }, [draw]);
+  /* ── Redraw via requestAnimationFrame for smooth rendering ── */
+  const scheduleRedraw = useCallback(() => {
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => draw());
+  }, [draw]);
+
+  useEffect(() => { scheduleRedraw(); }, [scheduleRedraw]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    setMousePos({ x, y });
-    if (isDragging && dragStart) {
-      const dx = (dragStart.x - x) / rect.width * (xMax - xMin);
-      const dy = (y - dragStart.y) / rect.height * (yMax - yMin);
-      setXMin(xMin + dx);
-      setXMax(xMax + dx);
-      setYMin(yMin + dy);
-      setYMax(yMax + dy);
-      setDragStart({ x, y }); // update so next move is a delta, not cumulative
+    mousePosRef.current = { x, y };
+    if (isDraggingRef.current && dragStartRef.current) {
+      const v = viewRef.current;
+      const dx = (dragStartRef.current.x - x) / rect.width * (v.xMax - v.xMin);
+      const dy = (y - dragStartRef.current.y) / rect.height * (v.yMax - v.yMin);
+      setXMin(v.xMin + dx);
+      setXMax(v.xMax + dx);
+      setYMin(v.yMin + dy);
+      setYMax(v.yMax + dy);
+      dragStartRef.current = { x, y };
     }
+    scheduleRedraw();
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    e.preventDefault(); // prevent text selection while dragging
+    e.preventDefault();
     const rect = e.currentTarget.getBoundingClientRect();
-    setIsDragging(true);
-    setDragStart({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    isDraggingRef.current = true;
+    dragStartRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
   };
 
-  const handleMouseUp = () => { setIsDragging(false); setDragStart(null); };
+  const handleMouseUp = () => { isDraggingRef.current = false; dragStartRef.current = null; };
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (isDragging) return;
+    if (isDraggingRef.current) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const px = e.clientX - rect.left;
     const py = e.clientY - rect.top;
-    const x = xMin + (px / rect.width) * (xMax - xMin);
-    const y = yMax - (py / rect.height) * (yMax - yMin);
+    const v = viewRef.current;
+    const x = v.xMin + (px / rect.width) * (v.xMax - v.xMin);
+    const y = v.yMax - (py / rect.height) * (v.yMax - v.yMin);
     if (functions.length > 0 && functions[0].expr.trim()) {
       const m = derivative(functions[0].expr, x, paramMode ? params : undefined);
       if (!isNaN(m) && isFinite(m)) setTangentPoint({ x, y, m });
@@ -2240,20 +2259,23 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
   const handleWheelNative = useCallback((e: WheelEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const factor = e.deltaY > 0 ? 1.2 : 0.8;
+    const factor = e.deltaY > 0 ? 1.15 : 1 / 1.15;
     const rect = (e.currentTarget as HTMLCanvasElement).getBoundingClientRect();
     const px = e.clientX - rect.left;
-    setXMin((prev) => {
-      const cx = prev + (px / rect.width) * (xMax - prev);
-      const w = (xMax - prev) * factor;
-      return cx - (w * px) / rect.width;
-    });
-    setXMax((prev) => {
-      const cx = xMin + (px / rect.width) * (prev - xMin);
-      const w = (prev - xMin) * factor;
-      return cx + (w * (rect.width - px)) / rect.width;
-    });
-  }, [xMin, xMax]);
+    const py = e.clientY - rect.top;
+    const v = viewRef.current;
+    // Zoom centered on mouse position for both axes
+    const mx = v.xMin + (px / rect.width) * (v.xMax - v.xMin);
+    const my = v.yMax - (py / rect.height) * (v.yMax - v.yMin);
+    const newW = (v.xMax - v.xMin) * factor;
+    const newH = (v.yMax - v.yMin) * factor;
+    const ratioX = px / rect.width;
+    const ratioY = py / rect.height;
+    setXMin(mx - ratioX * newW);
+    setXMax(mx + (1 - ratioX) * newW);
+    setYMin(my - (1 - ratioY) * newH);
+    setYMax(my + ratioY * newH);
+  }, []);
 
   /* Attach wheel with { passive: false } to actually prevent page zoom */
   useEffect(() => {
@@ -2263,7 +2285,7 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
     return () => canvas.removeEventListener("wheel", handleWheelNative);
   }, [handleWheelNative]);
 
-  /* ── Touch events for mobile ── */
+  /* ── Touch events for mobile (use refs to avoid state-per-frame flickering) ── */
   const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
     if (e.touches.length === 2) {
       const dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -2275,8 +2297,8 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
       touchStartRef.current = { dist, cx, cy };
     } else if (e.touches.length === 1) {
       const rect = e.currentTarget.getBoundingClientRect();
-      setIsDragging(true);
-      setDragStart({ x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top });
+      isDraggingRef.current = true;
+      dragStartRef.current = { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
     }
   };
 
@@ -2287,28 +2309,45 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       const dist = Math.sqrt(dx * dx + dy * dy);
       const factor = touchStartRef.current.dist / dist;
-      const cx = xMin + touchStartRef.current.cx * (xMax - xMin);
-      const w = (xMax - xMin) * factor;
-      const h = (yMax - yMin) * factor;
-      setXMin(cx - touchStartRef.current.cx * w);
-      setXMax(cx + (1 - touchStartRef.current.cx) * w);
-      const cy = yMin + (1 - touchStartRef.current.cy) * (yMax - yMin);
-      setYMin(cy - (1 - touchStartRef.current.cy) * h);
-      setYMax(cy + touchStartRef.current.cy * h);
+      // Clamp factor to prevent extreme zoom jumps
+      const clampedFactor = Math.max(0.8, Math.min(1.2, factor));
+      const v = viewRef.current;
+      const cx = v.xMin + touchStartRef.current.cx * (v.xMax - v.xMin);
+      const w = (v.xMax - v.xMin) * clampedFactor;
+      const h = (v.yMax - v.yMin) * clampedFactor;
+      const newXMin = cx - touchStartRef.current.cx * w;
+      const newXMax = cx + (1 - touchStartRef.current.cx) * w;
+      const cy = v.yMin + (1 - touchStartRef.current.cy) * (v.yMax - v.yMin);
+      const newYMin = cy - (1 - touchStartRef.current.cy) * h;
+      const newYMax = cy + touchStartRef.current.cy * h;
+      // Batch all viewport updates in one RAF
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        setXMin(newXMin);
+        setXMax(newXMax);
+        setYMin(newYMin);
+        setYMax(newYMax);
+      });
       touchStartRef.current.dist = dist;
-    } else if (e.touches.length === 1 && isDragging && dragStart) {
+    } else if (e.touches.length === 1 && isDraggingRef.current && dragStartRef.current) {
       const rect = e.currentTarget.getBoundingClientRect();
       const x = e.touches[0].clientX - rect.left;
       const y = e.touches[0].clientY - rect.top;
-      const ddx = (dragStart.x - x) / rect.width * (xMax - xMin);
-      const ddy = (y - dragStart.y) / rect.height * (yMax - yMin);
-      setXMin(xMin + ddx); setXMax(xMax + ddx);
-      setYMin(yMin + ddy); setYMax(yMax + ddy);
-      setDragStart({ x, y });
+      const v = viewRef.current;
+      const ddx = (dragStartRef.current.x - x) / rect.width * (v.xMax - v.xMin);
+      const ddy = (y - dragStartRef.current.y) / rect.height * (v.yMax - v.yMin);
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        setXMin(v.xMin + ddx);
+        setXMax(v.xMax + ddx);
+        setYMin(v.yMin + ddy);
+        setYMax(v.yMax + ddy);
+      });
+      dragStartRef.current = { x, y };
     }
   };
 
-  const handleTouchEnd = () => { setIsDragging(false); setDragStart(null); touchStartRef.current = null; };
+  const handleTouchEnd = () => { isDraggingRef.current = false; dragStartRef.current = null; touchStartRef.current = null; };
 
   const addFunction = () => {
     setFunctions([...functions, { expr: "", color: COLORS[functions.length % COLORS.length] }]);
@@ -2403,7 +2442,14 @@ function PlotterTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, e:
 
       <div className="mt-4 flex flex-wrap gap-2">
         {["sin(x)", "cos(x)", "tan(x)", "x^2", "x^3", "sqrt(x)", "1/x", "ln(x)", "e^x", "abs(x)"].map((f) => (
-          <button key={f} onClick={() => setFunctions([{ expr: f, color: COLORS[0] }])} className="px-2 py-1 bg-surface-100 text-surface-500 rounded text-xs font-mono hover:bg-surface-200 hover:text-surface-900">{f}</button>
+          <button key={f} onClick={() => {
+            // Update first function instead of replacing all — preserves additional functions
+            setFunctions(prev => {
+              const copy = [...prev];
+              copy[0] = { ...copy[0], expr: f };
+              return copy;
+            });
+          }} className="px-2 py-1 bg-surface-100 text-surface-500 rounded text-xs font-mono hover:bg-surface-200 hover:text-surface-900">{f}</button>
         ))}
       </div>
 

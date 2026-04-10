@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Gem, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, Globe, GraduationCap, BookOpen, AtSign, Building2, Users, UserCircle, Info } from "lucide-react";
 import { getEnabledProviders } from "@/lib/oauth-providers";
 import { COUNTRY_LIST, DEFAULT_COUNTRY, type CountryCode } from "@/lib/grading-systems";
-import { isUniversityEmail, getUniversityFromEmail } from "@/lib/university-domains";
+import { isUniversityEmail, getUniversityFromEmail, getInstitutionCodeFromEmail } from "@/lib/university-domains";
 
 type UserRole = "student" | "non_student";
 
@@ -25,7 +25,7 @@ export default function RegisterPage() {
   const [university, setUniversity] = useState("");
   const [studyProgram, setStudyProgram] = useState("");
   // Structured institution/program selection
-  const [institutions, setInstitutions] = useState<{ id: string; name: string }[]>([]);
+  const [institutions, setInstitutions] = useState<{ id: string; name: string; code?: string }[]>([]);
   const [programs, setPrograms] = useState<{ id: string; name: string; degree_level: string }[]>([]);
   const [selectedInstId, setSelectedInstId] = useState("");
   const [selectedProgId, setSelectedProgId] = useState("");
@@ -42,7 +42,31 @@ export default function RegisterPage() {
 
   // Check if email is a known university email
   const detectedUniversity = email ? getUniversityFromEmail(email) : null;
+  const detectedInstCode = email ? getInstitutionCodeFromEmail(email) : null;
   const isUniEmail = !!detectedUniversity;
+
+  // Hard-Lock: Auto-assign institution when email domain is recognized
+  const [institutionLocked, setInstitutionLocked] = useState(false);
+
+  useEffect(() => {
+    if (selectedRole === "student" && detectedInstCode && institutions.length > 0) {
+      // Find institution by code (case-insensitive), prefer exact code match
+      const match = institutions.find(
+        (inst) => inst.code?.toUpperCase() === detectedInstCode.toUpperCase()
+      ) ?? institutions.find(
+        (inst) => inst.name.toUpperCase().includes(detectedInstCode)
+      );
+      if (match) {
+        setSelectedInstId(match.id);
+        setInstitutionLocked(true);
+        setUseStructured(true);
+      } else {
+        setInstitutionLocked(false);
+      }
+    } else {
+      setInstitutionLocked(false);
+    }
+  }, [detectedInstCode, institutions, selectedRole]);
 
   // Load institutions when country changes
   const loadInstitutions = useCallback(async () => {
@@ -153,13 +177,17 @@ export default function RegisterPage() {
 
       if (selectedRole === "student") {
         if (useStructured && selectedInstId) {
-          profileData.institution_id = selectedInstId;
+          // When institution is locked by email, always use the locked institution
+          // (defense-in-depth: even if client is manipulated, the DB trigger also enforces this)
+          const effectiveInstId = institutionLocked ? selectedInstId : selectedInstId;
+          profileData.institution_id = effectiveInstId;
           if (selectedProgId) profileData.active_program_id = selectedProgId;
-          const inst = institutions.find(i => i.id === selectedInstId);
+          const inst = institutions.find(i => i.id === effectiveInstId);
           const prog = programs.find(p => p.id === selectedProgId);
           if (inst) profileData.university = inst.name;
           if (prog) profileData.study_program = prog.name;
-        } else {
+        } else if (!institutionLocked) {
+          // Free text only allowed when institution is NOT locked by email
           if (university.trim()) profileData.university = university.trim();
           if (studyProgram.trim()) profileData.study_program = studyProgram.trim();
         }
@@ -408,18 +436,29 @@ export default function RegisterPage() {
                 <div>
                   <label className="block text-sm font-medium text-surface-700 mb-1.5">Hochschule</label>
                   <div className="relative">
-                    <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                    <Building2 size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 ${institutionLocked ? "text-green-500" : "text-surface-400"}`} />
                     <select
                       value={selectedInstId}
-                      onChange={e => { setSelectedInstId(e.target.value); setSelectedProgId(""); }}
-                      className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition appearance-none"
+                      onChange={e => { if (!institutionLocked) { setSelectedInstId(e.target.value); setSelectedProgId(""); } }}
+                      disabled={institutionLocked}
+                      className={`w-full border rounded-xl pl-10 pr-3 py-2.5 text-sm focus:outline-none transition appearance-none ${
+                        institutionLocked
+                          ? "bg-green-50 border-green-300 text-surface-900 cursor-not-allowed"
+                          : "bg-surface-50 border-surface-200 text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+                      }`}
                     >
-                      <option value="">-- Hochschule waehlen --</option>
+                      <option value="">-- Hochschule wählen --</option>
                       {institutions.map(inst => (
                         <option key={inst.id} value={inst.id}>{inst.name}</option>
                       ))}
                     </select>
                   </div>
+                  {institutionLocked && (
+                    <p className="text-[10px] text-green-600 mt-1 flex items-center gap-1">
+                      <CheckCircle2 size={10} />
+                      Automatisch zugewiesen anhand deiner Hochschul-Email ({detectedUniversity})
+                    </p>
+                  )}
                 </div>
                 {selectedInstId && (
                   <div>
@@ -431,7 +470,7 @@ export default function RegisterPage() {
                         onChange={e => setSelectedProgId(e.target.value)}
                         className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition appearance-none"
                       >
-                        <option value="">{programs.length === 0 ? "Keine Studiengaenge verfuegbar" : "-- Studiengang waehlen --"}</option>
+                        <option value="">{programs.length === 0 ? "Keine Studiengänge verfügbar" : "-- Studiengang wählen --"}</option>
                         {programs.map(prog => (
                           <option key={prog.id} value={prog.id}>{prog.name} ({prog.degree_level})</option>
                         ))}
@@ -439,12 +478,15 @@ export default function RegisterPage() {
                     </div>
                   </div>
                 )}
-                <button type="button" onClick={() => setUseStructured(false)}
-                  className="text-[10px] text-brand-500 hover:text-brand-600 text-left">
-                  Meine Hochschule ist nicht in der Liste? Freitext eingeben
-                </button>
+                {/* Only show Freitext option when institution is NOT locked by email */}
+                {!institutionLocked && (
+                  <button type="button" onClick={() => setUseStructured(false)}
+                    className="text-[10px] text-brand-500 hover:text-brand-600 text-left">
+                    Meine Hochschule ist nicht in der Liste? Freitext eingeben
+                  </button>
+                )}
               </>
-            ) : selectedRole === "student" ? (
+            ) : selectedRole === "student" && !institutionLocked ? (
               <>
                 <div>
                   <label className="block text-sm font-medium text-surface-700 mb-1.5">Universität / Fachhochschule</label>
