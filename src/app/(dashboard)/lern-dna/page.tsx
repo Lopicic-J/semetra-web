@@ -48,7 +48,7 @@ interface DnaSnapshot {
   total_study_minutes: number;
   avg_daily_minutes: number;
   data_quality: string;
-  comparison: Record<string, number> | null;
+  vs_previous: Record<string, number | string> | null;
   created_at: string;
 }
 
@@ -481,31 +481,31 @@ export default function LernDnaPage() {
   const dimensions: DnaDimension[] = snapshot ? [
     {
       key: "consistency", label: "Konsistenz", score: snapshot.consistency_score,
-      change: snapshot.comparison?.consistency_score ?? null,
+      change: (snapshot.vs_previous?.consistency_score as number) ?? null,
       icon: CalendarCheck, color: "text-blue-500",
       description: "Wie regelmässig du lernst",
     },
     {
       key: "focus", label: "Fokus", score: snapshot.focus_score,
-      change: snapshot.comparison?.focus_score ?? null,
+      change: (snapshot.vs_previous?.focus_score as number) ?? null,
       icon: Target, color: "text-purple-500",
       description: "Konzentration während der Lerneinheiten",
     },
     {
       key: "endurance", label: "Ausdauer", score: snapshot.endurance_score,
-      change: snapshot.comparison?.endurance_score ?? null,
+      change: (snapshot.vs_previous?.endurance_score as number) ?? null,
       icon: Flame, color: "text-orange-500",
       description: "Wie lange du produktiv bleibst",
     },
     {
       key: "adaptability", label: "Anpassung", score: snapshot.adaptability_score,
-      change: snapshot.comparison?.adaptability_score ?? null,
+      change: (snapshot.vs_previous?.adaptability_score as number) ?? null,
       icon: Zap, color: "text-green-500",
       description: "Flexibilität bei veränderten Plänen",
     },
     {
       key: "planning", label: "Planung", score: snapshot.planning_score,
-      change: snapshot.comparison?.planning_score ?? null,
+      change: (snapshot.vs_previous?.planning_score as number) ?? null,
       icon: Clock, color: "text-cyan-500",
       description: "Einhaltung geplanter Lernzeiten",
     },
