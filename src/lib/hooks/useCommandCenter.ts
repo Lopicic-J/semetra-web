@@ -175,7 +175,12 @@ export function useCommandCenter(
   // Build state with DNA-personalized config
   const state = useMemo<CommandCenterState | null>(() => {
     if (loading || modules.length === 0) return null;
-    return buildCommandCenterState(modules, config, dnaProfile, onboardingProfile);
+    try {
+      return buildCommandCenterState(modules, config, dnaProfile, onboardingProfile);
+    } catch (err) {
+      console.error("[useCommandCenter] buildCommandCenterState failed:", err);
+      return null;
+    }
   }, [modules, loading, config, dnaProfile, onboardingProfile]);
 
   const getAIContext = useCallback(

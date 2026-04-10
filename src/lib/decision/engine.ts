@@ -1244,9 +1244,11 @@ export function buildCommandCenterState(
   }
 
   // 2. Priorität für jedes Modul (uses DNA-adjusted config)
-  const priorities = activeModules.map((m) =>
-    calculateModulePriority(m, riskMap.get(m.moduleId)!, effectiveConfig)
-  );
+  const priorities = activeModules
+    .filter((m) => riskMap.has(m.moduleId))
+    .map((m) =>
+      calculateModulePriority(m, riskMap.get(m.moduleId)!, effectiveConfig)
+    );
   const moduleRankings = rankModules(priorities);
 
   // 3. Prognosen für jedes Modul
