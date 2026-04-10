@@ -9,12 +9,15 @@
     "lint": "eslint --ext .ts,.tsx --max-warnings 50 src/",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "db:migrate": "node scripts/migrate.mjs",
+    "db:migrate:status": "node scripts/migrate.mjs --status",
+    "db:migrate:dry": "node scripts/migrate.mjs --dry-run"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.0.0",
     "@supabase/ssr": "^0.4.0",
-    "@supabase/supabase-js": "^2.43.0",
+    "@supabase/supabase-js": "^2.103.0",
     "clsx": "^2.1.0",
     "date-fns": "^3.6.0",
     "jszip": "^3.10.1",
@@ -23,6 +26,7 @@
     "next": "^16.2.2",
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
+    "pg": "^8.20.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "react-hot-toast": "^2.4.1",

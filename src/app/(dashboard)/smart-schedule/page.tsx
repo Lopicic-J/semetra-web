@@ -12,6 +12,7 @@ import { useScheduleDay, useScheduleWeek, useModuleSchedule, useScheduleActions,
 import { useTimerSession } from "@/lib/hooks/useTimerSession";
 import type { ScheduleBlock, TimerSession, FreeSlot, BlockType, ScheduleViewMode } from "@/lib/schedule";
 import { BLOCK_TYPE_META, isLearningBlock, getBlockDurationMinutes } from "@/lib/schedule";
+import { PreferencesModal } from "@/components/schedule/PreferencesModal";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -313,227 +314,8 @@ function ModuleCard({ stat }: { stat: { moduleId: string; moduleName: string; mo
   );
 }
 
-// ── Schedule Settings Modal ─────────────────────────────────────────────────
-
-function ScheduleSettingsModal({
-  preferences,
-  onSave,
-  onClose,
-}: {
-  preferences: ReturnType<typeof useSchedulePreferences>["preferences"];
-  onSave: (updates: Partial<typeof preferences>) => Promise<void>;
-  onClose: () => void;
-}) {
-  const [form, setForm] = useState({
-    available_from: preferences.available_from || preferences.wake_time || "07:00",
-    available_until: preferences.available_until || preferences.sleep_time || "23:00",
-    wake_time: preferences.wake_time || "07:00",
-    sleep_time: preferences.sleep_time || "23:00",
-    max_daily_study_minutes: preferences.max_daily_study_minutes || 360,
-    min_study_block_minutes: preferences.min_study_block_minutes || 25,
-    max_study_block_minutes: preferences.max_study_block_minutes || 90,
-    preferred_break_minutes: preferences.preferred_break_minutes || 10,
-    energy_morning: preferences.energy_morning || 3,
-    energy_afternoon: preferences.energy_afternoon || 3,
-    energy_evening: preferences.energy_evening || 3,
-    auto_sync_stundenplan: preferences.auto_sync_stundenplan ?? true,
-    auto_fill_gaps: preferences.auto_fill_gaps ?? false,
-    auto_plan_enabled: preferences.auto_plan_enabled ?? false,
-    auto_reschedule_missed: preferences.auto_reschedule_missed ?? true,
-    exam_prep_start_days_before: preferences.exam_prep_start_days_before ?? 14,
-    exam_prep_min_hours: preferences.exam_prep_min_hours ?? 10,
-    exam_prep_daily_max_minutes: preferences.exam_prep_daily_max_minutes ?? 120,
-  });
-  const [saving, setSaving] = useState(false);
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      await onSave(form);
-      onClose();
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const EnergyBar = ({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) => (
-    <div className="flex items-center gap-2">
-      <span className="text-xs text-gray-500 w-20">{label}</span>
-      <div className="flex gap-1">
-        {[1, 2, 3, 4, 5].map(v => (
-          <button key={v} onClick={() => onChange(v)}
-            className={"w-6 h-6 rounded text-[10px] font-bold transition-all "
-              + (v <= value
-                ? v <= 2 ? "bg-red-400 text-white" : v <= 3 ? "bg-yellow-400 text-white" : "bg-green-500 text-white"
-                : "bg-gray-100 dark:bg-gray-800 text-gray-400")}>
-            {v}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
-          <div className="flex items-center gap-2">
-            <Settings size={16} className="text-brand-600" />
-            <h2 className="font-semibold text-gray-900 dark:text-white">Smart Schedule Einstellungen</h2>
-          </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"><X size={16} /></button>
-        </div>
-
-        <div className="p-4 space-y-5">
-          {/* ── Verfügbare Lernzeiten ── */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Verfügbare Lernzeiten</h3>
-            <p className="text-xs text-gray-400 mb-3">Wann kannst du realistisch lernen? (z.B. nach Arbeit/Schule)</p>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-[11px] text-gray-500 mb-1 block">Frühester Start</label>
-                <input type="time" value={form.available_from}
-                  onChange={(e) => setForm(prev => ({ ...prev, available_from: e.target.value }))}
-                  className="w-full px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" />
-              </div>
-              <div>
-                <label className="text-[11px] text-gray-500 mb-1 block">Spätestes Ende</label>
-                <input type="time" value={form.available_until}
-                  onChange={(e) => setForm(prev => ({ ...prev, available_until: e.target.value }))}
-                  className="w-full px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" />
-              </div>
-            </div>
-          </div>
-
-          {/* ── Tages-Budget ── */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Tages-Budget</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-[11px] text-gray-500 mb-1 block">Max. Lernzeit/Tag</label>
-                <div className="flex items-center gap-1">
-                  <input type="number" value={form.max_daily_study_minutes} min={30} max={720} step={15}
-                    onChange={(e) => setForm(prev => ({ ...prev, max_daily_study_minutes: +e.target.value }))}
-                    className="w-full px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" />
-                  <span className="text-xs text-gray-400 shrink-0">min</span>
-                </div>
-              </div>
-              <div>
-                <label className="text-[11px] text-gray-500 mb-1 block">Pause zwischen Blöcken</label>
-                <div className="flex items-center gap-1">
-                  <input type="number" value={form.preferred_break_minutes} min={5} max={30} step={5}
-                    onChange={(e) => setForm(prev => ({ ...prev, preferred_break_minutes: +e.target.value }))}
-                    className="w-full px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" />
-                  <span className="text-xs text-gray-400 shrink-0">min</span>
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3 mt-2">
-              <div>
-                <label className="text-[11px] text-gray-500 mb-1 block">Min. Blockdauer</label>
-                <div className="flex items-center gap-1">
-                  <input type="number" value={form.min_study_block_minutes} min={10} max={60} step={5}
-                    onChange={(e) => setForm(prev => ({ ...prev, min_study_block_minutes: +e.target.value }))}
-                    className="w-full px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" />
-                  <span className="text-xs text-gray-400 shrink-0">min</span>
-                </div>
-              </div>
-              <div>
-                <label className="text-[11px] text-gray-500 mb-1 block">Max. Blockdauer</label>
-                <div className="flex items-center gap-1">
-                  <input type="number" value={form.max_study_block_minutes} min={25} max={180} step={5}
-                    onChange={(e) => setForm(prev => ({ ...prev, max_study_block_minutes: +e.target.value }))}
-                    className="w-full px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" />
-                  <span className="text-xs text-gray-400 shrink-0">min</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ── Energie-Kurve ── */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Energie-Kurve</h3>
-            <p className="text-xs text-gray-400 mb-3">Wann bist du am produktivsten? Schwierige Themen werden in Hochenergie-Phasen geplant.</p>
-            <div className="space-y-2">
-              <EnergyBar label="Morgens" value={form.energy_morning} onChange={(v) => setForm(prev => ({ ...prev, energy_morning: v }))} />
-              <EnergyBar label="Nachmittags" value={form.energy_afternoon} onChange={(v) => setForm(prev => ({ ...prev, energy_afternoon: v }))} />
-              <EnergyBar label="Abends" value={form.energy_evening} onChange={(v) => setForm(prev => ({ ...prev, energy_evening: v }))} />
-            </div>
-          </div>
-
-          {/* ── Automatisierung ── */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Automatisierung</h3>
-            <div className="space-y-2.5">
-              {[
-                { key: "auto_sync_stundenplan" as const, label: "Stundenplan automatisch synchronisieren", desc: "Änderungen im Stundenplan werden direkt übernommen" },
-                { key: "auto_fill_gaps" as const, label: "Lücken automatisch füllen", desc: "Freie Slots werden mit Lernzeit für priorisierte Module gefüllt" },
-                { key: "auto_plan_enabled" as const, label: "Täglicher Auto-Plan", desc: "Jeden Morgen automatisch einen Lernplan generieren" },
-                { key: "auto_reschedule_missed" as const, label: "Verpasste Blöcke verschieben", desc: "Nicht erledigte Lernblöcke auf den nächsten Tag verschieben" },
-              ].map(opt => (
-                <label key={opt.key} className="flex items-start gap-3 cursor-pointer group">
-                  <div className="relative mt-0.5">
-                    <input type="checkbox" checked={form[opt.key]}
-                      onChange={(e) => setForm(prev => ({ ...prev, [opt.key]: e.target.checked }))}
-                      className="sr-only" />
-                    <div className={"w-8 h-4 rounded-full transition-all " + (form[opt.key] ? "bg-brand-600" : "bg-gray-200 dark:bg-gray-700")} />
-                    <div className={"absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm transition-all " + (form[opt.key] ? "left-[18px]" : "left-0.5")} />
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-gray-900 dark:text-white">{opt.label}</div>
-                    <div className="text-[10px] text-gray-400">{opt.desc}</div>
-                  </div>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* ── Prüfungsvorbereitung ── */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Prüfungsvorbereitung</h3>
-            <p className="text-xs text-gray-400 mb-3">Automatische Lernplan-Generierung für kommende Prüfungen</p>
-            <div className="grid grid-cols-3 gap-3">
-              <div>
-                <label className="text-[11px] text-gray-500 mb-1 block">Start vor Prüfung</label>
-                <div className="flex items-center gap-1">
-                  <input type="number" value={form.exam_prep_start_days_before} min={3} max={60} step={1}
-                    onChange={(e) => setForm(prev => ({ ...prev, exam_prep_start_days_before: +e.target.value }))}
-                    className="w-full px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" />
-                  <span className="text-xs text-gray-400 shrink-0">Tage</span>
-                </div>
-              </div>
-              <div>
-                <label className="text-[11px] text-gray-500 mb-1 block">Min. Lernstunden</label>
-                <div className="flex items-center gap-1">
-                  <input type="number" value={form.exam_prep_min_hours} min={1} max={100} step={1}
-                    onChange={(e) => setForm(prev => ({ ...prev, exam_prep_min_hours: +e.target.value }))}
-                    className="w-full px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" />
-                  <span className="text-xs text-gray-400 shrink-0">h</span>
-                </div>
-              </div>
-              <div>
-                <label className="text-[11px] text-gray-500 mb-1 block">Max./Tag</label>
-                <div className="flex items-center gap-1">
-                  <input type="number" value={form.exam_prep_daily_max_minutes} min={30} max={480} step={15}
-                    onChange={(e) => setForm(prev => ({ ...prev, exam_prep_daily_max_minutes: +e.target.value }))}
-                    className="w-full px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" />
-                  <span className="text-xs text-gray-400 shrink-0">min</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-2 p-4 border-t border-gray-100 dark:border-gray-800">
-          <button onClick={onClose} className="btn-secondary flex-1">Abbrechen</button>
-          <button onClick={handleSave} disabled={saving} className="btn-primary flex-1 disabled:opacity-50">
-            {saving ? "Speichern..." : "Speichern"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+// ScheduleSettingsModal replaced by PreferencesModal component
+// See: src/components/schedule/PreferencesModal.tsx
 
 // ── Main Page ───────────────────────────────────────────────────────────────
 
@@ -808,13 +590,12 @@ export default function SmartSchedulePage() {
       )}
 
       {/* ━━ SETTINGS MODAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      {showSettings && (
-        <ScheduleSettingsModal
-          preferences={preferences}
-          onSave={async (updates) => { await updatePreferences(updates); day.refetch(); }}
-          onClose={() => setShowSettings(false)}
-        />
-      )}
+      <PreferencesModal
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
+        preferences={preferences}
+        onSave={async (updates) => { await updatePreferences(updates); day.refetch(); }}
+      />
     </div>
   );
 }

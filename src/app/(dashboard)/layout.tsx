@@ -13,6 +13,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // Check onboarding status — redirect new users to onboarding
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarding_completed")
+    .eq("id", user.id)
+    .single();
+
+  if (profile && profile.onboarding_completed === false) {
+    redirect("/onboarding");
+  }
+
   return (
     <I18nWrapper>
       <OfflineBanner />

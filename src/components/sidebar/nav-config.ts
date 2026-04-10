@@ -3,7 +3,7 @@ import {
   Calendar, Award, CalendarClock, Users, Trophy,
   FileText, Brain, Network, Calculator, Timer,
   TrendingUp, Sparkles, GraduationCap, Wrench, Code, Puzzle,
-  Shield, Settings, UserCircle, Terminal, Zap, BarChart3,
+  Shield, Settings, UserCircle, Terminal, Zap, BarChart3, Dna, Radar,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRole } from "@/lib/hooks/useProfile";
@@ -31,7 +31,8 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     labelKey: "",
     items: [
-      { href: "/dashboard",  icon: LayoutDashboard, labelKey: "nav.dashboard",  pro: false },
+      { href: "/dashboard",        icon: LayoutDashboard, labelKey: "nav.dashboard",      pro: false },
+      { href: "/command-center",    icon: Radar,           labelKey: "nav.commandCenter",  pro: false },
     ],
   },
   // ── Studium ──
@@ -68,6 +69,7 @@ export const NAV_GROUPS: NavGroup[] = [
     labelKey: "navGroup.progress",
     items: [
       { href: "/studium",       icon: GraduationCap, labelKey: "nav.studium",      pro: false },
+      { href: "/lern-dna",      icon: Dna,           labelKey: "nav.lernDna",      pro: false },
       { href: "/insights",      icon: BarChart3,     labelKey: "nav.insights",     pro: false },
       { href: "/achievements",  icon: Trophy,        labelKey: "nav.achievements", pro: false },
     ],

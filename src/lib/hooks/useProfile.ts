@@ -48,6 +48,9 @@ export interface Profile {
   verified_email_domain: string | null;
   // Module source tracking (Migration 056)
   institution_modules_loaded: boolean;
+  // Onboarding (Migration 075)
+  onboarding_completed: boolean;
+  onboarding_completed_at: string | null;
   // Activity tracking
   last_seen_at: string | null;
 }

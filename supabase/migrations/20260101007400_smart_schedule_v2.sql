@@ -1,6 +1,11 @@
 -- ============================================================================
 -- Migration 074: Smart Schedule v2 — Intelligent Scheduling Engine
 -- ============================================================================
+
+-- Pre-requisite: Drop function with changed return type
+DROP FUNCTION IF EXISTS check_all_missed_blocks();
+
+-- ============================================================================
 -- Fixes:
 --   0. Fix broken auto_detect_missed_blocks() column references (from 064)
 --   1. Add missing FK on study_plan_item_id (from 063)

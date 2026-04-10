@@ -1,0 +1,40 @@
+# Semetra Supabase Configuration
+# Docs: https://supabase.com/docs/guides/cli/config
+
+[project]
+id = "glnbdloeffeylfmzviis"
+
+[db]
+# Port to use for the local database URL (local dev only)
+port = 54322
+shadow_port = 54320
+# The database major version to use (local dev only)
+major_version = 15
+
+[db.pooler]
+enabled = false
+port = 54329
+pool_mode = "transaction"
+default_pool_size = 20
+max_client_conn = 100
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+site_url = "https://semetra-web.vercel.app"
+additional_redirect_urls = ["http://localhost:3000"]
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"

@@ -29,6 +29,7 @@ export async function updateSession(request: NextRequest) {
   const isAuthPage =
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
+    pathname.startsWith("/onboarding") ||
     pathname.startsWith("/reset-password") ||
     pathname.startsWith("/update-password") ||
     pathname.startsWith("/auth/callback") ||
