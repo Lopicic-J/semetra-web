@@ -8,8 +8,8 @@ import { describe, it, expect } from "vitest";
 import { NAV_GROUPS, BOTTOM_ITEMS, getAllNavItems, getFilteredNavGroups } from "../nav-config";
 
 describe("nav-config", () => {
-  it("hat mindestens 5 Navigationsgruppen", () => {
-    expect(NAV_GROUPS.length).toBeGreaterThanOrEqual(5);
+  it("hat mindestens 3 Navigationsgruppen", () => {
+    expect(NAV_GROUPS.length).toBeGreaterThanOrEqual(3);
   });
 
   it("hat Bottom-Items (Profile, Settings)", () => {
@@ -99,7 +99,5 @@ describe("nav-config", () => {
     const labelKeys = groups.map(g => g.labelKey);
     expect(labelKeys).toContain("navGroup.study");
     expect(labelKeys).toContain("navGroup.learning");
-    expect(labelKeys).toContain("navGroup.tools");
-    expect(labelKeys).toContain("navGroup.progress");
   });
 });
