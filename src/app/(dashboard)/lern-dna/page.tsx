@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { clsx } from "clsx";
 import {
@@ -18,10 +18,16 @@ import {
   AlertCircle,
   BarChart3,
   Flame,
+  BookOpen,
+  AlertTriangle,
+  ChevronRight,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useStudyPatterns } from "@/lib/hooks/useStudyPatterns";
+import { useCommandCenter } from "@/lib/hooks/useCommandCenter";
+import type { RiskLevel, Action } from "@/lib/decision/types";
+import Link from "next/link";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -66,6 +72,19 @@ const LEARNER_TYPES: Record<string, { label: string; description: string; emoji:
   adaptive_learner: { label: "Adaptiver Lerner", description: "Passt sich gut an veränderte Bedingungen an", emoji: "🔄" },
   planner: { label: "Planer", description: "Starke Vorausplanung und Zeiteinhaltung", emoji: "📋" },
   developing: { label: "Im Aufbau", description: "Noch wenig Daten — weiter so!", emoji: "🌱" },
+};
+
+// ── Risk helpers ─────────────────────────────────────────────────────────────
+
+const RISK_BADGE: Record<RiskLevel, string> = {
+  critical: "bg-red-100 text-red-700",
+  high: "bg-orange-100 text-orange-700",
+  medium: "bg-amber-100 text-amber-700",
+  low: "bg-green-100 text-green-700",
+  none: "bg-surface-100 text-surface-600",
+};
+const RISK_LABELS: Record<RiskLevel, string> = {
+  critical: "Kritisch", high: "Hoch", medium: "Mittel", low: "Niedrig", none: "Okay",
 };
 
 // ── DNA Radar Chart (SVG) ────────────────────────────────────────────────────
@@ -217,7 +236,6 @@ function InsightCard({ type, severity, data }: { type: string; severity: string;
 
   const Icon = severityIcons[severity] || Lightbulb;
 
-  // Simple insight text generation
   const getText = () => {
     switch (type) {
       case "peak_hours": return `Deine produktivsten Stunden: ${data.hours?.join(", ")} Uhr`;
@@ -238,6 +256,165 @@ function InsightCard({ type, severity, data }: { type: string; severity: string;
       <Icon size={16} className="mt-0.5 shrink-0" />
       <p className="text-sm text-surface-700">{getText()}</p>
     </div>
+  );
+}
+
+// ── Decision Engine Bridge Section ──────────────────────────────────────────
+// Connects DNA dimensions to the Decision Engine's risk assessment and actions
+
+function EngineContextSection({
+  snapshot,
+}: {
+  snapshot: DnaSnapshot;
+}) {
+  const { state, modules } = useCommandCenter();
+
+  if (!state || modules.length === 0) return null;
+
+  const { overview, risks, today } = state;
+
+  // Derive DNA-influenced recommendations
+  const dnaRecommendations = useMemo(() => {
+    const recs: { text: string; severity: "positive" | "warning" | "info" }[] = [];
+
+    // Consistency-based recommendations
+    if (snapshot.consistency_score < 40) {
+      recs.push({
+        text: `Deine Konsistenz ist niedrig (${Math.round(snapshot.consistency_score)}%). Versuche täglich mindestens 30 Minuten zu lernen.`,
+        severity: "warning",
+      });
+    } else if (snapshot.consistency_score >= 75) {
+      recs.push({
+        text: `Starke Konsistenz (${Math.round(snapshot.consistency_score)}%)! Das hilft dir bei ${overview.activeModules} aktiven Modulen.`,
+        severity: "positive",
+      });
+    }
+
+    // Planning score vs at-risk modules
+    if (snapshot.planning_score < 50 && overview.atRiskModules > 0) {
+      recs.push({
+        text: `${overview.atRiskModules} Module sind gefährdet und deine Planung liegt bei ${Math.round(snapshot.planning_score)}%. Nutze den Smart Schedule für bessere Struktur.`,
+        severity: "warning",
+      });
+    }
+
+    // Focus score vs study time
+    if (snapshot.focus_score >= 70 && overview.totalStudyMinutesThisWeek < 120) {
+      recs.push({
+        text: `Dein Fokus ist stark (${Math.round(snapshot.focus_score)}%), aber du lernst nur ${Math.round(overview.totalStudyMinutesThisWeek / 60)}h/Woche. Mehr Zeit würde sich auszahlen.`,
+        severity: "info",
+      });
+    }
+
+    // Endurance + study session recommendations
+    if (snapshot.endurance_score < 40) {
+      recs.push({
+        text: "Deine Ausdauer ist noch ausbaubar. Versuche die Pomodoro-Technik mit kürzeren Sessions.",
+        severity: "info",
+      });
+    }
+
+    return recs;
+  }, [snapshot, overview]);
+
+  // Top 3 at-risk modules from engine
+  const topRiskModules = useMemo(() => {
+    const entries: { name: string; code: string; risk: RiskLevel; color?: string }[] = [];
+    for (const mod of modules) {
+      const risk = state.risks.modules.get(mod.moduleId);
+      if (risk && (risk.overall === "critical" || risk.overall === "high" || risk.overall === "medium")) {
+        entries.push({
+          name: mod.moduleName,
+          code: mod.moduleCode,
+          risk: risk.overall,
+          color: mod.color,
+        });
+      }
+    }
+    return entries.slice(0, 3);
+  }, [modules, state.risks]);
+
+  // Top actions from today's plan
+  const topActions = today.actions.slice(0, 3);
+
+  return (
+    <Card padding="lg">
+      <div className="flex items-center gap-2 mb-4">
+        <Brain size={16} className="text-brand-500" />
+        <h3 className="text-sm font-semibold text-surface-700">DNA trifft Decision Engine</h3>
+      </div>
+
+      <div className="space-y-4">
+        {/* DNA-based recommendations */}
+        {dnaRecommendations.length > 0 && (
+          <div className="space-y-2">
+            {dnaRecommendations.map((rec, i) => (
+              <div
+                key={i}
+                className={clsx(
+                  "flex items-start gap-2 p-2.5 rounded-lg border text-xs",
+                  rec.severity === "positive" ? "border-green-200 bg-green-50 text-green-700"
+                  : rec.severity === "warning" ? "border-amber-200 bg-amber-50 text-amber-700"
+                  : "border-blue-200 bg-blue-50 text-blue-700"
+                )}
+              >
+                {rec.severity === "positive" ? <TrendingUp size={12} className="mt-0.5 shrink-0" />
+                  : rec.severity === "warning" ? <AlertTriangle size={12} className="mt-0.5 shrink-0" />
+                  : <Lightbulb size={12} className="mt-0.5 shrink-0" />}
+                <span>{rec.text}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* At-risk modules (from engine) */}
+        {topRiskModules.length > 0 && (
+          <div>
+            <p className="text-xs font-medium text-surface-500 mb-2">Gefährdete Module</p>
+            <div className="space-y-1.5">
+              {topRiskModules.map((mod, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div
+                    className="w-2 h-6 rounded-full shrink-0"
+                    style={{ backgroundColor: mod.color || "rgb(var(--surface-300))" }}
+                  />
+                  <span className="text-xs text-surface-700 flex-1 truncate">{mod.name}</span>
+                  <span className={clsx("text-[10px] px-1.5 py-0.5 rounded font-medium", RISK_BADGE[mod.risk])}>
+                    {RISK_LABELS[mod.risk]}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Today's top actions from engine */}
+        {topActions.length > 0 && (
+          <div>
+            <p className="text-xs font-medium text-surface-500 mb-2">Empfohlene Aktionen heute</p>
+            <div className="space-y-1">
+              {topActions.map((action, i) => (
+                <div key={i} className="flex items-center gap-2 text-xs text-surface-600">
+                  <Zap size={10} className="shrink-0 text-brand-400" />
+                  <span className="truncate">{action.title}</span>
+                  {action.estimatedMinutes && (
+                    <span className="text-surface-400 shrink-0">{action.estimatedMinutes}min</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Link to Command Center */}
+        <Link
+          href="/command-center"
+          className="flex items-center gap-1 text-xs text-brand-500 hover:text-brand-600 pt-1"
+        >
+          Zum Command Center <ChevronRight size={12} />
+        </Link>
+      </div>
+    </Card>
   );
 }
 
@@ -429,6 +606,9 @@ export default function LernDnaPage() {
               </div>
             </Card>
           </div>
+
+          {/* Decision Engine Bridge — NEW INTEGRATION */}
+          <EngineContextSection snapshot={snapshot} />
 
           {/* Quick Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

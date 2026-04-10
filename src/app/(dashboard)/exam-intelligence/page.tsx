@@ -19,6 +19,8 @@ import {
   ChevronDown,
   ChevronUp,
   BookOpen,
+  Brain,
+  Zap,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -27,6 +29,15 @@ import {
   type ExamIntelligenceItem,
   type ExamRisk,
 } from "@/lib/hooks/useExamIntelligence";
+import { useCommandCenter } from "@/lib/hooks/useCommandCenter";
+import {
+  assessModuleRisk,
+  predictOutcome,
+  type ModuleIntelligence,
+  type ModuleRisk,
+  type OutcomePrediction,
+  type RiskLevel,
+} from "@/lib/decision";
 
 // ── Traffic Light Colors ─────────────────────────────────────────────────────
 
@@ -58,18 +69,66 @@ function TrafficLight({ risk }: { risk: ExamRisk | null }) {
   );
 }
 
-// ── Exam Card with Traffic Light ─────────────────────────────────────────────
+// ── Engine Cross-Reference Badge ─────────────────────────────────────────────
+// Shows how the real-time Decision Engine assessment compares to the DB snapshot
+
+function EngineInsight({
+  engineRisk,
+  enginePrediction,
+}: {
+  engineRisk: ModuleRisk | null;
+  enginePrediction: OutcomePrediction | null;
+}) {
+  if (!engineRisk && !enginePrediction) return null;
+
+  const RISK_BG: Record<RiskLevel, string> = {
+    critical: "bg-red-50 text-red-700",
+    high: "bg-orange-50 text-orange-700",
+    medium: "bg-amber-50 text-amber-700",
+    low: "bg-green-50 text-green-700",
+    none: "bg-surface-50 text-surface-600",
+  };
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 mt-2">
+      <span className="text-[10px] text-surface-400 flex items-center gap-1">
+        <Brain size={10} /> Engine:
+      </span>
+      {engineRisk && (
+        <span className={clsx("text-[10px] px-1.5 py-0.5 rounded font-medium", RISK_BG[engineRisk.overall])}>
+          Risiko {engineRisk.score}/100
+        </span>
+      )}
+      {enginePrediction && (
+        <span className="text-[10px] px-1.5 py-0.5 rounded bg-brand-50 text-brand-700 font-medium">
+          Prognose {enginePrediction.currentTrajectory.toFixed(1)} · P(bestehen) {Math.round(enginePrediction.passProbability * 100)}%
+        </span>
+      )}
+      {engineRisk && engineRisk.factors.length > 0 && (
+        <span className="text-[10px] text-surface-400">
+          ({engineRisk.factors.length} Risikofaktoren)
+        </span>
+      )}
+    </div>
+  );
+}
+
+// ── Exam Card with Traffic Light + Engine Data ───────────────────────────────
 
 function ExamCard({
   exam,
   expanded,
   onToggle,
   onSimulate,
+  engineRisk,
+  enginePrediction,
 }: {
   exam: ExamIntelligenceItem;
   expanded: boolean;
   onToggle: () => void;
   onSimulate: () => void;
+  engineRisk: ModuleRisk | null;
+  enginePrediction: OutcomePrediction | null;
 }) {
   const risk = exam.risk;
   const pred = exam.prediction;
@@ -177,6 +236,44 @@ function ExamCard({
             )}
           </div>
 
+          {/* Real-time Engine cross-reference */}
+          <EngineInsight engineRisk={engineRisk} enginePrediction={enginePrediction} />
+
+          {/* Engine risk factors (from real-time engine) */}
+          {engineRisk && engineRisk.factors.length > 0 && (
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-surface-600 flex items-center gap-1">
+                <AlertTriangle size={10} /> Erkannte Risikofaktoren
+              </p>
+              {engineRisk.factors.slice(0, 4).map((f, i) => (
+                <div key={i} className="flex items-center gap-2 text-xs">
+                  <div className={clsx("w-1.5 h-1.5 rounded-full", TRAFFIC[f.severity]?.bg || "bg-surface-300")} />
+                  <span className="text-surface-600">{f.description}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Engine scenarios (from predictOutcome) */}
+          {enginePrediction && enginePrediction.scenarios.length > 0 && (
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-surface-600 flex items-center gap-1">
+                <Target size={10} /> Szenarien (Decision Engine)
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                {enginePrediction.scenarios.map((s, i) => (
+                  <div key={i} className="text-center p-2 rounded-lg bg-white/60">
+                    <p className="text-[10px] text-surface-400">{s.name}</p>
+                    <p className={clsx("text-sm font-bold", s.passed ? "text-green-600" : "text-red-600")}>
+                      {s.finalGrade.toFixed(1)}
+                    </p>
+                    <p className="text-[10px] text-surface-400">{s.passed ? "bestanden" : "nicht best."}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Exam metadata */}
           <div className="flex items-center gap-4 text-xs text-surface-500">
             <span>Format: {exam.exam_format === "written" ? "Schriftlich" : exam.exam_format === "oral" ? "Mündlich" : exam.exam_format === "practical" ? "Praktisch" : exam.exam_format}</span>
@@ -196,13 +293,17 @@ function ExamCard({
   );
 }
 
-// ── Scenario Simulator Modal ─────────────────────────────────────────────────
+// ── Scenario Simulator Modal (Engine-powered) ───────────────────────────────
 
 function ScenarioSimulator({
   exam,
+  engineModule,
+  enginePrediction,
   onClose,
 }: {
   exam: ExamIntelligenceItem;
+  engineModule: ModuleIntelligence | null;
+  enginePrediction: OutcomePrediction | null;
   onClose: () => void;
 }) {
   const pred = exam.prediction;
@@ -210,9 +311,13 @@ function ScenarioSimulator({
   const [knowledgeTarget, setKnowledgeTarget] = useState(70);
   const [componentGrade, setComponentGrade] = useState(pred?.grade ?? 4.0);
 
-  // Simulate new prediction based on what-if inputs
+  // Use engine prediction as base when available, fall back to simple formula
   const simulated = useMemo(() => {
-    const base = pred?.grade ?? 4.0;
+    // If we have engine prediction, use its scenarios as baseline
+    const engineBase = enginePrediction?.currentTrajectory;
+    const base = engineBase ?? pred?.grade ?? 4.0;
+    const enginePassProb = enginePrediction?.passProbability;
+    const basePassProb = enginePassProb ?? pred?.pass_prob ?? 0.5;
 
     // Additional study hours boost (diminishing returns)
     const studyBoost = Math.min(0.6, additionalHours / 30);
@@ -221,21 +326,27 @@ function ScenarioSimulator({
     const currentKnowledge = exam.risk?.readiness ?? 50;
     const knowledgeBoost = ((knowledgeTarget - currentKnowledge) / 100) * 0.5;
 
-    // Component grade influence (if user enters a specific grade for next assignment)
+    // Component grade influence
     const componentInfluence = (componentGrade - base) * 0.3;
 
     const newGrade = Math.max(1, Math.min(6, base + studyBoost + knowledgeBoost + componentInfluence));
     const newPassProb = Math.max(0.05, Math.min(0.95,
-      (pred?.pass_prob ?? 0.5) + studyBoost * 0.3 + knowledgeBoost * 0.2 + componentInfluence * 0.15
+      basePassProb + studyBoost * 0.3 + knowledgeBoost * 0.2 + componentInfluence * 0.15
     ));
+
+    // Compute delta against both snapshot and engine
+    const snapshotDelta = pred ? Math.round((newGrade - pred.grade) * 10) / 10 : 0;
+    const engineDelta = engineBase ? Math.round((newGrade - engineBase) * 10) / 10 : null;
 
     return {
       grade: Math.round(newGrade * 10) / 10,
       passProb: Math.round(newPassProb * 100),
-      improvementGrade: Math.round((newGrade - base) * 10) / 10,
+      improvementGrade: snapshotDelta,
       improvementProb: Math.round((newPassProb - (pred?.pass_prob ?? 0.5)) * 100),
+      engineDelta,
+      engineBase: engineBase ? Math.round(engineBase * 10) / 10 : null,
     };
-  }, [pred, exam, additionalHours, knowledgeTarget, componentGrade]);
+  }, [pred, exam, enginePrediction, additionalHours, knowledgeTarget, componentGrade]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
@@ -246,6 +357,11 @@ function ScenarioSimulator({
             Szenario-Simulator
           </h2>
           <p className="text-xs text-surface-500 mt-1">{exam.title}</p>
+          {enginePrediction && (
+            <p className="text-[10px] text-brand-500 mt-0.5 flex items-center gap-1">
+              <Brain size={10} /> Engine-Daten als Basis
+            </p>
+          )}
         </div>
 
         <div className="p-5 space-y-5">
@@ -290,8 +406,13 @@ function ScenarioSimulator({
                 <p className="text-2xl font-bold text-surface-800">{simulated.grade.toFixed(1)}</p>
                 <p className="text-xs text-surface-500">Neue Prognose</p>
                 <p className={clsx("text-xs font-medium mt-0.5", simulated.improvementGrade > 0 ? "text-green-600" : simulated.improvementGrade < 0 ? "text-red-600" : "text-surface-400")}>
-                  {simulated.improvementGrade > 0 ? "+" : ""}{simulated.improvementGrade.toFixed(1)} vs aktuell
+                  {simulated.improvementGrade > 0 ? "+" : ""}{simulated.improvementGrade.toFixed(1)} vs Snapshot
                 </p>
+                {simulated.engineDelta !== null && (
+                  <p className={clsx("text-[10px] font-medium", simulated.engineDelta > 0 ? "text-green-500" : simulated.engineDelta < 0 ? "text-red-500" : "text-surface-400")}>
+                    {simulated.engineDelta > 0 ? "+" : ""}{simulated.engineDelta.toFixed(1)} vs Engine ({simulated.engineBase})
+                  </p>
+                )}
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-surface-800">{simulated.passProb}%</p>
@@ -302,6 +423,21 @@ function ScenarioSimulator({
               </div>
             </div>
           </div>
+
+          {/* Engine required performance (if available) */}
+          {enginePrediction?.requiredPerformance && (
+            <div className="bg-brand-50/50 rounded-xl p-3 space-y-1">
+              <p className="text-xs font-medium text-brand-700 flex items-center gap-1">
+                <Zap size={10} /> Was brauchst du zum Bestehen?
+              </p>
+              <p className="text-xs text-surface-600">{enginePrediction.requiredPerformance.description}</p>
+              {enginePrediction.requiredPerformance.nextExamGrade !== null && (
+                <p className="text-xs text-surface-500">
+                  Nächste Prüfung mindestens: <span className="font-semibold">{enginePrediction.requiredPerformance.nextExamGrade.toFixed(1)}</span>
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="p-5 border-t border-surface-100 flex justify-end">
@@ -361,8 +497,22 @@ function RecommendationCard({
 
 export default function ExamIntelligencePage() {
   const { data, loading, refreshing, error, refresh, dismissRecommendation } = useExamIntelligence();
+  const { state: engineState, modules: engineModules, loading: engineLoading } = useCommandCenter();
+
   const [expandedExam, setExpandedExam] = useState<string | null>(null);
   const [simulatingExam, setSimulatingExam] = useState<ExamIntelligenceItem | null>(null);
+
+  // Build engine data lookup by module_id for cross-referencing
+  const engineDataByModule = useMemo(() => {
+    if (!engineState || engineModules.length === 0) return new Map<string, { risk: ModuleRisk; prediction: OutcomePrediction; module: ModuleIntelligence }>();
+    const map = new Map<string, { risk: ModuleRisk; prediction: OutcomePrediction; module: ModuleIntelligence }>();
+    for (const mod of engineModules) {
+      const risk = assessModuleRisk(mod);
+      const prediction = predictOutcome(mod);
+      map.set(mod.moduleId, { risk, prediction, module: mod });
+    }
+    return map;
+  }, [engineState, engineModules]);
 
   // Split exams by time horizon
   const { thisWeek, thisMonth, later } = useMemo(() => {
@@ -378,16 +528,27 @@ export default function ExamIntelligencePage() {
     return { thisWeek: tw, thisMonth: tm, later: lt };
   }, [data]);
 
-  // Summary stats
+  // Summary stats — enriched with engine data
   const summary = useMemo(() => {
     if (!data || data.exams.length === 0) return null;
     const critCount = data.exams.filter((e) => e.risk?.level === "critical" || e.risk?.level === "high").length;
     const avgReadiness = data.exams.reduce((sum, e) => sum + (e.risk?.readiness ?? 0), 0) / data.exams.length;
     const avgPassProb = data.exams.reduce((sum, e) => sum + (e.prediction?.pass_prob ?? 0.5), 0) / data.exams.length;
-    return { total: data.exams.length, critical: critCount, avgReadiness, avgPassProb };
-  }, [data]);
 
-  if (loading) {
+    // Engine enrichment: average engine pass probability for comparison
+    let engineAvgPassProb: number | null = null;
+    const examModuleIds = data.exams.map(e => e.module_id).filter(Boolean) as string[];
+    const engineProbs = examModuleIds
+      .map(id => engineDataByModule.get(id)?.prediction.passProbability)
+      .filter((p): p is number => p != null);
+    if (engineProbs.length > 0) {
+      engineAvgPassProb = engineProbs.reduce((a, b) => a + b, 0) / engineProbs.length;
+    }
+
+    return { total: data.exams.length, critical: critCount, avgReadiness, avgPassProb, engineAvgPassProb };
+  }, [data, engineDataByModule]);
+
+  if (loading || engineLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 size={24} className="animate-spin text-brand-500" />
@@ -400,15 +561,20 @@ export default function ExamIntelligencePage() {
     return (
       <div className="space-y-2">
         <h3 className="text-xs font-semibold text-surface-500 uppercase tracking-wide">{title}</h3>
-        {exams.map((exam) => (
-          <ExamCard
-            key={exam.event_id}
-            exam={exam}
-            expanded={expandedExam === exam.event_id}
-            onToggle={() => setExpandedExam((prev) => prev === exam.event_id ? null : exam.event_id)}
-            onSimulate={() => setSimulatingExam(exam)}
-          />
-        ))}
+        {exams.map((exam) => {
+          const engineData = exam.module_id ? engineDataByModule.get(exam.module_id) : undefined;
+          return (
+            <ExamCard
+              key={exam.event_id}
+              exam={exam}
+              expanded={expandedExam === exam.event_id}
+              onToggle={() => setExpandedExam((prev) => prev === exam.event_id ? null : exam.event_id)}
+              onSimulate={() => setSimulatingExam(exam)}
+              engineRisk={engineData?.risk ?? null}
+              enginePrediction={engineData?.prediction ?? null}
+            />
+          );
+        })}
       </div>
     );
   };
@@ -458,6 +624,11 @@ export default function ExamIntelligencePage() {
               {Math.round(summary.avgPassProb * 100)}%
             </p>
             <p className="text-xs text-surface-500">Ø Bestehens-Chance</p>
+            {summary.engineAvgPassProb !== null && (
+              <p className="text-[10px] text-brand-500 mt-0.5">
+                Engine: {Math.round(summary.engineAvgPassProb * 100)}%
+              </p>
+            )}
           </Card>
         </div>
       )}
@@ -533,7 +704,12 @@ export default function ExamIntelligencePage() {
 
       {/* Scenario Simulator Modal */}
       {simulatingExam && (
-        <ScenarioSimulator exam={simulatingExam} onClose={() => setSimulatingExam(null)} />
+        <ScenarioSimulator
+          exam={simulatingExam}
+          engineModule={simulatingExam.module_id ? engineDataByModule.get(simulatingExam.module_id)?.module ?? null : null}
+          enginePrediction={simulatingExam.module_id ? engineDataByModule.get(simulatingExam.module_id)?.prediction ?? null : null}
+          onClose={() => setSimulatingExam(null)}
+        />
       )}
     </div>
   );
