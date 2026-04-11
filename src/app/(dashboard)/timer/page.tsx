@@ -256,48 +256,48 @@ function TimerPageInner() {
   const progressOffset = circumference * (1 - (timer.progress ?? 0));
 
   return (
-    <div className="flex flex-col lg:flex-row h-[calc(100vh-56px)] md:h-[calc(100vh-64px)]">
+    <div className="lg:flex lg:flex-row lg:h-[calc(100vh-64px)] overflow-y-auto lg:overflow-hidden">
 
       {/* ══════════════════════════════════════════════════════════════════
           LEFT: Timer Core (Main Area)
           ══════════════════════════════════════════════════════════════ */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 lg:overflow-y-auto">
         <div className="max-w-2xl mx-auto p-3 sm:p-6">
 
-          {/* Header */}
-          <div className="flex items-center justify-between mb-4 sm:mb-5">
+          {/* Header — compact on mobile */}
+          <div className="flex items-center justify-between mb-3 sm:mb-5">
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-surface-900 dark:text-surface-100">Lernzeit</h1>
-              <p className="text-xs sm:text-sm text-surface-500 mt-0.5">Fokussiert lernen, Fortschritt tracken</p>
+              <p className="text-xs text-surface-500 mt-0.5 hidden sm:block">Fokussiert lernen, Fortschritt tracken</p>
             </div>
             {/* Streak Badge */}
-            <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-orange-50 dark:bg-orange-950/30">
-              <Flame size={16} className="text-orange-500 sm:w-[18px] sm:h-[18px]" />
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-orange-50 dark:bg-orange-950/30">
+              <Flame size={16} className="text-orange-500" />
               <span className="text-sm font-bold text-orange-600 dark:text-orange-400">{streaks.currentStreak}</span>
-              <span className="text-[10px] sm:text-xs text-orange-400">Tage</span>
+              <span className="text-[10px] text-orange-400">Tage</span>
             </div>
           </div>
 
-          {/* Quick Stats Strip */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
-            <div className="rounded-xl bg-brand-50 dark:bg-brand-950/20 p-2.5 sm:p-3 text-center">
-              <p className="text-base sm:text-lg font-bold text-brand-600">{formatDuration(weekStudySec)}</p>
-              <p className="text-[10px] sm:text-[11px] text-surface-500">Diese Woche</p>
+          {/* Quick Stats — inline row on mobile */}
+          <div className="flex gap-2 sm:grid sm:grid-cols-3 sm:gap-3 mb-4 sm:mb-6 overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0">
+            <div className="rounded-xl bg-brand-50 dark:bg-brand-950/20 p-2 sm:p-3 text-center shrink-0 min-w-[90px] sm:min-w-0 flex-1">
+              <p className="text-sm sm:text-lg font-bold text-brand-600">{formatDuration(weekStudySec)}</p>
+              <p className="text-[10px] text-surface-500">Woche</p>
             </div>
-            <div className="rounded-xl bg-surface-50 dark:bg-surface-800/40 p-2.5 sm:p-3 text-center">
-              <p className="text-base sm:text-lg font-bold text-surface-800 dark:text-surface-200">
+            <div className="rounded-xl bg-surface-50 dark:bg-surface-800/40 p-2 sm:p-3 text-center shrink-0 min-w-[80px] sm:min-w-0 flex-1">
+              <p className="text-sm sm:text-lg font-bold text-surface-800 dark:text-surface-200">
                 {streaks.last30Days[today] ? formatDuration(streaks.last30Days[today]) : "0m"}
               </p>
-              <p className="text-[10px] sm:text-[11px] text-surface-500">Heute</p>
+              <p className="text-[10px] text-surface-500">Heute</p>
             </div>
-            <div className="rounded-xl bg-surface-50 dark:bg-surface-800/40 p-2.5 sm:p-3 text-center">
-              <p className="text-base sm:text-lg font-bold text-surface-800 dark:text-surface-200">{timer.pomodoroCount}</p>
-              <p className="text-[10px] sm:text-[11px] text-surface-500">Pomodoros</p>
+            <div className="rounded-xl bg-surface-50 dark:bg-surface-800/40 p-2 sm:p-3 text-center shrink-0 min-w-[80px] sm:min-w-0 flex-1">
+              <p className="text-sm sm:text-lg font-bold text-surface-800 dark:text-surface-200">{timer.pomodoroCount}</p>
+              <p className="text-[10px] text-surface-500">Pomodoros</p>
             </div>
           </div>
 
-          {/* Weekly Goal Progress */}
-          <div className="mb-5 sm:mb-6">
+          {/* Weekly Goal — hidden on mobile when timer running to save space */}
+          <div className={`mb-4 sm:mb-6 ${timer.isRunning ? "hidden sm:block" : ""}`}>
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[11px] sm:text-xs font-medium text-surface-500">Wochenziel</span>
               <span className="text-[11px] sm:text-xs text-surface-400">
@@ -512,8 +512,8 @@ function TimerPageInner() {
       {/* ══════════════════════════════════════════════════════════════════
           RIGHT: Sidebar — Schedule + History
           ══════════════════════════════════════════════════════════════ */}
-      <div className="w-full lg:w-80 xl:w-96 border-t lg:border-t-0 lg:border-l border-surface-200 dark:border-surface-700 bg-surface-50/50 dark:bg-surface-900/50 overflow-y-auto">
-        <div className="p-4">
+      <div className="w-full lg:w-80 xl:w-96 lg:border-l border-surface-200 dark:border-surface-700 bg-surface-50/50 dark:bg-surface-900/50 lg:overflow-y-auto">
+        <div className="p-3 sm:p-4">
 
           {/* ── Today's Planned Blocks ────────────────────────────── */}
           <div className="mb-6">
@@ -705,7 +705,7 @@ function SessionRow({ session }: { session: any }) {
 export default function TimerPage() {
   return (
     <Suspense fallback={
-      <div className="flex items-center justify-center h-[calc(100vh-56px)] md:h-[calc(100vh-64px)]">
+      <div className="flex items-center justify-center min-h-[60vh] lg:h-[calc(100vh-64px)]">
         <div className="w-8 h-8 border-3 border-brand-600 border-t-transparent rounded-full animate-spin" />
       </div>
     }>

@@ -77,22 +77,22 @@ export function PageTabs({
   return (
     <div className="flex flex-col h-full">
       {/* ── Header ───────────────────────────────────── */}
-      <div className="px-6 pt-6 pb-0">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
+      <div className="px-3 sm:px-6 pt-4 sm:pt-6 pb-0">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
               {icon}
-              {title}
+              <span className="truncate">{title}</span>
             </h1>
             {subtitle && (
-              <p className="text-surface-500 text-sm mt-1">{subtitle}</p>
+              <p className="text-surface-500 dark:text-surface-400 text-xs sm:text-sm mt-1 truncate">{subtitle}</p>
             )}
           </div>
-          {headerActions && <div className="flex gap-2">{headerActions}</div>}
+          {headerActions && <div className="flex gap-2 shrink-0">{headerActions}</div>}
         </div>
 
         {/* ── Tab bar ──────────────────────────────────── */}
-        <div className="flex gap-1 border-b border-surface-200 -mx-6 px-6">
+        <div className="flex gap-0.5 border-b border-surface-200 dark:border-surface-700 -mx-3 sm:-mx-6 px-3 sm:px-6 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => {
             const isActive = tab.id === activeTab;
             const Icon = tab.icon;
@@ -101,19 +101,20 @@ export function PageTabs({
                 key={tab.id}
                 onClick={() => switchTab(tab.id)}
                 className={`
-                  flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium
-                  rounded-t-lg transition-colors relative
+                  flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-2.5 text-xs sm:text-sm font-medium
+                  rounded-t-lg transition-colors relative whitespace-nowrap shrink-0
                   ${
                     isActive
-                      ? "text-brand-600 bg-brand-50/50 dark:bg-brand-950/30"
-                      : "text-surface-500 hover:text-surface-700 hover:bg-surface-50 dark:hover:bg-surface-800"
+                      ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-950/30"
+                      : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200 hover:bg-surface-50 dark:hover:bg-surface-800"
                   }
                 `}
               >
-                {Icon && <Icon size={16} />}
-                {tab.label}
+                {Icon && <Icon size={15} />}
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">{tab.label.length > 10 ? tab.label.split(/[\s/]/)[0] : tab.label}</span>
                 {isActive && (
-                  <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-brand-600 rounded-t" />
+                  <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-brand-600 dark:bg-brand-400 rounded-t" />
                 )}
               </button>
             );
@@ -122,7 +123,7 @@ export function PageTabs({
       </div>
 
       {/* ── Tab content ────────────────────────────────── */}
-      <div className="flex-1 overflow-auto page-tab-content p-4 sm:p-6">{activeContent}</div>
+      <div className="flex-1 overflow-auto page-tab-content">{activeContent}</div>
     </div>
   );
 }
