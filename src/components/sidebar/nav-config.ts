@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, BookOpen, Calendar, GraduationCap,
-  Brain, TrendingUp, Wrench, Compass,
+  Brain, TrendingUp, Wrench, Compass, Users, MessageCircle,
   Shield, Settings, UserCircle, Terminal, Puzzle,
   type LucideIcon,
 } from "lucide-react";
@@ -104,6 +104,7 @@ export const NAV_GROUPS: NavGroup[] = [
           { href: "/fortschritt?tab=dna", labelKey: "nav.lernDna", tab: "dna" },
           { href: "/fortschritt?tab=insights", labelKey: "nav.insights", tab: "insights" },
           { href: "/fortschritt?tab=erfolge", labelKey: "nav.achievements", tab: "erfolge" },
+          { href: "/fortschritt?tab=bestenliste", labelKey: "nav.leaderboard", tab: "bestenliste" },
         ],
       },
       {
@@ -117,6 +118,24 @@ export const NAV_GROUPS: NavGroup[] = [
           { href: "/werkzeuge?tab=brainstorming", labelKey: "nav.brainstorming", tab: "brainstorming" },
           { href: "/werkzeuge?tab=mathe", labelKey: "nav.math", tab: "mathe" },
         ],
+      },
+    ],
+  },
+  // ── Soziales ──
+  {
+    labelKey: "navGroup.social",
+    items: [
+      {
+        href: "/friends",
+        icon: Users,
+        labelKey: "nav.friends",
+        pro: false,
+      },
+      {
+        href: "/messages",
+        icon: MessageCircle,
+        labelKey: "nav.messages",
+        pro: false,
       },
     ],
   },

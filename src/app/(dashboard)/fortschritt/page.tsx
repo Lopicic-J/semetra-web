@@ -2,18 +2,18 @@
 
 import { Suspense, lazy } from "react";
 import {
-  TrendingUp, GraduationCap, Dna, BarChart3, Trophy,
+  TrendingUp, GraduationCap, Dna, BarChart3, Trophy, Medal,
 } from "lucide-react";
 import { PageTabs } from "@/components/ui/PageTabs";
 import { useTranslation } from "@/lib/i18n";
 
 // ── Lazy-loaded tab contents ────────────────────────────────────────────────
-// Reuses existing pages — zero duplication.
 
 const StudiumContent = lazy(() => import("../studium/page"));
 const LernDnaContent = lazy(() => import("../lern-dna/page"));
 const InsightsContent = lazy(() => import("../insights/page"));
-const AchievementsContent = lazy(() => import("../achievements/page"));
+const AchievementsTab = lazy(() => import("../achievements/AchievementsTab"));
+const LeaderboardContent = lazy(() => import("../leaderboard/page"));
 
 function Loading() {
   return (
@@ -63,7 +63,17 @@ export default function FortschrittPage() {
       icon: Trophy,
       content: (
         <Suspense fallback={<Loading />}>
-          <AchievementsContent />
+          <AchievementsTab />
+        </Suspense>
+      ),
+    },
+    {
+      id: "bestenliste",
+      label: t("nav.leaderboard") || "Bestenliste",
+      icon: Medal,
+      content: (
+        <Suspense fallback={<Loading />}>
+          <LeaderboardContent />
         </Suspense>
       ),
     },
@@ -72,7 +82,7 @@ export default function FortschrittPage() {
   return (
     <PageTabs
       title={t("nav.fortschritt") || "Fortschritt"}
-      subtitle="Studium, Lern-DNA, Insights & Erfolge"
+      subtitle="Studium, Lern-DNA, Insights, Erfolge & Bestenliste"
       icon={<TrendingUp className="text-brand-600" size={26} />}
       tabs={tabs}
     />

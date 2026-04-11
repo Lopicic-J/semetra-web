@@ -11,7 +11,7 @@ import {
   Target, Calendar, Clock, LayoutGrid, Award, FileText, FolderOpen,
   Brain, Network, Lightbulb, Layers, Calculator, Timer, BarChart3,
   Trophy, Settings, Info, Flame, ArrowRight, Zap, Sparkles, TrendingUp,
-  AlertTriangle, Command, X, type LucideIcon,
+  AlertTriangle, Command, X, Users, MessageCircle, Medal, type LucideIcon,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -96,6 +96,15 @@ function getFeatures(t: (k: string) => string): Feature[] {
     { href: "/fortschritt?tab=erfolge", icon: Award, label: "Erfolge", group: "analytics",
       description: "Achievements und Meilensteine auf deinem Lernweg.", keywords: ["erfolg", "achievement", "badge", "meilenstein"], color: "#eab308", pro: false },
 
+    { href: "/fortschritt?tab=bestenliste", icon: Medal, label: "Bestenliste", group: "analytics",
+      description: "Rangliste: Wer hat die meisten XP gesammelt?", keywords: ["bestenliste", "leaderboard", "rang", "ranking", "xp"], color: "#f59e0b", pro: false },
+
+    // Soziales
+    { href: "/friends", icon: Users, label: "Freunde", group: "social",
+      description: "Freunde finden, hinzufügen und verwalten.", keywords: ["freund", "freunde", "friend", "anfrage", "hinzufügen"], color: "#6366f1", pro: false },
+    { href: "/messages", icon: MessageCircle, label: "Nachrichten", group: "social",
+      description: "Private Nachrichten mit Freunden austauschen.", keywords: ["nachricht", "chat", "dm", "privat", "message", "schreiben"], color: "#6366f1", pro: false },
+
     // System & Konto
     { href: "/upgrade", icon: Zap, label: "Pro & Preise", group: "system",
       description: "Pro Basic, Pro Full oder Lifetime — alle Pläne und Preise.", keywords: ["pro", "upgrade", "preis", "abo", "premium", "bezahlen"], color: "#7c3aed", pro: false },
@@ -112,10 +121,11 @@ const GROUP_CONFIG: Record<string, { labelKey: string; icon: LucideIcon; fallbac
   learning: { labelKey: "navigator.knowledgeSection", icon: Brain, fallback: "Lernen & Materialien" },
   tools: { labelKey: "navigator.toolsSection", icon: Sparkles, fallback: "Werkzeuge" },
   analytics: { labelKey: "navigator.analyticsSection", icon: BarChart3, fallback: "Fortschritt & Analyse" },
+  social: { labelKey: "navigator.socialSection", icon: Users, fallback: "Soziales" },
   system: { labelKey: "navigator.systemSection", icon: Settings, fallback: "Konto & Einstellungen" },
 };
 
-const GROUP_ORDER = ["overview", "planning", "learning", "tools", "analytics", "system"];
+const GROUP_ORDER = ["overview", "planning", "learning", "tools", "analytics", "social", "system"];
 
 /* ═══════════════════════════════════════════════════════════════════════
    NAVIGATOR PAGE

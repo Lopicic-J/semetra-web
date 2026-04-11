@@ -84,7 +84,7 @@ const nextConfig = {
       { source: "/credits", destination: "/grades?tab=credits", permanent: true },
       { source: "/transcript", destination: "/grades?tab=transcript", permanent: true },
       // Leaderboard → /achievements
-      { source: "/leaderboard", destination: "/achievements?tab=leaderboard", permanent: true },
+      { source: "/leaderboard", destination: "/fortschritt?tab=bestenliste", permanent: true },
       // Navigator is now a standalone page — no redirect
       // About → Settings (about tab)
       { source: "/about", destination: "/settings", permanent: true },
