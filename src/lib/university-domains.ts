@@ -33,6 +33,8 @@ export const KNOWN_UNIVERSITY_DOMAINS: Record<string, UniversityDomainEntry> = {
   "students.ost.ch":   { name: "OST", code: "OST" },
   "hes-so.ch":         { name: "HES-SO", code: "HES-SO" },
   "supsi.ch":          { name: "SUPSI", code: "SUPSI" },
+  "ffhs.ch":           { name: "FFHS", code: "FFHS" },
+  "students.ffhs.ch":  { name: "FFHS", code: "FFHS" },
 
   // ─── Universitäten ───────────────────────────────────────────
   "ethz.ch":           { name: "ETH Zürich", code: "ETHZ" },

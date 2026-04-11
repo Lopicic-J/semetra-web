@@ -777,6 +777,9 @@ export default function AdminPage() {
         </Card>
       )}
 
+      {/* ── Email-Domains Management ── */}
+      <EmailDomainsSection isPlatformAdmin={isPlatformAdmin} />
+
       {/* ── Audit Log (Platform admin only) ── */}
       {isPlatformAdmin && (
         <Card className="bg-surface-100 dark:bg-surface-800">
@@ -827,6 +830,228 @@ export default function AdminPage() {
         </Card>
       )}
     </div>
+  );
+}
+
+// ── Email Domains Section ──
+
+function EmailDomainsSection({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
+  const [domains, setDomains] = useState<{
+    id: string;
+    domain: string;
+    institution_id: string;
+    institution_name: string | null;
+    institution_code: string | null;
+    created_at: string;
+  }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [institutions, setInstitutions] = useState<{ id: string; name: string; code: string }[]>([]);
+  const [adding, setAdding] = useState(false);
+  const [newDomain, setNewDomain] = useState("");
+  const [newInstitutionId, setNewInstitutionId] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const fetchDomains = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/email-domains");
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setDomains(data.domains || []);
+    } catch {
+      toast.error("Email-Domains konnten nicht geladen werden");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchInstitutions = useCallback(async () => {
+    try {
+      const res = await fetch("/api/academic/institutions");
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setInstitutions(data.institutions || []);
+    } catch {
+      setInstitutions([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDomains();
+    fetchInstitutions();
+  }, [fetchDomains, fetchInstitutions]);
+
+  async function handleAdd() {
+    if (!newDomain || !newInstitutionId) return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/email-domains", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ institution_id: newInstitutionId, domain: newDomain }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Fehler beim Hinzufügen");
+      }
+      toast.success(`Domain "${newDomain}" hinzugefügt`);
+      setNewDomain("");
+      setNewInstitutionId("");
+      setAdding(false);
+      fetchDomains();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Fehler");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete(id: string, domainName: string) {
+    setDeletingId(id);
+    try {
+      const res = await fetch("/api/admin/email-domains", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Fehler");
+      }
+      toast.success(`Domain "${domainName}" entfernt`);
+      fetchDomains();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Fehler");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  // Group domains by institution
+  const grouped = domains.reduce<Record<string, typeof domains>>((acc, d) => {
+    const key = d.institution_name || d.institution_id;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(d);
+    return acc;
+  }, {});
+
+  return (
+    <Card className="bg-surface-100 dark:bg-surface-800">
+      <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
+              <Mail className="w-5 h-5 text-brand-600" />
+              Email-Domains
+            </h2>
+            <p className="text-surface-600 dark:text-surface-400 text-sm mt-1">
+              {isPlatformAdmin
+                ? "Email-Domains aller Institutionen verwalten"
+                : "Email-Domains deiner Institution verwalten"}
+            </p>
+          </div>
+          <button
+            onClick={() => setAdding(!adding)}
+            className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 text-sm font-medium transition"
+          >
+            {adding ? "Abbrechen" : "+ Domain hinzufügen"}
+          </button>
+        </div>
+      </div>
+
+      <div className="p-6 space-y-4">
+        {/* Add form */}
+        {adding && (
+          <div className="bg-[rgb(var(--card-bg))] dark:bg-surface-700 rounded-lg border border-brand-200 dark:border-brand-800 p-4 space-y-3">
+            <p className="text-sm font-semibold text-surface-900 dark:text-surface-50">Neue Email-Domain hinterlegen</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-surface-600 dark:text-surface-400 mb-1 block">Institution</label>
+                <select
+                  value={newInstitutionId}
+                  onChange={(e) => setNewInstitutionId(e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-[rgb(var(--card-bg))] dark:bg-surface-700 text-surface-900 dark:text-surface-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                >
+                  <option value="">Institution wählen…</option>
+                  {institutions.map((inst) => (
+                    <option key={inst.id} value={inst.id}>
+                      {inst.name} ({inst.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-surface-600 dark:text-surface-400 mb-1 block">Domain</label>
+                <input
+                  type="text"
+                  placeholder="z.B. students.ffhs.ch"
+                  value={newDomain}
+                  onChange={(e) => setNewDomain(e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-[rgb(var(--card-bg))] dark:bg-surface-700 text-surface-900 dark:text-surface-50 placeholder-surface-500 dark:placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                />
+              </div>
+            </div>
+            <button
+              onClick={handleAdd}
+              disabled={!newDomain || !newInstitutionId || saving}
+              className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 text-xs font-medium disabled:opacity-50 transition"
+            >
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin inline" /> : "Hinzufügen"}
+            </button>
+          </div>
+        )}
+
+        {/* Domain list */}
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="w-5 h-5 animate-spin text-brand-600" />
+          </div>
+        ) : domains.length === 0 ? (
+          <div className="text-center py-8 text-surface-500 dark:text-surface-400">
+            <Mail className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <p>Keine Email-Domains hinterlegt</p>
+            <p className="text-xs mt-1">Füge Domains hinzu, damit Studenten bei der Registrierung automatisch erkannt werden.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {Object.entries(grouped).map(([instName, instDomains]) => (
+              <div key={instName}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Building2 className="w-4 h-4 text-surface-500" />
+                  <p className="text-sm font-semibold text-surface-900 dark:text-surface-50">{instName}</p>
+                  <span className="text-xs text-surface-500">({instDomains.length})</span>
+                </div>
+                <div className="space-y-1.5">
+                  {instDomains.map((d) => (
+                    <div
+                      key={d.id}
+                      className="flex items-center justify-between px-4 py-2.5 bg-[rgb(var(--card-bg))] dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-sm text-surface-900 dark:text-surface-50">@{d.domain}</span>
+                        {d.institution_code && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                            {d.institution_code}
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => handleDelete(d.id, d.domain)}
+                        disabled={deletingId === d.id}
+                        className="p-1.5 text-surface-400 hover:text-red-600 dark:hover:text-red-400 transition disabled:opacity-50"
+                        title="Domain entfernen"
+                      >
+                        {deletingId === d.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </Card>
   );
 }
 

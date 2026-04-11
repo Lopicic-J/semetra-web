@@ -40,33 +40,62 @@ export default function RegisterPage() {
   const supabase = createClient();
   const enabledProviders = getEnabledProviders();
 
-  // Check if email is a known university email
-  const detectedUniversity = email ? getUniversityFromEmail(email) : null;
-  const detectedInstCode = email ? getInstitutionCodeFromEmail(email) : null;
+  // DB-based email domains (loaded from Supabase via API)
+  const [dbDomains, setDbDomains] = useState<{ domain: string; institution_id: string; institution_name: string | null; institution_code: string | null }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/academic/email-domains")
+      .then((r) => r.json())
+      .then((data) => setDbDomains(data.domains || []))
+      .catch(() => setDbDomains([]));
+  }, []);
+
+  // Combined domain detection: static map + DB domains
+  const emailDomain = email ? email.split("@")[1]?.toLowerCase() : null;
+
+  const dbMatch = emailDomain
+    ? dbDomains.find((d) => emailDomain === d.domain || emailDomain.endsWith("." + d.domain))
+    : null;
+
+  const detectedUniversity = email ? (getUniversityFromEmail(email) || dbMatch?.institution_name) : null;
+  const detectedInstCode = email ? (getInstitutionCodeFromEmail(email) || dbMatch?.institution_code) : null;
+  const detectedInstIdFromDb = dbMatch?.institution_id || null;
   const isUniEmail = !!detectedUniversity;
 
   // Hard-Lock: Auto-assign institution when email domain is recognized
   const [institutionLocked, setInstitutionLocked] = useState(false);
 
   useEffect(() => {
-    if (selectedRole === "student" && detectedInstCode && institutions.length > 0) {
-      // Find institution by code (case-insensitive), prefer exact code match
-      const match = institutions.find(
-        (inst) => inst.code?.toUpperCase() === detectedInstCode.toUpperCase()
-      ) ?? institutions.find(
-        (inst) => inst.name.toUpperCase().includes(detectedInstCode)
-      );
-      if (match) {
-        setSelectedInstId(match.id);
-        setInstitutionLocked(true);
-        setUseStructured(true);
-      } else {
-        setInstitutionLocked(false);
+    if (selectedRole === "student" && institutions.length > 0) {
+      // Try direct institution_id match from DB domains first
+      if (detectedInstIdFromDb) {
+        const dbIdMatch = institutions.find((inst) => inst.id === detectedInstIdFromDb);
+        if (dbIdMatch) {
+          setSelectedInstId(dbIdMatch.id);
+          setInstitutionLocked(true);
+          setUseStructured(true);
+          return;
+        }
       }
+      // Fallback: match by code from static map
+      if (detectedInstCode) {
+        const match = institutions.find(
+          (inst) => inst.code?.toUpperCase() === detectedInstCode.toUpperCase()
+        ) ?? institutions.find(
+          (inst) => inst.name.toUpperCase().includes(detectedInstCode)
+        );
+        if (match) {
+          setSelectedInstId(match.id);
+          setInstitutionLocked(true);
+          setUseStructured(true);
+          return;
+        }
+      }
+      setInstitutionLocked(false);
     } else {
       setInstitutionLocked(false);
     }
-  }, [detectedInstCode, institutions, selectedRole]);
+  }, [detectedInstCode, detectedInstIdFromDb, institutions, selectedRole]);
 
   // Load ALL institutions (no country filter) so email-domain detection works cross-country
   const loadInstitutions = useCallback(async () => {
@@ -140,11 +169,11 @@ export default function RegisterPage() {
       return;
     }
 
-    // If university email is detected, force student role regardless of selection
-    const effectiveRole: UserRole = isUniversityEmail(email) ? "student" : selectedRole;
+    // If university email is detected (static map OR DB domains), force student role
+    const effectiveRole: UserRole = isUniEmail ? "student" : selectedRole;
 
     // Determine verification status based on email domain
-    const autoVerified = effectiveRole === "student" && isUniversityEmail(email);
+    const autoVerified = effectiveRole === "student" && isUniEmail;
     const verificationStatus = effectiveRole === "non_student"
       ? "none"
       : autoVerified
