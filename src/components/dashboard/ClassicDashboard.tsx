@@ -1,12 +1,19 @@
 "use client";
 /**
- * ClassicDashboard — Original Dashboard View
+ * UnifiedDashboard — Combines Classic Overview + Command Center Intelligence
  *
- * Enthält alle klassischen Dashboard-Hooks (useModules, useTasks, etc.)
- * isoliert vom Command Center. Hooks laufen NUR wenn diese Komponente
- * gemountet ist.
+ * Layout:
+ * 1. Header with greeting + date + refresh
+ * 2. StudyStatusBanner (if enrolled)
+ * 3. Alert Banner (Decision Engine warnings)
+ * 4. Stat Cards (6 KPIs)
+ * 5. Daily Actions + Module Priorities (2-col)
+ * 6. 30-Day Heatmap
+ * 7. Exams + Tasks (2-col, expandable)
+ * 8. Risk Monitor + Predictions (2-col)
+ * 9. Weekly Chart + Module Progress (2-col)
  */
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/lib/i18n";
 import { useModules } from "@/lib/hooks/useModules";
@@ -15,16 +22,26 @@ import { useGrades } from "@/lib/hooks/useGrades";
 import { useTimeLogs } from "@/lib/hooks/useTimeLogs";
 import { useStreaks } from "@/lib/hooks/useStreaks";
 import { useProfile } from "@/lib/hooks/useProfile";
-import { formatDate, formatDuration, ectsWeightedAvg } from "@/lib/utils";
+import { useCommandCenter } from "@/lib/hooks/useCommandCenter";
+import { useSmartAutomations } from "@/lib/hooks/useSmartAutomations";
+import { formatDate, ectsWeightedAvg } from "@/lib/utils";
 import {
   BookOpen, CheckSquare, Clock, TrendingUp, AlertCircle, Calendar,
   GraduationCap, Brain, AlertTriangle, Flame, Target, Zap, Trophy,
-  Timer, ArrowRight, ChevronDown, Paperclip, Link2, FileText,
+  Timer, ArrowRight, ChevronDown, Paperclip, Link2,
+  RefreshCw, Command,
 } from "lucide-react";
 import Link from "next/link";
 import type { CalendarEvent, Topic } from "@/types/database";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import StudyStatusBanner from "@/components/dashboard/StudyStatusBanner";
+
+// Command Center sub-components
+import AlertBanner from "@/components/command-center/AlertBanner";
+import DailyActions from "@/components/command-center/DailyActions";
+import ModulePriorityList from "@/components/command-center/ModulePriorityList";
+import RiskOverview from "@/components/command-center/RiskOverview";
+import PredictionPanel from "@/components/command-center/PredictionPanel";
 
 type Exam = CalendarEvent & { daysLeft?: number };
 
@@ -32,6 +49,8 @@ export default function ClassicDashboard() {
   const { t } = useTranslation();
   const { resolvedMode } = useTheme();
   const isDark = resolvedMode === "dark";
+
+  // Classic hooks
   const { modules, loading: ml } = useModules();
   const { tasks } = useTasks();
   const { grades, triggerMigration } = useGrades();
@@ -45,6 +64,10 @@ export default function ClassicDashboard() {
   const [expandedTask, setExpandedTask] = useState<string | null>(null);
   const [taskAttachments, setTaskAttachments] = useState<Record<string, any[]>>({});
   const supabase = createClient();
+
+  // Command Center hooks (wrapped in try-catch via useCommandCenter)
+  const { state: ccState, modules: ccModules, loading: ccLoading, refetch: ccRefetch, computedAt } = useCommandCenter();
+  useSmartAutomations({ state: ccState, modules: ccModules });
 
   const fetchExams = useCallback(async () => {
     const { data } = await supabase
@@ -171,100 +194,47 @@ export default function ClassicDashboard() {
     return t("dashboard.hoursShort", { h: String(h), min: String(m) });
   };
 
+  // Greeting
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? t("dashboard.greetingMorning") : hour < 18 ? t("dashboard.greetingAfternoon") : t("dashboard.greetingEvening");
+
   return (
     <>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-surface-900">{t("dashboard.title")}</h1>
-        <p className="text-surface-500 text-sm mt-0.5">{t("dashboard.subtitle")}</p>
+      {/* ═══ HEADER ═══ */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-surface-900">
+            {greeting || t("dashboard.title")}
+          </h1>
+          <p className="text-surface-500 text-sm mt-0.5">
+            {new Date().toLocaleDateString("de-CH", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </p>
+        </div>
+        <button
+          onClick={ccRefetch}
+          className="p-2 rounded-lg hover:bg-surface-200 transition-colors text-surface-500 hover:text-surface-700"
+          title="Dashboard aktualisieren"
+        >
+          <RefreshCw className={`w-4 h-4 ${ccLoading ? "animate-spin" : ""}`} />
+        </button>
       </div>
 
+      {/* ═══ STUDY STATUS BANNER ═══ */}
       <StudyStatusBanner />
 
-      {/* Row 1: Streak Hero + ECTS Ring + GPA */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        {/* Streak Card */}
-        <Link href="/timer" className="card bg-gradient-to-br from-orange-50 to-amber-50 border-orange-100 hover:shadow-md transition-shadow relative overflow-hidden">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="inline-flex p-2.5 rounded-xl bg-orange-100 text-orange-600">
-              <Flame size={22} />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-orange-800">{t("dashboard.streak")}</p>
-              <p className="text-2xl sm:text-3xl font-bold text-orange-600">
-                {streak.currentStreak === 1 ? t("dashboard.streakDay") : t("dashboard.streakDays", { count: String(streak.currentStreak) })}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 text-xs">
-            <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full font-medium ${streak.todayDone ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-600"}`}>
-              {streak.todayDone ? t("dashboard.streakToday") : t("dashboard.streakTodayMissing")}
-            </span>
-          </div>
-          {!streak.todayDone && (
-            <p className="text-[10px] text-orange-500/70 mt-1.5">{t("dashboard.streakThreshold")}</p>
-          )}
-          <div className="flex gap-4 mt-3 pt-3 border-t border-orange-200/50 text-xs text-orange-700/70">
-            <span><Trophy size={11} className="inline mr-1" />{t("dashboard.longestStreak")}: <strong>{streak.longestStreak}</strong></span>
-            <span>{t("dashboard.totalStudyDays")}: <strong>{streak.totalDays}</strong></span>
-          </div>
-        </Link>
-
-        {/* ECTS Progress */}
-        <Link href="/studium?tab=uebersicht" className="card hover:shadow-md transition-shadow">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="inline-flex p-2.5 rounded-xl bg-brand-100 text-brand-600">
-              <Target size={22} />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-surface-500">{t("dashboard.ectsProgress")}</p>
-              <p className="text-2xl sm:text-3xl font-bold text-surface-900">{earnedEcts}<span className="text-lg text-surface-400">/{totalEcts || 180}</span></p>
-            </div>
-          </div>
-          <div className="w-full h-2.5 bg-surface-100 rounded-full overflow-hidden">
-            <div className="h-full bg-brand-500 rounded-full transition-all duration-500" style={{ width: `${Math.min((earnedEcts / (totalEcts || 180)) * 100, 100)}%` }} />
-          </div>
-          <p className="text-xs text-surface-400 mt-2">{t("dashboard.ectsOf", { current: String(earnedEcts), total: String(totalEcts || 180) })}</p>
-        </Link>
-
-        {/* GPA + Quick Stats */}
-        <div className="card">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="inline-flex p-2.5 rounded-xl bg-green-100 text-green-600">
-              <TrendingUp size={22} />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-surface-500">{t("dashboard.gpa")}</p>
-              <p className="text-2xl sm:text-3xl font-bold text-surface-900">{ectsAvg ? ectsAvg.toFixed(2) : "—"}</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2 mt-auto">
-            <div className="bg-surface-50 rounded-lg px-3 py-2">
-              <p className="text-lg font-bold text-surface-900">{modules.length}</p>
-              <p className="text-[10px] text-surface-400">{t("dashboard.modules")}</p>
-            </div>
-            <div className="bg-surface-50 rounded-lg px-3 py-2">
-              <p className="text-lg font-bold text-surface-900">{openTasks.length}</p>
-              <p className="text-[10px] text-surface-400">{t("dashboard.openTasks")}</p>
-            </div>
-          </div>
+      {/* ═══ ALERT BANNER (Decision Engine) ═══ */}
+      {ccState && ccState.today.alerts.length > 0 && (
+        <div className="mb-6">
+          <AlertBanner alerts={ccState.today.alerts} />
         </div>
-      </div>
+      )}
 
-      {/* Row 2: 30-Day Heatmap */}
-      <div className="card mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-surface-900 flex items-center gap-2">
-            <Calendar size={16} className="text-brand-500" /> {t("dashboard.studyHeatmap")}
-          </h2>
-          <div className="flex items-center gap-3 text-xs text-surface-400">
-            <span>{t("dashboard.totalStudyTime")}: <strong className="text-surface-700">{fmtStudyTime(streak.totalSeconds)}</strong></span>
-            <Link href="/timer" className="text-brand-600 hover:underline flex items-center gap-1">{t("dashboard.openTimer")} <ArrowRight size={10} /></Link>
-          </div>
-        </div>
-        <HeatmapRow last30Days={streak.last30Days} />
-      </div>
-
-      {/* Row 3: Knowledge warnings */}
+      {/* ═══ KNOWLEDGE WARNINGS ═══ */}
       {examKnowledgeWarnings.length > 0 && (
         <div className="space-y-2 mb-6">
           {examKnowledgeWarnings.map(w => (
@@ -292,7 +262,132 @@ export default function ClassicDashboard() {
         </div>
       )}
 
-      {/* Row 4: Exams + Tasks side by side */}
+      {/* ═══ STAT CARDS ROW ═══ */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+        {/* Streak */}
+        <Link href="/learning?tab=timer" className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 rounded-xl border border-orange-100 dark:border-orange-900/30 p-4 hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="bg-orange-100 dark:bg-orange-900/40 w-8 h-8 rounded-lg flex items-center justify-center">
+              <Flame className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-surface-900">{streak.currentStreak}</p>
+          <p className="text-xs text-surface-500 mt-0.5">{t("dashboard.streak")}</p>
+          <p className="text-[10px] text-surface-400 mt-0.5">
+            {streak.todayDone ? t("dashboard.streakToday") : t("dashboard.streakTodayMissing")}
+          </p>
+        </Link>
+
+        {/* ECTS */}
+        <Link href="/fortschritt?tab=studium" className="bg-surface-100/50 dark:bg-surface-800/30 rounded-xl border border-surface-200 dark:border-surface-700 p-4 hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="bg-brand-50 dark:bg-brand-950/30 w-8 h-8 rounded-lg flex items-center justify-center">
+              <Target className="w-4 h-4 text-brand-600 dark:text-brand-400" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-surface-900">{earnedEcts}<span className="text-sm text-surface-400">/{totalEcts || 180}</span></p>
+          <p className="text-xs text-surface-500 mt-0.5">ECTS</p>
+          <div className="w-full h-1.5 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden mt-1.5">
+            <div className="h-full bg-brand-500 rounded-full transition-all duration-500" style={{ width: `${Math.min((earnedEcts / (totalEcts || 180)) * 100, 100)}%` }} />
+          </div>
+        </Link>
+
+        {/* GPA */}
+        <div className="bg-surface-100/50 dark:bg-surface-800/30 rounded-xl border border-surface-200 dark:border-surface-700 p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="bg-green-50 dark:bg-green-950/30 w-8 h-8 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-surface-900">{ectsAvg ? ectsAvg.toFixed(2) : "—"}</p>
+          <p className="text-xs text-surface-500 mt-0.5">{t("dashboard.gpa")}</p>
+          <p className="text-[10px] text-surface-400 mt-0.5">{modules.length} {t("dashboard.modules")}</p>
+        </div>
+
+        {/* Study Time Today */}
+        <div className="bg-surface-100/50 dark:bg-surface-800/30 rounded-xl border border-surface-200 dark:border-surface-700 p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="bg-emerald-50 dark:bg-emerald-950/30 w-8 h-8 rounded-lg flex items-center justify-center">
+              <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-surface-900">{fmtStudyTime(todaySecs)}</p>
+          <p className="text-xs text-surface-500 mt-0.5">{t("dashboard.studyToday") || "Heute gelernt"}</p>
+        </div>
+
+        {/* Open Tasks */}
+        <div className={`rounded-xl border p-4 ${overdue.length > 0
+          ? "bg-red-50/50 dark:bg-red-950/20 border-red-100 dark:border-red-900/30"
+          : "bg-surface-100/50 dark:bg-surface-800/30 border-surface-200 dark:border-surface-700"
+        }`}>
+          <div className="flex items-center gap-2 mb-2">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${overdue.length > 0
+              ? "bg-red-100 dark:bg-red-900/40"
+              : "bg-blue-50 dark:bg-blue-950/30"
+            }`}>
+              {overdue.length > 0
+                ? <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
+                : <CheckSquare className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              }
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-surface-900">{openTasks.length}</p>
+          <p className="text-xs text-surface-500 mt-0.5">{t("dashboard.openTasks")}</p>
+          {overdue.length > 0 && (
+            <p className="text-[10px] text-red-600 dark:text-red-400 font-medium mt-0.5">{overdue.length} {t("dashboard.taskOverdue")}</p>
+          )}
+        </div>
+
+        {/* Upcoming Exams */}
+        <Link href="/exams" className={`rounded-xl border p-4 hover:shadow-md transition-shadow ${exams.length > 0 && (exams[0].daysLeft ?? 999) <= 7
+          ? "bg-indigo-50/50 dark:bg-indigo-950/20 border-indigo-100 dark:border-indigo-900/30"
+          : "bg-surface-100/50 dark:bg-surface-800/30 border-surface-200 dark:border-surface-700"
+        }`}>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="bg-indigo-50 dark:bg-indigo-950/30 w-8 h-8 rounded-lg flex items-center justify-center">
+              <GraduationCap className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-surface-900">{exams.length}</p>
+          <p className="text-xs text-surface-500 mt-0.5">{t("dashboard.upcomingExams")}</p>
+          {exams.length > 0 && (
+            <p className="text-[10px] text-surface-400 mt-0.5">
+              {t("dashboard.nextIn") || "Nächste in"} {exams[0].daysLeft ?? "?"} {t("dashboard.daysLeft")}
+            </p>
+          )}
+        </Link>
+      </div>
+
+      {/* ═══ DAILY ACTIONS + MODULE PRIORITIES (Decision Engine) ═══ */}
+      {ccState && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+          <DailyActions
+            actions={ccState.today.actions}
+            totalMinutes={ccState.today.totalMinutes}
+            focusModule={ccState.today.focusModule}
+          />
+          <ModulePriorityList
+            rankings={ccState.moduleRankings}
+            modules={ccModules}
+          />
+        </div>
+      )}
+
+      {/* ═══ 30-DAY HEATMAP ═══ */}
+      <div className="card mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold text-surface-900 flex items-center gap-2">
+            <Calendar size={16} className="text-brand-500" /> {t("dashboard.studyHeatmap")}
+          </h2>
+          <div className="flex items-center gap-3 text-xs text-surface-400">
+            <span>{t("dashboard.totalStudyTime")}: <strong className="text-surface-700">{fmtStudyTime(streak.totalSeconds)}</strong></span>
+            <Link href="/learning?tab=timer" className="text-brand-600 hover:underline flex items-center gap-1">{t("dashboard.openTimer")} <ArrowRight size={10} /></Link>
+          </div>
+        </div>
+        <HeatmapRow last30Days={streak.last30Days} />
+      </div>
+
+      {/* ═══ EXAMS + TASKS ═══ */}
       <div className="grid lg:grid-cols-2 gap-4 mb-6">
         {/* Upcoming exams */}
         <div className="card">
@@ -320,10 +415,10 @@ export default function ClassicDashboard() {
                     <button
                       onClick={() => toggleExamExpand(exam.id)}
                       className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${
-                        isToday ? "bg-red-50 border border-red-200" :
-                        isUrgent ? "bg-orange-50 border border-orange-200" :
-                        isSoon ? "bg-yellow-50 border border-yellow-100" :
-                        "bg-surface-50 hover:bg-surface-100"
+                        isToday ? "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800" :
+                        isUrgent ? "bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800" :
+                        isSoon ? "bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-100 dark:border-yellow-900" :
+                        "bg-surface-50 dark:bg-surface-800/50 hover:bg-surface-100 dark:hover:bg-surface-800"
                       } ${isExpanded ? "rounded-b-none border-b-0" : ""}`}>
                       <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 text-white"
                         style={{ background: exam.color ?? "#6d28d9" }}>
@@ -334,18 +429,18 @@ export default function ClassicDashboard() {
                         <p className="text-xs text-surface-500 mt-0.5">{formatDate(exam.start_dt)}{exam.location ? ` · ${exam.location}` : ""}</p>
                       </div>
                       <div className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0 ${
-                        isToday ? "bg-red-100 text-red-700" :
-                        isUrgent ? "bg-orange-100 text-orange-700" :
-                        isSoon ? "bg-yellow-100 text-yellow-700" :
-                        d <= 30 ? "bg-blue-100 text-blue-700" :
-                        "bg-green-100 text-green-700"
+                        isToday ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300" :
+                        isUrgent ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300" :
+                        isSoon ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300" :
+                        d <= 30 ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" :
+                        "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
                       }`}>
                         <Clock size={12} />
                         {isToday ? t("dashboard.today") : d === 1 ? t("dashboard.tomorrow") : `${d} ${t("dashboard.daysLeft")}`}
                       </div>
                     </button>
                     {isExpanded && (
-                      <div className="bg-surface-50 border border-surface-200 border-t-0 rounded-b-xl p-3 text-sm space-y-2">
+                      <div className="bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 border-t-0 rounded-b-xl p-3 text-sm space-y-2">
                         {exam.description && (
                           <div>
                             <p className="text-xs font-medium text-surface-500 mb-1">{t("dashboard.description")}</p>
@@ -420,9 +515,9 @@ export default function ClassicDashboard() {
                     <button
                       onClick={() => toggleTaskExpand(task.id)}
                       className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${
-                        isOverdue ? "bg-red-50 border border-red-200" :
-                        task.priority === "high" ? "bg-orange-50 border border-orange-200" :
-                        "bg-surface-50 hover:bg-surface-100 border border-transparent"
+                        isOverdue ? "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800" :
+                        task.priority === "high" ? "bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800" :
+                        "bg-surface-50 dark:bg-surface-800/50 hover:bg-surface-100 dark:hover:bg-surface-800 border border-transparent"
                       } ${isExpanded ? "rounded-b-none border-b-0" : ""}`}
                     >
                       <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
@@ -437,7 +532,7 @@ export default function ClassicDashboard() {
                         </p>
                       </div>
                       {isOverdue && (
-                        <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-100 text-red-700 shrink-0">
+                        <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 shrink-0">
                           {t("dashboard.taskOverdue")}
                         </span>
                       )}
@@ -445,9 +540,9 @@ export default function ClassicDashboard() {
                     </button>
                     {isExpanded && (
                       <div className={`border border-t-0 rounded-b-xl p-3 text-sm space-y-2 ${
-                        isOverdue ? "bg-red-50/50 border-red-200" :
-                        task.priority === "high" ? "bg-orange-50/50 border-orange-200" :
-                        "bg-surface-50 border-surface-200"
+                        isOverdue ? "bg-red-50/50 dark:bg-red-950/10 border-red-200 dark:border-red-800" :
+                        task.priority === "high" ? "bg-orange-50/50 dark:bg-orange-950/10 border-orange-200 dark:border-orange-800" :
+                        "bg-surface-50 dark:bg-surface-800/50 border-surface-200 dark:border-surface-700"
                       }`}>
                         {task.description && (
                           <div>
@@ -499,14 +594,28 @@ export default function ClassicDashboard() {
         </div>
       </div>
 
-      {/* Row 5: Weekly Chart + Module Progress */}
+      {/* ═══ RISK MONITOR + PREDICTIONS (Decision Engine) ═══ */}
+      {ccState && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+          <RiskOverview
+            risks={ccState.risks}
+            modules={ccModules}
+          />
+          <PredictionPanel
+            predictions={ccState.predictions}
+            modules={ccModules}
+          />
+        </div>
+      )}
+
+      {/* ═══ WEEKLY CHART + MODULE PROGRESS ═══ */}
       <div className="grid lg:grid-cols-2 gap-4">
         <div className="card">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-surface-900 flex items-center gap-2">
               <Timer size={16} className="text-green-500" /> {t("dashboard.weeklyLearning")}
             </h2>
-            <Link href="/timer" className="text-xs text-brand-600 hover:underline">{t("dashboard.openTimer")}</Link>
+            <Link href="/learning?tab=timer" className="text-xs text-brand-600 hover:underline">{t("dashboard.openTimer")}</Link>
           </div>
           <WeeklyChart logs={logs} />
         </div>
@@ -555,6 +664,13 @@ export default function ClassicDashboard() {
           )}
         </div>
       </div>
+
+      {/* ═══ COMPUTED AT ═══ */}
+      {computedAt && (
+        <p className="text-xs text-surface-400 text-right mt-4">
+          Decision Engine: {new Date(computedAt).toLocaleTimeString("de-CH")}
+        </p>
+      )}
     </>
   );
 }
@@ -636,7 +752,7 @@ function WeeklyChart({ logs }: { logs: Array<{ started_at: string; duration_seco
         <div key={d.label} className="flex-1 flex flex-col items-center gap-1">
           <div className="w-full flex items-end justify-center" style={{ height: "80px" }}>
             <div
-              className={`w-full rounded-t-lg transition-all ${d.isToday ? "bg-brand-500" : "bg-brand-200"}`}
+              className={`w-full rounded-t-lg transition-all ${d.isToday ? "bg-brand-500" : "bg-brand-200 dark:bg-brand-800"}`}
               style={{ height: `${Math.max((d.hours / maxH) * 80, d.hours > 0 ? 4 : 0)}px` }}
             />
           </div>
