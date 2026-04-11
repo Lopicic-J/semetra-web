@@ -16,19 +16,20 @@ export async function POST(req: NextRequest) {
     if (!user) return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
 
     const { inviteCode } = await req.json();
-    if (!inviteCode?.trim()) {
+    const code = inviteCode?.trim()?.toLowerCase();
+    if (!code) {
       return NextResponse.json({ error: "Einladungscode erforderlich" }, { status: 400 });
     }
 
-    // Find group by invite code
-    const { data: group } = await supabase
+    // Find group by invite code (case-insensitive match)
+    const { data: group, error: lookupError } = await supabase
       .from("study_groups")
-      .select("id, name, max_members")
-      .eq("invite_code", inviteCode.trim().toLowerCase())
+      .select("id, name, max_members, invite_code")
+      .ilike("invite_code", code)
       .single();
 
-    if (!group) {
-      return NextResponse.json({ error: "Ungültiger Einladungscode" }, { status: 404 });
+    if (lookupError || !group) {
+      return NextResponse.json({ error: "Ungültiger Einladungscode. Bitte prüfe den Code und versuche es erneut." }, { status: 404 });
     }
 
     // Check if already member

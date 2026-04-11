@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { randomBytes } from "crypto";
 
 /**
  * GET /api/groups
@@ -46,6 +47,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Name ist erforderlich" }, { status: 400 });
     }
 
+    // Generate invite code explicitly (don't rely on SQL DEFAULT which may not work via Supabase client)
+    const inviteCode = randomBytes(6).toString("hex");
+
     const { data: group, error } = await supabase
       .from("study_groups")
       .insert({
@@ -53,6 +57,7 @@ export async function POST(req: NextRequest) {
         description: description?.trim() || null,
         color: color || "#6d28d9",
         owner_id: user.id,
+        invite_code: inviteCode,
       })
       .select()
       .single();
