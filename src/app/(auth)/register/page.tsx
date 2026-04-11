@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Gem, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, Globe, GraduationCap, BookOpen, AtSign, Building2, Users, UserCircle, Info } from "lucide-react";
+import { Gem, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, Globe, GraduationCap, BookOpen, AtSign, Building2, Users, UserCircle, Info, Zap, Brain, Calendar, Shield, TrendingUp, Flame } from "lucide-react";
 import { getEnabledProviders } from "@/lib/oauth-providers";
 import { COUNTRY_LIST, DEFAULT_COUNTRY, type CountryCode } from "@/lib/grading-systems";
 import { isUniversityEmail, getUniversityFromEmail, getInstitutionCodeFromEmail } from "@/lib/university-domains";
@@ -177,8 +177,6 @@ export default function RegisterPage() {
 
       if (selectedRole === "student") {
         if (useStructured && selectedInstId) {
-          // When institution is locked by email, always use the locked institution
-          // (defense-in-depth: even if client is manipulated, the DB trigger also enforces this)
           const effectiveInstId = institutionLocked ? selectedInstId : selectedInstId;
           profileData.institution_id = effectiveInstId;
           if (selectedProgId) profileData.active_program_id = selectedProgId;
@@ -187,7 +185,6 @@ export default function RegisterPage() {
           if (inst) profileData.university = inst.name;
           if (prog) profileData.study_program = prog.name;
         } else if (!institutionLocked) {
-          // Free text only allowed when institution is NOT locked by email
           if (university.trim()) profileData.university = university.trim();
           if (studyProgram.trim()) profileData.study_program = studyProgram.trim();
         }
@@ -218,358 +215,436 @@ export default function RegisterPage() {
     }
   }
 
+  const features = [
+    { icon: Zap, label: "Decision Engine", desc: "KI-gesteuerte Risiko-Analyse" },
+    { icon: Brain, label: "Lern-DNA", desc: "Dein 5D-Lernprofil" },
+    { icon: Calendar, label: "Smart Schedule", desc: "7-Tage Stundenplan" },
+    { icon: Shield, label: "Prüfungs-Intelligence", desc: "Notenprognosen" },
+    { icon: TrendingUp, label: "ECTS & Noten", desc: "Fortschritts-Tracking" },
+    { icon: Flame, label: "Streak & Gamification", desc: "Tägliche Motivation" },
+  ];
+
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50/60 via-white to-surface-100 p-4">
-        <div className="w-full max-w-md text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 mb-4">
-            <CheckCircle2 size={32} />
+      <div className="min-h-screen flex">
+        {/* LEFT — Feature Showcase (hidden on mobile) */}
+        <div className="hidden lg:flex lg:w-[480px] xl:w-[540px] flex-col justify-between bg-gradient-to-br from-[#0d0820] via-[#1a1040] to-[#0d0820] text-white p-10 relative overflow-hidden">
+          <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-brand-500/20 blur-3xl" />
+          <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full bg-brand-600/15 blur-3xl" />
+          <div className="relative z-10 flex flex-col items-center justify-center flex-1">
+            <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
+              <CheckCircle2 size={40} className="text-green-400" />
+            </div>
+            <h2 className="text-2xl font-bold text-center mb-2">Fast geschafft!</h2>
+            <p className="text-white/60 text-sm text-center max-w-xs">
+              Bestätige deine E-Mail und starte mit Semetra durch.
+            </p>
           </div>
-          <h1 className="text-xl font-bold text-surface-900 mb-2">Bestätigungsmail gesendet</h1>
-          <p className="text-surface-500 text-sm mb-6">
-            Wir haben eine E-Mail an <strong className="text-surface-700">{email}</strong> gesendet.
-            Klicke auf den Link in der E-Mail, um dein Konto zu aktivieren.
-          </p>
-          {selectedRole === "student" && isUniEmail && (
-            <p className="text-green-600 text-sm mb-4">
-              Deine Hochschul-Email wurde erkannt ({detectedUniversity}) — dein Account wird automatisch verifiziert.
+          <div className="relative z-10">
+            <p className="text-[11px] text-white/30">
+              &copy; {new Date().getFullYear()} Lopicic Technologies &middot; Gebaut in der Schweiz
             </p>
-          )}
-          {selectedRole === "student" && !isUniEmail && (
-            <p className="text-amber-600 text-sm mb-4">
-              Dein Account wartet auf manuelle Freischaltung. Tipp: Verwende deine Hochschul-Email für sofortige Verifizierung.
+          </div>
+        </div>
+
+        {/* RIGHT — Success */}
+        <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-brand-50/40 via-white to-surface-50 p-4 sm:p-8">
+          <div className="w-full max-w-md text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 mb-4">
+              <CheckCircle2 size={32} />
+            </div>
+            <h1 className="text-xl font-bold text-surface-900 mb-2">Bestätigungsmail gesendet</h1>
+            <p className="text-surface-500 text-sm mb-6">
+              Wir haben eine E-Mail an <strong className="text-surface-700">{email}</strong> gesendet.
+              Klicke auf den Link in der E-Mail, um dein Konto zu aktivieren.
             </p>
-          )}
-          <Link href="/login" className="text-brand-600 font-medium hover:text-brand-700 text-sm">
-            Zurück zum Login
-          </Link>
+            {selectedRole === "student" && isUniEmail && (
+              <p className="text-green-600 text-sm mb-4">
+                Deine Hochschul-Email wurde erkannt ({detectedUniversity}) — dein Account wird automatisch verifiziert.
+              </p>
+            )}
+            {selectedRole === "student" && !isUniEmail && (
+              <p className="text-amber-600 text-sm mb-4">
+                Dein Account wartet auf manuelle Freischaltung. Tipp: Verwende deine Hochschul-Email für sofortige Verifizierung.
+              </p>
+            )}
+            <Link href="/login" className="text-brand-600 font-medium hover:text-brand-700 text-sm">
+              Zurück zum Login
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50/60 via-white to-surface-100 p-4">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-brand-100/40 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-brand-200/30 blur-3xl" />
-      </div>
+    <div className="min-h-screen flex">
+      {/* LEFT — Feature Showcase (hidden on mobile) */}
+      <div className="hidden lg:flex lg:w-[480px] xl:w-[540px] flex-col justify-between bg-gradient-to-br from-[#0d0820] via-[#1a1040] to-[#0d0820] text-white p-10 relative overflow-hidden">
+        {/* Decorative orbs */}
+        <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-brand-500/20 blur-3xl" />
+        <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full bg-brand-600/15 blur-3xl" />
 
-      <div className="w-full max-w-md relative z-10">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-700 text-white mb-4 shadow-lg shadow-brand-500/25">
-            <Gem size={28} />
+        <div className="relative z-10">
+          <Link href="https://semetra.ch" className="inline-flex items-center gap-2 mb-12">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
+              <Gem size={20} />
+            </div>
+            <span className="text-xl font-bold tracking-tight">Semetra</span>
+          </Link>
+
+          <h2 className="text-3xl font-bold leading-tight mb-3">
+            Starte jetzt.<br />
+            <span className="bg-gradient-to-r from-brand-300 to-brand-500 bg-clip-text text-transparent">
+              Kostenlos & sofort.
+            </span>
+          </h2>
+          <p className="text-white/60 text-sm mb-10 max-w-sm leading-relaxed">
+            50+ Tools, Decision Engine, KI-Assistent — alles was du brauchst, um dein Studium zu meistern.
+          </p>
+
+          <div className="space-y-3">
+            {features.map(({ icon: Icon, label, desc }) => (
+              <div key={label} className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/[0.06] backdrop-blur-sm">
+                <div className="w-9 h-9 rounded-lg bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Icon size={16} className="text-brand-300" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white/90">{label}</p>
+                  <p className="text-xs text-white/50">{desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
-          <h1 className="text-2xl font-bold text-surface-900">Konto erstellen</h1>
-          <p className="text-surface-500 text-sm mt-1">Starte kostenlos mit Semetra Workspace</p>
         </div>
 
-        <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-xl shadow-surface-200/50 border border-surface-200/60 p-6 sm:p-8">
-          {/* OAuth */}
-          {enabledProviders.length > 0 && (
-            <>
-              <div className="space-y-2.5 mb-6">
-                {enabledProviders.map(({ id, label, icon: Icon, bg, text }) => (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => handleOAuth(id)}
-                    disabled={oauthLoading !== null}
-                    className={`w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition ${bg} ${text} disabled:opacity-50`}
-                  >
-                    {oauthLoading === id ? <Loader2 size={18} className="animate-spin" /> : <Icon />}
-                    Mit {label} registrieren
-                  </button>
-                ))}
-              </div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-px flex-1 bg-surface-200" />
-                <span className="text-xs text-surface-400 font-medium">oder mit E-Mail</span>
-                <div className="h-px flex-1 bg-surface-200" />
-              </div>
-            </>
-          )}
+        <div className="relative z-10 mt-8">
+          <p className="text-[11px] text-white/30">
+            &copy; {new Date().getFullYear()} Lopicic Technologies &middot; Gebaut in der Schweiz
+          </p>
+        </div>
+      </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Role Selection */}
-            <div>
-              <label className="block text-sm font-medium text-surface-700 mb-2">Ich bin...</label>
-              <div className="grid grid-cols-2 gap-2">
-                {ROLE_OPTIONS.map(({ value, label, desc, icon: Icon }) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setSelectedRole(value)}
-                    className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition text-center ${
-                      selectedRole === value
-                        ? "border-brand-500 bg-brand-50 text-brand-700"
-                        : "border-surface-200 bg-surface-50 text-surface-600 hover:border-surface-300"
-                    }`}
-                  >
-                    <Icon size={20} />
-                    <span className="text-xs font-semibold">{label}</span>
-                    <span className="text-[9px] leading-tight opacity-70">{desc}</span>
-                  </button>
-                ))}
-              </div>
-              {/* Institution info hint */}
-              <button
-                type="button"
-                onClick={() => setShowInstitutionInfo(!showInstitutionInfo)}
-                className="flex items-center gap-1 mt-2 text-[10px] text-surface-400 hover:text-surface-600 transition"
-              >
-                <Building2 size={12} />
-                <span>Sie vertreten eine Hochschule?</span>
-              </button>
-              {showInstitutionInfo && (
-                <div className="mt-2 p-3 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-800">
-                  <div className="flex items-start gap-2">
-                    <Info size={14} className="shrink-0 mt-0.5 text-blue-600" />
-                    <div>
-                      <p className="font-medium mb-1">Institutions-Zugang</p>
-                      <p>
-                        Institutionen werden persönlich eingerichtet.
-                        Kontaktieren Sie uns unter{" "}
-                        <a href="mailto:kontakt@semetra.ch" className="font-semibold underline">
-                          kontakt@semetra.ch
-                        </a>
-                        {" "}für ein Erstgespräch.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
+      {/* RIGHT — Register Form */}
+      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-brand-50/40 via-white to-surface-50 p-4 sm:p-8 overflow-y-auto">
+        <div className="w-full max-w-md py-6">
+          {/* Mobile logo */}
+          <div className="text-center mb-8 lg:mb-10">
+            <div className="lg:hidden inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-700 text-white mb-4 shadow-lg shadow-brand-500/25">
+              <Gem size={28} />
             </div>
+            <h1 className="text-2xl font-bold text-surface-900">Konto erstellen</h1>
+            <p className="text-surface-500 text-sm mt-1">Starte kostenlos mit Semetra Workspace</p>
+          </div>
 
-            {/* Username */}
-            <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1.5">Benutzername</label>
-              <div className="relative">
-                <AtSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
-                <input
-                  className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
-                  type="text"
-                  placeholder="z. B. max_muster"
-                  value={username}
-                  onChange={e => handleUsernameChange(e.target.value)}
-                  required
-                  minLength={3}
-                  maxLength={30}
-                  autoComplete="username"
-                />
-              </div>
-              <p className={`text-[10px] mt-1 ${
-                usernameStatus === "available" ? "text-green-600" :
-                usernameStatus === "taken" ? "text-red-500" :
-                username.length > 0 && !usernameValid ? "text-red-500" :
-                "text-surface-400"
-              }`}>
-                {usernameStatus === "checking" ? "Wird geprüft..." :
-                 usernameStatus === "available" ? "\u2713 Verfügbar" :
-                 usernameStatus === "taken" ? "\u2717 Bereits vergeben" :
-                 username.length > 0 && !usernameValid ? "3\u201330 Zeichen: Kleinbuchstaben, Zahlen, _ und -" :
-                 "Dein eindeutiger Benutzername zum Anmelden"}
-              </p>
-            </div>
-
-            {/* Email with university detection */}
-            <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1.5">E-Mail</label>
-              <div className="relative">
-                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
-                <input
-                  className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
-                  type="email"
-                  placeholder={selectedRole === "student" ? "deine@hochschule.ch" : "deine@email.ch"}
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  required
-                  autoComplete="email"
-                />
-              </div>
-              {/* University email detection feedback */}
-              {selectedRole === "student" && email.includes("@") && (
-                <p className={`text-[10px] mt-1 ${isUniEmail ? "text-green-600" : "text-surface-400"}`}>
-                  {isUniEmail
-                    ? `\u2713 Hochschul-Email erkannt: ${detectedUniversity} — automatische Verifizierung`
-                    : "Tipp: Verwende deine Hochschul-Email (@zhaw.ch, @ethz.ch, etc.) für sofortige Verifizierung"}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1.5">Passwort</label>
-              <div className="relative">
-                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
-                <input
-                  className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-10 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
-                  type={showPw ? "text" : "password"}
-                  placeholder="Mindestens 8 Zeichen"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  minLength={8}
-                  required
-                  autoComplete="new-password"
-                />
-                <button type="button" onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600" tabIndex={-1}>
-                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-              {password.length > 0 && (
-                <div className="mt-2">
-                  <div className="flex gap-1 mb-1">
-                    {[0, 1, 2, 3].map(i => (
-                      <div key={i} className={`h-1 flex-1 rounded-full transition ${i < pwStrength ? pwColors[pwStrength - 1] : "bg-surface-200"}`} />
-                    ))}
-                  </div>
-                  <p className={`text-[10px] ${pwStrength >= 3 ? "text-green-600" : pwStrength >= 2 ? "text-amber-600" : "text-red-500"}`}>
-                    {password.length < 8 ? "Mindestens 8 Zeichen" : pwLabels[pwStrength - 1]}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* University / Program — only for students */}
-            {selectedRole === "student" && useStructured && institutions.length > 0 ? (
+          <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-xl shadow-surface-200/50 border border-surface-200/60 p-6 sm:p-8">
+            {/* OAuth */}
+            {enabledProviders.length > 0 && (
               <>
-                <div>
-                  <label className="block text-sm font-medium text-surface-700 mb-1.5">Hochschule</label>
-                  <div className="relative">
-                    <Building2 size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 ${institutionLocked ? "text-green-500" : "text-surface-400"}`} />
-                    <select
-                      value={selectedInstId}
-                      onChange={e => { if (!institutionLocked) { setSelectedInstId(e.target.value); setSelectedProgId(""); } }}
-                      disabled={institutionLocked}
-                      className={`w-full border rounded-xl pl-10 pr-3 py-2.5 text-sm focus:outline-none transition appearance-none ${
-                        institutionLocked
-                          ? "bg-green-50 border-green-300 text-surface-900 cursor-not-allowed"
-                          : "bg-surface-50 border-surface-200 text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+                <div className="space-y-2.5 mb-6">
+                  {enabledProviders.map(({ id, label, icon: Icon, bg, text }) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => handleOAuth(id)}
+                      disabled={oauthLoading !== null}
+                      className={`w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition ${bg} ${text} disabled:opacity-50`}
+                    >
+                      {oauthLoading === id ? <Loader2 size={18} className="animate-spin" /> : <Icon />}
+                      Mit {label} registrieren
+                    </button>
+                  ))}
+                </div>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="h-px flex-1 bg-surface-200" />
+                  <span className="text-xs text-surface-400 font-medium">oder mit E-Mail</span>
+                  <div className="h-px flex-1 bg-surface-200" />
+                </div>
+              </>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Role Selection */}
+              <div>
+                <label className="block text-sm font-medium text-surface-700 mb-2">Ich bin...</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {ROLE_OPTIONS.map(({ value, label, desc, icon: Icon }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setSelectedRole(value)}
+                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition text-center ${
+                        selectedRole === value
+                          ? "border-brand-500 bg-brand-50 text-brand-700"
+                          : "border-surface-200 bg-surface-50 text-surface-600 hover:border-surface-300"
                       }`}
                     >
-                      <option value="">-- Hochschule wählen --</option>
-                      {institutions.map(inst => (
-                        <option key={inst.id} value={inst.id}>{inst.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  {institutionLocked && (
-                    <p className="text-[10px] text-green-600 mt-1 flex items-center gap-1">
-                      <CheckCircle2 size={10} />
-                      Automatisch zugewiesen anhand deiner Hochschul-Email ({detectedUniversity})
-                    </p>
-                  )}
+                      <Icon size={20} />
+                      <span className="text-xs font-semibold">{label}</span>
+                      <span className="text-[9px] leading-tight opacity-70">{desc}</span>
+                    </button>
+                  ))}
                 </div>
-                {selectedInstId && (
+                {/* Institution info hint */}
+                <button
+                  type="button"
+                  onClick={() => setShowInstitutionInfo(!showInstitutionInfo)}
+                  className="flex items-center gap-1 mt-2 text-[10px] text-surface-400 hover:text-surface-600 transition"
+                >
+                  <Building2 size={12} />
+                  <span>Sie vertreten eine Hochschule?</span>
+                </button>
+                {showInstitutionInfo && (
+                  <div className="mt-2 p-3 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-800">
+                    <div className="flex items-start gap-2">
+                      <Info size={14} className="shrink-0 mt-0.5 text-blue-600" />
+                      <div>
+                        <p className="font-medium mb-1">Institutions-Zugang</p>
+                        <p>
+                          Institutionen werden persönlich eingerichtet.
+                          Kontaktieren Sie uns unter{" "}
+                          <a href="mailto:kontakt@semetra.ch" className="font-semibold underline">
+                            kontakt@semetra.ch
+                          </a>
+                          {" "}für ein Erstgespräch.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Username */}
+              <div>
+                <label className="block text-sm font-medium text-surface-700 mb-1.5">Benutzername</label>
+                <div className="relative">
+                  <AtSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                  <input
+                    className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+                    type="text"
+                    placeholder="z. B. max_muster"
+                    value={username}
+                    onChange={e => handleUsernameChange(e.target.value)}
+                    required
+                    minLength={3}
+                    maxLength={30}
+                    autoComplete="username"
+                  />
+                </div>
+                <p className={`text-[10px] mt-1 ${
+                  usernameStatus === "available" ? "text-green-600" :
+                  usernameStatus === "taken" ? "text-red-500" :
+                  username.length > 0 && !usernameValid ? "text-red-500" :
+                  "text-surface-400"
+                }`}>
+                  {usernameStatus === "checking" ? "Wird geprüft..." :
+                   usernameStatus === "available" ? "\u2713 Verfügbar" :
+                   usernameStatus === "taken" ? "\u2717 Bereits vergeben" :
+                   username.length > 0 && !usernameValid ? "3\u201330 Zeichen: Kleinbuchstaben, Zahlen, _ und -" :
+                   "Dein eindeutiger Benutzername zum Anmelden"}
+                </p>
+              </div>
+
+              {/* Email with university detection */}
+              <div>
+                <label className="block text-sm font-medium text-surface-700 mb-1.5">E-Mail</label>
+                <div className="relative">
+                  <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                  <input
+                    className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+                    type="email"
+                    placeholder={selectedRole === "student" ? "deine@hochschule.ch" : "deine@email.ch"}
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                  />
+                </div>
+                {/* University email detection feedback */}
+                {selectedRole === "student" && email.includes("@") && (
+                  <p className={`text-[10px] mt-1 ${isUniEmail ? "text-green-600" : "text-surface-400"}`}>
+                    {isUniEmail
+                      ? `\u2713 Hochschul-Email erkannt: ${detectedUniversity} — automatische Verifizierung`
+                      : "Tipp: Verwende deine Hochschul-Email (@zhaw.ch, @ethz.ch, etc.) für sofortige Verifizierung"}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-surface-700 mb-1.5">Passwort</label>
+                <div className="relative">
+                  <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                  <input
+                    className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-10 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+                    type={showPw ? "text" : "password"}
+                    placeholder="Mindestens 8 Zeichen"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    minLength={8}
+                    required
+                    autoComplete="new-password"
+                  />
+                  <button type="button" onClick={() => setShowPw(!showPw)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600" tabIndex={-1}>
+                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {password.length > 0 && (
+                  <div className="mt-2">
+                    <div className="flex gap-1 mb-1">
+                      {[0, 1, 2, 3].map(i => (
+                        <div key={i} className={`h-1 flex-1 rounded-full transition ${i < pwStrength ? pwColors[pwStrength - 1] : "bg-surface-200"}`} />
+                      ))}
+                    </div>
+                    <p className={`text-[10px] ${pwStrength >= 3 ? "text-green-600" : pwStrength >= 2 ? "text-amber-600" : "text-red-500"}`}>
+                      {password.length < 8 ? "Mindestens 8 Zeichen" : pwLabels[pwStrength - 1]}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* University / Program — only for students */}
+              {selectedRole === "student" && useStructured && institutions.length > 0 ? (
+                <>
                   <div>
-                    <label className="block text-sm font-medium text-surface-700 mb-1.5">Studiengang</label>
+                    <label className="block text-sm font-medium text-surface-700 mb-1.5">Hochschule</label>
                     <div className="relative">
-                      <BookOpen size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                      <Building2 size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 ${institutionLocked ? "text-green-500" : "text-surface-400"}`} />
                       <select
-                        value={selectedProgId}
-                        onChange={e => setSelectedProgId(e.target.value)}
-                        className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition appearance-none"
+                        value={selectedInstId}
+                        onChange={e => { if (!institutionLocked) { setSelectedInstId(e.target.value); setSelectedProgId(""); } }}
+                        disabled={institutionLocked}
+                        className={`w-full border rounded-xl pl-10 pr-3 py-2.5 text-sm focus:outline-none transition appearance-none ${
+                          institutionLocked
+                            ? "bg-green-50 border-green-300 text-surface-900 cursor-not-allowed"
+                            : "bg-surface-50 border-surface-200 text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+                        }`}
                       >
-                        <option value="">{programs.length === 0 ? "Keine Studiengänge verfügbar" : "-- Studiengang wählen --"}</option>
-                        {programs.map(prog => (
-                          <option key={prog.id} value={prog.id}>{prog.name} ({prog.degree_level})</option>
+                        <option value="">-- Hochschule wählen --</option>
+                        {institutions.map(inst => (
+                          <option key={inst.id} value={inst.id}>{inst.name}</option>
                         ))}
                       </select>
                     </div>
+                    {institutionLocked && (
+                      <p className="text-[10px] text-green-600 mt-1 flex items-center gap-1">
+                        <CheckCircle2 size={10} />
+                        Automatisch zugewiesen anhand deiner Hochschul-Email ({detectedUniversity})
+                      </p>
+                    )}
                   </div>
-                )}
-                {/* Only show Freitext option when institution is NOT locked by email */}
-                {!institutionLocked && (
-                  <button type="button" onClick={() => setUseStructured(false)}
-                    className="text-[10px] text-brand-500 hover:text-brand-600 text-left">
-                    Meine Hochschule ist nicht in der Liste? Freitext eingeben
-                  </button>
-                )}
-              </>
-            ) : selectedRole === "student" && !institutionLocked ? (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-surface-700 mb-1.5">Universität / Fachhochschule</label>
-                  <div className="relative">
-                    <GraduationCap size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
-                    <input
-                      className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
-                      type="text"
-                      placeholder="z. B. ETH Zürich, ZHAW, FHNW..."
-                      value={university}
-                      onChange={e => setUniversity(e.target.value)}
-                      autoComplete="organization"
-                    />
+                  {selectedInstId && (
+                    <div>
+                      <label className="block text-sm font-medium text-surface-700 mb-1.5">Studiengang</label>
+                      <div className="relative">
+                        <BookOpen size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                        <select
+                          value={selectedProgId}
+                          onChange={e => setSelectedProgId(e.target.value)}
+                          className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition appearance-none"
+                        >
+                          <option value="">{programs.length === 0 ? "Keine Studiengänge verfügbar" : "-- Studiengang wählen --"}</option>
+                          {programs.map(prog => (
+                            <option key={prog.id} value={prog.id}>{prog.name} ({prog.degree_level})</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                  {/* Only show Freitext option when institution is NOT locked by email */}
+                  {!institutionLocked && (
+                    <button type="button" onClick={() => setUseStructured(false)}
+                      className="text-[10px] text-brand-500 hover:text-brand-600 text-left">
+                      Meine Hochschule ist nicht in der Liste? Freitext eingeben
+                    </button>
+                  )}
+                </>
+              ) : selectedRole === "student" && !institutionLocked ? (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-surface-700 mb-1.5">Universität / Fachhochschule</label>
+                    <div className="relative">
+                      <GraduationCap size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                      <input
+                        className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+                        type="text"
+                        placeholder="z. B. ETH Zürich, ZHAW, FHNW..."
+                        value={university}
+                        onChange={e => setUniversity(e.target.value)}
+                        autoComplete="organization"
+                      />
+                    </div>
+                    <p className="text-[10px] text-surface-400 mt-1">Optional. Kann später im Profil geändert werden.</p>
                   </div>
-                  <p className="text-[10px] text-surface-400 mt-1">Optional. Kann später im Profil geändert werden.</p>
+                  <div>
+                    <label className="block text-sm font-medium text-surface-700 mb-1.5">Studienrichtung</label>
+                    <div className="relative">
+                      <BookOpen size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                      <input
+                        className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+                        type="text"
+                        placeholder="z. B. Informatik, BWL, Medizin..."
+                        value={studyProgram}
+                        onChange={e => setStudyProgram(e.target.value)}
+                      />
+                    </div>
+                    <p className="text-[10px] text-surface-400 mt-1">Optional. Kann später im Profil geändert werden.</p>
+                  </div>
+                  {institutions.length > 0 && (
+                    <button type="button" onClick={() => setUseStructured(true)}
+                      className="text-[10px] text-brand-500 hover:text-brand-600 text-left">
+                      Aus der Hochschul-Datenbank wählen
+                    </button>
+                  )}
+                </>
+              ) : null}
+
+              {/* Country / Grading system */}
+              <div>
+                <label className="block text-sm font-medium text-surface-700 mb-1.5">Land / Notensystem</label>
+                <div className="relative">
+                  <Globe size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                  <select
+                    value={country}
+                    onChange={e => setCountry(e.target.value as CountryCode)}
+                    className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition appearance-none"
+                  >
+                    {COUNTRY_LIST.map(c => (
+                      <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
+                    ))}
+                  </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-surface-700 mb-1.5">Studienrichtung</label>
-                  <div className="relative">
-                    <BookOpen size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
-                    <input
-                      className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
-                      type="text"
-                      placeholder="z. B. Informatik, BWL, Medizin..."
-                      value={studyProgram}
-                      onChange={e => setStudyProgram(e.target.value)}
-                    />
-                  </div>
-                  <p className="text-[10px] text-surface-400 mt-1">Optional. Kann später im Profil geändert werden.</p>
+                <p className="text-[10px] text-surface-400 mt-1">Bestimmt dein Notensystem. Kann später geändert werden.</p>
+              </div>
+
+              {error && (
+                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
+                  {error}
                 </div>
-                {institutions.length > 0 && (
-                  <button type="button" onClick={() => setUseStructured(true)}
-                    className="text-[10px] text-brand-500 hover:text-brand-600 text-left">
-                    Aus der Hochschul-Datenbank wählen
-                  </button>
-                )}
-              </>
-            ) : null}
+              )}
 
-            {/* Country / Grading system */}
-            <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1.5">Land / Notensystem</label>
-              <div className="relative">
-                <Globe size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
-                <select
-                  value={country}
-                  onChange={e => setCountry(e.target.value as CountryCode)}
-                  className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition appearance-none"
-                >
-                  {COUNTRY_LIST.map(c => (
-                    <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
-                  ))}
-                </select>
-              </div>
-              <p className="text-[10px] text-surface-400 mt-1">Bestimmt dein Notensystem. Kann später geändert werden.</p>
-            </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition disabled:opacity-50 shadow-sm shadow-brand-600/25"
+              >
+                {loading ? <Loader2 size={16} className="animate-spin" /> : <>Konto erstellen <ArrowRight size={16} /></>}
+              </button>
+            </form>
 
-            {error && (
-              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
-                {error}
-              </div>
-            )}
+            <p className="text-center text-sm text-surface-500 mt-5">
+              Bereits registriert?{" "}
+              <Link href="/login" className="text-brand-600 font-semibold hover:text-brand-700 transition">
+                Anmelden
+              </Link>
+            </p>
+          </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition disabled:opacity-50 shadow-sm shadow-brand-600/25"
-            >
-              {loading ? <Loader2 size={16} className="animate-spin" /> : <>Konto erstellen <ArrowRight size={16} /></>}
-            </button>
-          </form>
-
-          <p className="text-center text-sm text-surface-500 mt-5">
-            Bereits registriert?{" "}
-            <Link href="/login" className="text-brand-600 font-semibold hover:text-brand-700 transition">
-              Anmelden
-            </Link>
+          {/* Footer (mobile) */}
+          <p className="text-center text-[11px] text-surface-400 mt-6 lg:hidden">
+            &copy; {new Date().getFullYear()} Lopicic Technologies &middot; Semetra Workspace
           </p>
         </div>
-
-        <p className="text-center text-[11px] text-surface-400 mt-6">
-          &copy; {new Date().getFullYear()} Lopicic Technologies &middot; Semetra Workspace
-        </p>
       </div>
     </div>
   );
