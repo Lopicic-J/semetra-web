@@ -110,24 +110,40 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Check for duplicate module code (unique constraint: user_id + module_code)
-    const { data: existingModule } = await db
-      .from("modules")
-      .select("id")
-      .eq("module_code", module_code)
-      .eq("user_id", user.id);
-
-    if (existingModule && existingModule.length > 0) {
-      return errorResponse(
-        `Ein Modul mit dem Code "${module_code}" existiert bereits. Bitte verwende einen anderen Code.`,
-        422
-      );
-    }
-
-    // Template modules (with program_id, created by admins) are sourced from institution
-    // Personal modules (no program_id, created by students) are sourced manually
-    // user_id is always set to the creator (NOT NULL constraint on modules table)
+    // Template modules (with program_id, created by admins) have user_id = NULL
+    // so the auto-import trigger and student distribution can find them.
+    // Personal modules (no program_id or created by students) have user_id = creator.
     const isTemplate = !!program_id && ["admin", "institution"].includes(userRole);
+
+    // Check for duplicate module code
+    if (isTemplate) {
+      // Template: unique per program (user_id IS NULL)
+      const { data: existingTemplate } = await db
+        .from("modules")
+        .select("id")
+        .eq("module_code", module_code)
+        .eq("program_id", program_id)
+        .is("user_id", null);
+      if (existingTemplate && existingTemplate.length > 0) {
+        return errorResponse(
+          `Ein Template-Modul mit dem Code "${module_code}" existiert bereits für diesen Studiengang.`,
+          422
+        );
+      }
+    } else {
+      // Personal: unique per user
+      const { data: existingModule } = await db
+        .from("modules")
+        .select("id")
+        .eq("module_code", module_code)
+        .eq("user_id", user.id);
+      if (existingModule && existingModule.length > 0) {
+        return errorResponse(
+          `Ein Modul mit dem Code "${module_code}" existiert bereits. Bitte verwende einen anderen Code.`,
+          422
+        );
+      }
+    }
 
     // Build insert payload — core fields always, optional fields only if truthy
     const insertData: Record<string, unknown> = {
@@ -138,7 +154,7 @@ export async function POST(req: NextRequest) {
       description: description || null,
       ects: body.ects || null,
       ects_equivalent: body.ects_equivalent || body.ects || null,
-      user_id: user.id,
+      user_id: isTemplate ? null : user.id,
       source: isTemplate ? "institution" : "manual",
       status: "planned",
       in_plan: true,
