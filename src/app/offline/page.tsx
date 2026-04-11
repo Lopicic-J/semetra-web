@@ -1,23 +1,38 @@
 "use client";
 
-import { WifiOff, RefreshCw } from "lucide-react";
+import { WifiOff, RefreshCw, Gem } from "lucide-react";
 
 export default function OfflinePage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface-50 p-6">
-      <div className="text-center max-w-sm">
-        <div className="w-20 h-20 bg-surface-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <WifiOff size={36} className="text-surface-400" />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-surface-50 via-white to-surface-100 dark:from-surface-950 dark:via-surface-900 dark:to-surface-950 p-6 relative overflow-hidden">
+      {/* Background orbs */}
+      <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-brand-100/30 dark:bg-brand-500/10 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-surface-200/40 dark:bg-brand-600/10 blur-3xl pointer-events-none" />
+
+      <div className="text-center max-w-sm relative z-10">
+        {/* Brand */}
+        <div className="inline-flex items-center gap-2 mb-8 opacity-60">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
+            <Gem size={16} className="text-white" />
+          </div>
+          <span className="text-sm font-bold text-surface-500 dark:text-surface-400">Semetra</span>
         </div>
-        <h1 className="text-2xl font-bold text-surface-900 mb-2">Offline</h1>
-        <p className="text-surface-500 text-sm mb-6">
-          Du bist gerade nicht mit dem Internet verbunden. Sobald du wieder online bist, wird Semetra automatisch neu laden.
+
+        {/* Icon */}
+        <div className="w-24 h-24 bg-surface-100 dark:bg-surface-800 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-surface-200/50 dark:shadow-none border border-surface-200 dark:border-surface-700">
+          <WifiOff size={40} className="text-surface-400 dark:text-surface-500" />
+        </div>
+
+        <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-surface-100 mb-3">Du bist offline</h1>
+        <p className="text-surface-500 dark:text-surface-400 text-sm sm:text-base mb-8 leading-relaxed">
+          Keine Internetverbindung. Sobald du wieder online bist, wird Semetra automatisch neu laden.
         </p>
+
         <button
           onClick={() => window.location.reload()}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 text-white rounded-xl font-medium hover:bg-brand-700 transition-colors"
+          className="inline-flex items-center gap-2.5 px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-semibold text-sm sm:text-base shadow-lg shadow-brand-600/25 hover:shadow-brand-500/30 transition-all active:scale-[0.98]"
         >
-          <RefreshCw size={16} />
+          <RefreshCw size={18} />
           Erneut versuchen
         </button>
       </div>
