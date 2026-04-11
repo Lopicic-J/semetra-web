@@ -10,7 +10,7 @@ import {
   Search, LayoutDashboard, BookOpen, CheckSquare, GraduationCap,
   Target, Calendar, Clock, LayoutGrid, Award, FileText, FolderOpen,
   Brain, Network, Lightbulb, Layers, Calculator, Timer, BarChart3,
-  Trophy, Settings, Info, Flame, ArrowRight, Zap, Sparkles,
+  Trophy, Settings, Info, Flame, ArrowRight, Zap, Sparkles, TrendingUp,
   AlertTriangle, Command, X, type LucideIcon,
 } from "lucide-react";
 
@@ -41,68 +41,81 @@ interface QuickStat {
 function getFeatures(t: (k: string) => string): Feature[] {
   return [
     // Übersicht
-    { href: "/dashboard", icon: LayoutDashboard, label: t("nav.dashboard"), group: "overview",
-      description: t("navigator.dashboardDesc"), keywords: ["start", "übersicht", "home", "statistik"], color: "#6d28d9", pro: false },
-    { href: "/modules", icon: BookOpen, label: t("nav.modules"), group: "overview",
-      description: t("navigator.modulesDesc"), keywords: ["fach", "kurs", "vorlesung", "modul", "ects"], color: "#2563eb", pro: false },
-    { href: "/tasks", icon: CheckSquare, label: t("nav.tasks"), group: "overview",
-      description: t("navigator.tasksDesc"), keywords: ["todo", "aufgabe", "erledigen", "deadline"], color: "#059669", pro: false },
-    { href: "/studiengaenge", icon: GraduationCap, label: t("studiengaenge.title") || "Studiengänge", group: "overview",
-      description: t("navigator.fhSettingsDesc"), keywords: ["studiengang", "fh", "template"], color: "#7c3aed", pro: true },
+    { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard", group: "overview",
+      description: "Dein persönlicher Startbildschirm mit den wichtigsten Infos auf einen Blick.", keywords: ["start", "übersicht", "home", "statistik"], color: "#6d28d9", pro: false },
+    { href: "/modules", icon: BookOpen, label: "Module", group: "overview",
+      description: "Verwalte deine Studienmodule, ECTS, Noten und Prüfungstermine.", keywords: ["fach", "kurs", "vorlesung", "modul", "ects"], color: "#2563eb", pro: false },
+    { href: "/tasks", icon: CheckSquare, label: "Aufgaben", group: "overview",
+      description: "Erstelle und verwalte To-Dos mit Deadlines und Prioritäten.", keywords: ["todo", "aufgabe", "erledigen", "deadline", "task"], color: "#059669", pro: false },
 
     // Planung
-    { href: "/studienplan", icon: Target, label: t("nav.studienplan") || "Studienplan", group: "planning",
-      description: t("navigator.studienplanDesc"), keywords: ["plan", "semester", "langzeit", "ziel"], color: "#dc2626", pro: false },
-    { href: "/calendar", icon: Calendar, label: t("nav.calendar"), group: "planning",
-      description: t("navigator.calendarDesc"), keywords: ["kalender", "termin", "datum", "woche"], color: "#ea580c", pro: false },
-    { href: "/timeline", icon: Clock, label: t("nav.timeline") || "Timeline", group: "planning",
-      description: t("navigator.timelineDesc"), keywords: ["zeitstrahl", "gantt", "verlauf"], color: "#0891b2", pro: false },
-    { href: "/stundenplan", icon: LayoutGrid, label: t("nav.stundenplan"), group: "planning",
-      description: t("navigator.stundenplanDesc"), keywords: ["stundenplan", "wochenplan", "raum"], color: "#4f46e5", pro: false },
-    { href: "/exams", icon: Award, label: t("nav.exams"), group: "planning",
-      description: t("navigator.examsDesc"), keywords: ["prüfung", "exam", "klausur", "test"], color: "#be123c", pro: false },
+    { href: "/schedule?tab=smart", icon: Zap, label: "Smart Schedule", group: "planning",
+      description: "KI-optimierter Lernplan, der sich an deinen Rhythmus anpasst.", keywords: ["smart", "schedule", "automatisch", "plan", "ki"], color: "#7c3aed", pro: false },
+    { href: "/schedule?tab=stundenplan", icon: LayoutGrid, label: "Stundenplan", group: "planning",
+      description: "Dein Wochenstundenplan mit Vorlesungen und Lernblöcken.", keywords: ["stundenplan", "wochenplan", "raum", "vorlesung"], color: "#4f46e5", pro: false },
+    { href: "/schedule?tab=calendar", icon: Calendar, label: "Kalender", group: "planning",
+      description: "Alle Termine, Prüfungen und Deadlines im Überblick.", keywords: ["kalender", "termin", "datum", "woche"], color: "#ea580c", pro: false },
+    { href: "/exams", icon: Award, label: "Prüfungen", group: "planning",
+      description: "Prüfungstermine verwalten, Vorbereitung planen und Fortschritt tracken.", keywords: ["prüfung", "exam", "klausur", "test"], color: "#be123c", pro: false },
+    { href: "/exams?tab=intelligence", icon: AlertTriangle, label: "Prüfungs-Intelligence", group: "planning",
+      description: "Risikoanalyse und Prognosen für deine bevorstehenden Prüfungen.", keywords: ["risiko", "prognose", "vorbereitung", "intelligence"], color: "#dc2626", pro: true },
 
     // Lernen
-    { href: "/notes", icon: FileText, label: t("nav.notes"), group: "learning",
-      description: t("navigator.notesDesc"), keywords: ["notiz", "schreiben", "mitschrift"], color: "#ca8a04", pro: false },
-    { href: "/documents", icon: FolderOpen, label: t("nav.documents"), group: "learning",
-      description: t("navigator.documentsDesc"), keywords: ["dokument", "datei", "pdf", "material"], color: "#0d9488", pro: false },
-    { href: "/knowledge", icon: Brain, label: t("nav.knowledge") || "Lernziele", group: "learning",
-      description: t("navigator.knowledgeDesc"), keywords: ["lernziel", "wissen", "kompetenz"], color: "#db2777", pro: false },
-    { href: "/mindmaps", icon: Network, label: t("nav.mindmaps"), group: "learning",
-      description: t("navigator.mindmapsDesc"), keywords: ["mindmap", "gedankenkarte", "struktur"], color: "#7c3aed", pro: false },
-    { href: "/brainstorming", icon: Lightbulb, label: t("nav.brainstorming"), group: "learning",
-      description: t("navigator.brainstormingDesc"), keywords: ["brainstorming", "idee", "kreativ"], color: "#f59e0b", pro: false },
-    { href: "/flashcards", icon: Layers, label: t("nav.flashcards"), group: "learning",
-      description: t("navigator.flashcardsDesc"), keywords: ["karteikarte", "flashcard", "wiederholen"], color: "#8b5cf6", pro: false },
-    { href: "/math", icon: Calculator, label: t("nav.math") || "Mathe", group: "learning",
-      description: t("navigator.mathDesc"), keywords: ["mathe", "rechner", "gleichung", "formel"], color: "#6366f1", pro: false },
-    { href: "/timer", icon: Timer, label: t("nav.timer") || "Timer", group: "learning",
-      description: t("navigator.timerDesc"), keywords: ["timer", "pomodoro", "stoppuhr", "lernzeit"], color: "#16a34a", pro: false },
+    { href: "/learning?tab=timer", icon: Timer, label: "Lernzeit & Timer", group: "learning",
+      description: "Pomodoro, Deep Work oder freie Sessions — tracke deine Lernzeit.", keywords: ["timer", "pomodoro", "stoppuhr", "lernzeit", "streak"], color: "#16a34a", pro: false },
+    { href: "/learning?tab=materials", icon: FileText, label: "Materialien", group: "learning",
+      description: "Notizen und Dokumente an einem Ort — schreiben, hochladen, organisieren.", keywords: ["notiz", "dokument", "datei", "pdf", "material", "mitschrift"], color: "#ca8a04", pro: false },
+    { href: "/learning?tab=groups", icon: Brain, label: "Lerngruppen", group: "learning",
+      description: "Erstelle Gruppen, chatte mit Kommilitonen und teile Module & Dokumente.", keywords: ["gruppe", "lerngruppe", "chat", "teilen", "kommilitone"], color: "#2563eb", pro: false },
+    { href: "/learning?tab=flashcards", icon: Layers, label: "Karteikarten", group: "learning",
+      description: "Erstelle Karteikarten und lerne mit Spaced Repetition.", keywords: ["karteikarte", "flashcard", "wiederholen", "lernen"], color: "#8b5cf6", pro: false },
+    { href: "/learning?tab=knowledge", icon: Brain, label: "Lernziele", group: "learning",
+      description: "Definiere und tracke Lernziele pro Modul und Thema.", keywords: ["lernziel", "wissen", "kompetenz", "fortschritt"], color: "#db2777", pro: false },
 
-    // Analyse
-    { href: "/studium?tab=noten", icon: BarChart3, label: t("nav.grades") || "Noten", group: "analytics",
-      description: t("navigator.gradesDesc"), keywords: ["note", "durchschnitt", "bestanden"], color: "#059669", pro: false },
-    { href: "/studium?tab=uebersicht", icon: Trophy, label: t("nav.credits") || "Credits & ECTS", group: "analytics",
-      description: t("navigator.creditsDesc"), keywords: ["ects", "credits", "fortschritt"], color: "#d97706", pro: false },
+    // Werkzeuge
+    { href: "/werkzeuge?tab=ki", icon: Sparkles, label: "KI-Assistent", group: "tools",
+      description: "Frag die KI was du nicht verstehst — kennt deine Module und passt sich an.", keywords: ["ki", "ai", "chatbot", "frage", "erklärung", "assistent"], color: "#6d28d9", pro: false },
+    { href: "/werkzeuge?tab=mindmaps", icon: Network, label: "Mind Maps", group: "tools",
+      description: "Gedanken strukturieren, Themen visualisieren, im Vollbild arbeiten.", keywords: ["mindmap", "gedankenkarte", "struktur", "visuell"], color: "#7c3aed", pro: false },
+    { href: "/werkzeuge?tab=brainstorming", icon: Lightbulb, label: "Brainstorming", group: "tools",
+      description: "Ideen sammeln mit SCAMPER, Pro/Con, Starbursting und mehr.", keywords: ["brainstorming", "idee", "kreativ", "scamper"], color: "#f59e0b", pro: false },
+    { href: "/werkzeuge?tab=mathe", icon: Calculator, label: "Mathe-Raum", group: "tools",
+      description: "Gleichungen lösen, Formeln speichern, Schritt-für-Schritt-Lösungen.", keywords: ["mathe", "rechner", "gleichung", "formel", "math"], color: "#6366f1", pro: false },
 
-    // System
-    { href: "/settings", icon: Settings, label: t("nav.settings"), group: "system",
-      description: t("navigator.settingsDesc"), keywords: ["einstellung", "profil", "konto"], color: "#525252", pro: false },
-    { href: "/about", icon: Info, label: t("nav.about") || "Über Semetra", group: "system",
-      description: t("navigator.aboutDesc"), keywords: ["über", "info", "version", "kontakt"], color: "#525252", pro: false },
+    // Analyse & Fortschritt
+    { href: "/studium?tab=uebersicht", icon: Trophy, label: "Studienfortschritt", group: "analytics",
+      description: "ECTS, Credits und akademischer Gesamtfortschritt auf einen Blick.", keywords: ["ects", "credits", "fortschritt", "übersicht"], color: "#d97706", pro: false },
+    { href: "/studium?tab=noten", icon: BarChart3, label: "Noten & Durchschnitt", group: "analytics",
+      description: "Alle Noten, Durchschnitt, Bestanden/Nicht-Bestanden Analyse.", keywords: ["note", "durchschnitt", "bestanden", "gpa"], color: "#059669", pro: false },
+    { href: "/studium?tab=studienplan", icon: Target, label: "Studienplan", group: "analytics",
+      description: "Langzeit-Studienplanung über alle Semester hinweg.", keywords: ["plan", "semester", "langzeit", "ziel", "studienplan"], color: "#dc2626", pro: false },
+    { href: "/fortschritt?tab=dna", icon: Flame, label: "Lern-DNA", group: "analytics",
+      description: "Dein persönliches Lernprofil — Stärken, Muster und Optimierungspotenzial.", keywords: ["dna", "profil", "muster", "stärken", "analyse"], color: "#f97316", pro: true },
+    { href: "/fortschritt?tab=insights", icon: TrendingUp, label: "Weekly Review", group: "analytics",
+      description: "Wöchentlicher Rückblick auf deine Lernzeit und Fortschritte.", keywords: ["woche", "review", "rückblick", "insights"], color: "#0891b2", pro: false },
+    { href: "/fortschritt?tab=erfolge", icon: Award, label: "Erfolge", group: "analytics",
+      description: "Achievements und Meilensteine auf deinem Lernweg.", keywords: ["erfolg", "achievement", "badge", "meilenstein"], color: "#eab308", pro: false },
+
+    // System & Konto
+    { href: "/upgrade", icon: Zap, label: "Pro & Preise", group: "system",
+      description: "Pro Basic, Pro Full oder Lifetime — alle Pläne und Preise.", keywords: ["pro", "upgrade", "preis", "abo", "premium", "bezahlen"], color: "#7c3aed", pro: false },
+    { href: "/profile", icon: Settings, label: "Profil", group: "system",
+      description: "Dein Profil, Institution und persönliche Einstellungen.", keywords: ["profil", "konto", "account", "bild"], color: "#525252", pro: false },
+    { href: "/settings", icon: Settings, label: "Einstellungen", group: "system",
+      description: "App-Einstellungen, Sprache, Theme und Benachrichtigungen.", keywords: ["einstellung", "theme", "dark", "sprache", "benachrichtigung"], color: "#525252", pro: false },
   ];
 }
 
 const GROUP_CONFIG: Record<string, { labelKey: string; icon: LucideIcon; fallback: string }> = {
   overview: { labelKey: "navigator.overviewSection", icon: LayoutDashboard, fallback: "Übersicht" },
-  planning: { labelKey: "navigator.planningSection", icon: Calendar, fallback: "Planung" },
-  learning: { labelKey: "navigator.knowledgeSection", icon: Brain, fallback: "Lernen" },
-  analytics: { labelKey: "navigator.analyticsSection", icon: BarChart3, fallback: "Analyse" },
-  system: { labelKey: "navigator.systemSection", icon: Settings, fallback: "System" },
+  planning: { labelKey: "navigator.planningSection", icon: Calendar, fallback: "Planung & Termine" },
+  learning: { labelKey: "navigator.knowledgeSection", icon: Brain, fallback: "Lernen & Materialien" },
+  tools: { labelKey: "navigator.toolsSection", icon: Sparkles, fallback: "Werkzeuge" },
+  analytics: { labelKey: "navigator.analyticsSection", icon: BarChart3, fallback: "Fortschritt & Analyse" },
+  system: { labelKey: "navigator.systemSection", icon: Settings, fallback: "Konto & Einstellungen" },
 };
 
-const GROUP_ORDER = ["overview", "planning", "learning", "analytics", "system"];
+const GROUP_ORDER = ["overview", "planning", "learning", "tools", "analytics", "system"];
 
 /* ═══════════════════════════════════════════════════════════════════════
    NAVIGATOR PAGE

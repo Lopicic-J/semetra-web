@@ -73,9 +73,10 @@ const nextConfig = {
       // Notes + Documents → /materials
       { source: "/notes", destination: "/materials?tab=notes", permanent: true },
       { source: "/documents", destination: "/materials?tab=documents", permanent: true },
-      // Mindmaps + Brainstorming → /creative
-      { source: "/mindmaps", destination: "/creative?tab=mindmaps", permanent: true },
-      { source: "/brainstorming", destination: "/creative?tab=brainstorming", permanent: true },
+      // Mindmaps + Brainstorming → /werkzeuge
+      { source: "/mindmaps", destination: "/werkzeuge?tab=mindmaps", permanent: true },
+      { source: "/brainstorming", destination: "/werkzeuge?tab=brainstorming", permanent: true },
+      { source: "/creative", destination: "/werkzeuge?tab=mindmaps", permanent: true },
       // Studienplan + Timeline → /progress
       { source: "/studienplan", destination: "/progress?tab=studienplan", permanent: true },
       { source: "/timeline", destination: "/progress?tab=timeline", permanent: true },
@@ -84,8 +85,7 @@ const nextConfig = {
       { source: "/transcript", destination: "/grades?tab=transcript", permanent: true },
       // Leaderboard → /achievements
       { source: "/leaderboard", destination: "/achievements?tab=leaderboard", permanent: true },
-      // Navigator → Dashboard
-      { source: "/navigator", destination: "/dashboard", permanent: true },
+      // Navigator is now a standalone page — no redirect
       // About → Settings (about tab)
       { source: "/about", destination: "/settings", permanent: true },
     ];

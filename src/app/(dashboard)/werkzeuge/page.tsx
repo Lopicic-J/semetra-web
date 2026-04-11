@@ -1,12 +1,13 @@
 "use client";
 
 import { Suspense, lazy } from "react";
-import { Wrench, Sparkles, Network, Calculator } from "lucide-react";
+import { Wrench, Sparkles, Network, Lightbulb, Calculator } from "lucide-react";
 import { PageTabs } from "@/components/ui/PageTabs";
 import { useTranslation } from "@/lib/i18n";
 
 const AiAssistantContent = lazy(() => import("../ai-assistant/page"));
-const CreativeContent = lazy(() => import("../creative/page"));
+const MindmapsContent = lazy(() => import("../mindmaps/page"));
+const BrainstormingContent = lazy(() => import("../brainstorming/page"));
 const MathContent = lazy(() => import("../math/page"));
 
 function Loading() {
@@ -32,12 +33,22 @@ export default function WerkzeugePage() {
       ),
     },
     {
-      id: "kreativ",
-      label: t("nav.creative") || "Kreativ",
+      id: "mindmaps",
+      label: t("nav.mindmaps") || "Mind Maps",
       icon: Network,
       content: (
         <Suspense fallback={<Loading />}>
-          <CreativeContent />
+          <MindmapsContent />
+        </Suspense>
+      ),
+    },
+    {
+      id: "brainstorming",
+      label: t("nav.brainstorming") || "Brainstorming",
+      icon: Lightbulb,
+      content: (
+        <Suspense fallback={<Loading />}>
+          <BrainstormingContent />
         </Suspense>
       ),
     },

@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, BookOpen, Calendar, GraduationCap,
-  Brain, TrendingUp, Wrench,
+  Brain, TrendingUp, Wrench, Compass,
   Shield, Settings, UserCircle, Terminal, Puzzle,
   type LucideIcon,
 } from "lucide-react";
@@ -35,6 +35,12 @@ export const NAV_GROUPS: NavGroup[] = [
         href: "/dashboard",
         icon: LayoutDashboard,
         labelKey: "nav.dashboard",
+        pro: false,
+      },
+      {
+        href: "/navigator",
+        icon: Compass,
+        labelKey: "nav.navigator",
         pro: false,
       },
     ],
@@ -107,7 +113,8 @@ export const NAV_GROUPS: NavGroup[] = [
         pro: false,
         children: [
           { href: "/werkzeuge?tab=ki", labelKey: "nav.aiAssistant", tab: "ki" },
-          { href: "/werkzeuge?tab=kreativ", labelKey: "nav.creative", tab: "kreativ" },
+          { href: "/werkzeuge?tab=mindmaps", labelKey: "nav.mindmaps", tab: "mindmaps" },
+          { href: "/werkzeuge?tab=brainstorming", labelKey: "nav.brainstorming", tab: "brainstorming" },
           { href: "/werkzeuge?tab=mathe", labelKey: "nav.math", tab: "mathe" },
         ],
       },
