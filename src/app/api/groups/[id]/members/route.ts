@@ -32,11 +32,11 @@ export async function POST(
     const { username } = await req.json();
     if (!username) return NextResponse.json({ error: "Username erforderlich" }, { status: 400 });
 
-    // Look up user
+    // Look up user (case-insensitive)
     const { data: target } = await supabase
       .from("profiles")
       .select("id")
-      .eq("username", username.toLowerCase())
+      .ilike("username", username.trim())
       .single();
 
     if (!target) return NextResponse.json({ error: "Benutzer nicht gefunden" }, { status: 404 });
