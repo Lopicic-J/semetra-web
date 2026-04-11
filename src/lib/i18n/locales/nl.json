@@ -879,7 +879,7 @@
   "settings.languageLabel": "Taal",
   "settings.languageSaved": "Taal bijgewerkt.",
   "calendar.weekdayNames": "Maandag|Dinsdag|Woensdag|Donderdag|Vrijdag|Zaterdag|Zondag",
-  "stundenplan.dayNames": "Maandag|Dinsdag|Woensdag|Donderdag|Vrijdag|Zaterdag",
+  "stundenplan.dayNames": "Maandag|Dinsdag|Woensdag|Donderdag|Vrijdag|Zaterdag|Zondag",
   "brainstorming.writeIdeas": "Schrijf zoveel mogelijk ideeën!",
   "brainstorming.usePromptHint": "Gebruik de hint of AI-assistent als inspiratie",
   "knowledge.examLabel": "Examen:",

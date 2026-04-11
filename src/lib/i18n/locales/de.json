@@ -1199,7 +1199,7 @@
   "settings.languageLabel": "Sprache",
   "settings.languageSaved": "Sprache aktualisiert.",
   "calendar.weekdayNames": "Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag",
-  "stundenplan.dayNames": "Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag",
+  "stundenplan.dayNames": "Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag",
   "brainstorming.writeIdeas": "Schreibe so viele Ideen wie möglich!",
   "brainstorming.usePromptHint": "Nutze den Denkanstoß oder KI-Assistent als Inspiration",
   "knowledge.examLabel": "Prüfung:",

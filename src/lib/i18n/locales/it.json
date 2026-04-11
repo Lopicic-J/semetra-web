@@ -879,7 +879,7 @@
   "settings.languageLabel": "Lingua",
   "settings.languageSaved": "Lingua aggiornata.",
   "calendar.weekdayNames": "Lunedì|Martedì|Mercoledì|Giovedì|Venerdì|Sabato|Domenica",
-  "stundenplan.dayNames": "Lunedì|Martedì|Mercoledì|Giovedì|Venerdì|Sabato",
+  "stundenplan.dayNames": "Lunedì|Martedì|Mercoledì|Giovedì|Venerdì|Sabato|Domenica",
   "brainstorming.writeIdeas": "Scrivi il maggior numero possibile di idee!",
   "brainstorming.usePromptHint": "Usa il suggerimento o l'assistente IA come ispirazione",
   "knowledge.examLabel": "Esame:",

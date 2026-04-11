@@ -907,7 +907,7 @@
   "settings.languageLabel": "Language",
   "settings.languageSaved": "Language updated.",
   "calendar.weekdayNames": "Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday",
-  "stundenplan.dayNames": "Monday|Tuesday|Wednesday|Thursday|Friday|Saturday",
+  "stundenplan.dayNames": "Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday",
   "brainstorming.writeIdeas": "Write as many ideas as possible!",
   "brainstorming.usePromptHint": "Use the hint or AI assistant for inspiration",
   "knowledge.examLabel": "Exam:",

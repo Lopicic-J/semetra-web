@@ -10,10 +10,37 @@ import { Plus, X, Trash2, ChevronLeft, ChevronRight, Copy, GripHorizontal, Refre
 import type { StundenplanEntry } from "@/types/database";
 import SmartSchedulePanel from "@/components/dashboard/SmartSchedulePanel";
 
-const DAYS_SHORT = ["Mo","Di","Mi","Do","Fr","Sa"];
+const DAYS_SHORT = ["Mo","Di","Mi","Do","Fr","Sa","So"];
 const HOURS = Array.from({ length: 14 }, (_, i) => i + 7); // 7:00 – 20:00
 const SEMESTERS = ["Semester 1","Semester 2","Semester 3","Semester 4","Semester 5","Semester 6","Semester 7","Semester 8","Semester 9"];
 const MAX_KW = 20;
+
+/** Returns the Monday (Date) of a given ISO calendar week in a given year */
+function getMondayOfIsoWeek(week: number, year: number): Date {
+  // Jan 4 is always in ISO week 1
+  const jan4 = new Date(year, 0, 4);
+  const dayOfWeek = jan4.getDay() || 7; // 1=Mon..7=Sun
+  const mondayWeek1 = new Date(jan4);
+  mondayWeek1.setDate(jan4.getDate() - (dayOfWeek - 1));
+  const monday = new Date(mondayWeek1);
+  monday.setDate(mondayWeek1.getDate() + (week - 1) * 7);
+  return monday;
+}
+
+/** Returns an array of 7 Dates (Mo–So) for a given KW + semester start year */
+function getWeekDates(kw: number, year: number): Date[] {
+  const monday = getMondayOfIsoWeek(kw, year);
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+}
+
+/** Format a date as "DD.MM." */
+function formatDateShort(d: Date): string {
+  return `${d.getDate().toString().padStart(2, "0")}.${(d.getMonth() + 1).toString().padStart(2, "0")}.`;
+}
 
 function formatWeeks(t: ReturnType<typeof useTranslation>["t"], count: number) {
   return t("stundenplan.modal.kwWarning", { count, from: "", to: "" }).replace(/\([^)]*\)/, "").trim();
@@ -41,6 +68,10 @@ export default function StundenplanPage() {
   const { modules } = useModules();
   const { isPro } = useProfile();
   const supabase = createClient();
+
+  // Compute calendar dates for current KW
+  const currentYear = new Date().getFullYear();
+  const weekDates = useMemo(() => getWeekDates(currentKw, currentYear), [currentKw, currentYear]);
 
   const fetchEntries = useCallback(async () => {
     const { data } = await supabase.from("stundenplan").select("*");
@@ -209,7 +240,7 @@ export default function StundenplanPage() {
     monday.setDate(today.getDate() + mondayOffset);
     monday.setHours(0, 0, 0, 0);
 
-    const dayOffsetMap: Record<string, number> = { Mo: 0, Di: 1, Mi: 2, Do: 3, Fr: 4, Sa: 5 };
+    const dayOffsetMap: Record<string, number> = { Mo: 0, Di: 1, Mi: 2, Do: 3, Fr: 4, Sa: 5, So: 6 };
     const dayOffset = dayOffsetMap[day] ?? 0;
 
     const targetDate = new Date(monday);
@@ -389,21 +420,25 @@ export default function StundenplanPage() {
         </button>
 
         <div className="flex gap-1 overflow-x-auto pb-1 flex-1">
-          {Array.from({ length: MAX_KW }, (_, i) => i + 1).map(kw => (
-            <button
-              key={kw}
-              onClick={() => setCurrentKw(kw)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-medium shrink-0 transition-colors ${
-                currentKw === kw
-                  ? "bg-brand-600 text-white"
-                  : kwsWithEntries.has(kw)
-                    ? "bg-brand-100 text-brand-700 hover:bg-brand-200"
-                    : "bg-surface-50 text-surface-400 hover:bg-surface-100"
-              }`}
-            >
-              KW{kw}
-            </button>
-          ))}
+          {Array.from({ length: MAX_KW }, (_, i) => i + 1).map(kw => {
+            const kwMon = getMondayOfIsoWeek(kw, currentYear);
+            return (
+              <button
+                key={kw}
+                onClick={() => setCurrentKw(kw)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium shrink-0 transition-colors ${
+                  currentKw === kw
+                    ? "bg-brand-600 text-white"
+                    : kwsWithEntries.has(kw)
+                      ? "bg-brand-100 text-brand-700 hover:bg-brand-200"
+                      : "bg-surface-50 text-surface-400 hover:bg-surface-100"
+                }`}
+                title={`KW${kw}: ${formatDateShort(kwMon)}`}
+              >
+                KW{kw}
+              </button>
+            );
+          })}
         </div>
 
         <button
@@ -433,12 +468,19 @@ export default function StundenplanPage() {
 
       {/* Week grid */}
       <div className="card p-0 overflow-hidden overflow-x-auto">
-        <div className="min-w-[700px]">
+        <div className="min-w-[800px]">
           {/* Header */}
-          <div className="grid border-b border-surface-100" style={{ gridTemplateColumns: "48px repeat(6, 1fr)" }}>
-            <div className="py-2 text-center text-[10px] font-medium text-surface-400">KW{currentKw}</div>
-            {DAYS_SHORT.map(d => (
-              <div key={d} className="py-2.5 text-center text-sm font-semibold text-surface-600 border-l border-surface-100">{d}</div>
+          <div className="grid border-b border-surface-100" style={{ gridTemplateColumns: "48px repeat(7, 1fr)" }}>
+            <div className="py-2 text-center text-[10px] font-medium text-surface-400 leading-tight">
+              <span className="font-semibold">KW{currentKw}</span>
+              <br />
+              <span className="text-[9px] text-surface-300">{formatDateShort(weekDates[0])} – {formatDateShort(weekDates[6])}</span>
+            </div>
+            {DAYS_SHORT.map((d, i) => (
+              <div key={d} className="py-2 text-center border-l border-surface-100">
+                <div className="text-sm font-semibold text-surface-600">{d}</div>
+                <div className="text-[10px] text-surface-400">{formatDateShort(weekDates[i])}</div>
+              </div>
             ))}
           </div>
 
@@ -451,7 +493,7 @@ export default function StundenplanPage() {
               </div>
             ))}
 
-            <div className="ml-12 grid relative" style={{ gridTemplateColumns: "repeat(6, 1fr)", height: `${14 * 56}px` }}>
+            <div className="ml-12 grid relative" style={{ gridTemplateColumns: "repeat(7, 1fr)", height: `${14 * 56}px` }}>
               {DAYS.map((_, i) => (
                 <div key={i}
                   className="border-l border-surface-100 transition-colors cursor-pointer hover:bg-brand-50/30"
@@ -483,7 +525,7 @@ export default function StundenplanPage() {
                 const { top, height } = getEntryStyle(entry);
                 const mod = modules.find(m => m.id === entry.module_id);
                 const overlap = overlapLayout.get(entry.id) ?? { col: 0, totalCols: 1 };
-                const dayWidth = 1 / 6;
+                const dayWidth = 1 / 7;
                 const colWidth = dayWidth / overlap.totalCols;
                 return (
                   <div key={entry.id}
@@ -519,8 +561,8 @@ export default function StundenplanPage() {
                 <div
                   className="absolute pointer-events-none px-1"
                   style={{
-                    left: `${(dragIndicator.dayIdx / 6) * 100}%`,
-                    width: `${(1 / 6) * 100}%`,
+                    left: `${(dragIndicator.dayIdx / 7) * 100}%`,
+                    width: `${(1 / 7) * 100}%`,
                     top: `${((dragIndicator.startMin - 7 * 60) / 60) * 56}px`,
                     height: `${Math.max(((dragIndicator.endMin - dragIndicator.startMin) / 60) * 56, 28)}px`,
                     padding: "2px",
@@ -715,7 +757,7 @@ function StundenplanModal({ modules, currentKw, currentSemester, prefilledEntry,
       mondayDate.setDate(today.getDate() + mondayOffset);
       mondayDate.setHours(0, 0, 0, 0);
 
-      const dayMap: Record<string, number> = { Mo: 0, Di: 1, Mi: 2, Do: 3, Fr: 4, Sa: 5 };
+      const dayMap: Record<string, number> = { Mo: 0, Di: 1, Mi: 2, Do: 3, Fr: 4, Sa: 5, So: 6 };
 
       const scheduleRows = inserted.map(entry => {
         const offset = dayMap[entry.day] ?? 0;

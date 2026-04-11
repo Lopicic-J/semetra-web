@@ -879,7 +879,7 @@
   "settings.languageLabel": "Langue",
   "settings.languageSaved": "Langue mise à jour.",
   "calendar.weekdayNames": "Lundi|Mardi|Mercredi|Jeudi|Vendredi|Samedi|Dimanche",
-  "stundenplan.dayNames": "Lundi|Mardi|Mercredi|Jeudi|Vendredi|Samedi",
+  "stundenplan.dayNames": "Lundi|Mardi|Mercredi|Jeudi|Vendredi|Samedi|Dimanche",
   "brainstorming.writeIdeas": "Écrivez autant d'idées que possible !",
   "brainstorming.usePromptHint": "Utilisez l'indice ou l'assistant IA comme inspiration",
   "knowledge.examLabel": "Examen:",
