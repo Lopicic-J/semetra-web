@@ -1159,6 +1159,13 @@ function UserRow({
               </div>
             )}
           </div>
+
+          {/* Delete User Section */}
+          {canEdit && !isSuperAdmin && (
+            <div className="border-t border-red-100 dark:border-red-900/50 pt-3 mt-3">
+              <DeleteUserButton userId={user.id} username={user.username || user.email} onDeleted={() => setExpandedUserId(null)} />
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -1217,5 +1224,69 @@ function QuickBtn({ onClick, color, icon, label }: { onClick: () => void; color:
     <button onClick={onClick} className={`inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition ${COLOR_MAP[color] || COLOR_MAP.amber}`}>
       {icon}{label}
     </button>
+  );
+}
+
+function DeleteUserButton({ userId, username, onDeleted }: { userId: string; username: string; onDeleted: () => void }) {
+  const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Fehler beim Löschen");
+        setDeleting(false);
+        return;
+      }
+      toast.success(`Benutzer ${username} gelöscht`);
+      onDeleted();
+      // Refresh the page to update the user list
+      window.location.reload();
+    } catch {
+      toast.error("Fehler beim Löschen");
+      setDeleting(false);
+    }
+  }
+
+  if (!confirming) {
+    return (
+      <button
+        onClick={() => setConfirming(true)}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 transition"
+      >
+        <Trash2 className="w-3 h-3" />
+        Konto löschen
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-2">
+      <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+      <span className="text-xs text-red-700 dark:text-red-300 flex-1">
+        <strong>{username}</strong> wirklich löschen? Alle Daten werden unwiderruflich entfernt.
+      </span>
+      <button
+        onClick={handleDelete}
+        disabled={deleting}
+        className="px-3 py-1 bg-red-600 text-white rounded-md text-xs font-medium hover:bg-red-700 disabled:opacity-50 transition"
+      >
+        {deleting ? <Loader2 className="w-3 h-3 animate-spin" /> : "Ja, löschen"}
+      </button>
+      <button
+        onClick={() => setConfirming(false)}
+        disabled={deleting}
+        className="px-2 py-1 text-surface-500 text-xs hover:text-surface-700 dark:hover:text-surface-300 transition"
+      >
+        Abbrechen
+      </button>
+    </div>
   );
 }

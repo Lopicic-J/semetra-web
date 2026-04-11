@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Settings, User, Bell, Palette, Shield, LogOut, Zap, CreditCard, CheckCircle, Monitor, ExternalLink, Download, Loader2, FileJson, HardDrive, Database, Globe, Languages, Info } from "lucide-react";
+import { Settings, User, Bell, Palette, Shield, LogOut, Zap, CreditCard, CheckCircle, Monitor, ExternalLink, Download, Loader2, FileJson, HardDrive, Database, Globe, Languages, Info, AlertTriangle, Trash2, Mail } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const AboutPage = dynamic(() => import("@/app/(dashboard)/about/page"), { loading: () => <div className="flex items-center gap-2 text-surface-400 py-8"><Loader2 size={16} className="animate-spin" /> Laden…</div> });
@@ -205,13 +205,7 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
         </form>
       </div>
 
-      <div className="card border-red-100 dark:border-red-900">
-        <h2 className="font-semibold text-red-700 dark:text-red-400 mb-2">{t("settings.dangerZone")}</h2>
-        <p className="text-sm text-surface-500 dark:text-surface-400 mb-3">{t("settings.deleteAccountWarning")}</p>
-        <button className="px-4 py-2 rounded-xl border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950 transition-colors">
-          {t("settings.deleteAccount")}
-        </button>
-      </div>
+      <DeleteAccountSection t={t} />
     </div>
   );
 }
@@ -867,5 +861,146 @@ function LanguageCard() {
         </p>
       )}
     </div>
+  );
+}
+
+/* ─── Delete Account Section ─── */
+function DeleteAccountSection({ t }: { t: (key: string) => string }) {
+  const { userRole } = useProfile();
+  const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
+  const [confirmation, setConfirmation] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState("");
+
+  const isStudent = userRole === "student";
+
+  async function handleDelete() {
+    if (confirmation !== "KONTO LÖSCHEN") {
+      setError("Bitte gib exakt 'KONTO LÖSCHEN' ein.");
+      return;
+    }
+    setDeleting(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/account/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirmation: "KONTO LÖSCHEN" }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Fehler bei der Kontolöschung");
+        setDeleting(false);
+        return;
+      }
+      // Account deleted — redirect to login
+      router.push("/login?deleted=true");
+    } catch {
+      setError("Fehler bei der Kontolöschung. Bitte versuche es erneut.");
+      setDeleting(false);
+    }
+  }
+
+  return (
+    <>
+      <div className="card border-red-100 dark:border-red-900">
+        <h2 className="font-semibold text-red-700 dark:text-red-400 mb-2">{t("settings.dangerZone")}</h2>
+        <p className="text-sm text-surface-500 dark:text-surface-400 mb-3">{t("settings.deleteAccountWarning")}</p>
+
+        {isStudent ? (
+          /* Students cannot delete directly — must contact support */
+          <div className="space-y-3">
+            <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl">
+              <AlertTriangle size={16} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <p className="text-sm text-amber-800 dark:text-amber-300">
+                Als Student kannst du dein Konto nicht selbst löschen. Bitte kontaktiere den Support oder deine Institution.
+              </p>
+            </div>
+            <a
+              href="mailto:support@semetra.ch?subject=Kontolöschung%20beantragen&body=Ich%20möchte%20mein%20Semetra-Konto%20löschen.%0A%0ABenutzername%3A%20%0AE-Mail%3A%20"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
+            >
+              <Mail size={14} />
+              Löschung bei Support beantragen
+            </a>
+          </div>
+        ) : (
+          /* Non-students can delete directly */
+          <button
+            onClick={() => setShowModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
+          >
+            <Trash2 size={14} />
+            {t("settings.deleteAccount")}
+          </button>
+        )}
+      </div>
+
+      {/* Confirmation Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-surface-800 rounded-2xl border border-surface-200 dark:border-surface-700 shadow-2xl max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <AlertTriangle size={20} className="text-red-600 dark:text-red-400" />
+              </div>
+              <div>
+                <h3 className="font-bold text-surface-900 dark:text-surface-50">Konto endgültig löschen?</h3>
+                <p className="text-xs text-surface-500 dark:text-surface-400">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+              </div>
+            </div>
+
+            <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl p-3 mb-4">
+              <p className="text-sm text-red-800 dark:text-red-300">
+                Alle deine Daten werden unwiderruflich gelöscht: Module, Notizen, Lernfortschritt, Nachrichten, Freundschaften und alle weiteren Inhalte.
+              </p>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">
+                Gib <strong className="text-red-600 dark:text-red-400">KONTO LÖSCHEN</strong> ein zur Bestätigung
+              </label>
+              <input
+                type="text"
+                value={confirmation}
+                onChange={e => setConfirmation(e.target.value)}
+                placeholder="KONTO LÖSCHEN"
+                className="w-full px-3 py-2.5 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-surface-50 placeholder:text-surface-300 dark:placeholder:text-surface-600 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-700"
+                autoFocus
+              />
+            </div>
+
+            {error && (
+              <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2 mb-4">
+                {error}
+              </p>
+            )}
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setShowModal(false); setConfirmation(""); setError(""); }}
+                disabled={deleting}
+                className="flex-1 px-4 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 text-sm font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors disabled:opacity-50"
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting || confirmation !== "KONTO LÖSCHEN"}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              >
+                {deleting ? (
+                  <><Loader2 size={14} className="animate-spin" /> Lösche...</>
+                ) : (
+                  <><Trash2 size={14} /> Endgültig löschen</>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

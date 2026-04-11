@@ -124,6 +124,132 @@ export async function GET(request: NextRequest) {
   }
 }
 
+/**
+ * DELETE /api/admin/users
+ *
+ * Platform admin: can delete any user (except themselves and super admin).
+ * Institution admin: can only delete students in their institution.
+ *
+ * Body: { user_id: string }
+ */
+export async function DELETE(request: Request) {
+  try {
+    const rc = await requireRole(["admin", "institution"]);
+    if (isErrorResponse(rc)) return rc;
+
+    const db = rc.adminClient ?? createServiceClient();
+    const { user } = rc;
+    const isPlatformAdmin = rc.userRole === "admin";
+
+    const body = await parseBody<{ user_id: string }>(request);
+    if (isErrorResponse(body)) return body;
+
+    const { user_id } = body;
+    if (!user_id) return errorResponse("user_id is required", 400);
+
+    // Cannot delete yourself
+    if (user_id === user.id) {
+      return errorResponse("Du kannst dein eigenes Konto nicht über den Admin-Bereich löschen", 400);
+    }
+
+    // Fetch target user
+    const { data: targetUser } = await db
+      .from("profiles")
+      .select("email, institution_id, user_role")
+      .eq("id", user_id)
+      .single();
+
+    if (!targetUser) return errorResponse("User nicht gefunden", 404);
+
+    // Cannot delete super admin
+    if (targetUser.email === SUPER_ADMIN_EMAIL) {
+      return errorResponse("Dieser Account kann nicht gelöscht werden", 403);
+    }
+
+    // Institution admin restrictions
+    if (!isPlatformAdmin) {
+      // Can only delete students
+      if (targetUser.user_role !== "student") {
+        return errorResponse("Institutions-Admins können nur Studenten löschen", 403);
+      }
+
+      // Must be in their institution
+      const { data: assignments } = await db
+        .from("institution_admins")
+        .select("institution_id")
+        .eq("user_id", user.id);
+      const managedIds = new Set(
+        (assignments || []).map((a: { institution_id: string }) => a.institution_id)
+      );
+
+      if (!targetUser.institution_id || !managedIds.has(targetUser.institution_id)) {
+        return errorResponse("Keine Berechtigung für diesen Benutzer", 403);
+      }
+    }
+
+    // Delete all user data (same cleanup as delete_own_account but admin-initiated)
+    const tables = [
+      { table: "direct_messages", conditions: [{ col: "sender_id", val: user_id }, { col: "receiver_id", val: user_id }] },
+      { table: "friendships", conditions: [{ col: "requester_id", val: user_id }, { col: "addressee_id", val: user_id }] },
+      { table: "group_messages", conditions: [{ col: "user_id", val: user_id }] },
+      { table: "group_shares", conditions: [{ col: "shared_by", val: user_id }] },
+      { table: "study_group_members", conditions: [{ col: "user_id", val: user_id }] },
+      { table: "study_groups", conditions: [{ col: "owner_id", val: user_id }] },
+      { table: "ai_usage", conditions: [{ col: "user_id", val: user_id }] },
+      { table: "modules", conditions: [{ col: "user_id", val: user_id }] },
+      { table: "events", conditions: [{ col: "user_id", val: user_id }] },
+      { table: "tasks", conditions: [{ col: "user_id", val: user_id }] },
+      { table: "notes", conditions: [{ col: "user_id", val: user_id }] },
+      { table: "flashcards", conditions: [{ col: "user_id", val: user_id }] },
+      { table: "documents", conditions: [{ col: "user_id", val: user_id }] },
+      { table: "timer_sessions", conditions: [{ col: "user_id", val: user_id }] },
+      { table: "streaks", conditions: [{ col: "user_id", val: user_id }] },
+      { table: "student_programs", conditions: [{ col: "user_id", val: user_id }] },
+      { table: "xp_log", conditions: [{ col: "user_id", val: user_id }] },
+      { table: "achievements", conditions: [{ col: "user_id", val: user_id }] },
+    ];
+
+    for (const { table, conditions } of tables) {
+      for (const { col, val } of conditions) {
+        try {
+          await db.from(table).delete().eq(col, val);
+        } catch {
+          // Some tables may not exist — skip silently
+        }
+      }
+    }
+
+    // Delete profile
+    await db.from("profiles").delete().eq("id", user_id);
+
+    // Delete auth user (requires service_role)
+    const { error: authErr } = await db.auth.admin.deleteUser(user_id);
+    if (authErr) {
+      log.error("Failed to delete auth user", { error: authErr, user_id });
+      return errorResponse("Profil gelöscht, aber Auth-User konnte nicht entfernt werden: " + authErr.message, 500);
+    }
+
+    // Log the action
+    try {
+      await db.from("builder_audit_log").insert({
+        user_id: user.id,
+        action: "delete",
+        entity_type: "user",
+        entity_id: user_id,
+        entity_name: targetUser.email,
+        changes: { deletedBy: rc.userRole, targetRole: targetUser.user_role },
+      });
+    } catch (logErr) {
+      log.warn("Failed to log deletion", logErr);
+    }
+
+    return successResponse({ success: true, message: "Benutzer gelöscht" });
+  } catch (err: unknown) {
+    log.error("DELETE /api/admin/users failed", { error: err });
+    return errorResponse(err instanceof Error ? err.message : "Interner Fehler", 500);
+  }
+}
+
 interface UpdateUserBody {
   user_id: string;
   user_role?: UserRole;
