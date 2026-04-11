@@ -421,7 +421,9 @@ export default function ProfilePage() {
             </div>
             <p className="text-[10px] text-surface-400 dark:text-surface-500 mt-3 flex items-center gap-1">
               <Shield size={10} />
-              Diese Felder können nicht geändert werden. Bei Problemen kontaktiere kontakt@semetra.ch.
+              Deine Hochschule wird anhand deiner Email erkannt. Um den Studiengang zu ändern, wende dich an{" "}
+              <a href="mailto:support@semetra.ch" className="text-brand-500 hover:text-brand-600 underline">support@semetra.ch</a>{" "}
+              oder deine Hochschule.
             </p>
           </div>
         ) : (

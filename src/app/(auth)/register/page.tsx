@@ -68,10 +68,10 @@ export default function RegisterPage() {
     }
   }, [detectedInstCode, institutions, selectedRole]);
 
-  // Load institutions when country changes
+  // Load ALL institutions (no country filter) so email-domain detection works cross-country
   const loadInstitutions = useCallback(async () => {
     try {
-      const res = await fetch(`/api/academic/institutions?country=${country}`);
+      const res = await fetch(`/api/academic/institutions`);
       const data = await res.json();
       setInstitutions(data.institutions || []);
       setSelectedInstId("");
@@ -82,7 +82,7 @@ export default function RegisterPage() {
     } catch {
       setInstitutions([]);
     }
-  }, [country]);
+  }, []);
 
   useEffect(() => { loadInstitutions(); }, [loadInstitutions]);
 
@@ -178,22 +178,17 @@ export default function RegisterPage() {
         profileData.verification_submitted_at = new Date().toISOString();
       }
 
-      if (effectiveRole === "student") {
-        if (useStructured && selectedInstId) {
-          profileData.institution_id = selectedInstId;
-          if (selectedProgId) {
-            profileData.active_program_id = selectedProgId;
-            // Trigger module auto-import on first login
-            profileData.institution_modules_loaded = false;
-          }
-          const inst = institutions.find(i => i.id === selectedInstId);
-          const prog = programs.find(p => p.id === selectedProgId);
-          if (inst) profileData.university = inst.name;
-          if (prog) profileData.study_program = prog.name;
-        } else if (!institutionLocked) {
-          if (university.trim()) profileData.university = university.trim();
-          if (studyProgram.trim()) profileData.study_program = studyProgram.trim();
+      if (effectiveRole === "student" && institutionLocked && selectedInstId) {
+        profileData.institution_id = selectedInstId;
+        if (selectedProgId) {
+          profileData.active_program_id = selectedProgId;
+          // Trigger module auto-import on first login
+          profileData.institution_modules_loaded = false;
         }
+        const inst = institutions.find(i => i.id === selectedInstId);
+        const prog = programs.find(p => p.id === selectedProgId);
+        if (inst) profileData.university = inst.name;
+        if (prog) profileData.study_program = prog.name;
       }
 
       await supabase.from("profiles").update(profileData).eq("id", data.user.id);
@@ -510,21 +505,17 @@ export default function RegisterPage() {
               </div>
 
               {/* University / Program — only for students */}
-              {selectedRole === "student" && useStructured && institutions.length > 0 ? (
+              {selectedRole === "student" && institutionLocked ? (
                 <>
+                  {/* Institution: auto-assigned, locked */}
                   <div>
                     <label className="block text-sm font-medium text-surface-700 mb-1.5">Hochschule</label>
                     <div className="relative">
-                      <Building2 size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 ${institutionLocked ? "text-green-500" : "text-surface-400"}`} />
+                      <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-green-500" />
                       <select
                         value={selectedInstId}
-                        onChange={e => { if (!institutionLocked) { setSelectedInstId(e.target.value); setSelectedProgId(""); } }}
-                        disabled={institutionLocked}
-                        className={`w-full border rounded-xl pl-10 pr-3 py-2.5 text-sm focus:outline-none transition appearance-none ${
-                          institutionLocked
-                            ? "bg-green-50 border-green-300 text-surface-900 cursor-not-allowed"
-                            : "bg-surface-50 border-surface-200 text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
-                        }`}
+                        disabled
+                        className="w-full border rounded-xl pl-10 pr-3 py-2.5 text-sm focus:outline-none transition appearance-none bg-green-50 border-green-300 text-surface-900 cursor-not-allowed"
                       >
                         <option value="">-- Hochschule wählen --</option>
                         {institutions.map(inst => (
@@ -532,13 +523,13 @@ export default function RegisterPage() {
                         ))}
                       </select>
                     </div>
-                    {institutionLocked && (
-                      <p className="text-[10px] text-green-600 mt-1 flex items-center gap-1">
-                        <CheckCircle2 size={10} />
-                        Automatisch zugewiesen anhand deiner Hochschul-Email ({detectedUniversity})
-                      </p>
-                    )}
+                    <p className="text-[10px] text-green-600 mt-1 flex items-center gap-1">
+                      <CheckCircle2 size={10} />
+                      Automatisch zugewiesen anhand deiner Hochschul-Email ({detectedUniversity})
+                    </p>
                   </div>
+
+                  {/* Program: student must select */}
                   {selectedInstId && (
                     <div>
                       <label className="block text-sm font-medium text-surface-700 mb-1.5">Studiengang</label>
@@ -555,54 +546,33 @@ export default function RegisterPage() {
                           ))}
                         </select>
                       </div>
+                      <p className="text-[10px] text-amber-600 mt-1 flex items-center gap-1">
+                        <Info size={10} />
+                        Wähle sorgfältig — der Studiengang kann nachträglich nur durch den Support oder deine Hochschule geändert werden.
+                      </p>
                     </div>
-                  )}
-                  {/* Only show Freitext option when institution is NOT locked by email */}
-                  {!institutionLocked && (
-                    <button type="button" onClick={() => setUseStructured(false)}
-                      className="text-[10px] text-brand-500 hover:text-brand-600 text-left">
-                      Meine Hochschule ist nicht in der Liste? Freitext eingeben
-                    </button>
                   )}
                 </>
               ) : selectedRole === "student" && !institutionLocked ? (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-surface-700 mb-1.5">Universität / Fachhochschule</label>
-                    <div className="relative">
-                      <GraduationCap size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
-                      <input
-                        className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
-                        type="text"
-                        placeholder="z. B. ETH Zürich, ZHAW, FHNW..."
-                        value={university}
-                        onChange={e => setUniversity(e.target.value)}
-                        autoComplete="organization"
-                      />
+                /* No university email detected — show hint */
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                  <div className="flex items-start gap-2.5">
+                    <Building2 size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-amber-800 mb-1">Hochschul-Email erforderlich</p>
+                      <p className="text-xs text-amber-700 leading-relaxed">
+                        Gib oben deine Hochschul-Email ein (z.B. @zhaw.ch, @ethz.ch, @fhnw.ch), damit deine Hochschule automatisch erkannt wird.
+                        Deine Institution und dein Studiengang werden anhand deiner Email-Adresse zugewiesen.
+                      </p>
+                      {email.includes("@") && !isUniEmail && (
+                        <p className="text-xs text-amber-800 font-medium mt-2">
+                          Die Domain &quot;{email.split("@")[1]}&quot; ist nicht als Hochschul-Email hinterlegt.
+                          Falls deine Hochschule fehlt, kontaktiere <a href="mailto:support@semetra.ch" className="underline">support@semetra.ch</a>.
+                        </p>
+                      )}
                     </div>
-                    <p className="text-[10px] text-surface-400 mt-1">Optional. Kann später im Profil geändert werden.</p>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-surface-700 mb-1.5">Studienrichtung</label>
-                    <div className="relative">
-                      <BookOpen size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
-                      <input
-                        className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
-                        type="text"
-                        placeholder="z. B. Informatik, BWL, Medizin..."
-                        value={studyProgram}
-                        onChange={e => setStudyProgram(e.target.value)}
-                      />
-                    </div>
-                    <p className="text-[10px] text-surface-400 mt-1">Optional. Kann später im Profil geändert werden.</p>
-                  </div>
-                  {institutions.length > 0 && (
-                    <button type="button" onClick={() => setUseStructured(true)}
-                      className="text-[10px] text-brand-500 hover:text-brand-600 text-left">
-                      Aus der Hochschul-Datenbank wählen
-                    </button>
-                  )}
-                </>
+                </div>
               ) : null}
 
               {/* Country / Grading system */}

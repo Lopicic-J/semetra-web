@@ -257,6 +257,8 @@ interface UpdateUserBody {
   plan_type?: "free" | "subscription" | "lifetime" | null;
   plan_tier?: "basic" | "full" | null;
   plan_expires_at?: string | null;
+  active_program_id?: string | null;
+  study_program?: string | null;
 }
 
 /**
@@ -281,7 +283,7 @@ export async function PATCH(request: Request) {
     const body = await parseBody<UpdateUserBody>(request);
     if (isErrorResponse(body)) return body;
 
-    const { user_id, user_role, plan, plan_type, plan_tier, plan_expires_at } = body;
+    const { user_id, user_role, plan, plan_type, plan_tier, plan_expires_at, active_program_id, study_program } = body;
 
     if (!user_id) {
       return errorResponse("user_id is required", 400);
@@ -384,6 +386,17 @@ export async function PATCH(request: Request) {
     if (plan_expires_at !== undefined) {
       updates.plan_expires_at = plan_expires_at;
       changes.plan_expires_at = plan_expires_at;
+    }
+
+    // Study program update (admin + institution admin can change student's program)
+    if (active_program_id !== undefined) {
+      updates.active_program_id = active_program_id;
+      updates.institution_modules_loaded = false; // Trigger module re-import
+      changes.active_program_id = active_program_id;
+    }
+    if (study_program !== undefined) {
+      updates.study_program = study_program;
+      changes.study_program = study_program;
     }
 
     if (Object.keys(updates).length === 0) {
