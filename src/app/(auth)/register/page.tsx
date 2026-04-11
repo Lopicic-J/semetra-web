@@ -140,9 +140,12 @@ export default function RegisterPage() {
       return;
     }
 
+    // If university email is detected, force student role regardless of selection
+    const effectiveRole: UserRole = isUniversityEmail(email) ? "student" : selectedRole;
+
     // Determine verification status based on email domain
-    const autoVerified = selectedRole === "student" && isUniversityEmail(email);
-    const verificationStatus = selectedRole === "non_student"
+    const autoVerified = effectiveRole === "student" && isUniversityEmail(email);
+    const verificationStatus = effectiveRole === "non_student"
       ? "none"
       : autoVerified
         ? "verified"
@@ -162,7 +165,7 @@ export default function RegisterPage() {
       const profileData: Record<string, unknown> = {
         country,
         username,
-        user_role: selectedRole,
+        user_role: effectiveRole,
         verification_status: verificationStatus,
       };
 
@@ -171,16 +174,19 @@ export default function RegisterPage() {
         profileData.verified_email_domain = email.split("@")[1]?.toLowerCase();
         profileData.verification_submitted_at = new Date().toISOString();
         profileData.verification_reviewed_at = new Date().toISOString();
-      } else if (selectedRole === "student") {
+      } else if (effectiveRole === "student") {
         profileData.verification_submitted_at = new Date().toISOString();
       }
 
-      if (selectedRole === "student") {
+      if (effectiveRole === "student") {
         if (useStructured && selectedInstId) {
-          const effectiveInstId = institutionLocked ? selectedInstId : selectedInstId;
-          profileData.institution_id = effectiveInstId;
-          if (selectedProgId) profileData.active_program_id = selectedProgId;
-          const inst = institutions.find(i => i.id === effectiveInstId);
+          profileData.institution_id = selectedInstId;
+          if (selectedProgId) {
+            profileData.active_program_id = selectedProgId;
+            // Trigger module auto-import on first login
+            profileData.institution_modules_loaded = false;
+          }
+          const inst = institutions.find(i => i.id === selectedInstId);
           const prog = programs.find(p => p.id === selectedProgId);
           if (inst) profileData.university = inst.name;
           if (prog) profileData.study_program = prog.name;
@@ -258,9 +264,9 @@ export default function RegisterPage() {
               Wir haben eine E-Mail an <strong className="text-surface-700">{email}</strong> gesendet.
               Klicke auf den Link in der E-Mail, um dein Konto zu aktivieren.
             </p>
-            {selectedRole === "student" && isUniEmail && (
+            {isUniEmail && (
               <p className="text-green-600 text-sm mb-4">
-                Deine Hochschul-Email wurde erkannt ({detectedUniversity}) — dein Account wird automatisch verifiziert.
+                Deine Hochschul-Email wurde erkannt ({detectedUniversity}) — dein Account wird automatisch als Student verifiziert.
               </p>
             )}
             {selectedRole === "student" && !isUniEmail && (

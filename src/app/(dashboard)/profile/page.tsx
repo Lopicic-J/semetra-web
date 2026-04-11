@@ -25,6 +25,7 @@ import {
   Loader2,
   Camera,
   GraduationCap,
+  BookOpen,
   AtSign,
   Shield,
   Building2,
@@ -393,9 +394,39 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Study Info — uses the same structured StudyProgramCard as Settings */}
+      {/* Study Info — read-only for students, editable for others */}
       <div className="mb-4">
-        <StudyProgramCard country={profile?.country || "CH"} onEnrolled={refetch} />
+        {userRole === "student" ? (
+          <div className="bg-surface-100 dark:bg-surface-800 dark:border-surface-700 rounded-2xl border border-surface-200 p-3 sm:p-5">
+            <div className="flex items-center gap-2 mb-1">
+              <GraduationCap size={18} className="text-brand-600 dark:text-brand-400" />
+              <h2 className="font-semibold text-surface-900 dark:text-surface-100">
+                {t("settings.studyTitle") || "Mein Studium"}
+              </h2>
+            </div>
+            <p className="text-xs text-surface-400 dark:text-surface-500 mb-4">
+              Deine Hochschule und dein Studiengang werden durch deine Registrierung festgelegt.
+            </p>
+            <div className="space-y-3">
+              <DetailRow
+                icon={<Building2 size={14} />}
+                label={t("settings.studyInstitution") || "Hochschule"}
+                value={profile?.university || "—"}
+              />
+              <DetailRow
+                icon={<BookOpen size={14} />}
+                label={t("settings.studyProgram") || "Studiengang"}
+                value={profile?.study_program || "—"}
+              />
+            </div>
+            <p className="text-[10px] text-surface-400 dark:text-surface-500 mt-3 flex items-center gap-1">
+              <Shield size={10} />
+              Diese Felder können nicht geändert werden. Bei Problemen kontaktiere kontakt@semetra.ch.
+            </p>
+          </div>
+        ) : (
+          <StudyProgramCard country={profile?.country || "CH"} onEnrolled={refetch} />
+        )}
       </div>
 
       {/* Account Details */}
