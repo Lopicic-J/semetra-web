@@ -41,31 +41,31 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+    <div className="p-3 sm:p-6 max-w-4xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-surface-900">{t("settings.title")}</h1>
-        <p className="text-surface-500 text-sm mt-0.5">{t("settings.subtitle")}</p>
+        <h1 className="text-2xl font-bold text-surface-900 dark:text-white">{t("settings.title")}</h1>
+        <p className="text-surface-500 dark:text-surface-400 text-sm mt-0.5">{t("settings.subtitle")}</p>
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
         {/* Sidebar */}
-        <nav className="w-48 shrink-0 space-y-1">
+        <nav className="lg:w-48 lg:shrink-0 space-y-1 order-2 lg:order-1 flex flex-col lg:flex-col">
           {tabs.map(t => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
-              className={`flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === t.id ? "bg-brand-600 text-white" : "text-surface-600 hover:bg-surface-100"}`}>
+              className={`flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === t.id ? "bg-brand-600 text-white" : "text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800"}`}>
               <t.icon size={16} />
               {t.label}
             </button>
           ))}
           <button onClick={handleLogout}
-            className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-surface-500 hover:bg-red-50 hover:text-red-600 transition-colors mt-4">
+            className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-surface-500 dark:text-surface-400 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-600 dark:hover:text-red-400 transition-colors mt-4">
             <LogOut size={16} />
             {t("sidebar.logout")}
           </button>
         </nav>
 
         {/* Content */}
-        <div className="flex-1">
+        <div className="flex-1 order-1 lg:order-2">
           {activeTab === "account"       && <AccountTab user={user} profile={profile} refetch={refetch} />}
           {activeTab === "plan"          && <PlanTab isPro={isPro} isLifetime={isLifetime} profile={profile} />}
           {activeTab === "appearance"    && <AppearanceTab />}
@@ -125,15 +125,15 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
   return (
     <div className="space-y-5">
       <div className="card">
-        <h2 className="font-semibold text-surface-900 mb-4">{t("settings.accountInfo")}</h2>
+        <h2 className="font-semibold text-surface-900 dark:text-white mb-4">{t("settings.accountInfo")}</h2>
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-medium text-surface-500 uppercase tracking-wider mb-1">E-Mail</label>
-            <p className="text-sm text-surface-800 bg-surface-50 px-3 py-2.5 rounded-xl">{user?.email ?? "—"}</p>
+            <label className="block text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wider mb-1">E-Mail</label>
+            <p className="text-sm text-surface-800 dark:text-surface-200 bg-surface-50 dark:bg-surface-700 px-3 py-2.5 rounded-xl">{user?.email ?? "—"}</p>
           </div>
           <div>
-            <label className="block text-xs font-medium text-surface-500 uppercase tracking-wider mb-1">{t("settings.accountCreated")}</label>
-            <p className="text-sm text-surface-800 bg-surface-50 px-3 py-2.5 rounded-xl">
+            <label className="block text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wider mb-1">{t("settings.accountCreated")}</label>
+            <p className="text-sm text-surface-800 dark:text-surface-200 bg-surface-50 dark:bg-surface-700 px-3 py-2.5 rounded-xl">
               {user?.created_at ? new Date(user.created_at).toLocaleDateString(locale === "de" ? "de-CH" : "en-US", { day: "2-digit", month: "long", year: "numeric" }) : "—"}
             </p>
           </div>
@@ -142,11 +142,11 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
 
       {/* Country / Grading System */}
       <div className="card">
-        <h2 className="font-semibold text-surface-900 mb-1">{t("settings.countryTitle")}</h2>
-        <p className="text-xs text-surface-400 mb-4">{t("settings.countryDesc")}</p>
-        <div className="flex items-end gap-3">
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-surface-700 mb-1">{t("settings.countryLabel")}</label>
+        <h2 className="font-semibold text-surface-900 dark:text-white mb-1">{t("settings.countryTitle")}</h2>
+        <p className="text-xs text-surface-400 dark:text-surface-500 mb-4">{t("settings.countryDesc")}</p>
+        <div className="flex flex-col sm:flex-row items-end gap-2 sm:gap-3">
+          <div className="flex-1 w-full sm:w-auto">
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("settings.countryLabel")}</label>
             <select
               value={selectedCountry}
               onChange={e => setSelectedCountry(e.target.value)}
@@ -166,12 +166,12 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
           </button>
         </div>
         {/* Preview of selected system */}
-        <div className="mt-3 bg-surface-50 rounded-xl p-3 text-xs text-surface-500 space-y-1">
-          <p>{t("settings.scaleLabel")}: <strong className="text-surface-700">{currentSystem.scaleLabel}</strong></p>
-          <p>{t("settings.passingLabel")}: <strong className="text-surface-700">{currentSystem.passingGrade}</strong> · {t("settings.creditsLabel")}: <strong className="text-surface-700">{currentSystem.creditLabel}</strong></p>
+        <div className="mt-3 bg-surface-50 dark:bg-surface-700 rounded-xl p-3 text-xs text-surface-500 dark:text-surface-400 space-y-1">
+          <p>{t("settings.scaleLabel")}: <strong className="text-surface-700 dark:text-surface-200">{currentSystem.scaleLabel}</strong></p>
+          <p>{t("settings.passingLabel")}: <strong className="text-surface-700 dark:text-surface-200">{currentSystem.passingGrade}</strong> · {t("settings.creditsLabel")}: <strong className="text-surface-700 dark:text-surface-200">{currentSystem.creditLabel}</strong></p>
         </div>
         {countryMsg && (
-          <p className={`text-sm px-3 py-2 rounded-lg mt-3 ${countryMsg.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>
+          <p className={`text-sm px-3 py-2 rounded-lg mt-3 ${countryMsg.type === "success" ? "bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-200" : "bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-200"}`}>
             {countryMsg.text}
           </p>
         )}
@@ -184,18 +184,18 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
       <LanguageCard />
 
       <div className="card">
-        <h2 className="font-semibold text-surface-900 mb-4">{t("settings.passwordTitle")}</h2>
+        <h2 className="font-semibold text-surface-900 dark:text-white mb-4">{t("settings.passwordTitle")}</h2>
         <form onSubmit={handlePasswordChange} className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">{t("settings.newPassword")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("settings.newPassword")}</label>
             <input className="input" type="password" minLength={8} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder={t("settings.minChars")} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">{t("settings.confirmPassword")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("settings.confirmPassword")}</label>
             <input className="input" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder={t("settings.confirmPlaceholder")} />
           </div>
           {msg && (
-            <p className={`text-sm px-3 py-2 rounded-lg ${msg.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>
+            <p className={`text-sm px-3 py-2 rounded-lg ${msg.type === "success" ? "bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-200" : "bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-200"}`}>
               {msg.text}
             </p>
           )}
@@ -205,10 +205,10 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
         </form>
       </div>
 
-      <div className="card border-red-100">
-        <h2 className="font-semibold text-red-700 mb-2">{t("settings.dangerZone")}</h2>
-        <p className="text-sm text-surface-500 mb-3">{t("settings.deleteAccountWarning")}</p>
-        <button className="px-4 py-2 rounded-xl border border-red-200 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors">
+      <div className="card border-red-100 dark:border-red-900">
+        <h2 className="font-semibold text-red-700 dark:text-red-400 mb-2">{t("settings.dangerZone")}</h2>
+        <p className="text-sm text-surface-500 dark:text-surface-400 mb-3">{t("settings.deleteAccountWarning")}</p>
+        <button className="px-4 py-2 rounded-xl border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950 transition-colors">
           {t("settings.deleteAccount")}
         </button>
       </div>
@@ -264,20 +264,20 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
   return (
     <div className="space-y-5">
       {/* Plan card */}
-      <div className={`card border-2 ${isPro ? "border-brand-500" : "border-surface-200"}`}>
-        <div className="flex items-start justify-between mb-4">
+      <div className={`card border-2 ${isPro ? "border-brand-500 dark:border-brand-600" : "border-surface-200 dark:border-surface-700"}`}>
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-0 mb-4">
           <div>
-            <h2 className="font-semibold text-surface-900">
+            <h2 className="font-semibold text-surface-900 dark:text-white">
               {isLifetime ? t("settings.proLifetime") : isPro ? t("settings.proSubscription") : t("settings.yourPlan")}
             </h2>
-            <p className="text-xs text-surface-400 mt-0.5">
+            <p className="text-xs text-surface-400 dark:text-surface-500 mt-0.5">
               {isLifetime ? t("settings.lifetimeDesc") : isPro ? t("settings.monthlyDesc") : t("settings.freeDesc")}
             </p>
           </div>
-          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-            isLifetime ? "bg-surface-800 text-white" :
-            isPro ? "bg-brand-100 text-brand-700" :
-            "bg-surface-100 text-surface-500"
+          <span className={`px-3 py-1 rounded-full text-xs font-bold shrink-0 ${
+            isLifetime ? "bg-surface-800 dark:bg-surface-700 text-white" :
+            isPro ? "bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-200" :
+            "bg-surface-100 dark:bg-surface-700 text-surface-500 dark:text-surface-400"
           }`}>
             {isLifetime ? "LIFETIME" : isPro ? "PRO" : "FREE"}
           </span>
@@ -285,36 +285,36 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
 
         {isLifetime ? (
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-surface-600">
-              <CheckCircle size={15} className="text-green-500" />
+            <div className="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-400">
+              <CheckCircle size={15} className="text-green-500 dark:text-green-400" />
               {t("settings.lifetimeActive")}
             </div>
-            <div className="bg-surface-50 rounded-xl p-4">
-              <p className="text-sm text-surface-600">
+            <div className="bg-surface-50 dark:bg-surface-700 rounded-xl p-4">
+              <p className="text-sm text-surface-600 dark:text-surface-300">
                 {t("settings.proInfo")}
               </p>
             </div>
           </div>
         ) : isPro ? (
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-surface-600">
-              <CheckCircle size={15} className="text-green-500" />
+            <div className="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-400">
+              <CheckCircle size={15} className="text-green-500 dark:text-green-400" />
               {t("settings.subscriptionActive")} · {profile?.stripe_subscription_status === "trialing" ? t("settings.trialPhase") : t("settings.paid")}
             </div>
 
             {/* Subscription duration card */}
             {expiresAt && (
               <div className={`rounded-xl p-4 ${
-                aboExpired ? "bg-red-50 border border-red-200" :
-                isCanceling ? "bg-amber-50 border border-amber-200" :
-                "bg-brand-50 border border-brand-100"
+                aboExpired ? "bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-800" :
+                isCanceling ? "bg-amber-50 dark:bg-amber-900 border border-amber-200 dark:border-amber-800" :
+                "bg-brand-50 dark:bg-brand-900 border border-brand-100 dark:border-brand-800"
               }`}>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-surface-500 uppercase tracking-wider">Laufzeit</span>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-2">
+                  <span className="text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wider">Laufzeit</span>
                   <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                    aboExpired ? "bg-red-100 text-red-700" :
-                    isCanceling ? "bg-amber-100 text-amber-700" :
-                    "bg-brand-100 text-brand-700"
+                    aboExpired ? "bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-200" :
+                    isCanceling ? "bg-amber-100 dark:bg-amber-800 text-amber-700 dark:text-amber-200" :
+                    "bg-brand-100 dark:bg-brand-800 text-brand-700 dark:text-brand-200"
                   }`}>
                     {aboExpired ? t("settings.expired") : `${t("settings.remaining")} ${remainingLabel}`}
                   </span>
@@ -322,25 +322,25 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
 
                 {/* Progress bar */}
                 {!aboExpired && (
-                  <div className="h-2 bg-white/60 rounded-full overflow-hidden mb-2">
+                  <div className="h-2 bg-white/60 dark:bg-surface-600 rounded-full overflow-hidden mb-2">
                     <div
                       className={`h-full rounded-full transition-all ${
-                        isCanceling ? "bg-amber-400" : "bg-brand-500"
+                        isCanceling ? "bg-amber-400 dark:bg-amber-500" : "bg-brand-500 dark:bg-brand-600"
                       }`}
                       style={{ width: `${Math.max(5, 100 - Math.min(100, (remainingDays / 365) * 100))}%` }}
                     />
                   </div>
                 )}
 
-                <div className="flex items-center justify-between text-xs">
-                  <span className={aboExpired ? "text-red-600" : "text-surface-500"}>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 text-xs">
+                  <span className={aboExpired ? "text-red-600 dark:text-red-300" : "text-surface-500 dark:text-surface-400"}>
                     {aboExpired
                       ? `${t("settings.expiredOn")} ${expiresAt.toLocaleDateString(locale === "de" ? "de-CH" : "en-US", { day: "2-digit", month: "long", year: "numeric" })}`
                       : `${t("settings.validUntil")} ${expiresAt.toLocaleDateString(locale === "de" ? "de-CH" : "en-US", { day: "2-digit", month: "long", year: "numeric" })}`
                     }
                   </span>
                   {!aboExpired && (
-                    <span className="text-surface-400">{remainingDays} Tage</span>
+                    <span className="text-surface-400 dark:text-surface-500">{remainingDays} Tage</span>
                   )}
                 </div>
               </div>
@@ -357,7 +357,7 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
           </div>
         ) : (
           <div>
-            <p className="text-sm text-surface-500 mb-3">
+            <p className="text-sm text-surface-500 dark:text-surface-400 mb-3">
               {t("settings.freeUsing")}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -372,15 +372,15 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
 
       {/* Desktop ↔ Web Sync */}
       <div className="card">
-        <h2 className="font-semibold text-surface-900 mb-3">{t("settings.desktopWebSync")}</h2>
-        <p className="text-sm text-surface-600 mb-2">
+        <h2 className="font-semibold text-surface-900 dark:text-white mb-3">{t("settings.desktopWebSync")}</h2>
+        <p className="text-sm text-surface-600 dark:text-surface-400 mb-2">
           {t("settings.syncInfo")}
         </p>
-        <div className="bg-surface-50 rounded-xl p-3 text-xs text-surface-500 font-mono">
+        <div className="bg-surface-50 dark:bg-surface-700 rounded-xl p-3 text-xs text-surface-500 dark:text-surface-400 font-mono break-all">
           Supabase URL: {process.env.NEXT_PUBLIC_SUPABASE_URL ?? "—"}
         </div>
         {!isPro && (
-          <p className="text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded-xl mt-3">
+          <p className="text-xs text-amber-700 dark:text-amber-200 bg-amber-50 dark:bg-amber-900 px-3 py-2 rounded-xl mt-3">
             {t("settings.syncProRequired")}
           </p>
         )}
@@ -422,16 +422,16 @@ function AppearanceTab() {
     <div className="space-y-5">
       {/* ── Color Scheme (Free + Pro) ── */}
       <div className="card">
-        <h2 className="font-semibold text-surface-900 mb-4">{t("settings.colorScheme")}</h2>
-        <div className="flex gap-3">
+        <h2 className="font-semibold text-surface-900 dark:text-white mb-4">{t("settings.colorScheme")}</h2>
+        <div className="flex flex-wrap gap-2 sm:gap-3">
           {modeOptions.map(item => (
             <button
               key={item.id}
               onClick={() => setMode(item.id)}
-              className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 text-sm font-medium transition-all ${
+              className={`flex flex-col items-center gap-1 px-3 py-2.5 sm:p-3 rounded-xl border-2 text-sm font-medium transition-all ${
                 mode === item.id
-                  ? "border-brand-500 bg-brand-50 text-brand-700 shadow-sm"
-                  : "border-surface-200 bg-surface-50 text-surface-600 hover:border-surface-300"
+                  ? "border-brand-500 bg-brand-50 dark:bg-brand-900 text-brand-700 dark:text-brand-200 shadow-sm"
+                  : "border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-700 text-surface-600 dark:text-surface-400 hover:border-surface-300 dark:hover:border-surface-600"
               }`}
             >
               <span className="text-xl">{item.emoji}</span>
@@ -443,24 +443,24 @@ function AppearanceTab() {
 
       {/* ── Accent Color (Pro only) ── */}
       <div className="card">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-surface-900">{t("settings.accentColor")}</h2>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-4">
+          <h2 className="font-semibold text-surface-900 dark:text-white">{t("settings.accentColor")}</h2>
           {!isPro && (
-            <Link href="/upgrade" className="flex items-center gap-1 text-xs font-medium text-brand-600 hover:text-brand-700">
+            <Link href="/upgrade" className="flex items-center gap-1 text-xs font-medium text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300">
               <Zap size={12} /> Pro
             </Link>
           )}
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2 sm:gap-3">
           {palettes.map(p => (
             <button
               key={p.key}
               onClick={() => isPro && setAccent(p.key)}
               disabled={!isPro}
               title={isPro ? p.label : `${p.label} — Pro Feature`}
-              className={`group relative w-10 h-10 rounded-full border-2 transition-all ${
+              className={`group relative w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 transition-all ${
                 accent === p.key
-                  ? "border-surface-900 scale-110 shadow-md"
+                  ? "border-surface-900 dark:border-white scale-110 shadow-md"
                   : "border-transparent hover:scale-105"
               } ${!isPro && p.key !== "indigo" ? "opacity-40 cursor-not-allowed" : ""}`}
               style={{ background: p.swatch }}
@@ -472,7 +472,7 @@ function AppearanceTab() {
           ))}
         </div>
         {!isPro && (
-          <p className="text-xs text-surface-400 mt-3">{t("settings.accentProHint")}</p>
+          <p className="text-xs text-surface-400 dark:text-surface-500 mt-3">{t("settings.accentProHint")}</p>
         )}
       </div>
     </div>
@@ -490,7 +490,7 @@ function NotificationsTab() {
 
   return (
     <div className="card">
-      <h2 className="font-semibold text-surface-900 mb-4">{t("settings.notifications")}</h2>
+      <h2 className="font-semibold text-surface-900 dark:text-white mb-4">{t("settings.notifications")}</h2>
       <div className="space-y-4">
         {[
           { key: "exam_reminder" as const, label: t("settings.examReminders"), description: t("settings.examRemindersDesc") },
@@ -498,18 +498,18 @@ function NotificationsTab() {
           { key: "weekly_summary" as const, label: t("settings.weeklySummary"), description: t("settings.weeklySummaryDesc") },
           { key: "push" as const, label: t("settings.pushNotifications"), description: t("settings.pushNotificationsDesc") },
         ].map(item => (
-          <div key={item.key} className="flex items-center justify-between py-2">
-            <div>
-              <p className="text-sm font-medium text-surface-800">{item.label}</p>
-              <p className="text-xs text-surface-400">{item.description}</p>
+          <div key={item.key} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 py-2">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-surface-800 dark:text-surface-200">{item.label}</p>
+              <p className="text-xs text-surface-400 dark:text-surface-500">{item.description}</p>
             </div>
             <button onClick={() => setSettings(s => ({ ...s, [item.key]: !s[item.key] }))}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings[item.key] ? "bg-brand-600" : "bg-surface-200"}`}>
-              <span className={`inline-block h-4 w-4 rounded-full bg-[rgb(var(--card-bg))] shadow transform transition-transform ${settings[item.key] ? "translate-x-6" : "translate-x-1"}`} />
+              className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${settings[item.key] ? "bg-brand-600 dark:bg-brand-700" : "bg-surface-200 dark:bg-surface-600"}`}>
+              <span className={`inline-block h-4 w-4 rounded-full bg-[rgb(var(--card-bg))] dark:bg-surface-900 shadow transform transition-transform ${settings[item.key] ? "translate-x-6" : "translate-x-1"}`} />
             </button>
           </div>
         ))}
-        <p className="text-xs text-surface-400 pt-2">{t("settings.settingsSavedLocally")}</p>
+        <p className="text-xs text-surface-400 dark:text-surface-500 pt-2">{t("settings.settingsSavedLocally")}</p>
       </div>
     </div>
   );
@@ -719,15 +719,15 @@ function PrivacyTab() {
   return (
     <div className="space-y-4">
       <div className="card">
-        <h2 className="font-semibold text-surface-900 mb-3">{t("settings.privacyTitle")}</h2>
-        <p className="text-sm text-surface-600 leading-relaxed">
+        <h2 className="font-semibold text-surface-900 dark:text-white mb-3">{t("settings.privacyTitle")}</h2>
+        <p className="text-sm text-surface-600 dark:text-surface-400 leading-relaxed">
           {t("settings.privacyDesc")}
         </p>
       </div>
 
       <div className="card">
-        <h2 className="font-semibold text-surface-900 mb-2">{t("settings.exportTitle")}</h2>
-        <p className="text-sm text-surface-500 mb-4">
+        <h2 className="font-semibold text-surface-900 dark:text-white mb-2">{t("settings.exportTitle")}</h2>
+        <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
           {t("settings.exportDesc")}
         </p>
 
@@ -737,21 +737,21 @@ function PrivacyTab() {
             onClick={() => setExportFormat("desktop")}
             className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-colors ${
               exportFormat === "desktop"
-                ? "border-brand-300 bg-brand-50"
-                : "border-surface-200 hover:border-surface-300"
+                ? "border-brand-300 dark:border-brand-700 bg-brand-50 dark:bg-brand-900"
+                : "border-surface-200 dark:border-surface-700 hover:border-surface-300 dark:hover:border-surface-600"
             }`}
           >
-            <HardDrive size={20} className={exportFormat === "desktop" ? "text-brand-600" : "text-surface-400"} />
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-surface-800">{t("settings.exportDesktopTitle")}</p>
-              <p className="text-xs text-surface-500">
+            <HardDrive size={20} className={exportFormat === "desktop" ? "text-brand-600 dark:text-brand-400" : "text-surface-400 dark:text-surface-500"} />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-surface-800 dark:text-surface-200">{t("settings.exportDesktopTitle")}</p>
+              <p className="text-xs text-surface-500 dark:text-surface-400">
                 {t("settings.exportDesktopDesc")}
               </p>
             </div>
-            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-              exportFormat === "desktop" ? "border-brand-600" : "border-surface-300"
+            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+              exportFormat === "desktop" ? "border-brand-600 dark:border-brand-400" : "border-surface-300 dark:border-surface-600"
             }`}>
-              {exportFormat === "desktop" && <div className="w-2 h-2 rounded-full bg-brand-600" />}
+              {exportFormat === "desktop" && <div className="w-2 h-2 rounded-full bg-brand-600 dark:bg-brand-400" />}
             </div>
           </button>
 
@@ -759,21 +759,21 @@ function PrivacyTab() {
             onClick={() => setExportFormat("json")}
             className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-colors ${
               exportFormat === "json"
-                ? "border-brand-300 bg-brand-50"
-                : "border-surface-200 hover:border-surface-300"
+                ? "border-brand-300 dark:border-brand-700 bg-brand-50 dark:bg-brand-900"
+                : "border-surface-200 dark:border-surface-700 hover:border-surface-300 dark:hover:border-surface-600"
             }`}
           >
-            <Database size={20} className={exportFormat === "json" ? "text-brand-600" : "text-surface-400"} />
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-surface-800">{t("settings.exportJsonTitle")}</p>
-              <p className="text-xs text-surface-500">
+            <Database size={20} className={exportFormat === "json" ? "text-brand-600 dark:text-brand-400" : "text-surface-400 dark:text-surface-500"} />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-surface-800 dark:text-surface-200">{t("settings.exportJsonTitle")}</p>
+              <p className="text-xs text-surface-500 dark:text-surface-400">
                 {t("settings.exportJsonDesc")}
               </p>
             </div>
-            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-              exportFormat === "json" ? "border-brand-600" : "border-surface-300"
+            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+              exportFormat === "json" ? "border-brand-600 dark:border-brand-400" : "border-surface-300 dark:border-surface-600"
             }`}>
-              {exportFormat === "json" && <div className="w-2 h-2 rounded-full bg-brand-600" />}
+              {exportFormat === "json" && <div className="w-2 h-2 rounded-full bg-brand-600 dark:bg-brand-400" />}
             </div>
           </button>
         </div>
@@ -782,7 +782,7 @@ function PrivacyTab() {
         <button
           onClick={handleExport}
           disabled={exporting}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 disabled:opacity-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 dark:bg-brand-700 text-white text-sm font-semibold hover:bg-brand-700 dark:hover:bg-brand-600 disabled:opacity-50 transition-colors"
         >
           {exporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
           {exporting ? t("settings.exporting") : t("settings.exportData")}
@@ -791,15 +791,15 @@ function PrivacyTab() {
         {/* Result message */}
         {exportResult && (
           <p className={`text-sm px-3 py-2 rounded-lg mt-3 ${
-            exportResult.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"
+            exportResult.type === "success" ? "bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-200" : "bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-200"
           }`}>
             {exportResult.type === "success" ? "✓ " : "✗ "}{exportResult.text}
           </p>
         )}
 
         {/* Info box */}
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-4">
-          <p className="text-xs text-amber-700">
+        <div className="bg-amber-50 dark:bg-amber-900 border border-amber-200 dark:border-amber-800 rounded-xl p-3 mt-4">
+          <p className="text-xs text-amber-700 dark:text-amber-200">
             {t("settings.exportTip")}
           </p>
         </div>
@@ -836,13 +836,13 @@ function LanguageCard() {
   return (
     <div className="card">
       <div className="flex items-center gap-2 mb-1">
-        <Languages size={16} className="text-brand-600" />
-        <h2 className="font-semibold text-surface-900">{t("settings.language")}</h2>
+        <Languages size={16} className="text-brand-600 dark:text-brand-400" />
+        <h2 className="font-semibold text-surface-900 dark:text-white">{t("settings.language")}</h2>
       </div>
-      <p className="text-xs text-surface-400 mb-4">{t("settings.languageDesc2")}</p>
-      <div className="flex items-end gap-3">
-        <div className="flex-1">
-          <label className="block text-sm font-medium text-surface-700 mb-1">{t("settings.language")}</label>
+      <p className="text-xs text-surface-400 dark:text-surface-500 mb-4">{t("settings.languageDesc2")}</p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-end gap-2 sm:gap-3">
+        <div className="flex-1 w-full sm:w-auto">
+          <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("settings.language")}</label>
           <select
             value={selectedLang}
             onChange={e => setSelectedLang(e.target.value as Locale)}
@@ -862,7 +862,7 @@ function LanguageCard() {
         </button>
       </div>
       {msg && (
-        <p className={`text-sm px-3 py-2 rounded-lg mt-3 ${msg.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>
+        <p className={`text-sm px-3 py-2 rounded-lg mt-3 ${msg.type === "success" ? "bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-200" : "bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-200"}`}>
           {msg.text}
         </p>
       )}

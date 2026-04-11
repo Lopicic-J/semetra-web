@@ -133,27 +133,27 @@ export default function GroupsPage() {
   return (
     <ErrorBoundary feature="Gruppen">
       {DeleteConfirm}
-      <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+      <div className="p-3 sm:p-5 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
             <Users className="text-brand-600" size={26} />
             {t("groups.title")}
           </h1>
-          <p className="text-surface-500 text-sm mt-1">{t("groups.subtitle")}</p>
+          <p className="text-surface-500 dark:text-surface-400 text-sm mt-1">{t("groups.subtitle")}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap sm:flex-nowrap">
           <button
             onClick={() => { setShowJoin(true); setShowCreate(false); setError(""); }}
-            className="flex items-center gap-2 px-4 py-2 border border-surface-200 text-surface-700 rounded-xl text-sm font-medium hover:bg-surface-50 transition-colors"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 rounded-xl text-sm font-medium hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors flex-1 sm:flex-none"
           >
             <LogIn size={16} />
             {t("groups.join")}
           </button>
           <button
             onClick={() => { setShowCreate(true); setShowJoin(false); setError(""); }}
-            className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-xl text-sm font-medium hover:bg-brand-700 transition-colors"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-brand-600 dark:bg-brand-700 text-white rounded-xl text-sm font-medium hover:bg-brand-700 dark:hover:bg-brand-600 transition-colors flex-1 sm:flex-none"
           >
             <Plus size={16} />
             {t("groups.create")}
@@ -163,10 +163,10 @@ export default function GroupsPage() {
 
       {/* ── Create Modal ──────────────────────────────────── */}
       {showCreate && (
-        <div className="card mb-6 border-brand-200">
+        <div className="card mb-6 border-brand-200 dark:border-brand-800 bg-surface-100 dark:bg-surface-800">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-surface-800">{t("groups.createTitle")}</h3>
-            <button onClick={() => setShowCreate(false)} className="p-1 rounded-lg hover:bg-surface-100 text-surface-400">
+            <h3 className="font-semibold text-surface-800 dark:text-surface-100">{t("groups.createTitle")}</h3>
+            <button onClick={() => setShowCreate(false)} className="p-1 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400 dark:text-surface-500">
               <X size={16} />
             </button>
           </div>
@@ -175,20 +175,20 @@ export default function GroupsPage() {
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder={t("groups.namePlaceholder")}
-              className="w-full px-3 py-2 border border-surface-200 rounded-xl text-sm bg-[rgb(var(--card-bg))] text-surface-900 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-300"
+              className="w-full px-3 py-2 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-surface-50 placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600"
             />
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder={t("groups.descPlaceholder")}
               rows={2}
-              className="w-full px-3 py-2 border border-surface-200 rounded-xl text-sm bg-[rgb(var(--card-bg))] text-surface-900 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-300 resize-none"
+              className="w-full px-3 py-2 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-surface-50 placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600 resize-none"
             />
-            {error && <p className="text-xs text-red-500">{error}</p>}
+            {error && <p className="text-xs text-red-500 dark:text-red-400">{error}</p>}
             <button
               onClick={createGroup}
               disabled={creating || !name.trim()}
-              className="px-4 py-2 bg-brand-600 text-white rounded-xl text-sm font-medium hover:bg-brand-700 disabled:opacity-50 transition-colors"
+              className="px-4 py-2 bg-brand-600 dark:bg-brand-700 text-white rounded-xl text-sm font-medium hover:bg-brand-700 dark:hover:bg-brand-600 disabled:opacity-50 transition-colors"
             >
               {t("groups.createBtn")}
             </button>
@@ -198,37 +198,37 @@ export default function GroupsPage() {
 
       {/* ── Join Modal ────────────────────────────────────── */}
       {showJoin && (
-        <div className="card mb-6 border-blue-200">
+        <div className="card mb-6 border-blue-200 dark:border-blue-800 bg-surface-100 dark:bg-surface-800">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-surface-800">{t("groups.joinTitle")}</h3>
-            <button onClick={() => setShowJoin(false)} className="p-1 rounded-lg hover:bg-surface-100 text-surface-400">
+            <h3 className="font-semibold text-surface-800 dark:text-surface-100">{t("groups.joinTitle")}</h3>
+            <button onClick={() => setShowJoin(false)} className="p-1 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400 dark:text-surface-500">
               <X size={16} />
             </button>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-col sm:flex-row">
             <input
               value={inviteCode}
               onChange={e => setInviteCode(e.target.value)}
               onKeyDown={e => e.key === "Enter" && joinGroup()}
               placeholder={t("groups.codePlaceholder")}
-              className="flex-1 px-3 py-2 border border-surface-200 rounded-xl text-sm font-mono bg-[rgb(var(--card-bg))] text-surface-900 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="flex-1 px-3 py-2 border border-surface-200 dark:border-surface-700 rounded-xl text-sm font-mono bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-surface-50 placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600"
             />
             <button
               onClick={joinGroup}
               disabled={creating || !inviteCode.trim()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-xl text-sm font-medium hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 transition-colors"
             >
               {t("groups.joinBtn")}
             </button>
           </div>
-          {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
+          {error && <p className="text-xs text-red-500 dark:text-red-400 mt-2">{error}</p>}
         </div>
       )}
 
       {/* ── Group cards ───────────────────────────────────── */}
       {loading ? (
         <div className="space-y-3">
-          {[1, 2].map(i => <div key={i} className="h-24 bg-surface-100 rounded-2xl animate-pulse" />)}
+          {[1, 2].map(i => <div key={i} className="h-24 bg-surface-100 dark:bg-surface-800 rounded-2xl animate-pulse" />)}
         </div>
       ) : groups.length === 0 ? (
         <EmptyState
@@ -244,10 +244,10 @@ export default function GroupsPage() {
             return (
               <div
                 key={group.id}
-                className="card p-4 hover:shadow-md transition-shadow cursor-pointer"
+                className="card p-3 sm:p-4 hover:shadow-md dark:hover:shadow-lg transition-shadow cursor-pointer bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700"
                 onClick={() => router.push(`/groups/${group.id}`)}
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 sm:gap-4 flex-col sm:flex-row">
                   {/* Color indicator */}
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0"
@@ -257,41 +257,41 @@ export default function GroupsPage() {
                   </div>
 
                   {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-surface-900 truncate">{group.name}</h3>
-                      <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-surface-100 text-surface-500">
+                  <div className="flex-1 min-w-0 w-full">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-semibold text-surface-900 dark:text-surface-100 truncate">{group.name}</h3>
+                      <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-300">
                         <RoleIcon size={10} />
                         {t(`groups.role.${group.myRole}`)}
                       </span>
                     </div>
                     {group.description && (
-                      <p className="text-xs text-surface-500 truncate mt-0.5">{group.description}</p>
+                      <p className="text-xs text-surface-500 dark:text-surface-400 truncate mt-0.5">{group.description}</p>
                     )}
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end" onClick={e => e.stopPropagation()}>
                     {/* Invite code */}
                     <button
                       onClick={() => copyCode(group.invite_code)}
-                      className="flex items-center gap-1 px-2 py-1 text-xs text-surface-500 bg-surface-50 rounded-lg hover:bg-surface-100 transition-colors font-mono"
+                      className="flex items-center gap-1 px-2 py-1 text-xs text-surface-600 dark:text-surface-300 bg-surface-200 dark:bg-surface-700 rounded-lg hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors font-mono"
                       title={t("groups.copyCode")}
                     >
-                      {copied === group.invite_code ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
-                      {group.invite_code}
+                      {copied === group.invite_code ? <Check size={12} className="text-green-500 dark:text-green-400" /> : <Copy size={12} />}
+                      <span className="hidden sm:inline">{group.invite_code}</span>
                     </button>
 
                     {group.myRole === "owner" && (
                       <button
                         onClick={() => deleteGroup(group.id)}
-                        className="p-1.5 text-surface-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors"
+                        className="p-1.5 text-surface-400 dark:text-surface-500 hover:text-red-500 dark:hover:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900 transition-colors"
                       >
                         <Trash2 size={14} />
                       </button>
                     )}
 
-                    <ChevronRight size={16} className="text-surface-300" />
+                    <ChevronRight size={16} className="text-surface-300 dark:text-surface-600" />
                   </div>
                 </div>
               </div>

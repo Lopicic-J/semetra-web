@@ -317,9 +317,9 @@ export default function ProgramDetailPage() {
 
       {/* Error */}
       {error && (
-        <Card className="bg-red-50 border-red-200 p-4">
+        <Card className="bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 p-4">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <p className="text-red-700">{error}</p>
           </div>
         </Card>
@@ -482,7 +482,7 @@ export default function ProgramDetailPage() {
 
           {/* New Group Form */}
           {showNewGroupForm && (
-            <Card padding="lg" className="bg-blue-50 border-blue-200">
+            <Card padding="lg" className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-surface-900 mb-2">

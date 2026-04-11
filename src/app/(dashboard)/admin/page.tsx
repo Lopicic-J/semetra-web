@@ -444,7 +444,7 @@ export default function AdminPage() {
       {/* Stats Cards */}
       {isPlatformAdmin ? (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <StatsCard
               icon={<Users className="w-5 h-5" />}
               label="Benutzer"
@@ -456,14 +456,14 @@ export default function AdminPage() {
             <StatsCard icon={<Building2 className="w-5 h-5" />} label="Institutionen" value={stats?.total_institutions ?? 0} loading={statsLoading} />
             <StatsCard icon={<BookOpen className="w-5 h-5" />} label="Studiengänge" value={stats?.total_programs ?? 0} loading={statsLoading} />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             <StatsCard icon={<CreditCard className="w-5 h-5" />} label="Abonnements" value={stats?.subscription_users ?? 0} loading={statsLoading} />
             <StatsCard icon={<Infinity className="w-5 h-5" />} label="Lifetime" value={stats?.lifetime_users ?? 0} loading={statsLoading} />
             <StatsCard icon={<BookOpen className="w-5 h-5" />} label="Module" value={stats?.total_modules ?? 0} loading={statsLoading} />
           </div>
         </>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           <StatsCard icon={<Users className="w-5 h-5" />} label="Studierende" value={stats?.total_users ?? 0} loading={statsLoading} />
           <StatsCard icon={<Activity className="w-5 h-5" />} label="Aktive Nutzer" value={stats?.active_users ?? 0} loading={statsLoading} accent />
           <StatsCard icon={<BookOpen className="w-5 h-5" />} label="Studiengänge" value={stats?.total_programs ?? 0} loading={statsLoading} />
@@ -472,9 +472,9 @@ export default function AdminPage() {
 
       {/* ── Verification Queue (Platform admin only) ── */}
       {isPlatformAdmin && (
-        <Card className="bg-surface-100">
-          <div className="p-6 border-b border-surface-200">
-            <h2 className="text-xl font-bold text-surface-900 flex items-center gap-2">
+        <Card className="bg-surface-100 dark:bg-surface-800">
+          <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+            <h2 className="text-xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-amber-600" />
               Verifizierungs-Warteschlange
               {verificationQueue.length > 0 && (
@@ -488,35 +488,35 @@ export default function AdminPage() {
             {verificationLoading ? (
               <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-brand-600" /></div>
             ) : verificationQueue.length === 0 ? (
-              <div className="text-center py-8 text-surface-500">
-                <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-green-500" />
+              <div className="text-center py-8 text-surface-500 dark:text-surface-400">
+                <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-green-500 dark:text-green-400" />
                 <p>Keine ausstehenden Verifizierungen</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {verificationQueue.map((req) => (
-                  <div key={req.id} className="bg-[rgb(var(--card-bg))] rounded-lg border border-surface-200 p-4">
-                    <div className="flex items-start justify-between gap-4">
+                  <div key={req.id} className="bg-[rgb(var(--card-bg))] dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600 p-3 sm:p-4">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <p className="font-medium text-surface-900 truncate">{req.full_name || req.username || req.email}</p>
+                          <p className="font-medium text-surface-900 dark:text-surface-50 truncate">{req.full_name || req.username || req.email}</p>
                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${ROLE_COLORS[req.user_role] || ROLE_COLORS.non_student}`}>
                             {ROLE_LABELS[req.user_role] || req.user_role}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-sm text-surface-500">
+                        <div className="flex items-center gap-1.5 text-sm text-surface-500 dark:text-surface-400">
                           <Mail className="w-3.5 h-3.5" />{req.email}
                         </div>
-                        {req.university && <p className="text-xs text-surface-400 mt-0.5">{req.university}</p>}
-                        <p className="text-[10px] text-surface-400 mt-1">
+                        {req.university && <p className="text-xs text-surface-400 dark:text-surface-500 mt-0.5">{req.university}</p>}
+                        <p className="text-[10px] text-surface-400 dark:text-surface-500 mt-1">
                           Domain: <span className="font-mono">{req.email.split("@")[1] || "?"}</span>
                         </p>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex w-full sm:w-auto items-center gap-2 shrink-0">
                         <button
                           onClick={() => handleVerification(req.id, "approve")}
                           disabled={processingId === req.id}
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/40 transition disabled:opacity-50"
+                          className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-medium text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/40 transition disabled:opacity-50"
                         >
                           {processingId === req.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
                           Genehmigen
@@ -527,7 +527,7 @@ export default function AdminPage() {
                             if (note !== null) handleVerification(req.id, "reject", note || undefined);
                           }}
                           disabled={processingId === req.id}
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition disabled:opacity-50"
+                          className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition disabled:opacity-50"
                         >
                           <XCircle className="w-3.5 h-3.5" />Ablehnen
                         </button>
@@ -542,13 +542,13 @@ export default function AdminPage() {
       )}
 
       {/* ── User Management ── */}
-      <Card className="bg-surface-100">
-        <div className="p-6 border-b border-surface-200">
-          <h2 className="text-xl font-bold text-surface-900 flex items-center gap-2">
+      <Card className="bg-surface-100 dark:bg-surface-800">
+        <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+          <h2 className="text-xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
             <Users className="w-5 h-5 text-brand-600" />
             Benutzerverwaltung
           </h2>
-          <p className="text-surface-600 text-sm mt-1">
+          <p className="text-surface-600 dark:text-surface-400 text-sm mt-1">
             {isPlatformAdmin
               ? "Rollen und Abo-Pläne aller Benutzer verwalten"
               : "Studierende deiner Institution verwalten"}
@@ -558,13 +558,13 @@ export default function AdminPage() {
         <div className="p-6 space-y-4">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-3 w-4 h-4 text-surface-500" />
+            <Search className="absolute left-3 top-3 w-4 h-4 text-surface-500 dark:text-surface-400" />
             <input
               type="text"
               placeholder="Nach E-Mail oder Name suchen..."
               value={usersSearch}
               onChange={(e) => setUsersSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-surface-300 rounded-lg bg-[rgb(var(--card-bg))] text-surface-900 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full pl-10 pr-4 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-[rgb(var(--card-bg))] dark:bg-surface-700 text-surface-900 dark:text-surface-50 placeholder-surface-500 dark:placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:focus:ring-brand-600"
             />
           </div>
 
@@ -572,7 +572,7 @@ export default function AdminPage() {
           {usersLoading ? (
             <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-brand-600" /></div>
           ) : users.length === 0 ? (
-            <p className="text-center text-surface-600 py-8">Keine Benutzer gefunden</p>
+            <p className="text-center text-surface-600 dark:text-surface-400 py-8">Keine Benutzer gefunden</p>
           ) : (
             <div className="space-y-3">
               {users.map((user) => (
@@ -623,13 +623,13 @@ export default function AdminPage() {
         const instTotalPages = Math.ceil(allInst.length / PAGE_SIZE);
         const instSlice = allInst.slice((instPage - 1) * PAGE_SIZE, instPage * PAGE_SIZE);
         return (
-          <Card className="bg-surface-100">
-            <div className="p-6 border-b border-surface-200">
-              <h2 className="text-xl font-bold text-surface-900 flex items-center gap-2">
+          <Card className="bg-surface-100 dark:bg-surface-800">
+            <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+              <h2 className="text-xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-brand-600" />
                 Institutionen — Übersicht
               </h2>
-              <p className="text-surface-600 text-sm mt-1">
+              <p className="text-surface-600 dark:text-surface-400 text-sm mt-1">
                 Studenten, Admins und aktive Nutzer pro Institution
               </p>
             </div>
@@ -637,23 +637,23 @@ export default function AdminPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-surface-200">
-                      <th className="text-left py-3 px-4 font-medium text-surface-900">Institution</th>
-                      <th className="text-right py-3 px-4 font-medium text-surface-900">Studenten</th>
-                      <th className="text-right py-3 px-4 font-medium text-surface-900">Admins</th>
-                      <th className="text-right py-3 px-4 font-medium text-surface-900">Aktiv</th>
+                    <tr className="border-b border-surface-200 dark:border-surface-700">
+                      <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-surface-50">Institution</th>
+                      <th className="text-right py-3 px-4 font-medium text-surface-900 dark:text-surface-50">Studenten</th>
+                      <th className="text-right py-3 px-4 font-medium text-surface-900 dark:text-surface-50">Admins</th>
+                      <th className="text-right py-3 px-4 font-medium text-surface-900 dark:text-surface-50">Aktiv</th>
                     </tr>
                   </thead>
                   <tbody>
                     {instSlice.map((inst) => (
-                      <tr key={inst.id} className="border-b border-surface-200 hover:bg-surface-50 dark:hover:bg-surface-800/50">
-                        <td className="py-3 px-4 font-medium text-surface-900">{inst.name}</td>
-                        <td className="py-3 px-4 text-right text-surface-600">{inst.studentCount}</td>
-                        <td className="py-3 px-4 text-right text-surface-600">{inst.adminCount}</td>
+                      <tr key={inst.id} className="border-b border-surface-200 dark:border-surface-700 hover:bg-surface-50 dark:hover:bg-surface-700/50">
+                        <td className="py-3 px-4 font-medium text-surface-900 dark:text-surface-50">{inst.name}</td>
+                        <td className="py-3 px-4 text-right text-surface-600 dark:text-surface-400">{inst.studentCount}</td>
+                        <td className="py-3 px-4 text-right text-surface-600 dark:text-surface-400">{inst.adminCount}</td>
                         <td className="py-3 px-4 text-right">
                           <span className="inline-flex items-center gap-1.5">
                             <OnlineDot online={inst.activeCount > 0} />
-                            <span className="text-surface-600">{inst.activeCount}</span>
+                            <span className="text-surface-600 dark:text-surface-400">{inst.activeCount}</span>
                           </span>
                         </td>
                       </tr>
@@ -677,13 +677,13 @@ export default function AdminPage() {
 
       {/* ── Institution Admin Assignments (Platform admin only) ── */}
       {isPlatformAdmin && (
-        <Card className="bg-surface-100">
-          <div className="p-6 border-b border-surface-200">
-            <h2 className="text-xl font-bold text-surface-900 flex items-center gap-2">
+        <Card className="bg-surface-100 dark:bg-surface-800">
+          <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+            <h2 className="text-xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
               <Building2 className="w-5 h-5 text-brand-600" />
               Institutions-Admins
             </h2>
-            <p className="text-surface-600 text-sm mt-1">
+            <p className="text-surface-600 dark:text-surface-400 text-sm mt-1">
               Welche Institutions-Admins welchen Institutionen zugewiesen sind
             </p>
           </div>
@@ -691,17 +691,17 @@ export default function AdminPage() {
             {institutionAdminsLoading ? (
               <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-brand-600" /></div>
             ) : institutionAdmins.length === 0 ? (
-              <p className="text-center text-surface-600 py-8">Keine Institutions-Admins vorhanden</p>
+              <p className="text-center text-surface-600 dark:text-surface-400 py-8">Keine Institutions-Admins vorhanden</p>
             ) : (() => {
               const iaTotalPages = Math.ceil(institutionAdmins.length / PAGE_SIZE);
               const iaSlice = institutionAdmins.slice((instAdminPage - 1) * PAGE_SIZE, instAdminPage * PAGE_SIZE);
               return (
                 <div className="space-y-3">
                   {iaSlice.map((a) => (
-                    <div key={a.id} className="flex items-center justify-between p-4 bg-[rgb(var(--card-bg))] rounded-lg border border-surface-200">
+                    <div key={a.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 gap-3 sm:gap-4 bg-[rgb(var(--card-bg))] dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600">
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-surface-900 truncate">{a.user_name || a.user_email}</p>
-                        <p className="text-sm text-surface-600 truncate">{a.user_email} → {a.institution_name}</p>
+                        <p className="font-medium text-surface-900 dark:text-surface-50 truncate">{a.user_name || a.user_email}</p>
+                        <p className="text-sm text-surface-600 dark:text-surface-400 truncate">{a.user_email} → {a.institution_name}</p>
                       </div>
                       <button
                         onClick={async () => {
@@ -717,7 +717,7 @@ export default function AdminPage() {
                             if (fetchRes.ok) { const data = await fetchRes.json(); setInstitutionAdmins(data.assignments || []); }
                           } catch { toast.error("Fehler beim Entfernen"); }
                         }}
-                        className="p-2 text-surface-600 hover:text-red-600 transition-colors"
+                        className="p-2 text-surface-600 dark:text-surface-400 hover:text-red-600 dark:hover:text-red-400 transition-colors shrink-0"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -741,28 +741,28 @@ export default function AdminPage() {
 
       {/* ── Institutions-Admins section for institution role ── */}
       {isInstitution && !isPlatformAdmin && (
-        <Card className="bg-surface-100">
-          <div className="p-6 border-b border-surface-200">
-            <h2 className="text-xl font-bold text-surface-900 flex items-center gap-2">
+        <Card className="bg-surface-100 dark:bg-surface-800">
+          <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+            <h2 className="text-xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
               <Building2 className="w-5 h-5 text-brand-600" />
               Institutions-Admins
             </h2>
-            <p className="text-surface-600 text-sm mt-1">
+            <p className="text-surface-600 dark:text-surface-400 text-sm mt-1">
               Übersicht der Admins deiner Institution
             </p>
           </div>
           <div className="p-6">
             {users.filter((u) => u.user_role === "institution").length === 0 ? (
-              <p className="text-center text-surface-600 py-8">Keine weiteren Institutions-Admins</p>
+              <p className="text-center text-surface-600 dark:text-surface-400 py-8">Keine weiteren Institutions-Admins</p>
             ) : (
               <div className="space-y-3">
                 {users.filter((u) => u.user_role === "institution").map((u) => (
-                  <div key={u.id} className="flex items-center justify-between p-4 bg-[rgb(var(--card-bg))] rounded-lg border border-surface-200">
+                  <div key={u.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 gap-3 sm:gap-4 bg-[rgb(var(--card-bg))] dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <OnlineDot online={isOnline(u.last_seen_at)} />
                       <div className="min-w-0">
-                        <p className="font-medium text-surface-900 truncate">{u.full_name || u.username || u.email}</p>
-                        <p className="text-sm text-surface-600 truncate">{u.email}</p>
+                        <p className="font-medium text-surface-900 dark:text-surface-50 truncate">{u.full_name || u.username || u.email}</p>
+                        <p className="text-sm text-surface-600 dark:text-surface-400 truncate">{u.email}</p>
                       </div>
                     </div>
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${ROLE_COLORS.institution}`}>
@@ -778,9 +778,9 @@ export default function AdminPage() {
 
       {/* ── Audit Log (Platform admin only) ── */}
       {isPlatformAdmin && (
-        <Card className="bg-surface-100">
-          <div className="p-6 border-b border-surface-200">
-            <h2 className="text-xl font-bold text-surface-900 flex items-center gap-2">
+        <Card className="bg-surface-100 dark:bg-surface-800">
+          <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+            <h2 className="text-xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
               <Clock className="w-5 h-5 text-brand-600" />
               Audit-Log
             </h2>
@@ -789,32 +789,32 @@ export default function AdminPage() {
             {auditLoading ? (
               <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-brand-600" /></div>
             ) : auditLog.length === 0 ? (
-              <p className="text-center text-surface-600 py-8">Keine Audit-Log-Einträge</p>
+              <p className="text-center text-surface-600 dark:text-surface-400 py-8">Keine Audit-Log-Einträge</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-surface-200">
-                      <th className="text-left py-3 px-4 font-medium text-surface-900">Zeitpunkt</th>
-                      <th className="text-left py-3 px-4 font-medium text-surface-900">Benutzer</th>
-                      <th className="text-left py-3 px-4 font-medium text-surface-900">Aktion</th>
-                      <th className="text-left py-3 px-4 font-medium text-surface-900">Objekt</th>
+                    <tr className="border-b border-surface-200 dark:border-surface-700">
+                      <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-surface-50">Zeitpunkt</th>
+                      <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-surface-50">Benutzer</th>
+                      <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-surface-50">Aktion</th>
+                      <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-surface-50">Objekt</th>
                     </tr>
                   </thead>
                   <tbody>
                     {auditLog.map((entry) => (
-                      <tr key={entry.id} className="border-b border-surface-200 hover:bg-surface-50 dark:hover:bg-surface-800/50">
-                        <td className="py-3 px-4 text-surface-600">{new Date(entry.created_at).toLocaleString("de-CH")}</td>
+                      <tr key={entry.id} className="border-b border-surface-200 dark:border-surface-700 hover:bg-surface-50 dark:hover:bg-surface-700/50">
+                        <td className="py-3 px-4 text-surface-600 dark:text-surface-400">{new Date(entry.created_at).toLocaleString("de-CH")}</td>
                         <td className="py-3 px-4">
-                          <p className="font-medium text-surface-900">{entry.user_name || entry.user_email}</p>
-                          <p className="text-xs text-surface-600">{entry.user_email}</p>
+                          <p className="font-medium text-surface-900 dark:text-surface-50">{entry.user_name || entry.user_email}</p>
+                          <p className="text-xs text-surface-600 dark:text-surface-400">{entry.user_email}</p>
                         </td>
                         <td className="py-3 px-4">
-                          <span className="px-2 py-1 bg-surface-200 dark:bg-surface-700 text-surface-900 rounded text-xs font-medium">{entry.action}</span>
+                          <span className="px-2 py-1 bg-surface-200 dark:bg-surface-700 text-surface-900 dark:text-surface-50 rounded text-xs font-medium">{entry.action}</span>
                         </td>
-                        <td className="py-3 px-4 text-surface-600">
-                          <p className="font-medium text-surface-900">{entry.entity_type}</p>
-                          <p className="text-xs">{entry.entity_name || entry.entity_id}</p>
+                        <td className="py-3 px-4 text-surface-600 dark:text-surface-400">
+                          <p className="font-medium text-surface-900 dark:text-surface-50">{entry.entity_type}</p>
+                          <p className="text-xs text-surface-600 dark:text-surface-400">{entry.entity_name || entry.entity_id}</p>
                         </td>
                       </tr>
                     ))}
@@ -858,13 +858,13 @@ function PaginationBar({
   label?: string;
 }) {
   return (
-    <div className="flex items-center justify-between pt-4 border-t border-surface-200">
-      <p className="text-sm text-surface-500">{total} {label} insgesamt</p>
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-surface-200 dark:border-surface-700">
+      <p className="text-sm text-surface-500 dark:text-surface-400">{total} {label} insgesamt</p>
       <div className="flex items-center gap-1">
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-          className="p-2 text-surface-600 hover:text-surface-900 disabled:opacity-30 disabled:cursor-not-allowed transition"
+          className="p-2 text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
@@ -877,15 +877,15 @@ function PaginationBar({
           }, [])
           .map((item, idx) =>
             item === "..." ? (
-              <span key={`dots-${idx}`} className="px-2 text-surface-400 text-sm">...</span>
+              <span key={`dots-${idx}`} className="px-2 text-surface-400 dark:text-surface-500 text-sm">...</span>
             ) : (
               <button
                 key={item}
                 onClick={() => onPageChange(item as number)}
                 className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${
                   item === page
-                    ? "bg-brand-600 text-white"
-                    : "text-surface-600 hover:bg-surface-200 dark:hover:bg-surface-700"
+                    ? "bg-brand-600 text-white dark:bg-brand-700 dark:text-surface-50"
+                    : "text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700"
                 }`}
               >
                 {item}
@@ -895,7 +895,7 @@ function PaginationBar({
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-          className="p-2 text-surface-600 hover:text-surface-900 disabled:opacity-30 disabled:cursor-not-allowed transition"
+          className="p-2 text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
         >
           <ChevronRight className="w-4 h-4" />
         </button>

@@ -50,29 +50,29 @@ export default function WeeklyReviewPage() {
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <BarChart3 className="w-7 h-7 text-violet-500" />
-            {t("review.title")}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <BarChart3 className="w-6 sm:w-7 h-6 sm:h-7 text-violet-500 shrink-0" />
+            <span className="truncate">{t("review.title")}</span>
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t("review.subtitle")}</p>
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">{t("review.subtitle")}</p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button onClick={() => navigateWeek(-1)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+        <div className="flex items-center gap-1 sm:gap-2 w-full sm:w-auto">
+          <button onClick={() => navigateWeek(-1)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 touch-target" title="Previous week">
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <span className="text-sm font-medium min-w-[200px] text-center">{weekLabel}</span>
-          <button onClick={() => navigateWeek(1)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+          <span className="text-xs sm:text-sm font-medium text-center flex-1 sm:flex-none sm:min-w-[160px] text-gray-700 dark:text-gray-300">{weekLabel}</span>
+          <button onClick={() => navigateWeek(1)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 touch-target" title="Next week">
             <ChevronRight className="w-5 h-5" />
           </button>
           <button
             onClick={() => generateReview(selectedWeek)}
-            className="ml-2 px-3 py-2 bg-violet-600 text-white rounded-lg text-sm flex items-center gap-1.5 hover:bg-violet-700"
+            className="ml-1 sm:ml-2 px-2 sm:px-3 py-2 bg-violet-600 text-white rounded-lg text-xs sm:text-sm flex items-center gap-1 sm:gap-1.5 hover:bg-violet-700 touch-target whitespace-nowrap"
           >
-            <RefreshCw className="w-4 h-4" />
-            {t("review.generate")}
+            <RefreshCw className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">{t("review.generate")}</span>
           </button>
         </div>
       </div>
@@ -92,7 +92,7 @@ export default function WeeklyReviewPage() {
       ) : (
         <>
           {/* Metrics Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <MetricCard
               icon={<Clock className="w-5 h-5 text-blue-500" />}
               label={t("review.metrics.study_time")}
@@ -141,9 +141,9 @@ export default function WeeklyReviewPage() {
           )}
 
           {/* Main Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Module Performance */}
-            <div className="lg:col-span-2 bg-[rgb(var(--card-bg))] dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="md:col-span-2 lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-violet-500" />
                 {t("review.modules.title")}
@@ -189,7 +189,7 @@ export default function WeeklyReviewPage() {
             </div>
 
             {/* Goals */}
-            <div className="bg-[rgb(var(--card-bg))] dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <Target className="w-5 h-5 text-green-500" />
                 {t("review.goals.title")}
@@ -222,9 +222,9 @@ export default function WeeklyReviewPage() {
           </div>
 
           {/* Insights & Recommendations */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Insights */}
-            <div className="bg-[rgb(var(--card-bg))] dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-amber-500" />
                 {t("review.insights.title")}
@@ -256,7 +256,7 @@ export default function WeeklyReviewPage() {
             </div>
 
             {/* Recommendations */}
-            <div className="bg-[rgb(var(--card-bg))] dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <Zap className="w-5 h-5 text-violet-500" />
                 {t("review.recommendations.title")}
@@ -286,7 +286,7 @@ export default function WeeklyReviewPage() {
           </div>
 
           {/* Comparison */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <ComparisonCard
               title={t("review.comparison.vs_prev")}
               comparison={review.vsPrevWeek}
@@ -300,13 +300,13 @@ export default function WeeklyReviewPage() {
           </div>
 
           {/* Reflection */}
-          <div className="bg-[rgb(var(--card-bg))] dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-blue-500" />
+          <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-blue-500 shrink-0" />
               {t("review.reflection.title")}
             </h2>
             <textarea
-              className="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm resize-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+              className="w-full p-3 rounded-lg sm:rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm resize-none focus:ring-2 focus:ring-violet-500 focus:border-transparent dark:text-white"
               rows={3}
               placeholder={t("review.reflection.placeholder")}
             />
@@ -327,9 +327,9 @@ function MetricCard({ icon, label, value, subtext, trend }: {
   trend?: number;
 }) {
   return (
-    <div className="bg-[rgb(var(--card-bg))] dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
       <div className="flex items-center justify-between mb-2">
-        {icon}
+        <span className="text-gray-600 dark:text-gray-400">{icon}</span>
         {trend !== undefined && trend !== 0 && (
           <span className={`text-xs font-medium flex items-center gap-0.5 ${
             trend > 0 ? "text-green-500" : "text-red-500"
@@ -339,9 +339,9 @@ function MetricCard({ icon, label, value, subtext, trend }: {
           </span>
         )}
       </div>
-      <div className="text-2xl font-bold text-gray-900 dark:text-white">{value}</div>
-      <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{subtext}</div>
-      <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">{label}</div>
+      <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{value}</div>
+      <div className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">{subtext}</div>
+      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{label}</div>
     </div>
   );
 }
@@ -357,29 +357,29 @@ function ComparisonCard({ title, comparison, t }: {
     : comparison.trendDirection === "down" ? "text-red-500" : "text-gray-400";
 
   return (
-    <div className="bg-[rgb(var(--card-bg))] dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">{title}</h3>
+        <h3 className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200">{title}</h3>
         <TrendIcon className={`w-5 h-5 ${trendColor}`} />
       </div>
-      <div className="grid grid-cols-3 gap-3 text-center">
-        <div>
-          <div className={`text-sm font-bold ${comparison.plannedDelta >= 0 ? "text-blue-500" : "text-gray-500"}`}>
+      <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center">
+        <div className="min-w-0">
+          <div className={`text-xs sm:text-sm font-bold ${comparison.plannedDelta >= 0 ? "text-blue-500" : "text-gray-500"}`}>
             {comparison.plannedDelta >= 0 ? "+" : ""}{comparison.plannedDelta}min
           </div>
-          <div className="text-xs text-gray-400">{t("review.comparison.planned")}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{t("review.comparison.planned")}</div>
         </div>
-        <div>
-          <div className={`text-sm font-bold ${comparison.actualDelta >= 0 ? "text-green-500" : "text-red-500"}`}>
+        <div className="min-w-0">
+          <div className={`text-xs sm:text-sm font-bold ${comparison.actualDelta >= 0 ? "text-green-500" : "text-red-500"}`}>
             {comparison.actualDelta >= 0 ? "+" : ""}{comparison.actualDelta}min
           </div>
-          <div className="text-xs text-gray-400">{t("review.comparison.actual")}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{t("review.comparison.actual")}</div>
         </div>
-        <div>
-          <div className={`text-sm font-bold ${comparison.adherenceDelta >= 0 ? "text-green-500" : "text-red-500"}`}>
+        <div className="min-w-0">
+          <div className={`text-xs sm:text-sm font-bold ${comparison.adherenceDelta >= 0 ? "text-green-500" : "text-red-500"}`}>
             {comparison.adherenceDelta >= 0 ? "+" : ""}{Math.round(comparison.adherenceDelta * 100)}%
           </div>
-          <div className="text-xs text-gray-400">{t("review.comparison.adherence_short")}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{t("review.comparison.adherence_short")}</div>
         </div>
       </div>
     </div>

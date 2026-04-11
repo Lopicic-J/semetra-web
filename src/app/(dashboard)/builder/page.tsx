@@ -174,21 +174,21 @@ export default function BuilderPage() {
   if (!canAccessBuilder) return null;
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="p-3 sm:p-5 space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-surface-900">
+          <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-surface-100">
             {t("nav.builder") || "Academic Builder"}
           </h1>
-          <p className="text-surface-600 mt-1">
+          <p className="text-surface-600 dark:text-surface-400 mt-1">
             {t("builder.subtitle") || "Verwalte Institutionen, Programme und Module"}
           </p>
         </div>
         {canAccessBuilder && (
           <button
             onClick={handleNewInstitution}
-            className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-brand-600 dark:bg-brand-700 text-white rounded-lg hover:bg-brand-700 dark:hover:bg-brand-600 transition-colors font-medium whitespace-nowrap"
           >
             <Plus className="w-5 h-5" />
             {t("builder.newInstitution") || "Neue Institution"}
@@ -201,18 +201,18 @@ export default function BuilderPage() {
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Search */}
           <div className="relative flex-1">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Institution suchen..."
-              className="input w-full pl-9 pr-9"
+              className="input w-full pl-9 pr-9 bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-surface-100 border-surface-200 dark:border-surface-700"
             />
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-400"
               >
                 <X size={14} />
               </button>
@@ -225,8 +225,8 @@ export default function BuilderPage() {
               onClick={() => setCountryFilter("all")}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 countryFilter === "all"
-                  ? "bg-brand-600 text-white"
-                  : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700"
+                  ? "bg-brand-600 dark:bg-brand-700 text-white"
+                  : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700"
               }`}
             >
               Alle ({institutions.length})
@@ -239,8 +239,8 @@ export default function BuilderPage() {
                   onClick={() => setCountryFilter(code === countryFilter ? "all" : code)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     countryFilter === code
-                      ? "bg-brand-600 text-white"
-                      : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700"
+                      ? "bg-brand-600 dark:bg-brand-700 text-white"
+                      : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700"
                   }`}
                 >
                   {COUNTRY_FLAGS[code] || ""} {COUNTRY_NAMES[code] || code} ({count})
@@ -253,12 +253,12 @@ export default function BuilderPage() {
 
       {/* Error State */}
       {error && (
-        <Card className="bg-red-50 border-red-200 p-4">
+        <Card className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 p-4">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium text-red-900">Fehler</p>
-              <p className="text-red-700 text-sm">{error}</p>
+              <p className="font-medium text-red-900 dark:text-red-300">Fehler</p>
+              <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
             </div>
           </div>
         </Card>
@@ -266,56 +266,56 @@ export default function BuilderPage() {
 
       {/* Institutions Grid */}
       {institutions.length === 0 ? (
-        <Card className="text-center py-12">
-          <p className="text-surface-600 mb-4">
+        <Card className="text-center py-12 dark:bg-surface-800 dark:border-surface-700">
+          <p className="text-surface-600 dark:text-surface-400 mb-4">
             {t("builder.noInstitutions") || "Noch keine Institutionen angelegt"}
           </p>
           <button
             onClick={handleNewInstitution}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors font-medium"
           >
             <Plus className="w-5 h-5" />
             {t("builder.newInstitution") || "Neue Institution"}
           </button>
         </Card>
       ) : filtered.length === 0 ? (
-        <Card className="text-center py-12">
-          <Search size={36} className="mx-auto mb-3 text-surface-300 opacity-50" />
-          <p className="text-surface-600 mb-1 font-medium">Keine Ergebnisse</p>
-          <p className="text-surface-400 text-sm">
+        <Card className="text-center py-12 dark:bg-surface-800 dark:border-surface-700">
+          <Search size={36} className="mx-auto mb-3 text-surface-300 dark:text-surface-700 opacity-50" />
+          <p className="text-surface-600 dark:text-surface-400 mb-1 font-medium">Keine Ergebnisse</p>
+          <p className="text-surface-400 dark:text-surface-500 text-sm">
             {search ? `Keine Institution für "${search}" gefunden.` : "Keine Institutionen in diesem Land."}
           </p>
           <button
             onClick={() => { setSearch(""); setCountryFilter("all"); }}
-            className="mt-3 text-sm text-brand-600 hover:text-brand-700 font-medium"
+            className="mt-3 text-sm text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 font-medium"
           >
             Filter zurücksetzen
           </button>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {filtered.map((inst) => (
             <Link key={inst.id} href={`/builder/institution/${inst.id}`}>
-              <Card interactive padding="md">
+              <Card interactive padding="md" className="dark:bg-surface-800 dark:border-surface-700">
                 <div className="space-y-3">
                   <div className="flex items-start justify-between">
                     <div className="text-2xl sm:text-4xl">{getCountryFlag(inst.country_code)}</div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-blue-600">
+                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                         {inst.program_count ?? 0}
                       </div>
-                      <div className="text-xs text-surface-600">
+                      <div className="text-xs text-surface-600 dark:text-surface-400">
                         {inst.program_count === 1 ? "Programm" : "Programme"}
                       </div>
                     </div>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-surface-900">{inst.name}</h3>
-                    <p className="text-sm text-surface-600">
+                    <h3 className="font-semibold text-surface-900 dark:text-surface-100">{inst.name}</h3>
+                    <p className="text-sm text-surface-600 dark:text-surface-400">
                       {getCountryName(inst.country_code)}
                     </p>
                     {inst.institution_type && (
-                      <p className="text-xs text-surface-500 mt-1 capitalize">
+                      <p className="text-xs text-surface-500 dark:text-surface-500 mt-1 capitalize">
                         {inst.institution_type}
                       </p>
                     )}

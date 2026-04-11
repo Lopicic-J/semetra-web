@@ -285,30 +285,30 @@ export default function DocumentsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
         <button
           onClick={() => setViewMode("flow")}
-          className={`bg-surface-100 border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-brand-500" : "border-surface-200 hover:border-surface-300"}`}
+          className={`bg-surface-100 dark:bg-surface-800 border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-brand-500 dark:border-brand-400" : "border-surface-200 dark:border-surface-700 hover:border-surface-300 dark:hover:border-surface-600"}`}
         >
-          <p className="text-lg sm:text-2xl font-bold text-surface-900">{stats.total}</p>
-          <p className="text-xs text-surface-500">{t("documents.totalDocs") || "Gesamt"}</p>
+          <p className="text-lg sm:text-2xl font-bold text-surface-900 dark:text-surface-50">{stats.total}</p>
+          <p className="text-xs text-surface-500 dark:text-surface-400">{t("documents.totalDocs") || "Gesamt"}</p>
         </button>
-        <div className="bg-surface-100 border border-surface-200 rounded-xl p-2 sm:p-3 text-center">
-          <p className="text-lg sm:text-2xl font-bold text-brand-400">{stats.own}</p>
-          <p className="text-xs text-surface-500">{t("documents.typeDocument")}</p>
+        <div className="bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl p-2 sm:p-3 text-center">
+          <p className="text-lg sm:text-2xl font-bold text-brand-400 dark:text-brand-300">{stats.own}</p>
+          <p className="text-xs text-surface-500 dark:text-surface-400">{t("documents.typeDocument")}</p>
         </div>
-        <div className="bg-surface-100 border border-surface-200 rounded-xl p-2 sm:p-3 text-center">
-          <p className="text-lg sm:text-2xl font-bold text-blue-400">{stats.fromTasks + stats.fromExams}</p>
-          <p className="text-xs text-surface-500">{t("documents.typeTaskAttachment")}</p>
+        <div className="bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl p-2 sm:p-3 text-center">
+          <p className="text-lg sm:text-2xl font-bold text-blue-400 dark:text-blue-300">{stats.fromTasks + stats.fromExams}</p>
+          <p className="text-xs text-surface-500 dark:text-surface-400">{t("documents.typeTaskAttachment")}</p>
         </div>
-        <div className="bg-surface-100 border border-surface-200 rounded-xl p-2 sm:p-3 text-center">
-          <p className="text-lg sm:text-2xl font-bold text-cyan-400">{stats.fromModules}</p>
-          <p className="text-xs text-surface-500">{t("documents.typeModuleLink")}</p>
+        <div className="bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl p-2 sm:p-3 text-center">
+          <p className="text-lg sm:text-2xl font-bold text-cyan-400 dark:text-cyan-300">{stats.fromModules}</p>
+          <p className="text-xs text-surface-500 dark:text-surface-400">{t("documents.typeModuleLink")}</p>
         </div>
       </div>
 
       {/* Module distribution */}
       {stats.byModule.length > 0 && (
-        <div className="mb-4 sm:mb-6 bg-surface-100 border border-surface-200 rounded-xl p-3 sm:p-4">
-          <h3 className="text-xs sm:text-sm font-semibold text-surface-800 mb-2 sm:mb-3 flex items-center gap-2">
-            <FolderOpen size={14} className="text-blue-400" /> {t("nav.modules")}
+        <div className="mb-4 sm:mb-6 bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl p-3 sm:p-4">
+          <h3 className="text-xs sm:text-sm font-semibold text-surface-800 dark:text-surface-100 mb-2 sm:mb-3 flex items-center gap-2">
+            <FolderOpen size={14} className="text-blue-400 dark:text-blue-300" /> {t("nav.modules")}
           </h3>
           <div className="flex gap-1 sm:gap-2 flex-wrap">
             {stats.byModule.map(({ module: m, count }) => (
@@ -316,7 +316,7 @@ export default function DocumentsPage() {
                 key={m.id}
                 onClick={() => setFilterModule(filterModule === m.id ? "" : m.id)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition ${
-                  filterModule === m.id ? "ring-2 ring-white/30" : "hover:brightness-110"
+                  filterModule === m.id ? "ring-2 ring-white/30 dark:ring-surface-600" : "hover:brightness-110 dark:hover:brightness-125"
                 }`}
                 style={{ backgroundColor: m.color + "25", color: m.color }}
               >
@@ -332,7 +332,7 @@ export default function DocumentsPage() {
         <div className="flex gap-1 sm:gap-1.5 mb-3 sm:mb-4 flex-wrap">
           <button
             onClick={() => setFilterKind("")}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${!filterKind ? "bg-brand-600 text-white" : "bg-surface-100 border border-surface-200 text-surface-700 hover:bg-surface-200"}`}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${!filterKind ? "bg-brand-600 dark:bg-brand-500 text-white" : "bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700"}`}
           >
             {t("grades.filterAll")}
           </button>
@@ -343,7 +343,7 @@ export default function DocumentsPage() {
                 key={kind}
                 onClick={() => setFilterKind(filterKind === kind ? "" : kind)}
                 className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition ${
-                  filterKind === kind ? "bg-brand-600 text-white" : "bg-surface-100 border border-surface-200 text-surface-700 hover:bg-surface-200"
+                  filterKind === kind ? "bg-brand-600 dark:bg-brand-500 text-white" : "bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700"
                 }`}
               >
                 <span style={{ color: cfg.color }}>{cfg.icon}</span> {cfg.label} ({count})
@@ -355,29 +355,29 @@ export default function DocumentsPage() {
 
       {/* Search + view toggle */}
       <div className="flex gap-1 sm:gap-2 mb-3 sm:mb-4 flex-wrap">
-        <div className="relative flex-1 min-w-[150px] sm:min-w-[200px]">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+        <div className="relative flex-1 min-w-0">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 flex-shrink-0" />
           <input
             value={searchQ}
             onChange={e => setSearchQ(e.target.value)}
             placeholder={t("documents.search")}
-            className="w-full bg-surface-100 border border-surface-200 rounded-lg pl-10 pr-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none transition"
+            className="w-full bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg pl-10 pr-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-surface-100 placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
           />
         </div>
         <select
           value={filterModule}
           onChange={e => setFilterModule(e.target.value)}
-          className="bg-surface-100 border border-surface-200 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900"
+          className="bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-surface-100"
         >
           <option value="">{t("nav.modules")}</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
-        <div className="flex rounded-lg overflow-hidden border border-surface-200">
+        <div className="flex rounded-lg overflow-hidden border border-surface-200 dark:border-surface-700">
           {(["flow", "grid", "list"] as const).map(v => (
             <button
               key={v}
               onClick={() => setViewMode(v)}
-              className={`p-1 sm:p-2 transition ${viewMode === v ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500 hover:text-surface-900"}`}
+              className={`p-1 sm:p-2 transition ${viewMode === v ? "bg-brand-600 dark:bg-brand-500 text-white" : "bg-surface-100 dark:bg-surface-800 text-surface-500 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100"}`}
               title={v === "flow" ? t("documents.viewFlow") : v === "grid" ? t("documents.viewCards") : t("documents.viewList")}
             >
               {v === "grid" ? <LayoutGrid size={14} /> : v === "list" ? <ListIcon size={14} /> : <Workflow size={14} />}
@@ -387,7 +387,7 @@ export default function DocumentsPage() {
         {(filterModule || filterKind || searchQ) && (
           <button
             onClick={() => { setFilterModule(""); setFilterKind(""); setSearchQ(""); }}
-            className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-surface-100 text-surface-500 hover:text-surface-900 text-xs transition flex-shrink-0"
+            className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-surface-100 dark:bg-surface-800 text-surface-500 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100 text-xs transition flex-shrink-0"
           >
             {t("grades.filterAll")}
           </button>
@@ -455,13 +455,13 @@ function EmptyState({ hasAny, flowCount, onSwitchToFlow }: { hasAny: boolean; fl
   const { t } = useTranslation();
   return (
     <div className="text-center py-16">
-      <FolderOpen size={48} className="mx-auto mb-4 text-surface-300" />
-      <p className="text-surface-500">{hasAny ? t("documents.noDocuments") : t("documents.noDocumentsOwn")}</p>
-      <p className="text-sm mt-1 text-surface-400">
+      <FolderOpen size={48} className="mx-auto mb-4 text-surface-300 dark:text-surface-600" />
+      <p className="text-surface-500 dark:text-surface-400">{hasAny ? t("documents.noDocuments") : t("documents.noDocumentsOwn")}</p>
+      <p className="text-sm mt-1 text-surface-400 dark:text-surface-500">
         {hasAny ? t("documents.tryOtherFilter") : t("documents.addDocuments")}
       </p>
       {!hasAny && flowCount && flowCount > 0 && onSwitchToFlow && (
-        <button onClick={onSwitchToFlow} className="mt-4 px-4 py-2 rounded-lg bg-brand-50 text-brand-600 text-sm font-medium hover:bg-brand-100 transition">
+        <button onClick={onSwitchToFlow} className="mt-4 px-4 py-2 rounded-lg bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-sm font-medium hover:bg-brand-100 dark:hover:bg-brand-900/50 transition">
           <Workflow size={14} className="inline mr-1.5" />
           {flowCount} Dokumente aus Modulen, Aufgaben & Prüfungen anzeigen
         </button>
@@ -481,14 +481,14 @@ function DocCard({ doc, modules, onEdit, onDelete, onTogglePin }: {
 
   return (
     <div
-      className="bg-surface-100 border border-surface-200 rounded-xl p-2 sm:p-4 hover:border-surface-300 transition group"
+      className="bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl p-2 sm:p-4 hover:border-surface-300 dark:hover:border-surface-600 transition group"
       style={{ borderTopWidth: 3, borderTopColor: cfg.color }}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
           <span style={{ color: cfg.color }}>{cfg.icon}</span>
-          <h3 className="font-semibold text-surface-900 text-xs sm:text-sm line-clamp-1 flex-1">
-            {doc.pinned && <Pin size={10} className="inline mr-1 text-amber-400" />}
+          <h3 className="font-semibold text-surface-900 dark:text-surface-100 text-xs sm:text-sm line-clamp-1 flex-1">
+            {doc.pinned && <Pin size={10} className="inline mr-1 text-amber-400 dark:text-amber-300" />}
             {doc.title}
           </h3>
         </div>
@@ -498,7 +498,7 @@ function DocCard({ doc, modules, onEdit, onDelete, onTogglePin }: {
         </span>
       </div>
 
-      {domain && <p className="text-xs text-surface-400 mb-2 truncate text-[10px]">{domain}</p>}
+      {domain && <p className="text-xs text-surface-400 dark:text-surface-500 mb-2 truncate text-[10px]">{domain}</p>}
 
       <div className="flex items-center gap-1 sm:gap-2 flex-wrap mb-2 sm:mb-3">
         {mod && (
@@ -508,19 +508,19 @@ function DocCard({ doc, modules, onEdit, onDelete, onTogglePin }: {
           </span>
         )}
         {doc.tags?.length > 0 && doc.tags.map(t => (
-          <span key={t} className="text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded bg-surface-100 text-surface-500">
+          <span key={t} className="text-[10px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded bg-surface-100 dark:bg-surface-700 text-surface-500 dark:text-surface-400">
             <Tag size={8} className="inline mr-0.5" />{t}
           </span>
         ))}
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[10px] sm:text-xs text-surface-400">{new Date(doc.updated_at).toLocaleDateString("de-CH")}</span>
+        <span className="text-[10px] sm:text-xs text-surface-400 dark:text-surface-500">{new Date(doc.updated_at).toLocaleDateString("de-CH")}</span>
         <div className="flex items-center gap-0 sm:gap-0.5 opacity-0 group-hover:opacity-100 transition">
-          <a href={doc.url} target="_blank" rel="noopener" className="p-1 sm:p-1.5 text-surface-500 hover:text-blue-400 transition" title={t("documents.open")}><ExternalLink size={13} /></a>
-          <button onClick={onTogglePin} className={`p-1 sm:p-1.5 transition ${doc.pinned ? "text-amber-400" : "text-surface-500 hover:text-amber-400"}`} title={doc.pinned ? t("documents.detach") : t("documents.pin")}><Pin size={13} /></button>
-          <button onClick={onEdit} className="p-1 sm:p-1.5 text-surface-500 hover:text-surface-900 transition" title={t("documents.edit")}><Pencil size={13} /></button>
-          <button onClick={onDelete} className="p-1 sm:p-1.5 text-surface-500 hover:text-red-400 transition" title={t("documents.delete")}><Trash2 size={13} /></button>
+          <a href={doc.url} target="_blank" rel="noopener" className="p-1 sm:p-1.5 text-surface-500 dark:text-surface-400 hover:text-blue-400 dark:hover:text-blue-300 transition" title={t("documents.open")}><ExternalLink size={13} /></a>
+          <button onClick={onTogglePin} className={`p-1 sm:p-1.5 transition ${doc.pinned ? "text-amber-400 dark:text-amber-300" : "text-surface-500 dark:text-surface-400 hover:text-amber-400 dark:hover:text-amber-300"}`} title={doc.pinned ? t("documents.detach") : t("documents.pin")}><Pin size={13} /></button>
+          <button onClick={onEdit} className="p-1 sm:p-1.5 text-surface-500 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100 transition" title={t("documents.edit")}><Pencil size={13} /></button>
+          <button onClick={onDelete} className="p-1 sm:p-1.5 text-surface-500 dark:text-surface-400 hover:text-red-400 dark:hover:text-red-300 transition" title={t("documents.delete")}><Trash2 size={13} /></button>
         </div>
       </div>
     </div>
@@ -536,12 +536,12 @@ function DocListRow({ doc, modules, onEdit, onDelete }: {
   const cfg = KIND_CONFIG[doc.kind] ?? KIND_CONFIG.other;
 
   return (
-    <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-surface-100 border border-surface-200 rounded-lg hover:border-surface-300 transition group">
+    <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg hover:border-surface-300 dark:hover:border-surface-600 transition group">
       <span style={{ color: cfg.color }}>{cfg.icon}</span>
-      {doc.pinned && <Pin size={12} className="text-amber-400 flex-shrink-0" />}
+      {doc.pinned && <Pin size={12} className="text-amber-400 dark:text-amber-300 flex-shrink-0" />}
       <div className="flex-1 min-w-0">
-        <h3 className="text-xs sm:text-sm font-medium text-surface-900 line-clamp-1">{doc.title}</h3>
-        <p className="text-[10px] sm:text-xs text-surface-400 truncate">{doc.url}</p>
+        <h3 className="text-xs sm:text-sm font-medium text-surface-900 dark:text-surface-100 line-clamp-1">{doc.title}</h3>
+        <p className="text-[10px] sm:text-xs text-surface-400 dark:text-surface-500 truncate">{doc.url}</p>
       </div>
       {mod && (
         <span className="text-xs px-1.5 sm:px-2 py-0.5 rounded-full font-medium flex-shrink-0" style={{ backgroundColor: mod.color + "20", color: mod.color }}>
@@ -552,9 +552,9 @@ function DocListRow({ doc, modules, onEdit, onDelete }: {
         {cfg.label}
       </span>
       <div className="flex items-center gap-0 sm:gap-0.5 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
-        <a href={doc.url} target="_blank" rel="noopener" className="p-1 sm:p-1.5 text-surface-500 hover:text-blue-400 transition" title={t("documents.open")}><ExternalLink size={13} /></a>
-        <button onClick={onEdit} className="p-1 sm:p-1.5 text-surface-500 hover:text-surface-900 transition" title={t("documents.edit")}><Pencil size={13} /></button>
-        <button onClick={onDelete} className="p-1 sm:p-1.5 text-surface-500 hover:text-red-400 transition" title={t("documents.delete")}><Trash2 size={13} /></button>
+        <a href={doc.url} target="_blank" rel="noopener" className="p-1 sm:p-1.5 text-surface-500 dark:text-surface-400 hover:text-blue-400 dark:hover:text-blue-300 transition" title={t("documents.open")}><ExternalLink size={13} /></a>
+        <button onClick={onEdit} className="p-1 sm:p-1.5 text-surface-500 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100 transition" title={t("documents.edit")}><Pencil size={13} /></button>
+        <button onClick={onDelete} className="p-1 sm:p-1.5 text-surface-500 dark:text-surface-400 hover:text-red-400 dark:hover:text-red-300 transition" title={t("documents.delete")}><Trash2 size={13} /></button>
       </div>
     </div>
   );
@@ -595,7 +595,7 @@ function DocFlowView({ items, onOpenDoc }: { items: DocFlowItem[]; onOpenDoc: (d
             </span>
           );
         })}
-        <span className="text-xs text-surface-400 ml-auto">{t("documents.entriesCount", { count: items.length })}</span>
+        <span className="text-xs text-surface-400 dark:text-surface-500 ml-auto">{t("documents.entriesCount", { count: items.length })}</span>
       </div>
 
       {/* Grouped by module */}
@@ -605,9 +605,9 @@ function DocFlowView({ items, onOpenDoc }: { items: DocFlowItem[]; onOpenDoc: (d
           <div key={modName}>
             <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
               <div className="w-2 sm:w-3 h-2 sm:h-3 rounded-full flex-shrink-0" style={{ backgroundColor: modName === "Ohne Zuordnung" ? "#999" : modColor }} />
-              <h3 className="text-xs sm:text-sm font-semibold text-surface-800">{modName}</h3>
-              <span className="text-xs text-surface-400">({modItems.length})</span>
-              <div className="h-px flex-1 bg-surface-200" />
+              <h3 className="text-xs sm:text-sm font-semibold text-surface-800 dark:text-surface-100">{modName}</h3>
+              <span className="text-xs text-surface-400 dark:text-surface-500">({modItems.length})</span>
+              <div className="h-px flex-1 bg-surface-200 dark:bg-surface-700" />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2 ml-2 sm:ml-6">
@@ -619,24 +619,24 @@ function DocFlowView({ items, onOpenDoc }: { items: DocFlowItem[]; onOpenDoc: (d
                 return (
                   <div
                     key={item.id}
-                    className={`flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-surface-100 border border-surface-200 rounded-lg transition ${
-                      isOwn ? "hover:border-surface-300 cursor-pointer" : ""
+                    className={`flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg transition ${
+                      isOwn ? "hover:border-surface-300 dark:hover:border-surface-600 cursor-pointer" : ""
                     } group`}
                     onClick={() => { if (isOwn && item.original) onOpenDoc(item.original); }}
                   >
                     <span className="mt-0.5 flex-shrink-0" style={{ color: cfg.color }}>{cfg.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <h4 className={`text-xs sm:text-sm font-medium text-surface-900 line-clamp-1 ${isOwn ? "group-hover:text-brand-600" : ""}`}>
-                        {item.pinned && <Pin size={10} className="inline mr-1 text-amber-400" />}
+                      <h4 className={`text-xs sm:text-sm font-medium text-surface-900 dark:text-surface-100 line-clamp-1 ${isOwn ? "group-hover:text-brand-600 dark:group-hover:text-brand-400" : ""}`}>
+                        {item.pinned && <Pin size={10} className="inline mr-1 text-amber-400 dark:text-amber-300" />}
                         {item.title}
                       </h4>
-                      <p className="text-[10px] sm:text-xs text-surface-400 truncate mt-0.5">{item.context_label}</p>
+                      <p className="text-[10px] sm:text-xs text-surface-400 dark:text-surface-500 truncate mt-0.5">{item.context_label}</p>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <span className="text-xs px-1 sm:px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: srcCfg.color + "20", color: srcCfg.color }}>
                         {srcCfg.label}
                       </span>
-                      <a href={item.url} target="_blank" rel="noopener" className="p-1 text-surface-400 hover:text-blue-400 transition" onClick={e => e.stopPropagation()} title={t("documents.open")}>
+                      <a href={item.url} target="_blank" rel="noopener" className="p-1 text-surface-400 dark:text-surface-500 hover:text-blue-400 dark:hover:text-blue-300 transition" onClick={e => e.stopPropagation()} title={t("documents.open")}>
                         <ExternalLink size={12} />
                       </a>
                     </div>
@@ -723,30 +723,30 @@ function PdfToolsModal({ onClose }: { onClose: () => void }) {
   const [activeTab, setActiveTab] = useState<"merge" | "split">("merge");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-surface-100 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-3 sm:p-4">
+      <div className="bg-surface-100 dark:bg-surface-800 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-surface-200">
-          <div className="flex items-center gap-4">
-            <h2 className="text-lg font-bold text-surface-900">{t("documents.pdfTools")}</h2>
-            <div className="flex bg-surface-100 rounded-lg p-0.5">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-surface-200 dark:border-surface-700">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+            <h2 className="text-lg font-bold text-surface-900 dark:text-surface-100 truncate">{t("documents.pdfTools")}</h2>
+            <div className="flex bg-surface-100 dark:bg-surface-700 rounded-lg p-0.5 flex-shrink-0">
               <button onClick={() => setActiveTab("merge")}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
-                  activeTab === "merge" ? "bg-surface-100 shadow text-brand-700" : "text-surface-500 hover:text-surface-700"
+                className={`px-2 sm:px-3 py-1.5 rounded-md text-xs font-medium transition whitespace-nowrap ${
+                  activeTab === "merge" ? "bg-surface-100 dark:bg-surface-800 shadow text-brand-700 dark:text-brand-400" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200"
                 }`}>
-                <Combine size={13} className="inline mr-1.5 -mt-0.5" />
+                <Combine size={13} className="inline mr-1 -mt-0.5" />
                 {t("documents.pdfMerge")}
               </button>
               <button onClick={() => setActiveTab("split")}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
-                  activeTab === "split" ? "bg-surface-100 shadow text-brand-700" : "text-surface-500 hover:text-surface-700"
+                className={`px-2 sm:px-3 py-1.5 rounded-md text-xs font-medium transition whitespace-nowrap ${
+                  activeTab === "split" ? "bg-surface-100 dark:bg-surface-800 shadow text-brand-700 dark:text-brand-400" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200"
                 }`}>
-                <Scissors size={13} className="inline mr-1.5 -mt-0.5" />
+                <Scissors size={13} className="inline mr-1 -mt-0.5" />
                 {t("documents.pdfSplit")}
               </button>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface-100 text-surface-400 hover:text-surface-600 transition">
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-300 transition flex-shrink-0">
             <X size={18} />
           </button>
         </div>
@@ -843,20 +843,20 @@ function PdfMergePanel() {
   return (
     <div className="flex flex-col h-full">
       <div className="mb-3">
-        <p className="text-xs text-surface-500">{t("documents.pdfMergeDesc")}</p>
-        <p className="text-[11px] text-surface-400 mt-0.5">{t("documents.pdfDragHint")}</p>
+        <p className="text-xs text-surface-500 dark:text-surface-400">{t("documents.pdfMergeDesc")}</p>
+        <p className="text-[11px] text-surface-400 dark:text-surface-500 mt-0.5">{t("documents.pdfDragHint")}</p>
       </div>
 
       <input ref={fileInputRef} type="file" accept=".pdf" multiple className="hidden"
         onChange={e => { if (e.target.files) addFiles(e.target.files); e.target.value = ""; }} />
       <button onClick={() => fileInputRef.current?.click()}
-        className="w-full mb-4 px-4 py-5 rounded-xl border-2 border-dashed border-surface-300 text-surface-500 text-sm hover:border-brand-400 hover:text-brand-600 transition flex flex-col items-center gap-1.5">
+        className="w-full mb-4 px-4 py-5 rounded-xl border-2 border-dashed border-surface-300 dark:border-surface-600 text-surface-500 dark:text-surface-400 text-sm hover:border-brand-400 dark:hover:border-brand-400 hover:text-brand-600 dark:hover:text-brand-400 transition flex flex-col items-center gap-1.5 active:scale-95 touch-friendly">
         <Upload size={18} />
         {t("documents.pdfAddFiles")}
       </button>
 
       {loading && (
-        <div className="flex items-center justify-center py-6 text-surface-400 text-sm gap-2">
+        <div className="flex items-center justify-center py-6 text-surface-400 dark:text-surface-500 text-sm gap-2">
           <Loader2 size={16} className="animate-spin" /> Seiten werden geladen...
         </div>
       )}
@@ -864,7 +864,7 @@ function PdfMergePanel() {
       {/* Page thumbnail grid */}
       {pages.length > 0 && (
         <div className="flex-1 overflow-y-auto mb-4">
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
             {pages.map((pg, i) => (
               <div key={`${pg.fileIndex}-${pg.pageIndex}-${i}`}
                 draggable
@@ -873,25 +873,25 @@ function PdfMergePanel() {
                 onDragEnd={() => { setDragIdx(null); setDragOverIdx(null); }}
                 onDrop={() => handleDrop(i)}
                 className={`relative group rounded-lg border-2 transition cursor-grab active:cursor-grabbing overflow-hidden ${
-                  dragOverIdx === i ? "border-brand-400 ring-2 ring-brand-200" : dragIdx === i ? "opacity-40 border-surface-300" : "border-surface-200 hover:border-surface-300"
+                  dragOverIdx === i ? "border-brand-400 dark:border-brand-400 ring-2 ring-brand-200 dark:ring-brand-900" : dragIdx === i ? "opacity-40 border-surface-300 dark:border-surface-600" : "border-surface-200 dark:border-surface-700 hover:border-surface-300 dark:hover:border-surface-600"
                 }`}
               >
                 {/* Order badge */}
-                <div className="absolute top-1 left-1 bg-brand-600 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center z-10">
+                <div className="absolute top-1 left-1 bg-brand-600 dark:bg-brand-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center z-10">
                   {i + 1}
                 </div>
                 {/* Remove button */}
                 <button onClick={() => removePage(i)}
-                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition z-10">
+                  className="absolute top-1 right-1 bg-red-500 dark:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition z-10">
                   <X size={10} />
                 </button>
                 {/* Thumbnail */}
                 <img src={pg.dataUrl} alt={`Page ${pg.pageIndex + 1}`}
-                  className="w-full h-auto bg-[rgb(var(--card-bg))]" draggable={false} />
+                  className="w-full h-auto bg-white dark:bg-surface-700" draggable={false} />
                 {/* File label */}
-                <div className="px-1.5 py-1 bg-surface-50 border-t border-surface-200">
-                  <p className="text-[9px] text-surface-500 truncate">{pg.fileName}</p>
-                  <p className="text-[10px] font-medium text-surface-700">S. {pg.pageIndex + 1}</p>
+                <div className="px-1.5 py-1 bg-surface-50 dark:bg-surface-700 border-t border-surface-200 dark:border-surface-600">
+                  <p className="text-[9px] text-surface-500 dark:text-surface-400 truncate">{pg.fileName}</p>
+                  <p className="text-[10px] font-medium text-surface-700 dark:text-surface-300">S. {pg.pageIndex + 1}</p>
                 </div>
               </div>
             ))}
@@ -901,12 +901,12 @@ function PdfMergePanel() {
 
       {/* Footer with merge button */}
       {pages.length > 0 && (
-        <div className="flex items-center justify-between pt-3 border-t border-surface-200">
-          <span className="text-xs text-surface-500">
+        <div className="flex items-center justify-between pt-3 border-t border-surface-200 dark:border-surface-700">
+          <span className="text-xs text-surface-500 dark:text-surface-400">
             {pages.length} {t("documents.pdfPages")} · {new Set(pages.map(p => p.fileIndex)).size} PDFs
           </span>
           <button onClick={mergePdfs} disabled={pages.length < 1 || processing}
-            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50">
+            className="flex items-center gap-2 bg-brand-600 dark:bg-brand-500 hover:bg-brand-500 dark:hover:bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50">
             {processing ? <Loader2 size={14} className="animate-spin" /> : <ArrowDownToLine size={14} />}
             {processing ? t("documents.pdfProcessing") : t("documents.pdfMergeAction")}
           </button>
@@ -1013,8 +1013,8 @@ function PdfSplitPanel() {
   return (
     <div className="flex flex-col h-full">
       <div className="mb-3">
-        <p className="text-xs text-surface-500">{t("documents.pdfSplitDesc")}</p>
-        <p className="text-[11px] text-surface-400 mt-0.5">{t("documents.pdfClickToAssign")}</p>
+        <p className="text-xs text-surface-500 dark:text-surface-400">{t("documents.pdfSplitDesc")}</p>
+        <p className="text-[11px] text-surface-400 dark:text-surface-500 mt-0.5">{t("documents.pdfClickToAssign")}</p>
       </div>
 
       <input ref={fileInputRef} type="file" accept=".pdf" className="hidden"
@@ -1022,36 +1022,36 @@ function PdfSplitPanel() {
 
       {!file ? (
         <button onClick={() => fileInputRef.current?.click()}
-          className="w-full px-4 py-5 rounded-xl border-2 border-dashed border-surface-300 text-surface-500 text-sm hover:border-brand-400 hover:text-brand-600 transition flex flex-col items-center gap-1.5">
+          className="w-full px-4 py-5 rounded-xl border-2 border-dashed border-surface-300 dark:border-surface-600 text-surface-500 dark:text-surface-400 text-sm hover:border-brand-400 dark:hover:border-brand-400 hover:text-brand-600 dark:hover:text-brand-400 transition flex flex-col items-center gap-1.5 active:scale-95 touch-friendly">
           <Upload size={18} />
           {t("documents.pdfSelectFile")}
         </button>
       ) : (
         <>
           {loading && (
-            <div className="flex items-center justify-center py-6 text-surface-400 text-sm gap-2">
+            <div className="flex items-center justify-center py-6 text-surface-400 dark:text-surface-500 text-sm gap-2">
               <Loader2 size={16} className="animate-spin" /> Seiten werden geladen...
             </div>
           )}
 
           {/* Controls: number of output PDFs + file info */}
-          <div className="flex items-center justify-between mb-3 px-1">
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-medium text-surface-700">{t("documents.pdfNumOutputs")}:</span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-3 px-1">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="text-xs font-medium text-surface-700 dark:text-surface-300 whitespace-nowrap">{t("documents.pdfNumOutputs")}:</span>
               <div className="flex items-center gap-1">
                 <button onClick={() => changeNumOutputs(-1)} disabled={numOutputs <= 2}
-                  className="w-6 h-6 rounded-md bg-surface-100 hover:bg-surface-200 text-surface-600 flex items-center justify-center disabled:opacity-30 transition">
+                  className="w-6 h-6 rounded-md bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-600 dark:text-surface-400 flex items-center justify-center disabled:opacity-30 transition">
                   <Minus size={12} />
                 </button>
-                <span className="text-sm font-bold text-surface-800 w-6 text-center">{numOutputs}</span>
+                <span className="text-sm font-bold text-surface-800 dark:text-surface-200 w-6 text-center">{numOutputs}</span>
                 <button onClick={() => changeNumOutputs(1)} disabled={numOutputs >= 8}
-                  className="w-6 h-6 rounded-md bg-surface-100 hover:bg-surface-200 text-surface-600 flex items-center justify-center disabled:opacity-30 transition">
+                  className="w-6 h-6 rounded-md bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-600 dark:text-surface-400 flex items-center justify-center disabled:opacity-30 transition">
                   <Plus size={12} />
                 </button>
               </div>
             </div>
             <button onClick={() => { setFile(null); setPages([]); setAssignments([]); }}
-              className="text-xs text-surface-400 hover:text-red-500 transition">
+              className="text-xs text-surface-400 dark:text-surface-500 hover:text-red-500 dark:hover:text-red-400 transition">
               {t("documents.pdfSelectFile")}
             </button>
           </div>
@@ -1061,8 +1061,8 @@ function PdfSplitPanel() {
             {Array.from({ length: numOutputs }, (_, g) => (
               <div key={g} className="flex items-center gap-1.5 text-xs">
                 <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: GROUP_COLORS[g] }} />
-                <span className="text-surface-600">PDF {g + 1}</span>
-                <span className="text-surface-400">({groupCounts[g]})</span>
+                <span className="text-surface-600 dark:text-surface-300">PDF {g + 1}</span>
+                <span className="text-surface-400 dark:text-surface-500">({groupCounts[g]})</span>
               </div>
             ))}
           </div>
@@ -1070,11 +1070,11 @@ function PdfSplitPanel() {
           {/* Page thumbnail grid */}
           {pages.length > 0 && (
             <div className="flex-1 overflow-y-auto mb-4">
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
                 {pages.map((pg, i) => (
                   <div key={`split-${pg.pageIndex}-${i}`}
                     onClick={() => cycleGroup(i)}
-                    className="relative group rounded-lg border-2 transition cursor-pointer overflow-hidden hover:shadow-md"
+                    className="relative group rounded-lg border-2 transition cursor-pointer overflow-hidden hover:shadow-md active:scale-95"
                     style={{ borderColor: GROUP_COLORS[assignments[i] ?? 0] }}
                   >
                     {/* Group badge */}
@@ -1082,22 +1082,22 @@ function PdfSplitPanel() {
                       style={{ backgroundColor: GROUP_COLORS[assignments[i] ?? 0] }}>
                       {(assignments[i] ?? 0) + 1}
                     </div>
-                    {/* Mini group selector on hover */}
+                    {/* Mini group selector on hover/focus */}
                     <div className="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition z-10">
                       {Array.from({ length: numOutputs }, (_, g) => (
                         <button key={g}
                           onClick={e => { e.stopPropagation(); setGroup(i, g); }}
-                          className="w-4 h-4 rounded-full border border-white/50 transition hover:scale-110"
+                          className="w-4 h-4 rounded-full border border-white/50 transition hover:scale-110 touch-friendly"
                           style={{ backgroundColor: GROUP_COLORS[g], opacity: assignments[i] === g ? 1 : 0.5 }}
                         />
                       ))}
                     </div>
                     {/* Thumbnail */}
                     <img src={pg.dataUrl} alt={`Page ${pg.pageIndex + 1}`}
-                      className="w-full h-auto bg-[rgb(var(--card-bg))]" draggable={false} />
+                      className="w-full h-auto bg-white dark:bg-surface-700" draggable={false} />
                     {/* Page label */}
                     <div className="px-1.5 py-1 border-t" style={{ borderColor: GROUP_COLORS[assignments[i] ?? 0], backgroundColor: `${GROUP_COLORS[assignments[i] ?? 0]}10` }}>
-                      <p className="text-[10px] font-medium text-surface-700">{t("documents.pdfPage")} {pg.pageIndex + 1}</p>
+                      <p className="text-[10px] font-medium text-surface-700 dark:text-surface-300">{t("documents.pdfPage")} {pg.pageIndex + 1}</p>
                     </div>
                   </div>
                 ))}
@@ -1107,12 +1107,12 @@ function PdfSplitPanel() {
 
           {/* Footer with split button */}
           {pages.length > 0 && (
-            <div className="flex items-center justify-between pt-3 border-t border-surface-200">
-              <span className="text-xs text-surface-500">
+            <div className="flex items-center justify-between pt-3 border-t border-surface-200 dark:border-surface-700">
+              <span className="text-xs text-surface-500 dark:text-surface-400">
                 {pages.length} {t("documents.pdfPages")} → {numOutputs} PDFs
               </span>
               <button onClick={splitPdf} disabled={processing}
-                className="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50">
+                className="flex items-center gap-2 bg-brand-600 dark:bg-brand-500 hover:bg-brand-500 dark:hover:bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50">
                 {processing ? <Loader2 size={14} className="animate-spin" /> : <Scissors size={14} />}
                 {processing ? t("documents.pdfProcessing") : t("documents.pdfSplitAction")}
               </button>
@@ -1226,19 +1226,19 @@ function DocModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
-      <div className="bg-surface-100 border border-surface-200 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      <div className="bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center gap-2 mb-4 sm:mb-5">
-          <h2 className="text-base sm:text-lg font-bold text-surface-900">{isEdit ? t("documents.edit") : t("documents.modal.title")}</h2>
-          <button onClick={onClose} className="text-surface-500 hover:text-surface-900 transition flex-shrink-0"><X size={20} /></button>
+          <h2 className="text-base sm:text-lg font-bold text-surface-900 dark:text-surface-100">{isEdit ? t("documents.edit") : t("documents.modal.title")}</h2>
+          <button onClick={onClose} className="text-surface-500 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100 transition flex-shrink-0"><X size={20} /></button>
         </div>
 
         {/* Mode toggle: Link vs Upload */}
         {!isEdit && (
-          <div className="flex rounded-lg bg-surface-100 p-0.5 mb-4">
+          <div className="flex rounded-lg bg-surface-100 dark:bg-surface-700 p-0.5 mb-4">
             <button
               onClick={() => setMode("link")}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs sm:text-sm font-medium transition ${
-                mode === "link" ? "bg-surface-100 text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"
+                mode === "link" ? "bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-surface-100 shadow-sm" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300"
               }`}
             >
               <Globe size={14} /> {t("documents.typeLink")}
@@ -1246,7 +1246,7 @@ function DocModal({
             <button
               onClick={() => setMode("upload")}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs sm:text-sm font-medium transition ${
-                mode === "upload" ? "bg-surface-100 text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"
+                mode === "upload" ? "bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-surface-100 shadow-sm" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300"
               }`}
             >
               <Upload size={14} /> {t("documents.typeFile")}
@@ -1257,7 +1257,7 @@ function DocModal({
         {/* Link mode */}
         {(mode === "link" || isEdit) && (
           <>
-            <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("documents.typeLink")}</label>
+            <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5">{t("documents.typeLink")}</label>
             <input
               value={url}
               onChange={e => {
@@ -1268,7 +1268,7 @@ function DocModal({
                 }
               }}
               placeholder="https://..."
-              className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 mb-3 focus:border-brand-500 focus:outline-none transition"
+              className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-surface-900 dark:text-surface-100 placeholder:text-surface-400 dark:placeholder:text-surface-500 mb-3 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
               autoFocus
             />
           </>
@@ -1282,49 +1282,49 @@ function DocModal({
             {!uploadFile ? (
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full border-2 border-dashed border-surface-300 hover:border-brand-400 rounded-xl p-3 sm:p-6 mb-3 flex flex-col items-center gap-2 transition-colors group"
+                className="w-full border-2 border-dashed border-surface-300 dark:border-surface-600 hover:border-brand-400 dark:hover:border-brand-400 rounded-xl p-3 sm:p-6 mb-3 flex flex-col items-center gap-2 transition-colors group active:scale-95 touch-friendly"
               >
-                <Upload size={28} className="text-surface-300 group-hover:text-brand-500 transition-colors" />
-                <span className="text-sm font-medium text-surface-500 group-hover:text-surface-700">{t("documents.typeFile")}</span>
-                <span className="text-[10px] text-surface-400">PDF, Word, Excel, {t("documents.typeImage")}, {t("documents.typeVideo")}, etc.</span>
+                <Upload size={28} className="text-surface-300 dark:text-surface-600 group-hover:text-brand-500 dark:group-hover:text-brand-400 transition-colors" />
+                <span className="text-sm font-medium text-surface-500 dark:text-surface-400 group-hover:text-surface-700 dark:group-hover:text-surface-300">{t("documents.typeFile")}</span>
+                <span className="text-[10px] text-surface-400 dark:text-surface-500">PDF, Word, Excel, {t("documents.typeImage")}, {t("documents.typeVideo")}, etc.</span>
               </button>
             ) : (
-              <div className="flex items-center gap-3 bg-surface-50 border border-surface-200 rounded-xl p-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center shrink-0">
-                  <File size={18} className="text-brand-600" />
+              <div className="flex items-center gap-3 bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-xl p-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-brand-50 dark:bg-brand-900/30 flex items-center justify-center shrink-0">
+                  <File size={18} className="text-brand-600 dark:text-brand-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-surface-800 truncate">{uploadFile.name}</p>
-                  <p className="text-xs text-surface-400">{(uploadFile.size / 1024).toFixed(0)} KB</p>
+                  <p className="text-sm font-medium text-surface-800 dark:text-surface-200 truncate">{uploadFile.name}</p>
+                  <p className="text-xs text-surface-400 dark:text-surface-500">{(uploadFile.size / 1024).toFixed(0)} KB</p>
                 </div>
                 <button onClick={() => { setUploadFile(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
-                  className="p-1 rounded hover:bg-surface-200 text-surface-400 hover:text-surface-600 shrink-0">
+                  className="p-1 rounded hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-300 shrink-0 transition">
                   <X size={14} />
                 </button>
               </div>
             )}
             {uploadError && (
-              <p className="text-xs text-red-500 mb-2">{uploadError}</p>
+              <p className="text-xs text-red-500 dark:text-red-400 mb-2">{uploadError}</p>
             )}
           </>
         )}
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("documents.modal.titleLabel")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5">{t("documents.modal.titleLabel")}</label>
         <input
           value={title}
           onChange={e => setTitle(e.target.value)}
           placeholder="z.B. Skript Kapitel 5, Vorlesungsfolien..."
-          className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 mb-3 focus:border-brand-500 focus:outline-none transition"
+          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-surface-900 dark:text-surface-100 placeholder:text-surface-400 dark:placeholder:text-surface-500 mb-3 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
         />
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("grades.modal.typeLabel")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5">{t("grades.modal.typeLabel")}</label>
         <div className="flex gap-1 sm:gap-1.5 mb-3 flex-wrap">
           {Object.entries(KIND_CONFIG).map(([k, cfg]) => (
             <button
               key={k}
               onClick={() => setKind(k as Doc["kind"])}
               className={`flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-medium transition ${
-                kind === k ? "bg-brand-600 text-white" : "bg-surface-100 border border-surface-200 text-surface-500 hover:text-surface-900"
+                kind === k ? "bg-brand-600 dark:bg-brand-500 text-white" : "bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 text-surface-500 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-200"
               }`}
             >
               <span style={{ color: kind === k ? "white" : cfg.color }}>{cfg.icon}</span> {cfg.label}
@@ -1332,11 +1332,11 @@ function DocModal({
           ))}
         </div>
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5">{t("documents.modal.modulLabel")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5">{t("documents.modal.modulLabel")}</label>
         <select
           value={moduleId}
           onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); }}
-          className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 mb-2"
+          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-surface-100 mb-2"
         >
           <option value="">— {t("documents.modal.moduleEmpty")} —</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -1347,7 +1347,7 @@ function DocModal({
             <select
               value={examId}
               onChange={e => setExamId(e.target.value)}
-              className="flex-1 bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900"
+              className="flex-1 bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-surface-100"
             >
               <option value="">— keine Prüfung —</option>
               {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
@@ -1355,7 +1355,7 @@ function DocModal({
             <select
               value={taskId}
               onChange={e => setTaskId(e.target.value)}
-              className="flex-1 bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900"
+              className="flex-1 bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-surface-100"
             >
               <option value="">— keine Aufgabe —</option>
               {filteredTasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
@@ -1363,18 +1363,18 @@ function DocModal({
           </div>
         )}
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 mb-1.5 mt-2">{t("nav.modules")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5 mt-2">{t("nav.modules")}</label>
         <input
           value={tagsStr}
           onChange={e => setTagsStr(e.target.value)}
           placeholder="z.B. Skript, Vorlesung, Übung"
-          className="w-full bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 placeholder:text-surface-400 mb-3 sm:mb-4 focus:border-brand-500 focus:outline-none transition"
+          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-surface-100 placeholder:text-surface-400 dark:placeholder:text-surface-500 mb-3 sm:mb-4 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
         />
 
         <button
           onClick={handleSave}
           disabled={saving || uploading || !canSave}
-          className="w-full bg-brand-600 hover:bg-brand-500 text-white py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full bg-brand-600 dark:bg-brand-500 hover:bg-brand-500 dark:hover:bg-brand-600 text-white py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {(saving || uploading) && <Loader2 size={14} className="animate-spin" />}
           {uploading ? t("documents.modal.uploading") : saving ? t("documents.modal.save") : isEdit ? t("documents.modal.save") : t("documents.modal.add")}

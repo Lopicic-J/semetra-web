@@ -329,9 +329,9 @@ export default function ProfilePage() {
       </div>
 
       {/* Cards grid */}
-      <div className="grid sm:grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         {/* Plan Card */}
-        <div className="bg-gray-900 dark:bg-gray-800 text-white rounded-2xl p-5 relative overflow-hidden">
+        <div className="bg-gray-900 dark:bg-gray-800 text-white rounded-2xl p-3 sm:p-5 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
             <div className="flex items-center gap-1.5 text-white/50 text-[10px] font-semibold uppercase tracking-wide mb-3">
@@ -366,28 +366,28 @@ export default function ProfilePage() {
         </div>
 
         {/* AI Usage Card */}
-        <div className="bg-surface-100 rounded-2xl border border-surface-200 p-5">
-          <div className="flex items-center gap-1.5 text-surface-400 text-[10px] font-semibold uppercase tracking-wide mb-3">
+        <div className="bg-surface-100 dark:bg-surface-800 dark:border-surface-700 rounded-2xl border border-surface-200 p-3 sm:p-5">
+          <div className="flex items-center gap-1.5 text-surface-400 dark:text-surface-500 text-[10px] font-semibold uppercase tracking-wide mb-3">
             <Sparkles size={12} /> KI-Nutzung (Monat)
           </div>
           <div className="flex items-baseline gap-1 mb-1">
-            <span className="text-3xl font-bold text-surface-900">{aiUsage.used}</span>
-            <span className="text-sm text-surface-400 font-medium">/ {totalPool}</span>
+            <span className="text-3xl font-bold text-surface-900 dark:text-surface-100">{aiUsage.used}</span>
+            <span className="text-sm text-surface-400 dark:text-surface-500 font-medium">/ {totalPool}</span>
           </div>
-          <div className="h-2 bg-surface-200 rounded-full overflow-hidden mb-2">
+          <div className="h-2 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden mb-2">
             <div className="h-full rounded-full bg-gradient-to-r from-brand-500 to-violet-500 transition-all duration-500" style={{ width: `${aiPercent}%` }} />
           </div>
-          <div className="flex justify-between text-xs text-surface-400">
+          <div className="flex justify-between text-xs text-surface-400 dark:text-surface-500">
             <span>Verbraucht</span>
             <span>{aiRemaining} verbleibend</span>
           </div>
           {aiUsage.addon_credits > 0 && (
-            <p className="text-xs text-violet-600 font-medium mt-2">+ {aiUsage.addon_credits} Add-on-Credits inkludiert</p>
+            <p className="text-xs text-violet-600 dark:text-violet-400 font-medium mt-2">+ {aiUsage.addon_credits} Add-on-Credits inkludiert</p>
           )}
           {totalPool === 0 && isPro && (
-            <p className="text-xs text-surface-400 mt-2">
+            <p className="text-xs text-surface-400 dark:text-surface-500 mt-2">
               Dein Lifetime Basic Plan enthält keine KI-Requests.{" "}
-              <Link href="/upgrade" className="text-violet-600 font-medium">Add-on kaufen</Link>
+              <Link href="/upgrade" className="text-violet-600 dark:text-violet-400 font-medium">Add-on kaufen</Link>
             </p>
           )}
         </div>
@@ -399,8 +399,8 @@ export default function ProfilePage() {
       </div>
 
       {/* Account Details */}
-      <div className="bg-surface-100 rounded-2xl border border-surface-200 p-5 mb-4">
-        <div className="flex items-center gap-1.5 text-surface-400 text-[10px] font-semibold uppercase tracking-wide mb-4">
+      <div className="bg-surface-100 dark:bg-surface-800 dark:border-surface-700 rounded-2xl border border-surface-200 p-3 sm:p-5 mb-4">
+        <div className="flex items-center gap-1.5 text-surface-400 dark:text-surface-500 text-[10px] font-semibold uppercase tracking-wide mb-4">
           <User size={12} /> Konto-Details
         </div>
 
@@ -456,7 +456,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-surface-100 rounded-2xl border border-surface-200 p-5">
+      <div className="bg-surface-100 dark:bg-surface-800 dark:border-surface-700 rounded-2xl border border-surface-200 p-3 sm:p-5">
         <div className="flex items-center gap-1.5 text-surface-400 text-[10px] font-semibold uppercase tracking-wide mb-4">
           Schnellzugriff
         </div>
@@ -493,15 +493,15 @@ function InlineEditor({
         value={value}
         onChange={e => onChange(e.target.value)}
         type={type}
-        className="border border-surface-200 rounded-lg px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none"
+        className="border border-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100 rounded-lg px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none"
         placeholder={placeholder}
         autoFocus
         onKeyDown={e => e.key === "Enter" && onSave()}
       />
-      <button onClick={onSave} disabled={saving} className="text-brand-600 hover:text-brand-500">
+      <button onClick={onSave} disabled={saving} className="text-brand-600 dark:text-brand-400 hover:text-brand-500">
         {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
       </button>
-      <button onClick={onCancel} className="text-surface-400 hover:text-surface-600">
+      <button onClick={onCancel} className="text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-300">
         <X size={14} />
       </button>
     </div>
@@ -510,12 +510,12 @@ function InlineEditor({
 
 function DetailRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-surface-100 last:border-0">
-      <div className="flex items-center gap-2.5 text-surface-500">
+    <div className="flex items-center justify-between py-3 border-b border-surface-100 dark:border-surface-700 last:border-0">
+      <div className="flex items-center gap-2.5 text-surface-500 dark:text-surface-400">
         {icon}
         <span className="text-sm">{label}</span>
       </div>
-      <span className="text-sm font-medium text-surface-900">{value}</span>
+      <span className="text-sm font-medium text-surface-900 dark:text-surface-100">{value}</span>
     </div>
   );
 }
@@ -535,8 +535,8 @@ function EditableRow({
 }) {
   if (editing) {
     return (
-      <div className="py-3 border-b border-surface-100 last:border-0">
-        <div className="flex items-center gap-2.5 text-surface-500 mb-2">
+      <div className="py-3 border-b border-surface-100 dark:border-surface-700 last:border-0">
+        <div className="flex items-center gap-2.5 text-surface-500 dark:text-surface-400 mb-2">
           {icon}
           <span className="text-sm">{label}</span>
         </div>
@@ -545,7 +545,7 @@ function EditableRow({
             <select
               value={editValue}
               onChange={e => onEditChange(e.target.value)}
-              className="border border-surface-200 rounded-lg px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none bg-surface-100"
+              className="border border-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100 rounded-lg px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none bg-surface-100"
               autoFocus
             >
               {options.map(o => (
@@ -559,33 +559,33 @@ function EditableRow({
               type={type}
               min={type === "number" ? "1" : undefined}
               max={type === "number" ? "20" : undefined}
-              className="border border-surface-200 rounded-lg px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none"
+              className="border border-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100 rounded-lg px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none"
               placeholder={placeholder}
               autoFocus
               onKeyDown={e => e.key === "Enter" && onSave()}
             />
           )}
-          <button onClick={onSave} disabled={saving} className="text-brand-600 hover:text-brand-500">
+          <button onClick={onSave} disabled={saving} className="text-brand-600 dark:text-brand-400 hover:text-brand-500">
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
           </button>
-          <button onClick={onCancel} className="text-surface-400 hover:text-surface-600">
+          <button onClick={onCancel} className="text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-300">
             <X size={14} />
           </button>
         </div>
-        {hint && <p className="text-[11px] text-surface-400 ml-[26px] mt-1">{hint}</p>}
+        {hint && <p className="text-[11px] text-surface-400 dark:text-surface-500 ml-[26px] mt-1">{hint}</p>}
       </div>
     );
   }
 
   return (
-    <div className="flex items-center justify-between py-3 border-b border-surface-100 last:border-0">
-      <div className="flex items-center gap-2.5 text-surface-500">
+    <div className="flex items-center justify-between py-3 border-b border-surface-100 dark:border-surface-700 last:border-0">
+      <div className="flex items-center gap-2.5 text-surface-500 dark:text-surface-400">
         {icon}
         <span className="text-sm">{label}</span>
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-surface-900">{value}</span>
-        <button onClick={onEdit} className="text-surface-400 hover:text-brand-600 transition">
+        <span className="text-sm font-medium text-surface-900 dark:text-surface-100">{value}</span>
+        <button onClick={onEdit} className="text-surface-400 dark:text-surface-500 hover:text-brand-600 dark:hover:text-brand-400 transition">
           <Edit3 size={12} />
         </button>
       </div>
@@ -597,7 +597,7 @@ function QuickLink({ href, icon, label }: { href: string; icon: React.ReactNode;
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-surface-200 text-sm font-medium text-surface-600 hover:border-brand-500 hover:text-brand-600 hover:bg-brand-50 transition"
+      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-surface-200 dark:border-surface-700 text-sm font-medium text-surface-600 dark:text-surface-400 hover:border-brand-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition"
     >
       {icon} {label}
     </Link>

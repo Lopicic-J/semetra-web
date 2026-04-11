@@ -265,9 +265,9 @@ export default function InstitutionDetailPage() {
 
       {/* Error */}
       {error && (
-        <Card className="bg-red-50 border-red-200 p-4">
+        <Card className="bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 p-4">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <p className="text-red-700">{error}</p>
           </div>
         </Card>
@@ -405,7 +405,7 @@ export default function InstitutionDetailPage() {
 
       {/* Country Defaults Info */}
       {countryDefaults && (
-        <Card className="bg-blue-50 border-blue-200 p-4">
+        <Card className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 p-4">
           <div className="flex items-start gap-3">
             <Globe className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
@@ -414,7 +414,7 @@ export default function InstitutionDetailPage() {
               </p>
               <div className="flex flex-wrap gap-3 text-sm text-blue-800">
                 {countryDefaults.grade_scale_name && (
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
                     {countryDefaults.grade_scale_name}
                     {countryDefaults.grade_scale_min && countryDefaults.grade_scale_max && (
                       <span className="ml-1">({countryDefaults.grade_scale_min}-{countryDefaults.grade_scale_max})</span>
@@ -422,22 +422,22 @@ export default function InstitutionDetailPage() {
                   </span>
                 )}
                 {countryDefaults.credits_system && (
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
                     {countryDefaults.credits_system}
                   </span>
                 )}
                 {countryDefaults.rounding_increment && (
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
                     Rundung {countryDefaults.rounding_increment}
                   </span>
                 )}
                 {countryDefaults.passing_grade && (
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
                     Bestehen {countryDefaults.passing_grade}
                   </span>
                 )}
                 {countryDefaults.max_attempts && (
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
                     {countryDefaults.max_attempts} Versuche
                   </span>
                 )}

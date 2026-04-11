@@ -51,9 +51,9 @@ const TRAFFIC: Record<string, { bg: string; ring: string; text: string; label: s
 };
 
 function TrendBadge({ trend }: { trend: string }) {
-  if (trend === "improving") return <span className="flex items-center gap-0.5 text-xs text-green-600"><TrendingUp size={12} />Besser</span>;
-  if (trend === "worsening") return <span className="flex items-center gap-0.5 text-xs text-red-600"><TrendingDown size={12} />Schlechter</span>;
-  return <span className="flex items-center gap-0.5 text-xs text-surface-400"><Minus size={12} />Stabil</span>;
+  if (trend === "improving") return <span className="flex items-center gap-0.5 text-xs text-green-600 dark:text-green-400"><TrendingUp size={12} />Besser</span>;
+  if (trend === "worsening") return <span className="flex items-center gap-0.5 text-xs text-red-600 dark:text-red-400"><TrendingDown size={12} />Schlechter</span>;
+  return <span className="flex items-center gap-0.5 text-xs text-surface-400 dark:text-surface-500"><Minus size={12} />Stabil</span>;
 }
 
 // ── Traffic Light Component ──────────────────────────────────────────────────
@@ -64,7 +64,7 @@ function TrafficLight({ risk }: { risk: ExamRisk | null }) {
 
   return (
     <div className="flex flex-col items-center gap-1">
-      <div className={clsx("w-5 h-5 rounded-full ring-2 ring-offset-1", t.bg, t.ring)} />
+      <div className={clsx("w-5 h-5 rounded-full ring-2 ring-offset-1 dark:ring-offset-surface-900", t.bg, t.ring)} />
       <span className={clsx("text-[10px] font-semibold", t.text)}>{t.label}</span>
     </div>
   );
@@ -83,16 +83,16 @@ function EngineInsight({
   if (!engineRisk && !enginePrediction) return null;
 
   const RISK_BG: Record<RiskLevel, string> = {
-    critical: "bg-red-50 text-red-700",
-    high: "bg-orange-50 text-orange-700",
-    medium: "bg-amber-50 text-amber-700",
-    low: "bg-green-50 text-green-700",
-    none: "bg-surface-50 text-surface-600",
+    critical: "bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-200",
+    high: "bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-200",
+    medium: "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-200",
+    low: "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-200",
+    none: "bg-surface-50 dark:bg-surface-800 text-surface-600 dark:text-surface-300",
   };
 
   return (
     <div className="flex flex-wrap items-center gap-2 mt-2">
-      <span className="text-[10px] text-surface-400 flex items-center gap-1">
+      <span className="text-[10px] text-surface-400 dark:text-surface-500 flex items-center gap-1">
         <Brain size={10} /> Engine:
       </span>
       {engineRisk && (
@@ -149,7 +149,7 @@ function ExamCard({
       {/* Header */}
       <button
         onClick={onToggle}
-        className="w-full flex items-center gap-4 p-4 text-left hover:bg-surface-50/50 transition-colors"
+        className="w-full flex items-center gap-2 sm:gap-4 p-3 sm:p-4 text-left hover:bg-surface-50/50 dark:hover:bg-surface-800/50 transition-colors"
       >
         {/* Module color bar */}
         <div
@@ -161,39 +161,39 @@ function ExamCard({
         <TrafficLight risk={risk} />
 
         {/* Info */}
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-surface-800 truncate">{exam.title}</p>
-          <p className="text-xs text-surface-500">
+        <div className="flex-1 min-w-0 hidden sm:block">
+          <p className="text-sm font-semibold text-surface-800 dark:text-surface-100 truncate">{exam.title}</p>
+          <p className="text-xs text-surface-500 dark:text-surface-400">
             {exam.module_name && <span>{exam.module_name} · </span>}
             {new Date(exam.date).toLocaleDateString("de-CH", { weekday: "short", day: "numeric", month: "short" })}
           </p>
         </div>
 
         {/* Days countdown */}
-        <div className="text-center shrink-0">
+        <div className="text-center shrink-0 w-12 sm:w-auto">
           <p className={clsx(
             "text-lg font-bold",
-            exam.days_until <= 3 ? "text-red-600" : exam.days_until <= 7 ? "text-amber-600" : "text-surface-700"
+            exam.days_until <= 3 ? "text-red-600 dark:text-red-400" : exam.days_until <= 7 ? "text-amber-600 dark:text-amber-400" : "text-surface-700 dark:text-surface-200"
           )}>
             {exam.days_until}
           </p>
-          <p className="text-[10px] text-surface-400">Tage</p>
+          <p className="text-[10px] text-surface-400 dark:text-surface-500">Tage</p>
         </div>
 
         {/* Readiness */}
-        <div className="text-center shrink-0 w-14">
+        <div className="text-center shrink-0 w-12 sm:w-14">
           <p className={clsx("text-sm font-bold", t.text)}>
             {risk ? `${Math.round(risk.readiness)}%` : "–"}
           </p>
-          <p className="text-[10px] text-surface-400">Bereit</p>
+          <p className="text-[10px] text-surface-400 dark:text-surface-500">Bereit</p>
         </div>
 
         {/* Pass probability */}
-        <div className="text-center shrink-0 w-14">
+        <div className="text-center shrink-0 w-12 sm:w-14">
           <p className={clsx("text-sm font-bold", passColor)}>
             {pred ? `${Math.round(pred.pass_prob * 100)}%` : "–"}
           </p>
-          <p className="text-[10px] text-surface-400">Bestehen</p>
+          <p className="text-[10px] text-surface-400 dark:text-surface-500">Bestehen</p>
         </div>
 
         {/* Trend */}
@@ -206,19 +206,19 @@ function ExamCard({
 
       {/* Expanded Detail */}
       {expanded && (
-        <div className="border-t border-surface-100 p-4 bg-surface-50/30 space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="border-t border-surface-100 dark:border-surface-700 p-3 sm:p-4 bg-surface-50/30 dark:bg-surface-800/30 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {/* Prediction */}
             {pred && (
               <>
                 <div className="text-center">
-                  <p className="text-xs text-surface-500">Prognose</p>
-                  <p className="text-lg font-bold text-surface-800">{pred.grade.toFixed(1)}</p>
-                  <p className="text-[10px] text-surface-400">{pred.worst.toFixed(1)} – {pred.best.toFixed(1)}</p>
+                  <p className="text-xs text-surface-500 dark:text-surface-400">Prognose</p>
+                  <p className="text-lg font-bold text-surface-800 dark:text-surface-100">{pred.grade.toFixed(1)}</p>
+                  <p className="text-[10px] text-surface-400 dark:text-surface-500">{pred.worst.toFixed(1)} – {pred.best.toFixed(1)}</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xs text-surface-500">Konfidenz</p>
-                  <p className="text-lg font-bold text-surface-800">{Math.round(pred.confidence * 100)}%</p>
+                  <p className="text-xs text-surface-500 dark:text-surface-400">Konfidenz</p>
+                  <p className="text-lg font-bold text-surface-800 dark:text-surface-100">{Math.round(pred.confidence * 100)}%</p>
                 </div>
               </>
             )}
@@ -227,13 +227,13 @@ function ExamCard({
             {risk && (
               <>
                 <div className="text-center">
-                  <p className="text-xs text-surface-500">Risiko-Score</p>
-                  <p className="text-lg font-bold text-surface-800">{Math.round(risk.score)}</p>
-                  <p className="text-[10px] text-surface-400">von 100</p>
+                  <p className="text-xs text-surface-500 dark:text-surface-400">Risiko-Score</p>
+                  <p className="text-lg font-bold text-surface-800 dark:text-surface-100">{Math.round(risk.score)}</p>
+                  <p className="text-[10px] text-surface-400 dark:text-surface-500">von 100</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xs text-surface-500">Wissensstand</p>
-                  <p className="text-lg font-bold text-surface-800">{Math.round(risk.readiness)}%</p>
+                  <p className="text-xs text-surface-500 dark:text-surface-400">Wissensstand</p>
+                  <p className="text-lg font-bold text-surface-800 dark:text-surface-100">{Math.round(risk.readiness)}%</p>
                 </div>
               </>
             )}
@@ -245,13 +245,13 @@ function ExamCard({
           {/* Engine risk factors (from real-time engine) */}
           {engineRisk && engineRisk.factors.length > 0 && (
             <div className="space-y-1">
-              <p className="text-xs font-medium text-surface-600 flex items-center gap-1">
+              <p className="text-xs font-medium text-surface-600 dark:text-surface-300 flex items-center gap-1">
                 <AlertTriangle size={10} /> Erkannte Risikofaktoren
               </p>
               {engineRisk.factors.slice(0, 4).map((f, i) => (
                 <div key={i} className="flex items-center gap-2 text-xs">
                   <div className={clsx("w-1.5 h-1.5 rounded-full", TRAFFIC[f.severity]?.bg || "bg-surface-300")} />
-                  <span className="text-surface-600">{f.message}</span>
+                  <span className="text-surface-600 dark:text-surface-300">{f.message}</span>
                 </div>
               ))}
             </div>
@@ -260,17 +260,17 @@ function ExamCard({
           {/* Engine scenarios (from predictOutcome) */}
           {enginePrediction && enginePrediction.scenarioAnalysis.length > 0 && (
             <div className="space-y-1">
-              <p className="text-xs font-medium text-surface-600 flex items-center gap-1">
+              <p className="text-xs font-medium text-surface-600 dark:text-surface-300 flex items-center gap-1">
                 <Target size={10} /> Szenarien (Decision Engine)
               </p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 overflow-x-auto">
                 {enginePrediction.scenarioAnalysis.map((s: Scenario, i: number) => (
-                  <div key={i} className="text-center p-2 rounded-lg bg-white/60">
-                    <p className="text-[10px] text-surface-400">{s.name}</p>
-                    <p className={clsx("text-sm font-bold", s.passed ? "text-green-600" : "text-red-600")}>
+                  <div key={i} className="text-center p-2 sm:p-3 rounded-lg bg-white/60 dark:bg-surface-700/60">
+                    <p className="text-[10px] text-surface-400 dark:text-surface-500">{s.name}</p>
+                    <p className={clsx("text-sm font-bold", s.passed ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")}>
                       {s.finalGrade.toFixed(1)}
                     </p>
-                    <p className="text-[10px] text-surface-400">{s.passed ? "bestanden" : "nicht best."}</p>
+                    <p className="text-[10px] text-surface-400 dark:text-surface-500">{s.passed ? "bestanden" : "nicht best."}</p>
                   </div>
                 ))}
               </div>
@@ -278,7 +278,7 @@ function ExamCard({
           )}
 
           {/* Exam metadata */}
-          <div className="flex items-center gap-4 text-xs text-surface-500">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs text-surface-500 dark:text-surface-400">
             <span>Format: {exam.exam_format === "written" ? "Schriftlich" : exam.exam_format === "oral" ? "Mündlich" : exam.exam_format === "practical" ? "Praktisch" : exam.exam_format}</span>
             <span>Schwierigkeit: {"★".repeat(exam.difficulty)}{"☆".repeat(5 - exam.difficulty)}</span>
           </div>
@@ -352,75 +352,75 @@ function ScenarioSimulator({
   }, [pred, exam, enginePrediction, additionalHours, knowledgeTarget, componentGrade]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-xl w-full max-w-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
-        <div className="p-5 border-b border-surface-100">
-          <h2 className="font-semibold text-surface-900 flex items-center gap-2">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4" onClick={onClose}>
+      <div className="bg-[rgb(var(--card-bg))] dark:bg-surface-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div className="p-3 sm:p-5 border-b border-surface-100 dark:border-surface-700">
+          <h2 className="font-semibold text-surface-900 dark:text-surface-100 flex items-center gap-2">
             <Calculator size={18} className="text-brand-500" />
             Szenario-Simulator
           </h2>
-          <p className="text-xs text-surface-500 mt-1">{exam.title}</p>
+          <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">{exam.title}</p>
           {enginePrediction && (
-            <p className="text-[10px] text-brand-500 mt-0.5 flex items-center gap-1">
+            <p className="text-[10px] text-brand-500 dark:text-brand-400 mt-0.5 flex items-center gap-1">
               <Brain size={10} /> Engine-Daten als Basis
             </p>
           )}
         </div>
 
-        <div className="p-5 space-y-5">
+        <div className="p-3 sm:p-5 space-y-5">
           {/* Slider: Additional study hours */}
           <div>
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-surface-700">Zusätzliche Lernstunden</span>
-              <span className="font-semibold text-brand-600">{additionalHours}h</span>
+            <div className="flex justify-between text-sm mb-2">
+              <span className="text-surface-700 dark:text-surface-300">Zusätzliche Lernstunden</span>
+              <span className="font-semibold text-brand-600 dark:text-brand-400">{additionalHours}h</span>
             </div>
             <input type="range" min={0} max={50} step={2} value={additionalHours}
               onChange={(e) => setAdditionalHours(Number(e.target.value))}
-              className="w-full h-2 rounded-full appearance-none bg-surface-200 accent-brand-500" />
+              className="w-full h-2 rounded-full appearance-none bg-surface-200 dark:bg-surface-700 accent-brand-500" />
           </div>
 
           {/* Slider: Knowledge target */}
           <div>
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-surface-700">Wissensstand-Ziel</span>
-              <span className="font-semibold text-brand-600">{knowledgeTarget}%</span>
+            <div className="flex justify-between text-sm mb-2">
+              <span className="text-surface-700 dark:text-surface-300">Wissensstand-Ziel</span>
+              <span className="font-semibold text-brand-600 dark:text-brand-400">{knowledgeTarget}%</span>
             </div>
             <input type="range" min={20} max={100} step={5} value={knowledgeTarget}
               onChange={(e) => setKnowledgeTarget(Number(e.target.value))}
-              className="w-full h-2 rounded-full appearance-none bg-surface-200 accent-brand-500" />
+              className="w-full h-2 rounded-full appearance-none bg-surface-200 dark:bg-surface-700 accent-brand-500" />
           </div>
 
           {/* Slider: Next component grade */}
           <div>
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-surface-700">Note nächste Teilleistung</span>
-              <span className="font-semibold text-brand-600">{componentGrade.toFixed(1)}</span>
+            <div className="flex justify-between text-sm mb-2">
+              <span className="text-surface-700 dark:text-surface-300">Note nächste Teilleistung</span>
+              <span className="font-semibold text-brand-600 dark:text-brand-400">{componentGrade.toFixed(1)}</span>
             </div>
             <input type="range" min={1} max={6} step={0.1} value={componentGrade}
               onChange={(e) => setComponentGrade(Number(e.target.value))}
-              className="w-full h-2 rounded-full appearance-none bg-surface-200 accent-brand-500" />
+              className="w-full h-2 rounded-full appearance-none bg-surface-200 dark:bg-surface-700 accent-brand-500" />
           </div>
 
           {/* Results */}
-          <div className="bg-surface-50 rounded-xl p-4 space-y-3">
-            <h3 className="text-sm font-semibold text-surface-700">Prognostiziertes Ergebnis</h3>
-            <div className="grid grid-cols-2 gap-4">
+          <div className="bg-surface-50 dark:bg-surface-800 rounded-xl p-3 sm:p-4 space-y-3">
+            <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-300">Prognostiziertes Ergebnis</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="text-center">
-                <p className="text-2xl font-bold text-surface-800">{simulated.grade.toFixed(1)}</p>
-                <p className="text-xs text-surface-500">Neue Prognose</p>
-                <p className={clsx("text-xs font-medium mt-0.5", simulated.improvementGrade > 0 ? "text-green-600" : simulated.improvementGrade < 0 ? "text-red-600" : "text-surface-400")}>
+                <p className="text-2xl sm:text-3xl font-bold text-surface-800 dark:text-surface-100">{simulated.grade.toFixed(1)}</p>
+                <p className="text-xs text-surface-500 dark:text-surface-400">Neue Prognose</p>
+                <p className={clsx("text-xs font-medium mt-0.5", simulated.improvementGrade > 0 ? "text-green-600 dark:text-green-400" : simulated.improvementGrade < 0 ? "text-red-600 dark:text-red-400" : "text-surface-400 dark:text-surface-500")}>
                   {simulated.improvementGrade > 0 ? "+" : ""}{simulated.improvementGrade.toFixed(1)} vs Snapshot
                 </p>
                 {simulated.engineDelta !== null && (
-                  <p className={clsx("text-[10px] font-medium", simulated.engineDelta > 0 ? "text-green-500" : simulated.engineDelta < 0 ? "text-red-500" : "text-surface-400")}>
+                  <p className={clsx("text-[10px] font-medium", simulated.engineDelta > 0 ? "text-green-500 dark:text-green-400" : simulated.engineDelta < 0 ? "text-red-500 dark:text-red-400" : "text-surface-400 dark:text-surface-500")}>
                     {simulated.engineDelta > 0 ? "+" : ""}{simulated.engineDelta.toFixed(1)} vs Engine ({simulated.engineBase})
                   </p>
                 )}
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-surface-800">{simulated.passProb}%</p>
-                <p className="text-xs text-surface-500">Bestehens-Chance</p>
-                <p className={clsx("text-xs font-medium mt-0.5", simulated.improvementProb > 0 ? "text-green-600" : simulated.improvementProb < 0 ? "text-red-600" : "text-surface-400")}>
+                <p className="text-2xl sm:text-3xl font-bold text-surface-800 dark:text-surface-100">{simulated.passProb}%</p>
+                <p className="text-xs text-surface-500 dark:text-surface-400">Bestehens-Chance</p>
+                <p className={clsx("text-xs font-medium mt-0.5", simulated.improvementProb > 0 ? "text-green-600 dark:text-green-400" : simulated.improvementProb < 0 ? "text-red-600 dark:text-red-400" : "text-surface-400 dark:text-surface-500")}>
                   {simulated.improvementProb > 0 ? "+" : ""}{simulated.improvementProb}% vs aktuell
                 </p>
               </div>
@@ -429,13 +429,13 @@ function ScenarioSimulator({
 
           {/* Engine required performance (if available) */}
           {enginePrediction?.requiredPerformance && (
-            <div className="bg-brand-50/50 rounded-xl p-3 space-y-1">
-              <p className="text-xs font-medium text-brand-700 flex items-center gap-1">
+            <div className="bg-brand-50/50 dark:bg-brand-950/30 rounded-xl p-3 space-y-1">
+              <p className="text-xs font-medium text-brand-700 dark:text-brand-300 flex items-center gap-1">
                 <Zap size={10} /> Was brauchst du zum Bestehen?
               </p>
-              <p className="text-xs text-surface-600">{enginePrediction.requiredPerformance.description}</p>
+              <p className="text-xs text-surface-600 dark:text-surface-300">{enginePrediction.requiredPerformance.description}</p>
               {enginePrediction.requiredPerformance.nextExamGrade !== null && (
-                <p className="text-xs text-surface-500">
+                <p className="text-xs text-surface-500 dark:text-surface-400">
                   Nächste Prüfung mindestens: <span className="font-semibold">{enginePrediction.requiredPerformance.nextExamGrade.toFixed(1)}</span>
                 </p>
               )}
@@ -443,7 +443,7 @@ function ScenarioSimulator({
           )}
         </div>
 
-        <div className="p-5 border-t border-surface-100 flex justify-end">
+        <div className="p-3 sm:p-5 border-t border-surface-100 dark:border-surface-700 flex justify-end gap-2">
           <Button variant="secondary" size="sm" onClick={onClose}>Schliessen</Button>
         </div>
       </div>
@@ -477,19 +477,26 @@ function RecommendationCard({
     now: "Jetzt", today: "Heute", this_week: "Diese Woche", soon: "Bald",
   };
 
+  const urgencyColorsDark: Record<string, string> = {
+    now: "dark:border-red-700 dark:bg-red-950",
+    today: "dark:border-orange-700 dark:bg-orange-950",
+    this_week: "dark:border-amber-700 dark:bg-amber-950",
+    soon: "dark:border-blue-700 dark:bg-blue-950",
+  };
+
   return (
-    <div className={clsx("flex items-start gap-3 p-3 rounded-xl border", urgencyColors[urgency] || urgencyColors.soon)}>
-      <Lightbulb size={16} className="mt-0.5 shrink-0 text-surface-500" />
+    <div className={clsx("flex items-start gap-3 p-3 rounded-xl border", urgencyColors[urgency] || urgencyColors.soon, urgencyColorsDark[urgency] || urgencyColorsDark.soon)}>
+      <Lightbulb size={16} className="mt-0.5 shrink-0 text-surface-500 dark:text-surface-400" />
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <p className="text-sm font-medium text-surface-800">{title}</p>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/60 text-surface-600 font-medium">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+          <p className="text-sm font-medium text-surface-800 dark:text-surface-100">{title}</p>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/60 dark:bg-surface-700/60 text-surface-600 dark:text-surface-300 font-medium w-fit">
             {urgencyLabels[urgency] || urgency}
           </span>
         </div>
-        <p className="text-xs text-surface-600 mt-0.5">{message}</p>
+        <p className="text-xs text-surface-600 dark:text-surface-400 mt-0.5">{message}</p>
       </div>
-      <button onClick={onDismiss} className="text-surface-400 hover:text-surface-600 text-xs shrink-0">
+      <button onClick={onDismiss} className="text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-300 text-xs shrink-0 transition-colors">
         <XCircle size={14} />
       </button>
     </div>
@@ -563,7 +570,7 @@ export default function ExamIntelligencePage() {
     if (exams.length === 0) return null;
     return (
       <div className="space-y-2">
-        <h3 className="text-xs font-semibold text-surface-500 uppercase tracking-wide">{title}</h3>
+        <h3 className="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wide px-1">{title}</h3>
         {exams.map((exam) => {
           const engineData = exam.module_id ? engineDataByModule.get(exam.module_id) : undefined;
           return (
@@ -583,52 +590,52 @@ export default function ExamIntelligencePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+    <div className="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-brand-100 text-brand-600 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-brand-100 dark:bg-brand-900 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
             <Shield size={20} />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-surface-800">Prüfungs-Intelligence</h1>
-            <p className="text-sm text-surface-500">Risiko, Prognosen & Empfehlungen</p>
+            <h1 className="text-lg sm:text-xl font-bold text-surface-800 dark:text-surface-100">Prüfungs-Intelligence</h1>
+            <p className="text-sm text-surface-500 dark:text-surface-400">Risiko, Prognosen & Empfehlungen</p>
           </div>
         </div>
-        <Button variant="secondary" size="sm" onClick={refresh} loading={refreshing} disabled={refreshing}>
+        <Button variant="secondary" size="sm" onClick={refresh} loading={refreshing} disabled={refreshing} className="w-full sm:w-auto">
           <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
           Analyse starten
         </Button>
       </div>
 
       {error && (
-        <div className="p-3 rounded-xl bg-danger-50 border border-danger-100 text-sm text-danger-700">{error}</div>
+        <div className="p-3 sm:p-4 rounded-xl bg-danger-50 dark:bg-danger-950 border border-danger-100 dark:border-danger-800 text-sm text-danger-700 dark:text-danger-200">{error}</div>
       )}
 
       {/* Summary Cards */}
       {summary && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <Card padding="md" className="text-center">
-            <p className="text-2xl font-bold text-surface-800">{summary.total}</p>
-            <p className="text-xs text-surface-500">Prüfungen</p>
+            <p className="text-2xl sm:text-3xl font-bold text-surface-800 dark:text-surface-100">{summary.total}</p>
+            <p className="text-xs text-surface-500 dark:text-surface-400">Prüfungen</p>
           </Card>
           <Card padding="md" className="text-center">
-            <p className={clsx("text-2xl font-bold", summary.critical > 0 ? "text-red-600" : "text-green-600")}>
+            <p className={clsx("text-2xl sm:text-3xl font-bold", summary.critical > 0 ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400")}>
               {summary.critical}
             </p>
-            <p className="text-xs text-surface-500">Gefährdet</p>
+            <p className="text-xs text-surface-500 dark:text-surface-400">Gefährdet</p>
           </Card>
           <Card padding="md" className="text-center">
-            <p className="text-2xl font-bold text-surface-800">{Math.round(summary.avgReadiness)}%</p>
-            <p className="text-xs text-surface-500">Ø Bereitschaft</p>
+            <p className="text-2xl sm:text-3xl font-bold text-surface-800 dark:text-surface-100">{Math.round(summary.avgReadiness)}%</p>
+            <p className="text-xs text-surface-500 dark:text-surface-400">Ø Bereitschaft</p>
           </Card>
           <Card padding="md" className="text-center">
-            <p className={clsx("text-2xl font-bold", summary.avgPassProb >= 0.7 ? "text-green-600" : summary.avgPassProb >= 0.5 ? "text-amber-600" : "text-red-600")}>
+            <p className={clsx("text-2xl sm:text-3xl font-bold", summary.avgPassProb >= 0.7 ? "text-green-600 dark:text-green-400" : summary.avgPassProb >= 0.5 ? "text-amber-600 dark:text-amber-400" : "text-red-600 dark:text-red-400")}>
               {Math.round(summary.avgPassProb * 100)}%
             </p>
-            <p className="text-xs text-surface-500">Ø Bestehens-Chance</p>
+            <p className="text-xs text-surface-500 dark:text-surface-400">Ø Bestehens-Chance</p>
             {summary.engineAvgPassProb !== null && (
-              <p className="text-[10px] text-brand-500 mt-0.5">
+              <p className="text-[10px] text-brand-500 dark:text-brand-400 mt-0.5">
                 Engine: {Math.round(summary.engineAvgPassProb * 100)}%
               </p>
             )}
@@ -639,9 +646,9 @@ export default function ExamIntelligencePage() {
       {/* Recommendations */}
       {data && data.recommendations.length > 0 && (
         <Card padding="lg">
-          <div className="flex items-center gap-2 mb-3">
-            <Lightbulb size={16} className="text-brand-500" />
-            <h3 className="text-sm font-semibold text-surface-700">Empfehlungen</h3>
+          <div className="flex items-center gap-2 mb-4">
+            <Lightbulb size={16} className="text-brand-500 dark:text-brand-400 shrink-0" />
+            <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-300">Empfehlungen</h3>
           </div>
           <div className="space-y-2">
             {data.recommendations.slice(0, 5).map((rec) => (
@@ -662,11 +669,11 @@ export default function ExamIntelligencePage() {
       {data && data.exams.length === 0 ? (
         <Card padding="lg" className="text-center">
           <div className="py-8 space-y-4">
-            <div className="w-16 h-16 rounded-full bg-surface-100 text-surface-400 flex items-center justify-center mx-auto">
+            <div className="w-16 h-16 rounded-full bg-surface-100 dark:bg-surface-800 text-surface-400 dark:text-surface-500 flex items-center justify-center mx-auto">
               <Shield size={32} />
             </div>
-            <h2 className="text-lg font-semibold text-surface-700">Keine anstehenden Prüfungen</h2>
-            <p className="text-sm text-surface-500">Trage Prüfungen im Kalender ein, damit Semetra Prognosen erstellen kann.</p>
+            <h2 className="text-lg font-semibold text-surface-700 dark:text-surface-300">Keine anstehenden Prüfungen</h2>
+            <p className="text-sm text-surface-500 dark:text-surface-400">Trage Prüfungen im Kalender ein, damit Semetra Prognosen erstellen kann.</p>
           </div>
         </Card>
       ) : (
@@ -680,26 +687,26 @@ export default function ExamIntelligencePage() {
       {/* Prediction Accuracy */}
       {data?.accuracy && data.accuracy.with_outcome > 0 && (
         <Card padding="lg">
-          <div className="flex items-center gap-2 mb-3">
-            <BarChart3 size={16} className="text-brand-500" />
-            <h3 className="text-sm font-semibold text-surface-700">Prognose-Genauigkeit</h3>
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 size={16} className="text-brand-500 dark:text-brand-400 shrink-0" />
+            <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-300">Prognose-Genauigkeit</h3>
           </div>
-          <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
             <div>
-              <p className="text-lg font-bold text-surface-800">{data.accuracy.with_outcome}</p>
-              <p className="text-xs text-surface-500">Bewertete Prognosen</p>
+              <p className="text-lg sm:text-xl font-bold text-surface-800 dark:text-surface-100">{data.accuracy.with_outcome}</p>
+              <p className="text-xs text-surface-500 dark:text-surface-400">Bewertete Prognosen</p>
             </div>
             <div>
-              <p className="text-lg font-bold text-surface-800">
+              <p className="text-lg sm:text-xl font-bold text-surface-800 dark:text-surface-100">
                 {data.accuracy.avg_error != null ? `±${data.accuracy.avg_error}` : "–"}
               </p>
-              <p className="text-xs text-surface-500">Ø Noten-Abweichung</p>
+              <p className="text-xs text-surface-500 dark:text-surface-400">Ø Noten-Abweichung</p>
             </div>
             <div>
-              <p className="text-lg font-bold text-surface-800">
+              <p className="text-lg sm:text-xl font-bold text-surface-800 dark:text-surface-100">
                 {data.accuracy.calibration_rate != null ? `${data.accuracy.calibration_rate}%` : "–"}
               </p>
-              <p className="text-xs text-surface-500">Kalibrierungs-Rate</p>
+              <p className="text-xs text-surface-500 dark:text-surface-400">Kalibrierungs-Rate</p>
             </div>
           </div>
         </Card>

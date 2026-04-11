@@ -56,19 +56,19 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-3 sm:p-5 max-w-4xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-surface-900">{t("tasks.title")}</h1>
-          <p className="text-surface-500 text-sm mt-0.5">{t("tasks.subtitle", { open: tasks.filter(tk => tk.status !== "done").length, done: tasks.filter(tk => tk.status === "done").length })}</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-surface-50">{t("tasks.title")}</h1>
+          <p className="text-surface-500 dark:text-surface-400 text-sm mt-0.5">{t("tasks.subtitle", { open: tasks.filter(tk => tk.status !== "done").length, done: tasks.filter(tk => tk.status === "done").length })}</p>
         </div>
-        <button onClick={() => { setEditing(null); setShowForm(true); }} className="btn-primary gap-2">
+        <button onClick={() => { setEditing(null); setShowForm(true); }} className="btn-primary gap-2 w-full sm:w-auto justify-center">
           <Plus size={16} /> {t("tasks.newTask")}
         </button>
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1 p-1 bg-surface-100 rounded-xl mb-5 w-fit">
+      <div className="flex gap-1 p-1 bg-surface-100 dark:bg-surface-800 rounded-xl mb-5 w-full overflow-x-auto">
         {(["all", "todo", "in_progress", "done"] as const).map(s => {
           const label = s === "all" ? t("tasks.filterAll") :
                        s === "todo" ? t("tasks.filterOpen") :
@@ -76,7 +76,7 @@ export default function TasksPage() {
                        t("tasks.filterDone");
           return (
             <button key={s} onClick={() => setFilter(s)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === s ? "bg-surface-100 text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"}`}>
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${filter === s ? "bg-surface-50 dark:bg-surface-700 text-surface-900 dark:text-surface-50 shadow-sm" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300"}`}>
               {label}
             </button>
           );
@@ -85,10 +85,10 @@ export default function TasksPage() {
 
       {loading ? (
         <div className="space-y-2">
-          {[1,2,3,4].map(i => <div key={i} className="h-16 bg-surface-100 rounded-xl animate-pulse" />)}
+          {[1,2,3,4].map(i => <div key={i} className="h-16 bg-surface-100 dark:bg-surface-800 rounded-xl animate-pulse" />)}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-surface-400">
+        <div className="text-center py-16 text-surface-400 dark:text-surface-500">
           <CheckSquare size={40} className="mx-auto mb-3 opacity-30" />
           <p className="font-medium">{t("tasks.noTasks")}</p>
         </div>
@@ -136,23 +136,23 @@ function TaskRow({ task, modules, onToggle, onEdit, onDelete, isExpanded, onTogg
   const isOverdue = task.status !== "done" && task.due_date && new Date(task.due_date) < new Date();
 
   return (
-    <div className={`flex items-center gap-3 p-3 rounded-xl border transition-colors group cursor-pointer ${task.status === "done" ? "bg-surface-50 border-surface-100" : "bg-surface-100 border-surface-100 hover:border-brand-200"} ${isExpanded ? "rounded-b-none border-b-0" : ""}`}
+    <div className={`flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl border transition-colors group cursor-pointer ${task.status === "done" ? "bg-surface-50 dark:bg-surface-800 border-surface-100 dark:border-surface-700" : "bg-surface-100 dark:bg-surface-800 border-surface-100 dark:border-surface-700 hover:border-brand-200 dark:hover:border-brand-700"} ${isExpanded ? "rounded-b-none border-b-0" : ""}`}
       onClick={onToggleExpand}>
       <button onClick={(e) => { e.stopPropagation(); onToggle(task); }}
-        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${task.status === "done" ? "bg-green-500 border-green-500 text-white" : "border-surface-300 hover:border-brand-400"}`}>
+        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${task.status === "done" ? "bg-green-500 border-green-500 text-white" : "border-surface-300 dark:border-surface-600 hover:border-brand-400 dark:hover:border-brand-600"}`}>
         {task.status === "done" && <Check size={11} />}
       </button>
 
       <div className="flex-1 min-w-0">
-        <p className={`text-sm font-medium ${task.status === "done" ? "line-through text-surface-400" : "text-surface-800"}`}>{task.title}</p>
+        <p className={`text-sm font-medium ${task.status === "done" ? "line-through text-surface-400 dark:text-surface-500" : "text-surface-800 dark:text-surface-100"}`}>{task.title}</p>
         <div className="flex flex-wrap gap-2 mt-0.5">
           {task.due_date && (
-            <span className={`text-xs ${isOverdue ? "text-red-500 font-medium" : "text-surface-400"}`}>
+            <span className={`text-xs ${isOverdue ? "text-red-500 dark:text-red-400 font-medium" : "text-surface-400 dark:text-surface-500"}`}>
               📅 {formatDate(task.due_date)}
             </span>
           )}
           {(task as any).modules && (
-            <span className="text-xs text-surface-400 flex items-center gap-1">
+            <span className="text-xs text-surface-400 dark:text-surface-500 flex items-center gap-1">
               <span className="w-2 h-2 rounded-full" style={{ background: (task as any).modules.color }} />
               {(task as any).modules.name}
             </span>
@@ -160,18 +160,18 @@ function TaskRow({ task, modules, onToggle, onEdit, onDelete, isExpanded, onTogg
         </div>
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
-        <span className={`badge text-[10px] ${task.priority === "high" ? "bg-red-100 text-red-600" : task.priority === "medium" ? "bg-yellow-100 text-yellow-700" : "badge-surface"}`}>
+      <div className="flex items-center gap-2 shrink-0 flex-wrap justify-between sm:justify-end">
+        <span className={`badge text-[10px] ${task.priority === "high" ? "bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300" : task.priority === "medium" ? "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-200" : "badge-surface dark:bg-surface-700 dark:text-surface-300"}`}>
           {task.priority === "high" ? t("tasks.statusHigh") : task.priority === "medium" ? t("tasks.statusMedium") : t("tasks.statusLow")}
         </span>
-        <span className={`badge text-[10px] ${task.status === "done" ? "bg-green-100 text-green-700" : task.status === "in_progress" ? "bg-blue-100 text-blue-700" : "badge-surface"}`}>
+        <span className={`badge text-[10px] ${task.status === "done" ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200" : task.status === "in_progress" ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200" : "badge-surface dark:bg-surface-700 dark:text-surface-300"}`}>
           {task.status === "done" ? t("tasks.statusDone") : task.status === "in_progress" ? t("tasks.statusInProgress") : t("tasks.statusOpen")}
         </span>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button onClick={(e) => { e.stopPropagation(); onEdit(task); }} className="p-1.5 rounded-lg hover:bg-surface-100 text-surface-400"><Pencil size={13} /></button>
-          <button onClick={(e) => { e.stopPropagation(); onDelete(task.id); }} className="p-1.5 rounded-lg hover:bg-red-50 text-surface-400 hover:text-red-500"><Trash2 size={13} /></button>
+          <button onClick={(e) => { e.stopPropagation(); onEdit(task); }} className="p-1.5 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400 dark:text-surface-500"><Pencil size={13} /></button>
+          <button onClick={(e) => { e.stopPropagation(); onDelete(task.id); }} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900 text-surface-400 dark:text-surface-500 hover:text-red-500 dark:hover:text-red-400"><Trash2 size={13} /></button>
         </div>
-        <ChevronDown size={14} className={`text-surface-400 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+        <ChevronDown size={14} className={`text-surface-400 dark:text-surface-500 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
       </div>
     </div>
   );
@@ -211,21 +211,21 @@ function TaskDetailPanel({ task, modules }: {
   }
 
   return (
-    <div className="bg-surface-50 border border-t-0 border-surface-100 rounded-b-xl p-4 space-y-3">
+    <div className="bg-surface-50 dark:bg-surface-800 border border-t-0 border-surface-100 dark:border-surface-700 rounded-b-xl p-3 sm:p-4 space-y-3">
       {/* Description */}
       {task.description && (
         <div>
-          <p className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-1">{t("tasks.detailDescription")}</p>
-          <p className="text-sm text-surface-700 whitespace-pre-line bg-surface-100 rounded-lg p-3 border border-surface-100">{task.description}</p>
+          <p className="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider mb-1">{t("tasks.detailDescription")}</p>
+          <p className="text-sm text-surface-700 dark:text-surface-300 whitespace-pre-line bg-surface-100 dark:bg-surface-900 rounded-lg p-3 border border-surface-100 dark:border-surface-700">{task.description}</p>
         </div>
       )}
 
       {/* Module */}
       {mod && (
-        <div className="flex items-center gap-2">
-          <BookOpen size={13} className="text-surface-400" />
-          <span className="text-xs font-medium text-surface-500">{t("tasks.detailModule")}:</span>
-          <span className="flex items-center gap-1.5 text-xs text-surface-700 font-medium">
+        <div className="flex items-center gap-2 flex-wrap">
+          <BookOpen size={13} className="text-surface-400 dark:text-surface-500" />
+          <span className="text-xs font-medium text-surface-500 dark:text-surface-400">{t("tasks.detailModule")}:</span>
+          <span className="flex items-center gap-1.5 text-xs text-surface-700 dark:text-surface-300 font-medium">
             <span className="w-2.5 h-2.5 rounded-full" style={{ background: mod.color }} />
             {mod.name}
           </span>
@@ -233,10 +233,10 @@ function TaskDetailPanel({ task, modules }: {
       )}
 
       {/* Task info row */}
-      <div className="flex flex-wrap gap-3 text-xs text-surface-500">
+      <div className="flex flex-wrap gap-3 text-xs text-surface-500 dark:text-surface-400">
         {task.due_date && (
           <span className="flex items-center gap-1">
-            📅 {t("tasks.detailDue")}: <span className={`font-medium ${new Date(task.due_date) < new Date() && task.status !== "done" ? "text-red-600" : "text-surface-700"}`}>{formatDate(task.due_date)}</span>
+            📅 {t("tasks.detailDue")}: <span className={`font-medium ${new Date(task.due_date) < new Date() && task.status !== "done" ? "text-red-600 dark:text-red-400" : "text-surface-700 dark:text-surface-300"}`}>{formatDate(task.due_date)}</span>
           </span>
         )}
         <span>
@@ -246,17 +246,17 @@ function TaskDetailPanel({ task, modules }: {
 
       {/* Attachments section */}
       <div>
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-xs font-semibold text-surface-500 uppercase tracking-wider flex items-center gap-1.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+          <h3 className="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider flex items-center gap-1.5">
             <Paperclip size={12} /> {t("tasks.attachments")}
           </h3>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <button onClick={() => setShowLinkForm(!showLinkForm)}
-              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-surface-100 border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
+              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-surface-100 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 text-surface-600 dark:text-surface-300 hover:border-brand-300 dark:hover:border-brand-700 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
               <Link2 size={12} /> {t("tasks.addLink")}
             </button>
             <button onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-surface-100 border border-surface-200 text-surface-600 hover:border-brand-300 hover:text-brand-600 transition-colors">
+              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-surface-100 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 text-surface-600 dark:text-surface-300 hover:border-brand-300 dark:hover:border-brand-700 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
               <Upload size={12} /> {t("tasks.addFile")}
             </button>
             <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileUpload}
@@ -266,40 +266,40 @@ function TaskDetailPanel({ task, modules }: {
 
         {/* Link form */}
         {showLinkForm && (
-          <form onSubmit={handleAddLink} className="flex gap-2 mb-3">
+          <form onSubmit={handleAddLink} className="flex flex-col sm:flex-row gap-2 mb-3">
             <input value={linkUrl} onChange={e => setLinkUrl(e.target.value)}
               placeholder="https://..." className="input flex-1 text-sm" required />
             <input value={linkLabel} onChange={e => setLinkLabel(e.target.value)}
-              placeholder={t("tasks.addAttachment")} className="input w-40 text-sm" />
+              placeholder={t("tasks.addAttachment")} className="input sm:w-40 text-sm" />
             <button type="submit" className="btn-primary text-xs px-3 py-1.5">{t("tasks.addAttachment")}</button>
             <button type="button" onClick={() => setShowLinkForm(false)}
-              className="p-1.5 rounded-lg hover:bg-surface-200 text-surface-400"><X size={14} /></button>
+              className="p-1.5 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400 dark:text-surface-500"><X size={14} /></button>
           </form>
         )}
 
         {/* Attachment list */}
         {loading ? (
-          <div className="h-8 bg-surface-200 rounded animate-pulse" />
+          <div className="h-8 bg-surface-200 dark:bg-surface-700 rounded animate-pulse" />
         ) : attachments.length === 0 ? (
-          <p className="text-xs text-surface-400 text-center py-3">{t("tasks.noAttachments")}</p>
+          <p className="text-xs text-surface-400 dark:text-surface-500 text-center py-3">{t("tasks.noAttachments")}</p>
         ) : (
           <div className="space-y-1.5">
             {attachments.map(att => (
-              <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-surface-100 border border-surface-100 group/att hover:border-brand-200 transition-colors">
+              <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-surface-100 dark:bg-surface-900 border border-surface-100 dark:border-surface-700 group/att hover:border-brand-200 dark:hover:border-brand-700 transition-colors">
                 <span className="text-sm shrink-0">{fileIcon(att.kind, att.file_type)}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-surface-800 truncate">{att.label || att.url}</p>
+                  <p className="text-xs font-medium text-surface-800 dark:text-surface-200 truncate">{att.label || att.url}</p>
                   {att.kind === "file" && att.file_size > 0 && (
-                    <p className="text-[10px] text-surface-400">{att.file_type?.toUpperCase()} · {humanSize(att.file_size)}</p>
+                    <p className="text-[10px] text-surface-400 dark:text-surface-500">{att.file_type?.toUpperCase()} · {humanSize(att.file_size)}</p>
                   )}
                 </div>
                 <a href={getDownloadUrl(att) ?? att.url} target="_blank" rel="noopener noreferrer"
-                  className="p-1 rounded hover:bg-surface-100 text-surface-400 hover:text-brand-600 transition-colors"
+                  className="p-1 rounded hover:bg-surface-200 dark:hover:bg-surface-800 text-surface-400 dark:text-surface-500 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
                   title={t("tasks.openLink")}>
                   <ExternalLink size={13} />
                 </a>
                 <button onClick={() => remove(att)}
-                  className="p-1 rounded hover:bg-red-50 text-surface-300 hover:text-red-500 opacity-0 group-hover/att:opacity-100 transition-all"
+                  className="p-1 rounded hover:bg-red-50 dark:hover:bg-red-900 text-surface-300 dark:text-surface-600 hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover/att:opacity-100 transition-all"
                   title={t("tasks.removeAttachment")}>
                   <Trash2 size={13} />
                 </button>
@@ -356,27 +356,27 @@ function TaskModal({ initial, modules, onClose, onSaved }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between p-5 border-b border-surface-100">
-          <h2 className="font-semibold text-surface-900">{initial ? t("tasks.modal.editTitle") : t("tasks.modal.title")}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
+      <div className="bg-surface-50 dark:bg-surface-800 rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-5 border-b border-surface-100 dark:border-surface-700">
+          <h2 className="font-semibold text-surface-900 dark:text-surface-50">{initial ? t("tasks.modal.editTitle") : t("tasks.modal.title")}</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">{t("tasks.modal.titleLabel")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("tasks.modal.titleLabel")}</label>
             <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("tasks.modal.titlePlaceholder")} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">{t("tasks.modal.descriptionLabel")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("tasks.modal.descriptionLabel")}</label>
             <textarea className="input resize-none" rows={2} value={form.description} onChange={e => set("description", e.target.value)} placeholder={t("tasks.modal.descriptionPlaceholder")} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{t("tasks.modal.dueDateLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("tasks.modal.dueDateLabel")}</label>
               <input className="input" type="date" value={form.due_date} onChange={e => set("due_date", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{t("tasks.modal.modulLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("tasks.modal.modulLabel")}</label>
               <select className="input" value={form.module_id} onChange={e => set("module_id", e.target.value)}>
                 <option value="">{t("tasks.modal.moduleEmpty")}</option>
                 {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -385,7 +385,7 @@ function TaskModal({ initial, modules, onClose, onSaved }: {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{t("tasks.modal.priorityLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("tasks.modal.priorityLabel")}</label>
               <select className="input" value={form.priority} onChange={e => set("priority", e.target.value)}>
                 <option value="low">{t("tasks.statusLow")}</option>
                 <option value="medium">{t("tasks.statusMedium")}</option>
@@ -393,7 +393,7 @@ function TaskModal({ initial, modules, onClose, onSaved }: {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{t("tasks.modal.statusLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("tasks.modal.statusLabel")}</label>
               <select className="input" value={form.status} onChange={e => set("status", e.target.value)}>
                 <option value="todo">{t("tasks.statusOpen")}</option>
                 <option value="in_progress">{t("tasks.statusInProgress")}</option>

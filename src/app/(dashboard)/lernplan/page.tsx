@@ -292,44 +292,44 @@ export default function LernplanPage() {
   return (
     <ErrorBoundary feature="Lernplan">
       {DeleteConfirm}
-      <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+      <div className="w-full px-3 sm:px-4 py-4 max-w-4xl mx-auto">
         {loading ? (
           <div className="animate-pulse">
-            <div className="h-8 bg-surface-100 rounded-xl w-48 mb-6" />
-            <div className="h-32 bg-surface-100 rounded-2xl mb-4" />
+            <div className="h-8 bg-surface-100 dark:bg-surface-800 rounded-xl w-48 mb-6" />
+            <div className="h-32 bg-surface-100 dark:bg-surface-800 rounded-2xl mb-4" />
             <div className="space-y-3">
-              {[1, 2, 3].map(i => <div key={i} className="h-20 bg-surface-100 rounded-xl" />)}
+              {[1, 2, 3].map(i => <div key={i} className="h-20 bg-surface-100 dark:bg-surface-800 rounded-xl" />)}
             </div>
           </div>
         ) : (
           <>
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-2xl font-bold text-surface-900 flex items-center gap-2">
-              <CalendarClock className="text-brand-600" size={26} />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+        <div className="w-full">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
+              <CalendarClock className="text-brand-600 dark:text-brand-400" size={26} />
               {t("lernplan.title")}
             </h1>
             {activePlan && <StudyStreak items={activePlan.study_plan_items} />}
           </div>
-          <p className="text-surface-500 text-sm">{t("lernplan.subtitle")}</p>
+          <p className="text-surface-500 dark:text-surface-400 text-sm">{t("lernplan.subtitle")}</p>
         </div>
       </div>
 
       {/* ── No plans: Generate CTA ───────────────────────────────── */}
       {plans.length === 0 && !activePlan ? (
-        <div className="card text-center py-16">
-          <Brain size={48} className="mx-auto mb-4 text-brand-300" />
-          <h2 className="text-lg font-semibold text-surface-800 mb-2">
+        <div className="card text-center py-12 sm:py-16 px-4 sm:px-6">
+          <Brain size={48} className="mx-auto mb-4 text-brand-400 dark:text-brand-300" />
+          <h2 className="text-lg sm:text-xl font-semibold text-surface-800 dark:text-surface-100 mb-2">
             {t("lernplan.noPlanTitle")}
           </h2>
-          <p className="text-surface-500 text-sm mb-6 max-w-md mx-auto">
+          <p className="text-surface-500 dark:text-surface-400 text-sm mb-6 max-w-md mx-auto">
             {t("lernplan.noPlanDesc")}
           </p>
 
           {/* Strategy picker */}
-          <div className="flex items-center justify-center gap-3 mb-6">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-6">
             {(["balanced", "intensive", "spaced"] as const).map(s => {
               const Icon = STRATEGY_ICONS[s];
               const isActive = strategy === s;
@@ -337,10 +337,10 @@ export default function LernplanPage() {
                 <button
                   key={s}
                   onClick={() => setStrategy(s)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all w-full sm:w-auto justify-center ${
                     isActive
-                      ? "border-brand-300 bg-brand-50 text-brand-700"
-                      : "border-surface-200 text-surface-600 hover:border-brand-200"
+                      ? "border-brand-300 dark:border-brand-600 bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300"
+                      : "border-surface-200 dark:border-surface-700 text-surface-600 dark:text-surface-400 hover:border-brand-200 dark:hover:border-brand-700"
                   }`}
                 >
                   <Icon size={16} />
@@ -367,8 +367,8 @@ export default function LernplanPage() {
         <>
           {/* ── Plan selector + progress ───────────────────────── */}
           <div className="card mb-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-3">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
                 {plans.length > 1 && (
                   <select
                     value={activePlan?.id ?? ""}
@@ -376,7 +376,7 @@ export default function LernplanPage() {
                       const p = plans.find(p => p.id === e.target.value);
                       if (p) setActivePlan(p);
                     }}
-                    className="text-sm font-medium bg-surface-50 border border-surface-200 rounded-lg px-3 py-1.5 text-surface-800"
+                    className="text-sm font-medium bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg px-3 py-1.5 text-surface-800 dark:text-surface-100 w-full sm:w-auto"
                   >
                     {plans.map(p => (
                       <option key={p.id} value={p.id}>{p.title}</option>
@@ -384,26 +384,26 @@ export default function LernplanPage() {
                   </select>
                 )}
                 {plans.length <= 1 && activePlan && (
-                  <h2 className="text-lg font-semibold text-surface-800">{activePlan.title}</h2>
+                  <h2 className="text-lg font-semibold text-surface-800 dark:text-surface-100">{activePlan.title}</h2>
                 )}
                 {activePlan && (
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
                     activePlan.strategy === "intensive"
-                      ? "bg-red-50 text-red-600"
+                      ? "bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400"
                       : activePlan.strategy === "spaced"
-                        ? "bg-blue-50 text-blue-600"
-                        : "bg-brand-50 text-brand-600"
+                        ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+                        : "bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400"
                   }`}>
                     {t(`lernplan.strategy.${activePlan.strategy}`)}
                   </span>
                 )}
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
                   onClick={generatePlan}
                   disabled={generating}
-                  className="text-xs px-3 py-1.5 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 transition-colors font-medium flex items-center gap-1.5"
+                  className="text-xs px-3 py-2 min-h-10 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 rounded-lg hover:bg-brand-100 dark:hover:bg-brand-900/50 transition-colors font-medium flex items-center justify-center gap-1.5 flex-1 sm:flex-none"
                 >
                   <Sparkles size={14} />
                   {t("lernplan.newPlan")}
@@ -411,7 +411,7 @@ export default function LernplanPage() {
                 {activePlan && (
                   <button
                     onClick={() => deletePlan(activePlan.id)}
-                    className="text-xs p-1.5 text-surface-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors"
+                    className="text-xs p-2.5 min-h-10 text-surface-400 dark:text-surface-500 hover:text-red-500 dark:hover:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                     title={t("lernplan.deletePlan")}
                   >
                     <Trash2 size={14} />
@@ -437,13 +437,13 @@ export default function LernplanPage() {
           {/* ── Week strip ─────────────────────────────────────── */}
           <div className="card mb-4 p-3">
             <div className="flex items-center justify-between mb-2">
-              <button onClick={() => shiftDate(-7)} className="p-1 rounded-lg hover:bg-surface-100 text-surface-500">
+              <button onClick={() => shiftDate(-7)} className="p-2 min-h-9 min-w-9 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 text-surface-500 dark:text-surface-400 transition-colors">
                 <ChevronLeft size={18} />
               </button>
-              <span className="text-sm font-medium text-surface-700">
+              <span className="text-sm font-medium text-surface-700 dark:text-surface-300">
                 {formatDateLabel(selectedDate, t)}
               </span>
-              <button onClick={() => shiftDate(7)} className="p-1 rounded-lg hover:bg-surface-100 text-surface-500">
+              <button onClick={() => shiftDate(7)} className="p-2 min-h-9 min-w-9 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 text-surface-500 dark:text-surface-400 transition-colors">
                 <ChevronRight size={18} />
               </button>
             </div>
@@ -459,18 +459,18 @@ export default function LernplanPage() {
                   <button
                     key={d}
                     onClick={() => setSelectedDate(d)}
-                    className={`flex flex-col items-center py-2 rounded-xl transition-all ${
+                    className={`flex flex-col items-center py-2 px-1 min-h-14 rounded-xl transition-all ${
                       isSelected
-                        ? "bg-brand-600 text-white shadow-sm"
+                        ? "bg-brand-600 dark:bg-brand-700 text-white shadow-sm"
                         : isToday
-                          ? "bg-brand-50 text-brand-700"
-                          : "hover:bg-surface-50 text-surface-600"
+                          ? "bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300"
+                          : "hover:bg-surface-50 dark:hover:bg-surface-800 text-surface-600 dark:text-surface-400"
                     }`}
                   >
-                    <span className="text-[10px] uppercase">{dayName}</span>
+                    <span className="text-[10px] uppercase font-medium">{dayName}</span>
                     <span className="text-sm font-bold">{dayNum}</span>
                     {hasItems && !isSelected && (
-                      <span className="w-1 h-1 rounded-full bg-brand-400 mt-0.5" />
+                      <span className="w-1 h-1 rounded-full bg-brand-400 dark:bg-brand-500 mt-0.5" />
                     )}
                   </button>
                 );
@@ -480,18 +480,18 @@ export default function LernplanPage() {
 
           {/* ── Day summary ────────────────────────────────────── */}
           {dayItems.length > 0 && (
-            <div className="flex items-center gap-4 mb-4 text-sm text-surface-600">
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 size={14} className="text-green-500" />
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-4 text-xs sm:text-sm text-surface-600 dark:text-surface-400">
+              <span className="flex items-center gap-1.5 min-h-9 px-3 py-2 bg-surface-50 dark:bg-surface-800 rounded-lg">
+                <CheckCircle2 size={14} className="text-green-500 flex-shrink-0" />
                 {dayCompleted}/{dayTotal} {t("lernplan.done")}
               </span>
-              <span className="flex items-center gap-1.5">
-                <Clock size={14} className="text-surface-400" />
+              <span className="flex items-center gap-1.5 min-h-9 px-3 py-2 bg-surface-50 dark:bg-surface-800 rounded-lg">
+                <Clock size={14} className="text-surface-400 dark:text-surface-500 flex-shrink-0" />
                 {dayMinutes} min {t("lernplan.remaining")}
               </span>
               {dayCompleted === dayTotal && dayTotal > 0 && (
-                <span className="flex items-center gap-1.5 text-amber-600 font-medium">
-                  <Trophy size={14} />
+                <span className="flex items-center gap-1.5 min-h-9 px-3 py-2 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 font-medium rounded-lg">
+                  <Trophy size={14} className="flex-shrink-0" />
                   {t("lernplan.dayComplete")}
                 </span>
               )}
@@ -512,8 +512,8 @@ export default function LernplanPage() {
           {/* ── Day items ──────────────────────────────────────── */}
           <div className="space-y-2">
             {dayItems.length === 0 ? (
-              <div className="card text-center py-12 text-surface-400">
-                <CalendarClock size={32} className="mx-auto mb-3 opacity-30" />
+              <div className="card text-center py-12 px-4 text-surface-400 dark:text-surface-500">
+                <CalendarClock size={32} className="mx-auto mb-3 opacity-30 dark:opacity-20" />
                 <p className="text-sm">{t("lernplan.noItemsForDay")}</p>
               </div>
             ) : (
@@ -535,42 +535,42 @@ export default function LernplanPage() {
                 return (
                   <div
                     key={item.id}
-                    className={`card p-4 flex items-start gap-4 transition-all ${
+                    className={`card p-3 sm:p-4 flex flex-col sm:flex-row items-start gap-3 sm:gap-4 transition-all min-h-14 sm:min-h-auto ${
                       item.completed ? "opacity-60" : ""
-                    } ${isBreak ? "bg-surface-50 border-dashed" : ""}`}
+                    } ${isBreak ? "bg-surface-50 dark:bg-surface-800/50 border-dashed" : "dark:bg-surface-800/30"}`}
                   >
                     {/* Checkbox */}
                     <button
                       onClick={() => toggleItem(item)}
                       disabled={isToggling}
-                      className={`mt-0.5 flex-shrink-0 transition-transform ${isToggling ? "scale-90" : "hover:scale-110"}`}
+                      className={`mt-0.5 flex-shrink-0 transition-transform p-1 min-h-9 min-w-9 flex items-center justify-center rounded-lg ${isToggling ? "scale-90" : "hover:scale-110 hover:bg-surface-100 dark:hover:bg-surface-700"}`}
                     >
                       {item.completed ? (
-                        <CheckCircle2 size={22} className="text-green-500" />
+                        <CheckCircle2 size={22} className="text-green-500 dark:text-green-400" />
                       ) : (
-                        <Circle size={22} className="text-surface-300 hover:text-brand-400" />
+                        <Circle size={22} className="text-surface-300 dark:text-surface-600 hover:text-brand-400 dark:hover:text-brand-400" />
                       )}
                     </button>
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Icon size={14} className={item.completed ? "text-surface-400" : "text-brand-500"} />
-                        <span className={`font-medium text-sm ${
-                          item.completed ? "line-through text-surface-400" : "text-surface-800"
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <Icon size={14} className={item.completed ? "text-surface-400 dark:text-surface-500" : "text-brand-500 dark:text-brand-400 flex-shrink-0"} />
+                        <span className={`font-medium text-sm break-words ${
+                          item.completed ? "line-through text-surface-400 dark:text-surface-500" : "text-surface-800 dark:text-surface-100"
                         }`}>
                           {item.title}
                         </span>
                         {!isBreak && (
-                          <span className={`w-2 h-2 rounded-full ${prio.dot}`} />
+                          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${prio.dot}`} />
                         )}
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
                         {item.description && (
-                          <p className="text-xs text-surface-500 truncate">{item.description}</p>
+                          <p className="text-xs text-surface-500 dark:text-surface-400 truncate">{item.description}</p>
                         )}
                         {completionTime && (
-                          <span className="text-xs text-surface-400">
+                          <span className="text-xs text-surface-400 dark:text-surface-500">
                             {t("lernplan.completedAt")} {completionTime}
                           </span>
                         )}
@@ -578,17 +578,17 @@ export default function LernplanPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0 self-end sm:self-center w-full sm:w-auto justify-end sm:justify-start">
                       {!item.completed && !isBreak && (
                         <Link
                           href={`/timer?module=${item.topic_id || ""}&label=${encodeURIComponent(item.title)}&minutes=${item.duration_minutes}`}
-                          className="p-1.5 text-surface-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
+                          className="p-2 min-h-9 min-w-9 text-surface-400 dark:text-surface-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors flex items-center justify-center"
                           title={t("lernplan.startTimer")}
                         >
                           <Play size={14} />
                         </Link>
                       )}
-                      <span className="text-xs text-surface-400 whitespace-nowrap flex items-center gap-1">
+                      <span className="text-xs text-surface-400 dark:text-surface-500 whitespace-nowrap flex items-center gap-1 px-2 py-1">
                         <Clock size={12} />
                         {item.duration_minutes} min
                       </span>
@@ -604,26 +604,26 @@ export default function LernplanPage() {
           {/* ── Week Statistics ────────────────────────────────── */}
           {activePlan && (
             <div className="card mt-6">
-              <h3 className="text-sm font-semibold text-surface-800 mb-4 flex items-center gap-2">
-                <BarChart3 size={16} className="text-brand-600" />
+              <h3 className="text-sm font-semibold text-surface-800 dark:text-surface-100 mb-4 flex items-center gap-2">
+                <BarChart3 size={16} className="text-brand-600 dark:text-brand-400" />
                 {t("lernplan.weekStats")}
               </h3>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="text-center">
-                  <p className="text-xs text-surface-500 mb-1">{t("lernplan.plannedHours")}</p>
-                  <p className="text-lg font-bold text-brand-600">
-                    {weekStats.plannedHours} <span className="text-xs text-surface-400">{t("lernplan.hours")}</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                <div className="text-center p-3 sm:p-4 bg-surface-50 dark:bg-surface-800/50 rounded-lg">
+                  <p className="text-xs text-surface-500 dark:text-surface-400 mb-2">{t("lernplan.plannedHours")}</p>
+                  <p className="text-lg sm:text-xl font-bold text-brand-600 dark:text-brand-400">
+                    {weekStats.plannedHours} <span className="text-xs text-surface-400 dark:text-surface-500">{t("lernplan.hours")}</span>
                   </p>
                 </div>
-                <div className="text-center border-l border-r border-surface-200">
-                  <p className="text-xs text-surface-500 mb-1">{t("lernplan.completedHours")}</p>
-                  <p className="text-lg font-bold text-green-600">
-                    {weekStats.completedHours} <span className="text-xs text-surface-400">{t("lernplan.hours")}</span>
+                <div className="text-center p-3 sm:p-4 bg-surface-50 dark:bg-surface-800/50 rounded-lg sm:border-l sm:border-r sm:border-surface-200 dark:sm:border-surface-700">
+                  <p className="text-xs text-surface-500 dark:text-surface-400 mb-2">{t("lernplan.completedHours")}</p>
+                  <p className="text-lg sm:text-xl font-bold text-green-600 dark:text-green-400">
+                    {weekStats.completedHours} <span className="text-xs text-surface-400 dark:text-surface-500">{t("lernplan.hours")}</span>
                   </p>
                 </div>
-                <div className="text-center">
-                  <p className="text-xs text-surface-500 mb-1">{t("lernplan.completionRate")}</p>
-                  <p className="text-lg font-bold text-indigo-600">
+                <div className="text-center p-3 sm:p-4 bg-surface-50 dark:bg-surface-800/50 rounded-lg">
+                  <p className="text-xs text-surface-500 dark:text-surface-400 mb-2">{t("lernplan.completionRate")}</p>
+                  <p className="text-lg sm:text-xl font-bold text-indigo-600 dark:text-indigo-400">
                     {weekStats.rate}%
                   </p>
                 </div>
