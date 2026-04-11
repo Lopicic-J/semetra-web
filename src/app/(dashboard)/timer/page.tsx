@@ -256,52 +256,52 @@ function TimerPageInner() {
   const progressOffset = circumference * (1 - (timer.progress ?? 0));
 
   return (
-    <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)]">
+    <div className="flex flex-col lg:flex-row h-[calc(100vh-56px)] md:h-[calc(100vh-64px)]">
 
       {/* ══════════════════════════════════════════════════════════════════
           LEFT: Timer Core (Main Area)
           ══════════════════════════════════════════════════════════════ */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto p-4 sm:p-6">
+        <div className="max-w-2xl mx-auto p-3 sm:p-6">
 
           {/* Header */}
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between mb-4 sm:mb-5">
             <div>
-              <h1 className="text-xl font-bold text-surface-900">Lernzeit</h1>
-              <p className="text-sm text-surface-500 mt-0.5">Fokussiert lernen, Fortschritt tracken</p>
+              <h1 className="text-lg sm:text-xl font-bold text-surface-900 dark:text-surface-100">Lernzeit</h1>
+              <p className="text-xs sm:text-sm text-surface-500 mt-0.5">Fokussiert lernen, Fortschritt tracken</p>
             </div>
             {/* Streak Badge */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-orange-50 dark:bg-orange-950/30">
-              <Flame size={18} className="text-orange-500" />
-              <span className="text-sm font-bold text-orange-600">{streaks.currentStreak}</span>
-              <span className="text-xs text-orange-400">Tage</span>
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-orange-50 dark:bg-orange-950/30">
+              <Flame size={16} className="text-orange-500 sm:w-[18px] sm:h-[18px]" />
+              <span className="text-sm font-bold text-orange-600 dark:text-orange-400">{streaks.currentStreak}</span>
+              <span className="text-[10px] sm:text-xs text-orange-400">Tage</span>
             </div>
           </div>
 
           {/* Quick Stats Strip */}
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            <div className="rounded-xl bg-brand-50 dark:bg-brand-950/20 p-3 text-center">
-              <p className="text-lg font-bold text-brand-600">{formatDuration(weekStudySec)}</p>
-              <p className="text-[11px] text-surface-500">Diese Woche</p>
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
+            <div className="rounded-xl bg-brand-50 dark:bg-brand-950/20 p-2.5 sm:p-3 text-center">
+              <p className="text-base sm:text-lg font-bold text-brand-600">{formatDuration(weekStudySec)}</p>
+              <p className="text-[10px] sm:text-[11px] text-surface-500">Diese Woche</p>
             </div>
-            <div className="rounded-xl bg-surface-50 dark:bg-surface-800/40 p-3 text-center">
-              <p className="text-lg font-bold text-surface-800">
+            <div className="rounded-xl bg-surface-50 dark:bg-surface-800/40 p-2.5 sm:p-3 text-center">
+              <p className="text-base sm:text-lg font-bold text-surface-800 dark:text-surface-200">
                 {streaks.last30Days[today] ? formatDuration(streaks.last30Days[today]) : "0m"}
               </p>
-              <p className="text-[11px] text-surface-500">Heute</p>
+              <p className="text-[10px] sm:text-[11px] text-surface-500">Heute</p>
             </div>
-            <div className="rounded-xl bg-surface-50 dark:bg-surface-800/40 p-3 text-center">
-              <p className="text-lg font-bold text-surface-800">{timer.pomodoroCount}</p>
-              <p className="text-[11px] text-surface-500">Pomodoros</p>
+            <div className="rounded-xl bg-surface-50 dark:bg-surface-800/40 p-2.5 sm:p-3 text-center">
+              <p className="text-base sm:text-lg font-bold text-surface-800 dark:text-surface-200">{timer.pomodoroCount}</p>
+              <p className="text-[10px] sm:text-[11px] text-surface-500">Pomodoros</p>
             </div>
           </div>
 
           {/* Weekly Goal Progress */}
-          <div className="mb-6">
+          <div className="mb-5 sm:mb-6">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-medium text-surface-500">Wochenziel</span>
-              <span className="text-xs text-surface-400">
-                {Math.round(weekStudySec / 60)}  / {weeklyGoalMinutes} Min.
+              <span className="text-[11px] sm:text-xs font-medium text-surface-500">Wochenziel</span>
+              <span className="text-[11px] sm:text-xs text-surface-400">
+                {Math.round(weekStudySec / 60)} / {weeklyGoalMinutes} Min.
               </span>
             </div>
             <div className="h-2 rounded-full bg-surface-100 dark:bg-surface-800 overflow-hidden">
@@ -319,15 +319,15 @@ function TimerPageInner() {
                 <button
                   key={key}
                   onClick={() => setFocusMode(key)}
-                  className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all active:scale-[0.97] ${
                     focusMode === key
                       ? "text-white shadow-md scale-[1.02]"
-                      : "bg-surface-100 dark:bg-surface-800 text-surface-600 hover:bg-surface-200"
+                      : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700"
                   }`}
                   style={focusMode === key ? { background: preset.color } : {}}
                 >
                   {preset.icon}
-                  <span className="hidden sm:inline">{preset.labelKey}</span>
+                  <span>{preset.labelKey}</span>
                 </button>
               ))}
             </div>
@@ -339,8 +339,8 @@ function TimerPageInner() {
           )}
 
           {/* ── Timer Ring ─────────────────────────────────────────── */}
-          <div className="flex justify-center mb-6">
-            <div className="relative w-60 h-60 sm:w-72 sm:h-72">
+          <div className="flex justify-center mb-5 sm:mb-6">
+            <div className="relative w-52 h-52 sm:w-72 sm:h-72">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="45" fill="none"
                   className="stroke-surface-100 dark:stroke-surface-800" strokeWidth="5" />
@@ -352,7 +352,7 @@ function TimerPageInner() {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-5xl sm:text-6xl font-mono font-bold text-surface-900 tracking-tight">
+                <span className="text-4xl sm:text-6xl font-mono font-bold text-surface-900 dark:text-surface-100 tracking-tight">
                   {timer.display}
                 </span>
                 {timer.isRunning && !timer.isPaused && (
@@ -380,7 +380,7 @@ function TimerPageInner() {
           {/* ── Context Selection (before start) ──────────────────── */}
           {!timer.isRunning && (
             <div className="max-w-lg mx-auto mb-5 space-y-3">
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <select
                   className="input flex-1"
                   value={selectedModule}
@@ -438,18 +438,18 @@ function TimerPageInner() {
 
               {/* Free mode: custom duration */}
               {focusMode === "free" && (
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
                   <span className="text-xs text-surface-400">Dauer:</span>
                   {[15, 30, 45, 60, 90].map(min => (
                     <button key={min}
                       onClick={() => setCustomMinutes(String(min))}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                      className={`px-2 sm:px-2.5 py-1 rounded-lg text-xs font-medium transition-all active:scale-[0.95] ${
                         customMinutes === String(min)
-                          ? "bg-emerald-100 text-emerald-700 ring-1 ring-emerald-300"
-                          : "bg-surface-50 text-surface-500 hover:bg-surface-100"
+                          ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-300 dark:ring-emerald-700"
+                          : "bg-surface-50 dark:bg-surface-800 text-surface-500 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700"
                       }`}
                     >
-                      {min} Min.
+                      {min}m
                     </button>
                   ))}
                   <span className="text-xs text-surface-400">oder frei</span>
@@ -459,7 +459,7 @@ function TimerPageInner() {
           )}
 
           {/* ── Controls ──────────────────────────────────────────── */}
-          <div className="flex justify-center gap-3 mb-6">
+          <div className="flex flex-col items-center gap-3 mb-6">
             {!timer.isRunning ? (
               <button
                 onClick={handleStart}
@@ -470,25 +470,27 @@ function TimerPageInner() {
               </button>
             ) : (
               <>
-                <button
-                  onClick={timer.isPaused ? timer.resume : timer.pause}
-                  className="btn-secondary gap-2 px-6 py-2.5"
-                >
-                  {timer.isPaused ? <><Play size={16} /> Weiter</> : <><Pause size={16} /> Pause</>}
-                </button>
+                <div className="flex items-center gap-2.5">
+                  <button
+                    onClick={timer.isPaused ? timer.resume : timer.pause}
+                    className="btn-secondary gap-2 px-5 sm:px-6 py-2.5 active:scale-[0.97]"
+                  >
+                    {timer.isPaused ? <><Play size={16} /> Weiter</> : <><Pause size={16} /> Pause</>}
+                  </button>
+                  <button
+                    onClick={handleStop}
+                    className="flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-medium transition-colors active:scale-[0.97]"
+                  >
+                    <Square size={16} /> Stopp
+                  </button>
+                </div>
                 {/* Note input while running */}
                 <input
-                  className="input w-40 text-sm"
+                  className="input w-full max-w-xs text-sm"
                   value={note}
                   onChange={e => setNote(e.target.value)}
-                  placeholder="Notiz…"
+                  placeholder="Notiz hinzufügen…"
                 />
-                <button
-                  onClick={handleStop}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-medium transition-colors"
-                >
-                  <Square size={16} /> Stopp
-                </button>
               </>
             )}
           </div>
@@ -517,7 +519,7 @@ function TimerPageInner() {
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
               <Calendar size={15} className="text-brand-500" />
-              <h2 className="text-sm font-semibold text-surface-800">Heutige Blöcke</h2>
+              <h2 className="text-sm font-semibold text-surface-800 dark:text-surface-200">Heutige Blöcke</h2>
               <span className="ml-auto text-[11px] text-surface-400">
                 {todayBlocks.length} offen
               </span>
@@ -551,7 +553,7 @@ function TimerPageInner() {
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
               <Flame size={15} className="text-orange-500" />
-              <h2 className="text-sm font-semibold text-surface-800">Lernstreak</h2>
+              <h2 className="text-sm font-semibold text-surface-800 dark:text-surface-200">Lernstreak</h2>
               <span className="ml-auto text-[11px] text-orange-500 font-medium">
                 {streaks.currentStreak} Tage
               </span>
@@ -567,7 +569,7 @@ function TimerPageInner() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <TrendingUp size={15} className="text-surface-500" />
-              <h2 className="text-sm font-semibold text-surface-800">Letzte Sitzungen</h2>
+              <h2 className="text-sm font-semibold text-surface-800 dark:text-surface-200">Letzte Sitzungen</h2>
             </div>
 
             {recentSessions.length === 0 ? (
@@ -703,7 +705,7 @@ function SessionRow({ session }: { session: any }) {
 export default function TimerPage() {
   return (
     <Suspense fallback={
-      <div className="flex items-center justify-center h-[calc(100vh-64px)]">
+      <div className="flex items-center justify-center h-[calc(100vh-56px)] md:h-[calc(100vh-64px)]">
         <div className="w-8 h-8 border-3 border-brand-600 border-t-transparent rounded-full animate-spin" />
       </div>
     }>

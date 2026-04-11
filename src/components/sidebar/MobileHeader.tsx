@@ -1,9 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Menu, X, LogOut, Zap, Gem } from "lucide-react";
+import { Menu, X, LogOut, Zap, Gem, ChevronRight } from "lucide-react";
 import { clsx } from "clsx";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { useTranslation } from "@/lib/i18n";
@@ -18,7 +18,35 @@ export default function MobileHeader() {
   const { isPro, userRole } = useProfile();
   const { t } = useTranslation();
 
+  // Close sidebar on route change
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  // Prevent body scroll when sidebar is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
+  // Close on Escape key
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === "Escape") setOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      document.addEventListener("keydown", handleKeyDown);
+      return () => document.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [open, handleKeyDown]);
+
   async function handleLogout() {
+    setOpen(false);
     await supabase.auth.signOut();
     router.push("/login");
     router.refresh();
@@ -32,70 +60,82 @@ export default function MobileHeader() {
   return (
     <>
       {/* Mobile top bar */}
-      <header className="md:hidden flex items-center justify-between px-4 py-3 bg-surface-50 border-b border-surface-200/60 shrink-0">
+      <header className="md:hidden flex items-center justify-between px-4 h-14 bg-[rgb(var(--card-bg))] border-b border-surface-200/60 dark:border-surface-800/60 shrink-0 safe-area-top">
         <button
           onClick={() => setOpen(true)}
-          className="p-2 -ml-2 rounded-xl hover:bg-surface-100 transition-colors"
+          className="p-2.5 -ml-2 rounded-xl hover:bg-surface-100 dark:hover:bg-surface-800 active:bg-surface-200 dark:active:bg-surface-700 transition-colors"
+          aria-label="Menü öffnen"
         >
-          <Menu size={20} className="text-surface-600" />
+          <Menu size={22} className="text-surface-600 dark:text-surface-400" />
         </button>
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-6 h-6 rounded-md bg-brand-600 text-white">
-            <Gem size={12} strokeWidth={2.2} />
+          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-sm">
+            <Gem size={13} strokeWidth={2.2} />
           </div>
-          <span className="font-bold text-surface-900 text-sm tracking-tight">Semetra Workspace</span>
+          <span className="font-bold text-surface-900 dark:text-surface-100 text-sm tracking-tight">
+            {currentPage ? t(currentPage.labelKey) : "Semetra"}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1">
           <span className={clsx(
-            "text-[9px] font-bold px-1.5 py-0.5 rounded-md",
-            isPro ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500"
+            "text-[9px] font-bold px-2 py-1 rounded-md",
+            isPro ? "bg-brand-600 text-white" : "bg-surface-100 dark:bg-surface-800 text-surface-500 dark:text-surface-400"
           )}>
             {isPro ? "PRO" : "Free"}
           </span>
         </div>
-
-        <div className="w-10" />
       </header>
 
       {/* Overlay */}
-      {open && (
-        <div
-          className="md:hidden fixed inset-0 z-50 bg-surface-900/30 backdrop-blur-sm animate-fade-in"
-          onClick={() => setOpen(false)}
-        />
-      )}
+      <div
+        className={clsx(
+          "md:hidden fixed inset-0 z-50 bg-surface-900/40 dark:bg-black/60 backdrop-blur-sm transition-opacity duration-300",
+          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        )}
+        onClick={() => setOpen(false)}
+        aria-hidden="true"
+      />
 
       {/* Slide-out sidebar */}
       <aside
         className={clsx(
-          "md:hidden fixed inset-y-0 left-0 z-50 w-72 bg-[rgb(var(--card-bg))] shadow-xl transition-transform duration-300 ease-in-out flex flex-col",
+          "md:hidden fixed inset-y-0 left-0 z-50 w-[280px] max-w-[85vw]",
+          "bg-[rgb(var(--card-bg))] dark:bg-surface-900 shadow-2xl",
+          "transition-transform duration-300 ease-out flex flex-col",
           open ? "translate-x-0" : "-translate-x-full"
         )}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-surface-100">
+        <div className="flex items-center justify-between px-4 py-4 border-b border-surface-100 dark:border-surface-800 safe-area-top">
           <div className="flex items-center gap-2.5">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-600 text-white shrink-0">
-              <Gem size={16} strokeWidth={2.2} />
+            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-md shadow-brand-500/20">
+              <Gem size={17} strokeWidth={2.2} />
             </div>
             <div>
-              <p className="font-bold text-surface-900 text-sm leading-tight tracking-tight">Semetra Workspace</p>
-              <p className="text-[10px] text-surface-400 leading-tight">{t("sidebar.study")}</p>
+              <p className="font-bold text-surface-900 dark:text-surface-100 text-sm leading-tight tracking-tight">Semetra</p>
+              <p className="text-[10px] text-surface-400 dark:text-surface-500 leading-tight">{t("sidebar.study")}</p>
             </div>
           </div>
           <button
             onClick={() => setOpen(false)}
-            className="p-2 rounded-xl hover:bg-surface-100 transition-colors"
+            className="p-2 rounded-xl hover:bg-surface-100 dark:hover:bg-surface-800 active:bg-surface-200 dark:active:bg-surface-700 transition-colors"
+            aria-label="Menü schliessen"
           >
             <X size={18} className="text-surface-400" />
           </button>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-0.5">
+        <nav className="flex-1 overflow-y-auto overscroll-contain px-3 py-2 space-y-0.5">
           {getFilteredNavGroups(userRole).map((group) => (
             <div key={group.labelKey}>
               {group.labelKey && (
-                <p className="px-3 pt-4 pb-1.5 text-[10px] font-semibold text-surface-400 tracking-wider uppercase select-none">
+                <p className="px-3 pt-5 pb-2 text-[10px] font-semibold text-surface-400 dark:text-surface-500 tracking-wider uppercase select-none">
                   {t(group.labelKey)}
                 </p>
               )}
@@ -109,17 +149,18 @@ export default function MobileHeader() {
                     href={item.href}
                     onClick={() => setOpen(false)}
                     className={clsx(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150",
+                      "flex items-center gap-3 px-3 py-3 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.98]",
                       active
-                        ? "bg-brand-600 text-white shadow-sm"
+                        ? "bg-brand-600 text-white shadow-md shadow-brand-600/20"
                         : locked
-                          ? "text-surface-400 hover:bg-surface-50"
-                          : "text-surface-500 hover:bg-surface-100 hover:text-surface-800"
+                          ? "text-surface-400 dark:text-surface-500 hover:bg-surface-50 dark:hover:bg-surface-800"
+                          : "text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 active:bg-surface-200 dark:active:bg-surface-700"
                     )}
                   >
-                    <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
-                    <span className="flex-1">{t(item.labelKey)}</span>
+                    <Icon size={18} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
+                    <span className="flex-1 truncate">{t(item.labelKey)}</span>
                     {locked && !active && <ProBadge />}
+                    {active && <ChevronRight size={14} className="opacity-60" />}
                   </Link>
                 );
               })}
@@ -128,7 +169,7 @@ export default function MobileHeader() {
         </nav>
 
         {/* Bottom */}
-        <div className="px-3 pt-2 pb-3 border-t border-surface-100 space-y-0.5">
+        <div className="px-3 pt-2 pb-3 border-t border-surface-100 dark:border-surface-800 space-y-0.5">
           {BOTTOM_ITEMS.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.href;
@@ -138,32 +179,32 @@ export default function MobileHeader() {
                 href={item.href}
                 onClick={() => setOpen(false)}
                 className={clsx(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150",
+                  "flex items-center gap-3 px-3 py-3 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.98]",
                   active
-                    ? "bg-brand-600 text-white shadow-sm"
-                    : "text-surface-500 hover:bg-surface-100 hover:text-surface-800"
+                    ? "bg-brand-600 text-white shadow-md shadow-brand-600/20"
+                    : "text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800"
                 )}
               >
-                <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
+                <Icon size={18} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
                 <span>{t(item.labelKey)}</span>
               </Link>
             );
           })}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-[13px] font-medium text-surface-400 hover:bg-danger-50 hover:text-danger-600 transition-all duration-150"
+            className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-[13px] font-medium text-surface-400 dark:text-surface-500 hover:bg-danger-50 dark:hover:bg-danger-500/10 hover:text-danger-600 dark:hover:text-danger-400 transition-all duration-150 active:scale-[0.98]"
           >
-            <LogOut size={17} strokeWidth={1.8} className="shrink-0" />
+            <LogOut size={18} strokeWidth={1.8} className="shrink-0" />
             {t("sidebar.logout")}
           </button>
         </div>
 
         {/* Upgrade / Pro badge */}
-        <div className="px-3 pb-4">
+        <div className="px-3 pb-4 safe-area-bottom">
           {isPro ? (
-            <div className="p-3 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white">
+            <div className="p-3.5 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white">
               <div className="flex items-center gap-2">
-                <Zap size={13} />
+                <Zap size={14} />
                 <span className="text-xs font-semibold">{t("sidebar.proActive")}</span>
               </div>
               <p className="text-[11px] text-brand-200 mt-1">{t("sidebar.allFeaturesUnlocked")}</p>
@@ -172,14 +213,14 @@ export default function MobileHeader() {
             <Link
               href="/upgrade"
               onClick={() => setOpen(false)}
-              className="p-3 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white block hover:opacity-95 transition-opacity"
+              className="p-3.5 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white block hover:opacity-95 active:scale-[0.98] transition-all"
             >
               <div className="flex items-center gap-2 mb-1">
-                <Zap size={13} />
+                <Zap size={14} />
                 <span className="text-xs font-semibold">{t("sidebar.proUpgrade")}</span>
               </div>
               <p className="text-[11px] text-brand-200 mb-2.5">{t("sidebar.aiCoach")}</p>
-              <div className="w-full py-1.5 rounded-lg bg-surface-50/95 text-brand-700 text-xs font-semibold text-center">
+              <div className="w-full py-2 rounded-lg bg-surface-50/95 dark:bg-white/95 text-brand-700 text-xs font-semibold text-center">
                 {t("sidebar.upgradePrice")}
               </div>
             </Link>

@@ -1118,7 +1118,7 @@ function MindMapEditor({ map, modules, onBack }: {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)]">
+    <div className="flex flex-col h-[calc(100vh-56px)] md:h-[calc(100vh-64px)]">
       {/* Toolbar */}
       <div className="flex items-center gap-2 px-3 py-2 bg-surface-100 border-b border-surface-100 shrink-0 overflow-x-auto relative z-30">
         <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-surface-500 hover:text-brand-600 shrink-0">

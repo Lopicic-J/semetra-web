@@ -60,6 +60,11 @@ export default function StundenplanPage() {
   const [editEntry, setEditEntry] = useState<StundenplanEntry | null>(null);
   const [dragIndicator, setDragIndicator] = useState<{dayIdx: number; startMin: number; endMin: number; text: string} | null>(null);
   const [showSchedulePanel, setShowSchedulePanel] = useState(true);
+  const [mobileDayIndex, setMobileDayIndex] = useState(() => {
+    // Default to current weekday (0=Mo, 6=So)
+    const d = new Date().getDay(); // 0=Sun
+    return d === 0 ? 6 : d - 1;
+  });
   const [newEntry, setNewEntry] = useState({
     day: "Mo",
     time_start: "08:00",
@@ -372,70 +377,70 @@ export default function StundenplanPage() {
   const overlapLayout = useMemo(() => getOverlapLayout(currentEntries), [currentEntries]);
 
   return (
-    <div className="flex h-[calc(100vh-64px)]">
+    <div className="flex flex-col lg:flex-row h-[calc(100vh-56px)] md:h-[calc(100vh-64px)]">
       {/* ── LEFT: Stundenplan ──────────────────────────────────────── */}
-      <div className={"flex-1 overflow-y-auto p-3 sm:p-5 " + (showSchedulePanel ? "max-w-[calc(100%-320px)]" : "")}>
+      <div className={"flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-5 " + (showSchedulePanel ? "lg:max-w-[calc(100%-320px)]" : "")}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-          <div>
-            <h1 className="text-xl font-bold text-surface-900">{t("nav.stundenplan")}</h1>
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-xl font-bold text-surface-900 dark:text-surface-100 truncate">{t("nav.stundenplan")}</h1>
             <p className="text-surface-500 text-xs mt-0.5">{t("stundenplan.subtitle")}</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button onClick={() => setShowSchedulePanel(!showSchedulePanel)}
-              className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500"
+              className="hidden lg:flex p-1.5 rounded-lg border border-surface-200 dark:border-surface-700 hover:bg-surface-50 dark:hover:bg-surface-800 text-surface-500"
               title={showSchedulePanel ? "Smart Schedule ausblenden" : "Smart Schedule einblenden"}>
               {showSchedulePanel ? <PanelRightClose size={16} /> : <PanelRightOpen size={16} />}
             </button>
-            <button onClick={() => { setShowForm(true); }} className="btn-primary gap-2">
-              <Plus size={16} /> {t("stundenplan.addEntry")}
+            <button onClick={() => { setShowForm(true); }} className="btn-primary gap-2 text-sm">
+              <Plus size={16} /> <span className="hidden sm:inline">{t("stundenplan.addEntry")}</span><span className="sm:hidden">Neu</span>
             </button>
           </div>
         </div>
 
       {/* Semester selector */}
-      <div className="flex gap-2 mb-4 flex-wrap">
+      <div className="flex gap-1.5 sm:gap-2 mb-4 overflow-x-auto pb-1 -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide">
         {SEMESTERS.map(s => (
           <button
             key={s}
             onClick={() => { setCurrentSemester(s); setCurrentKw(1); }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 ${
               currentSemester === s
                 ? "bg-brand-600 text-white"
-                : "bg-surface-100 text-surface-600 hover:bg-surface-200"
+                : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700"
             }`}
           >
-            {s}
+            {s.replace("Semester ", "Sem. ")}
           </button>
         ))}
       </div>
 
       {/* KW navigation */}
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-1 sm:gap-2 mb-4">
         <button
           onClick={() => setCurrentKw(Math.max(1, currentKw - 1))}
           disabled={currentKw <= 1}
-          className="p-1.5 rounded-lg hover:bg-surface-100 disabled:opacity-30"
+          className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 disabled:opacity-30 shrink-0"
         >
           <ChevronLeft size={18} />
         </button>
 
-        <div className="flex gap-1 overflow-x-auto pb-1 flex-1">
+        <div className="flex gap-1 overflow-x-auto pb-1 flex-1 scrollbar-hide">
           {Array.from({ length: MAX_KW }, (_, i) => i + 1).map(kw => {
             const kwMon = getMondayOfIsoWeek(kw, currentYear);
             return (
               <button
                 key={kw}
                 onClick={() => setCurrentKw(kw)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium shrink-0 transition-colors ${
+                className={`px-2 sm:px-2.5 py-1 rounded-lg text-xs font-medium shrink-0 transition-colors ${
                   currentKw === kw
                     ? "bg-brand-600 text-white"
                     : kwsWithEntries.has(kw)
-                      ? "bg-brand-100 text-brand-700 hover:bg-brand-200"
-                      : "bg-surface-50 text-surface-400 hover:bg-surface-100"
+                      ? "bg-brand-100 dark:bg-brand-500/20 text-brand-700 dark:text-brand-300 hover:bg-brand-200"
+                      : "bg-surface-50 dark:bg-surface-800 text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700"
                 }`}
                 title={`KW${kw}: ${formatDateShort(kwMon)}`}
               >
-                KW{kw}
+                {kw}
               </button>
             );
           })}
@@ -444,7 +449,7 @@ export default function StundenplanPage() {
         <button
           onClick={() => setCurrentKw(Math.min(MAX_KW, currentKw + 1))}
           disabled={currentKw >= MAX_KW}
-          className="p-1.5 rounded-lg hover:bg-surface-100 disabled:opacity-30"
+          className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 disabled:opacity-30 shrink-0"
         >
           <ChevronRight size={18} />
         </button>
@@ -458,28 +463,128 @@ export default function StundenplanPage() {
                 copyToKw(target);
               }
             }}
-            className="btn-secondary gap-1.5 text-xs ml-2"
+            className="btn-secondary gap-1 text-xs ml-1 shrink-0 hidden sm:flex"
             title={t("stundenplan.copyToNext")}
           >
-            <Copy size={13} /> → KW{Math.min(currentKw + 1, MAX_KW)}
+            <Copy size={13} /> <span className="hidden md:inline">→ KW{Math.min(currentKw + 1, MAX_KW)}</span>
           </button>
         )}
       </div>
 
-      {/* Week grid */}
-      <div className="card p-0 overflow-hidden overflow-x-auto">
+      {/* ── Mobile: Day Selector Tabs ─────────────────────────── */}
+      <div className="lg:hidden flex gap-1 mb-3 overflow-x-auto scrollbar-hide -mx-3 px-3">
+        {DAYS_SHORT.map((d, i) => {
+          const dayEntries = currentEntries.filter(e => e.day === d);
+          const isToday = (() => {
+            const now = new Date();
+            const wd = now.getDay();
+            return (wd === 0 ? 6 : wd - 1) === i;
+          })();
+          return (
+            <button
+              key={d}
+              onClick={() => setMobileDayIndex(i)}
+              className={`flex flex-col items-center px-3 py-2 rounded-xl text-xs font-medium transition-all shrink-0 min-w-[48px] ${
+                mobileDayIndex === i
+                  ? "bg-brand-600 text-white shadow-md shadow-brand-600/20"
+                  : isToday
+                    ? "bg-brand-50 dark:bg-brand-950/30 text-brand-600 dark:text-brand-400 ring-1 ring-brand-200 dark:ring-brand-800"
+                    : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400"
+              }`}
+            >
+              <span className="font-semibold">{d}</span>
+              <span className={`text-[9px] mt-0.5 ${mobileDayIndex === i ? "text-white/70" : "text-surface-400"}`}>
+                {formatDateShort(weekDates[i])}
+              </span>
+              {dayEntries.length > 0 && mobileDayIndex !== i && (
+                <div className="w-1 h-1 rounded-full bg-brand-500 mt-0.5" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Mobile: Single Day View ──────────────────────────── */}
+      <div className="lg:hidden card p-0 overflow-hidden">
+        <div className="relative" style={{ height: `${14 * 48}px` }}>
+          {HOURS.map(h => (
+            <div key={h} className="absolute w-full flex items-start" style={{ top: `${(h - 7) * 48}px`, height: "48px" }}>
+              <div className="w-10 text-[10px] text-surface-400 dark:text-surface-500 text-right pr-1.5 pt-0.5 shrink-0">{h}:00</div>
+              <div className="flex-1 border-t border-surface-100 dark:border-surface-800" />
+            </div>
+          ))}
+
+          <div className="ml-10 relative" style={{ height: `${14 * 48}px` }}
+            onClick={(e) => {
+              if ((e.target as HTMLElement).closest('[data-entry]')) return;
+              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+              const dropY = e.clientY - rect.top;
+              const gridStart = 7 * 60;
+              const minutes = Math.round((dropY / 48) * 60) + gridStart;
+              const rounded = Math.round(minutes / 15) * 15;
+              setNewEntry({
+                day: DAYS_SHORT[mobileDayIndex],
+                time_start: minutesToTime(rounded),
+                time_end: minutesToTime(rounded + 60),
+              });
+              setShowForm(true);
+            }}
+          >
+            {currentEntries
+              .filter(e => e.day === DAYS_SHORT[mobileDayIndex])
+              .map(entry => {
+                const start = timeToMinutes(entry.time_start);
+                const end = timeToMinutes(entry.time_end);
+                const gridStart = 7 * 60;
+                const top = ((start - gridStart) / 60) * 48;
+                const height = Math.max(((end - start) / 60) * 48, 28);
+                const mod = modules.find(m => m.id === entry.module_id);
+                const overlap = overlapLayout.get(entry.id) ?? { col: 0, totalCols: 1 };
+                const colWidth = 1 / overlap.totalCols;
+                return (
+                  <div key={entry.id}
+                    data-entry="true"
+                    onClick={(e) => { setEditEntry(entry); e.stopPropagation(); }}
+                    className="absolute px-0.5 group active:scale-[0.98] transition-transform"
+                    style={{
+                      left: `${overlap.col * colWidth * 100}%`,
+                      width: `${colWidth * 100}%`,
+                      top: `${top}px`,
+                      height: `${height}px`,
+                      padding: "1px",
+                      zIndex: 1,
+                    }}>
+                    <div className="w-full h-full rounded-xl px-2.5 py-1.5 overflow-hidden text-white relative shadow-sm"
+                      style={{ background: entry.color ?? mod?.color ?? "#6d28d9" }}>
+                      <p className="text-[12px] font-semibold leading-tight truncate">{entry.title}</p>
+                      {entry.room && <p className="text-[11px] opacity-80 truncate">{entry.room}</p>}
+                      <p className="text-[11px] opacity-70">{entry.time_start} – {entry.time_end}</p>
+                      <button onClick={(e) => { handleDeleteClick(entry); e.stopPropagation(); }}
+                        className="absolute top-1 right-1 p-1 rounded-lg bg-black/20 hover:bg-black/40 active:bg-black/50">
+                        <X size={12} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Desktop: Full Week Grid ──────────────────────────── */}
+      <div className="hidden lg:block card p-0 overflow-hidden overflow-x-auto">
         <div className="min-w-[800px]">
           {/* Header */}
-          <div className="grid border-b border-surface-100" style={{ gridTemplateColumns: "48px repeat(7, 1fr)" }}>
+          <div className="grid border-b border-surface-100 dark:border-surface-800" style={{ gridTemplateColumns: "48px repeat(7, 1fr)" }}>
             <div className="py-2 text-center text-[10px] font-medium text-surface-400 leading-tight">
               <span className="font-semibold">KW{currentKw}</span>
               <br />
-              <span className="text-[9px] text-surface-300">{formatDateShort(weekDates[0])} – {formatDateShort(weekDates[6])}</span>
+              <span className="text-[9px] text-surface-300 dark:text-surface-500">{formatDateShort(weekDates[0])} – {formatDateShort(weekDates[6])}</span>
             </div>
             {DAYS_SHORT.map((d, i) => (
-              <div key={d} className="py-2 text-center border-l border-surface-100">
-                <div className="text-sm font-semibold text-surface-600">{d}</div>
-                <div className="text-[10px] text-surface-400">{formatDateShort(weekDates[i])}</div>
+              <div key={d} className="py-2 text-center border-l border-surface-100 dark:border-surface-800">
+                <div className="text-sm font-semibold text-surface-600 dark:text-surface-300">{d}</div>
+                <div className="text-[10px] text-surface-400 dark:text-surface-500">{formatDateShort(weekDates[i])}</div>
               </div>
             ))}
           </div>
@@ -489,26 +594,23 @@ export default function StundenplanPage() {
             {HOURS.map(h => (
               <div key={h} className="absolute w-full flex items-start" style={{ top: `${(h - 7) * 56}px`, height: "56px" }}>
                 <div className="w-12 text-[10px] text-surface-400 text-right pr-2 pt-0.5 shrink-0">{h}:00</div>
-                <div className="flex-1 border-t border-surface-100" />
+                <div className="flex-1 border-t border-surface-100 dark:border-surface-800" />
               </div>
             ))}
 
             <div className="ml-12 grid relative" style={{ gridTemplateColumns: "repeat(7, 1fr)", height: `${14 * 56}px` }}>
               {DAYS.map((_, i) => (
                 <div key={i}
-                  className="border-l border-surface-100 transition-colors cursor-pointer hover:bg-brand-50/30"
+                  className="border-l border-surface-100 dark:border-surface-800 transition-colors cursor-pointer hover:bg-brand-50/30 dark:hover:bg-brand-950/20"
                   onDragOver={(e) => handleDayDropZoneDragOver(e, i)}
                   onDrop={(e) => handleDayDropZoneDrop(e, i)}
                   onClick={(e) => {
-                    // Only create entry if clicking on empty area (not on an existing entry)
                     if ((e.target as HTMLElement).closest('[draggable="true"]')) return;
-
                     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
                     const dropY = e.clientY - rect.top;
                     const gridStart = 7 * 60;
                     const minutes = Math.round((dropY / 56) * 60) + gridStart;
                     const rounded = Math.round(minutes / 15) * 15;
-
                     setNewEntry({
                       day: DAYS_SHORT[i],
                       time_start: minutesToTime(rounded),
@@ -556,7 +658,7 @@ export default function StundenplanPage() {
                 );
               })}
 
-              {/* Drag ghost preview — shows where the entry will land */}
+              {/* Drag ghost preview */}
               {dragIndicator && draggedEntry && (
                 <div
                   className="absolute pointer-events-none px-1"
@@ -569,8 +671,8 @@ export default function StundenplanPage() {
                     zIndex: 30,
                   }}
                 >
-                  <div className="w-full h-full rounded-lg border-2 border-dashed border-brand-400 bg-brand-100/50 backdrop-blur-sm flex flex-col items-center justify-center">
-                    <span className="text-[11px] font-bold text-brand-700">{dragIndicator.text}</span>
+                  <div className="w-full h-full rounded-lg border-2 border-dashed border-brand-400 bg-brand-100/50 dark:bg-brand-900/30 backdrop-blur-sm flex flex-col items-center justify-center">
+                    <span className="text-[11px] font-bold text-brand-700 dark:text-brand-300">{dragIndicator.text}</span>
                     {draggedEntry.title && (
                       <span className="text-[10px] text-brand-500 truncate max-w-full px-1">{draggedEntry.title}</span>
                     )}
