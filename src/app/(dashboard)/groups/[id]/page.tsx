@@ -345,7 +345,7 @@ const RESOURCE_TYPE_META: Record<string, { label: string; icon: typeof FileText;
   exam:           { label: "Prüfung",         icon: GraduationCap, color: "text-red-500" },
   note:           { label: "Notiz",           icon: FileText,      color: "text-amber-500" },
   document:       { label: "Dokument",        icon: FolderOpen,    color: "text-blue-500" },
-  flashcard_deck: { label: "Karteikarten",    icon: Layers,        color: "text-violet-500" },
+  flashcards:     { label: "Karteikarten",    icon: Layers,        color: "text-violet-500" },
 };
 
 function SharedResourcesTab({
@@ -398,13 +398,13 @@ function SharedResourcesTab({
           .order("created_at", { ascending: false })
           .limit(50);
         results = (data ?? []).map(d => ({ id: d.id, name: d.name }));
-      } else if (shareType === "flashcard_deck") {
+      } else if (shareType === "flashcards") {
         const { data } = await supabase
-          .from("flashcard_decks")
-          .select("id, name")
+          .from("flashcards")
+          .select("id, question")
           .order("created_at", { ascending: false })
           .limit(50);
-        results = (data ?? []).map(d => ({ id: d.id, name: d.name }));
+        results = (data ?? []).map(d => ({ id: d.id, name: d.question || "Karteikarte" }));
       }
 
       setSearchResults(results);

@@ -1,6 +1,6 @@
 "use client";
-import { Suspense } from "react";
-import { Zap, Check, Sparkles, Crown, Clock } from "lucide-react";
+import { Suspense, useState } from "react";
+import { Zap, Check, Sparkles, Crown, Loader2 } from "lucide-react";
 import {
   PRO_BASIC_PRICES,
   PRO_FULL_PRICES,
@@ -11,12 +11,32 @@ import {
 import Link from "next/link";
 import { useTranslation } from "@/lib/i18n";
 
-function ComingSoonBadge() {
+function CheckoutButton({ priceId, label, variant = "brand" }: { priceId: string; label: string; variant?: "brand" | "violet" | "dark" }) {
+  const [loading, setLoading] = useState(false);
+  const colors = {
+    brand: "bg-brand-600 hover:bg-brand-700 dark:bg-brand-600 dark:hover:bg-brand-500 text-white",
+    violet: "bg-violet-600 hover:bg-violet-700 dark:bg-violet-600 dark:hover:bg-violet-500 text-white",
+    dark: "bg-white/10 hover:bg-white/20 text-white",
+  };
+  async function handleCheckout() {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ price_id: priceId }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else alert(data.error || "Fehler beim Erstellen der Checkout-Session");
+    } catch { alert("Netzwerkfehler"); }
+    finally { setLoading(false); }
+  }
   return (
-    <div className="w-full py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 text-xs text-center font-semibold flex items-center justify-center gap-1.5">
-      <Clock size={13} />
-      Coming Soon
-    </div>
+    <button onClick={handleCheckout} disabled={loading}
+      className={`w-full py-2.5 px-6 rounded-xl text-xs font-semibold transition-all active:scale-[0.98] disabled:opacity-60 ${colors[variant]}`}>
+      {loading ? <Loader2 size={14} className="animate-spin mx-auto" /> : label}
+    </button>
   );
 }
 
@@ -34,11 +54,8 @@ function UpgradeContent() {
         <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-surface-50 mb-3">{t("upgrade.title")}</h1>
         <p className="text-sm sm:text-base text-surface-500 dark:text-surface-400 max-w-xl mx-auto">{t("upgrade.subtitle")}</p>
 
-        {/* Coming Soon Banner */}
-        <div className="mt-6 inline-flex flex-col sm:flex-row items-center gap-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium">
-          <Clock size={16} />
-          <span>Kaufoptionen werden in Kürze freigeschaltet — Semetra befindet sich aktuell in der Entwicklungsphase.</span>
-        </div>
+        {/* Guarantee note */}
+        <p className="mt-4 text-xs text-surface-400 dark:text-surface-500">14 Tage Geld-zurück-Garantie · Jederzeit kündbar</p>
       </div>
 
       {/* Cards: Free / Basic / Full */}
@@ -113,7 +130,17 @@ function UpgradeContent() {
               </div>
             ))}
           </div>
-          <ComingSoonBadge />
+          <CheckoutButton priceId={PRO_BASIC_PRICES.yearly.priceId} label="Pro Basic wählen" variant="brand" />
+          <div className="flex gap-1.5 mt-2">
+            <button className="flex-1 text-[10px] text-surface-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors py-1"
+              onClick={() => { const el = document.getElementById("interval-basic"); if(el) el.classList.toggle("hidden"); }}>
+              Andere Laufzeiten ▾
+            </button>
+          </div>
+          <div id="interval-basic" className="hidden mt-2 space-y-1.5">
+            <CheckoutButton priceId={PRO_BASIC_PRICES.monthly.priceId} label={`Monatlich — CHF ${PRO_BASIC_PRICES.monthly.price.toFixed(2).replace(".",",")}`} variant="brand" />
+            <CheckoutButton priceId={PRO_BASIC_PRICES.halfYearly.priceId} label={`6 Monate — CHF ${PRO_BASIC_PRICES.halfYearly.price.toFixed(2).replace(".",",")} (−${PRO_BASIC_PRICES.halfYearly.savings}%)`} variant="brand" />
+          </div>
         </div>
 
         {/* Pro Full */}
@@ -154,7 +181,17 @@ function UpgradeContent() {
               </div>
             ))}
           </div>
-          <ComingSoonBadge />
+          <CheckoutButton priceId={PRO_FULL_PRICES.yearly.priceId} label="Pro Full wählen" variant="violet" />
+          <div className="flex gap-1.5 mt-2">
+            <button className="flex-1 text-[10px] text-surface-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors py-1"
+              onClick={() => { const el = document.getElementById("interval-full"); if(el) el.classList.toggle("hidden"); }}>
+              Andere Laufzeiten ▾
+            </button>
+          </div>
+          <div id="interval-full" className="hidden mt-2 space-y-1.5">
+            <CheckoutButton priceId={PRO_FULL_PRICES.monthly.priceId} label={`Monatlich — CHF ${PRO_FULL_PRICES.monthly.price.toFixed(2).replace(".",",")}`} variant="violet" />
+            <CheckoutButton priceId={PRO_FULL_PRICES.halfYearly.priceId} label={`6 Monate — CHF ${PRO_FULL_PRICES.halfYearly.price.toFixed(2).replace(".",",")} (−${PRO_FULL_PRICES.halfYearly.savings}%)`} variant="violet" />
+          </div>
         </div>
       </div>
 
@@ -168,9 +205,8 @@ function UpgradeContent() {
           </div>
           <p className="text-base sm:text-lg font-bold">Lifetime Basic — CHF {LIFETIME_BASIC_PRICE.price.toFixed(2).replace(".", ",")}</p>
           <p className="text-xs sm:text-sm text-white/50 dark:text-white/40 mt-1">{t("upgrade.lifetimeBasicDesc")}</p>
-          <div className="mt-3 inline-flex items-center gap-1.5 bg-amber-500/20 dark:bg-amber-900/40 text-amber-300 dark:text-amber-400 px-4 py-2 rounded-xl font-semibold text-xs">
-            <Clock size={12} />
-            Coming Soon
+          <div className="mt-3">
+            <CheckoutButton priceId={LIFETIME_BASIC_PRICE.priceId} label="Lifetime Basic kaufen" variant="dark" />
           </div>
         </div>
 
@@ -183,9 +219,8 @@ function UpgradeContent() {
           </div>
           <p className="text-base sm:text-lg font-bold">Lifetime Full — CHF {LIFETIME_FULL_PRICE.price.toFixed(2).replace(".", ",")}</p>
           <p className="text-xs sm:text-sm text-white/50 dark:text-white/40 mt-1">{t("upgrade.lifetimeFullDesc")}</p>
-          <div className="mt-3 inline-flex items-center gap-1.5 bg-amber-500/20 dark:bg-amber-900/40 text-amber-300 dark:text-amber-400 px-4 py-2 rounded-xl font-semibold text-xs">
-            <Clock size={12} />
-            Coming Soon
+          <div className="mt-3">
+            <CheckoutButton priceId={LIFETIME_FULL_PRICE.priceId} label="Lifetime Full kaufen" variant="dark" />
           </div>
         </div>
       </div>
@@ -204,9 +239,8 @@ function UpgradeContent() {
               </p>
               <p className="text-xs sm:text-sm text-surface-500 dark:text-surface-400 mt-1">{t("upgrade.addonDesc")}</p>
             </div>
-            <div className="shrink-0 inline-flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 px-4 py-2 rounded-xl font-semibold text-xs">
-              <Clock size={12} />
-              Coming Soon
+            <div className="shrink-0">
+              <CheckoutButton priceId={AI_ADDON_PRICE.priceId} label="+200 KI-Requests kaufen" variant="violet" />
             </div>
           </div>
         </div>
@@ -224,7 +258,7 @@ function UpgradeContent() {
       </div>
 
       <p className="text-center text-xs text-surface-400 dark:text-surface-500 px-3">
-        Preise und Funktionen können sich bis zum offiziellen Launch noch ändern.
+        Sichere Zahlung via Stripe · Alle Preise in CHF inkl. MwSt.
       </p>
     </div>
   );

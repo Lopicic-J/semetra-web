@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-const ALLOWED_TYPES = ["note", "document", "module", "exam", "flashcard_deck"] as const;
+const ALLOWED_TYPES = ["note", "document", "module", "exam", "flashcards"] as const;
 type ResourceType = (typeof ALLOWED_TYPES)[number];
 
 /**
@@ -84,7 +84,7 @@ export async function POST(
         exam: { table: "events", nameCol: "title" },
         note: { table: "notes", nameCol: "title" },
         document: { table: "documents", nameCol: "name" },
-        flashcard_deck: { table: "flashcard_decks", nameCol: "name" },
+        flashcards: { table: "flashcards", nameCol: "question" },
       };
       const mapping = tableMap[resourceType as ResourceType];
       if (mapping) {

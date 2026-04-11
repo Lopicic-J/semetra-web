@@ -304,7 +304,7 @@ export default function ProgramDetailPage() {
           </button>
         </Link>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-surface-900">
+          <h1 className="text-3xl font-bold text-surface-900 dark:text-surface-100">
             {id === "new" ? "Neues Programm" : "Programm"}
           </h1>
         </div>
@@ -329,7 +329,7 @@ export default function ProgramDetailPage() {
       <Card padding="lg">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-surface-900 mb-2">
+            <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
               Name *
             </label>
             <input
@@ -337,19 +337,19 @@ export default function ProgramDetailPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="z.B. Informatik Bachelor"
-              className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-surface-900 mb-2">
+              <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
                 Studienabschluss *
               </label>
               <select
                 value={degreeLevel}
                 onChange={(e) => handleDegreeLevelChange(e.target.value)}
-                className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {DEGREE_LEVELS.map((d) => (
                   <option key={d.value} value={d.value}>
@@ -360,13 +360,13 @@ export default function ProgramDetailPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-surface-900 mb-2">
+              <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
                 Fakultät
               </label>
               <select
                 value={facultyId}
                 onChange={(e) => setFacultyId(e.target.value)}
-                className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Keine Auswahl</option>
                 {faculties.map((f) => (
@@ -380,26 +380,26 @@ export default function ProgramDetailPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-surface-900 mb-2">
+              <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
                 Gesamt ECTS *
               </label>
               <input
                 type="number"
                 value={totalEcts}
                 onChange={(e) => setTotalEcts(e.target.value)}
-                className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-surface-900 mb-2">
+              <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
                 Standard Semester *
               </label>
               <input
                 type="number"
                 value={durationTerms}
                 onChange={(e) => setDurationTerms(e.target.value)}
-                className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -410,9 +410,9 @@ export default function ProgramDetailPage() {
                 type="checkbox"
                 checked={thesisRequired}
                 onChange={(e) => setThesisRequired(e.target.checked)}
-                className="w-4 h-4 rounded border-surface-300 text-blue-600 focus:ring-blue-500"
+                className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-blue-600 focus:ring-blue-500"
               />
-              <span className="text-sm font-medium text-surface-900">
+              <span className="text-sm font-medium text-surface-900 dark:text-surface-100">
                 Thesis erforderlich
               </span>
             </label>
@@ -422,9 +422,9 @@ export default function ProgramDetailPage() {
                 type="checkbox"
                 checked={internshipRequired}
                 onChange={(e) => setInternshipRequired(e.target.checked)}
-                className="w-4 h-4 rounded border-surface-300 text-blue-600 focus:ring-blue-500"
+                className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-blue-600 focus:ring-blue-500"
               />
-              <span className="text-sm font-medium text-surface-900">
+              <span className="text-sm font-medium text-surface-900 dark:text-surface-100">
                 Praktikum erforderlich
               </span>
             </label>
@@ -434,9 +434,9 @@ export default function ProgramDetailPage() {
                 type="checkbox"
                 checked={finalExamRequired}
                 onChange={(e) => setFinalExamRequired(e.target.checked)}
-                className="w-4 h-4 rounded border-surface-300 text-blue-600 focus:ring-blue-500"
+                className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-blue-600 focus:ring-blue-500"
               />
-              <span className="text-sm font-medium text-surface-900">
+              <span className="text-sm font-medium text-surface-900 dark:text-surface-100">
                 Abschlussprüfung erforderlich
               </span>
             </label>
@@ -468,7 +468,7 @@ export default function ProgramDetailPage() {
       {id !== "new" && (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-surface-900">Anforderungsgruppen</h2>
+            <h2 className="text-2xl font-bold text-surface-900 dark:text-surface-100">Anforderungsgruppen</h2>
             {!showNewGroupForm && (
               <button
                 onClick={() => setShowNewGroupForm(true)}
@@ -485,7 +485,7 @@ export default function ProgramDetailPage() {
             <Card padding="lg" className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
                     Gruppennname *
                   </label>
                   <input
@@ -493,19 +493,19 @@ export default function ProgramDetailPage() {
                     value={newGroupName}
                     onChange={(e) => setNewGroupName(e.target.value)}
                     placeholder="z.B. Pflichtmodule Semester 1"
-                    className="w-full px-4 py-2 bg-white border border-surface-300 rounded-lg text-surface-900 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-surface-900 mb-2">
+                    <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
                       Gruppentyp *
                     </label>
                     <select
                       value={newGroupType}
                       onChange={(e) => setNewGroupType(e.target.value)}
-                      className="w-full px-4 py-2 bg-white border border-surface-300 rounded-lg text-surface-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       {GROUP_TYPES.map((t) => (
                         <option key={t.value} value={t.value}>
@@ -516,7 +516,7 @@ export default function ProgramDetailPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-surface-900 mb-2">
+                    <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
                       Min. ECTS erforderlich
                     </label>
                     <input
@@ -524,7 +524,7 @@ export default function ProgramDetailPage() {
                       value={newGroupMinCredits}
                       onChange={(e) => setNewGroupMinCredits(e.target.value)}
                       min="0"
-                      className="w-full px-4 py-2 bg-white border border-surface-300 rounded-lg text-surface-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>
@@ -556,7 +556,7 @@ export default function ProgramDetailPage() {
 
           {requirementGroups.length === 0 ? (
             <Card className="text-center py-8">
-              <p className="text-surface-600 mb-4">Noch keine Anforderungsgruppen</p>
+              <p className="text-surface-600 dark:text-surface-400 mb-4">Noch keine Anforderungsgruppen</p>
             </Card>
           ) : (
             <div className="space-y-3">
@@ -580,21 +580,21 @@ export default function ProgramDetailPage() {
                         <GripVertical className="w-5 h-5 text-surface-400 flex-shrink-0" />
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-surface-900">
+                            <h3 className="font-semibold text-surface-900 dark:text-surface-100">
                               {group.name}
                             </h3>
                             {groupTypeLabel && (
-                              <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
+                              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-medium rounded">
                                 {groupTypeLabel}
                               </span>
                             )}
                           </div>
-                          <p className="text-sm text-surface-600 mt-1">
+                          <p className="text-sm text-surface-600 dark:text-surface-400 mt-1">
                             {groupModuleList.length} Module · {groupEcts} ECTS
                             {minCreditsRequired > 0 && ` / ${minCreditsRequired} erforderlich`}
                           </p>
                           {minCreditsRequired > 0 && (
-                            <div className="mt-2 h-2 bg-surface-200 rounded-full overflow-hidden w-32">
+                            <div className="mt-2 h-2 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden w-32">
                               <div
                                 className={`h-full transition-all ${
                                   ectsPercentage >= 100 ? "bg-green-500" : "bg-amber-500"
@@ -611,7 +611,7 @@ export default function ProgramDetailPage() {
                             e.stopPropagation();
                             handleDeleteGroup(group.id);
                           }}
-                          className="p-2 hover:bg-red-50 text-red-600 rounded-lg transition-colors"
+                          className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-5 h-5" />
                         </button>
@@ -624,19 +624,19 @@ export default function ProgramDetailPage() {
                     </div>
 
                     {isExpanded && (
-                      <div className="mt-4 pt-4 border-t border-surface-200 space-y-2">
+                      <div className="mt-4 pt-4 border-t border-surface-200 dark:border-surface-700 space-y-2">
                         {groupModuleList.length === 0 ? (
-                          <p className="text-sm text-surface-600">Keine Module in dieser Gruppe</p>
+                          <p className="text-sm text-surface-600 dark:text-surface-400">Keine Module in dieser Gruppe</p>
                         ) : (
                           groupModuleList.map((mod) => (
                             <Link key={mod.id} href={`/builder/module/${mod.id}`}>
-                              <div className="flex items-center justify-between p-3 hover:bg-surface-100 rounded transition-colors border border-surface-200">
+                              <div className="flex items-center justify-between p-3 hover:bg-surface-100 dark:hover:bg-surface-700 rounded transition-colors border border-surface-200 dark:border-surface-700">
                                 <div className="flex-1">
-                                  <p className="text-sm font-medium text-surface-900">
+                                  <p className="text-sm font-medium text-surface-900 dark:text-surface-100">
                                     {mod.code && `[${mod.code}] `}
                                     {mod.name}
                                   </p>
-                                  <p className="text-xs text-surface-600 mt-1">
+                                  <p className="text-xs text-surface-600 dark:text-surface-400 mt-1">
                                     {mod.ects} ECTS
                                     {mod.semester && ` · Semester ${mod.semester}`}
                                     {mod.status === "active" && ` · Veröffentlicht`}
@@ -661,7 +661,7 @@ export default function ProgramDetailPage() {
       {id !== "new" && (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-surface-900">Module</h2>
+            <h2 className="text-2xl font-bold text-surface-900 dark:text-surface-100">Module</h2>
             <button
               onClick={handleNewModule}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
@@ -673,7 +673,7 @@ export default function ProgramDetailPage() {
 
           {modules.length === 0 ? (
             <Card className="text-center py-8">
-              <p className="text-surface-600 mb-4">Noch keine Module angelegt</p>
+              <p className="text-surface-600 dark:text-surface-400 mb-4">Noch keine Module angelegt</p>
               <button
                 onClick={handleNewModule}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
@@ -689,8 +689,8 @@ export default function ProgramDetailPage() {
                   <Card interactive padding="md">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-semibold text-surface-900">{mod.name}</h3>
-                        <p className="text-sm text-surface-600 mt-1">
+                        <h3 className="font-semibold text-surface-900 dark:text-surface-100">{mod.name}</h3>
+                        <p className="text-sm text-surface-600 dark:text-surface-400 mt-1">
                           {mod.code} · {mod.ects} ECTS
                         </p>
                       </div>

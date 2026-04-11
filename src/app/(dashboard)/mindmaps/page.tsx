@@ -8,7 +8,7 @@ import { LimitNudge, LimitCounter, UpgradeModal } from "@/components/ui/ProGate"
 import {
   Plus, Trash2, Pencil, X, ArrowLeft, Save, GitBranch, Move,
   ChevronRight, ChevronDown, Link2, ExternalLink, StickyNote,
-  Network, LayoutGrid, ZoomIn, ZoomOut, Maximize2, GraduationCap,
+  Network, LayoutGrid, ZoomIn, ZoomOut, Maximize2, Minimize2, GraduationCap,
   Copy, Download, Image, FileText, Search, Keyboard, Eye, EyeOff,
   CornerDownRight, ArrowRight, Undo2, CheckSquare, Square, Upload
 } from "lucide-react";
@@ -292,6 +292,7 @@ function MindMapEditor({ map, modules, onBack }: {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [showExport, setShowExport] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [undoStack, setUndoStack] = useState<MindMapNode[][]>([]);
   const [redoStack, setRedoStack] = useState<MindMapNode[][]>([]);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -325,6 +326,15 @@ function MindMapEditor({ map, modules, onBack }: {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showExport]);
+
+  // Handle fullscreen state sync
+  useEffect(() => {
+    function handleFullscreenChange() {
+      setIsFullscreen(!!document.fullscreenElement);
+    }
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   // Build tree helpers
   const rootNode = useMemo(() => nodes.find(n => !n.parent_id), [nodes]);
@@ -930,6 +940,21 @@ function MindMapEditor({ map, modules, onBack }: {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, nodes]);
 
+  // ── Fullscreen toggle ──
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      const el = document.getElementById("mindmap-editor-container");
+      if (el) {
+        el.requestFullscreen().catch(() => {
+          // Fallback: try on document.documentElement
+          document.documentElement.requestFullscreen().catch(() => {});
+        });
+      }
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+
   // ── Export functions ──
   async function exportPNG() {
     const el = document.getElementById("mindmap-canvas");
@@ -1035,6 +1060,21 @@ function MindMapEditor({ map, modules, onBack }: {
         }
       });
 
+      // 8.5. Remove node text truncation for full text in export
+      const nodeEls = el.querySelectorAll('[data-mindmap-node]');
+      const truncatedNodes: Array<{ el: Element; origClasses: string }> = [];
+      nodeEls.forEach(node => {
+        const origClasses = node.className;
+        truncatedNodes.push({ el: node, origClasses });
+        // Remove truncate and max-width constraints
+        const classList = Array.from(node.classList);
+        const filtered = classList.filter(c => c !== 'truncate' && !c.includes('max-w'));
+        node.className = filtered.join(' ');
+        // Also remove max-w inline style if present
+        const el_ = node as HTMLElement;
+        if (el_.style.maxWidth) el_.style.maxWidth = '';
+      });
+
       // 9. Capture with html2canvas — use x/y to offset if nodes extend left/above origin
       const canvas = await h2c(el, {
         scale: 2,
@@ -1062,6 +1102,10 @@ function MindMapEditor({ map, modules, onBack }: {
         svg.setAttribute("height", origSvgH);
         svg.setAttribute("style", origSvgStyle);
       }
+      // Restore node text truncation
+      truncatedNodes.forEach(({ el: node, origClasses }) => {
+        node.className = origClasses;
+      });
       el.style.transform = origTransform;
       el.style.transformOrigin = origOrigin;
       el.style.width = origWidth;
@@ -1118,7 +1162,7 @@ function MindMapEditor({ map, modules, onBack }: {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)] md:h-[calc(100vh-64px)]">
+    <div id="mindmap-editor-container" className="flex flex-col h-[calc(100vh-56px)] md:h-[calc(100vh-64px)]">
       {/* Toolbar */}
       <div className="flex items-center gap-2 px-3 py-2 bg-surface-100 border-b border-surface-100 shrink-0 overflow-x-auto relative z-30">
         <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-surface-500 hover:text-brand-600 shrink-0">
@@ -1176,7 +1220,9 @@ function MindMapEditor({ map, modules, onBack }: {
           <button onClick={() => setZoom(z => Math.max(0.3, z - 0.1))} className="p-1 hover:bg-surface-200 rounded"><ZoomOut size={13} /></button>
           <span className="text-[10px] text-surface-500 w-8 text-center">{Math.round(zoom * 100)}%</span>
           <button onClick={() => setZoom(z => Math.min(2, z + 0.1))} className="p-1 hover:bg-surface-200 rounded"><ZoomIn size={13} /></button>
-          <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="p-1 hover:bg-surface-200 rounded"><Maximize2 size={13} /></button>
+          <button onClick={toggleFullscreen} className="p-1 hover:bg-surface-200 rounded" title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}>
+            {isFullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+          </button>
         </div>
 
         <button onClick={() => setShowKeyboardHelp(true)} className="p-1.5 rounded-lg bg-surface-100 text-surface-500 hover:bg-surface-200 shrink-0" title={t("mindmaps.shortcuts")}>
@@ -1349,6 +1395,7 @@ function MindMapEditor({ map, modules, onBack }: {
                       isSearchMatch ? "ring-2 ring-amber-400 border-amber-300" :
                       "border-surface-200 hover:border-surface-300 shadow-sm hover:shadow-md"
                     }`}
+                      data-mindmap-node
                       style={{
                         background: nodeGradient(n.color, isDark, isRoot),
                         backdropFilter: "blur(4px)",

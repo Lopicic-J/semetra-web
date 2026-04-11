@@ -247,7 +247,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-2">
             {editingField !== "name" ? (
               <>
-                <h1 className="text-2xl font-bold text-surface-900">{displayName}</h1>
+                <h1 className="text-2xl font-bold text-surface-900 dark:text-surface-100">{displayName}</h1>
                 <button
                   onClick={() => startEdit("name", profile?.full_name || "")}
                   className="text-surface-400 hover:text-brand-600 transition"

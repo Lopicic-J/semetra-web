@@ -5,9 +5,8 @@ import { createClient } from "@/lib/supabase/server";
  * POST /api/groups/join
  *
  * Join a group via invite code.
+ * Uses a SECURITY DEFINER RPC function to bypass RLS.
  * Body: { inviteCode: string }
- *
- * Uses an atomic count+insert to prevent race conditions on max_members.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -16,60 +15,29 @@ export async function POST(req: NextRequest) {
     if (!user) return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
 
     const { inviteCode } = await req.json();
-    const code = inviteCode?.trim()?.toLowerCase();
+    const code = inviteCode?.trim();
     if (!code) {
       return NextResponse.json({ error: "Einladungscode erforderlich" }, { status: 400 });
     }
 
-    // Find group by invite code (case-insensitive match)
-    const { data: group, error: lookupError } = await supabase
-      .from("study_groups")
-      .select("id, name, max_members, invite_code")
-      .ilike("invite_code", code)
-      .single();
-
-    if (lookupError || !group) {
-      return NextResponse.json({ error: "Ungültiger Einladungscode. Bitte prüfe den Code und versuche es erneut." }, { status: 404 });
-    }
-
-    // Check if already member
-    const { data: existing } = await supabase
-      .from("study_group_members")
-      .select("id")
-      .eq("group_id", group.id)
-      .eq("user_id", user.id)
-      .single();
-
-    if (existing) {
-      return NextResponse.json({ error: "Du bist bereits Mitglied", groupId: group.id }, { status: 409 });
-    }
-
-    // Atomic count + insert: check member limit and insert in one step.
-    // The UNIQUE constraint on (group_id, user_id) prevents duplicates,
-    // and we re-check count right before insert to minimize the race window.
-    const { count } = await supabase
-      .from("study_group_members")
-      .select("id", { count: "exact", head: true })
-      .eq("group_id", group.id);
-
-    if ((count ?? 0) >= group.max_members) {
-      return NextResponse.json({ error: "Gruppe ist voll" }, { status: 400 });
-    }
-
-    // Insert — UNIQUE constraint catches any remaining race condition
-    const { error } = await supabase
-      .from("study_group_members")
-      .insert({ group_id: group.id, user_id: user.id, role: "member" });
+    // Call the SECURITY DEFINER function that bypasses RLS
+    const { data, error } = await supabase.rpc("join_group_by_invite", {
+      invite_code_input: code,
+    });
 
     if (error) {
-      // Handle UNIQUE violation (23505) — user joined in parallel request
-      if (error.code === "23505") {
-        return NextResponse.json({ error: "Du bist bereits Mitglied", groupId: group.id }, { status: 409 });
-      }
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ ok: true, groupId: group.id, groupName: group.name });
+    // The function returns a jsonb object with either { ok, group_id, group_name } or { error, status }
+    if (data?.error) {
+      return NextResponse.json(
+        { error: data.error, groupId: data.group_id },
+        { status: data.status || 400 },
+      );
+    }
+
+    return NextResponse.json({ ok: true, groupId: data.group_id, groupName: data.group_name });
   } catch (err: unknown) {
     return NextResponse.json({ error: err instanceof Error ? err.message : "Fehler" }, { status: 500 });
   }

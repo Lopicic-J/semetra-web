@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { createClient } from "@/lib/supabase/client";
@@ -10,7 +11,7 @@ import {
   Plus, BookOpen, Pencil, Trash2, X, ExternalLink, Github,
   FileText, Link2, CheckCircle, Clock, AlertCircle, PauseCircle,
   CheckSquare, Square, XSquare, AlertTriangle, Loader2,
-  Building2, RotateCcw
+  Building2, RotateCcw, ClipboardList, ChevronRight
 } from "lucide-react";
 import { ProGate } from "@/components/ui/ProGate";
 import type { Module } from "@/types/database";
@@ -257,6 +258,13 @@ export default function ModulesPage() {
           </button>
         </div>
       </div>
+
+      {/* Mobile: Quick link to tasks */}
+      <Link href="/tasks" className="flex sm:hidden items-center gap-2 px-3 py-2 mb-4 rounded-xl bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-sm text-surface-600 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors">
+        <ClipboardList size={16} className="text-green-500 flex-shrink-0" />
+        <span className="flex-1">Aufgaben anzeigen</span>
+        <ChevronRight size={14} className="text-surface-400 flex-shrink-0" />
+      </Link>
 
       {/* Auto-import banner */}
       {autoImporting && (

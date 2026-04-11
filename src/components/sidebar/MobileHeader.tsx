@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Menu, X, LogOut, Zap, Gem, ChevronRight } from "lucide-react";
+import { Menu, X, LogOut, Zap, Gem, ChevronRight, ChevronDown } from "lucide-react";
 import { clsx } from "clsx";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { useTranslation } from "@/lib/i18n";
@@ -12,6 +12,7 @@ import { BOTTOM_ITEMS, getFilteredNavGroups, getAllNavItems } from "./nav-config
 
 export default function MobileHeader() {
   const [open, setOpen] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -143,25 +144,85 @@ export default function MobileHeader() {
                 const Icon = item.icon;
                 const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
                 const locked = item.pro && !isPro;
+                const isExpanded = expandedItems.has(item.href);
+                const hasChildren = item.children && item.children.length > 0;
+
                 return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setOpen(false)}
-                    className={clsx(
-                      "flex items-center gap-3 px-3 py-3 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.98]",
-                      active
-                        ? "bg-brand-600 text-white shadow-md shadow-brand-600/20"
-                        : locked
-                          ? "text-surface-400 dark:text-surface-500 hover:bg-surface-50 dark:hover:bg-surface-800"
-                          : "text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 active:bg-surface-200 dark:active:bg-surface-700"
+                  <div key={item.href}>
+                    {hasChildren ? (
+                      <button
+                        onClick={() => {
+                          setExpandedItems(prev => {
+                            const newSet = new Set(prev);
+                            if (newSet.has(item.href)) {
+                              newSet.delete(item.href);
+                            } else {
+                              newSet.add(item.href);
+                            }
+                            return newSet;
+                          });
+                        }}
+                        className={clsx(
+                          "w-full flex items-center gap-3 px-3 py-3 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.98]",
+                          active
+                            ? "bg-brand-600 text-white shadow-md shadow-brand-600/20"
+                            : locked
+                              ? "text-surface-400 dark:text-surface-500 hover:bg-surface-50 dark:hover:bg-surface-800"
+                              : "text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 active:bg-surface-200 dark:active:bg-surface-700"
+                        )}
+                      >
+                        <Icon size={18} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
+                        <span className="flex-1 truncate">{t(item.labelKey)}</span>
+                        {locked && !active && <ProBadge />}
+                        {!locked && (
+                          <ChevronDown size={14} className={clsx("transition-transform shrink-0", isExpanded && "rotate-180")} />
+                        )}
+                      </button>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        onClick={() => setOpen(false)}
+                        className={clsx(
+                          "flex items-center gap-3 px-3 py-3 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.98]",
+                          active
+                            ? "bg-brand-600 text-white shadow-md shadow-brand-600/20"
+                            : locked
+                              ? "text-surface-400 dark:text-surface-500 hover:bg-surface-50 dark:hover:bg-surface-800"
+                              : "text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 active:bg-surface-200 dark:active:bg-surface-700"
+                        )}
+                      >
+                        <Icon size={18} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
+                        <span className="flex-1 truncate">{t(item.labelKey)}</span>
+                        {locked && !active && <ProBadge />}
+                        {active && <ChevronRight size={14} className="opacity-60" />}
+                      </Link>
                     )}
-                  >
-                    <Icon size={18} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
-                    <span className="flex-1 truncate">{t(item.labelKey)}</span>
-                    {locked && !active && <ProBadge />}
-                    {active && <ChevronRight size={14} className="opacity-60" />}
-                  </Link>
+
+                    {/* Expanded children */}
+                    {hasChildren && isExpanded && (
+                      <div className="ml-4 mt-0.5 space-y-0.5">
+                        {item.children?.map((child) => {
+                          const childActive = pathname === child.href || pathname.startsWith(child.href);
+                          return (
+                            <Link
+                              key={child.href}
+                              href={child.href}
+                              onClick={() => setOpen(false)}
+                              className={clsx(
+                                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-[12px] font-medium transition-all duration-150 active:scale-[0.98]",
+                                childActive
+                                  ? "bg-brand-500 text-white"
+                                  : "text-surface-500 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800"
+                              )}
+                            >
+                              <span className="flex-1 truncate">{t(child.labelKey)}</span>
+                              {childActive && <ChevronRight size={12} className="opacity-60" />}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>

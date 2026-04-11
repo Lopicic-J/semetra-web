@@ -184,7 +184,7 @@ function TimerBanner({ timer }: { timer: ReturnType<typeof useTimerSession> }) {
     <div className="mb-3 px-3 sm:px-4 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 text-white shadow-lg">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+          <div className="w-9 h-9 rounded-full bg-white/20 dark:bg-white/10 flex items-center justify-center flex-shrink-0">
             {timer.isPaused ? <Pause size={18} /> : <TimerIcon size={18} className="animate-pulse" />}
           </div>
           <div className="min-w-0">
@@ -206,9 +206,9 @@ function TimerBanner({ timer }: { timer: ReturnType<typeof useTimerSession> }) {
         )}
         <div className="flex items-center gap-1.5 ml-auto sm:ml-0">
           {timer.isPaused
-            ? <button onClick={timer.resume} className="p-2 min-h-9 min-w-9 rounded-lg bg-white/20 hover:bg-white/30 transition-colors flex items-center justify-center"><Play size={16} /></button>
-            : <button onClick={timer.pause} className="p-2 min-h-9 min-w-9 rounded-lg bg-white/20 hover:bg-white/30 transition-colors flex items-center justify-center"><Pause size={16} /></button>}
-          <button onClick={() => timer.stop()} className="p-2 min-h-9 min-w-9 rounded-lg bg-white/20 hover:bg-white/30 transition-colors flex items-center justify-center"><Square size={16} /></button>
+            ? <button onClick={timer.resume} className="p-2 min-h-9 min-w-9 rounded-lg bg-white/20 dark:bg-white/10 hover:bg-white/30 dark:hover:bg-white/20 transition-colors flex items-center justify-center"><Play size={16} /></button>
+            : <button onClick={timer.pause} className="p-2 min-h-9 min-w-9 rounded-lg bg-white/20 dark:bg-white/10 hover:bg-white/30 dark:hover:bg-white/20 transition-colors flex items-center justify-center"><Pause size={16} /></button>}
+          <button onClick={() => timer.stop()} className="p-2 min-h-9 min-w-9 rounded-lg bg-white/20 dark:bg-white/10 hover:bg-white/30 dark:hover:bg-white/20 transition-colors flex items-center justify-center"><Square size={16} /></button>
         </div>
       </div>
     </div>
