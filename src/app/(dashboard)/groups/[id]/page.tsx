@@ -89,6 +89,17 @@ export default function GroupDetailPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Realtime subscription for members + shares changes
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel(`group-detail-${groupId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "study_group_members", filter: `group_id=eq.${groupId}` }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "group_shares", filter: `group_id=eq.${groupId}` }, () => load())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [groupId, load]);
+
   async function addMember() {
     if (!addUsername.trim()) return;
     setError("");

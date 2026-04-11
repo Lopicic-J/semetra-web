@@ -134,6 +134,7 @@ export default function NavigatorPage() {
   const [upcomingExams, setUpcomingExams] = useState(0);
   const [dueFlashcards, setDueFlashcards] = useState(0);
   const [nextExamDays, setNextExamDays] = useState<number | null>(null);
+  const [nextExamTitle, setNextExamTitle] = useState("");
 
   const fetchLiveData = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -145,17 +146,20 @@ export default function NavigatorPage() {
       .eq("user_id", user.id).neq("status", "done");
     setDueTasks(taskCount ?? 0);
 
-    // Upcoming exams (next 30 days)
+    // Upcoming exams (next 90 days)
     const now = new Date();
-    const in30 = new Date(); in30.setDate(in30.getDate() + 30);
+    const in90 = new Date(); in90.setDate(in90.getDate() + 90);
     const { data: exams } = await supabase
-      .from("calendar_events").select("start_dt")
-      .eq("user_id", user.id).gte("start_dt", now.toISOString()).lte("start_dt", in30.toISOString())
-      .ilike("title", "%prüfung%");
+      .from("events").select("start_dt, title")
+      .eq("event_type", "exam")
+      .gte("start_dt", now.toISOString()).lte("start_dt", in90.toISOString())
+      .order("start_dt");
     setUpcomingExams(exams?.length ?? 0);
     if (exams && exams.length > 0) {
-      const nearest = exams.sort((a: any, b: any) => new Date(a.start_dt).getTime() - new Date(b.start_dt).getTime())[0];
-      setNextExamDays(Math.ceil((new Date(nearest.start_dt).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+      const nearest = exams[0];
+      const daysUntil = Math.ceil((new Date(nearest.start_dt).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      setNextExamDays(daysUntil);
+      setNextExamTitle(nearest.title);
     }
 
     // Due flashcards
@@ -206,8 +210,8 @@ export default function NavigatorPage() {
       urgent: dueFlashcards > 20,
     },
     {
-      label: t("navigator.nextExam") || "Nächste Prüfung",
-      value: nextExamDays != null ? `${nextExamDays}d` : "—",
+      label: nextExamTitle ? nextExamTitle : (t("navigator.nextExam") || "Nächste Prüfung"),
+      value: nextExamDays != null ? (nextExamDays === 0 ? "Heute!" : nextExamDays === 1 ? "Morgen" : `in ${nextExamDays} Tagen`) : "Keine",
       icon: Award, color: "#be123c", href: "/exams",
       urgent: nextExamDays != null && nextExamDays <= 7,
     },

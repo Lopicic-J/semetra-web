@@ -65,6 +65,7 @@ export default function StundenplanPage() {
     const d = new Date().getDay(); // 0=Sun
     return d === 0 ? 6 : d - 1;
   });
+  const [mobileView, setMobileView] = useState<"day" | "week">("day");
   const [newEntry, setNewEntry] = useState({
     day: "Mo",
     time_start: "08:00",
@@ -471,8 +472,32 @@ export default function StundenplanPage() {
         )}
       </div>
 
-      {/* ── Mobile: Day Selector Tabs ─────────────────────────── */}
-      <div className="lg:hidden flex gap-1 mb-3 overflow-x-auto scrollbar-hide -mx-3 px-3">
+      {/* ── Mobile: View Toggle (Tag/Woche) ─────────────────── */}
+      <div className="lg:hidden flex items-center gap-2 mb-3">
+        <button
+          onClick={() => setMobileView("day")}
+          className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
+            mobileView === "day"
+              ? "bg-brand-600 text-white shadow-sm"
+              : "bg-surface-100 dark:bg-surface-800 text-surface-500 dark:text-surface-400"
+          }`}
+        >
+          Tagesansicht
+        </button>
+        <button
+          onClick={() => setMobileView("week")}
+          className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
+            mobileView === "week"
+              ? "bg-brand-600 text-white shadow-sm"
+              : "bg-surface-100 dark:bg-surface-800 text-surface-500 dark:text-surface-400"
+          }`}
+        >
+          Wochenansicht
+        </button>
+      </div>
+
+      {/* ── Mobile: Day Selector Tabs (only in day view) ──── */}
+      <div className={`lg:hidden flex gap-1 mb-3 overflow-x-auto scrollbar-hide -mx-3 px-3 ${mobileView === "week" ? "hidden" : ""}`}>
         {DAYS_SHORT.map((d, i) => {
           const dayEntries = currentEntries.filter(e => e.day === d);
           const isToday = (() => {
@@ -505,7 +530,7 @@ export default function StundenplanPage() {
       </div>
 
       {/* ── Mobile: Single Day View ──────────────────────────── */}
-      <div className="lg:hidden card p-0 overflow-hidden">
+      <div className={`lg:hidden card p-0 overflow-hidden ${mobileView === "week" ? "hidden" : ""}`}>
         <div className="relative" style={{ height: `${14 * 48}px` }}>
           {HOURS.map(h => (
             <div key={h} className="absolute w-full flex items-start" style={{ top: `${(h - 7) * 48}px`, height: "48px" }}>
@@ -572,7 +597,7 @@ export default function StundenplanPage() {
       </div>
 
       {/* ── Desktop: Full Week Grid ──────────────────────────── */}
-      <div className="hidden lg:block card p-0 overflow-hidden overflow-x-auto">
+      <div className={`${mobileView === "week" ? "block" : "hidden lg:block"} card p-0 overflow-hidden overflow-x-auto`}>
         <div className="min-w-[800px]">
           {/* Header */}
           <div className="grid border-b border-surface-100 dark:border-surface-800" style={{ gridTemplateColumns: "48px repeat(7, 1fr)" }}>

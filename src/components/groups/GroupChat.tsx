@@ -72,9 +72,13 @@ export default function GroupChat({ groupId, currentUserId }: GroupChatProps) {
           table: "group_messages",
           filter: `group_id=eq.${groupId}`,
         },
-        () => {
-          // Reload full message list to get profile data
-          loadMessages();
+        (payload: any) => {
+          // Only reload if it's from another user (own messages are added optimistically)
+          if (payload.new?.user_id !== currentUserId) {
+            loadMessages();
+            // Show toast notification for new messages from others
+            toast(`Neue Nachricht in der Gruppe`, { icon: "💬", duration: 3000 });
+          }
         }
       )
       .subscribe();
