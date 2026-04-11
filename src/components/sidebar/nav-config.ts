@@ -55,6 +55,7 @@ export const NAV_GROUPS: NavGroup[] = [
         labelKey: "nav.modules",
         pro: false,
         children: [
+          { href: "/modules", labelKey: "nav.modules" },
           { href: "/tasks", labelKey: "nav.tasks" },
         ],
       },

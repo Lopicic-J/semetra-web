@@ -40,27 +40,50 @@ export default function RegisterPage() {
   const supabase = createClient();
   const enabledProviders = getEnabledProviders();
 
-  // DB-based email domains (loaded from Supabase via API)
-  const [dbDomains, setDbDomains] = useState<{ domain: string; institution_id: string; institution_name: string | null; institution_code: string | null }[]>([]);
+  // Server-side domain detection result (static map + DB + parent-domain matching)
+  const [domainDetection, setDomainDetection] = useState<{
+    match: boolean;
+    institution_id: string | null;
+    institution_name: string | null;
+    institution_code: string | null;
+  } | null>(null);
+  const [detectingDomain, setDetectingDomain] = useState(false);
+  const detectTimerRef = { current: null as ReturnType<typeof setTimeout> | null };
 
+  // Debounced domain detection via server API
   useEffect(() => {
-    fetch("/api/academic/email-domains")
-      .then((r) => r.json())
-      .then((data) => setDbDomains(data.domains || []))
-      .catch(() => setDbDomains([]));
-  }, []);
+    if (detectTimerRef.current) clearTimeout(detectTimerRef.current);
+    if (!email || !email.includes("@") || email.split("@")[1]?.length < 3) {
+      setDomainDetection(null);
+      return;
+    }
+    setDetectingDomain(true);
+    detectTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/academic/email-domains/detect", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        setDomainDetection(data);
+      } catch {
+        // Fallback: use static map only
+        const name = getUniversityFromEmail(email);
+        const code = getInstitutionCodeFromEmail(email);
+        setDomainDetection(name ? { match: true, institution_id: null, institution_name: name, institution_code: code } : { match: false, institution_id: null, institution_name: null, institution_code: null });
+      } finally {
+        setDetectingDomain(false);
+      }
+    }, 400);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [email]);
 
-  // Combined domain detection: static map + DB domains
-  const emailDomain = email ? email.split("@")[1]?.toLowerCase() : null;
-
-  const dbMatch = emailDomain
-    ? dbDomains.find((d) => emailDomain === d.domain || emailDomain.endsWith("." + d.domain))
-    : null;
-
-  const detectedUniversity = email ? (getUniversityFromEmail(email) || dbMatch?.institution_name) : null;
-  const detectedInstCode = email ? (getInstitutionCodeFromEmail(email) || dbMatch?.institution_code) : null;
-  const detectedInstIdFromDb = dbMatch?.institution_id || null;
-  const isUniEmail = !!detectedUniversity;
+  // Derived detection values
+  const detectedUniversity = domainDetection?.match ? domainDetection.institution_name : null;
+  const detectedInstCode = domainDetection?.match ? domainDetection.institution_code : null;
+  const detectedInstIdFromDb = domainDetection?.match ? domainDetection.institution_id : null;
+  const isUniEmail = !!domainDetection?.match;
 
   // Hard-Lock: Auto-assign institution when email domain is recognized
   const [institutionLocked, setInstitutionLocked] = useState(false);
@@ -582,6 +605,14 @@ export default function RegisterPage() {
                     </div>
                   )}
                 </>
+              ) : selectedRole === "student" && detectingDomain && email.includes("@") ? (
+                /* Domain detection in progress */
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                  <div className="flex items-center gap-2.5">
+                    <Loader2 size={16} className="text-blue-600 animate-spin shrink-0" />
+                    <p className="text-sm text-blue-700">Hochschule wird erkannt…</p>
+                  </div>
+                </div>
               ) : selectedRole === "student" && !institutionLocked ? (
                 /* No university email detected — show hint */
                 <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
@@ -593,7 +624,7 @@ export default function RegisterPage() {
                         Gib oben deine Hochschul-Email ein (z.B. @zhaw.ch, @ethz.ch, @fhnw.ch), damit deine Hochschule automatisch erkannt wird.
                         Deine Institution und dein Studiengang werden anhand deiner Email-Adresse zugewiesen.
                       </p>
-                      {email.includes("@") && !isUniEmail && (
+                      {email.includes("@") && !isUniEmail && !detectingDomain && (
                         <p className="text-xs text-amber-800 font-medium mt-2">
                           Die Domain &quot;{email.split("@")[1]}&quot; ist nicht als Hochschul-Email hinterlegt.
                           Falls deine Hochschule fehlt, kontaktiere <a href="mailto:support@semetra.ch" className="underline">support@semetra.ch</a>.

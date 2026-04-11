@@ -842,6 +842,7 @@ function EmailDomainsSection({ isPlatformAdmin }: { isPlatformAdmin: boolean }) 
     institution_id: string;
     institution_name: string | null;
     institution_code: string | null;
+    auto_detected: boolean;
     created_at: string;
   }[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1027,11 +1028,16 @@ function EmailDomainsSection({ isPlatformAdmin }: { isPlatformAdmin: boolean }) 
                       key={d.id}
                       className="flex items-center justify-between px-4 py-2.5 bg-[rgb(var(--card-bg))] dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600"
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-mono text-sm text-surface-900 dark:text-surface-50">@{d.domain}</span>
                         {d.institution_code && (
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                             {d.institution_code}
+                          </span>
+                        )}
+                        {d.auto_detected && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                            Auto-erkannt
                           </span>
                         )}
                       </div>

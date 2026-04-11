@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
 
     let query = db
       .from("institution_email_domains")
-      .select("id, domain, institution_id, created_at, created_by, institutions(id, name, code)")
+      .select("id, domain, institution_id, created_at, created_by, auto_detected, institutions(id, name, code)")
       .order("domain");
 
     if (filterInstitutionId) {
@@ -63,6 +63,7 @@ export async function GET(req: NextRequest) {
         institution_id: d.institution_id,
         institution_name: inst?.name || null,
         institution_code: inst?.code || null,
+        auto_detected: d.auto_detected || false,
         created_at: d.created_at,
       };
     });
