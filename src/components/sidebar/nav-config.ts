@@ -127,10 +127,14 @@ export const NAV_GROUPS: NavGroup[] = [
     labelKey: "navGroup.social",
     items: [
       {
-        href: "/friends",
+        href: "/community",
         icon: Users,
-        labelKey: "nav.friends",
+        labelKey: "nav.community",
         pro: false,
+        children: [
+          { href: "/community", labelKey: "nav.community" },
+          { href: "/friends", labelKey: "nav.friends" },
+        ],
       },
       {
         href: "/messages",

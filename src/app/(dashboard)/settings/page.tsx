@@ -515,6 +515,49 @@ function PrivacyTab() {
   const [exporting, setExporting] = useState(false);
   const [exportFormat, setExportFormat] = useState<"desktop" | "json">("desktop");
   const [exportResult, setExportResult] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [communityVisible, setCommunityVisible] = useState(true);
+  const [onlineStatusPref, setOnlineStatusPref] = useState<string>("online");
+  const [savingCommunity, setSavingCommunity] = useState(false);
+
+  // Load community visibility setting
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("community_visible, online_status")
+        .eq("id", user.id)
+        .single();
+      if (data) {
+        setCommunityVisible(data.community_visible ?? true);
+        setOnlineStatusPref(data.online_status ?? "online");
+      }
+    })();
+  }, [supabase]);
+
+  async function toggleCommunityVisible(val: boolean) {
+    setSavingCommunity(true);
+    setCommunityVisible(val);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from("profiles").update({ community_visible: val }).eq("id", user.id);
+    }
+    setSavingCommunity(false);
+  }
+
+  async function setPresenceStatus(status: string) {
+    setOnlineStatusPref(status);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from("profiles").update({ online_status: status }).eq("id", user.id);
+      await fetch("/api/presence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+    }
+  }
 
   async function fetchAllData() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -717,6 +760,61 @@ function PrivacyTab() {
         <p className="text-sm text-surface-600 dark:text-surface-400 leading-relaxed">
           {t("settings.privacyDesc")}
         </p>
+      </div>
+
+      {/* Community Visibility */}
+      <div className="card">
+        <h2 className="font-semibold text-surface-900 dark:text-white mb-3">{t("settings.communityVisibilityTitle") || "Community-Sichtbarkeit"}</h2>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-surface-800 dark:text-surface-200">
+                {t("settings.communityVisibleLabel") || "In der Community sichtbar"}
+              </p>
+              <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">
+                {t("settings.communityVisibleDesc") || "Andere Studierende deiner Hochschule können dein Profil in der Community sehen."}
+              </p>
+            </div>
+            <button
+              onClick={() => toggleCommunityVisible(!communityVisible)}
+              disabled={savingCommunity}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full shrink-0 transition-colors ${
+                communityVisible ? "bg-brand-600" : "bg-surface-300 dark:bg-surface-600"
+              }`}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow ${
+                communityVisible ? "translate-x-6" : "translate-x-1"
+              }`} />
+            </button>
+          </div>
+
+          <div className="border-t border-surface-100 dark:border-surface-700 pt-4">
+            <p className="text-sm font-medium text-surface-800 dark:text-surface-200 mb-2">
+              {t("settings.onlineStatusLabel") || "Online-Status"}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {([
+                { value: "online", label: t("settings.statusOnline") || "Online", color: "bg-green-500" },
+                { value: "away", label: t("settings.statusAway") || "Abwesend", color: "bg-amber-500" },
+                { value: "dnd", label: t("settings.statusDnd") || "Nicht stören", color: "bg-red-500" },
+                { value: "offline", label: t("settings.statusOffline") || "Unsichtbar", color: "bg-surface-400" },
+              ] as const).map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => setPresenceStatus(opt.value)}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                    onlineStatusPref === opt.value
+                      ? "border-brand-300 dark:border-brand-700 bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300"
+                      : "border-surface-200 dark:border-surface-700 text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800"
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${opt.color}`} />
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="card">

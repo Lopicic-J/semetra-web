@@ -8,6 +8,7 @@ import OfflineBanner from "@/components/pwa/OfflineBanner";
 import { AchievementUnlockPortal } from "@/components/achievements/UnlockAnimation";
 import { VerificationBanner } from "@/components/ui/VerificationBanner";
 import WelcomeTour from "@/components/onboarding/WelcomeTour";
+import ChatBubble from "@/components/chat/ChatBubble";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -50,6 +51,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </main>
         </div>
       </div>
+      <ChatBubble />
       <InstallPrompt />
       <AchievementUnlockPortal />
       <WelcomeTour />
