@@ -38,27 +38,18 @@ export const NAV_GROUPS: NavGroup[] = [
   },
 
   // ── Studium ──
-  // Alles rund um Studiengang, Module, Noten, Zeitplan, Prüfungen
   {
     labelKey: "navGroup.study",
     items: [
       {
         href: "/modules",
         icon: BookOpen,
-        labelKey: "nav.modules",
-        pro: false,
-      },
-      {
-        href: "/studium",
-        icon: GraduationCap,
-        labelKey: "nav.studium",
+        labelKey: "nav.modulmanager",
         pro: false,
         children: [
-          { href: "/studium", labelKey: "nav.overview" },
+          { href: "/modules", labelKey: "nav.modules" },
+          { href: "/tasks", labelKey: "nav.tasks" },
           { href: "/studium?tab=studienplan", labelKey: "nav.studienplan", tab: "studienplan" },
-          { href: "/studium?tab=noten", labelKey: "nav.grades", tab: "noten" },
-          { href: "/studium?tab=transcript", labelKey: "nav.transcript", tab: "transcript" },
-          { href: "/studium?tab=anrechnungen", labelKey: "nav.recognition", tab: "anrechnungen" },
         ],
       },
       {
@@ -67,26 +58,38 @@ export const NAV_GROUPS: NavGroup[] = [
         labelKey: "nav.schedule",
         pro: false,
         children: [
-          { href: "/schedule?tab=smart", labelKey: "nav.smartSchedule", tab: "smart" },
           { href: "/schedule?tab=calendar", labelKey: "nav.calendar", tab: "calendar" },
           { href: "/schedule?tab=stundenplan", labelKey: "nav.stundenplan", tab: "stundenplan" },
+          { href: "/schedule?tab=smart", labelKey: "nav.smartSchedule", tab: "smart" },
         ],
       },
       {
         href: "/exams",
         icon: ClipboardList,
-        labelKey: "nav.pruefungen",
+        labelKey: "nav.pruefungsmanager",
         pro: false,
         children: [
           { href: "/exams", labelKey: "nav.exams" },
           { href: "/exams?tab=intelligence", labelKey: "nav.examIntelligence", tab: "intelligence" },
+          { href: "/studium?tab=noten", labelKey: "nav.grades", tab: "noten" },
+        ],
+      },
+      {
+        href: "/studium",
+        icon: GraduationCap,
+        labelKey: "nav.studium",
+        pro: false,
+        children: [
+          { href: "/studium", labelKey: "nav.overview" },
+          { href: "/studium?tab=transcript", labelKey: "nav.transcript", tab: "transcript" },
+          { href: "/studium?tab=anrechnungen", labelKey: "nav.recognition", tab: "anrechnungen" },
+          { href: "/fortschritt?tab=trends", labelKey: "nav.trends", tab: "trends" },
         ],
       },
     ],
   },
 
   // ── Lernen ──
-  // Aktives Lernen: Lernraum, Materialien, Werkzeuge
   {
     labelKey: "navGroup.learning",
     items: [
@@ -97,10 +100,10 @@ export const NAV_GROUPS: NavGroup[] = [
         pro: false,
         children: [
           { href: "/learning", labelKey: "nav.lernplan" },
+          { href: "/learning?tab=knowledge", labelKey: "nav.knowledge", tab: "knowledge" },
           { href: "/learning?tab=timer", labelKey: "nav.timer", tab: "timer" },
           { href: "/learning?tab=flashcards", labelKey: "nav.flashcards", tab: "flashcards" },
-          { href: "/learning?tab=knowledge", labelKey: "nav.knowledge", tab: "knowledge" },
-          { href: "/learning?tab=materials", labelKey: "nav.materials", tab: "materials" },
+          { href: "/werkzeuge?tab=mathe", labelKey: "nav.math", tab: "mathe" },
         ],
       },
       {
@@ -122,14 +125,12 @@ export const NAV_GROUPS: NavGroup[] = [
           { href: "/werkzeuge?tab=ki", labelKey: "nav.aiAssistant", tab: "ki" },
           { href: "/werkzeuge?tab=mindmaps", labelKey: "nav.mindmaps", tab: "mindmaps" },
           { href: "/werkzeuge?tab=brainstorming", labelKey: "nav.brainstorming", tab: "brainstorming" },
-          { href: "/werkzeuge?tab=mathe", labelKey: "nav.math", tab: "mathe" },
         ],
       },
     ],
   },
 
   // ── Persönlichkeit ──
-  // Lern-DNA, Analysen, Erfolge
   {
     labelKey: "navGroup.personality",
     items: [
@@ -152,7 +153,6 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           { href: "/fortschritt?tab=erfolge", labelKey: "nav.achievements", tab: "erfolge" },
           { href: "/fortschritt?tab=bestenliste", labelKey: "nav.leaderboard", tab: "bestenliste" },
-          { href: "/fortschritt?tab=trends", labelKey: "nav.trends", tab: "trends" },
           { href: "/fortschritt?tab=review", labelKey: "nav.weeklyReview", tab: "review" },
         ],
       },
@@ -160,7 +160,6 @@ export const NAV_GROUPS: NavGroup[] = [
   },
 
   // ── Soziales ──
-  // Community, Freunde, Lerngruppen, Nachrichten
   {
     labelKey: "navGroup.social",
     items: [
