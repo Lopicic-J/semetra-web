@@ -10,6 +10,7 @@ import { useTranslation } from "@/lib/i18n";
 import { useProfile } from "@/lib/hooks/useProfile";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import UserProfileModal from "@/components/community/UserProfileModal";
 
 interface CommunityMember {
   id: string;
@@ -48,6 +49,7 @@ export default function CommunityPage() {
   const [selectedSemester, setSelectedSemester] = useState<string>("");
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(0);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const PAGE_SIZE = 30;
 
   const loadMembers = useCallback(async (reset = false) => {
@@ -322,7 +324,8 @@ export default function CommunityPage() {
             {members.map(member => (
               <div
                 key={member.id}
-                className="card hover:shadow-md transition-shadow group"
+                className="card hover:shadow-md transition-shadow group cursor-pointer"
+                onClick={() => setSelectedUserId(member.id)}
               >
                 <div className="flex items-start gap-3">
                   {/* Avatar with status */}
@@ -382,7 +385,7 @@ export default function CommunityPage() {
                 {/* Actions */}
                 <div className="flex items-center gap-2 mt-3 pt-3 border-t border-surface-100 dark:border-surface-700/50">
                   <button
-                    onClick={() => handleAddFriend(member.id)}
+                    onClick={(e) => { e.stopPropagation(); handleAddFriend(member.id); }}
                     className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 text-xs font-semibold hover:bg-brand-100 dark:hover:bg-brand-900/40 transition-colors"
                   >
                     <UserPlus size={14} />
@@ -390,6 +393,7 @@ export default function CommunityPage() {
                   </button>
                   <Link
                     href={`/messages?user=${member.id}`}
+                    onClick={(e) => e.stopPropagation()}
                     className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-100 dark:bg-surface-700/50 text-surface-600 dark:text-surface-400 text-xs font-semibold hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
                   >
                     <MessageCircle size={14} />
@@ -416,6 +420,11 @@ export default function CommunityPage() {
           )}
         </>
       )}
+      {/* Profile Modal */}
+      <UserProfileModal
+        userId={selectedUserId}
+        onClose={() => setSelectedUserId(null)}
+      />
     </div>
   );
 }

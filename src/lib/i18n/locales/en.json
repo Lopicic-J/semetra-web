@@ -2450,5 +2450,17 @@
   "settings.statusOnline": "Online",
   "settings.statusAway": "Away",
   "settings.statusDnd": "Do Not Disturb",
-  "settings.statusOffline": "Invisible"
+  "settings.statusOffline": "Invisible",
+
+  "profile.private": "This profile is private",
+  "profile.privateDesc": "The user has hidden their profile from the community.",
+  "profile.loadError": "Could not load profile",
+  "profile.memberSince": "Member since",
+  "profile.fullTime": "Full-time",
+  "profile.partTime": "Part-time",
+  "profile.rank": "Rank",
+  "profile.studyTime": "Study time",
+  "profile.achievements": "Achievements",
+  "profile.friends": "Friends",
+  "profile.requestPending": "Request sent"
 }

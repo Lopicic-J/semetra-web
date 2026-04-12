@@ -2226,5 +2226,17 @@
   "settings.statusOnline": "Online",
   "settings.statusAway": "Assente",
   "settings.statusDnd": "Non disturbare",
-  "settings.statusOffline": "Invisibile"
+  "settings.statusOffline": "Invisibile",
+
+  "profile.private": "Questo profilo è privato",
+  "profile.privateDesc": "L'utente ha nascosto il suo profilo dalla comunità.",
+  "profile.loadError": "Impossibile caricare il profilo",
+  "profile.memberSince": "Membro dal",
+  "profile.fullTime": "Tempo pieno",
+  "profile.partTime": "Tempo parziale",
+  "profile.rank": "Posizione",
+  "profile.studyTime": "Tempo di studio",
+  "profile.achievements": "Traguardi",
+  "profile.friends": "Amici",
+  "profile.requestPending": "Richiesta inviata"
 }

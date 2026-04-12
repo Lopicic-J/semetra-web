@@ -2226,5 +2226,17 @@
   "settings.statusOnline": "Online",
   "settings.statusAway": "Afwezig",
   "settings.statusDnd": "Niet storen",
-  "settings.statusOffline": "Onzichtbaar"
+  "settings.statusOffline": "Onzichtbaar",
+
+  "profile.private": "Dit profiel is privé",
+  "profile.privateDesc": "De gebruiker heeft zijn profiel verborgen voor de community.",
+  "profile.loadError": "Profiel kon niet worden geladen",
+  "profile.memberSince": "Lid sinds",
+  "profile.fullTime": "Voltijd",
+  "profile.partTime": "Deeltijd",
+  "profile.rank": "Positie",
+  "profile.studyTime": "Studietijd",
+  "profile.achievements": "Prestaties",
+  "profile.friends": "Vrienden",
+  "profile.requestPending": "Verzoek verzonden"
 }
