@@ -12,6 +12,69 @@ export type VerificationStatus = "none" | "pending" | "verified" | "rejected";
 /** @deprecated Use UserRole instead */
 export type BuilderRole = UserRole;
 
+// ── Plan Cache ──────────────────────────────────────────────────────────────
+// Caches plan-related fields in localStorage so the badge renders instantly
+// on refresh. The cache stores `plan_expires_at` so expired plans are NOT
+// restored from cache — preventing a "forever Pro" loop.
+const PLAN_CACHE_KEY = "semetra_plan_cache";
+
+interface PlanCache {
+  plan: Plan;
+  plan_type: PlanType | null;
+  plan_tier: PlanTier | null;
+  stripe_subscription_status: string | null;
+  plan_expires_at: string | null;
+  cached_at: string; // ISO timestamp — stale after 24h
+}
+
+function readPlanCache(): PlanCache | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(PLAN_CACHE_KEY);
+    if (!raw) return null;
+    const c: PlanCache = JSON.parse(raw);
+
+    // Stale guard: discard cache older than 24 hours
+    if (Date.now() - new Date(c.cached_at).getTime() > 24 * 60 * 60 * 1000) {
+      localStorage.removeItem(PLAN_CACHE_KEY);
+      return null;
+    }
+
+    // Expiry guard: if plan_expires_at is set and in the past → not Pro anymore
+    if (c.plan === "pro" && c.plan_type !== "lifetime") {
+      const hasActiveSubscription =
+        c.stripe_subscription_status === "active" ||
+        c.stripe_subscription_status === "trialing";
+      const withinExpiry =
+        c.plan_expires_at != null && new Date(c.plan_expires_at) > new Date();
+
+      if (!hasActiveSubscription && !withinExpiry) {
+        // Plan expired — don't serve stale Pro from cache
+        localStorage.removeItem(PLAN_CACHE_KEY);
+        return null;
+      }
+    }
+
+    return c;
+  } catch {
+    return null;
+  }
+}
+
+function writePlanCache(p: {
+  plan: Plan;
+  plan_type: PlanType | null;
+  plan_tier: PlanTier | null;
+  stripe_subscription_status: string | null;
+  plan_expires_at: string | null;
+}) {
+  if (typeof window === "undefined") return;
+  try {
+    const c: PlanCache = { ...p, cached_at: new Date().toISOString() };
+    localStorage.setItem(PLAN_CACHE_KEY, JSON.stringify(c));
+  } catch { /* quota exceeded — ignore */ }
+}
+
 export interface Profile {
   id: string;
   email: string | null;
@@ -59,6 +122,9 @@ export interface Profile {
 
 export function useProfile() {
   const supabase = createClient();
+
+  // Hydrate from cache so the very first render already has the correct plan
+  const [cachedPlan] = useState<PlanCache | null>(() => readPlanCache());
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -73,17 +139,31 @@ export function useProfile() {
       .single();
 
     // If profile doesn't exist yet (first login before trigger fires), create it
+    let finalProfile: Profile | null = null;
     if (!data) {
       const { data: created } = await supabase
         .from("profiles")
         .insert({ id: user.id, email: user.email, plan: "free" })
         .select()
         .single();
-      setProfile(created ?? null);
+      finalProfile = created ?? null;
     } else {
-      setProfile(data as Profile);
+      finalProfile = data as Profile;
     }
+
+    setProfile(finalProfile);
     setLoading(false);
+
+    // Update cache with fresh server data
+    if (finalProfile) {
+      writePlanCache({
+        plan: finalProfile.plan,
+        plan_type: finalProfile.plan_type,
+        plan_tier: finalProfile.plan_tier,
+        stripe_subscription_status: finalProfile.stripe_subscription_status,
+        plan_expires_at: finalProfile.plan_expires_at,
+      });
+    }
   }, [supabase]);
 
   useEffect(() => { load(); }, [load]);
@@ -107,8 +187,11 @@ export function useProfile() {
     (profile.plan_expires_at != null && new Date(profile.plan_expires_at) > new Date())
   );
 
-  const isLifetime = profile?.plan_type === "lifetime";
-  const planTier: PlanTier | null = (profile?.plan_tier as PlanTier | null) ?? null;
+  // While loading, use cached plan status (already validated against expiry in readPlanCache)
+  const cachedIsPro = cachedPlan?.plan === "pro";
+
+  const isLifetime = profile?.plan_type === "lifetime" || (loading && cachedPlan?.plan_type === "lifetime");
+  const planTier: PlanTier | null = (profile?.plan_tier as PlanTier | null) ?? (loading ? cachedPlan?.plan_tier ?? null : null);
   const aiCredits = profile?.ai_credits ?? 0;
   const userRole: UserRole = (profile?.user_role as UserRole) ?? "non_student";
   const verificationStatus: VerificationStatus = (profile?.verification_status as VerificationStatus) ?? "none";
@@ -127,7 +210,7 @@ export function useProfile() {
   return {
     profile,
     loading,
-    isPro: !!isPro,
+    isPro: !!(loading ? cachedIsPro : isPro),
     isLifetime: !!isLifetime,
     planTier,
     aiCredits,
