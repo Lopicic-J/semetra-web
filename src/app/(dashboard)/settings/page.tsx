@@ -519,6 +519,15 @@ function PrivacyTab() {
   const [onlineStatusPref, setOnlineStatusPref] = useState<string>("online");
   const [savingCommunity, setSavingCommunity] = useState(false);
 
+  // Connect privacy fields
+  const [connectVisible, setConnectVisible] = useState(true);
+  const [connectContactable, setConnectContactable] = useState(true);
+  const [connectShowInstitution, setConnectShowInstitution] = useState(true);
+  const [connectShowSemester, setConnectShowSemester] = useState(true);
+  const [connectShowProgress, setConnectShowProgress] = useState(false);
+  const [connectBio, setConnectBio] = useState("");
+  const [savingConnect, setSavingConnect] = useState(false);
+
   // Load community visibility setting
   useEffect(() => {
     (async () => {
@@ -526,12 +535,18 @@ function PrivacyTab() {
       if (!user) return;
       const { data } = await supabase
         .from("profiles")
-        .select("community_visible, online_status")
+        .select("community_visible, online_status, connect_visible, connect_contactable, connect_show_institution, connect_show_semester, connect_show_progress, connect_bio")
         .eq("id", user.id)
         .single();
       if (data) {
         setCommunityVisible(data.community_visible ?? true);
         setOnlineStatusPref(data.online_status ?? "online");
+        setConnectVisible(data.connect_visible ?? true);
+        setConnectContactable(data.connect_contactable ?? true);
+        setConnectShowInstitution(data.connect_show_institution ?? true);
+        setConnectShowSemester(data.connect_show_semester ?? true);
+        setConnectShowProgress(data.connect_show_progress ?? false);
+        setConnectBio(data.connect_bio ?? "");
       }
     })();
   }, [supabase]);
@@ -544,6 +559,15 @@ function PrivacyTab() {
       await supabase.from("profiles").update({ community_visible: val }).eq("id", user.id);
     }
     setSavingCommunity(false);
+  }
+
+  async function updateConnectField(field: string, value: boolean | string) {
+    setSavingConnect(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from("profiles").update({ [field]: value }).eq("id", user.id);
+    }
+    setSavingConnect(false);
   }
 
   async function setPresenceStatus(status: string) {
@@ -813,6 +837,62 @@ function PrivacyTab() {
                 </button>
               ))}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Semetra Connect Privacy */}
+      <div className="card">
+        <h2 className="font-semibold text-surface-900 dark:text-white mb-1">{t("settings.connectTitle") || "Semetra Connect"}</h2>
+        <p className="text-xs text-surface-500 dark:text-surface-400 mb-4">
+          {t("settings.connectDesc") || "Steuere, wie du in Semetra Connect für Studierende anderer Hochschulen sichtbar bist."}
+        </p>
+        <div className="space-y-4">
+          {/* Toggle: Visible */}
+          {[
+            { key: "connect_visible", label: t("settings.connectVisibleLabel") || "In Connect sichtbar", desc: t("settings.connectVisibleDesc") || "Studierende deines Studiengangs an anderen Hochschulen können dich finden.", value: connectVisible, setter: setConnectVisible },
+            { key: "connect_contactable", label: t("settings.connectContactableLabel") || "Anfragen erlauben", desc: t("settings.connectContactableDesc") || "Andere können dir Verbindungsanfragen senden.", value: connectContactable, setter: setConnectContactable },
+            { key: "connect_show_institution", label: t("settings.connectShowInstitutionLabel") || "Hochschule anzeigen", desc: t("settings.connectShowInstitutionDesc") || "Dein Hochschulname wird in deinem Connect-Profil angezeigt.", value: connectShowInstitution, setter: setConnectShowInstitution },
+            { key: "connect_show_semester", label: t("settings.connectShowSemesterLabel") || "Semester anzeigen", desc: t("settings.connectShowSemesterDesc") || "Dein aktuelles Semester wird angezeigt.", value: connectShowSemester, setter: setConnectShowSemester },
+            { key: "connect_show_progress", label: t("settings.connectShowProgressLabel") || "Studienfortschritt anzeigen", desc: t("settings.connectShowProgressDesc") || "Dein ECTS-Fortschritt in Prozent wird angezeigt.", value: connectShowProgress, setter: setConnectShowProgress },
+          ].map((toggle) => (
+            <div key={toggle.key} className="flex items-center justify-between">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-surface-800 dark:text-surface-200">{toggle.label}</p>
+                <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">{toggle.desc}</p>
+              </div>
+              <button
+                onClick={() => { toggle.setter(!toggle.value); updateConnectField(toggle.key, !toggle.value); }}
+                disabled={savingConnect}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full shrink-0 transition-colors ${
+                  toggle.value ? "bg-brand-600" : "bg-surface-300 dark:bg-surface-600"
+                }`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-surface-800 transition-transform shadow ${
+                  toggle.value ? "translate-x-6" : "translate-x-1"
+                }`} />
+              </button>
+            </div>
+          ))}
+
+          {/* Bio */}
+          <div className="border-t border-surface-100 dark:border-surface-700 pt-4">
+            <p className="text-sm font-medium text-surface-800 dark:text-surface-200 mb-1">
+              {t("settings.connectBioLabel") || "Über dich"}
+            </p>
+            <p className="text-xs text-surface-500 dark:text-surface-400 mb-2">
+              {t("settings.connectBioDesc") || "Kurze Bio für dein Connect-Profil (max. 280 Zeichen)."}
+            </p>
+            <textarea
+              value={connectBio}
+              onChange={(e) => setConnectBio(e.target.value)}
+              onBlur={() => updateConnectField("connect_bio", connectBio)}
+              rows={2}
+              maxLength={280}
+              placeholder={t("settings.connectBioPlaceholder") || "z.B. Studiere Informatik im 4. Semester, interessiere mich für ML und Web Dev..."}
+              className="w-full p-3 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 text-sm resize-none focus:ring-2 focus:ring-brand-500 outline-none"
+            />
+            <p className="text-xs text-surface-400 mt-1 text-right">{connectBio.length}/280</p>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@ import {
   LayoutDashboard, BookOpen, Calendar, GraduationCap,
   Brain, TrendingUp, Wrench, Compass, Users, MessageCircle,
   Shield, Settings, UserCircle, Terminal, Puzzle, ClipboardList,
-  Dna, Trophy, FileText, Award,
+  Dna, Trophy, FileText, Award, Globe2,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRole } from "@/lib/hooks/useProfile";
@@ -164,6 +164,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     labelKey: "navGroup.social",
     items: [
+      { href: "/connect", icon: Globe2, labelKey: "nav.connect", pro: false },
       { href: "/community", icon: Users, labelKey: "nav.community", pro: false },
       { href: "/friends", icon: Users, labelKey: "nav.friends", pro: false },
       { href: "/groups", icon: Users, labelKey: "nav.groups", pro: false },
