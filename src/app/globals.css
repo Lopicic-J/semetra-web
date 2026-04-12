@@ -5,27 +5,31 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/* CRITICAL: Dark-mode bg-white override — MUST come AFTER @tailwind utilities */
-/* This ensures it wins over Tailwind's generated .bg-white utility class.    */
+/* POST-UTILITIES: Fallback dark-mode overrides                               */
+/*                                                                            */
+/* Uses :where(.dark) for LOW specificity → component dark: classes win.      */
+/* Only bg-white uses .dark (HIGH specificity) as the universal catch-all.    */
 /* ═══════════════════════════════════════════════════════════════════════════ */
-.dark .bg-white,
-.dark .bg-white\/40,
-.dark .bg-white\/50,
-.dark .bg-white\/60,
-.dark .bg-white\/70,
-.dark .bg-white\/80,
-.dark .bg-white\/90,
-.dark .bg-white\/95 {
-  --tw-bg-opacity: 1 !important;
-  background-color: rgb(var(--card-bg) / var(--tw-bg-opacity)) !important;
+
+/* bg-white → card background — HIGH specificity catch-all (no component should override) */
+:where(.dark) .bg-white,
+:where(.dark) .bg-white\/40,
+:where(.dark) .bg-white\/50,
+:where(.dark) .bg-white\/60,
+:where(.dark) .bg-white\/70,
+:where(.dark) .bg-white\/80,
+:where(.dark) .bg-white\/90,
+:where(.dark) .bg-white\/95 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(var(--card-bg) / var(--tw-bg-opacity));
 }
 
-/* Force all text to be readable in dark mode — catch-all for text-surface-* */
-.dark .text-surface-900 { color: rgb(var(--sf-900)) !important; }
-.dark .text-surface-800 { color: rgb(var(--sf-800)) !important; }
-.dark .text-surface-700 { color: rgb(var(--sf-700)) !important; }
-.dark .text-surface-600 { color: rgb(var(--sf-600)) !important; }
-.dark .text-surface-500 { color: rgb(var(--sf-500)) !important; }
+/* text-surface-* — ensure CSS variables are applied (safety net, not !important) */
+:where(.dark) .text-surface-900 { color: rgb(var(--sf-900)); }
+:where(.dark) .text-surface-800 { color: rgb(var(--sf-800)); }
+:where(.dark) .text-surface-700 { color: rgb(var(--sf-700)); }
+:where(.dark) .text-surface-600 { color: rgb(var(--sf-600)); }
+:where(.dark) .text-surface-500 { color: rgb(var(--sf-500)); }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
 /* BASE — Design Tokens & Defaults                                            */
@@ -278,119 +282,119 @@
 /* ── 1. BACKGROUNDS: white & standard colors → dark equivalents ────────── */
 
 /* bg-white → card background (#27272a) */
-.dark .bg-white,
-.dark .bg-white\/40,
-.dark .bg-white\/80,
-.dark .bg-white\/90,
-.dark .bg-white\/95 {
-  background-color: rgb(var(--card-bg)) !important;
+:where(.dark) .bg-white,
+:where(.dark) .bg-white\/40,
+:where(.dark) .bg-white\/80,
+:where(.dark) .bg-white\/90,
+:where(.dark) .bg-white\/95 {
+  background-color: rgb(var(--card-bg));
 }
 
 /* Brand light bgs → subtle tints */
-.dark .bg-brand-50  { background-color: rgb(var(--accent-950) / 0.2) !important; }
-.dark .bg-brand-100 { background-color: rgb(var(--accent-900) / 0.25) !important; }
-.dark .bg-brand-200 { background-color: rgb(var(--accent-800) / 0.3) !important; }
+:where(.dark) .bg-brand-50  { background-color: rgb(var(--accent-950) / 0.2); }
+:where(.dark) .bg-brand-100 { background-color: rgb(var(--accent-900) / 0.25); }
+:where(.dark) .bg-brand-200 { background-color: rgb(var(--accent-800) / 0.3); }
 
 /* Red / Danger */
-.dark .bg-red-50    { background-color: rgba(220,38,38,0.10) !important; }
-.dark .bg-red-100   { background-color: rgba(220,38,38,0.15) !important; }
+:where(.dark) .bg-red-50    { background-color: rgba(220,38,38,0.10); }
+:where(.dark) .bg-red-100   { background-color: rgba(220,38,38,0.15); }
 
 /* Orange */
-.dark .bg-orange-50     { background-color: rgba(234,88,12,0.10) !important; }
-.dark .bg-orange-50\/50 { background-color: rgba(234,88,12,0.06) !important; }
-.dark .bg-orange-100    { background-color: rgba(234,88,12,0.15) !important; }
-.dark .bg-orange-200    { background-color: rgba(234,88,12,0.20) !important; }
+:where(.dark) .bg-orange-50     { background-color: rgba(234,88,12,0.10); }
+:where(.dark) .bg-orange-50\/50 { background-color: rgba(234,88,12,0.06); }
+:where(.dark) .bg-orange-100    { background-color: rgba(234,88,12,0.15); }
+:where(.dark) .bg-orange-200    { background-color: rgba(234,88,12,0.20); }
 
 /* Amber */
-.dark .bg-amber-50  { background-color: rgba(217,119,6,0.10) !important; }
-.dark .bg-amber-100 { background-color: rgba(217,119,6,0.15) !important; }
-.dark .bg-amber-200 { background-color: rgba(217,119,6,0.20) !important; }
+:where(.dark) .bg-amber-50  { background-color: rgba(217,119,6,0.10); }
+:where(.dark) .bg-amber-100 { background-color: rgba(217,119,6,0.15); }
+:where(.dark) .bg-amber-200 { background-color: rgba(217,119,6,0.20); }
 
 /* Yellow */
-.dark .bg-yellow-50  { background-color: rgba(202,138,4,0.10) !important; }
-.dark .bg-yellow-100 { background-color: rgba(202,138,4,0.15) !important; }
+:where(.dark) .bg-yellow-50  { background-color: rgba(202,138,4,0.10); }
+:where(.dark) .bg-yellow-100 { background-color: rgba(202,138,4,0.15); }
 
 /* Green */
-.dark .bg-green-50  { background-color: rgba(22,163,74,0.10) !important; }
-.dark .bg-green-100 { background-color: rgba(22,163,74,0.15) !important; }
+:where(.dark) .bg-green-50  { background-color: rgba(22,163,74,0.10); }
+:where(.dark) .bg-green-100 { background-color: rgba(22,163,74,0.15); }
 
 /* Blue */
-.dark .bg-blue-50  { background-color: rgba(37,99,235,0.10) !important; }
-.dark .bg-blue-100 { background-color: rgba(37,99,235,0.15) !important; }
+:where(.dark) .bg-blue-50  { background-color: rgba(37,99,235,0.10); }
+:where(.dark) .bg-blue-100 { background-color: rgba(37,99,235,0.15); }
 
 /* Semantic (custom palette from tailwind.config) */
-.dark .bg-success-50 { background-color: rgba(22,163,74,0.10) !important; }
-.dark .bg-warning-50 { background-color: rgba(217,119,6,0.10) !important; }
-.dark .bg-danger-50  { background-color: rgba(220,38,38,0.10) !important; }
-.dark .bg-info-50    { background-color: rgba(37,99,235,0.10) !important; }
+:where(.dark) .bg-success-50 { background-color: rgba(22,163,74,0.10); }
+:where(.dark) .bg-warning-50 { background-color: rgba(217,119,6,0.10); }
+:where(.dark) .bg-danger-50  { background-color: rgba(220,38,38,0.10); }
+:where(.dark) .bg-info-50    { background-color: rgba(37,99,235,0.10); }
 
 /* Gray/Slate/Zinc → surface equivalents */
-.dark .bg-gray-50, .dark .bg-slate-50, .dark .bg-zinc-50 {
-  background-color: rgb(var(--sf-50)) !important;
+:where(.dark) .bg-gray-50, :where(.dark) .bg-slate-50, :where(.dark) .bg-zinc-50 {
+  background-color: rgb(var(--sf-50));
 }
-.dark .bg-gray-100, .dark .bg-slate-100, .dark .bg-zinc-100 {
-  background-color: rgb(var(--sf-100)) !important;
+:where(.dark) .bg-gray-100, :where(.dark) .bg-slate-100, :where(.dark) .bg-zinc-100 {
+  background-color: rgb(var(--sf-100));
 }
-.dark .bg-gray-800, .dark .bg-gray-900 {
-  background-color: rgb(var(--sf-100)) !important;
+:where(.dark) .bg-gray-800, :where(.dark) .bg-gray-900 {
+  background-color: rgb(var(--sf-100));
 }
 
 /* Gradients: from-X to-Y */
-.dark .from-orange-50 { --tw-gradient-from: rgba(234,88,12,0.10) !important; }
-.dark .to-amber-50    { --tw-gradient-to: rgba(217,119,6,0.10) !important; }
+:where(.dark) .from-orange-50 { --tw-gradient-from: rgba(234,88,12,0.10); }
+:where(.dark) .to-amber-50    { --tw-gradient-to: rgba(217,119,6,0.10); }
 
 /* ── 2. TEXT: light-bg text colors → bright for dark bg ────────────────── */
 
 /* Red text: -700/-800 → brighter in dark */
-.dark .text-red-500 { color: #f87171 !important; }
-.dark .text-red-600 { color: #fca5a5 !important; }
-.dark .text-red-700 { color: #fca5a5 !important; }
+:where(.dark) .text-red-500 { color: #f87171; }
+:where(.dark) .text-red-600 { color: #fca5a5; }
+:where(.dark) .text-red-700 { color: #fca5a5; }
 
 /* Orange text */
-.dark .text-orange-500 { color: #fb923c !important; }
-.dark .text-orange-600 { color: #fdba74 !important; }
-.dark .text-orange-700 { color: #fdba74 !important; }
-.dark .text-orange-800 { color: #fed7aa !important; }
+:where(.dark) .text-orange-500 { color: #fb923c; }
+:where(.dark) .text-orange-600 { color: #fdba74; }
+:where(.dark) .text-orange-700 { color: #fdba74; }
+:where(.dark) .text-orange-800 { color: #fed7aa; }
 
 /* Amber text */
-.dark .text-amber-400 { color: #fbbf24 !important; }
-.dark .text-amber-600 { color: #fcd34d !important; }
-.dark .text-amber-700 { color: #fde68a !important; }
+:where(.dark) .text-amber-400 { color: #fbbf24; }
+:where(.dark) .text-amber-600 { color: #fcd34d; }
+:where(.dark) .text-amber-700 { color: #fde68a; }
 
 /* Yellow text */
-.dark .text-yellow-500 { color: #facc15 !important; }
-.dark .text-yellow-700 { color: #fde68a !important; }
+:where(.dark) .text-yellow-500 { color: #facc15; }
+:where(.dark) .text-yellow-700 { color: #fde68a; }
 
 /* Green text */
-.dark .text-green-600 { color: #86efac !important; }
-.dark .text-green-700 { color: #86efac !important; }
+:where(.dark) .text-green-600 { color: #86efac; }
+:where(.dark) .text-green-700 { color: #86efac; }
 
 /* Blue text */
-.dark .text-blue-400 { color: #93c5fd !important; }
-.dark .text-blue-700 { color: #93c5fd !important; }
+:where(.dark) .text-blue-400 { color: #93c5fd; }
+:where(.dark) .text-blue-700 { color: #93c5fd; }
 
 /* Gray/Slate/Zinc text */
-.dark .text-gray-400, .dark .text-gray-500 { color: rgb(var(--sf-400)) !important; }
-.dark .text-gray-600 { color: rgb(var(--sf-500)) !important; }
-.dark .text-gray-700, .dark .text-gray-800, .dark .text-gray-900 { color: rgb(var(--sf-800)) !important; }
-.dark .text-gray-100 { color: rgb(var(--sf-600)) !important; }
-.dark .text-black { color: rgb(var(--sf-900)) !important; }
+:where(.dark) .text-gray-400, :where(.dark) .text-gray-500 { color: rgb(var(--sf-400)); }
+:where(.dark) .text-gray-600 { color: rgb(var(--sf-500)); }
+:where(.dark) .text-gray-700, :where(.dark) .text-gray-800, :where(.dark) .text-gray-900 { color: rgb(var(--sf-800)); }
+:where(.dark) .text-gray-100 { color: rgb(var(--sf-600)); }
+:where(.dark) .text-black { color: rgb(var(--sf-900)); }
 
 /* ── 3. BORDERS: light borders → subtle dark borders ──────────────────── */
 
-.dark .border-red-200    { border-color: rgba(220,38,38,0.25) !important; }
-.dark .border-orange-100,
-.dark .border-orange-200 { border-color: rgba(234,88,12,0.25) !important; }
-.dark .border-amber-200,
-.dark .border-amber-300,
-.dark .border-amber-400  { border-color: rgba(217,119,6,0.30) !important; }
-.dark .border-yellow-100,
-.dark .border-yellow-200 { border-color: rgba(202,138,4,0.25) !important; }
-.dark .border-green-200  { border-color: rgba(22,163,74,0.25) !important; }
-.dark .border-blue-200   { border-color: rgba(37,99,235,0.25) !important; }
+:where(.dark) .border-red-200    { border-color: rgba(220,38,38,0.25); }
+:where(.dark) .border-orange-100,
+:where(.dark) .border-orange-200 { border-color: rgba(234,88,12,0.25); }
+:where(.dark) .border-amber-200,
+:where(.dark) .border-amber-300,
+:where(.dark) .border-amber-400  { border-color: rgba(217,119,6,0.30); }
+:where(.dark) .border-yellow-100,
+:where(.dark) .border-yellow-200 { border-color: rgba(202,138,4,0.25); }
+:where(.dark) .border-green-200  { border-color: rgba(22,163,74,0.25); }
+:where(.dark) .border-blue-200   { border-color: rgba(37,99,235,0.25); }
 
 /* Dividers */
-.dark .divide-surface-50 > :not([hidden]) ~ :not([hidden]) {
+:where(.dark) .divide-surface-50 > :not([hidden]) ~ :not([hidden]) {
   border-color: rgb(var(--sf-200) / 0.4);
 }
 
@@ -401,7 +405,7 @@
 }
 
 /* ── 5. RING / FOCUS COLORS ──────────────────────────────────────────── */
-.dark .ring-brand-500\/20 { --tw-ring-color: rgb(var(--accent-500) / 0.3) !important; }
+:where(.dark) .ring-brand-500\/20 { --tw-ring-color: rgb(var(--accent-500) / 0.3); }
 
 /* ══════════════════════════════════════════════════════════════════════════
    6–12: COMPREHENSIVE DARK MODE — covers all Tailwind color utilities
@@ -412,256 +416,256 @@
 /* ── 6. MISSING COLOR OVERRIDES (Indigo, Emerald, Violet, etc.) ── */
 
 /* Indigo */
-.dark .bg-indigo-50,
-.dark .bg-indigo-50\/50 { background-color: rgba(99,102,241,0.10) !important; }
-.dark .bg-indigo-100     { background-color: rgba(99,102,241,0.15) !important; }
-.dark .text-indigo-600   { color: #a5b4fc !important; }
-.dark .text-indigo-700   { color: #a5b4fc !important; }
-.dark .text-indigo-400   { color: #c7d2fe !important; }
-.dark .text-indigo-900   { color: #e0e7ff !important; }
-.dark .border-indigo-100,
-.dark .border-indigo-200 { border-color: rgba(99,102,241,0.25) !important; }
+:where(.dark) .bg-indigo-50,
+:where(.dark) .bg-indigo-50\/50 { background-color: rgba(99,102,241,0.10); }
+:where(.dark) .bg-indigo-100     { background-color: rgba(99,102,241,0.15); }
+:where(.dark) .text-indigo-600   { color: #a5b4fc; }
+:where(.dark) .text-indigo-700   { color: #a5b4fc; }
+:where(.dark) .text-indigo-400   { color: #c7d2fe; }
+:where(.dark) .text-indigo-900   { color: #e0e7ff; }
+:where(.dark) .border-indigo-100,
+:where(.dark) .border-indigo-200 { border-color: rgba(99,102,241,0.25); }
 
 /* Emerald */
-.dark .bg-emerald-50,
-.dark .bg-emerald-50\/50 { background-color: rgba(16,185,129,0.10) !important; }
-.dark .bg-emerald-100     { background-color: rgba(16,185,129,0.15) !important; }
-.dark .text-emerald-600   { color: #6ee7b7 !important; }
-.dark .text-emerald-700   { color: #6ee7b7 !important; }
-.dark .text-emerald-400   { color: #a7f3d0 !important; }
-.dark .text-emerald-900   { color: #d1fae5 !important; }
-.dark .border-emerald-200 { border-color: rgba(16,185,129,0.25) !important; }
+:where(.dark) .bg-emerald-50,
+:where(.dark) .bg-emerald-50\/50 { background-color: rgba(16,185,129,0.10); }
+:where(.dark) .bg-emerald-100     { background-color: rgba(16,185,129,0.15); }
+:where(.dark) .text-emerald-600   { color: #6ee7b7; }
+:where(.dark) .text-emerald-700   { color: #6ee7b7; }
+:where(.dark) .text-emerald-400   { color: #a7f3d0; }
+:where(.dark) .text-emerald-900   { color: #d1fae5; }
+:where(.dark) .border-emerald-200 { border-color: rgba(16,185,129,0.25); }
 
 /* Violet / Purple */
-.dark .bg-violet-50,
-.dark .bg-violet-50\/50  { background-color: rgba(139,92,246,0.10) !important; }
-.dark .bg-violet-100      { background-color: rgba(139,92,246,0.15) !important; }
-.dark .bg-purple-50,
-.dark .bg-purple-50\/50  { background-color: rgba(168,85,247,0.10) !important; }
-.dark .bg-purple-100      { background-color: rgba(168,85,247,0.15) !important; }
-.dark .text-violet-600    { color: #c4b5fd !important; }
-.dark .text-violet-700    { color: #c4b5fd !important; }
-.dark .text-violet-400    { color: #ddd6fe !important; }
-.dark .text-violet-900,
-.dark .text-violet-800    { color: #ede9fe !important; }
-.dark .text-purple-600    { color: #d8b4fe !important; }
-.dark .text-purple-700    { color: #d8b4fe !important; }
-.dark .border-violet-200,
-.dark .border-violet-800  { border-color: rgba(139,92,246,0.25) !important; }
-.dark .border-purple-200  { border-color: rgba(168,85,247,0.25) !important; }
+:where(.dark) .bg-violet-50,
+:where(.dark) .bg-violet-50\/50  { background-color: rgba(139,92,246,0.10); }
+:where(.dark) .bg-violet-100      { background-color: rgba(139,92,246,0.15); }
+:where(.dark) .bg-purple-50,
+:where(.dark) .bg-purple-50\/50  { background-color: rgba(168,85,247,0.10); }
+:where(.dark) .bg-purple-100      { background-color: rgba(168,85,247,0.15); }
+:where(.dark) .text-violet-600    { color: #c4b5fd; }
+:where(.dark) .text-violet-700    { color: #c4b5fd; }
+:where(.dark) .text-violet-400    { color: #ddd6fe; }
+:where(.dark) .text-violet-900,
+:where(.dark) .text-violet-800    { color: #ede9fe; }
+:where(.dark) .text-purple-600    { color: #d8b4fe; }
+:where(.dark) .text-purple-700    { color: #d8b4fe; }
+:where(.dark) .border-violet-200,
+:where(.dark) .border-violet-800  { border-color: rgba(139,92,246,0.25); }
+:where(.dark) .border-purple-200  { border-color: rgba(168,85,247,0.25); }
 
 /* Teal / Cyan */
-.dark .bg-teal-50         { background-color: rgba(20,184,166,0.10) !important; }
-.dark .bg-teal-100        { background-color: rgba(20,184,166,0.15) !important; }
-.dark .bg-cyan-50         { background-color: rgba(6,182,212,0.10) !important; }
-.dark .bg-cyan-100        { background-color: rgba(6,182,212,0.15) !important; }
-.dark .text-teal-600      { color: #5eead4 !important; }
-.dark .text-teal-700      { color: #5eead4 !important; }
-.dark .text-cyan-600      { color: #67e8f9 !important; }
-.dark .text-cyan-700      { color: #67e8f9 !important; }
+:where(.dark) .bg-teal-50         { background-color: rgba(20,184,166,0.10); }
+:where(.dark) .bg-teal-100        { background-color: rgba(20,184,166,0.15); }
+:where(.dark) .bg-cyan-50         { background-color: rgba(6,182,212,0.10); }
+:where(.dark) .bg-cyan-100        { background-color: rgba(6,182,212,0.15); }
+:where(.dark) .text-teal-600      { color: #5eead4; }
+:where(.dark) .text-teal-700      { color: #5eead4; }
+:where(.dark) .text-cyan-600      { color: #67e8f9; }
+:where(.dark) .text-cyan-700      { color: #67e8f9; }
 
 /* Pink / Rose */
-.dark .bg-pink-50         { background-color: rgba(236,72,153,0.10) !important; }
-.dark .bg-pink-100        { background-color: rgba(236,72,153,0.15) !important; }
-.dark .bg-rose-50         { background-color: rgba(244,63,94,0.10) !important; }
-.dark .bg-rose-100        { background-color: rgba(244,63,94,0.15) !important; }
-.dark .text-pink-600      { color: #f9a8d4 !important; }
-.dark .text-pink-700      { color: #f9a8d4 !important; }
-.dark .text-rose-600      { color: #fda4af !important; }
-.dark .text-rose-700      { color: #fda4af !important; }
+:where(.dark) .bg-pink-50         { background-color: rgba(236,72,153,0.10); }
+:where(.dark) .bg-pink-100        { background-color: rgba(236,72,153,0.15); }
+:where(.dark) .bg-rose-50         { background-color: rgba(244,63,94,0.10); }
+:where(.dark) .bg-rose-100        { background-color: rgba(244,63,94,0.15); }
+:where(.dark) .text-pink-600      { color: #f9a8d4; }
+:where(.dark) .text-pink-700      { color: #f9a8d4; }
+:where(.dark) .text-rose-600      { color: #fda4af; }
+:where(.dark) .text-rose-700      { color: #fda4af; }
 
 /* ── 7. SURFACE OPACITY PATTERNS ─────────────────────────────────── */
 
-.dark .bg-surface-50\/30,
-.dark .bg-surface-50\/50,
-.dark .bg-surface-50\/80  { background-color: rgb(var(--sf-50) / 0.8) !important; }
-.dark .bg-surface-100\/30,
-.dark .bg-surface-100\/50,
-.dark .bg-surface-100\/80 { background-color: rgb(var(--sf-100) / 0.7) !important; }
-.dark .bg-surface-800\/30,
-.dark .bg-surface-800\/50  { background-color: rgb(var(--sf-100) / 0.5) !important; }
+:where(.dark) .bg-surface-50\/30,
+:where(.dark) .bg-surface-50\/50,
+:where(.dark) .bg-surface-50\/80  { background-color: rgb(var(--sf-50) / 0.8); }
+:where(.dark) .bg-surface-100\/30,
+:where(.dark) .bg-surface-100\/50,
+:where(.dark) .bg-surface-100\/80 { background-color: rgb(var(--sf-100) / 0.7); }
+:where(.dark) .bg-surface-800\/30,
+:where(.dark) .bg-surface-800\/50  { background-color: rgb(var(--sf-100) / 0.5); }
 
 /* Colored opacity variants */
-.dark .bg-red-50\/30,
-.dark .bg-red-50\/50       { background-color: rgba(220,38,38,0.08) !important; }
-.dark .bg-orange-50\/30    { background-color: rgba(234,88,12,0.08) !important; }
-.dark .bg-green-50\/30,
-.dark .bg-green-50\/50     { background-color: rgba(22,163,74,0.08) !important; }
-.dark .bg-blue-50\/30,
-.dark .bg-blue-50\/50      { background-color: rgba(37,99,235,0.08) !important; }
+:where(.dark) .bg-red-50\/30,
+:where(.dark) .bg-red-50\/50       { background-color: rgba(220,38,38,0.08); }
+:where(.dark) .bg-orange-50\/30    { background-color: rgba(234,88,12,0.08); }
+:where(.dark) .bg-green-50\/30,
+:where(.dark) .bg-green-50\/50     { background-color: rgba(22,163,74,0.08); }
+:where(.dark) .bg-blue-50\/30,
+:where(.dark) .bg-blue-50\/50      { background-color: rgba(37,99,235,0.08); }
 
 /* ── 8. GRADIENT BACKGROUNDS ─────────────────────────────────────── */
 
-.dark .from-violet-50   { --tw-gradient-from: rgba(139,92,246,0.10) !important; }
-.dark .to-purple-50     { --tw-gradient-to: rgba(168,85,247,0.10) !important; }
-.dark .from-emerald-50  { --tw-gradient-from: rgba(16,185,129,0.10) !important; }
-.dark .to-green-50      { --tw-gradient-to: rgba(22,163,74,0.10) !important; }
-.dark .from-amber-50    { --tw-gradient-from: rgba(217,119,6,0.10) !important; }
-.dark .from-indigo-50   { --tw-gradient-from: rgba(99,102,241,0.10) !important; }
-.dark .to-indigo-50     { --tw-gradient-to: rgba(99,102,241,0.10) !important; }
-.dark .from-red-50      { --tw-gradient-from: rgba(220,38,38,0.10) !important; }
-.dark .to-red-50        { --tw-gradient-to: rgba(220,38,38,0.10) !important; }
-.dark .from-blue-50     { --tw-gradient-from: rgba(37,99,235,0.10) !important; }
-.dark .to-blue-50       { --tw-gradient-to: rgba(37,99,235,0.10) !important; }
-.dark .from-green-50    { --tw-gradient-from: rgba(22,163,74,0.10) !important; }
-.dark .from-pink-50     { --tw-gradient-from: rgba(236,72,153,0.10) !important; }
-.dark .to-pink-50       { --tw-gradient-to: rgba(236,72,153,0.10) !important; }
-.dark .from-teal-50     { --tw-gradient-from: rgba(20,184,166,0.10) !important; }
-.dark .to-teal-50       { --tw-gradient-to: rgba(20,184,166,0.10) !important; }
-.dark .from-cyan-50     { --tw-gradient-from: rgba(6,182,212,0.10) !important; }
-.dark .from-rose-50     { --tw-gradient-from: rgba(244,63,94,0.10) !important; }
-.dark .to-rose-50       { --tw-gradient-to: rgba(244,63,94,0.10) !important; }
+:where(.dark) .from-violet-50   { --tw-gradient-from: rgba(139,92,246,0.10); }
+:where(.dark) .to-purple-50     { --tw-gradient-to: rgba(168,85,247,0.10); }
+:where(.dark) .from-emerald-50  { --tw-gradient-from: rgba(16,185,129,0.10); }
+:where(.dark) .to-green-50      { --tw-gradient-to: rgba(22,163,74,0.10); }
+:where(.dark) .from-amber-50    { --tw-gradient-from: rgba(217,119,6,0.10); }
+:where(.dark) .from-indigo-50   { --tw-gradient-from: rgba(99,102,241,0.10); }
+:where(.dark) .to-indigo-50     { --tw-gradient-to: rgba(99,102,241,0.10); }
+:where(.dark) .from-red-50      { --tw-gradient-from: rgba(220,38,38,0.10); }
+:where(.dark) .to-red-50        { --tw-gradient-to: rgba(220,38,38,0.10); }
+:where(.dark) .from-blue-50     { --tw-gradient-from: rgba(37,99,235,0.10); }
+:where(.dark) .to-blue-50       { --tw-gradient-to: rgba(37,99,235,0.10); }
+:where(.dark) .from-green-50    { --tw-gradient-from: rgba(22,163,74,0.10); }
+:where(.dark) .from-pink-50     { --tw-gradient-from: rgba(236,72,153,0.10); }
+:where(.dark) .to-pink-50       { --tw-gradient-to: rgba(236,72,153,0.10); }
+:where(.dark) .from-teal-50     { --tw-gradient-from: rgba(20,184,166,0.10); }
+:where(.dark) .to-teal-50       { --tw-gradient-to: rgba(20,184,166,0.10); }
+:where(.dark) .from-cyan-50     { --tw-gradient-from: rgba(6,182,212,0.10); }
+:where(.dark) .from-rose-50     { --tw-gradient-from: rgba(244,63,94,0.10); }
+:where(.dark) .to-rose-50       { --tw-gradient-to: rgba(244,63,94,0.10); }
 
 /* ── 9. IMPROVED SHADOWS FOR DARK MODE ───────────────────────────── */
 
-.dark .shadow-card    { box-shadow: 0 1px 3px 0 rgba(0,0,0,.25), 0 1px 2px -1px rgba(0,0,0,.2) !important; }
-.dark .shadow-card-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,.3), 0 2px 4px -2px rgba(0,0,0,.2) !important; }
-.dark .shadow-lg      { box-shadow: 0 10px 15px -3px rgba(0,0,0,.3), 0 4px 6px -4px rgba(0,0,0,.2) !important; }
-.dark .shadow-sm      { box-shadow: 0 1px 2px 0 rgba(0,0,0,.2) !important; }
-.dark .shadow-md      { box-shadow: 0 4px 6px -1px rgba(0,0,0,.25), 0 2px 4px -2px rgba(0,0,0,.15) !important; }
+:where(.dark) .shadow-card    { box-shadow: 0 1px 3px 0 rgba(0,0,0,.25), 0 1px 2px -1px rgba(0,0,0,.2); }
+:where(.dark) .shadow-card-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,.3), 0 2px 4px -2px rgba(0,0,0,.2); }
+:where(.dark) .shadow-lg      { box-shadow: 0 10px 15px -3px rgba(0,0,0,.3), 0 4px 6px -4px rgba(0,0,0,.2); }
+:where(.dark) .shadow-sm      { box-shadow: 0 1px 2px 0 rgba(0,0,0,.2); }
+:where(.dark) .shadow-md      { box-shadow: 0 4px 6px -1px rgba(0,0,0,.25), 0 2px 4px -2px rgba(0,0,0,.15); }
 
 /* ── 10. HOVER STATES ────────────────────────────────────────────── */
 
-.dark .hover\:bg-surface-50:hover  { background-color: rgb(var(--sf-200) / 0.5) !important; }
-.dark .hover\:bg-surface-100:hover { background-color: rgb(var(--sf-200) / 0.7) !important; }
-.dark .hover\:bg-surface-200:hover { background-color: rgb(var(--sf-300) / 0.5) !important; }
+:where(.dark) .hover\:bg-surface-50:hover  { background-color: rgb(var(--sf-200) / 0.5); }
+:where(.dark) .hover\:bg-surface-100:hover { background-color: rgb(var(--sf-200) / 0.7); }
+:where(.dark) .hover\:bg-surface-200:hover { background-color: rgb(var(--sf-300) / 0.5); }
 
 /* ── 11. SEMANTIC DARK MODE TEXT ─────────────────────────────────── */
 
-.dark .text-success-600, .dark .text-success-700 { color: #86efac !important; }
-.dark .text-warning-600, .dark .text-warning-700 { color: #fcd34d !important; }
-.dark .text-danger-600,  .dark .text-danger-700  { color: #fca5a5 !important; }
-.dark .text-info-600,    .dark .text-info-700    { color: #93c5fd !important; }
+:where(.dark) .text-success-600, :where(.dark) .text-success-700 { color: #86efac; }
+:where(.dark) .text-warning-600, :where(.dark) .text-warning-700 { color: #fcd34d; }
+:where(.dark) .text-danger-600,  :where(.dark) .text-danger-700  { color: #fca5a5; }
+:where(.dark) .text-info-600,    :where(.dark) .text-info-700    { color: #93c5fd; }
 
-.dark .border-success-100 { border-color: rgba(22,163,74,0.25) !important; }
-.dark .border-warning-100 { border-color: rgba(217,119,6,0.25) !important; }
-.dark .border-danger-100  { border-color: rgba(220,38,38,0.25) !important; }
-.dark .border-info-100    { border-color: rgba(37,99,235,0.25) !important; }
+:where(.dark) .border-success-100 { border-color: rgba(22,163,74,0.25); }
+:where(.dark) .border-warning-100 { border-color: rgba(217,119,6,0.25); }
+:where(.dark) .border-danger-100  { border-color: rgba(220,38,38,0.25); }
+:where(.dark) .border-info-100    { border-color: rgba(37,99,235,0.25); }
 
 /* ── 12. SIDEBAR & LAYOUT SPECIFICS ─────────────────────────────── */
 
 /* Ensure sidebar border is subtle in dark mode */
-.dark .border-surface-200\/60 { border-color: rgb(var(--sf-200) / 0.3) !important; }
-.dark .border-surface-100 { border-color: rgb(var(--sf-200) / 0.4) !important; }
+:where(.dark) .border-surface-200\/60 { border-color: rgb(var(--sf-200) / 0.3); }
+:where(.dark) .border-surface-100 { border-color: rgb(var(--sf-200) / 0.4); }
 
 /* SiblingTabs in dark mode */
-.dark .border-surface-100.rounded-xl {
+:where(.dark) .border-surface-100.rounded-xl {
   border-color: rgb(var(--sf-200) / 0.3);
 }
 
 /* Ensure readable link colors in dark mode */
-.dark a.text-brand-600 { color: rgb(var(--accent-400)) !important; }
+:where(.dark) a.text-brand-600 { color: rgb(var(--accent-400)); }
 
 /* ── 13. FORM INPUTS — dark mode field backgrounds ─────────────── */
 /* Many inputs/selects use bg-surface-50 which = page bg in dark.
    Give them a distinct darker background for visual separation. */
 
-.dark input[class*="bg-surface-50"],
-.dark textarea[class*="bg-surface-50"],
-.dark select[class*="bg-surface-50"],
-.dark div[class*="bg-surface-50"] > input,
-.dark div[class*="bg-surface-50"] > textarea {
-  background-color: rgb(var(--sf-100)) !important;
+:where(.dark) input[class*="bg-surface-50"],
+:where(.dark) textarea[class*="bg-surface-50"],
+:where(.dark) select[class*="bg-surface-50"],
+:where(.dark) div[class*="bg-surface-50"] > input,
+:where(.dark) div[class*="bg-surface-50"] > textarea {
+  background-color: rgb(var(--sf-100));
 }
 
 /* ── 14. TEXT COLOR COMPLETIONS — all gray families ──────────────── */
 /* Slate (same as gray) */
-.dark .text-slate-400, .dark .text-slate-500 { color: rgb(var(--sf-400)) !important; }
-.dark .text-slate-600 { color: rgb(var(--sf-500)) !important; }
-.dark .text-slate-700, .dark .text-slate-800, .dark .text-slate-900 { color: rgb(var(--sf-800)) !important; }
+:where(.dark) .text-slate-400, :where(.dark) .text-slate-500 { color: rgb(var(--sf-400)); }
+:where(.dark) .text-slate-600 { color: rgb(var(--sf-500)); }
+:where(.dark) .text-slate-700, :where(.dark) .text-slate-800, :where(.dark) .text-slate-900 { color: rgb(var(--sf-800)); }
 
 /* Zinc */
-.dark .text-zinc-400, .dark .text-zinc-500 { color: rgb(var(--sf-400)) !important; }
-.dark .text-zinc-600 { color: rgb(var(--sf-500)) !important; }
-.dark .text-zinc-700, .dark .text-zinc-800, .dark .text-zinc-900 { color: rgb(var(--sf-800)) !important; }
+:where(.dark) .text-zinc-400, :where(.dark) .text-zinc-500 { color: rgb(var(--sf-400)); }
+:where(.dark) .text-zinc-600 { color: rgb(var(--sf-500)); }
+:where(.dark) .text-zinc-700, :where(.dark) .text-zinc-800, :where(.dark) .text-zinc-900 { color: rgb(var(--sf-800)); }
 
 /* Neutral */
-.dark .text-neutral-400, .dark .text-neutral-500 { color: rgb(var(--sf-400)) !important; }
-.dark .text-neutral-600 { color: rgb(var(--sf-500)) !important; }
-.dark .text-neutral-700, .dark .text-neutral-800, .dark .text-neutral-900 { color: rgb(var(--sf-800)) !important; }
+:where(.dark) .text-neutral-400, :where(.dark) .text-neutral-500 { color: rgb(var(--sf-400)); }
+:where(.dark) .text-neutral-600 { color: rgb(var(--sf-500)); }
+:where(.dark) .text-neutral-700, :where(.dark) .text-neutral-800, :where(.dark) .text-neutral-900 { color: rgb(var(--sf-800)); }
 
 /* ── 15. BORDER COMPLETIONS — all gray families ─────────────────── */
 
-.dark .border-gray-100, .dark .border-gray-200, .dark .border-gray-300 {
-  border-color: rgb(var(--sf-200) / 0.5) !important;
+:where(.dark) .border-gray-100, :where(.dark) .border-gray-200, :where(.dark) .border-gray-300 {
+  border-color: rgb(var(--sf-200) / 0.5);
 }
-.dark .border-slate-100, .dark .border-slate-200, .dark .border-slate-300 {
-  border-color: rgb(var(--sf-200) / 0.5) !important;
+:where(.dark) .border-slate-100, :where(.dark) .border-slate-200, :where(.dark) .border-slate-300 {
+  border-color: rgb(var(--sf-200) / 0.5);
 }
-.dark .border-zinc-100, .dark .border-zinc-200, .dark .border-zinc-300 {
-  border-color: rgb(var(--sf-200) / 0.5) !important;
+:where(.dark) .border-zinc-100, :where(.dark) .border-zinc-200, :where(.dark) .border-zinc-300 {
+  border-color: rgb(var(--sf-200) / 0.5);
 }
 
 /* ── 16. CARD SEPARATION — containers on dark page background ──── */
 /* Containers that use bg-surface-50 need distinct bg when inside main content.
    bg-surface-50 = page bg (#18181b) in dark, so cards/panels need surface-100. */
 
-.dark main .bg-surface-50 {
-  background-color: rgb(var(--sf-100)) !important;
+:where(.dark) main .bg-surface-50 {
+  background-color: rgb(var(--sf-100));
 }
 
 /* Restore actual page bg for the outermost surface-50 containers */
-.dark > .bg-surface-50,
-.dark .flex.h-screen > .bg-surface-50 {
-  background-color: rgb(var(--sf-50)) !important;
+:where(.dark) > .bg-surface-50,
+:where(.dark) .flex.h-screen > .bg-surface-50 {
+  background-color: rgb(var(--sf-50));
 }
 
 /* ── 17. SEMANTIC BG DEEPER TONES (100-level → richer) ──────────── */
-.dark .bg-success-100 { background-color: rgba(22,163,74,0.18) !important; }
-.dark .bg-warning-100 { background-color: rgba(217,119,6,0.18) !important; }
-.dark .bg-danger-100  { background-color: rgba(220,38,38,0.18) !important; }
-.dark .bg-info-100    { background-color: rgba(37,99,235,0.18) !important; }
-.dark .bg-red-200     { background-color: rgba(220,38,38,0.22) !important; }
-.dark .bg-orange-300  { background-color: rgba(234,88,12,0.25) !important; }
-.dark .bg-green-200   { background-color: rgba(22,163,74,0.22) !important; }
-.dark .bg-blue-200    { background-color: rgba(37,99,235,0.22) !important; }
-.dark .bg-amber-300   { background-color: rgba(217,119,6,0.25) !important; }
-.dark .bg-yellow-200  { background-color: rgba(202,138,4,0.22) !important; }
-.dark .bg-indigo-200  { background-color: rgba(99,102,241,0.22) !important; }
-.dark .bg-violet-200  { background-color: rgba(139,92,246,0.22) !important; }
-.dark .bg-purple-200  { background-color: rgba(168,85,247,0.22) !important; }
-.dark .bg-pink-200    { background-color: rgba(236,72,153,0.22) !important; }
-.dark .bg-teal-200    { background-color: rgba(20,184,166,0.22) !important; }
+:where(.dark) .bg-success-100 { background-color: rgba(22,163,74,0.18); }
+:where(.dark) .bg-warning-100 { background-color: rgba(217,119,6,0.18); }
+:where(.dark) .bg-danger-100  { background-color: rgba(220,38,38,0.18); }
+:where(.dark) .bg-info-100    { background-color: rgba(37,99,235,0.18); }
+:where(.dark) .bg-red-200     { background-color: rgba(220,38,38,0.22); }
+:where(.dark) .bg-orange-300  { background-color: rgba(234,88,12,0.25); }
+:where(.dark) .bg-green-200   { background-color: rgba(22,163,74,0.22); }
+:where(.dark) .bg-blue-200    { background-color: rgba(37,99,235,0.22); }
+:where(.dark) .bg-amber-300   { background-color: rgba(217,119,6,0.25); }
+:where(.dark) .bg-yellow-200  { background-color: rgba(202,138,4,0.22); }
+:where(.dark) .bg-indigo-200  { background-color: rgba(99,102,241,0.22); }
+:where(.dark) .bg-violet-200  { background-color: rgba(139,92,246,0.22); }
+:where(.dark) .bg-purple-200  { background-color: rgba(168,85,247,0.22); }
+:where(.dark) .bg-pink-200    { background-color: rgba(236,72,153,0.22); }
+:where(.dark) .bg-teal-200    { background-color: rgba(20,184,166,0.22); }
 
 /* ── 18. HOVER: colored hover states ────────────────────────────── */
-.dark .hover\:bg-red-50:hover    { background-color: rgba(220,38,38,0.12) !important; }
-.dark .hover\:bg-orange-50:hover { background-color: rgba(234,88,12,0.12) !important; }
-.dark .hover\:bg-amber-50:hover  { background-color: rgba(217,119,6,0.12) !important; }
-.dark .hover\:bg-green-50:hover  { background-color: rgba(22,163,74,0.12) !important; }
-.dark .hover\:bg-blue-50:hover   { background-color: rgba(37,99,235,0.12) !important; }
-.dark .hover\:bg-brand-50:hover  { background-color: rgb(var(--accent-950) / 0.25) !important; }
-.dark .hover\:bg-brand-100:hover { background-color: rgb(var(--accent-900) / 0.3) !important; }
-.dark .hover\:bg-white:hover     { background-color: rgb(var(--sf-100)) !important; }
-.dark .hover\:bg-gray-50:hover,
-.dark .hover\:bg-slate-50:hover  { background-color: rgb(var(--sf-200) / 0.5) !important; }
-.dark .hover\:bg-gray-100:hover,
-.dark .hover\:bg-slate-100:hover { background-color: rgb(var(--sf-200) / 0.7) !important; }
+:where(.dark) .hover\:bg-red-50:hover    { background-color: rgba(220,38,38,0.12); }
+:where(.dark) .hover\:bg-orange-50:hover { background-color: rgba(234,88,12,0.12); }
+:where(.dark) .hover\:bg-amber-50:hover  { background-color: rgba(217,119,6,0.12); }
+:where(.dark) .hover\:bg-green-50:hover  { background-color: rgba(22,163,74,0.12); }
+:where(.dark) .hover\:bg-blue-50:hover   { background-color: rgba(37,99,235,0.12); }
+:where(.dark) .hover\:bg-brand-50:hover  { background-color: rgb(var(--accent-950) / 0.25); }
+:where(.dark) .hover\:bg-brand-100:hover { background-color: rgb(var(--accent-900) / 0.3); }
+:where(.dark) .hover\:bg-white:hover     { background-color: rgb(var(--sf-100)); }
+:where(.dark) .hover\:bg-gray-50:hover,
+:where(.dark) .hover\:bg-slate-50:hover  { background-color: rgb(var(--sf-200) / 0.5); }
+:where(.dark) .hover\:bg-gray-100:hover,
+:where(.dark) .hover\:bg-slate-100:hover { background-color: rgb(var(--sf-200) / 0.7); }
 
 /* ── 19. PLACEHOLDER & DISABLED STATES ──────────────────────────── */
-.dark .placeholder\:text-surface-400::placeholder { color: rgb(var(--sf-400)) !important; }
-.dark .placeholder\:text-gray-400::placeholder,
-.dark .placeholder\:text-slate-400::placeholder { color: rgb(var(--sf-400)) !important; }
-.dark .disabled\:bg-surface-50:disabled { background-color: rgb(var(--sf-100)) !important; }
-.dark .disabled\:text-surface-400:disabled { color: rgb(var(--sf-400)) !important; }
+:where(.dark) .placeholder\:text-surface-400::placeholder { color: rgb(var(--sf-400)); }
+:where(.dark) .placeholder\:text-gray-400::placeholder,
+:where(.dark) .placeholder\:text-slate-400::placeholder { color: rgb(var(--sf-400)); }
+:where(.dark) .disabled\:bg-surface-50:disabled { background-color: rgb(var(--sf-100)); }
+:where(.dark) .disabled\:text-surface-400:disabled { color: rgb(var(--sf-400)); }
 
 /* ── 20. TABLE STYLING ──────────────────────────────────────────── */
-.dark table thead th {
+:where(.dark) table thead th {
   background-color: rgb(var(--sf-100));
   color: rgb(var(--sf-600));
   border-color: rgb(var(--sf-200) / 0.5);
 }
-.dark table tbody tr {
+:where(.dark) table tbody tr {
   border-color: rgb(var(--sf-200) / 0.3);
 }
-.dark table tbody tr:hover {
+:where(.dark) table tbody tr:hover {
   background-color: rgb(var(--sf-200) / 0.3);
 }
-.dark table td {
+:where(.dark) table td {
   color: rgb(var(--sf-600));
 }
 
 /* ── 21. SELECTION HIGHLIGHT ────────────────────────────────────── */
-.dark ::selection {
+:where(.dark) ::selection {
   background: rgb(var(--accent-600) / 0.4);
   color: #fff;
 }
@@ -681,32 +685,32 @@
 }
 
 /* Text that's black/near-black in light and needs to flip in dark */
-.dark .text-gray-950, .dark .text-slate-950, .dark .text-zinc-950 {
-  color: rgb(var(--sf-900)) !important;
+:where(.dark) .text-gray-950, :where(.dark) .text-slate-950, :where(.dark) .text-zinc-950 {
+  color: rgb(var(--sf-900));
 }
 
 /* ── 23. RING / OUTLINE COLORS ──────────────────────────────────── */
-.dark .ring-surface-200      { --tw-ring-color: rgb(var(--sf-300) / 0.4) !important; }
-.dark .ring-surface-300      { --tw-ring-color: rgb(var(--sf-300) / 0.5) !important; }
-.dark .outline-surface-200   { outline-color: rgb(var(--sf-300) / 0.4) !important; }
-.dark .ring-gray-200,
-.dark .ring-slate-200         { --tw-ring-color: rgb(var(--sf-300) / 0.4) !important; }
-.dark .focus\:ring-brand-500\/20:focus { --tw-ring-color: rgb(var(--accent-500) / 0.35) !important; }
+:where(.dark) .ring-surface-200      { --tw-ring-color: rgb(var(--sf-300) / 0.4); }
+:where(.dark) .ring-surface-300      { --tw-ring-color: rgb(var(--sf-300) / 0.5); }
+:where(.dark) .outline-surface-200   { outline-color: rgb(var(--sf-300) / 0.4); }
+:where(.dark) .ring-gray-200,
+:where(.dark) .ring-slate-200         { --tw-ring-color: rgb(var(--sf-300) / 0.4); }
+:where(.dark) .focus\:ring-brand-500\/20:focus { --tw-ring-color: rgb(var(--accent-500) / 0.35); }
 
 /* ── 24. DIVIDER & SEPARATOR LINES ──────────────────────────────── */
-.dark .divide-surface-100 > :not([hidden]) ~ :not([hidden]) {
-  border-color: rgb(var(--sf-200) / 0.4) !important;
+:where(.dark) .divide-surface-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgb(var(--sf-200) / 0.4);
 }
-.dark .divide-surface-200 > :not([hidden]) ~ :not([hidden]) {
-  border-color: rgb(var(--sf-200) / 0.5) !important;
+:where(.dark) .divide-surface-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgb(var(--sf-200) / 0.5);
 }
-.dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
-.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
-  border-color: rgb(var(--sf-200) / 0.4) !important;
+:where(.dark) .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+:where(.dark) .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgb(var(--sf-200) / 0.4);
 }
 
 /* ── 25. PROGRESS BARS & BADGES on dark ─────────────────────────── */
-.dark .bg-surface-200[role="progressbar"],
-.dark div[class*="bg-surface-200"][style*="width"] {
-  background-color: rgb(var(--sf-300)) !important;
+:where(.dark) .bg-surface-200[role="progressbar"],
+:where(.dark) div[class*="bg-surface-200"][style*="width"] {
+  background-color: rgb(var(--sf-300));
 }
