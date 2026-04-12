@@ -160,7 +160,7 @@ export default function LernnachweisPage() {
       </div>
 
       {/* Secondary metrics */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <MiniStat icon={BarChart3} label={t("lernnachweis.sessions")} value={metrics.totalSessions} />
         <MiniStat icon={BookOpen} label={t("lernnachweis.modules_passed")} value={`${metrics.passedModules}/${metrics.totalModules}`} />
         <MiniStat icon={TrendingUp} label={t("lernnachweis.tasks_done")} value={`${metrics.tasksCompleted}/${metrics.tasksTotal}`} />
@@ -185,7 +185,7 @@ export default function LernnachweisPage() {
         ) : (
           <div className="divide-y divide-surface-50 dark:divide-surface-800">
             {moduleOutputs.map((mod) => (
-              <div key={mod.id} className="px-5 py-3 flex items-center gap-4 hover:bg-surface-50 dark:hover:bg-surface-800/50 transition-colors">
+              <div key={mod.id} className="px-3 sm:px-5 py-3 flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4 hover:bg-surface-50 dark:hover:bg-surface-800/50 transition-colors">
                 {/* Color dot */}
                 <div
                   className="w-3 h-3 rounded-full flex-shrink-0"
@@ -202,38 +202,41 @@ export default function LernnachweisPage() {
                   </p>
                 </div>
 
-                {/* Grade */}
-                <div className="text-right flex-shrink-0">
-                  {mod.grade != null ? (
-                    <span className={`text-sm font-bold ${
-                      mod.grade >= 4.0
-                        ? "text-green-600 dark:text-green-400"
-                        : "text-red-600 dark:text-red-400"
-                    }`}>
-                      {mod.grade.toFixed(1)}
-                    </span>
-                  ) : (
-                    <span className="text-xs text-surface-400">—</span>
-                  )}
-                </div>
+                {/* Grade + Tasks on same line on mobile */}
+                <div className="flex items-center gap-3 flex-shrink-0 ml-5 sm:ml-0">
+                  {/* Grade */}
+                  <div className="text-right">
+                    {mod.grade != null ? (
+                      <span className={`text-sm font-bold ${
+                        mod.grade >= 4.0
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
+                      }`}>
+                        {mod.grade.toFixed(1)}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-surface-400">—</span>
+                    )}
+                  </div>
 
-                {/* Tasks progress */}
-                <div className="w-16 flex-shrink-0">
-                  {mod.tasks.total > 0 ? (
-                    <div>
-                      <div className="h-1.5 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-brand-500 rounded-full transition-all"
-                          style={{ width: `${(mod.tasks.completed / mod.tasks.total) * 100}%` }}
-                        />
+                  {/* Tasks progress */}
+                  <div className="w-16 hidden sm:block">
+                    {mod.tasks.total > 0 ? (
+                      <div>
+                        <div className="h-1.5 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-brand-500 rounded-full transition-all"
+                            style={{ width: `${(mod.tasks.completed / mod.tasks.total) * 100}%` }}
+                          />
+                        </div>
+                        <p className="text-[10px] text-surface-400 mt-0.5 text-center">
+                          {mod.tasks.completed}/{mod.tasks.total}
+                        </p>
                       </div>
-                      <p className="text-[10px] text-surface-400 mt-0.5 text-center">
-                        {mod.tasks.completed}/{mod.tasks.total}
-                      </p>
-                    </div>
-                  ) : (
-                    <span className="text-[10px] text-surface-300">—</span>
-                  )}
+                    ) : (
+                      <span className="text-[10px] text-surface-300">—</span>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

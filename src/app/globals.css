@@ -239,18 +239,32 @@
 
 @media (max-width: 767px) {
   main > div[class*="p-6"] {
-    padding: 1rem !important;
+    padding: 0.75rem !important;
   }
   .card {
-    padding: 1rem;
+    padding: 0.875rem;
+    border-radius: 14px;
   }
-  h1.text-2xl {
-    font-size: 1.25rem;
+  h1.text-2xl, h1.text-xl {
+    font-size: 1.2rem;
   }
+  /* Full-width modals on mobile */
   .fixed.inset-0 .max-w-md,
   .fixed.inset-0 .max-w-lg {
     max-width: 100% !important;
     margin: 0.5rem !important;
+  }
+  /* Minimum touch targets */
+  button, a[role="button"], [role="button"] {
+    min-height: 36px;
+  }
+  /* Reduce table/grid spacing */
+  .grid {
+    gap: 0.5rem;
+  }
+  /* Better input sizing */
+  input, textarea, select {
+    font-size: 16px; /* Prevents iOS zoom on focus */
   }
 }
 

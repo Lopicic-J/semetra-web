@@ -80,11 +80,11 @@ function StudentCard({ student, onConnect, loading }: {
   const alreadyConnected = student.connection_status === "accepted";
 
   return (
-    <div className="card p-4 flex items-start gap-4 hover:shadow-md transition-shadow">
-      <Avatar url={student.avatar_url} name={student.full_name ?? student.username} status={student.online_status} />
+    <div className="card p-3 sm:p-4 flex items-start gap-3 sm:gap-4 hover:shadow-md transition-shadow">
+      <Avatar url={student.avatar_url} name={student.full_name ?? student.username} status={student.online_status} size={36} />
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-surface-900 dark:text-white truncate">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="font-semibold text-sm sm:text-base text-surface-900 dark:text-white truncate">
             {student.full_name || student.username || t("connect.anonymous")}
           </span>
           <span className="text-xs px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-300 font-medium">
@@ -305,7 +305,7 @@ export default function ConnectPage() {
       </div>
 
       {/* Stats Bar */}
-      <div className="flex items-center gap-6 text-sm">
+      <div className="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm flex-wrap">
         <span className="flex items-center gap-1.5 text-surface-600 dark:text-surface-400">
           <Users size={16} className="text-brand-500" />
           <strong>{counts.total_connections}</strong> {t("connect.connections_label")}
