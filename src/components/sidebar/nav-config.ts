@@ -58,6 +58,8 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           { href: "/modules", labelKey: "nav.modules" },
           { href: "/tasks", labelKey: "nav.tasks" },
+          { href: "/studium?tab=studienplan", labelKey: "nav.studienplan", tab: "studienplan" },
+          { href: "/studium?tab=noten", labelKey: "nav.grades", tab: "noten" },
         ],
       },
       {
@@ -79,8 +81,6 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           { href: "/exams", labelKey: "nav.exams" },
           { href: "/exams?tab=intelligence", labelKey: "nav.examIntelligence", tab: "intelligence" },
-          { href: "/studium?tab=noten", labelKey: "nav.grades", tab: "noten" },
-          { href: "/studium?tab=studienplan", labelKey: "nav.studienplan", tab: "studienplan" },
           { href: "/studium?tab=transcript", labelKey: "nav.transcript", tab: "transcript" },
           { href: "/studium?tab=anrechnungen", labelKey: "nav.recognition", tab: "anrechnungen" },
         ],
@@ -99,6 +99,8 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           { href: "/learning?tab=timer", labelKey: "nav.timer", tab: "timer" },
           { href: "/learning?tab=materials", labelKey: "nav.materials", tab: "materials" },
+          { href: "/werkzeuge?tab=brainstorming", labelKey: "nav.brainstorming", tab: "brainstorming" },
+          { href: "/werkzeuge?tab=mathe", labelKey: "nav.math", tab: "mathe" },
         ],
       },
       {
@@ -109,8 +111,6 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           { href: "/werkzeuge?tab=ki", labelKey: "nav.aiAssistant", tab: "ki" },
           { href: "/werkzeuge?tab=mindmaps", labelKey: "nav.mindmaps", tab: "mindmaps" },
-          { href: "/werkzeuge?tab=brainstorming", labelKey: "nav.brainstorming", tab: "brainstorming" },
-          { href: "/werkzeuge?tab=mathe", labelKey: "nav.math", tab: "mathe" },
         ],
       },
     ],
@@ -154,8 +154,13 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           { href: "/community", labelKey: "nav.community" },
           { href: "/friends", labelKey: "nav.friends" },
-          { href: "/groups", labelKey: "nav.groups" },
         ],
+      },
+      {
+        href: "/groups",
+        icon: Users,
+        labelKey: "nav.groups",
+        pro: false,
       },
       {
         href: "/messages",
