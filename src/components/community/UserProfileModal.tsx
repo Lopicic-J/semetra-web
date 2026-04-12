@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import {
   X, UserPlus, MessageCircle, Trophy, BookOpen,
   Clock, Award, GraduationCap, Crown, Star, Shield,
-  Globe, Calendar, Wifi, WifiOff, Moon, Loader2,
-  ChevronRight, TrendingUp, Users,
+  Globe, Calendar, Loader2,
+  TrendingUp, Users,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import Link from "next/link";
@@ -238,16 +238,23 @@ export default function UserProfileModal({ userId, onClose }: Props) {
                   </span>
                 )}
                 {/* Role badge */}
-                {profile.user_role === "admin" && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 font-medium flex items-center gap-0.5">
-                    <Shield size={10} /> Admin
-                  </span>
-                )}
-                {profile.user_role === "institution" && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium flex items-center gap-0.5">
-                    <GraduationCap size={10} /> Institution
-                  </span>
-                )}
+                {(() => {
+                  const roleConfig: Record<string, { label: string; icon: typeof Shield; bgClass: string }> = {
+                    admin: { label: "Admin", icon: Shield, bgClass: "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300" },
+                    institution: { label: "Institution", icon: GraduationCap, bgClass: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" },
+                    dozent: { label: "Dozent", icon: GraduationCap, bgClass: "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300" },
+                    student: { label: "Student", icon: Users, bgClass: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300" },
+                    non_student: { label: "Gast", icon: Globe, bgClass: "bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-300" },
+                  };
+                  const config = roleConfig[profile.user_role];
+                  if (!config) return null;
+                  const RoleIcon = config.icon;
+                  return (
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-0.5 ${config.bgClass}`}>
+                      <RoleIcon size={10} /> {config.label}
+                    </span>
+                  );
+                })()}
               </div>
               <p className="text-sm text-surface-500 dark:text-surface-400">@{profile.username}</p>
 

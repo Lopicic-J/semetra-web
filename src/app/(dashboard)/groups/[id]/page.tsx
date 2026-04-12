@@ -17,6 +17,7 @@ import GroupChat from "@/components/groups/GroupChat";
 import ActivityFeed from "@/components/groups/ActivityFeed";
 import RoleManager from "@/components/groups/RoleManager";
 import { createClient } from "@/lib/supabase/client";
+import UserProfileModal from "@/components/community/UserProfileModal";
 
 interface Member {
   id: string;
@@ -62,6 +63,7 @@ export default function GroupDetailPage() {
   const [copied, setCopied] = useState(false);
   const [currentUserId, setCurrentUserId] = useState("");
   const [activeTab, setActiveTab] = useState<"chat" | "members" | "activity" | "shared">("chat");
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -303,20 +305,20 @@ export default function GroupDetailPage() {
                 {members.map(m => {
                   const RoleIcon = ROLE_ICONS[m.role as keyof typeof ROLE_ICONS] ?? UserCircle;
                   return (
-                    <div key={m.id} className="flex items-center justify-between py-2 px-3 bg-surface-50 rounded-xl">
+                    <div key={m.id} className="flex items-center justify-between py-2 px-3 bg-surface-50 dark:bg-surface-700/50 rounded-xl cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors" onClick={() => setSelectedUserId(m.user_id)}>
                       <div className="flex items-center gap-2.5">
                         {m.profiles?.avatar_url ? (
                           <img src={m.profiles.avatar_url} className="w-8 h-8 rounded-full object-cover" alt="" />
                         ) : (
-                          <div className="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center text-brand-600 text-xs font-bold">
+                          <div className="w-8 h-8 bg-brand-100 dark:bg-brand-900/40 rounded-full flex items-center justify-center text-brand-600 dark:text-brand-400 text-xs font-bold">
                             {(m.profiles?.full_name || m.profiles?.username || "?")[0].toUpperCase()}
                           </div>
                         )}
                         <div>
-                          <p className="text-sm font-medium text-surface-800">
+                          <p className="text-sm font-medium text-surface-800 dark:text-surface-200">
                             {m.profiles?.full_name || m.profiles?.username}
                           </p>
-                          <p className="text-[10px] text-surface-400">@{m.profiles?.username}</p>
+                          <p className="text-[10px] text-surface-400 dark:text-surface-500">@{m.profiles?.username}</p>
                         </div>
                       </div>
                       <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-surface-200 text-surface-600">
@@ -341,6 +343,11 @@ export default function GroupDetailPage() {
       {activeTab === "shared" && (
         <SharedResourcesTab groupId={groupId} shares={shares} currentUserId={currentUserId} isAdmin={isAdmin} onUpdate={load} />
       )}
+        {/* Profile Modal */}
+        <UserProfileModal
+          userId={selectedUserId}
+          onClose={() => setSelectedUserId(null)}
+        />
         </div>
       )}
     </ErrorBoundary>

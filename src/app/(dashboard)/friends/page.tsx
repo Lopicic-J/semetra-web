@@ -10,6 +10,7 @@ import { useTranslation } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import UserProfileModal from "@/components/community/UserProfileModal";
 
 interface FriendProfile {
   id: string;
@@ -41,6 +42,7 @@ export default function FriendsPage() {
   const [adding, setAdding] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const loadFriendships = useCallback(async () => {
     try {
@@ -301,7 +303,7 @@ export default function FriendsPage() {
             </div>
           ) : (
             friends.map(f => (
-              <div key={f.id} className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 hover:border-brand-200 dark:hover:border-brand-800 transition-colors">
+              <div key={f.id} className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 hover:border-brand-200 dark:hover:border-brand-800 transition-colors cursor-pointer" onClick={() => setSelectedUserId(f.friend.id)}>
                 <Avatar user={f.friend} />
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-surface-900 dark:text-surface-50 truncate">
@@ -309,7 +311,7 @@ export default function FriendsPage() {
                   </p>
                   <p className="text-xs text-surface-500 dark:text-surface-400">@{f.friend.username}</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                   <Link
                     href={`/messages/${f.friend.id}`}
                     className="p-2 text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors"
@@ -363,7 +365,7 @@ export default function FriendsPage() {
                 </h3>
                 <div className="space-y-2">
                   {incomingRequests.map(f => (
-                    <div key={f.id} className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl border border-brand-200 dark:border-brand-800">
+                    <div key={f.id} className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl border border-brand-200 dark:border-brand-800 cursor-pointer" onClick={() => setSelectedUserId(f.friend.id)}>
                       <Avatar user={f.friend} />
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-surface-900 dark:text-surface-50 truncate">
@@ -371,7 +373,7 @@ export default function FriendsPage() {
                         </p>
                         <p className="text-xs text-surface-500 dark:text-surface-400">@{f.friend.username}</p>
                       </div>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
                         <button
                           onClick={() => handleAction(f.id, "accept")}
                           disabled={actionLoading === f.id}
@@ -404,7 +406,7 @@ export default function FriendsPage() {
                 </h3>
                 <div className="space-y-2">
                   {outgoingRequests.map(f => (
-                    <div key={f.id} className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700">
+                    <div key={f.id} className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 cursor-pointer" onClick={() => setSelectedUserId(f.friend.id)}>
                       <Avatar user={f.friend} />
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-surface-900 dark:text-surface-50 truncate">
@@ -460,7 +462,7 @@ export default function FriendsPage() {
                     f => f.friend.id === user.id
                   );
                   return (
-                    <div key={user.id} className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700">
+                    <div key={user.id} className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 cursor-pointer" onClick={() => setSelectedUserId(user.id)}>
                       <Avatar user={user} />
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-surface-900 dark:text-surface-50 truncate">
@@ -476,7 +478,7 @@ export default function FriendsPage() {
                         </span>
                       ) : (
                         <button
-                          onClick={() => handleAddById(user.id)}
+                          onClick={(e) => { e.stopPropagation(); handleAddById(user.id); }}
                           disabled={actionLoading === user.id}
                           className="px-3 py-1.5 bg-brand-600 dark:bg-brand-700 text-white rounded-lg text-xs font-medium hover:bg-brand-700 dark:hover:bg-brand-600 disabled:opacity-50 transition-colors flex items-center gap-1"
                         >
@@ -498,6 +500,12 @@ export default function FriendsPage() {
           </div>
         )}
       </div>
+
+      {/* Profile Modal */}
+      <UserProfileModal
+        userId={selectedUserId}
+        onClose={() => setSelectedUserId(null)}
+      />
     </div>
   );
 }
