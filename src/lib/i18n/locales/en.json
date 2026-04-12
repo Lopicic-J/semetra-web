@@ -2479,5 +2479,28 @@
   "nudge.exam_countdown": "Exams Coming Up",
   "nudge.quick_win": "Quick Win",
   "nudge.streak": "Streak",
-  "nudge.encouragement": "Motivation"
+  "nudge.encouragement": "Motivation",
+
+  "lernnachweis.title": "Learning Proof",
+  "lernnachweis.subtitle": "Your complete performance record with all metrics",
+  "lernnachweis.total_hours": "Total Study Hours",
+  "lernnachweis.ects": "ECTS Progress",
+  "lernnachweis.gpa": "Grade Average",
+  "lernnachweis.streak": "Current Streak",
+  "lernnachweis.days": "days",
+  "lernnachweis.sessions": "Study Sessions",
+  "lernnachweis.modules_passed": "Modules Passed",
+  "lernnachweis.tasks_done": "Tasks Completed",
+  "lernnachweis.module_breakdown": "Module Breakdown",
+  "lernnachweis.modules": "Modules",
+  "lernnachweis.no_data": "No data available yet",
+  "lernnachweis.longest_streak": "Longest Streak",
+  "lernnachweis.total_study_days": "Total Study Days",
+
+  "export.button": "Export",
+  "export.pdf": "PDF Report",
+  "export.csv": "CSV Table",
+  "export.json": "JSON Data",
+
+  "nav.lernnachweis": "Learning Proof"
 }

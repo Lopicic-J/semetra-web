@@ -2,7 +2,7 @@ import {
   LayoutDashboard, BookOpen, Calendar, GraduationCap,
   Brain, TrendingUp, Wrench, Compass, Users, MessageCircle,
   Shield, Settings, UserCircle, Terminal, Puzzle, ClipboardList,
-  Dna, Trophy, FileText,
+  Dna, Trophy, FileText, Award,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRole } from "@/lib/hooks/useProfile";
@@ -154,6 +154,7 @@ export const NAV_GROUPS: NavGroup[] = [
           { href: "/erfolge", labelKey: "nav.achievements" },
           { href: "/bestenliste", labelKey: "nav.leaderboard" },
           { href: "/review", labelKey: "nav.weeklyReview" },
+          { href: "/lernnachweis", labelKey: "nav.lernnachweis" },
         ],
       },
     ],

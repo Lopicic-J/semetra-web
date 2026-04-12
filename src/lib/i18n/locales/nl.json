@@ -2263,5 +2263,28 @@
   "nudge.exam_countdown": "Examens binnenkort",
   "nudge.quick_win": "Snelle winst",
   "nudge.streak": "Reeks",
-  "nudge.encouragement": "Motivatie"
+  "nudge.encouragement": "Motivatie",
+
+  "lernnachweis.title": "Studiebewijs",
+  "lernnachweis.subtitle": "Je volledige prestatie-overzicht met alle statistieken",
+  "lernnachweis.total_hours": "Totaal studie-uren",
+  "lernnachweis.ects": "ECTS-voortgang",
+  "lernnachweis.gpa": "Gemiddeld cijfer",
+  "lernnachweis.streak": "Huidige reeks",
+  "lernnachweis.days": "dagen",
+  "lernnachweis.sessions": "Studiesessies",
+  "lernnachweis.modules_passed": "Modules behaald",
+  "lernnachweis.tasks_done": "Taken voltooid",
+  "lernnachweis.module_breakdown": "Module-overzicht",
+  "lernnachweis.modules": "Modules",
+  "lernnachweis.no_data": "Nog geen gegevens beschikbaar",
+  "lernnachweis.longest_streak": "Langste reeks",
+  "lernnachweis.total_study_days": "Totaal studiedagen",
+
+  "export.button": "Exporteren",
+  "export.pdf": "PDF Rapport",
+  "export.csv": "CSV Tabel",
+  "export.json": "JSON Gegevens",
+
+  "nav.lernnachweis": "Studiebewijs"
 }

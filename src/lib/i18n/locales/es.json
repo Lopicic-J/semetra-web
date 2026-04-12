@@ -2263,5 +2263,28 @@
   "nudge.exam_countdown": "Exámenes próximos",
   "nudge.quick_win": "Victoria rápida",
   "nudge.streak": "Racha",
-  "nudge.encouragement": "Motivación"
+  "nudge.encouragement": "Motivación",
+
+  "lernnachweis.title": "Certificado de estudio",
+  "lernnachweis.subtitle": "Tu registro completo de rendimiento con todas las métricas",
+  "lernnachweis.total_hours": "Horas de estudio totales",
+  "lernnachweis.ects": "Progreso ECTS",
+  "lernnachweis.gpa": "Promedio de notas",
+  "lernnachweis.streak": "Racha actual",
+  "lernnachweis.days": "días",
+  "lernnachweis.sessions": "Sesiones de estudio",
+  "lernnachweis.modules_passed": "Módulos aprobados",
+  "lernnachweis.tasks_done": "Tareas completadas",
+  "lernnachweis.module_breakdown": "Desglose por módulo",
+  "lernnachweis.modules": "Módulos",
+  "lernnachweis.no_data": "Aún no hay datos disponibles",
+  "lernnachweis.longest_streak": "Racha más larga",
+  "lernnachweis.total_study_days": "Días de estudio totales",
+
+  "export.button": "Exportar",
+  "export.pdf": "Informe PDF",
+  "export.csv": "Tabla CSV",
+  "export.json": "Datos JSON",
+
+  "nav.lernnachweis": "Certificado de estudio"
 }

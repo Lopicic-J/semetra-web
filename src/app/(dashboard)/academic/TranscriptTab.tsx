@@ -5,6 +5,7 @@ import {
   BookOpen, CheckCircle, XCircle, Clock, Award, Calendar,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
+import { ExportButton } from "@/components/reports/ExportButton";
 import { useModules } from "@/lib/hooks/useModules";
 import { useGrades } from "@/lib/hooks/useGrades";
 import { useProfile } from "@/lib/hooks/useProfile";
@@ -155,6 +156,11 @@ export default function TranscriptTab() {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
+      {/* Header with Export */}
+      <div className="flex items-center justify-end">
+        <ExportButton compact />
+      </div>
+
       {/* Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="card p-4 text-center">

@@ -15,6 +15,7 @@ import {
   AlertCircle,
   Zap,
 } from "lucide-react";
+import { ExportButton } from "@/components/reports/ExportButton";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -187,6 +188,11 @@ export default function ProgressTab() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-1 sm:px-2 py-4 sm:py-6">
+      {/* Header with Export */}
+      <div className="flex items-center justify-end mb-4">
+        <ExportButton compact />
+      </div>
+
       {/* Key Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
         {/* ECTS Card */}
