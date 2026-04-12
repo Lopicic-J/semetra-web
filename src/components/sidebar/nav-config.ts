@@ -2,6 +2,7 @@ import {
   LayoutDashboard, BookOpen, Calendar, GraduationCap,
   Brain, TrendingUp, Wrench, Compass, Users, MessageCircle,
   Shield, Settings, UserCircle, Terminal, Puzzle, ClipboardList,
+  Dna, Trophy, Fingerprint,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRole } from "@/lib/hooks/useProfile";
@@ -86,7 +87,7 @@ export const NAV_GROUPS: NavGroup[] = [
       },
     ],
   },
-  // ── Lernen & Fortschritt ──
+  // ── Lernen ──
   {
     labelKey: "navGroup.learning",
     items: [
@@ -98,19 +99,6 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           { href: "/learning?tab=timer", labelKey: "nav.timer", tab: "timer" },
           { href: "/learning?tab=materials", labelKey: "nav.materials", tab: "materials" },
-          { href: "/learning?tab=groups", labelKey: "nav.groups", tab: "groups" },
-        ],
-      },
-      {
-        href: "/fortschritt",
-        icon: TrendingUp,
-        labelKey: "nav.fortschritt",
-        pro: false,
-        children: [
-          { href: "/fortschritt?tab=dna", labelKey: "nav.lernDna", tab: "dna" },
-          { href: "/fortschritt?tab=insights", labelKey: "nav.insights", tab: "insights" },
-          { href: "/fortschritt?tab=erfolge", labelKey: "nav.achievements", tab: "erfolge" },
-          { href: "/fortschritt?tab=bestenliste", labelKey: "nav.leaderboard", tab: "bestenliste" },
         ],
       },
       {
@@ -127,6 +115,33 @@ export const NAV_GROUPS: NavGroup[] = [
       },
     ],
   },
+  // ── Persönlichkeit ──
+  {
+    labelKey: "navGroup.personality",
+    items: [
+      {
+        href: "/fortschritt",
+        icon: Dna,
+        labelKey: "nav.dna",
+        pro: false,
+        children: [
+          { href: "/fortschritt?tab=dna", labelKey: "nav.lernDna", tab: "dna" },
+          { href: "/fortschritt?tab=insights", labelKey: "nav.insights", tab: "insights" },
+        ],
+      },
+      {
+        href: "/fortschritt?tab=erfolge",
+        icon: Trophy,
+        labelKey: "nav.leistung",
+        pro: false,
+        children: [
+          { href: "/fortschritt?tab=erfolge", labelKey: "nav.achievements", tab: "erfolge" },
+          { href: "/fortschritt?tab=bestenliste", labelKey: "nav.leaderboard", tab: "bestenliste" },
+          { href: "/fortschritt?tab=trends", labelKey: "nav.trends", tab: "trends" },
+        ],
+      },
+    ],
+  },
   // ── Soziales ──
   {
     labelKey: "navGroup.social",
@@ -139,6 +154,7 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           { href: "/community", labelKey: "nav.community" },
           { href: "/friends", labelKey: "nav.friends" },
+          { href: "/groups", labelKey: "nav.groups" },
         ],
       },
       {
