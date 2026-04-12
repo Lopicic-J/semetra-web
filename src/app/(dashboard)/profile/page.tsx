@@ -78,7 +78,7 @@ export default function ProfilePage() {
 
   // Plan helpers
   const planLabel = (() => {
-    if (!profile) return "Free";
+    if (loading || !profile) return "…";
     if (isLifetime) return planTier === "full" ? "Lifetime Full" : "Lifetime Basic";
     if (isPro) return planTier === "full" ? "Pro Full" : "Pro Basic";
     return "Free";

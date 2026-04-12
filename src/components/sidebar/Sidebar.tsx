@@ -38,7 +38,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
-  const { isPro, userRole } = useProfile();
+  const { isPro, loading: profileLoading, userRole } = useProfile();
   const streak = useStreaks();
   const { t } = useTranslation();
   const [pins, setPins] = useState<string[]>([]);
@@ -238,12 +238,18 @@ export default function Sidebar() {
         </div>
         <div className="ml-auto flex items-center gap-1 shrink-0">
           <NotificationBell />
-          <span className={clsx(
-            "text-[9px] font-bold px-1.5 py-0.5 rounded-md",
-            isPro ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500"
-          )}>
-            {isPro ? "PRO" : "Free"}
-          </span>
+          {profileLoading ? (
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-surface-100 dark:bg-surface-800 text-transparent animate-pulse w-8">
+              —
+            </span>
+          ) : (
+            <span className={clsx(
+              "text-[9px] font-bold px-1.5 py-0.5 rounded-md",
+              isPro ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500"
+            )}>
+              {isPro ? "PRO" : "Free"}
+            </span>
+          )}
         </div>
       </div>
 

@@ -93,7 +93,15 @@ export async function buildEngineContext(
     }
   }
 
-  // 2. Grades with module info
+  // 2. Total modules count (independent of grades)
+  const { count: totalModules } = await supabase
+    .from("modules")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", userId);
+
+  ctx.modulesTotal = totalModules ?? 0;
+
+  // 3. Grades with module info
   const { data: grades } = await supabase
     .from("grades")
     .select("grade, module_id, modules(name, ects)")
@@ -134,11 +142,10 @@ export async function buildEngineContext(
       }
     }
 
-    ctx.modulesTotal = grades.length;
     ctx.averageGrade = gradeCount > 0 ? Math.round((gradeSum / gradeCount) * 100) / 100 : null;
   }
 
-  // 3. Enrollments for normalized scores
+  // 4. Enrollments for normalized scores
   const { data: enrollments } = await supabase
     .from("enrollments")
     .select("normalized_score_0_100, status, credits_awarded")
@@ -154,13 +161,13 @@ export async function buildEngineContext(
       : null;
   }
 
-  // 4. Completion percentage
+  // 5. Completion percentage
   if (ctx.totalCreditsRequired && ctx.totalCreditsRequired > 0) {
     ctx.completionPercent = Math.min(100,
       Math.round((ctx.creditsEarned / ctx.totalCreditsRequired) * 100));
   }
 
-  // 5. Upcoming events (next 30 days)
+  // 6. Upcoming events (next 30 days)
   const now = new Date().toISOString();
   const in30Days = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
