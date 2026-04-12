@@ -112,6 +112,8 @@ export async function POST(req: NextRequest) {
         faculty_id: faculty_id || null,
         required_total_credits: body.required_total_credits || 180,
         duration_standard_terms: body.duration_standard_terms || null,
+        study_mode_available: body.study_mode_available || "both",
+        duration_terms_part_time: body.duration_terms_part_time || null,
         thesis_required: body.thesis_required ?? false,
         internship_required: body.internship_required ?? false,
         final_exam_required: body.final_exam_required ?? false,

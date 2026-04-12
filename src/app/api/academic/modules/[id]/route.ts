@@ -101,7 +101,7 @@ export async function PATCH(
 
     // Only allow known module columns through (prevent Supabase errors from invalid fields)
     const ALLOWED_FIELDS = new Set([
-      "name", "code", "module_code", "professor", "ects", "semester",
+      "name", "code", "module_code", "professor", "ects", "semester", "semester_part_time",
       "day", "time_start", "time_end", "room", "color", "notes",
       "module_type", "program_id", "requirement_group_id",
       "credit_scheme_id", "grade_scale_id", "pass_policy_id",

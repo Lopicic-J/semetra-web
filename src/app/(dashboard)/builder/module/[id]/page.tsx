@@ -160,6 +160,7 @@ export default function ModuleEditorPage() {
   const [language, setLanguage] = useState("de");
   const [deliveryMode, setDeliveryMode] = useState("onsite");
   const [semester, setSemester] = useState("");
+  const [semesterPartTime, setSemesterPartTime] = useState("");
   const [termType, setTermType] = useState("semester");
   const [defaultTermNumber, setDefaultTermNumber] = useState("1");
 
@@ -331,6 +332,7 @@ export default function ModuleEditorPage() {
         if (data.module.language) setLanguage(data.module.language);
         if (data.module.delivery_mode) setDeliveryMode(data.module.delivery_mode);
         if (data.module.semester) setSemester(data.module.semester);
+        if (data.module.semester_part_time) setSemesterPartTime(data.module.semester_part_time);
         if (data.module.term_type) setTermType(data.module.term_type);
         if (data.module.default_term_number) setDefaultTermNumber(data.module.default_term_number.toString());
         if (data.module.day) setDay(data.module.day);
@@ -400,6 +402,7 @@ export default function ModuleEditorPage() {
             language: language || null,
             delivery_mode: deliveryMode || null,
             semester: semester || null,
+            semester_part_time: semesterPartTime || null,
             term_type: termType || null,
             default_term_number: defaultTermNumber ? parseInt(defaultTermNumber) : null,
             day: day || null,
@@ -445,6 +448,7 @@ export default function ModuleEditorPage() {
             language: language || null,
             delivery_mode: deliveryMode || null,
             semester: semester || null,
+            semester_part_time: semesterPartTime || null,
             term_type: termType || null,
             default_term_number: defaultTermNumber ? parseInt(defaultTermNumber) : null,
             day: day || null,
@@ -945,13 +949,25 @@ export default function ModuleEditorPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
-                    Semester/Periode
+                    Semester (Vollzeit)
                   </label>
                   <input
                     type="text"
                     value={semester}
                     onChange={(e) => setSemester(e.target.value)}
-                    placeholder="z.B. HS2025"
+                    placeholder="z.B. 1 oder HS2025"
+                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                    Semester (Teilzeit)
+                  </label>
+                  <input
+                    type="text"
+                    value={semesterPartTime}
+                    onChange={(e) => setSemesterPartTime(e.target.value)}
+                    placeholder="z.B. 2 (leer = gleich wie VZ)"
                     className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>

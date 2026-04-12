@@ -29,13 +29,14 @@ function displaySemester(raw: string | null | undefined): string {
   return raw;
 }
 const MODULE_TYPES = ["pflicht","wahl","vertiefung"];
-const STATUS_OPTIONS = ["planned","active","completed","paused"];
+const STATUS_OPTIONS = ["planned","active","completed","paused","credited"];
 
 const STATUS_CONFIG: Record<string, { label: string; icon: React.ElementType; cls: string }> = {
   planned:   { label: "Geplant",      icon: Clock,        cls: "bg-surface-100 text-surface-600" },
   active:    { label: "Aktiv",        icon: AlertCircle,  cls: "bg-blue-50 text-blue-700" },
   completed: { label: "Abgeschlossen",icon: CheckCircle,  cls: "bg-green-50 text-green-700" },
   paused:    { label: "Pausiert",     icon: PauseCircle,  cls: "bg-amber-50 text-amber-700" },
+  credited:  { label: "Angerechnet",  icon: CheckSquare,  cls: "bg-purple-50 text-purple-700" },
 };
 
 export default function ModulesPage() {
@@ -99,6 +100,8 @@ export default function ModulesPage() {
           .is("program_id", null);
 
         // ── Step 2: Import template modules from current program ──
+        // Semester-aware: uses study_mode to pick the right semester assignment
+        // and marks modules from past semesters as "credited"
         const { data: templates } = await supabase
           .from("modules")
           .select("*")
@@ -124,29 +127,52 @@ export default function ModulesPage() {
 
           if (newTemplates.length > 0) {
             const toImport = isPro ? newTemplates : newTemplates.slice(0, FREE_LIMITS.modules);
-            const rows = toImport.map((t: any) => ({
-              user_id: user.id,
-              name: t.name,
-              code: t.code,
-              module_code: t.module_code,
-              professor: t.professor,
-              ects: t.ects,
-              semester: t.semester,
-              module_type: t.module_type,
-              color: t.color ?? "#6366f1",
-              notes: t.notes,
-              program_id: currentProgram,
-              source: "institution",
-              status: "planned",
-              in_plan: true,
-              language: t.language,
-              delivery_mode: t.delivery_mode,
-              description: t.description,
-              ects_equivalent: t.ects_equivalent,
-              is_compulsory: t.is_compulsory,
-              term_type: t.term_type,
-              default_term_number: t.default_term_number,
-            }));
+
+            // Student context for semester-aware import
+            const studentStudyMode = profile.study_mode || "full_time";
+            const studentSemester = profile.current_semester || 1;
+
+            const rows = toImport.map((t: any) => {
+              // Pick the correct semester based on study mode
+              const rawSemester = studentStudyMode === "part_time" && t.semester_part_time
+                ? t.semester_part_time
+                : t.semester;
+
+              // Parse semester number (handles "1", "Semester 1", "HS1", etc.)
+              let semNum: number | null = null;
+              if (rawSemester) {
+                const num = parseInt(rawSemester.replace(/\D/g, ""), 10);
+                if (!isNaN(num)) semNum = num;
+              }
+
+              // Modules from past semesters → "credited", current/future → "planned"
+              const isCredited = semNum !== null && semNum < studentSemester;
+
+              return {
+                user_id: user.id,
+                name: t.name,
+                code: t.code,
+                module_code: t.module_code,
+                professor: t.professor,
+                ects: t.ects,
+                semester: rawSemester,
+                semester_part_time: t.semester_part_time,
+                module_type: t.module_type,
+                color: t.color ?? "#6366f1",
+                notes: t.notes,
+                program_id: currentProgram,
+                source: "institution" as const,
+                status: isCredited ? "credited" : "planned",
+                in_plan: true,
+                language: t.language,
+                delivery_mode: t.delivery_mode,
+                description: t.description,
+                ects_equivalent: t.ects_equivalent,
+                is_compulsory: t.is_compulsory,
+                term_type: t.term_type,
+                default_term_number: t.default_term_number,
+              };
+            });
             await supabase.from("modules").insert(rows);
           }
         }

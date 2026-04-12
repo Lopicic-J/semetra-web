@@ -25,7 +25,7 @@ export async function GET() {
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select(
-        "institution_id, active_program_id, current_semester, university, study_program"
+        "institution_id, active_program_id, current_semester, study_mode, existing_ects, university, study_program"
       )
       .eq("id", user.id)
       .single();
@@ -79,6 +79,8 @@ export async function GET() {
         institution_id: profile.institution_id,
         active_program_id: profile.active_program_id,
         current_semester: profile.current_semester,
+        study_mode: profile.study_mode,
+        existing_ects: profile.existing_ects,
         university: profile.university,
         study_program: profile.study_program,
       },
@@ -114,7 +116,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { institution_id, program_id, current_semester } = body;
+    const { institution_id, program_id, current_semester, study_mode, existing_ects } = body;
 
     if (!institution_id || !program_id) {
       return NextResponse.json(
@@ -160,19 +162,27 @@ export async function POST(req: NextRequest) {
 
     // Update profile — the DB trigger sync_student_program() handles student_programs
     // Reset institution_modules_loaded so the modules page re-imports for the new program
+    const profileUpdate: Record<string, unknown> = {
+      institution_id,
+      active_program_id: program_id,
+      current_semester: current_semester || 1,
+      university: inst.name, // keep legacy field in sync
+      study_program: prog.name, // keep legacy field in sync
+      institution_modules_loaded: false, // triggers re-import on modules page
+    };
+    if (study_mode && ["full_time", "part_time"].includes(study_mode)) {
+      profileUpdate.study_mode = study_mode;
+    }
+    if (existing_ects !== undefined && existing_ects !== null) {
+      profileUpdate.existing_ects = parseFloat(existing_ects) || 0;
+    }
+
     const { data: updated, error: updateErr } = await supabase
       .from("profiles")
-      .update({
-        institution_id,
-        active_program_id: program_id,
-        current_semester: current_semester || 1,
-        university: inst.name, // keep legacy field in sync
-        study_program: prog.name, // keep legacy field in sync
-        institution_modules_loaded: false, // triggers re-import on modules page
-      })
+      .update(profileUpdate)
       .eq("id", user.id)
       .select(
-        "institution_id, active_program_id, current_semester, university, study_program"
+        "institution_id, active_program_id, current_semester, study_mode, existing_ects, university, study_program"
       )
       .single();
 
@@ -244,6 +254,12 @@ export async function PATCH(req: NextRequest) {
     }
     if (body.program_id !== undefined) {
       updates.active_program_id = body.program_id;
+    }
+    if (body.study_mode !== undefined && ["full_time", "part_time"].includes(body.study_mode)) {
+      updates.study_mode = body.study_mode;
+    }
+    if (body.existing_ects !== undefined) {
+      updates.existing_ects = parseFloat(body.existing_ects) || 0;
     }
 
     if (Object.keys(updates).length === 0) {

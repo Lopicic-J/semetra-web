@@ -26,10 +26,15 @@ export default function RegisterPage() {
   const [studyProgram, setStudyProgram] = useState("");
   // Structured institution/program selection
   const [institutions, setInstitutions] = useState<{ id: string; name: string; code?: string }[]>([]);
-  const [programs, setPrograms] = useState<{ id: string; name: string; degree_level: string }[]>([]);
+  const [programs, setPrograms] = useState<{ id: string; name: string; degree_level: string; study_mode_available?: string; duration_standard_terms?: number; duration_terms_part_time?: number | null }[]>([]);
   const [selectedInstId, setSelectedInstId] = useState("");
   const [selectedProgId, setSelectedProgId] = useState("");
   const [useStructured, setUseStructured] = useState(true);
+  // Study mode, semester & existing ECTS
+  const [studyMode, setStudyMode] = useState<"full_time" | "part_time">("full_time");
+  const [currentSemester, setCurrentSemester] = useState("1");
+  const [existingEcts, setExistingEcts] = useState("");
+  const [selectedProgStudyMode, setSelectedProgStudyMode] = useState<"full_time" | "part_time" | "both">("both");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -147,6 +152,24 @@ export default function RegisterPage() {
       .catch(() => setPrograms([]));
   }, [selectedInstId]);
 
+  // Update study mode availability when program changes
+  useEffect(() => {
+    if (!selectedProgId) {
+      setSelectedProgStudyMode("both");
+      return;
+    }
+    const prog = programs.find(p => p.id === selectedProgId);
+    if (prog?.study_mode_available) {
+      const sma = prog.study_mode_available as "full_time" | "part_time" | "both";
+      setSelectedProgStudyMode(sma);
+      // If program only supports one mode, auto-select it
+      if (sma === "full_time") setStudyMode("full_time");
+      else if (sma === "part_time") setStudyMode("part_time");
+    } else {
+      setSelectedProgStudyMode("both");
+    }
+  }, [selectedProgId, programs]);
+
   const usernameValid = /^[a-z0-9_-]{3,30}$/.test(username);
 
   // Debounced username availability check
@@ -232,6 +255,11 @@ export default function RegisterPage() {
 
       if (effectiveRole === "student" && institutionLocked && selectedInstId) {
         profileData.institution_id = selectedInstId;
+        profileData.study_mode = studyMode;
+        profileData.current_semester = parseInt(currentSemester) || 1;
+        if (existingEcts && parseFloat(existingEcts) > 0) {
+          profileData.existing_ects = parseFloat(existingEcts);
+        }
         if (selectedProgId) {
           profileData.active_program_id = selectedProgId;
           // Trigger module auto-import on first login
@@ -602,6 +630,77 @@ export default function RegisterPage() {
                         <Info size={10} />
                         Wähle sorgfältig — der Studiengang kann nachträglich nur durch den Support oder deine Hochschule geändert werden.
                       </p>
+                    </div>
+                  )}
+
+                  {/* Study Mode (TZ/VZ) — shown when program is selected and supports both */}
+                  {selectedProgId && (
+                    <div>
+                      <label className="block text-sm font-medium text-surface-700 mb-1.5">Studienmodell</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {(selectedProgStudyMode === "both" || selectedProgStudyMode === "full_time") && (
+                          <button
+                            type="button"
+                            onClick={() => setStudyMode("full_time")}
+                            className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border-2 text-sm font-medium transition ${
+                              studyMode === "full_time"
+                                ? "border-brand-500 bg-brand-50 text-brand-700"
+                                : "border-surface-200 bg-surface-50 text-surface-600 hover:border-surface-300"
+                            }`}
+                          >
+                            Vollzeit
+                          </button>
+                        )}
+                        {(selectedProgStudyMode === "both" || selectedProgStudyMode === "part_time") && (
+                          <button
+                            type="button"
+                            onClick={() => setStudyMode("part_time")}
+                            className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border-2 text-sm font-medium transition ${
+                              studyMode === "part_time"
+                                ? "border-brand-500 bg-brand-50 text-brand-700"
+                                : "border-surface-200 bg-surface-50 text-surface-600 hover:border-surface-300"
+                            }`}
+                          >
+                            Teilzeit
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Semester + ECTS — shown when program is selected */}
+                  {selectedProgId && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-surface-700 mb-1.5">Aktuelles Semester</label>
+                        <select
+                          value={currentSemester}
+                          onChange={(e) => setCurrentSemester(e.target.value)}
+                          className="w-full bg-surface-50 border border-surface-200 rounded-xl px-3 py-2.5 text-sm text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition appearance-none"
+                        >
+                          {Array.from({ length: 12 }, (_, i) => i + 1).map((s) => (
+                            <option key={s} value={s}>{s}. Semester</option>
+                          ))}
+                        </select>
+                      </div>
+                      {parseInt(currentSemester) > 1 && (
+                        <div>
+                          <label className="block text-sm font-medium text-surface-700 mb-1.5">Vorhandene ECTS</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="300"
+                            step="0.5"
+                            value={existingEcts}
+                            onChange={(e) => setExistingEcts(e.target.value)}
+                            placeholder="z.B. 60"
+                            className="w-full bg-surface-50 border border-surface-200 rounded-xl px-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+                          />
+                          <p className="text-[10px] text-surface-400 mt-1">
+                            Bereits erarbeitete ECTS-Punkte aus vorherigen Semestern
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </>

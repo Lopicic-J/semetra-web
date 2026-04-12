@@ -170,6 +170,7 @@ export async function POST(req: NextRequest) {
       language: body.language,
       delivery_mode: body.delivery_mode,
       semester: body.semester,
+      semester_part_time: body.semester_part_time,
       term_type: body.term_type,
       day: body.day,
       time_start: body.time_start,

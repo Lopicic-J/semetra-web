@@ -2,7 +2,9 @@
 
 export type TaskStatus   = "todo" | "in_progress" | "done";
 export type TaskPriority = "low" | "medium" | "high";
-export type ModuleStatus = "planned" | "active" | "completed" | "paused";
+export type ModuleStatus = "planned" | "active" | "completed" | "paused" | "credited";
+export type StudyMode = "full_time" | "part_time";
+export type StudyModeAvailable = "full_time" | "part_time" | "both";
 export type ModuleType   = "pflicht" | "wahl" | "vertiefung";
 export type DataType     = "objective" | "content_section" | "assessment";
 
@@ -52,6 +54,7 @@ export interface Module {
   description: string | null;
   module_code: string | null;
   ects_equivalent: number | null;
+  semester_part_time: string | null;
   // Source tracking (migration 056)
   source: "institution" | "manual";
   studiengang_id: string | null;
@@ -467,6 +470,8 @@ export interface Program {
   final_exam_required: boolean;
   is_active: boolean;
   status: string;
+  study_mode_available: StudyModeAvailable;
+  duration_terms_part_time: number | null;
   metadata: Record<string, unknown>;
   created_at: string;
   updated_at: string;
@@ -558,6 +563,7 @@ export interface StudentProgram {
   status: string;
   matriculation_number: string | null;
   specialisation: string | null;
+  study_mode: StudyMode;
   created_at: string;
   updated_at: string;
 }

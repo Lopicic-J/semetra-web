@@ -74,6 +74,9 @@ export default function ProgramDetailPage() {
   const [internshipRequired, setInternshipRequired] = useState(false);
   const [finalExamRequired, setFinalExamRequired] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
+  // Study mode (TZ/VZ) config
+  const [studyModeAvailable, setStudyModeAvailable] = useState<"full_time" | "part_time" | "both">("both");
+  const [durationTermsPartTime, setDurationTermsPartTime] = useState("");
 
   useEffect(() => {
     const fetchProgram = async () => {
@@ -110,6 +113,8 @@ export default function ProgramDetailPage() {
         setInternshipRequired(data.program.internship_required || false);
         setFinalExamRequired(data.program.final_exam_required || false);
         setIsPublished(data.program.is_published || false);
+        setStudyModeAvailable(data.program.study_mode_available || "both");
+        setDurationTermsPartTime(data.program.duration_terms_part_time?.toString() || "");
 
         // Requirement groups and modules are already included in the program GET response
         setRequirementGroups(data.requirementGroups || []);
@@ -155,6 +160,8 @@ export default function ProgramDetailPage() {
             degree_level: degreeLevel,
             required_total_credits: parseInt(totalEcts),
             duration_standard_terms: parseInt(durationTerms),
+            study_mode_available: studyModeAvailable,
+            duration_terms_part_time: durationTermsPartTime ? parseInt(durationTermsPartTime) : null,
             faculty_id: facultyId || null,
             thesis_required: thesisRequired,
             internship_required: internshipRequired,
@@ -178,6 +185,8 @@ export default function ProgramDetailPage() {
             degree_level: degreeLevel,
             required_total_credits: parseInt(totalEcts),
             duration_standard_terms: parseInt(durationTerms),
+            study_mode_available: studyModeAvailable,
+            duration_terms_part_time: durationTermsPartTime ? parseInt(durationTermsPartTime) : null,
             faculty_id: facultyId || null,
             thesis_required: thesisRequired,
             internship_required: internshipRequired,
@@ -402,6 +411,62 @@ export default function ProgramDetailPage() {
                 className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+          </div>
+
+          {/* Study Mode (TZ/VZ) */}
+          <div className="pt-2 border-t border-surface-200 dark:border-surface-700">
+            <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-3">
+              Studienmodell
+            </label>
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              {([
+                { value: "both", label: "Vollzeit & Teilzeit" },
+                { value: "full_time", label: "Nur Vollzeit" },
+                { value: "part_time", label: "Nur Teilzeit" },
+              ] as const).map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setStudyModeAvailable(opt.value)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border-2 transition ${
+                    studyModeAvailable === opt.value
+                      ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300"
+                      : "border-surface-200 dark:border-surface-600 bg-surface-50 dark:bg-surface-800 text-surface-600 dark:text-surface-400 hover:border-surface-300"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Part-time duration — shown when part-time is available */}
+            {(studyModeAvailable === "both" || studyModeAvailable === "part_time") && (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+                    Vollzeit-Semester
+                  </label>
+                  <input
+                    type="number"
+                    value={durationTerms}
+                    onChange={(e) => setDurationTerms(e.target.value)}
+                    className="w-full px-3 py-1.5 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-sm text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+                    Teilzeit-Semester
+                  </label>
+                  <input
+                    type="number"
+                    value={durationTermsPartTime}
+                    onChange={(e) => setDurationTermsPartTime(e.target.value)}
+                    placeholder={durationTerms ? `z.B. ${Math.ceil(parseInt(durationTerms) * 1.5)}` : ""}
+                    className="w-full px-3 py-1.5 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-sm text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-3 pt-2">

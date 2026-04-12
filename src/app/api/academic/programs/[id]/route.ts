@@ -123,6 +123,7 @@ export async function PATCH(
     const allowedFields = [
       "name", "degree_level", "institution_id", "faculty_id",
       "required_total_credits", "duration_standard_terms",
+      "study_mode_available", "duration_terms_part_time",
       "thesis_required", "internship_required", "final_exam_required",
     ];
     const updateData: Record<string, unknown> = {};

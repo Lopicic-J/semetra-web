@@ -37,6 +37,8 @@ export interface Profile {
   institution_id: string | null;
   active_program_id: string | null;
   current_semester: number | null;
+  study_mode: "full_time" | "part_time";
+  existing_ects: number;
   // User Role (Migration 058 — replaces builder_role)
   user_role: UserRole;
   // Verification (Migration 058)
