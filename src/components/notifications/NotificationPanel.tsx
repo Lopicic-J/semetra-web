@@ -125,7 +125,7 @@ export function NotificationPanel({
   }
 
   return (
-    <div className="absolute right-0 top-full mt-2 w-[380px] max-h-[520px]
+    <div className="absolute left-0 top-full mt-2 w-[380px] max-h-[520px]
       bg-white dark:bg-surface-800 rounded-xl shadow-lg border border-surface-200 dark:border-surface-700
       overflow-hidden z-50 flex flex-col
       animate-in fade-in slide-in-from-top-2 duration-200"
