@@ -2339,5 +2339,9 @@
   "settings.connectShowProgressDesc": "Je ECTS-voortgang in procenten wordt weergegeven.",
   "settings.connectBioLabel": "Over jou",
   "settings.connectBioDesc": "Korte bio voor je Connect-profiel (max 280 tekens).",
-  "settings.connectBioPlaceholder": "bijv. Studeer informatica in semester 4, geïnteresseerd in ML en webontwikkeling..."
+  "settings.connectBioPlaceholder": "bijv. Studeer informatica in semester 4, geïnteresseerd in ML en webontwikkeling...",
+  "fab.aiAssistant": "AI-Assistent",
+  "fab.layoutEditor": "Layout aanpassen",
+  "fab.messages": "Berichten",
+  "fab.toggle": "Menu"
 }

@@ -161,7 +161,7 @@ export function useLayoutEditorState(): LayoutEditorState {
   // ── Ordered groups ─────────────────────────────────────────────────────
 
   const getOrderedGroups = useCallback((): NavGroup[] => {
-    return preferences.sidebar_order.map((so) => {
+    const ordered = preferences.sidebar_order.map((so) => {
       const original = groupsByKey.get(so.labelKey);
       if (!original) return null;
 
@@ -179,6 +179,11 @@ export function useLayoutEditorState(): LayoutEditorState {
         items: [...orderedItems, ...missing],
       };
     }).filter(Boolean) as NavGroup[];
+
+    // Append any NAV_GROUPS that aren't in the saved order yet (e.g. newly added groups)
+    const savedKeys = new Set(preferences.sidebar_order.map((so) => so.labelKey));
+    const newGroups = NAV_GROUPS.filter((g) => !savedKeys.has(g.labelKey));
+    return [...ordered, ...newGroups];
   }, [preferences.sidebar_order, groupsByKey, itemsByKey]);
 
   // ── Ordered children ───────────────────────────────────────────────────

@@ -2557,5 +2557,11 @@
   "settings.connectShowProgressDesc": "Dein ECTS-Fortschritt in Prozent wird angezeigt.",
   "settings.connectBioLabel": "Über dich",
   "settings.connectBioDesc": "Kurze Bio für dein Connect-Profil (max. 280 Zeichen).",
-  "settings.connectBioPlaceholder": "z.B. Studiere Informatik im 4. Semester, interessiere mich für ML und Web Dev..."
+  "settings.connectBioPlaceholder": "z.B. Studiere Informatik im 4. Semester, interessiere mich für ML und Web Dev...",
+  "fab.aiAssistant": "KI-Assistent",
+  "fab.layoutEditor": "Layout anpassen",
+  "fab.messages": "Nachrichten",
+  "fab.toggle": "Menü",
+  "layout.reset": "Zurücksetzen",
+  "layout.done": "Fertig"
 }
