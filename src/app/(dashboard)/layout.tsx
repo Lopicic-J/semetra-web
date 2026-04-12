@@ -9,6 +9,8 @@ import { AchievementUnlockPortal } from "@/components/achievements/UnlockAnimati
 import { VerificationBanner } from "@/components/ui/VerificationBanner";
 import WelcomeTour from "@/components/onboarding/WelcomeTour";
 import ChatBubble from "@/components/chat/ChatBubble";
+import SiblingTabs from "@/components/ui/SiblingTabs";
+import LayoutEditorWrapper from "@/components/providers/LayoutEditorWrapper";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -28,33 +30,38 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <I18nWrapper>
-      <OfflineBanner />
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-primary-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
-      >
-        Zum Hauptinhalt springen
-      </a>
-      <div className="flex h-screen bg-surface-50 overflow-hidden">
-        {/* Desktop sidebar — hidden on mobile */}
-        <div className="hidden md:flex">
-          <Sidebar />
-        </div>
+      <LayoutEditorWrapper>
+        <OfflineBanner />
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-primary-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
+        >
+          Zum Hauptinhalt springen
+        </a>
+        <div className="flex h-screen bg-surface-50 overflow-hidden">
+          {/* Desktop sidebar — hidden on mobile */}
+          <div className="hidden md:flex">
+            <Sidebar />
+          </div>
 
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Mobile header — visible only on mobile */}
-          <MobileHeader />
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Mobile header — visible only on mobile */}
+            <MobileHeader />
 
-          <VerificationBanner />
-          <main id="main-content" className="flex-1 overflow-y-auto">
-            {children}
-          </main>
+            <VerificationBanner />
+            <main id="main-content" className="flex-1 overflow-y-auto">
+              <div className="px-4 pt-4 md:px-6 md:pt-5">
+                <SiblingTabs />
+              </div>
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
-      <ChatBubble />
-      <InstallPrompt />
-      <AchievementUnlockPortal />
-      <WelcomeTour />
+        <ChatBubble />
+        <InstallPrompt />
+        <AchievementUnlockPortal />
+        <WelcomeTour />
+      </LayoutEditorWrapper>
     </I18nWrapper>
   );
 }

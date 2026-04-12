@@ -70,7 +70,6 @@ export const NAV_GROUPS: NavGroup[] = [
         pro: false,
         children: [
           { href: "/exams", labelKey: "nav.exams" },
-          { href: "/intelligence", labelKey: "nav.examIntelligence" },
           { href: "/noten", labelKey: "nav.grades" },
         ],
       },

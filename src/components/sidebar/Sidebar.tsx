@@ -10,6 +10,8 @@ import { useStreaks } from "@/lib/hooks/useStreaks";
 import { useTranslation } from "@/lib/i18n";
 import { ProBadge } from "@/components/ui/ProGate";
 import { BOTTOM_ITEMS, getFilteredNavGroups, type NavItem as NavItemType } from "./nav-config";
+import { useLayoutEditor } from "@/lib/hooks/useLayoutEditor";
+import SortableList from "@/components/ui/SortableList";
 
 // ── Pin persistence (localStorage — syncs to Supabase later) ────────────────
 
@@ -40,6 +42,7 @@ export default function Sidebar() {
   const { t } = useTranslation();
   const [pins, setPins] = useState<string[]>([]);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const { editing, getOrderedGroups, getOrderedChildren, reorderItems, reorderChildren } = useLayoutEditor();
 
   // Load pins on mount
   useEffect(() => {
@@ -91,7 +94,20 @@ export default function Sidebar() {
 
   // ── Pinned items section ──────────────────────────────────────────────────
 
-  const allGroups = getFilteredNavGroups(userRole);
+  const defaultGroups = getFilteredNavGroups(userRole);
+  const orderedGroups = getOrderedGroups();
+  // Use ordered groups but filter by role
+  const allGroups = orderedGroups.length > 0
+    ? orderedGroups
+        .map((g) => ({
+          ...g,
+          items: g.items.filter(
+            (item) => !item.requiredRoles || item.requiredRoles.includes(userRole),
+          ),
+        }))
+        .filter((g) => !g.requiredRoles || g.requiredRoles.includes(userRole))
+        .filter((g) => g.items.length > 0)
+    : defaultGroups;
   const allItems = allGroups.flatMap((g) => g.items);
   const allChildren = allItems.flatMap((item) =>
     (item.children ?? []).map((child) => ({
@@ -120,68 +136,88 @@ export default function Sidebar() {
     return (
       <div>
         <div className="flex items-center">
-          <Link
-            href={href}
-            className={clsx(
-              "flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 flex-1 min-w-0",
-              active
-                ? "bg-brand-600 text-white shadow-sm"
-                : locked
-                  ? "text-surface-400 hover:bg-surface-50"
-                  : "text-surface-500 hover:bg-surface-100 hover:text-surface-800"
-            )}
-          >
-            <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
-            <span className="flex-1 truncate">{t(labelKey)}</span>
-            {locked && !active && <ProBadge />}
-          </Link>
-          {hasChildren && (
+          {hasChildren ? (
             <button
               onClick={() => toggleExpand(href)}
-              className="p-1.5 rounded-lg text-surface-400 hover:text-surface-600 hover:bg-surface-100 transition-colors shrink-0"
+              className={clsx(
+                "flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 flex-1 min-w-0 text-left",
+                active
+                  ? "bg-brand-600 text-white shadow-sm"
+                  : locked
+                    ? "text-surface-400 hover:bg-surface-50"
+                    : "text-surface-500 hover:bg-surface-100 hover:text-surface-800"
+              )}
             >
+              <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
+              <span className="flex-1 truncate">{t(labelKey)}</span>
+              {locked && !active && <ProBadge />}
               {isExpanded
-                ? <ChevronDown size={12} />
-                : <ChevronRight size={12} />}
+                ? <ChevronDown size={12} className="shrink-0 ml-auto" />
+                : <ChevronRight size={12} className="shrink-0 ml-auto" />}
             </button>
+          ) : (
+            <Link
+              href={href}
+              className={clsx(
+                "flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 flex-1 min-w-0",
+                active
+                  ? "bg-brand-600 text-white shadow-sm"
+                  : locked
+                    ? "text-surface-400 hover:bg-surface-50"
+                    : "text-surface-500 hover:bg-surface-100 hover:text-surface-800"
+              )}
+            >
+              <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
+              <span className="flex-1 truncate">{t(labelKey)}</span>
+              {locked && !active && <ProBadge />}
+            </Link>
           )}
         </div>
 
         {/* Sub-items (expandable) */}
         {hasChildren && isExpanded && (
-          <div className="ml-4 mt-0.5 space-y-0.5">
-            {children.map((child) => {
-              const childActive = pathname + (typeof window !== "undefined" ? window.location.search : "") === child.href;
-              const isPinned = pins.includes(child.href);
+          <div className="ml-4 mt-0.5">
+            <SortableList
+              items={getOrderedChildren(labelKey, children)}
+              keyFn={(child) => child.href}
+              disabled={!editing}
+              onReorder={(from, to) => reorderChildren(labelKey, from, to)}
+              renderItem={(child, _i, dragHandle) => {
+                const isChildActive = pathname === child.href || pathname.startsWith(child.href + "/");
+                const isPinned = pins.includes(child.href);
 
-              return (
-                <div key={child.href} className="flex items-center group">
-                  <Link
-                    href={child.href}
-                    className={clsx(
-                      "flex-1 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all truncate",
-                      childActive
-                        ? "text-brand-600 bg-brand-50"
-                        : "text-surface-400 hover:text-surface-600 hover:bg-surface-50"
+                return (
+                  <div className="flex items-center group">
+                    {editing && dragHandle}
+                    <Link
+                      href={child.href}
+                      className={clsx(
+                        "flex-1 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all truncate",
+                        isChildActive
+                          ? "text-brand-600 bg-brand-50 dark:text-brand-400 dark:bg-brand-950/30"
+                          : "text-surface-400 hover:text-surface-600 hover:bg-surface-50 dark:hover:text-surface-300 dark:hover:bg-surface-800"
+                      )}
+                    >
+                      {t(child.labelKey)}
+                    </Link>
+                    {!editing && (
+                      <button
+                        onClick={() => togglePin(child.href)}
+                        className={clsx(
+                          "p-1 rounded transition-all shrink-0",
+                          isPinned
+                            ? "text-brand-500 opacity-100"
+                            : "text-surface-300 opacity-0 group-hover:opacity-100 hover:text-brand-400"
+                        )}
+                        title={isPinned ? "Lösen" : "Anpinnen"}
+                      >
+                        {isPinned ? <PinOff size={11} /> : <Pin size={11} />}
+                      </button>
                     )}
-                  >
-                    {t(child.labelKey)}
-                  </Link>
-                  <button
-                    onClick={() => togglePin(child.href)}
-                    className={clsx(
-                      "p-1 rounded transition-all shrink-0",
-                      isPinned
-                        ? "text-brand-500 opacity-100"
-                        : "text-surface-300 opacity-0 group-hover:opacity-100 hover:text-brand-400"
-                    )}
-                    title={isPinned ? "Lösen" : "Anpinnen"}
-                  >
-                    {isPinned ? <PinOff size={11} /> : <Pin size={11} />}
-                  </button>
-                </div>
-              );
-            })}
+                  </div>
+                );
+              }}
+            />
           </div>
         )}
       </div>
@@ -253,9 +289,20 @@ export default function Sidebar() {
                 {t(group.labelKey)}
               </p>
             )}
-            {group.items.map((item) => (
-              <NavItem key={item.href} {...item} />
-            ))}
+            <SortableList
+              items={group.items}
+              keyFn={(item) => item.labelKey}
+              disabled={!editing}
+              onReorder={(from, to) => reorderItems(group.labelKey, from, to)}
+              renderItem={(item, _i, dragHandle) => (
+                <div className="flex items-center">
+                  {editing && dragHandle}
+                  <div className="flex-1 min-w-0">
+                    <NavItem {...item} />
+                  </div>
+                </div>
+              )}
+            />
           </div>
         ))}
       </nav>

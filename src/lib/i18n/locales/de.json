@@ -2475,5 +2475,9 @@
   "profile.studyTime": "Lernzeit",
   "profile.achievements": "Erfolge",
   "profile.friends": "Befreundet",
-  "profile.requestPending": "Anfrage gesendet"
+  "profile.requestPending": "Anfrage gesendet",
+
+  "layout.edit": "Anpassen",
+  "layout.done": "Fertig",
+  "layout.reset": "Zurücksetzen"
 }

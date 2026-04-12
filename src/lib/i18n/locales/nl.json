@@ -2249,5 +2249,9 @@
   "profile.studyTime": "Studietijd",
   "profile.achievements": "Prestaties",
   "profile.friends": "Vrienden",
-  "profile.requestPending": "Verzoek verzonden"
+  "profile.requestPending": "Verzoek verzonden",
+
+  "layout.edit": "Aanpassen",
+  "layout.done": "Klaar",
+  "layout.reset": "Herstellen"
 }

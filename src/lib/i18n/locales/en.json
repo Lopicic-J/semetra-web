@@ -2473,5 +2473,9 @@
   "profile.studyTime": "Study time",
   "profile.achievements": "Achievements",
   "profile.friends": "Friends",
-  "profile.requestPending": "Request sent"
+  "profile.requestPending": "Request sent",
+
+  "layout.edit": "Customize",
+  "layout.done": "Done",
+  "layout.reset": "Reset"
 }

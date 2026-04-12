@@ -2249,5 +2249,9 @@
   "profile.studyTime": "Tempo di studio",
   "profile.achievements": "Traguardi",
   "profile.friends": "Amici",
-  "profile.requestPending": "Richiesta inviata"
+  "profile.requestPending": "Richiesta inviata",
+
+  "layout.edit": "Personalizza",
+  "layout.done": "Fatto",
+  "layout.reset": "Ripristina"
 }
