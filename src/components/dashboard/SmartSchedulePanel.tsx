@@ -201,7 +201,7 @@ export default function SmartSchedulePanel() {
         <div className="px-3 py-2 bg-gradient-to-r from-brand-600 to-brand-700 text-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+              <div className="w-7 h-7 rounded-full bg-white/20 dark:bg-surface-800 flex items-center justify-center">
                 {timer.isPaused ? <Pause size={13} /> : <TimerIcon size={13} className="animate-pulse" />}
               </div>
               <div>
@@ -211,9 +211,9 @@ export default function SmartSchedulePanel() {
             </div>
             <div className="flex items-center gap-1">
               {timer.isPaused
-                ? <button onClick={timer.resume} className="p-1 rounded bg-white/20 hover:bg-white/30"><Play size={12} /></button>
-                : <button onClick={timer.pause} className="p-1 rounded bg-white/20 hover:bg-white/30"><Pause size={12} /></button>}
-              <button onClick={() => timer.stop()} className="p-1 rounded bg-white/20 hover:bg-white/30"><Square size={12} /></button>
+                ? <button onClick={timer.resume} className="p-1 rounded bg-white/20 dark:bg-surface-800 hover:bg-white/30 dark:bg-surface-800"><Play size={12} /></button>
+                : <button onClick={timer.pause} className="p-1 rounded bg-white/20 dark:bg-surface-800 hover:bg-white/30 dark:bg-surface-800"><Pause size={12} /></button>}
+              <button onClick={() => timer.stop()} className="p-1 rounded bg-white/20 dark:bg-surface-800 hover:bg-white/30 dark:bg-surface-800"><Square size={12} /></button>
             </div>
           </div>
         </div>

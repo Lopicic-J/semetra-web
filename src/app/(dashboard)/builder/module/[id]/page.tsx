@@ -791,7 +791,7 @@ export default function ModuleEditorPage() {
           </button>
         </Link>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-surface-900 dark:text-surface-100">
+          <h1 className="text-3xl font-bold text-surface-900 dark:text-white">
             {id === "new" ? "Neues Modul" : "Modul"}
           </h1>
         </div>
@@ -837,7 +837,7 @@ export default function ModuleEditorPage() {
             onClick={() => toggleSection("grunddaten")}
             className="w-full px-6 py-4 flex items-center justify-between hover:bg-surface-50 dark:hover:bg-surface-700/50 transition-colors"
           >
-            <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100">1. Grunddaten</h2>
+            <h2 className="text-lg font-semibold text-surface-900 dark:text-white">1. Grunddaten</h2>
             {expandedSections.grunddaten ? (
               <ChevronUp className="w-5 h-5 text-surface-600" />
             ) : (
@@ -848,7 +848,7 @@ export default function ModuleEditorPage() {
             <div className="px-6 py-4 border-t border-surface-200 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Code *
                   </label>
                   <input
@@ -856,11 +856,11 @@ export default function ModuleEditorPage() {
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     placeholder="z.B. CS101"
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Name *
                   </label>
                   <input
@@ -868,19 +868,19 @@ export default function ModuleEditorPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="z.B. Einführung in die Informatik"
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                   ECTS *
                 </label>
                 <input
                   type="number"
                   value={ects}
                   onChange={(e) => setEcts(e.target.value)}
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -893,7 +893,7 @@ export default function ModuleEditorPage() {
             onClick={() => toggleSection("lehre")}
             className="w-full px-6 py-4 flex items-center justify-between hover:bg-surface-50 dark:hover:bg-surface-700/50 transition-colors"
           >
-            <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100">2. Lehre</h2>
+            <h2 className="text-lg font-semibold text-surface-900 dark:text-white">2. Lehre</h2>
             {expandedSections.lehre ? (
               <ChevronUp className="w-5 h-5 text-surface-600" />
             ) : (
@@ -903,7 +903,7 @@ export default function ModuleEditorPage() {
           {expandedSections.lehre && (
             <div className="px-6 py-4 border-t border-surface-200 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                   Dozent / Professor
                 </label>
                 <input
@@ -911,18 +911,18 @@ export default function ModuleEditorPage() {
                   value={professor}
                   onChange={(e) => setProfessor(e.target.value)}
                   placeholder="z.B. Prof. Dr. Max Mustermann"
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Sprache
                   </label>
                   <select
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {LANGUAGES.map((l) => (
                       <option key={l.code} value={l.code}>
@@ -932,13 +932,13 @@ export default function ModuleEditorPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Unterrichtsmodus
                   </label>
                   <select
                     value={deliveryMode}
                     onChange={(e) => setDeliveryMode(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {DELIVERY_MODES.map((m) => (
                       <option key={m.key} value={m.key}>
@@ -948,7 +948,7 @@ export default function ModuleEditorPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Semester (Vollzeit)
                   </label>
                   <input
@@ -956,11 +956,11 @@ export default function ModuleEditorPage() {
                     value={semester}
                     onChange={(e) => setSemester(e.target.value)}
                     placeholder="z.B. 1 oder HS2025"
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Semester (Teilzeit)
                   </label>
                   <input
@@ -968,19 +968,19 @@ export default function ModuleEditorPage() {
                     value={semesterPartTime}
                     onChange={(e) => setSemesterPartTime(e.target.value)}
                     placeholder="z.B. 2 (leer = gleich wie VZ)"
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Art der Unterrichtsperiode
                   </label>
                   <select
                     value={termType}
                     onChange={(e) => setTermType(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {TERM_TYPES.map((t) => (
                       <option key={t.key} value={t.key}>
@@ -990,14 +990,14 @@ export default function ModuleEditorPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Standard Periodennummer
                   </label>
                   <input
                     type="number"
                     value={defaultTermNumber}
                     onChange={(e) => setDefaultTermNumber(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -1011,7 +1011,7 @@ export default function ModuleEditorPage() {
             onClick={() => toggleSection("zeitplan")}
             className="w-full px-6 py-4 flex items-center justify-between hover:bg-surface-50 dark:hover:bg-surface-700/50 transition-colors"
           >
-            <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100">3. Zeitplan</h2>
+            <h2 className="text-lg font-semibold text-surface-900 dark:text-white">3. Zeitplan</h2>
             {expandedSections.zeitplan ? (
               <ChevronUp className="w-5 h-5 text-surface-600" />
             ) : (
@@ -1022,13 +1022,13 @@ export default function ModuleEditorPage() {
             <div className="px-6 py-4 border-t border-surface-200 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Wochentag
                   </label>
                   <select
                     value={day}
                     onChange={(e) => setDay(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">-- Wählen --</option>
                     {DAYS_OF_WEEK.map((d) => (
@@ -1042,30 +1042,30 @@ export default function ModuleEditorPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Startzeit
                   </label>
                   <input
                     type="time"
                     value={timeStart}
                     onChange={(e) => setTimeStart(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Endzeit
                   </label>
                   <input
                     type="time"
                     value={timeEnd}
                     onChange={(e) => setTimeEnd(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                   Raum
                 </label>
                 <input
@@ -1073,7 +1073,7 @@ export default function ModuleEditorPage() {
                   value={room}
                   onChange={(e) => setRoom(e.target.value)}
                   placeholder="z.B. A-201"
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -1086,7 +1086,7 @@ export default function ModuleEditorPage() {
             onClick={() => toggleSection("akademisch")}
             className="w-full px-6 py-4 flex items-center justify-between hover:bg-surface-50 dark:hover:bg-surface-700/50 transition-colors"
           >
-            <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100">4. Akademische Einstellungen</h2>
+            <h2 className="text-lg font-semibold text-surface-900 dark:text-white">4. Akademische Einstellungen</h2>
             {expandedSections.akademisch ? (
               <ChevronUp className="w-5 h-5 text-surface-600" />
             ) : (
@@ -1109,7 +1109,7 @@ export default function ModuleEditorPage() {
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Notenskala
                   </label>
                   <div className="flex gap-2">
@@ -1117,7 +1117,7 @@ export default function ModuleEditorPage() {
                       value={gradeScaleId}
                       onChange={(e) => setGradeScaleId(e.target.value)}
                       disabled={dropdownsLoading}
-                      className="flex-1 px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                      className="flex-1 px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                     >
                       <option value="">-- Wählen --</option>
                       {countryDefaults?.grade_scales.map((scale) => (
@@ -1144,7 +1144,7 @@ export default function ModuleEditorPage() {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Min. Note zum Bestehen
                   </label>
                   <input
@@ -1152,13 +1152,13 @@ export default function ModuleEditorPage() {
                     step="0.1"
                     value={minGrade}
                     onChange={(e) => setMinGrade(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Bestehensregel
                   </label>
                   <div className="flex gap-2">
@@ -1166,7 +1166,7 @@ export default function ModuleEditorPage() {
                       value={passPolicyId}
                       onChange={(e) => setPassPolicyId(e.target.value)}
                       disabled={dropdownsLoading}
-                      className="flex-1 px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                      className="flex-1 px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                     >
                       <option value="">-- Wählen --</option>
                       {countryDefaults?.pass_policies.map((policy) => (
@@ -1193,7 +1193,7 @@ export default function ModuleEditorPage() {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Wiederholungsregel
                   </label>
                   <div className="flex gap-2">
@@ -1201,7 +1201,7 @@ export default function ModuleEditorPage() {
                       value={retakePolicyId}
                       onChange={(e) => setRetakePolicyId(e.target.value)}
                       disabled={dropdownsLoading}
-                      className="flex-1 px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                      className="flex-1 px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                     >
                       <option value="">-- Wählen --</option>
                       {countryDefaults?.retake_policies.map((policy) => (
@@ -1229,7 +1229,7 @@ export default function ModuleEditorPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                   Rundungsregel
                 </label>
                 <div className="flex gap-2">
@@ -1237,7 +1237,7 @@ export default function ModuleEditorPage() {
                     value={roundingPolicyId}
                     onChange={(e) => setRoundingPolicyId(e.target.value)}
                     disabled={dropdownsLoading}
-                    className="flex-1 px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                    className="flex-1 px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                   >
                     <option value="">-- Wählen --</option>
                     {countryDefaults?.rounding_policies.map((policy) => (
@@ -1273,7 +1273,7 @@ export default function ModuleEditorPage() {
             onClick={() => toggleSection("regeln")}
             className="w-full px-6 py-4 flex items-center justify-between hover:bg-surface-50 dark:hover:bg-surface-700/50 transition-colors"
           >
-            <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100">5. Modulregeln</h2>
+            <h2 className="text-lg font-semibold text-surface-900 dark:text-white">5. Modulregeln</h2>
             {expandedSections.regeln ? (
               <ChevronUp className="w-5 h-5 text-surface-600" />
             ) : (
@@ -1290,7 +1290,7 @@ export default function ModuleEditorPage() {
                     onChange={(e) => setIsCompulsory(e.target.checked)}
                     className="w-4 h-4 rounded border-surface-300"
                   />
-                  <span className="text-sm font-medium text-surface-900 dark:text-surface-100">
+                  <span className="text-sm font-medium text-surface-900 dark:text-white">
                     Pflichtmodul
                   </span>
                 </label>
@@ -1301,7 +1301,7 @@ export default function ModuleEditorPage() {
                     onChange={(e) => setAttendanceRequired(e.target.checked)}
                     className="w-4 h-4 rounded border-surface-300"
                   />
-                  <span className="text-sm font-medium text-surface-900 dark:text-surface-100">
+                  <span className="text-sm font-medium text-surface-900 dark:text-white">
                     Anwesenheit erforderlich
                   </span>
                 </label>
@@ -1313,7 +1313,7 @@ export default function ModuleEditorPage() {
                       onChange={(e) => setIsRepeatable(e.target.checked)}
                       className="w-4 h-4 rounded border-surface-300"
                     />
-                    <span className="text-sm font-medium text-surface-900 dark:text-surface-100">
+                    <span className="text-sm font-medium text-surface-900 dark:text-white">
                       Wiederholbar
                     </span>
                   </label>
@@ -1326,7 +1326,7 @@ export default function ModuleEditorPage() {
                         max="10"
                         value={maxRetakes}
                         onChange={(e) => setMaxRetakes(e.target.value)}
-                        className="w-20 px-3 py-1 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-20 px-3 py-1 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       <span className="text-sm text-surface-600">Versuche</span>
                     </div>
@@ -1335,13 +1335,13 @@ export default function ModuleEditorPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Modultyp
                   </label>
                   <select
                     value={moduleType}
                     onChange={(e) => setModuleType(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {MODULE_TYPES.map((t) => (
                       <option key={t.key} value={t.key}>
@@ -1351,7 +1351,7 @@ export default function ModuleEditorPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Anforderungsgruppe
                   </label>
                   <div className="flex gap-2">
@@ -1402,7 +1402,7 @@ export default function ModuleEditorPage() {
                             value={reqGroupName}
                             onChange={(e) => setReqGroupName(e.target.value)}
                             placeholder="z.B. Pflichtmodule Informatik"
-                            className="w-full px-3 py-1.5 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-1.5 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
                         <div>
@@ -1412,7 +1412,7 @@ export default function ModuleEditorPage() {
                           <select
                             value={reqGroupType}
                             onChange={(e) => setReqGroupType(e.target.value)}
-                            className="w-full px-3 py-1.5 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-1.5 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                           >
                             {REQUIREMENT_GROUP_TYPES.map((t) => (
                               <option key={t.key} value={t.key}>
@@ -1431,14 +1431,14 @@ export default function ModuleEditorPage() {
                           value={reqGroupMinCredits}
                           onChange={(e) => setReqGroupMinCredits(e.target.value)}
                           placeholder="Optional"
-                          className="w-full max-w-[200px] px-3 py-1.5 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full max-w-[200px] px-3 py-1.5 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
                       <div className="flex gap-2 pt-1">
                         <button
                           type="button"
                           onClick={() => { setShowReqGroupForm(false); setReqGroupName(""); }}
-                          className="px-3 py-1.5 bg-white dark:bg-surface-800 text-surface-700 dark:text-surface-300 border border-surface-300 dark:border-surface-600 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-700 transition-colors text-sm"
+                          className="px-3 py-1.5 bg-white dark:bg-surface-800 text-surface-700 dark:text-surface-500 border border-surface-300 dark:border-surface-600 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-700 transition-colors text-sm"
                         >
                           Abbrechen
                         </button>
@@ -1470,7 +1470,7 @@ export default function ModuleEditorPage() {
             onClick={() => toggleSection("beschreibung")}
             className="w-full px-6 py-4 flex items-center justify-between hover:bg-surface-50 dark:hover:bg-surface-700/50 transition-colors"
           >
-            <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100">6. Beschreibung</h2>
+            <h2 className="text-lg font-semibold text-surface-900 dark:text-white">6. Beschreibung</h2>
             {expandedSections.beschreibung ? (
               <ChevronUp className="w-5 h-5 text-surface-600" />
             ) : (
@@ -1480,7 +1480,7 @@ export default function ModuleEditorPage() {
           {expandedSections.beschreibung && (
             <div className="px-6 py-4 border-t border-surface-200 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                   Modulbeschreibung
                 </label>
                 <textarea
@@ -1488,11 +1488,11 @@ export default function ModuleEditorPage() {
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
                   placeholder="Allgemeine Beschreibung des Moduls…"
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                   Lernziele
                 </label>
                 <textarea
@@ -1500,11 +1500,11 @@ export default function ModuleEditorPage() {
                   onChange={(e) => setLearningObjectives(e.target.value)}
                   rows={3}
                   placeholder="Was die Studierenden nach Abschluss des Moduls können…"
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                   Inhalte
                 </label>
                 <textarea
@@ -1512,11 +1512,11 @@ export default function ModuleEditorPage() {
                   onChange={(e) => setModuleContents(e.target.value)}
                   rows={3}
                   placeholder="Themen, Kapitel, Schwerpunkte des Moduls…"
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                   Bemerkungen
                 </label>
                 <textarea
@@ -1524,7 +1524,7 @@ export default function ModuleEditorPage() {
                   onChange={(e) => setRemarks(e.target.value)}
                   rows={2}
                   placeholder="Zusätzliche Hinweise, Voraussetzungen, Literatur…"
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -1538,7 +1538,7 @@ export default function ModuleEditorPage() {
               onClick={() => toggleSection("bewertung")}
               className="w-full px-6 py-4 flex items-center justify-between hover:bg-surface-50 dark:hover:bg-surface-700/50 transition-colors"
             >
-              <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100">7. Bewertungskomponenten</h2>
+              <h2 className="text-lg font-semibold text-surface-900 dark:text-white">7. Bewertungskomponenten</h2>
               {expandedSections.bewertung ? (
                 <ChevronUp className="w-5 h-5 text-surface-600" />
               ) : (
@@ -1565,13 +1565,13 @@ export default function ModuleEditorPage() {
                       value={componentName}
                       onChange={(e) => setComponentName(e.target.value)}
                       placeholder="z.B. Schlussprüfung"
-                      className="w-full px-4 py-2 bg-white dark:bg-surface-800 border border-blue-200 dark:border-blue-800 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 bg-white dark:bg-surface-800 border border-blue-200 dark:border-blue-800 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <select
                         value={componentType}
                         onChange={(e) => setComponentType(e.target.value)}
-                        className="px-4 py-2 bg-white dark:bg-surface-800 border border-blue-200 dark:border-blue-800 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="px-4 py-2 bg-white dark:bg-surface-800 border border-blue-200 dark:border-blue-800 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                         {Object.entries(COMPONENT_TYPES).map(([key, label]) => (
                           <option key={key} value={key}>
@@ -1587,7 +1587,7 @@ export default function ModuleEditorPage() {
                           value={componentWeight}
                           onChange={(e) => setComponentWeight(e.target.value)}
                           placeholder="100"
-                          className="w-full px-4 py-2 pr-10 bg-white dark:bg-surface-800 border border-blue-200 dark:border-blue-800 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-4 py-2 pr-10 bg-white dark:bg-surface-800 border border-blue-200 dark:border-blue-800 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-surface-500">%</span>
                       </div>
@@ -1600,7 +1600,7 @@ export default function ModuleEditorPage() {
                           onChange={(e) => setMinPassRequired(e.target.checked)}
                           className="w-4 h-4 rounded border-blue-300"
                         />
-                        <span className="text-sm font-medium text-surface-900 dark:text-surface-100">
+                        <span className="text-sm font-medium text-surface-900 dark:text-white">
                           Min. Note erforderlich
                         </span>
                       </label>
@@ -1614,7 +1614,7 @@ export default function ModuleEditorPage() {
                             max="6"
                             value={minGradeValue}
                             onChange={(e) => setMinGradeValue(e.target.value)}
-                            className="w-20 px-3 py-1.5 bg-white dark:bg-surface-800 border border-blue-200 dark:border-blue-800 rounded-lg text-sm text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-20 px-3 py-1.5 bg-white dark:bg-surface-800 border border-blue-200 dark:border-blue-800 rounded-lg text-sm text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
                       )}
@@ -1625,7 +1625,7 @@ export default function ModuleEditorPage() {
                           onChange={(e) => setMandatoryToPass(e.target.checked)}
                           className="w-4 h-4 rounded border-blue-300"
                         />
-                        <span className="text-sm font-medium text-surface-900 dark:text-surface-100">
+                        <span className="text-sm font-medium text-surface-900 dark:text-white">
                           Muss zum Bestehen erforderlich sein
                         </span>
                       </label>
@@ -1639,7 +1639,7 @@ export default function ModuleEditorPage() {
                       </button>
                       <button
                         onClick={() => setShowComponentForm(false)}
-                        className="flex-1 px-4 py-2 bg-surface-200 dark:bg-surface-700 text-surface-900 dark:text-surface-100 rounded-lg hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors font-medium"
+                        className="flex-1 px-4 py-2 bg-surface-200 dark:bg-surface-700 text-surface-900 dark:text-white rounded-lg hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors font-medium"
                       >
                         Abbrechen
                       </button>
@@ -1651,7 +1651,7 @@ export default function ModuleEditorPage() {
                 {components.length > 0 && (
                   <div className={`flex items-center justify-between p-4 rounded-lg ${isWeightValid ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}>
                     <div>
-                      <p className="font-medium text-surface-900 dark:text-surface-100">Gesamtgewicht</p>
+                      <p className="font-medium text-surface-900 dark:text-white">Gesamtgewicht</p>
                       <p className="text-sm text-surface-600">{totalWeight}/100</p>
                     </div>
                     {isWeightValid ? (
@@ -1672,7 +1672,7 @@ export default function ModuleEditorPage() {
                     {components.map((comp) => (
                       <div key={comp.id} className="flex justify-between items-start p-4 bg-surface-50 dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700">
                         <div>
-                          <h3 className="font-semibold text-surface-900 dark:text-surface-100">{comp.name}</h3>
+                          <h3 className="font-semibold text-surface-900 dark:text-white">{comp.name}</h3>
                           <p className="text-sm text-surface-600">
                             {COMPONENT_TYPES[comp.component_type as keyof typeof COMPONENT_TYPES] || comp.component_type} · Gewicht: {comp.weight_percent}%
                           </p>
@@ -1715,7 +1715,7 @@ export default function ModuleEditorPage() {
           {saving ? "Speichern..." : "Speichern"}
         </button>
         <Link href={programId ? `/builder/program/${programId}` : "/builder"}>
-          <button className="px-4 py-2 bg-surface-200 dark:bg-surface-700 text-surface-900 dark:text-surface-100 rounded-lg hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors font-medium">
+          <button className="px-4 py-2 bg-surface-200 dark:bg-surface-700 text-surface-900 dark:text-white rounded-lg hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors font-medium">
             Abbrechen
           </button>
         </Link>
@@ -1758,7 +1758,7 @@ export default function ModuleEditorPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-surface-800 rounded-xl shadow-xl w-full max-w-md mx-4 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-surface-900 dark:text-surface-100">
+              <h3 className="text-lg font-semibold text-surface-900 dark:text-white">
                 Eigene {customEntryModal.label} erstellen
               </h3>
               <button
@@ -1781,7 +1781,7 @@ export default function ModuleEditorPage() {
                   value={customEntryName}
                   onChange={(e) => setCustomEntryName(e.target.value)}
                   placeholder={`z.B. Eigene ${customEntryModal.label}`}
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   autoFocus
                 />
               </div>
@@ -1794,7 +1794,7 @@ export default function ModuleEditorPage() {
                   onChange={(e) => setCustomEntryDesc(e.target.value)}
                   placeholder="Kurze Beschreibung (optional)"
                   rows={2}
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
             </div>

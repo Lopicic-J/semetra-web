@@ -74,7 +74,7 @@ export default function MobileHeader() {
           <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-sm">
             <Gem size={13} strokeWidth={2.2} />
           </div>
-          <span className="font-bold text-surface-900 dark:text-surface-100 text-sm tracking-tight">
+          <span className="font-bold text-surface-900 dark:text-white text-sm tracking-tight">
             {currentPage ? t(currentPage.labelKey) : "Semetra"}
           </span>
         </div>
@@ -118,7 +118,7 @@ export default function MobileHeader() {
               <Gem size={17} strokeWidth={2.2} />
             </div>
             <div>
-              <p className="font-bold text-surface-900 dark:text-surface-100 text-sm leading-tight tracking-tight">Semetra</p>
+              <p className="font-bold text-surface-900 dark:text-white text-sm leading-tight tracking-tight">Semetra</p>
               <p className="text-[10px] text-surface-400 dark:text-surface-500 leading-tight">{t("sidebar.study")}</p>
             </div>
           </div>

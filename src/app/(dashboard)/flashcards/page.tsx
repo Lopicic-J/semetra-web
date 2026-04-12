@@ -248,7 +248,7 @@ function StudyMode({
           <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mx-auto mb-4">
             <Check className="text-green-600 dark:text-green-400" size={36} />
           </div>
-          <h2 className="text-xl font-bold text-surface-900 dark:text-surface-100 mb-2">{t("fc.sessionComplete")}</h2>
+          <h2 className="text-xl font-bold text-surface-900 dark:text-white mb-2">{t("fc.sessionComplete")}</h2>
           <p className="text-surface-500 dark:text-surface-400 mb-2">{t("fc.reviewedCards", { count: String(idx) })}</p>
           <p className="text-sm text-surface-400 dark:text-surface-500 mb-6">{t("fc.todayTotal", { count: String(todayCount) })}</p>
           <button onClick={onClose} className="btn-primary">{t("fc.backToOverview")}</button>
@@ -324,7 +324,7 @@ function StudyMode({
               <p className="text-xs font-semibold text-brand-600 dark:text-brand-400 mb-4 tracking-wider uppercase">
                 {flipped ? t("flashcards.answer") : t("flashcards.question")}
               </p>
-              <p className={`text-surface-800 dark:text-surface-100 whitespace-pre-wrap leading-relaxed ${focusMode ? "text-2xl" : "text-lg"}`}>
+              <p className={`text-surface-800 dark:text-white whitespace-pre-wrap leading-relaxed ${focusMode ? "text-2xl" : "text-lg"}`}>
                 {flipped ? card.back : card.front}
               </p>
               {!flipped && (
@@ -340,7 +340,7 @@ function StudyMode({
         {card.card_type === "cloze" && cloze && (
           <div className={`bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-2xl p-6 sm:p-8 lg:p-12 min-h-[280px] flex flex-col items-center justify-center ${focusMode ? "min-h-[360px]" : ""}`}>
             <p className="text-xs font-semibold text-purple-600 dark:text-purple-400 mb-4 tracking-wider uppercase">{t("fc.cloze")}</p>
-            <p className={`text-surface-800 dark:text-surface-100 whitespace-pre-wrap leading-relaxed text-center mb-6 px-4 ${focusMode ? "text-2xl" : "text-lg"}`}>
+            <p className={`text-surface-800 dark:text-white whitespace-pre-wrap leading-relaxed text-center mb-6 px-4 ${focusMode ? "text-2xl" : "text-lg"}`}>
               {cloze.display}
             </p>
             {!clozeChecked ? (
@@ -351,7 +351,7 @@ function StudyMode({
                   onChange={e => setClozeInput(e.target.value)}
                   onKeyDown={e => { if (e.key === "Enter") handleClozeCheck(); }}
                   placeholder={t("fc.clozeInputPlaceholder")}
-                  className="flex-1 bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-4 py-2.5 text-sm text-surface-900 dark:text-surface-100 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none"
+                  className="flex-1 bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-4 py-2.5 text-sm text-surface-900 dark:text-white focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none"
                   autoFocus
                 />
                 <button onClick={handleClozeCheck} className="btn-primary text-sm px-4 w-full sm:w-auto">{t("fc.check")}</button>
@@ -379,14 +379,14 @@ function StudyMode({
               {t("fc.multipleChoice")}
               {isMultiCorrectMc && <span className="ml-2 text-surface-400 dark:text-surface-500">({mcCorrectSet.size} {t("fc.mcCorrectLabel")})</span>}
             </p>
-            <p className={`text-surface-800 dark:text-surface-100 whitespace-pre-wrap leading-relaxed text-center mb-8 px-4 ${focusMode ? "text-2xl" : "text-lg"}`}>
+            <p className={`text-surface-800 dark:text-white whitespace-pre-wrap leading-relaxed text-center mb-8 px-4 ${focusMode ? "text-2xl" : "text-lg"}`}>
               {card.front}
             </p>
             <div className={`grid gap-3 max-w-lg mx-auto ${card.choices.length <= 4 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
               {card.choices.map((choice, ci) => {
                 const isCorrectChoice = mcCorrectSet.has(choice);
                 const isSelected = mcSelected === ci;
-                let style = "bg-surface-50 dark:bg-surface-700 border-surface-200 dark:border-surface-600 text-surface-800 dark:text-surface-100 hover:border-surface-300 dark:hover:border-surface-500";
+                let style = "bg-surface-50 dark:bg-surface-700 border-surface-200 dark:border-surface-600 text-surface-800 dark:text-white hover:border-surface-300 dark:hover:border-surface-500";
                 if (flipped && isCorrectChoice) style = "bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700 text-green-800 dark:text-green-300";
                 else if (flipped && isSelected && !isCorrectChoice) style = "bg-red-50 dark:bg-red-900/30 border-red-300 dark:border-red-700 text-red-800 dark:text-red-300";
                 return (
@@ -1060,7 +1060,7 @@ function Heatmap() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-center">
         <div>
-          <p className="text-lg font-bold text-surface-900 dark:text-surface-100">{totalReviewed}</p>
+          <p className="text-lg font-bold text-surface-900 dark:text-white">{totalReviewed}</p>
           <p className="text-xs text-surface-500 dark:text-surface-400">{t("fc.totalReviewed")}</p>
         </div>
         <div>
@@ -1342,7 +1342,7 @@ export default function FlashcardsPage() {
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-surface-100 flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
             <BookOpen className="text-brand-600 dark:text-brand-400" size={24} /> {t("flashcards.title")}
           </h1>
           <p className="text-surface-500 dark:text-surface-400 text-xs sm:text-sm mt-1">
@@ -1367,12 +1367,12 @@ export default function FlashcardsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
           {/* Progress overview */}
           <div className="bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl p-4">
-            <h3 className="text-sm font-semibold text-surface-800 dark:text-surface-100 mb-3 flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-surface-800 dark:text-white mb-3 flex items-center gap-2">
               <Target size={14} className="text-brand-600 dark:text-brand-400" /> {t("fc.progress")}
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center mb-4">
               <div>
-                <p className="text-xl font-bold text-surface-900 dark:text-surface-100">{stats.total}</p>
+                <p className="text-xl font-bold text-surface-900 dark:text-white">{stats.total}</p>
                 <p className="text-xs text-surface-500 dark:text-surface-400">{t("fc.totalCards")}</p>
               </div>
               <div>
@@ -1415,12 +1415,12 @@ export default function FlashcardsPage() {
           {examProgress.map(ep => (
             <div key={ep.exam.id} className="bg-surface-100/50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 rounded-xl p-3 flex items-center gap-4">
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold ${
-                ep.days <= 3 ? "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-400" : ep.days <= 7 ? "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-400" : "bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300"
+                ep.days <= 3 ? "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-400" : ep.days <= 7 ? "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-400" : "bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-500"
               }`}>
                 {ep.days}d
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-surface-800 dark:text-surface-100 truncate">{ep.exam.title}</p>
+                <p className="text-sm font-medium text-surface-800 dark:text-white truncate">{ep.exam.title}</p>
                 <p className="text-xs text-surface-500 dark:text-surface-400">{ep.cards} {t("fc.cardsLinked")} · {ep.readiness}% {t("fc.ready")}</p>
               </div>
               <div className="w-24 h-2 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden">
@@ -1610,14 +1610,14 @@ export default function FlashcardsPage() {
                 </div>
 
                 {/* Content */}
-                <p className="text-sm font-medium text-surface-800 dark:text-surface-100 mb-1 line-clamp-2">{card.front}</p>
+                <p className="text-sm font-medium text-surface-800 dark:text-white mb-1 line-clamp-2">{card.front}</p>
                 <p className="text-xs text-surface-500 dark:text-surface-400 line-clamp-1">{card.back}</p>
 
                 {/* Tags */}
                 {card.tags && card.tags.length > 0 && (
                   <div className="flex gap-1 mt-2 flex-wrap">
                     {card.tags.map(tag => (
-                      <span key={tag} className="text-[10px] px-1.5 py-0.5 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 rounded"># {tag}</span>
+                      <span key={tag} className="text-[10px] px-1.5 py-0.5 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-500 rounded"># {tag}</span>
                     ))}
                   </div>
                 )}
@@ -1685,7 +1685,7 @@ export default function FlashcardsPage() {
                   setSelectedCards(new Set(filtered.map(c => c.id)));
                 }
               }}
-              className="text-sm px-3 py-2 sm:py-1.5 rounded-lg transition flex items-center gap-2 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 dark:text-surface-300 w-full sm:w-auto justify-center"
+              className="text-sm px-3 py-2 sm:py-1.5 rounded-lg transition flex items-center gap-2 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 dark:text-surface-500 w-full sm:w-auto justify-center"
               title={selectedCards.size === filtered.length && filtered.length > 0 ? t("flashcards.deselectAll") : t("flashcards.selectAll")}
             >
               {selectedCards.size === filtered.length && filtered.length > 0 ? (
@@ -1700,7 +1700,7 @@ export default function FlashcardsPage() {
             </button>
 
             {/* Count Display */}
-            <span className="text-sm font-medium text-surface-700 dark:text-surface-300 whitespace-nowrap">
+            <span className="text-sm font-medium text-surface-700 dark:text-surface-500 whitespace-nowrap">
               {selectedCards.size} {t("flashcards.of")} {filtered.length} {t("flashcards.selected")}
             </span>
 

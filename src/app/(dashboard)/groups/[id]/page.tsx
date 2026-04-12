@@ -210,7 +210,7 @@ export default function GroupDetailPage() {
             <Users size={22} />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg sm:text-xl font-bold text-surface-900 dark:text-surface-50 truncate">{group.name}</h1>
+            <h1 className="text-lg sm:text-xl font-bold text-surface-900 dark:text-white truncate">{group.name}</h1>
             {group.description && (
               <p className="text-sm text-surface-500 dark:text-surface-400 mt-0.5 line-clamp-2">{group.description}</p>
             )}
@@ -218,7 +218,7 @@ export default function GroupDetailPage() {
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={copyCode}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-50 dark:bg-surface-700 rounded-lg text-xs font-mono text-surface-600 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-600 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-50 dark:bg-surface-700 rounded-lg text-xs font-mono text-surface-600 dark:text-surface-500 hover:bg-surface-100 dark:hover:bg-surface-600 transition-colors"
             >
               {copied ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
               {group.invite_code}
@@ -315,7 +315,7 @@ export default function GroupDetailPage() {
                           </div>
                         )}
                         <div>
-                          <p className="text-sm font-medium text-surface-800 dark:text-surface-200">
+                          <p className="text-sm font-medium text-surface-800 dark:text-surface-800">
                             {m.profiles?.full_name || m.profiles?.username}
                           </p>
                           <p className="text-[10px] text-surface-400 dark:text-surface-500">@{m.profiles?.username}</p>
@@ -489,11 +489,11 @@ function SharedResourcesTab({
     <div className="space-y-4">
       {/* Header + Share button */}
       <div className="flex items-center justify-between">
-        <h2 className="font-semibold text-surface-800 dark:text-surface-100 flex items-center gap-2">
+        <h2 className="font-semibold text-surface-800 dark:text-white flex items-center gap-2">
           <Share2 size={16} className="text-brand-600" />
           Geteilte Ressourcen
           {shares.length > 0 && (
-            <span className="text-xs bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-300 px-1.5 py-0.5 rounded-full">{shares.length}</span>
+            <span className="text-xs bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-500 px-1.5 py-0.5 rounded-full">{shares.length}</span>
           )}
         </h2>
         <button
@@ -508,7 +508,7 @@ function SharedResourcesTab({
       {showShareDialog && (
         <div className="card border-brand-200 dark:border-brand-800 bg-surface-50 dark:bg-surface-800">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-surface-800 dark:text-surface-100 text-sm">Ressource teilen</h3>
+            <h3 className="font-semibold text-surface-800 dark:text-white text-sm">Ressource teilen</h3>
             <button onClick={() => setShowShareDialog(false)} className="p-1 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400">
               <X size={16} />
             </button>
@@ -525,7 +525,7 @@ function SharedResourcesTab({
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium shrink-0 transition-all ${
                     shareType === key
                       ? "bg-brand-600 text-white"
-                      : "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600"
+                      : "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-500 hover:bg-surface-200 dark:hover:bg-surface-600"
                   }`}
                 >
                   <Icon size={13} />
@@ -540,7 +540,7 @@ function SharedResourcesTab({
             value={shareSearch}
             onChange={e => setShareSearch(e.target.value)}
             placeholder={`${RESOURCE_TYPE_META[shareType]?.label || "Ressource"} suchen…`}
-            className="w-full px-3 py-2 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-white dark:bg-surface-900 text-surface-900 dark:text-surface-50 placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600 mb-3"
+            className="w-full px-3 py-2 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-white dark:bg-surface-900 text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600 mb-3"
           />
 
           {/* Results */}
@@ -557,7 +557,7 @@ function SharedResourcesTab({
                 return (
                   <div key={r.id} className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors">
                     <Icon size={14} className={meta?.color || "text-surface-400"} />
-                    <span className="flex-1 text-sm text-surface-800 dark:text-surface-200 truncate">{r.name}</span>
+                    <span className="flex-1 text-sm text-surface-800 dark:text-surface-800 truncate">{r.name}</span>
                     {isShared ? (
                       <span className="text-[10px] text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
                         <Check size={12} /> Geteilt
@@ -593,7 +593,7 @@ function SharedResourcesTab({
             const Icon = meta?.icon || FileText;
             return (
               <div key={type} className="card">
-                <h3 className="flex items-center gap-2 text-sm font-semibold text-surface-700 dark:text-surface-200 mb-3">
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-surface-700 dark:text-surface-800 mb-3">
                   <Icon size={15} className={meta?.color || "text-surface-400"} />
                   {meta?.label || type} ({typeShares.length})
                 </h3>
@@ -604,7 +604,7 @@ function SharedResourcesTab({
                       <div key={s.id} className="flex items-center gap-2.5 py-2 px-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl group">
                         <Icon size={14} className={meta?.color || "text-surface-400"} />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-surface-800 dark:text-surface-200 truncate">
+                          <p className="text-sm font-medium text-surface-800 dark:text-surface-800 truncate">
                             {s.resource_name || `${meta?.label || type} #${s.resource_id.slice(0, 8)}`}
                           </p>
                           <p className="text-[10px] text-surface-400 dark:text-surface-500">

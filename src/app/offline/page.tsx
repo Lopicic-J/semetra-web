@@ -23,7 +23,7 @@ export default function OfflinePage() {
           <WifiOff size={40} className="text-surface-400 dark:text-surface-500" />
         </div>
 
-        <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-surface-100 mb-3">Du bist offline</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-white mb-3">Du bist offline</h1>
         <p className="text-surface-500 dark:text-surface-400 text-sm sm:text-base mb-8 leading-relaxed">
           Keine Internetverbindung. Sobald du wieder online bist, wird Semetra automatisch neu laden.
         </p>

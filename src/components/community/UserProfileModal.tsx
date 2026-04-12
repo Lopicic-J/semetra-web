@@ -124,7 +124,7 @@ export default function UserProfileModal({ userId, onClose }: Props) {
       phd: { label: "Ph.D.", color: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300" },
       diploma: { label: "Dipl.", color: "bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300" },
     };
-    const config = labels[level] || { label: level, color: "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300" };
+    const config = labels[level] || { label: level, color: "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-500" };
     return (
       <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${config.color}`}>
         <GraduationCap size={12} className="mr-1" />
@@ -244,7 +244,7 @@ export default function UserProfileModal({ userId, onClose }: Props) {
                     institution: { label: "Institution", icon: GraduationCap, bgClass: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" },
                     dozent: { label: "Dozent", icon: GraduationCap, bgClass: "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300" },
                     student: { label: "Student", icon: Users, bgClass: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300" },
-                    non_student: { label: "Gast", icon: Globe, bgClass: "bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-300" },
+                    non_student: { label: "Gast", icon: Globe, bgClass: "bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-500" },
                   };
                   const config = roleConfig[profile.user_role];
                   if (!config) return null;
@@ -388,7 +388,7 @@ export default function UserProfileModal({ userId, onClose }: Props) {
               <Link
                 href={`/messages?user=${profile.id}`}
                 onClick={onClose}
-                className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 dark:text-surface-300 text-sm font-semibold transition-colors"
+                className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 dark:text-surface-500 text-sm font-semibold transition-colors"
               >
                 <MessageCircle size={16} />
                 {t("community.message") || "Nachricht"}

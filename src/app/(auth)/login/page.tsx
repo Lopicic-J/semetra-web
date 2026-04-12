@@ -103,7 +103,7 @@ export default function LoginPage() {
 
           <div className="space-y-3">
             {features.map(({ icon: Icon, label, desc }) => (
-              <div key={label} className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/[0.06] backdrop-blur-sm">
+              <div key={label} className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-surface-800/[0.04] border border-white/[0.06] backdrop-blur-sm">
                 <div className="w-9 h-9 rounded-lg bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Icon size={16} className="text-brand-300" />
                 </div>
@@ -168,7 +168,7 @@ export default function LoginPage() {
             {/* Email/Password Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Benutzername oder E-Mail</label>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">Benutzername oder E-Mail</label>
                 <div className="relative">
                   <AtSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
                   <input
@@ -184,7 +184,7 @@ export default function LoginPage() {
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-sm font-medium text-surface-700 dark:text-surface-300">Passwort</label>
+                  <label className="text-sm font-medium text-surface-700 dark:text-surface-500">Passwort</label>
                   <Link href="/reset-password" className="text-xs text-brand-600 hover:text-brand-700 font-medium">
                     Vergessen?
                   </Link>

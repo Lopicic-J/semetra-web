@@ -313,7 +313,7 @@ export default function ProgramDetailPage() {
           </button>
         </Link>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-surface-900 dark:text-surface-100">
+          <h1 className="text-3xl font-bold text-surface-900 dark:text-white">
             {id === "new" ? "Neues Programm" : "Programm"}
           </h1>
         </div>
@@ -338,7 +338,7 @@ export default function ProgramDetailPage() {
       <Card padding="lg">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+            <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
               Name *
             </label>
             <input
@@ -346,19 +346,19 @@ export default function ProgramDetailPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="z.B. Informatik Bachelor"
-              className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+              <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                 Studienabschluss *
               </label>
               <select
                 value={degreeLevel}
                 onChange={(e) => handleDegreeLevelChange(e.target.value)}
-                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {DEGREE_LEVELS.map((d) => (
                   <option key={d.value} value={d.value}>
@@ -369,13 +369,13 @@ export default function ProgramDetailPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+              <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                 Fakultät
               </label>
               <select
                 value={facultyId}
                 onChange={(e) => setFacultyId(e.target.value)}
-                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Keine Auswahl</option>
                 {faculties.map((f) => (
@@ -389,33 +389,33 @@ export default function ProgramDetailPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+              <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                 Gesamt ECTS *
               </label>
               <input
                 type="number"
                 value={totalEcts}
                 onChange={(e) => setTotalEcts(e.target.value)}
-                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+              <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                 Standard Semester *
               </label>
               <input
                 type="number"
                 value={durationTerms}
                 onChange={(e) => setDurationTerms(e.target.value)}
-                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
           {/* Study Mode (TZ/VZ) */}
           <div className="pt-2 border-t border-surface-200 dark:border-surface-700">
-            <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-3">
+            <label className="block text-sm font-medium text-surface-900 dark:text-white mb-3">
               Studienmodell
             </label>
             <div className="grid grid-cols-3 gap-2 mb-3">
@@ -450,7 +450,7 @@ export default function ProgramDetailPage() {
                     type="number"
                     value={durationTerms}
                     onChange={(e) => setDurationTerms(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-sm text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-1.5 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-sm text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -462,7 +462,7 @@ export default function ProgramDetailPage() {
                     value={durationTermsPartTime}
                     onChange={(e) => setDurationTermsPartTime(e.target.value)}
                     placeholder={durationTerms ? `z.B. ${Math.ceil(parseInt(durationTerms) * 1.5)}` : ""}
-                    className="w-full px-3 py-1.5 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-sm text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-1.5 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-sm text-surface-900 dark:text-white placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -477,7 +477,7 @@ export default function ProgramDetailPage() {
                 onChange={(e) => setThesisRequired(e.target.checked)}
                 className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-blue-600 focus:ring-blue-500"
               />
-              <span className="text-sm font-medium text-surface-900 dark:text-surface-100">
+              <span className="text-sm font-medium text-surface-900 dark:text-white">
                 Thesis erforderlich
               </span>
             </label>
@@ -489,7 +489,7 @@ export default function ProgramDetailPage() {
                 onChange={(e) => setInternshipRequired(e.target.checked)}
                 className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-blue-600 focus:ring-blue-500"
               />
-              <span className="text-sm font-medium text-surface-900 dark:text-surface-100">
+              <span className="text-sm font-medium text-surface-900 dark:text-white">
                 Praktikum erforderlich
               </span>
             </label>
@@ -501,7 +501,7 @@ export default function ProgramDetailPage() {
                 onChange={(e) => setFinalExamRequired(e.target.checked)}
                 className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-blue-600 focus:ring-blue-500"
               />
-              <span className="text-sm font-medium text-surface-900 dark:text-surface-100">
+              <span className="text-sm font-medium text-surface-900 dark:text-white">
                 Abschlussprüfung erforderlich
               </span>
             </label>
@@ -533,7 +533,7 @@ export default function ProgramDetailPage() {
       {id !== "new" && (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-surface-900 dark:text-surface-100">Anforderungsgruppen</h2>
+            <h2 className="text-2xl font-bold text-surface-900 dark:text-white">Anforderungsgruppen</h2>
             {!showNewGroupForm && (
               <button
                 onClick={() => setShowNewGroupForm(true)}
@@ -550,7 +550,7 @@ export default function ProgramDetailPage() {
             <Card padding="lg" className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                  <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                     Gruppennname *
                   </label>
                   <input
@@ -558,19 +558,19 @@ export default function ProgramDetailPage() {
                     value={newGroupName}
                     onChange={(e) => setNewGroupName(e.target.value)}
                     placeholder="z.B. Pflichtmodule Semester 1"
-                    className="w-full px-4 py-2 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                    <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                       Gruppentyp *
                     </label>
                     <select
                       value={newGroupType}
                       onChange={(e) => setNewGroupType(e.target.value)}
-                      className="w-full px-4 py-2 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       {GROUP_TYPES.map((t) => (
                         <option key={t.value} value={t.value}>
@@ -581,7 +581,7 @@ export default function ProgramDetailPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-surface-900 dark:text-surface-100 mb-2">
+                    <label className="block text-sm font-medium text-surface-900 dark:text-white mb-2">
                       Min. ECTS erforderlich
                     </label>
                     <input
@@ -589,7 +589,7 @@ export default function ProgramDetailPage() {
                       value={newGroupMinCredits}
                       onChange={(e) => setNewGroupMinCredits(e.target.value)}
                       min="0"
-                      className="w-full px-4 py-2 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 bg-white dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>
@@ -645,7 +645,7 @@ export default function ProgramDetailPage() {
                         <GripVertical className="w-5 h-5 text-surface-400 flex-shrink-0" />
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-surface-900 dark:text-surface-100">
+                            <h3 className="font-semibold text-surface-900 dark:text-white">
                               {group.name}
                             </h3>
                             {groupTypeLabel && (
@@ -697,7 +697,7 @@ export default function ProgramDetailPage() {
                             <Link key={mod.id} href={`/builder/module/${mod.id}`}>
                               <div className="flex items-center justify-between p-3 hover:bg-surface-100 dark:hover:bg-surface-700 rounded transition-colors border border-surface-200 dark:border-surface-700">
                                 <div className="flex-1">
-                                  <p className="text-sm font-medium text-surface-900 dark:text-surface-100">
+                                  <p className="text-sm font-medium text-surface-900 dark:text-white">
                                     {mod.code && `[${mod.code}] `}
                                     {mod.name}
                                   </p>
@@ -726,7 +726,7 @@ export default function ProgramDetailPage() {
       {id !== "new" && (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-surface-900 dark:text-surface-100">Module</h2>
+            <h2 className="text-2xl font-bold text-surface-900 dark:text-white">Module</h2>
             <button
               onClick={handleNewModule}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
@@ -754,7 +754,7 @@ export default function ProgramDetailPage() {
                   <Card interactive padding="md">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-semibold text-surface-900 dark:text-surface-100">{mod.name}</h3>
+                        <h3 className="font-semibold text-surface-900 dark:text-white">{mod.name}</h3>
                         <p className="text-sm text-surface-600 dark:text-surface-400 mt-1">
                           {mod.code} · {mod.ects} ECTS
                         </p>

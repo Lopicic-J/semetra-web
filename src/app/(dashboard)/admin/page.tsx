@@ -132,7 +132,7 @@ const ROLE_COLORS: Record<string, string> = {
   admin: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
   institution: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
   student: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-  non_student: "bg-surface-200 text-surface-900 dark:bg-surface-700 dark:text-surface-200",
+  non_student: "bg-surface-200 text-surface-900 dark:bg-surface-700 dark:text-surface-800",
 };
 
 const VERIFICATION_BADGES: Record<string, { label: string; className: string } | null> = {
@@ -474,7 +474,7 @@ export default function AdminPage() {
       {isPlatformAdmin && (
         <Card className="bg-surface-100 dark:bg-surface-800">
           <div className="p-6 border-b border-surface-200 dark:border-surface-700">
-            <h2 className="text-xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-amber-600" />
               Verifizierungs-Warteschlange
               {verificationQueue.length > 0 && (
@@ -499,7 +499,7 @@ export default function AdminPage() {
                     <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <p className="font-medium text-surface-900 dark:text-surface-50 truncate">{req.full_name || req.username || req.email}</p>
+                          <p className="font-medium text-surface-900 dark:text-white truncate">{req.full_name || req.username || req.email}</p>
                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${ROLE_COLORS[req.user_role] || ROLE_COLORS.non_student}`}>
                             {ROLE_LABELS[req.user_role] || req.user_role}
                           </span>
@@ -544,7 +544,7 @@ export default function AdminPage() {
       {/* ── User Management ── */}
       <Card className="bg-surface-100 dark:bg-surface-800">
         <div className="p-6 border-b border-surface-200 dark:border-surface-700">
-          <h2 className="text-xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
             <Users className="w-5 h-5 text-brand-600" />
             Benutzerverwaltung
           </h2>
@@ -564,7 +564,7 @@ export default function AdminPage() {
               placeholder="Nach E-Mail oder Name suchen..."
               value={usersSearch}
               onChange={(e) => setUsersSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-[rgb(var(--card-bg))] dark:bg-surface-700 text-surface-900 dark:text-surface-50 placeholder-surface-500 dark:placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:focus:ring-brand-600"
+              className="w-full pl-10 pr-4 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-[rgb(var(--card-bg))] dark:bg-surface-700 text-surface-900 dark:text-white placeholder-surface-500 dark:placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:focus:ring-brand-600"
             />
           </div>
 
@@ -626,7 +626,7 @@ export default function AdminPage() {
         return (
           <Card className="bg-surface-100 dark:bg-surface-800">
             <div className="p-6 border-b border-surface-200 dark:border-surface-700">
-              <h2 className="text-xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
+              <h2 className="text-xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-brand-600" />
                 Institutionen — Übersicht
               </h2>
@@ -639,16 +639,16 @@ export default function AdminPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-surface-200 dark:border-surface-700">
-                      <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-surface-50">Institution</th>
-                      <th className="text-right py-3 px-4 font-medium text-surface-900 dark:text-surface-50">Studenten</th>
-                      <th className="text-right py-3 px-4 font-medium text-surface-900 dark:text-surface-50">Admins</th>
-                      <th className="text-right py-3 px-4 font-medium text-surface-900 dark:text-surface-50">Aktiv</th>
+                      <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-white">Institution</th>
+                      <th className="text-right py-3 px-4 font-medium text-surface-900 dark:text-white">Studenten</th>
+                      <th className="text-right py-3 px-4 font-medium text-surface-900 dark:text-white">Admins</th>
+                      <th className="text-right py-3 px-4 font-medium text-surface-900 dark:text-white">Aktiv</th>
                     </tr>
                   </thead>
                   <tbody>
                     {instSlice.map((inst) => (
                       <tr key={inst.id} className="border-b border-surface-200 dark:border-surface-700 hover:bg-surface-50 dark:hover:bg-surface-700/50">
-                        <td className="py-3 px-4 font-medium text-surface-900 dark:text-surface-50">{inst.name}</td>
+                        <td className="py-3 px-4 font-medium text-surface-900 dark:text-white">{inst.name}</td>
                         <td className="py-3 px-4 text-right text-surface-600 dark:text-surface-400">{inst.studentCount}</td>
                         <td className="py-3 px-4 text-right text-surface-600 dark:text-surface-400">{inst.adminCount}</td>
                         <td className="py-3 px-4 text-right">
@@ -680,7 +680,7 @@ export default function AdminPage() {
       {isPlatformAdmin && (
         <Card className="bg-surface-100 dark:bg-surface-800">
           <div className="p-6 border-b border-surface-200 dark:border-surface-700">
-            <h2 className="text-xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
               <Building2 className="w-5 h-5 text-brand-600" />
               Institutions-Admins
             </h2>
@@ -701,7 +701,7 @@ export default function AdminPage() {
                   {iaSlice.map((a) => (
                     <div key={a.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 gap-3 sm:gap-4 bg-[rgb(var(--card-bg))] dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600">
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-surface-900 dark:text-surface-50 truncate">{a.user_name || a.user_email}</p>
+                        <p className="font-medium text-surface-900 dark:text-white truncate">{a.user_name || a.user_email}</p>
                         <p className="text-sm text-surface-600 dark:text-surface-400 truncate">{a.user_email} → {a.institution_name}</p>
                       </div>
                       <button
@@ -744,7 +744,7 @@ export default function AdminPage() {
       {isInstitution && !isPlatformAdmin && (
         <Card className="bg-surface-100 dark:bg-surface-800">
           <div className="p-6 border-b border-surface-200 dark:border-surface-700">
-            <h2 className="text-xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
               <Building2 className="w-5 h-5 text-brand-600" />
               Institutions-Admins
             </h2>
@@ -762,7 +762,7 @@ export default function AdminPage() {
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <OnlineDot online={isOnline(u.last_seen_at)} />
                       <div className="min-w-0">
-                        <p className="font-medium text-surface-900 dark:text-surface-50 truncate">{u.full_name || u.username || u.email}</p>
+                        <p className="font-medium text-surface-900 dark:text-white truncate">{u.full_name || u.username || u.email}</p>
                         <p className="text-sm text-surface-600 dark:text-surface-400 truncate">{u.email}</p>
                       </div>
                     </div>
@@ -784,7 +784,7 @@ export default function AdminPage() {
       {isPlatformAdmin && (
         <Card className="bg-surface-100 dark:bg-surface-800">
           <div className="p-6 border-b border-surface-200 dark:border-surface-700">
-            <h2 className="text-xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
               <Clock className="w-5 h-5 text-brand-600" />
               Audit-Log
             </h2>
@@ -799,10 +799,10 @@ export default function AdminPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-surface-200 dark:border-surface-700">
-                      <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-surface-50">Zeitpunkt</th>
-                      <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-surface-50">Benutzer</th>
-                      <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-surface-50">Aktion</th>
-                      <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-surface-50">Objekt</th>
+                      <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-white">Zeitpunkt</th>
+                      <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-white">Benutzer</th>
+                      <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-white">Aktion</th>
+                      <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-white">Objekt</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -810,14 +810,14 @@ export default function AdminPage() {
                       <tr key={entry.id} className="border-b border-surface-200 dark:border-surface-700 hover:bg-surface-50 dark:hover:bg-surface-700/50">
                         <td className="py-3 px-4 text-surface-600 dark:text-surface-400">{new Date(entry.created_at).toLocaleString("de-CH")}</td>
                         <td className="py-3 px-4">
-                          <p className="font-medium text-surface-900 dark:text-surface-50">{entry.user_name || entry.user_email}</p>
+                          <p className="font-medium text-surface-900 dark:text-white">{entry.user_name || entry.user_email}</p>
                           <p className="text-xs text-surface-600 dark:text-surface-400">{entry.user_email}</p>
                         </td>
                         <td className="py-3 px-4">
-                          <span className="px-2 py-1 bg-surface-200 dark:bg-surface-700 text-surface-900 dark:text-surface-50 rounded text-xs font-medium">{entry.action}</span>
+                          <span className="px-2 py-1 bg-surface-200 dark:bg-surface-700 text-surface-900 dark:text-white rounded text-xs font-medium">{entry.action}</span>
                         </td>
                         <td className="py-3 px-4 text-surface-600 dark:text-surface-400">
-                          <p className="font-medium text-surface-900 dark:text-surface-50">{entry.entity_type}</p>
+                          <p className="font-medium text-surface-900 dark:text-white">{entry.entity_type}</p>
                           <p className="text-xs text-surface-600 dark:text-surface-400">{entry.entity_name || entry.entity_id}</p>
                         </td>
                       </tr>
@@ -941,7 +941,7 @@ function EmailDomainsSection({ isPlatformAdmin }: { isPlatformAdmin: boolean }) 
       <div className="p-6 border-b border-surface-200 dark:border-surface-700">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
               <Mail className="w-5 h-5 text-brand-600" />
               Email-Domains
             </h2>
@@ -964,14 +964,14 @@ function EmailDomainsSection({ isPlatformAdmin }: { isPlatformAdmin: boolean }) 
         {/* Add form */}
         {adding && (
           <div className="bg-[rgb(var(--card-bg))] dark:bg-surface-700 rounded-lg border border-brand-200 dark:border-brand-800 p-4 space-y-3">
-            <p className="text-sm font-semibold text-surface-900 dark:text-surface-50">Neue Email-Domain hinterlegen</p>
+            <p className="text-sm font-semibold text-surface-900 dark:text-white">Neue Email-Domain hinterlegen</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-surface-600 dark:text-surface-400 mb-1 block">Institution</label>
                 <select
                   value={newInstitutionId}
                   onChange={(e) => setNewInstitutionId(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-[rgb(var(--card-bg))] dark:bg-surface-700 text-surface-900 dark:text-surface-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full px-3 py-2 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-[rgb(var(--card-bg))] dark:bg-surface-700 text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
                 >
                   <option value="">Institution wählen…</option>
                   {institutions.map((inst) => (
@@ -988,7 +988,7 @@ function EmailDomainsSection({ isPlatformAdmin }: { isPlatformAdmin: boolean }) 
                   placeholder="z.B. students.ffhs.ch"
                   value={newDomain}
                   onChange={(e) => setNewDomain(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-[rgb(var(--card-bg))] dark:bg-surface-700 text-surface-900 dark:text-surface-50 placeholder-surface-500 dark:placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full px-3 py-2 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-[rgb(var(--card-bg))] dark:bg-surface-700 text-surface-900 dark:text-white placeholder-surface-500 dark:placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
             </div>
@@ -1019,7 +1019,7 @@ function EmailDomainsSection({ isPlatformAdmin }: { isPlatformAdmin: boolean }) 
               <div key={instName}>
                 <div className="flex items-center gap-2 mb-2">
                   <Building2 className="w-4 h-4 text-surface-500" />
-                  <p className="text-sm font-semibold text-surface-900 dark:text-surface-50">{instName}</p>
+                  <p className="text-sm font-semibold text-surface-900 dark:text-white">{instName}</p>
                   <span className="text-xs text-surface-500">({instDomains.length})</span>
                 </div>
                 <div className="space-y-1.5">
@@ -1029,7 +1029,7 @@ function EmailDomainsSection({ isPlatformAdmin }: { isPlatformAdmin: boolean }) 
                       className="flex items-center justify-between px-4 py-2.5 bg-[rgb(var(--card-bg))] dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600"
                     >
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-sm text-surface-900 dark:text-surface-50">@{d.domain}</span>
+                        <span className="font-mono text-sm text-surface-900 dark:text-white">@{d.domain}</span>
                         {d.institution_code && (
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                             {d.institution_code}
@@ -1116,7 +1116,7 @@ function PaginationBar({
                 onClick={() => onPageChange(item as number)}
                 className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${
                   item === page
-                    ? "bg-brand-600 text-white dark:bg-brand-700 dark:text-surface-50"
+                    ? "bg-brand-600 text-white dark:bg-brand-700 dark:text-white"
                     : "text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700"
                 }`}
               >
@@ -1386,7 +1386,7 @@ function UserRow({
                     setEditingPlanType(user.plan_type === "lifetime" ? "lifetime" : user.plan_type === "subscription" ? "subscription" : "free");
                     setEditingPlanTier(user.plan_tier === "full" ? "full" : "basic");
                   }}
-                  className="px-3 py-1.5 text-xs font-medium bg-surface-100 text-surface-700 dark:bg-surface-700 dark:text-surface-300 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-600 transition"
+                  className="px-3 py-1.5 text-xs font-medium bg-surface-100 text-surface-700 dark:bg-surface-700 dark:text-surface-500 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-600 transition"
                 >
                   <Edit2 className="w-3 h-3 inline mr-1 -mt-0.5" />Manuell setzen
                 </button>
@@ -1566,7 +1566,7 @@ function StudiengangEditor({ userId, institutionId, onRefresh }: { userId: strin
         <div className="flex items-center gap-2">
           <button
             onClick={() => setEditing(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-surface-100 text-surface-700 dark:bg-surface-700 dark:text-surface-300 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-600 transition"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-surface-100 text-surface-700 dark:bg-surface-700 dark:text-surface-500 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-600 transition"
           >
             <Edit2 className="w-3 h-3" />Studiengang ändern
           </button>

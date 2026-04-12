@@ -386,7 +386,7 @@ export default function RegisterPage() {
 
           <div className="space-y-3">
             {features.map(({ icon: Icon, label, desc }) => (
-              <div key={label} className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/[0.06] backdrop-blur-sm">
+              <div key={label} className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-surface-800/[0.04] border border-white/[0.06] backdrop-blur-sm">
                 <div className="w-9 h-9 rounded-lg bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Icon size={16} className="text-brand-300" />
                 </div>
@@ -447,7 +447,7 @@ export default function RegisterPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Role Selection */}
               <div>
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">Ich bin...</label>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-2">Ich bin...</label>
                 <div className="grid grid-cols-2 gap-2">
                   {ROLE_OPTIONS.map(({ value, label, desc, icon: Icon }) => (
                     <button
@@ -497,7 +497,7 @@ export default function RegisterPage() {
 
               {/* Username */}
               <div>
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Benutzername</label>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">Benutzername</label>
                 <div className="relative">
                   <AtSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
                   <input
@@ -528,7 +528,7 @@ export default function RegisterPage() {
 
               {/* Email with university detection */}
               <div>
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">E-Mail</label>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">E-Mail</label>
                 <div className="relative">
                   <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
                   <input
@@ -552,7 +552,7 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Passwort</label>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">Passwort</label>
                 <div className="relative">
                   <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
                   <input
@@ -589,7 +589,7 @@ export default function RegisterPage() {
                 <>
                   {/* Institution: auto-assigned, locked */}
                   <div>
-                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Hochschule</label>
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">Hochschule</label>
                     <div className="relative">
                       <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-green-500" />
                       <select
@@ -612,7 +612,7 @@ export default function RegisterPage() {
                   {/* Program: student must select */}
                   {selectedInstId && (
                     <div>
-                      <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Studiengang</label>
+                      <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">Studiengang</label>
                       <div className="relative">
                         <BookOpen size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
                         <select
@@ -636,7 +636,7 @@ export default function RegisterPage() {
                   {/* Study Mode (TZ/VZ) — shown when program is selected and supports both */}
                   {selectedProgId && (
                     <div>
-                      <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Studienmodell</label>
+                      <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">Studienmodell</label>
                       <div className="grid grid-cols-2 gap-2">
                         {(selectedProgStudyMode === "both" || selectedProgStudyMode === "full_time") && (
                           <button
@@ -672,7 +672,7 @@ export default function RegisterPage() {
                   {selectedProgId && (
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Aktuelles Semester</label>
+                        <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">Aktuelles Semester</label>
                         <select
                           value={currentSemester}
                           onChange={(e) => setCurrentSemester(e.target.value)}
@@ -685,7 +685,7 @@ export default function RegisterPage() {
                       </div>
                       {parseInt(currentSemester) > 1 && (
                         <div>
-                          <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Vorhandene ECTS</label>
+                          <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">Vorhandene ECTS</label>
                           <input
                             type="number"
                             min="0"
@@ -736,7 +736,7 @@ export default function RegisterPage() {
 
               {/* Country / Grading system */}
               <div>
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Land / Notensystem</label>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">Land / Notensystem</label>
                 <div className="relative">
                   <Globe size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
                   <select

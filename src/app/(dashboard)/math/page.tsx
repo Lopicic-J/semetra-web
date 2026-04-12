@@ -786,7 +786,7 @@ function CalculatorTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
       {/* Steps display */}
       {showSteps && steps.length > 0 && (
         <div className="bg-surface-50 dark:bg-surface-700 rounded-lg p-3 mb-3 border border-surface-200 dark:border-surface-600">
-          <p className="text-xs font-medium text-surface-700 dark:text-surface-300 mb-1">{t("math.calc.stepByStep")}</p>
+          <p className="text-xs font-medium text-surface-700 dark:text-surface-500 mb-1">{t("math.calc.stepByStep")}</p>
           {steps.map((s, i) => (
             <div key={i} className="text-xs font-mono text-surface-600 dark:text-surface-400 py-0.5">{s}</div>
           ))}
@@ -796,7 +796,7 @@ function CalculatorTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
       {/* History panel */}
       {showHistory && (
         <div className="bg-surface-50 dark:bg-surface-700 rounded-lg p-3 mb-3 border border-surface-200 dark:border-surface-600 max-h-40 overflow-y-auto">
-          <p className="text-xs font-medium text-surface-700 dark:text-surface-300 mb-2">{t("math.calc.history")}</p>
+          <p className="text-xs font-medium text-surface-700 dark:text-surface-500 mb-2">{t("math.calc.history")}</p>
           {history.length === 0 && <p className="text-xs text-surface-400 dark:text-surface-500">{t("math.calc.noHistory")}</p>}
           {history.map((h, i) => (
             <div key={i} className="flex items-center justify-between py-1 border-b border-surface-100 dark:border-surface-600 last:border-0 cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-600 rounded px-1" onClick={() => { setDisplay(h.expr); setResult(h.result); setShowHistory(false); }}>
@@ -810,7 +810,7 @@ function CalculatorTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
       {/* Variables panel */}
       {showVars && (
         <div className="bg-surface-50 dark:bg-surface-700 rounded-lg p-3 mb-3 border border-surface-200 dark:border-surface-600">
-          <p className="text-xs font-medium text-surface-700 dark:text-surface-300 mb-2">{t("math.calc.variables")}</p>
+          <p className="text-xs font-medium text-surface-700 dark:text-surface-500 mb-2">{t("math.calc.variables")}</p>
           <div className="flex gap-2 mb-2">
             <input value={varName} onChange={e => setVarName(e.target.value.replace(/[^a-zA-Z]/g, ""))} placeholder={t("math.calc.varName")} className="flex-1 bg-[rgb(var(--card-bg))] dark:bg-surface-800 text-surface-900 dark:text-white rounded px-2 py-1.5 border border-surface-200 dark:border-surface-600 text-xs font-mono" maxLength={5} />
             <span className="text-xs text-surface-400 dark:text-surface-500 self-center">= {result || "?"}</span>
@@ -1324,7 +1324,7 @@ function EquationsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool, 
           ].map(([label, f]) => (
             <div key={label} className="bg-surface-50 dark:bg-surface-800 rounded-lg px-3 py-2 border border-surface-100 dark:border-surface-700">
               <div className="text-surface-500 dark:text-surface-400 text-xs">{label}</div>
-              <div className="text-surface-800 dark:text-surface-200 text-sm font-mono">{f}</div>
+              <div className="text-surface-800 dark:text-surface-800 text-sm font-mono">{f}</div>
             </div>
           ))}
         </div>
@@ -2883,7 +2883,7 @@ function StatisticsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
                 <div><label className="block text-sm text-surface-600 dark:text-surface-400 mb-1">k (Erfolge)</label><input type="number" value={binK} onChange={(e) => setBinK(e.target.value)} className="w-full bg-surface-100 dark:bg-surface-700 dark:text-white dark:border-surface-600 rounded-lg px-2 py-1.5 border border-surface-200" /></div>
               </div>
               {Number(binN) > 0 && Number(binP) > 0 && Number(binK) >= 0 && (
-                <div className="bg-surface-50 dark:bg-surface-800 dark:text-surface-300 rounded-lg p-3 text-sm space-y-1 font-mono text-surface-700">
+                <div className="bg-surface-50 dark:bg-surface-800 dark:text-surface-500 rounded-lg p-3 text-sm space-y-1 font-mono text-surface-700">
                   <div>P(X={binK}) = C({binN},{binK}) · {binP}^{binK} · (1-{binP})^{Number(binN)-Number(binK)}</div>
                   <div>P(X={binK}) = {binomial(Number(binN), Number(binK), Number(binP)).toFixed(6)}</div>
                   <div>E(X) = np = {(Number(binN) * Number(binP)).toFixed(2)}</div>
@@ -2902,7 +2902,7 @@ function StatisticsTool({ onSave, modules, checkLimit }: { onSave: (t: MathTool,
               </div>
               {Number(normSigma) > 0 && !isNaN(Number(normMu)) && !isNaN(Number(normX)) && (
                 <>
-                  <div className="bg-surface-50 dark:bg-surface-800 dark:text-surface-300 rounded-lg p-3 text-sm space-y-1 font-mono text-surface-700">
+                  <div className="bg-surface-50 dark:bg-surface-800 dark:text-surface-500 rounded-lg p-3 text-sm space-y-1 font-mono text-surface-700">
                     <div>z = (x - μ) / σ = ({Number(normX).toFixed(2)} - {Number(normMu).toFixed(2)}) / {Number(normSigma).toFixed(2)} = {((Number(normX) - Number(normMu)) / Number(normSigma)).toFixed(3)}</div>
                     <div>Φ(z) = P(X ≤ x) = {normalCDF((Number(normX) - Number(normMu)) / Number(normSigma)).toFixed(4)}</div>
                   </div>
@@ -3929,7 +3929,7 @@ function FormulasTool({ userId, supabase, formulas, setFormulas, modules, builti
               <input value={fTags} onChange={e => setFTags(e.target.value)} placeholder={t("math.tagsPlaceholder")} className="w-full bg-surface-100 dark:bg-surface-700 text-surface-900 dark:text-white rounded-lg px-4 py-2.5 border border-surface-200 dark:border-surface-600 text-sm" />
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowModal(false)} className="flex-1 py-2.5 rounded-xl bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600">{t("math.cancel")}</button>
+              <button onClick={() => setShowModal(false)} className="flex-1 py-2.5 rounded-xl bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-500 hover:bg-surface-200 dark:hover:bg-surface-600">{t("math.cancel")}</button>
               <button onClick={save} className="flex-1 py-2.5 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 dark:hover:bg-brand-800">{t("math.save")}</button>
             </div>
           </div>

@@ -58,14 +58,14 @@ export default function CalendarPage() {
     <div className="p-3 sm:p-6 max-w-5xl mx-auto min-h-screen">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-surface-50">{t("nav.calendar")}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white">{t("nav.calendar")}</h1>
           <p className="text-surface-500 dark:text-surface-400 text-sm mt-0.5">{monthNames[month]} {year}</p>
         </div>
         <div className="flex gap-2 flex-wrap sm:flex-nowrap">
           <div className="flex bg-surface-100 dark:bg-surface-800 rounded-xl overflow-hidden">
-            <button onClick={prev} className="px-3 py-2 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-700 dark:text-surface-300 active:scale-95 touch-manipulation" aria-label="Previous month"><ChevronLeft size={16} /></button>
-            <button onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth()); }} className="px-3 py-2 text-sm font-medium hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-700 dark:text-surface-300 active:scale-95">{t("calendar.today")}</button>
-            <button onClick={next} className="px-3 py-2 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-700 dark:text-surface-300 active:scale-95 touch-manipulation" aria-label="Next month"><ChevronRight size={16} /></button>
+            <button onClick={prev} className="px-3 py-2 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-700 dark:text-surface-500 active:scale-95 touch-manipulation" aria-label="Previous month"><ChevronLeft size={16} /></button>
+            <button onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth()); }} className="px-3 py-2 text-sm font-medium hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-700 dark:text-surface-500 active:scale-95">{t("calendar.today")}</button>
+            <button onClick={next} className="px-3 py-2 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-700 dark:text-surface-500 active:scale-95 touch-manipulation" aria-label="Next month"><ChevronRight size={16} /></button>
           </div>
           <button onClick={() => { setSelected(null); setShowForm(true); }} className="btn-primary gap-2 touch-manipulation active:scale-95">
             <Plus size={16} /> <span className="hidden sm:inline">{t("calendar.addEvent")}</span><span className="sm:hidden">{t("calendar.addEvent")}</span>
@@ -77,7 +77,7 @@ export default function CalendarPage() {
         {/* Day headers */}
         <div className="grid grid-cols-7 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800">
           {DOW.map(d => (
-            <div key={d} className="py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-surface-600 dark:text-surface-300">{d}</div>
+            <div key={d} className="py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-surface-600 dark:text-surface-500">{d}</div>
           ))}
         </div>
         {/* Cells */}
@@ -92,7 +92,7 @@ export default function CalendarPage() {
                 className={`min-h-[64px] sm:min-h-[90px] p-1.5 sm:p-2.5 border-b border-r border-surface-200 dark:border-surface-700 cursor-pointer transition-colors text-xs sm:text-sm active:scale-95 ${day ? `hover:bg-brand-50 dark:hover:bg-surface-800 ${isSelected ? "bg-brand-50 dark:bg-surface-700" : "bg-white dark:bg-surface-900"}` : "bg-surface-50 dark:bg-surface-800"}`}>
                 {day && (
                   <>
-                    <div className={`w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full text-xs sm:text-sm font-medium mb-1 ${isToday ? "bg-brand-600 text-white" : "text-surface-700 dark:text-surface-300"}`}>{day}</div>
+                    <div className={`w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full text-xs sm:text-sm font-medium mb-1 ${isToday ? "bg-brand-600 text-white" : "text-surface-700 dark:text-surface-500"}`}>{day}</div>
                     <div className="space-y-0.5">
                       {dayEvs.slice(0, 3).map(ev => (
                         <div key={ev.id} className="text-[10px] sm:text-xs px-1 py-0.5 rounded truncate text-white font-medium leading-none"
@@ -113,7 +113,7 @@ export default function CalendarPage() {
       {/* Selected day events */}
       {selected && (
         <div className="mt-4 card bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700">
-          <h3 className="font-semibold text-surface-900 dark:text-surface-50 mb-3">
+          <h3 className="font-semibold text-surface-900 dark:text-white mb-3">
             {(() => {
               const d = new Date(selected);
               const dayName = weekdayNames[d.getDay() === 0 ? 6 : d.getDay() - 1];
@@ -128,7 +128,7 @@ export default function CalendarPage() {
                 <li key={ev.id} className="flex items-start sm:items-center gap-3 p-2.5 sm:p-3 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-800 group transition-colors active:scale-95">
                   <div className="w-3 h-3 rounded-full shrink-0 mt-1 sm:mt-0" style={{ background: ev.color ?? "#6d28d9" }} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-surface-800 dark:text-surface-100 truncate">{ev.title}</p>
+                    <p className="text-sm font-medium text-surface-800 dark:text-white truncate">{ev.title}</p>
                     <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">
                       {new Date(ev.start_dt).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}
                       {ev.end_dt && ` – ${new Date(ev.end_dt).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}`}
@@ -200,35 +200,35 @@ function EventModal({ defaultDate, onClose, onSaved }: { defaultDate: string; on
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 p-4">
       <div className="bg-white dark:bg-surface-900 rounded-t-2xl sm:rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] sm:max-h-none overflow-y-auto">
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-surface-200 dark:border-surface-700 sticky top-0 bg-white dark:bg-surface-900">
-          <h2 className="font-semibold text-surface-900 dark:text-surface-50">{t("calendar.modal.title")}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-700 dark:text-surface-300 touch-manipulation active:scale-90" aria-label="Close"><X size={16} /></button>
+          <h2 className="font-semibold text-surface-900 dark:text-white">{t("calendar.modal.title")}</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-700 dark:text-surface-500 touch-manipulation active:scale-90" aria-label="Close"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t("calendar.modal.titleLabel")} *</label>
-            <input className="input dark:bg-surface-800 dark:text-surface-50 dark:border-surface-700 dark:placeholder-surface-500" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("calendar.modal.titlePlaceholder")} />
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">{t("calendar.modal.titleLabel")} *</label>
+            <input className="input dark:bg-surface-800 dark:text-white dark:border-surface-700 dark:placeholder-surface-500" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("calendar.modal.titlePlaceholder")} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t("calendar.modal.dateLabel")}</label>
-              <input className="input dark:bg-surface-800 dark:text-surface-50 dark:border-surface-700" type="date" value={form.date} onChange={e => set("date", e.target.value)} required />
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">{t("calendar.modal.dateLabel")}</label>
+              <input className="input dark:bg-surface-800 dark:text-white dark:border-surface-700" type="date" value={form.date} onChange={e => set("date", e.target.value)} required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t("calendar.modal.fromLabel")}</label>
-              <input className="input dark:bg-surface-800 dark:text-surface-50 dark:border-surface-700" type="time" value={form.time_start} onChange={e => set("time_start", e.target.value)} />
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">{t("calendar.modal.fromLabel")}</label>
+              <input className="input dark:bg-surface-800 dark:text-white dark:border-surface-700" type="time" value={form.time_start} onChange={e => set("time_start", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t("calendar.modal.toLabel")}</label>
-              <input className="input dark:bg-surface-800 dark:text-surface-50 dark:border-surface-700" type="time" value={form.time_end} onChange={e => set("time_end", e.target.value)} />
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">{t("calendar.modal.toLabel")}</label>
+              <input className="input dark:bg-surface-800 dark:text-white dark:border-surface-700" type="time" value={form.time_end} onChange={e => set("time_end", e.target.value)} />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t("calendar.modal.locationLabel")}</label>
-            <input className="input dark:bg-surface-800 dark:text-surface-50 dark:border-surface-700 dark:placeholder-surface-500" value={form.location} onChange={e => set("location", e.target.value)} placeholder={t("calendar.modal.locationPlaceholder")} />
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">{t("calendar.modal.locationLabel")}</label>
+            <input className="input dark:bg-surface-800 dark:text-white dark:border-surface-700 dark:placeholder-surface-500" value={form.location} onChange={e => set("location", e.target.value)} placeholder={t("calendar.modal.locationPlaceholder")} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t("calendar.modal.typeLabel")}</label>
-            <select className="input dark:bg-surface-800 dark:text-surface-50 dark:border-surface-700" value={form.event_type} onChange={e => set("event_type", e.target.value)}>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">{t("calendar.modal.typeLabel")}</label>
+            <select className="input dark:bg-surface-800 dark:text-white dark:border-surface-700" value={form.event_type} onChange={e => set("event_type", e.target.value)}>
               <option value="general">{t("calendar.modal.typeGeneral")}</option>
               <option value="exam">{t("calendar.modal.typeExam")}</option>
               <option value="lecture">{t("calendar.modal.typeLecture")}</option>
@@ -236,7 +236,7 @@ function EventModal({ defaultDate, onClose, onSaved }: { defaultDate: string; on
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2.5">{t("calendar.modal.colorLabel")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-2.5">{t("calendar.modal.colorLabel")}</label>
             <div className="flex gap-2 flex-wrap">
               {COLORS.map(c => (
                 <button key={c} type="button" onClick={() => set("color", c)} aria-label={`Color ${c}`}

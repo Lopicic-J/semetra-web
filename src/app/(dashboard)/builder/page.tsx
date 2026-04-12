@@ -178,7 +178,7 @@ export default function BuilderPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-surface-100">
+          <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-white">
             {t("nav.builder") || "Academic Builder"}
           </h1>
           <p className="text-surface-600 dark:text-surface-400 mt-1">
@@ -207,7 +207,7 @@ export default function BuilderPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Institution suchen..."
-              className="input w-full pl-9 pr-9 bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-surface-100 border-surface-200 dark:border-surface-700"
+              className="input w-full pl-9 pr-9 bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-white border-surface-200 dark:border-surface-700"
             />
             {search && (
               <button
@@ -260,7 +260,7 @@ export default function BuilderPage() {
                 <Building2 className="w-5 h-5 text-brand-600 dark:text-brand-400" />
               </div>
               <div>
-                <div className="text-xl font-bold text-surface-900 dark:text-surface-100">{institutions.length}</div>
+                <div className="text-xl font-bold text-surface-900 dark:text-white">{institutions.length}</div>
                 <div className="text-xs text-surface-500 dark:text-surface-400">Institutionen</div>
               </div>
             </div>
@@ -271,7 +271,7 @@ export default function BuilderPage() {
                 <GraduationCap className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <div className="text-xl font-bold text-surface-900 dark:text-surface-100">
+                <div className="text-xl font-bold text-surface-900 dark:text-white">
                   {institutions.reduce((sum, i) => sum + (i.program_count ?? 0), 0)}
                 </div>
                 <div className="text-xs text-surface-500 dark:text-surface-400">Programme</div>
@@ -284,7 +284,7 @@ export default function BuilderPage() {
                 <BookOpen className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <div className="text-xl font-bold text-surface-900 dark:text-surface-100">
+                <div className="text-xl font-bold text-surface-900 dark:text-white">
                   {availableCountries.length}
                 </div>
                 <div className="text-xs text-surface-500 dark:text-surface-400">Länder</div>
@@ -360,7 +360,7 @@ export default function BuilderPage() {
                       </div>
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-surface-900 dark:text-surface-100 leading-tight">{inst.name}</h3>
+                      <h3 className="font-semibold text-surface-900 dark:text-white leading-tight">{inst.name}</h3>
                       <div className="flex flex-wrap items-center gap-1.5 mt-2">
                         <span className="text-xs text-surface-500 dark:text-surface-400">
                           {getCountryName(inst.country_code)}

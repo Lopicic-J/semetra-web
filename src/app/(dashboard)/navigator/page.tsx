@@ -283,7 +283,7 @@ export default function NavigatorPage() {
                   </div>
                   {stat.urgent && <AlertTriangle size={12} className="text-red-500 dark:text-red-400" />}
                 </div>
-                <p className="text-xl font-bold text-surface-900 dark:text-surface-100">{stat.value}</p>
+                <p className="text-xl font-bold text-surface-900 dark:text-white">{stat.value}</p>
                 <p className="text-[11px] text-surface-500 dark:text-surface-400 mt-0.5">{stat.label}</p>
               </Link>
             );
@@ -341,7 +341,7 @@ export default function NavigatorPage() {
       {/* ── Header (fixed) ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-surface-100 flex items-center gap-2.5">
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
               <Zap size={18} className="text-brand-600 dark:text-brand-400" />
             </div>
@@ -359,7 +359,7 @@ export default function NavigatorPage() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder={t("navigator.searchPlaceholder") || "Suche nach Funktionen, Tools, Seiten..."}
-          className="w-full bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-surface-100 rounded-2xl px-12 py-3.5 border border-surface-200 dark:border-surface-700 text-sm focus:outline-none focus:border-brand-400 dark:focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900/50 transition-all shadow-sm"
+          className="w-full bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-white rounded-2xl px-12 py-3.5 border border-surface-200 dark:border-surface-700 text-sm focus:outline-none focus:border-brand-400 dark:focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900/50 transition-all shadow-sm"
         />
         {search ? (
           <button onClick={() => setSearch("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-surface-300 dark:text-surface-600 hover:text-surface-600 dark:hover:text-surface-400 transition">
@@ -430,7 +430,7 @@ export default function NavigatorPage() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-surface-900 dark:text-surface-100 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{f.label}</span>
+                          <span className="text-sm font-semibold text-surface-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{f.label}</span>
                           {f.pro && (
                             <span className="text-[9px] bg-brand-900 dark:bg-brand-900 text-brand-300 dark:text-brand-300 px-1.5 py-0.5 rounded font-bold">PRO</span>
                           )}

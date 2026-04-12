@@ -355,7 +355,7 @@ export default function AIAssistantPage() {
       {showHistory && (
         <div className="w-72 shrink-0 border-r border-surface-100 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 flex flex-col">
           <div className="flex items-center justify-between px-4 py-3 border-b border-surface-100 dark:border-surface-700">
-            <div className="flex items-center gap-2 text-sm font-semibold text-surface-700 dark:text-surface-300">
+            <div className="flex items-center gap-2 text-sm font-semibold text-surface-700 dark:text-surface-500">
               <History size={16} />
               {t("ai.history") || "Verlauf"}
             </div>
@@ -632,7 +632,7 @@ function WelcomeScreen({ mode, onSuggestion }: { mode: ChatMode; onSuggestion: (
             className={`flex items-start gap-3 p-4 rounded-xl border border-surface-200 dark:border-surface-700 text-left transition-all dark:bg-surface-800 ${s.color}`}
           >
             <span className="text-surface-400 dark:text-surface-500 mt-0.5">{s.icon}</span>
-            <span className="text-sm text-surface-700 dark:text-surface-300">{s.text}</span>
+            <span className="text-sm text-surface-700 dark:text-surface-500">{s.text}</span>
           </button>
         ))}
       </div>
@@ -654,7 +654,7 @@ function ChatBubble({ message, streaming }: { message: ChatMessage; streaming: b
       <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
         isUser
           ? "bg-brand-600 text-white dark:bg-brand-700"
-          : "bg-surface-100 dark:bg-surface-700 text-surface-800 dark:text-surface-100"
+          : "bg-surface-100 dark:bg-surface-700 text-surface-800 dark:text-white"
       }`}>
         {isUser ? (
           <p className="text-sm whitespace-pre-wrap">{message.content}</p>

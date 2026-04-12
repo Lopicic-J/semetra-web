@@ -255,7 +255,7 @@ export default function NotesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 sm:justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
             <FileText className="text-amber-400 dark:text-amber-500" /> {t("notes.title")}
           </h1>
           <p className="text-surface-500 dark:text-surface-400 text-xs sm:text-sm mt-1">{t("notes.subtitle")}</p>
@@ -283,7 +283,7 @@ export default function NotesPage() {
           onClick={() => setViewMode("flow")}
           className={`bg-surface-100 dark:bg-surface-800 border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-brand-500" : "border-surface-200 dark:border-surface-700 hover:border-surface-300 dark:hover:border-surface-600"}`}
         >
-          <p className="text-lg sm:text-2xl font-bold text-surface-900 dark:text-surface-50">{flowItems.length}</p>
+          <p className="text-lg sm:text-2xl font-bold text-surface-900 dark:text-white">{flowItems.length}</p>
           <p className="text-xs text-surface-500 dark:text-surface-400">{t("notes.allNotes")}</p>
           {(stats.fromModules + stats.fromTimer + stats.fromExams) > 0 && (
             <p className="text-xs text-surface-400 dark:text-surface-500 mt-0.5">
@@ -324,7 +324,7 @@ export default function NotesPage() {
               value={searchQ}
               onChange={e => setSearchQ(e.target.value)}
               placeholder={t("notes.search")}
-              className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg pl-10 pr-3 py-2 text-sm text-surface-900 dark:text-surface-50 placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
+              className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg pl-10 pr-3 py-2 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
             />
           </div>
           <div className="flex rounded-lg overflow-hidden border border-surface-200 dark:border-surface-600">
@@ -439,7 +439,7 @@ export default function NotesPage() {
             <span className="text-xs text-surface-400 dark:text-surface-500">{t("notes.activeFilters")}:</span>
             {searchQ && <span className="text-xs bg-surface-100 dark:bg-surface-700 px-2 py-0.5 rounded-full text-surface-600 dark:text-surface-400">Suche: "{searchQ}"</span>}
             {filterModule && <span className="text-xs bg-brand-100 dark:bg-brand-900/30 px-2 py-0.5 rounded-full text-brand-700 dark:text-brand-400">{modules.find(m => m.id === filterModule)?.name}</span>}
-            {filterUnlinked && <span className="text-xs bg-surface-200 dark:bg-surface-700 px-2 py-0.5 rounded-full text-surface-700 dark:text-surface-300">{t("notes.filterGeneral")}</span>}
+            {filterUnlinked && <span className="text-xs bg-surface-200 dark:bg-surface-700 px-2 py-0.5 rounded-full text-surface-700 dark:text-surface-500">{t("notes.filterGeneral")}</span>}
             {filterSource && <span className="text-xs bg-surface-100 dark:bg-surface-700 px-2 py-0.5 rounded-full text-surface-600 dark:text-surface-400">{({ note: t("notes.typeNote"), module: t("notes.typeModule"), timer: t("notes.typeTimer"), exam: t("notes.typeExam") } as any)[filterSource]}</span>}
             {filterStatus && <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: STATUS_CONFIG[filterStatus].color + "20", color: STATUS_CONFIG[filterStatus].color }}>{STATUS_CONFIG[filterStatus].label}</span>}
             {filterRubrik && <span className="text-xs bg-surface-100 dark:bg-surface-700 px-2 py-0.5 rounded-full text-surface-600 dark:text-surface-400">{rubriken.find(r => r.id === filterRubrik)?.name}</span>}
@@ -604,7 +604,7 @@ function FlowView({ items, onOpenNote }: { items: FlowItem[]; onOpenNote: (n: No
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-1">
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
                           <span style={{ color: typeColor }} className="flex-shrink-0">{FLOW_ICONS[item.type]}</span>
-                          <h4 className={`text-xs sm:text-sm font-medium text-surface-900 dark:text-surface-50 line-clamp-1 ${isClickable ? "group-hover:text-brand-300" : ""}`}>
+                          <h4 className={`text-xs sm:text-sm font-medium text-surface-900 dark:text-white line-clamp-1 ${isClickable ? "group-hover:text-brand-300" : ""}`}>
                             {item.pinned && <Pin size={10} className="inline mr-1 text-amber-400 dark:text-amber-500" />}
                             {item.title}
                           </h4>
@@ -674,7 +674,7 @@ function NoteCard({ note, modules, onClick }: { note: Note; modules: Module[]; o
       style={{ borderTopWidth: 3, borderTopColor: note.color }}
     >
       <div className="flex items-start justify-between mb-2">
-        <h3 className="font-semibold text-surface-900 dark:text-surface-50 text-sm group-hover:text-brand-300 transition line-clamp-1 flex-1">
+        <h3 className="font-semibold text-surface-900 dark:text-white text-sm group-hover:text-brand-300 transition line-clamp-1 flex-1">
           {note.pinned && <Pin size={12} className="inline mr-1 text-amber-400 dark:text-amber-500" />}
           {note.title}
         </h3>
@@ -722,7 +722,7 @@ function NoteListRow({ note, modules, onClick }: { note: Note; modules: Module[]
       <div className="w-1 h-8 rounded-full flex-shrink-0" style={{ backgroundColor: note.color }} />
       {note.pinned && <Pin size={14} className="text-amber-400 dark:text-amber-500 flex-shrink-0" />}
       <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-medium text-surface-900 dark:text-surface-50 group-hover:text-brand-300 transition line-clamp-1">{note.title}</h3>
+        <h3 className="text-sm font-medium text-surface-900 dark:text-white group-hover:text-brand-300 transition line-clamp-1">{note.title}</h3>
         {mod && (
           <span className="text-xs" style={{ color: mod.color }}>{mod.name}</span>
         )}
@@ -791,24 +791,24 @@ function CreateNoteModal({
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
       <div className="bg-surface-100 dark:bg-surface-800 border border-surface-300 dark:border-surface-700 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-4 sm:mb-5">
-          <h2 className="text-base sm:text-lg font-bold text-surface-900 dark:text-surface-50">{t("notes.newNote")}</h2>
+          <h2 className="text-base sm:text-lg font-bold text-surface-900 dark:text-white">{t("notes.newNote")}</h2>
           <button onClick={onClose} className="text-surface-500 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-200 transition"><X size={20} /></button>
         </div>
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5">{t("notes.createTitle")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-800 mb-1.5">{t("notes.createTitle")}</label>
         <input
           value={title}
           onChange={e => setTitle(e.target.value)}
           placeholder={t("notes.createTitlePlaceholder")}
-          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 dark:text-surface-50 placeholder:text-surface-400 dark:placeholder:text-surface-500 mb-3 sm:mb-4 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
+          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 mb-3 sm:mb-4 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
           autoFocus
         />
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5">{t("notes.createAssignment")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-800 mb-1.5">{t("notes.createAssignment")}</label>
         <select
           value={moduleId}
           onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); }}
-          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 dark:text-surface-50 mb-2"
+          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 dark:text-white mb-2"
         >
           <option value="">{t("notes.createNoModule")}</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -819,7 +819,7 @@ function CreateNoteModal({
             <select
               value={examId}
               onChange={e => setExamId(e.target.value)}
-              className="flex-1 bg-surface-50 dark:bg-surface-700 border border-surface-300 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-2 text-xs sm:text-sm text-surface-900 dark:text-surface-50"
+              className="flex-1 bg-surface-50 dark:bg-surface-700 border border-surface-300 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-2 text-xs sm:text-sm text-surface-900 dark:text-white"
             >
               <option value="">{t("notes.createNoExam")}</option>
               {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
@@ -827,7 +827,7 @@ function CreateNoteModal({
             <select
               value={taskId}
               onChange={e => setTaskId(e.target.value)}
-              className="flex-1 bg-surface-50 dark:bg-surface-700 border border-surface-300 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-2 text-xs sm:text-sm text-surface-900 dark:text-surface-50"
+              className="flex-1 bg-surface-50 dark:bg-surface-700 border border-surface-300 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-2 text-xs sm:text-sm text-surface-900 dark:text-white"
             >
               <option value="">{t("notes.createNoTask")}</option>
               {filteredTasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
@@ -835,17 +835,17 @@ function CreateNoteModal({
           </div>
         )}
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5 mt-3">{t("notes.createRubrik")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-800 mb-1.5 mt-3">{t("notes.createRubrik")}</label>
         <select
           value={categoryId}
           onChange={e => setCategoryId(e.target.value)}
-          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 dark:text-surface-50 mb-3 sm:mb-4"
+          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-300 dark:border-surface-600 rounded-lg px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 dark:text-white mb-3 sm:mb-4"
         >
           <option value="">{t("notes.createNoRubrik")}</option>
           {rubriken.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
         </select>
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5">{t("notes.createColor")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-800 mb-1.5">{t("notes.createColor")}</label>
         <div className="flex gap-1.5 sm:gap-2 mb-4 sm:mb-5 flex-wrap">
           {NOTE_COLORS.map(c => (
             <button
@@ -1027,7 +1027,7 @@ function NoteEditor({
             <input
               value={title}
               onChange={e => { setTitle(e.target.value); scheduleAutoSave(); }}
-              className="text-lg sm:text-xl font-bold text-surface-900 dark:text-surface-50 bg-transparent border-none focus:outline-none w-full"
+              className="text-lg sm:text-xl font-bold text-surface-900 dark:text-white bg-transparent border-none focus:outline-none w-full"
               placeholder={t("notes.titlePlaceholder")}
             />
             <div className="flex items-center gap-1.5 sm:gap-2 mt-1 flex-wrap">
@@ -1075,7 +1075,7 @@ function NoteEditor({
         <select
           value={moduleId}
           onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); scheduleAutoSave(); }}
-          className="bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs text-surface-900 dark:text-surface-50 flex-shrink-0"
+          className="bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs text-surface-900 dark:text-white flex-shrink-0"
         >
           <option value="">{t("notes.editorNoModule")}</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -1085,7 +1085,7 @@ function NoteEditor({
             <select
               value={examId}
               onChange={e => { setExamId(e.target.value); scheduleAutoSave(); }}
-              className="bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs text-surface-900 dark:text-surface-50 flex-shrink-0"
+              className="bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs text-surface-900 dark:text-white flex-shrink-0"
             >
               <option value="">{t("notes.editorNoExam")}</option>
               {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
@@ -1093,7 +1093,7 @@ function NoteEditor({
             <select
               value={taskId}
               onChange={e => { setTaskId(e.target.value); scheduleAutoSave(); }}
-              className="bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs text-surface-900 dark:text-surface-50 flex-shrink-0"
+              className="bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs text-surface-900 dark:text-white flex-shrink-0"
             >
               <option value="">{t("notes.editorNoTask")}</option>
               {filteredTasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
@@ -1103,7 +1103,7 @@ function NoteEditor({
         <select
           value={categoryId}
           onChange={e => { setCategoryId(e.target.value); scheduleAutoSave(); }}
-          className="bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs text-surface-900 dark:text-surface-50 flex-shrink-0"
+          className="bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs text-surface-900 dark:text-white flex-shrink-0"
         >
           <option value="">{t("notes.editorNoRubrik")}</option>
           {rubriken.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
@@ -1136,7 +1136,7 @@ function NoteEditor({
         ref={editorRef}
         contentEditable
         onInput={scheduleAutoSave}
-        className="min-h-[300px] bg-surface-50 dark:bg-surface-700 border-x border-b border-surface-200 dark:border-surface-600 rounded-b-xl p-3 sm:p-4 text-xs sm:text-sm text-surface-900 dark:text-surface-50 focus:outline-none prose prose-sm max-w-none [&_h1]:text-lg sm:[&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-surface-900 dark:[&_h1]:text-surface-50 [&_h1]:mt-3 sm:[&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-base sm:[&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-surface-700 dark:[&_h2]:text-surface-300 [&_h2]:mt-2 sm:[&_h2]:mt-3 [&_h2]:mb-1.5 [&_ul]:list-disc [&_ul]:pl-4 sm:[&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-4 sm:[&_ol]:pl-5 [&_a]:text-brand-500 dark:[&_a]:text-brand-400 [&_a]:underline [&_li]:text-surface-800 dark:[&_li]:text-surface-200 [&_p]:text-surface-800 dark:[&_p]:text-surface-200 [&_p]:leading-relaxed"
+        className="min-h-[300px] bg-surface-50 dark:bg-surface-700 border-x border-b border-surface-200 dark:border-surface-600 rounded-b-xl p-3 sm:p-4 text-xs sm:text-sm text-surface-900 dark:text-white focus:outline-none prose prose-sm max-w-none [&_h1]:text-lg sm:[&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-surface-900 dark:[&_h1]:text-surface-50 [&_h1]:mt-3 sm:[&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-base sm:[&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-surface-700 dark:[&_h2]:text-surface-300 [&_h2]:mt-2 sm:[&_h2]:mt-3 [&_h2]:mb-1.5 [&_ul]:list-disc [&_ul]:pl-4 sm:[&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-4 sm:[&_ol]:pl-5 [&_a]:text-brand-500 dark:[&_a]:text-brand-400 [&_a]:underline [&_li]:text-surface-800 dark:[&_li]:text-surface-200 [&_p]:text-surface-800 dark:[&_p]:text-surface-200 [&_p]:leading-relaxed"
         data-placeholder={t("notes.startTyping")}
         suppressContentEditableWarning
       />
@@ -1149,7 +1149,7 @@ function NoteEditor({
         >
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             <CheckSquare size={16} className="text-brand-400 dark:text-brand-500 flex-shrink-0" />
-            <span className="text-xs sm:text-sm font-semibold text-surface-800 dark:text-surface-100">{t("notes.checklist")}</span>
+            <span className="text-xs sm:text-sm font-semibold text-surface-800 dark:text-white">{t("notes.checklist")}</span>
             {checkTotal > 0 && (
               <span className="text-xs text-surface-500 dark:text-surface-400">({checkDone}/{checkTotal})</span>
             )}
@@ -1184,7 +1184,7 @@ function NoteEditor({
                       : <Square size={16} className="text-surface-400 dark:text-surface-500 hover:text-surface-700 dark:hover:text-surface-300" />
                     }
                   </button>
-                  <span className={`text-xs sm:text-sm flex-1 ${item.checked ? "text-surface-400 dark:text-surface-500 line-through" : "text-surface-800 dark:text-surface-200"}`}>
+                  <span className={`text-xs sm:text-sm flex-1 ${item.checked ? "text-surface-400 dark:text-surface-500 line-through" : "text-surface-800 dark:text-surface-800"}`}>
                     {item.content}
                   </span>
                   <button
@@ -1204,7 +1204,7 @@ function NoteEditor({
                 onChange={e => setNewCheckItem(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter") addCheckItem(); }}
                 placeholder={t("notes.newPoint")}
-                className="flex-1 bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-surface-50 placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition min-w-[100px] sm:min-w-[120px]"
+                className="flex-1 bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition min-w-[100px] sm:min-w-[120px]"
               />
               <button
                 onClick={addCheckItem}
@@ -1248,14 +1248,14 @@ function RubrikCreateModal({ onClose, onCreated }: { onClose: () => void; onCrea
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-surface-100 dark:bg-surface-800 rounded-2xl shadow-xl w-full max-w-sm">
         <div className="flex items-center justify-between p-4 border-b border-surface-200 dark:border-surface-700">
-          <h2 className="font-semibold text-surface-900 dark:text-surface-50 text-sm">{t("notes.rubrikCreateTitle")}</h2>
+          <h2 className="font-semibold text-surface-900 dark:text-white text-sm">{t("notes.rubrikCreateTitle")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 transition"><X size={16} /></button>
         </div>
         <form onSubmit={handleCreate} className="p-4 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-200 mb-1">{t("notes.rubrikCreateName")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-800 mb-1">{t("notes.rubrikCreateName")}</label>
             <input
-              className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-2 text-sm text-surface-900 dark:text-surface-50 placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
+              className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-2 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder={t("notes.rubrikCreatePlaceholder")}
@@ -1263,7 +1263,7 @@ function RubrikCreateModal({ onClose, onCreated }: { onClose: () => void; onCrea
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-200 mb-2">{t("notes.createColor")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-800 mb-2">{t("notes.createColor")}</label>
             <div className="flex gap-1.5 flex-wrap">
               {NOTE_COLORS.map(c => (
                 <button key={c} type="button" onClick={() => setColor(c)}
@@ -1273,7 +1273,7 @@ function RubrikCreateModal({ onClose, onCreated }: { onClose: () => void; onCrea
             </div>
           </div>
           <div className="flex gap-3 pt-1">
-            <button type="button" onClick={onClose} className="flex-1 px-4 py-2 rounded-lg border border-surface-200 dark:border-surface-600 text-sm font-medium text-surface-600 dark:text-surface-300 hover:bg-surface-50 dark:hover:bg-surface-700 transition">{t("common.cancel")}</button>
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-2 rounded-lg border border-surface-200 dark:border-surface-600 text-sm font-medium text-surface-600 dark:text-surface-500 hover:bg-surface-50 dark:hover:bg-surface-700 transition">{t("common.cancel")}</button>
             <button type="submit" disabled={saving || !name.trim()} className="flex-1 px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 dark:hover:bg-brand-700 text-white text-sm font-medium transition disabled:opacity-50">
               {saving ? t("notes.creating_progress") : t("common.create")}
             </button>

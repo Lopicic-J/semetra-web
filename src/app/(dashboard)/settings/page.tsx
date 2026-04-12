@@ -129,11 +129,11 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
         <div className="space-y-3">
           <div>
             <label className="block text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wider mb-1">E-Mail</label>
-            <p className="text-sm text-surface-800 dark:text-surface-200 bg-surface-50 dark:bg-surface-700 px-3 py-2.5 rounded-xl">{user?.email ?? "—"}</p>
+            <p className="text-sm text-surface-800 dark:text-surface-800 bg-surface-50 dark:bg-surface-700 px-3 py-2.5 rounded-xl">{user?.email ?? "—"}</p>
           </div>
           <div>
             <label className="block text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wider mb-1">{t("settings.accountCreated")}</label>
-            <p className="text-sm text-surface-800 dark:text-surface-200 bg-surface-50 dark:bg-surface-700 px-3 py-2.5 rounded-xl">
+            <p className="text-sm text-surface-800 dark:text-surface-800 bg-surface-50 dark:bg-surface-700 px-3 py-2.5 rounded-xl">
               {user?.created_at ? new Date(user.created_at).toLocaleDateString(locale === "de" ? "de-CH" : "en-US", { day: "2-digit", month: "long", year: "numeric" }) : "—"}
             </p>
           </div>
@@ -146,7 +146,7 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
         <p className="text-xs text-surface-400 dark:text-surface-500 mb-4">{t("settings.countryDesc")}</p>
         <div className="flex flex-col sm:flex-row items-end gap-2 sm:gap-3">
           <div className="flex-1 w-full sm:w-auto">
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("settings.countryLabel")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("settings.countryLabel")}</label>
             <select
               value={selectedCountry}
               onChange={e => setSelectedCountry(e.target.value)}
@@ -167,8 +167,8 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
         </div>
         {/* Preview of selected system */}
         <div className="mt-3 bg-surface-50 dark:bg-surface-700 rounded-xl p-3 text-xs text-surface-500 dark:text-surface-400 space-y-1">
-          <p>{t("settings.scaleLabel")}: <strong className="text-surface-700 dark:text-surface-200">{currentSystem.scaleLabel}</strong></p>
-          <p>{t("settings.passingLabel")}: <strong className="text-surface-700 dark:text-surface-200">{currentSystem.passingGrade}</strong> · {t("settings.creditsLabel")}: <strong className="text-surface-700 dark:text-surface-200">{currentSystem.creditLabel}</strong></p>
+          <p>{t("settings.scaleLabel")}: <strong className="text-surface-700 dark:text-surface-800">{currentSystem.scaleLabel}</strong></p>
+          <p>{t("settings.passingLabel")}: <strong className="text-surface-700 dark:text-surface-800">{currentSystem.passingGrade}</strong> · {t("settings.creditsLabel")}: <strong className="text-surface-700 dark:text-surface-800">{currentSystem.creditLabel}</strong></p>
         </div>
         {countryMsg && (
           <p className={`text-sm px-3 py-2 rounded-lg mt-3 ${countryMsg.type === "success" ? "bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-200" : "bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-200"}`}>
@@ -187,11 +187,11 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
         <h2 className="font-semibold text-surface-900 dark:text-white mb-4">{t("settings.passwordTitle")}</h2>
         <form onSubmit={handlePasswordChange} className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("settings.newPassword")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("settings.newPassword")}</label>
             <input className="input" type="password" minLength={8} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder={t("settings.minChars")} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("settings.confirmPassword")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("settings.confirmPassword")}</label>
             <input className="input" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder={t("settings.confirmPlaceholder")} />
           </div>
           {msg && (
@@ -284,7 +284,7 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
               {t("settings.lifetimeActive")}
             </div>
             <div className="bg-surface-50 dark:bg-surface-700 rounded-xl p-4">
-              <p className="text-sm text-surface-600 dark:text-surface-300">
+              <p className="text-sm text-surface-600 dark:text-surface-500">
                 {t("settings.proInfo")}
               </p>
             </div>
@@ -494,7 +494,7 @@ function NotificationsTab() {
         ].map(item => (
           <div key={item.key} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 py-2">
             <div className="flex-1">
-              <p className="text-sm font-medium text-surface-800 dark:text-surface-200">{item.label}</p>
+              <p className="text-sm font-medium text-surface-800 dark:text-surface-800">{item.label}</p>
               <p className="text-xs text-surface-400 dark:text-surface-500">{item.description}</p>
             </div>
             <button onClick={() => setSettings(s => ({ ...s, [item.key]: !s[item.key] }))}
@@ -768,7 +768,7 @@ function PrivacyTab() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-surface-800 dark:text-surface-200">
+              <p className="text-sm font-medium text-surface-800 dark:text-surface-800">
                 {t("settings.communityVisibleLabel") || "In der Community sichtbar"}
               </p>
               <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">
@@ -782,14 +782,14 @@ function PrivacyTab() {
                 communityVisible ? "bg-brand-600" : "bg-surface-300 dark:bg-surface-600"
               }`}
             >
-              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow ${
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white dark:bg-surface-800 transition-transform shadow ${
                 communityVisible ? "translate-x-6" : "translate-x-1"
               }`} />
             </button>
           </div>
 
           <div className="border-t border-surface-100 dark:border-surface-700 pt-4">
-            <p className="text-sm font-medium text-surface-800 dark:text-surface-200 mb-2">
+            <p className="text-sm font-medium text-surface-800 dark:text-surface-800 mb-2">
               {t("settings.onlineStatusLabel") || "Online-Status"}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -835,7 +835,7 @@ function PrivacyTab() {
           >
             <HardDrive size={20} className={exportFormat === "desktop" ? "text-brand-600 dark:text-brand-400" : "text-surface-400 dark:text-surface-500"} />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-surface-800 dark:text-surface-200">{t("settings.exportDesktopTitle")}</p>
+              <p className="text-sm font-semibold text-surface-800 dark:text-surface-800">{t("settings.exportDesktopTitle")}</p>
               <p className="text-xs text-surface-500 dark:text-surface-400">
                 {t("settings.exportDesktopDesc")}
               </p>
@@ -857,7 +857,7 @@ function PrivacyTab() {
           >
             <Database size={20} className={exportFormat === "json" ? "text-brand-600 dark:text-brand-400" : "text-surface-400 dark:text-surface-500"} />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-surface-800 dark:text-surface-200">{t("settings.exportJsonTitle")}</p>
+              <p className="text-sm font-semibold text-surface-800 dark:text-surface-800">{t("settings.exportJsonTitle")}</p>
               <p className="text-xs text-surface-500 dark:text-surface-400">
                 {t("settings.exportJsonDesc")}
               </p>
@@ -934,7 +934,7 @@ function LanguageCard() {
       <p className="text-xs text-surface-400 dark:text-surface-500 mb-4">{t("settings.languageDesc2")}</p>
       <div className="flex flex-col sm:flex-row items-start sm:items-end gap-2 sm:gap-3">
         <div className="flex-1 w-full sm:w-auto">
-          <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("settings.language")}</label>
+          <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("settings.language")}</label>
           <select
             value={selectedLang}
             onChange={e => setSelectedLang(e.target.value as Locale)}
@@ -1045,7 +1045,7 @@ function DeleteAccountSection({ t }: { t: (key: string) => string }) {
                 <AlertTriangle size={20} className="text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <h3 className="font-bold text-surface-900 dark:text-surface-50">Konto endgültig löschen?</h3>
+                <h3 className="font-bold text-surface-900 dark:text-white">Konto endgültig löschen?</h3>
                 <p className="text-xs text-surface-500 dark:text-surface-400">Diese Aktion kann nicht rückgängig gemacht werden.</p>
               </div>
             </div>
@@ -1057,7 +1057,7 @@ function DeleteAccountSection({ t }: { t: (key: string) => string }) {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">
                 Gib <strong className="text-red-600 dark:text-red-400">KONTO LÖSCHEN</strong> ein zur Bestätigung
               </label>
               <input
@@ -1065,7 +1065,7 @@ function DeleteAccountSection({ t }: { t: (key: string) => string }) {
                 value={confirmation}
                 onChange={e => setConfirmation(e.target.value)}
                 placeholder="KONTO LÖSCHEN"
-                className="w-full px-3 py-2.5 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-surface-50 placeholder:text-surface-300 dark:placeholder:text-surface-600 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-700"
+                className="w-full px-3 py-2.5 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-white placeholder:text-surface-300 dark:placeholder:text-surface-600 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-700"
                 autoFocus
               />
             </div>
@@ -1080,7 +1080,7 @@ function DeleteAccountSection({ t }: { t: (key: string) => string }) {
               <button
                 onClick={() => { setShowModal(false); setConfirmation(""); setError(""); }}
                 disabled={deleting}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 text-sm font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 text-sm font-medium text-surface-700 dark:text-surface-500 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors disabled:opacity-50"
               >
                 Abbrechen
               </button>

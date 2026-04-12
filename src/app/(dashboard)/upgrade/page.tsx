@@ -16,7 +16,7 @@ function CheckoutButton({ priceId, label, variant = "brand" }: { priceId: string
   const colors = {
     brand: "bg-brand-600 hover:bg-brand-700 dark:bg-brand-600 dark:hover:bg-brand-500 text-white",
     violet: "bg-violet-600 hover:bg-violet-700 dark:bg-violet-600 dark:hover:bg-violet-500 text-white",
-    dark: "bg-white/10 hover:bg-white/20 text-white",
+    dark: "bg-white/10 dark:bg-surface-800 hover:bg-white/20 dark:bg-surface-800 text-white",
   };
   async function handleCheckout() {
     setLoading(true);
@@ -51,7 +51,7 @@ function UpgradeContent() {
           <Zap size={14} />
           Semetra Pro
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-surface-50 mb-3">{t("upgrade.title")}</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-white mb-3">{t("upgrade.title")}</h1>
         <p className="text-sm sm:text-base text-surface-500 dark:text-surface-400 max-w-xl mx-auto">{t("upgrade.subtitle")}</p>
 
         {/* Guarantee note */}
@@ -64,7 +64,7 @@ function UpgradeContent() {
         <div className="bg-surface-100 dark:bg-surface-800 rounded-2xl border-2 border-surface-200 dark:border-surface-700 p-4 sm:p-5">
           <div className="mb-4">
             <p className="text-xs sm:text-sm font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wide mb-1">Free</p>
-            <p className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-surface-50">CHF 0</p>
+            <p className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-white">CHF 0</p>
             <p className="text-xs text-surface-400 dark:text-surface-500 mt-1">{t("upgrade.forever")}</p>
           </div>
           <div className="space-y-2 mb-5">
@@ -101,7 +101,7 @@ function UpgradeContent() {
           <div className="mb-4">
             <p className="text-xs sm:text-sm font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-wide mb-1">Pro Basic</p>
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-surface-50">
+              <span className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-white">
                 CHF {PRO_BASIC_PRICES.yearly.price.toFixed(2).replace(".", ",")}
               </span>
               <span className="text-xs text-surface-400 dark:text-surface-500">
@@ -124,7 +124,7 @@ function UpgradeContent() {
               t("upgrade.basic.f7"),
               t("upgrade.basic.f8"),
             ].map(f => (
-              <div key={f} className="flex items-start gap-2 text-xs text-surface-700 dark:text-surface-300">
+              <div key={f} className="flex items-start gap-2 text-xs text-surface-700 dark:text-surface-500">
                 <Check size={12} className="text-brand-600 dark:text-brand-400 shrink-0 mt-0.5" />
                 <span>{f}</span>
               </div>
@@ -152,7 +152,7 @@ function UpgradeContent() {
           <div className="mb-4">
             <p className="text-xs sm:text-sm font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wide mb-1">Pro Full</p>
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-surface-50">
+              <span className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-white">
                 CHF {PRO_FULL_PRICES.yearly.price.toFixed(2).replace(".", ",")}
               </span>
               <span className="text-xs text-surface-400 dark:text-surface-500">
@@ -175,7 +175,7 @@ function UpgradeContent() {
               t("upgrade.full.f7"),
               t("upgrade.full.f8"),
             ].map(f => (
-              <div key={f} className="flex items-start gap-2 text-xs text-surface-700 dark:text-surface-300">
+              <div key={f} className="flex items-start gap-2 text-xs text-surface-700 dark:text-surface-500">
                 <Check size={12} className="text-violet-600 dark:text-violet-400 shrink-0 mt-0.5" />
                 <span>{f}</span>
               </div>
@@ -234,7 +234,7 @@ function UpgradeContent() {
                 <Sparkles size={12} />
                 KI Add-on
               </div>
-              <p className="text-base sm:text-lg font-bold text-surface-900 dark:text-surface-50">
+              <p className="text-base sm:text-lg font-bold text-surface-900 dark:text-white">
                 {AI_ADDON_PRICE.label} — CHF {AI_ADDON_PRICE.price.toFixed(2).replace(".", ",")}
               </p>
               <p className="text-xs sm:text-sm text-surface-500 dark:text-surface-400 mt-1">{t("upgrade.addonDesc")}</p>

@@ -59,7 +59,7 @@ export default function TasksPage() {
     <div className="p-3 sm:p-5 max-w-4xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-surface-50">{t("tasks.title")}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white">{t("tasks.title")}</h1>
           <p className="text-surface-500 dark:text-surface-400 text-sm mt-0.5">{t("tasks.subtitle", { open: tasks.filter(tk => tk.status !== "done").length, done: tasks.filter(tk => tk.status === "done").length })}</p>
         </div>
         <button onClick={() => { setEditing(null); setShowForm(true); }} className="btn-primary gap-2 w-full sm:w-auto justify-center">
@@ -76,7 +76,7 @@ export default function TasksPage() {
                        t("tasks.filterDone");
           return (
             <button key={s} onClick={() => setFilter(s)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${filter === s ? "bg-surface-50 dark:bg-surface-700 text-surface-900 dark:text-surface-50 shadow-sm" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300"}`}>
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${filter === s ? "bg-surface-50 dark:bg-surface-700 text-surface-900 dark:text-white shadow-sm" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300"}`}>
               {label}
             </button>
           );
@@ -144,7 +144,7 @@ function TaskRow({ task, modules, onToggle, onEdit, onDelete, isExpanded, onTogg
       </button>
 
       <div className="flex-1 min-w-0">
-        <p className={`text-sm font-medium ${task.status === "done" ? "line-through text-surface-400 dark:text-surface-500" : "text-surface-800 dark:text-surface-100"}`}>{task.title}</p>
+        <p className={`text-sm font-medium ${task.status === "done" ? "line-through text-surface-400 dark:text-surface-500" : "text-surface-800 dark:text-white"}`}>{task.title}</p>
         <div className="flex flex-wrap gap-2 mt-0.5">
           {task.due_date && (
             <span className={`text-xs ${isOverdue ? "text-red-500 dark:text-red-400 font-medium" : "text-surface-400 dark:text-surface-500"}`}>
@@ -161,10 +161,10 @@ function TaskRow({ task, modules, onToggle, onEdit, onDelete, isExpanded, onTogg
       </div>
 
       <div className="flex items-center gap-2 shrink-0 flex-wrap justify-between sm:justify-end">
-        <span className={`badge text-[10px] ${task.priority === "high" ? "bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300" : task.priority === "medium" ? "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-200" : "badge-surface dark:bg-surface-700 dark:text-surface-300"}`}>
+        <span className={`badge text-[10px] ${task.priority === "high" ? "bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300" : task.priority === "medium" ? "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-200" : "badge-surface dark:bg-surface-700 dark:text-surface-500"}`}>
           {task.priority === "high" ? t("tasks.statusHigh") : task.priority === "medium" ? t("tasks.statusMedium") : t("tasks.statusLow")}
         </span>
-        <span className={`badge text-[10px] ${task.status === "done" ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200" : task.status === "in_progress" ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200" : "badge-surface dark:bg-surface-700 dark:text-surface-300"}`}>
+        <span className={`badge text-[10px] ${task.status === "done" ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200" : task.status === "in_progress" ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200" : "badge-surface dark:bg-surface-700 dark:text-surface-500"}`}>
           {task.status === "done" ? t("tasks.statusDone") : task.status === "in_progress" ? t("tasks.statusInProgress") : t("tasks.statusOpen")}
         </span>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -216,7 +216,7 @@ function TaskDetailPanel({ task, modules }: {
       {task.description && (
         <div>
           <p className="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider mb-1">{t("tasks.detailDescription")}</p>
-          <p className="text-sm text-surface-700 dark:text-surface-300 whitespace-pre-line bg-surface-100 dark:bg-surface-900 rounded-lg p-3 border border-surface-100 dark:border-surface-700">{task.description}</p>
+          <p className="text-sm text-surface-700 dark:text-surface-500 whitespace-pre-line bg-surface-100 dark:bg-surface-900 rounded-lg p-3 border border-surface-100 dark:border-surface-700">{task.description}</p>
         </div>
       )}
 
@@ -225,7 +225,7 @@ function TaskDetailPanel({ task, modules }: {
         <div className="flex items-center gap-2 flex-wrap">
           <BookOpen size={13} className="text-surface-400 dark:text-surface-500" />
           <span className="text-xs font-medium text-surface-500 dark:text-surface-400">{t("tasks.detailModule")}:</span>
-          <span className="flex items-center gap-1.5 text-xs text-surface-700 dark:text-surface-300 font-medium">
+          <span className="flex items-center gap-1.5 text-xs text-surface-700 dark:text-surface-500 font-medium">
             <span className="w-2.5 h-2.5 rounded-full" style={{ background: mod.color }} />
             {mod.name}
           </span>
@@ -236,7 +236,7 @@ function TaskDetailPanel({ task, modules }: {
       <div className="flex flex-wrap gap-3 text-xs text-surface-500 dark:text-surface-400">
         {task.due_date && (
           <span className="flex items-center gap-1">
-            📅 {t("tasks.detailDue")}: <span className={`font-medium ${new Date(task.due_date) < new Date() && task.status !== "done" ? "text-red-600 dark:text-red-400" : "text-surface-700 dark:text-surface-300"}`}>{formatDate(task.due_date)}</span>
+            📅 {t("tasks.detailDue")}: <span className={`font-medium ${new Date(task.due_date) < new Date() && task.status !== "done" ? "text-red-600 dark:text-red-400" : "text-surface-700 dark:text-surface-500"}`}>{formatDate(task.due_date)}</span>
           </span>
         )}
         <span>
@@ -252,11 +252,11 @@ function TaskDetailPanel({ task, modules }: {
           </h3>
           <div className="flex gap-2 flex-wrap">
             <button onClick={() => setShowLinkForm(!showLinkForm)}
-              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-surface-100 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 text-surface-600 dark:text-surface-300 hover:border-brand-300 dark:hover:border-brand-700 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-surface-100 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 text-surface-600 dark:text-surface-500 hover:border-brand-300 dark:hover:border-brand-700 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
               <Link2 size={12} /> {t("tasks.addLink")}
             </button>
             <button onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-surface-100 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 text-surface-600 dark:text-surface-300 hover:border-brand-300 dark:hover:border-brand-700 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-surface-100 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 text-surface-600 dark:text-surface-500 hover:border-brand-300 dark:hover:border-brand-700 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
               <Upload size={12} /> {t("tasks.addFile")}
             </button>
             <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileUpload}
@@ -288,7 +288,7 @@ function TaskDetailPanel({ task, modules }: {
               <div key={att.id} className="flex items-center gap-2.5 p-2 rounded-lg bg-surface-100 dark:bg-surface-900 border border-surface-100 dark:border-surface-700 group/att hover:border-brand-200 dark:hover:border-brand-700 transition-colors">
                 <span className="text-sm shrink-0">{fileIcon(att.kind, att.file_type)}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-surface-800 dark:text-surface-200 truncate">{att.label || att.url}</p>
+                  <p className="text-xs font-medium text-surface-800 dark:text-surface-800 truncate">{att.label || att.url}</p>
                   {att.kind === "file" && att.file_size > 0 && (
                     <p className="text-[10px] text-surface-400 dark:text-surface-500">{att.file_type?.toUpperCase()} · {humanSize(att.file_size)}</p>
                   )}
@@ -358,25 +358,25 @@ function TaskModal({ initial, modules, onClose, onSaved }: {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-surface-50 dark:bg-surface-800 rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-5 border-b border-surface-100 dark:border-surface-700">
-          <h2 className="font-semibold text-surface-900 dark:text-surface-50">{initial ? t("tasks.modal.editTitle") : t("tasks.modal.title")}</h2>
+          <h2 className="font-semibold text-surface-900 dark:text-white">{initial ? t("tasks.modal.editTitle") : t("tasks.modal.title")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("tasks.modal.titleLabel")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("tasks.modal.titleLabel")}</label>
             <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("tasks.modal.titlePlaceholder")} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("tasks.modal.descriptionLabel")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("tasks.modal.descriptionLabel")}</label>
             <textarea className="input resize-none" rows={2} value={form.description} onChange={e => set("description", e.target.value)} placeholder={t("tasks.modal.descriptionPlaceholder")} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("tasks.modal.dueDateLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("tasks.modal.dueDateLabel")}</label>
               <input className="input" type="date" value={form.due_date} onChange={e => set("due_date", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("tasks.modal.modulLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("tasks.modal.modulLabel")}</label>
               <select className="input" value={form.module_id} onChange={e => set("module_id", e.target.value)}>
                 <option value="">{t("tasks.modal.moduleEmpty")}</option>
                 {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -385,7 +385,7 @@ function TaskModal({ initial, modules, onClose, onSaved }: {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("tasks.modal.priorityLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("tasks.modal.priorityLabel")}</label>
               <select className="input" value={form.priority} onChange={e => set("priority", e.target.value)}>
                 <option value="low">{t("tasks.statusLow")}</option>
                 <option value="medium">{t("tasks.statusMedium")}</option>
@@ -393,7 +393,7 @@ function TaskModal({ initial, modules, onClose, onSaved }: {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("tasks.modal.statusLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("tasks.modal.statusLabel")}</label>
               <select className="input" value={form.status} onChange={e => set("status", e.target.value)}>
                 <option value="todo">{t("tasks.statusOpen")}</option>
                 <option value="in_progress">{t("tasks.statusInProgress")}</option>

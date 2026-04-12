@@ -383,7 +383,7 @@ export default function StundenplanPage() {
       <div className={"flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-5 " + (showSchedulePanel ? "lg:max-w-[calc(100%-320px)]" : "")}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
           <div className="min-w-0">
-            <h1 className="text-lg sm:text-xl font-bold text-surface-900 dark:text-surface-100 truncate">{t("nav.stundenplan")}</h1>
+            <h1 className="text-lg sm:text-xl font-bold text-surface-900 dark:text-white truncate">{t("nav.stundenplan")}</h1>
             <p className="text-surface-500 text-xs mt-0.5">{t("stundenplan.subtitle")}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -608,7 +608,7 @@ export default function StundenplanPage() {
             </div>
             {DAYS_SHORT.map((d, i) => (
               <div key={d} className="py-2 text-center border-l border-surface-100 dark:border-surface-800">
-                <div className="text-sm font-semibold text-surface-600 dark:text-surface-300">{d}</div>
+                <div className="text-sm font-semibold text-surface-600 dark:text-surface-500">{d}</div>
                 <div className="text-[10px] text-surface-400 dark:text-surface-500">{formatDateShort(weekDates[i])}</div>
               </div>
             ))}

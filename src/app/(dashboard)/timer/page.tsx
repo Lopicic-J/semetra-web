@@ -264,7 +264,7 @@ function TimerPageInner() {
           {/* Header — compact on mobile */}
           <div className="flex items-center justify-between mb-3 sm:mb-5">
             <div>
-              <h1 className="text-lg sm:text-xl font-bold text-surface-900 dark:text-surface-100">Lernzeit</h1>
+              <h1 className="text-lg sm:text-xl font-bold text-surface-900 dark:text-white">Lernzeit</h1>
               <p className="text-xs text-surface-500 mt-0.5 hidden sm:block">Fokussiert lernen, Fortschritt tracken</p>
             </div>
             {/* Streak Badge */}
@@ -282,13 +282,13 @@ function TimerPageInner() {
               <p className="text-[10px] text-surface-500">Woche</p>
             </div>
             <div className="rounded-xl bg-surface-50 dark:bg-surface-800/40 p-2 sm:p-3 text-center shrink-0 min-w-[80px] sm:min-w-0 flex-1">
-              <p className="text-sm sm:text-lg font-bold text-surface-800 dark:text-surface-200">
+              <p className="text-sm sm:text-lg font-bold text-surface-800 dark:text-surface-800">
                 {streaks.last30Days[today] ? formatDuration(streaks.last30Days[today]) : "0m"}
               </p>
               <p className="text-[10px] text-surface-500">Heute</p>
             </div>
             <div className="rounded-xl bg-surface-50 dark:bg-surface-800/40 p-2 sm:p-3 text-center shrink-0 min-w-[80px] sm:min-w-0 flex-1">
-              <p className="text-sm sm:text-lg font-bold text-surface-800 dark:text-surface-200">{timer.pomodoroCount}</p>
+              <p className="text-sm sm:text-lg font-bold text-surface-800 dark:text-surface-800">{timer.pomodoroCount}</p>
               <p className="text-[10px] text-surface-500">Pomodoros</p>
             </div>
           </div>
@@ -349,7 +349,7 @@ function TimerPageInner() {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-4xl sm:text-6xl font-mono font-bold text-surface-900 dark:text-surface-100 tracking-tight">
+                <span className="text-4xl sm:text-6xl font-mono font-bold text-surface-900 dark:text-white tracking-tight">
                   {timer.display}
                 </span>
                 {timer.isRunning && !timer.isPaused && (
@@ -516,7 +516,7 @@ function TimerPageInner() {
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
               <Calendar size={15} className="text-brand-500" />
-              <h2 className="text-sm font-semibold text-surface-800 dark:text-surface-200">Heutige Blöcke</h2>
+              <h2 className="text-sm font-semibold text-surface-800 dark:text-surface-800">Heutige Blöcke</h2>
               <span className="ml-auto text-[11px] text-surface-400">
                 {todayBlocks.length} offen
               </span>
@@ -550,7 +550,7 @@ function TimerPageInner() {
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
               <Flame size={15} className="text-orange-500" />
-              <h2 className="text-sm font-semibold text-surface-800 dark:text-surface-200">Lernstreak</h2>
+              <h2 className="text-sm font-semibold text-surface-800 dark:text-surface-800">Lernstreak</h2>
               <span className="ml-auto text-[11px] text-orange-500 font-medium">
                 {streaks.currentStreak} Tage
               </span>
@@ -566,7 +566,7 @@ function TimerPageInner() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <TrendingUp size={15} className="text-surface-500" />
-              <h2 className="text-sm font-semibold text-surface-800 dark:text-surface-200">Letzte Sitzungen</h2>
+              <h2 className="text-sm font-semibold text-surface-800 dark:text-surface-800">Letzte Sitzungen</h2>
             </div>
 
             {recentSessions.length === 0 ? (
@@ -608,7 +608,7 @@ function BlockQuickStart({ block, isTimerRunning, onStart }: {
     <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white dark:bg-surface-800 border border-surface-100 dark:border-surface-700 hover:border-brand-200 dark:hover:border-brand-800 transition-colors group">
       <div className="w-1.5 h-8 rounded-full shrink-0" style={{ background: color }} />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-surface-800 dark:text-surface-200 truncate">{block.title}</p>
+        <p className="text-sm font-medium text-surface-800 dark:text-surface-800 truncate">{block.title}</p>
         <p className="text-[11px] text-surface-400">
           {formatTime(block.start_time)}–{formatTime(block.end_time)} · {durationMin} Min.
         </p>
@@ -678,10 +678,10 @@ function SessionRow({ session }: { session: any }) {
   const alignment = session.alignment;
 
   return (
-    <div className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-white dark:hover:bg-surface-800 transition-colors">
+    <div className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-white dark:bg-surface-800 dark:hover:bg-surface-800 transition-colors">
       <div className="w-2 h-2 rounded-full shrink-0" style={{ background: moduleColor }} />
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-medium text-surface-700 dark:text-surface-300 truncate">{moduleName}</p>
+        <p className="text-xs font-medium text-surface-700 dark:text-surface-500 truncate">{moduleName}</p>
         <p className="text-[10px] text-surface-400">
           {isToday ? "Heute" : date.toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" })} · {date.toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}
           {alignment === "within_plan" && " · geplant"}

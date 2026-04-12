@@ -287,7 +287,7 @@ export default function DocumentsPage() {
           onClick={() => setViewMode("flow")}
           className={`bg-surface-100 dark:bg-surface-800 border rounded-xl p-2 sm:p-3 text-center transition ${viewMode === "flow" ? "border-brand-500 dark:border-brand-400" : "border-surface-200 dark:border-surface-700 hover:border-surface-300 dark:hover:border-surface-600"}`}
         >
-          <p className="text-lg sm:text-2xl font-bold text-surface-900 dark:text-surface-50">{stats.total}</p>
+          <p className="text-lg sm:text-2xl font-bold text-surface-900 dark:text-white">{stats.total}</p>
           <p className="text-xs text-surface-500 dark:text-surface-400">{t("documents.totalDocs") || "Gesamt"}</p>
         </button>
         <div className="bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl p-2 sm:p-3 text-center">
@@ -307,7 +307,7 @@ export default function DocumentsPage() {
       {/* Module distribution */}
       {stats.byModule.length > 0 && (
         <div className="mb-4 sm:mb-6 bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl p-3 sm:p-4">
-          <h3 className="text-xs sm:text-sm font-semibold text-surface-800 dark:text-surface-100 mb-2 sm:mb-3 flex items-center gap-2">
+          <h3 className="text-xs sm:text-sm font-semibold text-surface-800 dark:text-white mb-2 sm:mb-3 flex items-center gap-2">
             <FolderOpen size={14} className="text-blue-400 dark:text-blue-300" /> {t("nav.modules")}
           </h3>
           <div className="flex gap-1 sm:gap-2 flex-wrap">
@@ -332,7 +332,7 @@ export default function DocumentsPage() {
         <div className="flex gap-1 sm:gap-1.5 mb-3 sm:mb-4 flex-wrap">
           <button
             onClick={() => setFilterKind("")}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${!filterKind ? "bg-brand-600 dark:bg-brand-500 text-white" : "bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700"}`}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${!filterKind ? "bg-brand-600 dark:bg-brand-500 text-white" : "bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-500 hover:bg-surface-200 dark:hover:bg-surface-700"}`}
           >
             {t("grades.filterAll")}
           </button>
@@ -343,7 +343,7 @@ export default function DocumentsPage() {
                 key={kind}
                 onClick={() => setFilterKind(filterKind === kind ? "" : kind)}
                 className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition ${
-                  filterKind === kind ? "bg-brand-600 dark:bg-brand-500 text-white" : "bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700"
+                  filterKind === kind ? "bg-brand-600 dark:bg-brand-500 text-white" : "bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-500 hover:bg-surface-200 dark:hover:bg-surface-700"
                 }`}
               >
                 <span style={{ color: cfg.color }}>{cfg.icon}</span> {cfg.label} ({count})
@@ -361,13 +361,13 @@ export default function DocumentsPage() {
             value={searchQ}
             onChange={e => setSearchQ(e.target.value)}
             placeholder={t("documents.search")}
-            className="w-full bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg pl-10 pr-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-surface-100 placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
+            className="w-full bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg pl-10 pr-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
           />
         </div>
         <select
           value={filterModule}
           onChange={e => setFilterModule(e.target.value)}
-          className="bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-surface-100"
+          className="bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-white"
         >
           <option value="">{t("nav.modules")}</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -487,7 +487,7 @@ function DocCard({ doc, modules, onEdit, onDelete, onTogglePin }: {
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
           <span style={{ color: cfg.color }}>{cfg.icon}</span>
-          <h3 className="font-semibold text-surface-900 dark:text-surface-100 text-xs sm:text-sm line-clamp-1 flex-1">
+          <h3 className="font-semibold text-surface-900 dark:text-white text-xs sm:text-sm line-clamp-1 flex-1">
             {doc.pinned && <Pin size={10} className="inline mr-1 text-amber-400 dark:text-amber-300" />}
             {doc.title}
           </h3>
@@ -540,7 +540,7 @@ function DocListRow({ doc, modules, onEdit, onDelete }: {
       <span style={{ color: cfg.color }}>{cfg.icon}</span>
       {doc.pinned && <Pin size={12} className="text-amber-400 dark:text-amber-300 flex-shrink-0" />}
       <div className="flex-1 min-w-0">
-        <h3 className="text-xs sm:text-sm font-medium text-surface-900 dark:text-surface-100 line-clamp-1">{doc.title}</h3>
+        <h3 className="text-xs sm:text-sm font-medium text-surface-900 dark:text-white line-clamp-1">{doc.title}</h3>
         <p className="text-[10px] sm:text-xs text-surface-400 dark:text-surface-500 truncate">{doc.url}</p>
       </div>
       {mod && (
@@ -605,7 +605,7 @@ function DocFlowView({ items, onOpenDoc }: { items: DocFlowItem[]; onOpenDoc: (d
           <div key={modName}>
             <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
               <div className="w-2 sm:w-3 h-2 sm:h-3 rounded-full flex-shrink-0" style={{ backgroundColor: modName === "Ohne Zuordnung" ? "#999" : modColor }} />
-              <h3 className="text-xs sm:text-sm font-semibold text-surface-800 dark:text-surface-100">{modName}</h3>
+              <h3 className="text-xs sm:text-sm font-semibold text-surface-800 dark:text-white">{modName}</h3>
               <span className="text-xs text-surface-400 dark:text-surface-500">({modItems.length})</span>
               <div className="h-px flex-1 bg-surface-200 dark:bg-surface-700" />
             </div>
@@ -626,7 +626,7 @@ function DocFlowView({ items, onOpenDoc }: { items: DocFlowItem[]; onOpenDoc: (d
                   >
                     <span className="mt-0.5 flex-shrink-0" style={{ color: cfg.color }}>{cfg.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <h4 className={`text-xs sm:text-sm font-medium text-surface-900 dark:text-surface-100 line-clamp-1 ${isOwn ? "group-hover:text-brand-600 dark:group-hover:text-brand-400" : ""}`}>
+                      <h4 className={`text-xs sm:text-sm font-medium text-surface-900 dark:text-white line-clamp-1 ${isOwn ? "group-hover:text-brand-600 dark:group-hover:text-brand-400" : ""}`}>
                         {item.pinned && <Pin size={10} className="inline mr-1 text-amber-400 dark:text-amber-300" />}
                         {item.title}
                       </h4>
@@ -728,7 +728,7 @@ function PdfToolsModal({ onClose }: { onClose: () => void }) {
         {/* Header */}
         <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-surface-200 dark:border-surface-700">
           <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-            <h2 className="text-lg font-bold text-surface-900 dark:text-surface-100 truncate">{t("documents.pdfTools")}</h2>
+            <h2 className="text-lg font-bold text-surface-900 dark:text-white truncate">{t("documents.pdfTools")}</h2>
             <div className="flex bg-surface-100 dark:bg-surface-700 rounded-lg p-0.5 flex-shrink-0">
               <button onClick={() => setActiveTab("merge")}
                 className={`px-2 sm:px-3 py-1.5 rounded-md text-xs font-medium transition whitespace-nowrap ${
@@ -891,7 +891,7 @@ function PdfMergePanel() {
                 {/* File label */}
                 <div className="px-1.5 py-1 bg-surface-50 dark:bg-surface-700 border-t border-surface-200 dark:border-surface-600">
                   <p className="text-[9px] text-surface-500 dark:text-surface-400 truncate">{pg.fileName}</p>
-                  <p className="text-[10px] font-medium text-surface-700 dark:text-surface-300">S. {pg.pageIndex + 1}</p>
+                  <p className="text-[10px] font-medium text-surface-700 dark:text-surface-500">S. {pg.pageIndex + 1}</p>
                 </div>
               </div>
             ))}
@@ -1037,13 +1037,13 @@ function PdfSplitPanel() {
           {/* Controls: number of output PDFs + file info */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-3 px-1">
             <div className="flex items-center gap-2 sm:gap-3">
-              <span className="text-xs font-medium text-surface-700 dark:text-surface-300 whitespace-nowrap">{t("documents.pdfNumOutputs")}:</span>
+              <span className="text-xs font-medium text-surface-700 dark:text-surface-500 whitespace-nowrap">{t("documents.pdfNumOutputs")}:</span>
               <div className="flex items-center gap-1">
                 <button onClick={() => changeNumOutputs(-1)} disabled={numOutputs <= 2}
                   className="w-6 h-6 rounded-md bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-600 dark:text-surface-400 flex items-center justify-center disabled:opacity-30 transition">
                   <Minus size={12} />
                 </button>
-                <span className="text-sm font-bold text-surface-800 dark:text-surface-200 w-6 text-center">{numOutputs}</span>
+                <span className="text-sm font-bold text-surface-800 dark:text-surface-800 w-6 text-center">{numOutputs}</span>
                 <button onClick={() => changeNumOutputs(1)} disabled={numOutputs >= 8}
                   className="w-6 h-6 rounded-md bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-600 dark:text-surface-400 flex items-center justify-center disabled:opacity-30 transition">
                   <Plus size={12} />
@@ -1061,7 +1061,7 @@ function PdfSplitPanel() {
             {Array.from({ length: numOutputs }, (_, g) => (
               <div key={g} className="flex items-center gap-1.5 text-xs">
                 <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: GROUP_COLORS[g] }} />
-                <span className="text-surface-600 dark:text-surface-300">PDF {g + 1}</span>
+                <span className="text-surface-600 dark:text-surface-500">PDF {g + 1}</span>
                 <span className="text-surface-400 dark:text-surface-500">({groupCounts[g]})</span>
               </div>
             ))}
@@ -1097,7 +1097,7 @@ function PdfSplitPanel() {
                       className="w-full h-auto bg-white dark:bg-surface-700" draggable={false} />
                     {/* Page label */}
                     <div className="px-1.5 py-1 border-t" style={{ borderColor: GROUP_COLORS[assignments[i] ?? 0], backgroundColor: `${GROUP_COLORS[assignments[i] ?? 0]}10` }}>
-                      <p className="text-[10px] font-medium text-surface-700 dark:text-surface-300">{t("documents.pdfPage")} {pg.pageIndex + 1}</p>
+                      <p className="text-[10px] font-medium text-surface-700 dark:text-surface-500">{t("documents.pdfPage")} {pg.pageIndex + 1}</p>
                     </div>
                   </div>
                 ))}
@@ -1228,7 +1228,7 @@ function DocModal({
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4" onClick={onClose}>
       <div className="bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-2xl w-full max-w-md p-4 sm:p-6 shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center gap-2 mb-4 sm:mb-5">
-          <h2 className="text-base sm:text-lg font-bold text-surface-900 dark:text-surface-100">{isEdit ? t("documents.edit") : t("documents.modal.title")}</h2>
+          <h2 className="text-base sm:text-lg font-bold text-surface-900 dark:text-white">{isEdit ? t("documents.edit") : t("documents.modal.title")}</h2>
           <button onClick={onClose} className="text-surface-500 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100 transition flex-shrink-0"><X size={20} /></button>
         </div>
 
@@ -1238,7 +1238,7 @@ function DocModal({
             <button
               onClick={() => setMode("link")}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs sm:text-sm font-medium transition ${
-                mode === "link" ? "bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-surface-100 shadow-sm" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300"
+                mode === "link" ? "bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-white shadow-sm" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300"
               }`}
             >
               <Globe size={14} /> {t("documents.typeLink")}
@@ -1246,7 +1246,7 @@ function DocModal({
             <button
               onClick={() => setMode("upload")}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs sm:text-sm font-medium transition ${
-                mode === "upload" ? "bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-surface-100 shadow-sm" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300"
+                mode === "upload" ? "bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-white shadow-sm" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300"
               }`}
             >
               <Upload size={14} /> {t("documents.typeFile")}
@@ -1257,7 +1257,7 @@ function DocModal({
         {/* Link mode */}
         {(mode === "link" || isEdit) && (
           <>
-            <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5">{t("documents.typeLink")}</label>
+            <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-800 mb-1.5">{t("documents.typeLink")}</label>
             <input
               value={url}
               onChange={e => {
@@ -1268,7 +1268,7 @@ function DocModal({
                 }
               }}
               placeholder="https://..."
-              className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-surface-900 dark:text-surface-100 placeholder:text-surface-400 dark:placeholder:text-surface-500 mb-3 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
+              className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 mb-3 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
               autoFocus
             />
           </>
@@ -1294,7 +1294,7 @@ function DocModal({
                   <File size={18} className="text-brand-600 dark:text-brand-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-surface-800 dark:text-surface-200 truncate">{uploadFile.name}</p>
+                  <p className="text-sm font-medium text-surface-800 dark:text-surface-800 truncate">{uploadFile.name}</p>
                   <p className="text-xs text-surface-400 dark:text-surface-500">{(uploadFile.size / 1024).toFixed(0)} KB</p>
                 </div>
                 <button onClick={() => { setUploadFile(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
@@ -1309,15 +1309,15 @@ function DocModal({
           </>
         )}
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5">{t("documents.modal.titleLabel")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-800 mb-1.5">{t("documents.modal.titleLabel")}</label>
         <input
           value={title}
           onChange={e => setTitle(e.target.value)}
           placeholder="z.B. Skript Kapitel 5, Vorlesungsfolien..."
-          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-surface-900 dark:text-surface-100 placeholder:text-surface-400 dark:placeholder:text-surface-500 mb-3 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
+          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2.5 text-xs sm:text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 mb-3 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
         />
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5">{t("grades.modal.typeLabel")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-800 mb-1.5">{t("grades.modal.typeLabel")}</label>
         <div className="flex gap-1 sm:gap-1.5 mb-3 flex-wrap">
           {Object.entries(KIND_CONFIG).map(([k, cfg]) => (
             <button
@@ -1332,11 +1332,11 @@ function DocModal({
           ))}
         </div>
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5">{t("documents.modal.modulLabel")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-800 mb-1.5">{t("documents.modal.modulLabel")}</label>
         <select
           value={moduleId}
           onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); }}
-          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-surface-100 mb-2"
+          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-white mb-2"
         >
           <option value="">— {t("documents.modal.moduleEmpty")} —</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -1347,7 +1347,7 @@ function DocModal({
             <select
               value={examId}
               onChange={e => setExamId(e.target.value)}
-              className="flex-1 bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-surface-100"
+              className="flex-1 bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-white"
             >
               <option value="">— keine Prüfung —</option>
               {filteredExams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
@@ -1355,7 +1355,7 @@ function DocModal({
             <select
               value={taskId}
               onChange={e => setTaskId(e.target.value)}
-              className="flex-1 bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-surface-100"
+              className="flex-1 bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-white"
             >
               <option value="">— keine Aufgabe —</option>
               {filteredTasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
@@ -1363,12 +1363,12 @@ function DocModal({
           </div>
         )}
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5 mt-2">{t("nav.modules")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-800 mb-1.5 mt-2">{t("nav.modules")}</label>
         <input
           value={tagsStr}
           onChange={e => setTagsStr(e.target.value)}
           placeholder="z.B. Skript, Vorlesung, Übung"
-          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-surface-100 placeholder:text-surface-400 dark:placeholder:text-surface-500 mb-3 sm:mb-4 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
+          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 mb-3 sm:mb-4 focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none transition"
         />
 
         <button

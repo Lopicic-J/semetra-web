@@ -341,10 +341,10 @@ export default function StudiengaengePage() {
                 <div key={i} className="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-surface-50/50 dark:hover:bg-surface-700/50">
                   <div className="col-span-4 flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: m.color }} />
-                    <span className="text-sm font-medium text-surface-800 dark:text-surface-100 truncate">{m.name}</span>
+                    <span className="text-sm font-medium text-surface-800 dark:text-white truncate">{m.name}</span>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-xs font-mono bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 px-1.5 py-0.5 rounded">{m.code}</span>
+                    <span className="text-xs font-mono bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-500 px-1.5 py-0.5 rounded">{m.code}</span>
                   </div>
                   <div className="col-span-2">
                     <span className="text-sm text-surface-600 dark:text-surface-400">{m.ects}</span>

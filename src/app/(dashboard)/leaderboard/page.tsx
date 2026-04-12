@@ -66,7 +66,7 @@ export default function LeaderboardPage() {
       <div className="p-3 sm:p-5 max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
             <Medal className="text-yellow-500" size={26} />
             {t("leaderboard.title")}
           </h1>
@@ -94,13 +94,13 @@ export default function LeaderboardPage() {
                           className="w-16 h-16 rounded-full mb-2 border-2 border-white dark:border-surface-700 shadow-md object-cover"
                         />
                       ) : (
-                        <div className="w-16 h-16 rounded-full mb-2 border-2 border-white dark:border-surface-700 shadow-md bg-surface-200 dark:bg-surface-700 flex items-center justify-center text-xl font-bold text-surface-600 dark:text-surface-300">
+                        <div className="w-16 h-16 rounded-full mb-2 border-2 border-white dark:border-surface-700 shadow-md bg-surface-200 dark:bg-surface-700 flex items-center justify-center text-xl font-bold text-surface-600 dark:text-surface-500">
                           {entry.username[0]?.toUpperCase()}
                         </div>
                       )}
 
                       {/* Info */}
-                      <h3 className="font-bold text-surface-900 dark:text-surface-50 text-center text-sm truncate w-full">
+                      <h3 className="font-bold text-surface-900 dark:text-white text-center text-sm truncate w-full">
                         {entry.full_name || entry.username}
                       </h3>
                       <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">Level {entry.level}</p>
@@ -121,7 +121,7 @@ export default function LeaderboardPage() {
           <div className="card overflow-hidden">
             <div className="divide-y divide-surface-100 dark:divide-surface-700">
               {/* Header row */}
-              <div className="grid grid-cols-12 gap-3 px-3 sm:px-4 py-3 bg-surface-50 dark:bg-surface-800 font-semibold text-xs text-surface-600 dark:text-surface-300 uppercase">
+              <div className="grid grid-cols-12 gap-3 px-3 sm:px-4 py-3 bg-surface-50 dark:bg-surface-800 font-semibold text-xs text-surface-600 dark:text-surface-500 uppercase">
                 <div className="col-span-1">{t("leaderboard.rank")}</div>
                 <div className="col-span-7">Name</div>
                 <div className="col-span-2 text-right">{t("leaderboard.level")}</div>
@@ -140,7 +140,7 @@ export default function LeaderboardPage() {
                     }`}
                   >
                     {/* Rank */}
-                    <div className="col-span-1 font-bold text-surface-900 dark:text-surface-50">{rank}</div>
+                    <div className="col-span-1 font-bold text-surface-900 dark:text-white">{rank}</div>
 
                     {/* Name */}
                     <div className="col-span-7 flex items-center gap-2 min-w-0">
@@ -151,12 +151,12 @@ export default function LeaderboardPage() {
                           className="w-8 h-8 rounded-full object-cover shrink-0"
                         />
                       ) : (
-                        <div className="w-8 h-8 rounded-full bg-surface-200 dark:bg-surface-700 flex items-center justify-center text-xs font-bold text-surface-600 dark:text-surface-300 shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-surface-200 dark:bg-surface-700 flex items-center justify-center text-xs font-bold text-surface-600 dark:text-surface-500 shrink-0">
                           {entry.username[0]?.toUpperCase()}
                         </div>
                       )}
                       <div className="min-w-0">
-                        <div className="text-sm font-semibold text-surface-900 dark:text-surface-50 truncate">
+                        <div className="text-sm font-semibold text-surface-900 dark:text-white truncate">
                           {entry.full_name || entry.username}
                         </div>
                         <div className="text-xs text-surface-500 dark:text-surface-400 truncate">@{entry.username}</div>
@@ -169,7 +169,7 @@ export default function LeaderboardPage() {
                     </div>
 
                     {/* Level */}
-                    <div className="col-span-2 text-right font-semibold text-surface-900 dark:text-surface-50">
+                    <div className="col-span-2 text-right font-semibold text-surface-900 dark:text-white">
                       {entry.level}
                     </div>
 
@@ -212,7 +212,7 @@ export default function LeaderboardPage() {
                     </div>
                   )}
                   <div className="min-w-0">
-                    <div className="text-sm font-semibold text-surface-900 dark:text-surface-50">
+                    <div className="text-sm font-semibold text-surface-900 dark:text-white">
                       {data.currentUser.full_name || data.currentUser.username}
                     </div>
                     <div className="text-xs text-surface-600 dark:text-surface-400">@{data.currentUser.username}</div>
@@ -220,7 +220,7 @@ export default function LeaderboardPage() {
                 </div>
 
                 {/* Level */}
-                <div className="col-span-2 text-right font-semibold text-surface-900 dark:text-surface-50">
+                <div className="col-span-2 text-right font-semibold text-surface-900 dark:text-white">
                   {data.currentUser.level}
                 </div>
 

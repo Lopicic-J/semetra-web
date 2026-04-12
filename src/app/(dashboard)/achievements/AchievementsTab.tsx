@@ -41,7 +41,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
 
 const TIER_COLORS = {
   bronze:  { bg: "bg-amber-100",  text: "text-amber-700",  ring: "ring-amber-300",  gradient: "from-amber-400 to-amber-600" },
-  silver:  { bg: "bg-surface-200 dark:bg-surface-700",  text: "text-surface-600 dark:text-surface-300",  ring: "ring-surface-300 dark:ring-surface-600",  gradient: "from-slate-400 to-slate-500" },
+  silver:  { bg: "bg-surface-200 dark:bg-surface-700",  text: "text-surface-600 dark:text-surface-500",  ring: "ring-surface-300 dark:ring-surface-600",  gradient: "from-slate-400 to-slate-500" },
   gold:    { bg: "bg-yellow-100", text: "text-yellow-700", ring: "ring-yellow-400", gradient: "from-yellow-400 to-amber-500" },
   diamond: { bg: "bg-cyan-100",   text: "text-cyan-700",   ring: "ring-cyan-400",   gradient: "from-cyan-400 to-blue-500" },
 };

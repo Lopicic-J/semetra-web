@@ -224,7 +224,7 @@ export default function PluginsPage() {
       {UninstallConfirm}
       <div className="p-3 sm:p-5 max-w-5xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-surface-100 flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
             <Puzzle className="text-brand-600 dark:text-brand-400" size={26} />
             {t("plugins.title")}
           </h1>
@@ -295,7 +295,7 @@ export default function PluginsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-semibold text-surface-900 dark:text-surface-100">{p.name}</h3>
+                        <h3 className="font-semibold text-surface-900 dark:text-white">{p.name}</h3>
                         <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-surface-100 dark:bg-surface-700 text-surface-500 dark:text-surface-400">v{p.version}</span>
 
                         {/* Status badges */}
@@ -357,7 +357,7 @@ export default function PluginsPage() {
                             {showLegal ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
                           </button>
                           {showLegal && (
-                            <div className="mt-1.5 p-2.5 bg-surface-50 dark:bg-surface-700 rounded-lg text-[10px] text-surface-500 dark:text-surface-300 space-y-1.5 border border-surface-100 dark:border-surface-600">
+                            <div className="mt-1.5 p-2.5 bg-surface-50 dark:bg-surface-700 rounded-lg text-[10px] text-surface-500 dark:text-surface-500 space-y-1.5 border border-surface-100 dark:border-surface-600">
                               {p.data_processing_note && (
                                 <div className="flex gap-1.5">
                                   <Info size={10} className="shrink-0 mt-0.5 text-blue-500 dark:text-blue-400" />
@@ -485,7 +485,7 @@ export default function PluginsPage() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setPomodoroStats(null)}>
             <div className="bg-[rgb(var(--card-bg))] dark:bg-surface-800 rounded-2xl max-w-md w-full p-5 sm:p-6" onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100 flex items-center gap-2">
+                <h2 className="text-lg font-semibold text-surface-900 dark:text-white flex items-center gap-2">
                   <Clock size={20} className="text-brand-500 dark:text-brand-400" />
                   Pomodoro Statistiken
                 </h2>
@@ -493,24 +493,24 @@ export default function PluginsPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-surface-50 dark:bg-surface-700 rounded-xl p-3 text-center">
-                  <div className="text-2xl font-bold text-surface-900 dark:text-surface-100">{pomodoroStats.totalSessions}</div>
+                  <div className="text-2xl font-bold text-surface-900 dark:text-white">{pomodoroStats.totalSessions}</div>
                   <div className="text-[10px] text-surface-500 dark:text-surface-400">Sessions gesamt</div>
                 </div>
                 <div className="bg-surface-50 dark:bg-surface-700 rounded-xl p-3 text-center">
-                  <div className="text-2xl font-bold text-surface-900 dark:text-surface-100">{Math.round(pomodoroStats.totalMinutes)}</div>
+                  <div className="text-2xl font-bold text-surface-900 dark:text-white">{Math.round(pomodoroStats.totalMinutes)}</div>
                   <div className="text-[10px] text-surface-500 dark:text-surface-400">Minuten gesamt</div>
                 </div>
                 <div className="bg-surface-50 dark:bg-surface-700 rounded-xl p-3 text-center">
-                  <div className="text-2xl font-bold text-surface-900 dark:text-surface-100">{pomodoroStats.todaySessions}</div>
+                  <div className="text-2xl font-bold text-surface-900 dark:text-white">{pomodoroStats.todaySessions}</div>
                   <div className="text-[10px] text-surface-500 dark:text-surface-400">Heute</div>
                 </div>
                 <div className="bg-surface-50 dark:bg-surface-700 rounded-xl p-3 text-center">
-                  <div className="text-2xl font-bold text-surface-900 dark:text-surface-100">{Math.round(pomodoroStats.avgSessionMinutes)}</div>
+                  <div className="text-2xl font-bold text-surface-900 dark:text-white">{Math.round(pomodoroStats.avgSessionMinutes)}</div>
                   <div className="text-[10px] text-surface-500 dark:text-surface-400">Durchschn. min</div>
                 </div>
               </div>
               <div className="mt-4 bg-surface-50 dark:bg-surface-700 rounded-xl p-3">
-                <div className="text-xs font-medium text-surface-700 dark:text-surface-300 mb-2">Längste Session</div>
+                <div className="text-xs font-medium text-surface-700 dark:text-surface-500 mb-2">Längste Session</div>
                 <div className="text-lg font-bold text-brand-600 dark:text-brand-400">{Math.round(pomodoroStats.longestSession)} Minuten</div>
               </div>
             </div>
@@ -522,7 +522,7 @@ export default function PluginsPage() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
             <div className="bg-[rgb(var(--card-bg))] dark:bg-surface-800 rounded-2xl max-w-md w-full p-5 sm:p-6 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100">
+                <h2 className="text-lg font-semibold text-surface-900 dark:text-white">
                   {t("plugins.config.title") || "Plugin-Einstellungen"} — {plugins.find(p => p.id === configPluginId)?.name}
                 </h2>
                 <button onClick={() => setConfigPluginId(null)} className="p-1 text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-400"><X size={18} /></button>

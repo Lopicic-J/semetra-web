@@ -307,7 +307,7 @@ export default function LernplanPage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
         <div className="w-full">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-2">
-            <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
               <CalendarClock className="text-brand-600 dark:text-brand-400" size={26} />
               {t("lernplan.title")}
             </h1>
@@ -321,7 +321,7 @@ export default function LernplanPage() {
       {plans.length === 0 && !activePlan ? (
         <div className="card text-center py-12 sm:py-16 px-4 sm:px-6">
           <Brain size={48} className="mx-auto mb-4 text-brand-400 dark:text-brand-300" />
-          <h2 className="text-lg sm:text-xl font-semibold text-surface-800 dark:text-surface-100 mb-2">
+          <h2 className="text-lg sm:text-xl font-semibold text-surface-800 dark:text-white mb-2">
             {t("lernplan.noPlanTitle")}
           </h2>
           <p className="text-surface-500 dark:text-surface-400 text-sm mb-6 max-w-md mx-auto">
@@ -376,7 +376,7 @@ export default function LernplanPage() {
                       const p = plans.find(p => p.id === e.target.value);
                       if (p) setActivePlan(p);
                     }}
-                    className="text-sm font-medium bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg px-3 py-1.5 text-surface-800 dark:text-surface-100 w-full sm:w-auto"
+                    className="text-sm font-medium bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg px-3 py-1.5 text-surface-800 dark:text-white w-full sm:w-auto"
                   >
                     {plans.map(p => (
                       <option key={p.id} value={p.id}>{p.title}</option>
@@ -384,7 +384,7 @@ export default function LernplanPage() {
                   </select>
                 )}
                 {plans.length <= 1 && activePlan && (
-                  <h2 className="text-lg font-semibold text-surface-800 dark:text-surface-100">{activePlan.title}</h2>
+                  <h2 className="text-lg font-semibold text-surface-800 dark:text-white">{activePlan.title}</h2>
                 )}
                 {activePlan && (
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
@@ -440,7 +440,7 @@ export default function LernplanPage() {
               <button onClick={() => shiftDate(-7)} className="p-2 min-h-9 min-w-9 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 text-surface-500 dark:text-surface-400 transition-colors">
                 <ChevronLeft size={18} />
               </button>
-              <span className="text-sm font-medium text-surface-700 dark:text-surface-300">
+              <span className="text-sm font-medium text-surface-700 dark:text-surface-500">
                 {formatDateLabel(selectedDate, t)}
               </span>
               <button onClick={() => shiftDate(7)} className="p-2 min-h-9 min-w-9 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 text-surface-500 dark:text-surface-400 transition-colors">
@@ -557,7 +557,7 @@ export default function LernplanPage() {
                       <div className="flex flex-wrap items-center gap-2 mb-1">
                         <Icon size={14} className={item.completed ? "text-surface-400 dark:text-surface-500" : "text-brand-500 dark:text-brand-400 flex-shrink-0"} />
                         <span className={`font-medium text-sm break-words ${
-                          item.completed ? "line-through text-surface-400 dark:text-surface-500" : "text-surface-800 dark:text-surface-100"
+                          item.completed ? "line-through text-surface-400 dark:text-surface-500" : "text-surface-800 dark:text-white"
                         }`}>
                           {item.title}
                         </span>
@@ -604,7 +604,7 @@ export default function LernplanPage() {
           {/* ── Week Statistics ────────────────────────────────── */}
           {activePlan && (
             <div className="card mt-6">
-              <h3 className="text-sm font-semibold text-surface-800 dark:text-surface-100 mb-4 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-surface-800 dark:text-white mb-4 flex items-center gap-2">
                 <BarChart3 size={16} className="text-brand-600 dark:text-brand-400" />
                 {t("lernplan.weekStats")}
               </h3>

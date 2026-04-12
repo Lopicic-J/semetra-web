@@ -123,7 +123,7 @@ function ModuleCard({
       <div className="flex items-start gap-2.5">
         <Icon size={16} className={`${cfg.color} mt-0.5 shrink-0`} />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-surface-900 dark:text-surface-100 truncate">
+          <p className="text-sm font-medium text-surface-900 dark:text-white truncate">
             {module.name}
           </p>
           {((module as any).moduleCode ?? (module as any).module_code) && (
@@ -137,7 +137,7 @@ function ModuleCard({
               <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${
                 status === "completed" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" :
                 status === "failed" ? "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300" :
-                "bg-surface-100 text-surface-600 dark:bg-surface-700 dark:text-surface-300"
+                "bg-surface-100 text-surface-600 dark:bg-surface-700 dark:text-surface-500"
               }`}>
                 {formatGradeValue(grade, { decimalPlaces: 1 } as GradeScale)}
               </span>
@@ -216,7 +216,7 @@ function RequirementGroupCard({
         {expanded ? <ChevronDown size={16} className="text-surface-400" /> : <ChevronRight size={16} className="text-surface-400" />}
         <Layers size={16} className="text-brand-500 shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-surface-900 dark:text-surface-100">{group.name}</p>
+          <p className="text-sm font-semibold text-surface-900 dark:text-white">{group.name}</p>
           <p className="text-xs text-surface-400 mt-0.5">
             {groupTypeLabel} · {progress.completedCount}/{progress.total} Module · {progress.completedCredits}/{progress.requiredCredits} {creditLabel}
           </p>
@@ -228,7 +228,7 @@ function RequirementGroupCard({
               style={{ width: `${progress.percentage}%` }}
             />
           </div>
-          <span className="text-xs font-semibold text-surface-600 dark:text-surface-300 w-10 text-right">{progress.percentage}%</span>
+          <span className="text-xs font-semibold text-surface-600 dark:text-surface-500 w-10 text-right">{progress.percentage}%</span>
         </div>
       </button>
 
@@ -342,7 +342,7 @@ export function ProgramMap({
             <GraduationCap className="text-brand-600" size={24} />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold text-surface-900 dark:text-surface-100">{program.name}</h2>
+            <h2 className="text-lg font-bold text-surface-900 dark:text-white">{program.name}</h2>
             <p className="text-sm text-surface-500 mt-0.5">
               {ff(program, "degreeLevel", "degree_level") ?? ""} · {ff(program, "totalCredits", "total_credits") ?? ""} {gs.creditLabel}
             </p>
@@ -356,19 +356,19 @@ export function ProgramMap({
             <p className="text-xs text-surface-500 mt-0.5">{t("academic.completion") || "Fortschritt"}</p>
           </div>
           <div className="text-center p-3 rounded-xl bg-surface-50 dark:bg-surface-800">
-            <p className="text-2xl font-bold text-surface-900 dark:text-surface-100">
+            <p className="text-2xl font-bold text-surface-900 dark:text-white">
               {overallProgress.earnedCredits}/{overallProgress.totalRequired}
             </p>
             <p className="text-xs text-surface-500 mt-0.5">{gs.creditLabel}</p>
           </div>
           <div className="text-center p-3 rounded-xl bg-surface-50 dark:bg-surface-800">
-            <p className="text-2xl font-bold text-surface-900 dark:text-surface-100">
+            <p className="text-2xl font-bold text-surface-900 dark:text-white">
               {overallProgress.completedModules}/{overallProgress.totalModules}
             </p>
             <p className="text-xs text-surface-500 mt-0.5">{t("academic.modules") || "Module"}</p>
           </div>
           <div className="text-center p-3 rounded-xl bg-surface-50 dark:bg-surface-800">
-            <p className="text-2xl font-bold text-surface-900 dark:text-surface-100">
+            <p className="text-2xl font-bold text-surface-900 dark:text-white">
               {gpa?.gpa != null ? gpa.gpa.toFixed(2) : "–"}
             </p>
             <p className="text-xs text-surface-500 mt-0.5">{t("academic.gpa") || "Notenschnitt"}</p>

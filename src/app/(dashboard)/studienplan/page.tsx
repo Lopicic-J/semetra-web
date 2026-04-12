@@ -129,7 +129,7 @@ export default function StudienplanPage() {
       {/* ECTS Progress bar */}
       <div className="card mb-6 dark:bg-surface-800 dark:border-surface-700">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-surface-700 dark:text-surface-300">{t("studienplan.ectsProgress")}</span>
+          <span className="text-sm font-medium text-surface-700 dark:text-surface-500">{t("studienplan.ectsProgress")}</span>
           <span className="text-sm font-bold text-brand-600 dark:text-brand-400">{totalEcts > 0 ? Math.round((completedEcts / totalEcts) * 100) : 0}%</span>
         </div>
         <div className="h-3 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden">
@@ -164,7 +164,7 @@ export default function StudienplanPage() {
                   >
                     <div className="flex items-center gap-3">
                       {isExpanded ? <ChevronDown size={16} className="text-surface-400 dark:text-surface-500" /> : <ChevronRight size={16} className="text-surface-400 dark:text-surface-500" />}
-                      <span className="font-semibold text-surface-800 dark:text-surface-100">{sem}</span>
+                      <span className="font-semibold text-surface-800 dark:text-white">{sem}</span>
                       <span className="text-xs text-surface-500 dark:text-surface-400">{mods.length} Module · {semEcts} ECTS</span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -201,7 +201,7 @@ export default function StudienplanPage() {
                           >
                             <div className="flex items-center gap-2 mb-1.5">
                               <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: mod.color }} />
-                              <span className={`text-sm font-medium flex-1 truncate ${!isInPlan ? "line-through text-surface-400 dark:text-surface-500" : "text-surface-800 dark:text-surface-100"}`}>
+                              <span className={`text-sm font-medium flex-1 truncate ${!isInPlan ? "line-through text-surface-400 dark:text-surface-500" : "text-surface-800 dark:text-white"}`}>
                                 {mod.name}
                               </span>
                               <button
@@ -258,13 +258,13 @@ export default function StudienplanPage() {
                 {selectedModule.professor && (
                   <div className="flex justify-between">
                     <span className="text-surface-500 dark:text-surface-400">{t("studienplan.instructor")}</span>
-                    <span className="text-surface-800 dark:text-surface-200">{selectedModule.professor}</span>
+                    <span className="text-surface-800 dark:text-surface-800">{selectedModule.professor}</span>
                   </div>
                 )}
                 {selectedModule.exam_date && (
                   <div className="flex justify-between">
                     <span className="text-surface-500 dark:text-surface-400">{t("studienplan.exam")}</span>
-                    <span className="text-surface-800 dark:text-surface-200">{selectedModule.exam_date}</span>
+                    <span className="text-surface-800 dark:text-surface-800">{selectedModule.exam_date}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
@@ -275,7 +275,7 @@ export default function StudienplanPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-surface-500 dark:text-surface-400">{t("studienplan.type")}</span>
-                  <span className="text-surface-800 dark:text-surface-200">{TYPE_BADGES[(selectedModule.module_type ?? "pflicht") as keyof typeof TYPE_BADGES]?.label ?? t("studienplan.typeMandatory")}</span>
+                  <span className="text-surface-800 dark:text-surface-800">{TYPE_BADGES[(selectedModule.module_type ?? "pflicht") as keyof typeof TYPE_BADGES]?.label ?? t("studienplan.typeMandatory")}</span>
                 </div>
               </div>
 
@@ -296,7 +296,7 @@ export default function StudienplanPage() {
 
               {/* Tasks for this module */}
               <div className="border-t border-surface-100 dark:border-surface-600 pt-4">
-                <h4 className="text-sm font-semibold text-surface-700 dark:text-surface-300 mb-3">{t("studienplan.tasks", { count: moduleTasks.length })}</h4>
+                <h4 className="text-sm font-semibold text-surface-700 dark:text-surface-500 mb-3">{t("studienplan.tasks", { count: moduleTasks.length })}</h4>
                 {moduleTasks.length === 0 ? (
                   <p className="text-xs text-surface-400 dark:text-surface-500">{t("studienplan.noTasksForModule")}</p>
                 ) : (
@@ -306,7 +306,7 @@ export default function StudienplanPage() {
                         <span className={`w-2 h-2 rounded-full shrink-0 ${
                           t.status === "done" ? "bg-green-500" : t.status === "in_progress" ? "bg-blue-500" : "bg-surface-300 dark:bg-surface-600"
                         }`} />
-                        <span className={`flex-1 truncate ${t.status === "done" ? "line-through text-surface-400 dark:text-surface-500" : "text-surface-700 dark:text-surface-300"}`}>
+                        <span className={`flex-1 truncate ${t.status === "done" ? "line-through text-surface-400 dark:text-surface-500" : "text-surface-700 dark:text-surface-500"}`}>
                           {t.title}
                         </span>
                         {t.due_date && (

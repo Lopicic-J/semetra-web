@@ -356,7 +356,7 @@ export default function ClassicDashboard() {
             <Calendar size={16} className="text-brand-500" /> {t("dashboard.studyHeatmap")}
           </h2>
           <div className="flex items-center gap-3 text-xs text-surface-400 dark:text-surface-500">
-            <span>{t("dashboard.totalStudyTime")}: <strong className="text-surface-700 dark:text-surface-300">{fmtStudyTime(streak.totalSeconds)}</strong></span>
+            <span>{t("dashboard.totalStudyTime")}: <strong className="text-surface-700 dark:text-surface-500">{fmtStudyTime(streak.totalSeconds)}</strong></span>
             <Link href="/timer" className="text-brand-600 hover:underline flex items-center gap-1">{t("dashboard.openTimer")} <ArrowRight size={10} /></Link>
           </div>
         </div>
@@ -423,7 +423,7 @@ export default function ClassicDashboard() {
                         {exam.description && (
                           <div>
                             <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">{t("dashboard.description")}</p>
-                            <p className="text-xs text-surface-700 dark:text-surface-300">{exam.description}</p>
+                            <p className="text-xs text-surface-700 dark:text-surface-500">{exam.description}</p>
                           </div>
                         )}
                         {examTopics.length > 0 && (
@@ -432,7 +432,7 @@ export default function ClassicDashboard() {
                             <div className="space-y-1">
                               {examTopics.slice(0, 3).map(topic => (
                                 <div key={topic.id} className="flex items-center justify-between text-xs">
-                                  <span className="text-surface-700 dark:text-surface-300 truncate">{topic.title}</span>
+                                  <span className="text-surface-700 dark:text-surface-500 truncate">{topic.title}</span>
                                   <span className="text-surface-400 dark:text-surface-500 text-[10px] ml-2 shrink-0">
                                     {topic.knowledge_level >= 3 ? "✓" : topic.knowledge_level === 2 ? "◐" : "○"}
                                   </span>
@@ -526,13 +526,13 @@ export default function ClassicDashboard() {
                         {task.description && (
                           <div>
                             <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">{t("dashboard.description")}</p>
-                            <p className="text-xs text-surface-700 dark:text-surface-300 whitespace-pre-line">{task.description}</p>
+                            <p className="text-xs text-surface-700 dark:text-surface-500 whitespace-pre-line">{task.description}</p>
                           </div>
                         )}
                         {mod && (
                           <div className="flex items-center gap-2">
                             <p className="text-xs font-medium text-surface-500 dark:text-surface-400">{t("dashboard.taskModule")}:</p>
-                            <span className="flex items-center gap-1.5 text-xs text-surface-700 dark:text-surface-300">
+                            <span className="flex items-center gap-1.5 text-xs text-surface-700 dark:text-surface-500">
                               <span className="w-2.5 h-2.5 rounded-full" style={{ background: mod.color }} />
                               {mod.name}
                             </span>
@@ -624,7 +624,7 @@ export default function ClassicDashboard() {
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: mod.color ?? "#6d28d9" }} />
-                      <span className="text-sm font-medium text-surface-800 dark:text-surface-200 truncate">{mod.name}</span>
+                      <span className="text-sm font-medium text-surface-800 dark:text-surface-800 truncate">{mod.name}</span>
                     </div>
                     <span className="text-[10px] text-surface-400 dark:text-surface-500 shrink-0 ml-2">
                       {mod.topicCount > 0

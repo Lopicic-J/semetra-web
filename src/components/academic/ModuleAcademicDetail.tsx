@@ -103,13 +103,13 @@ function AttemptBadge({ attempt, gradeScale, gradeBands }: {
         status === "graded" ? "bg-red-100 dark:bg-red-800/40" :
         "bg-surface-100 dark:bg-surface-700"
       }`}>
-        <span className="text-sm font-bold text-surface-600 dark:text-surface-300">
+        <span className="text-sm font-bold text-surface-600 dark:text-surface-500">
           #{attemptNumber(attempt)}
         </span>
       </div>
       <div className="flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-surface-900 dark:text-surface-100">
+          <span className="text-sm font-medium text-surface-900 dark:text-white">
             {status === "graded" && grade != null
               ? formatGradeValue(grade, gradeScale)
               : status === "submitted" ? "Eingereicht"
@@ -129,7 +129,7 @@ function AttemptBadge({ attempt, gradeScale, gradeBands }: {
       {grade != null && (
         <div className="text-right shrink-0">
           <p className="text-xs text-surface-400">Normalisiert</p>
-          <p className="text-sm font-semibold text-surface-600 dark:text-surface-300">
+          <p className="text-sm font-semibold text-surface-600 dark:text-surface-500">
             {normalizeGrade(grade, gradeScale)?.normalizedScore0to100?.toFixed(1) ?? "–"}/100
           </p>
         </div>
@@ -153,7 +153,7 @@ function ComponentRow({ component, result, gradeScale }: {
   return (
     <div className="flex items-center gap-3 py-2.5 border-b border-surface-50 dark:border-surface-800 last:border-0">
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-surface-800 dark:text-surface-200 truncate">{name}</p>
+        <p className="text-sm text-surface-800 dark:text-surface-800 truncate">{name}</p>
         <p className="text-[11px] text-surface-400">
           {type} · Gewichtung: {weightStr}
           {mandatory && " · Pflicht"}
@@ -164,7 +164,7 @@ function ComponentRow({ component, result, gradeScale }: {
           <span className={`text-sm font-semibold px-2 py-0.5 rounded ${
             score >= (gradeScale.passValue ?? 0)
               ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
-              : "bg-surface-100 text-surface-600 dark:bg-surface-700 dark:text-surface-300"
+              : "bg-surface-100 text-surface-600 dark:bg-surface-700 dark:text-surface-500"
           }`}>
             {formatGradeValue(score, gradeScale)}
           </span>
@@ -289,7 +289,7 @@ export function ModuleAcademicDetail({
              <BookOpen className="text-brand-600" size={24} />}
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold text-surface-900 dark:text-surface-100">{moduleName}</h2>
+            <h2 className="text-lg font-bold text-surface-900 dark:text-white">{moduleName}</h2>
             <p className="text-sm text-surface-500 mt-0.5">
               {moduleCode && <span className="font-mono">{moduleCode}</span>}
               {moduleCode && " · "}
@@ -299,7 +299,7 @@ export function ModuleAcademicDetail({
           </div>
           {effectiveGrade != null && (
             <div className="text-right shrink-0">
-              <p className={`text-2xl font-bold ${isPassed ? "text-emerald-600" : isFailed ? "text-red-600" : "text-surface-800 dark:text-surface-200"}`}>
+              <p className={`text-2xl font-bold ${isPassed ? "text-emerald-600" : isFailed ? "text-red-600" : "text-surface-800 dark:text-surface-800"}`}>
                 {formatGradeValue(effectiveGrade, gradeScale)}
               </p>
               {currentBand && (
@@ -340,7 +340,7 @@ export function ModuleAcademicDetail({
       {/* Assessment Components */}
       {components.length > 0 && (
         <div className="card p-4">
-          <h3 className="text-sm font-semibold text-surface-900 dark:text-surface-100 flex items-center gap-2 mb-3">
+          <h3 className="text-sm font-semibold text-surface-900 dark:text-white flex items-center gap-2 mb-3">
             <Layers size={16} className="text-brand-500" />
             {t("academic.assessmentComponents") || "Bewertungskomponenten"}
           </h3>
@@ -362,7 +362,7 @@ export function ModuleAcademicDetail({
           </div>
           {calculatedGrade != null && (
             <div className="mt-3 pt-3 border-t border-surface-100 dark:border-surface-700 flex items-center justify-between">
-              <span className="text-sm font-medium text-surface-600 dark:text-surface-300">
+              <span className="text-sm font-medium text-surface-600 dark:text-surface-500">
                 {t("academic.calculatedGrade") || "Berechnete Gesamtnote"}
               </span>
               <span className="text-lg font-bold text-brand-600">
@@ -382,7 +382,7 @@ export function ModuleAcademicDetail({
           >
             {showAttempts ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
             <BarChart3 size={16} className="text-brand-500" />
-            <span className="text-sm font-semibold text-surface-900 dark:text-surface-100">
+            <span className="text-sm font-semibold text-surface-900 dark:text-white">
               {t("academic.attemptHistory") || "Prüfungsversuche"} ({attempts.length})
             </span>
           </button>
@@ -406,7 +406,7 @@ export function ModuleAcademicDetail({
       {/* Module description */}
       {moduleDescription && (
         <div className="card p-4">
-          <h3 className="text-sm font-semibold text-surface-900 dark:text-surface-100 flex items-center gap-2 mb-2">
+          <h3 className="text-sm font-semibold text-surface-900 dark:text-white flex items-center gap-2 mb-2">
             <Info size={16} className="text-surface-400" />
             {t("academic.description") || "Beschreibung"}
           </h3>

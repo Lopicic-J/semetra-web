@@ -44,7 +44,7 @@ export default function ResetPasswordPage() {
         </div>
 
         <div className="relative z-10 flex flex-col items-center justify-center flex-1 text-center">
-          <div className="w-20 h-20 rounded-2xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center mb-6">
+          <div className="w-20 h-20 rounded-2xl bg-white dark:bg-surface-800/[0.06] border border-white/[0.08] flex items-center justify-center mb-6">
             <KeyRound size={36} className="text-brand-300" />
           </div>
           <h2 className="text-2xl font-bold mb-3">Kein Stress.</h2>
@@ -52,7 +52,7 @@ export default function ResetPasswordPage() {
             Passwort vergessen passiert jedem. In wenigen Sekunden hast du wieder Zugriff auf dein Studium.
           </p>
 
-          <div className="mt-12 flex items-start gap-3 p-4 rounded-xl bg-white/[0.04] border border-white/[0.06] max-w-xs">
+          <div className="mt-12 flex items-start gap-3 p-4 rounded-xl bg-white dark:bg-surface-800/[0.04] border border-white/[0.06] max-w-xs">
             <Shield size={18} className="text-brand-300 flex-shrink-0 mt-0.5" />
             <div className="text-left">
               <p className="text-sm font-medium text-white/80">Sicher & verschlüsselt</p>

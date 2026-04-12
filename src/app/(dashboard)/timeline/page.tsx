@@ -168,7 +168,7 @@ export default function TimelinePage() {
     <div className="p-3 sm:p-5 max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
             <Calendar className="text-brand-600" size={26} />
             {t("nav.timeline")}
           </h1>
@@ -184,13 +184,13 @@ export default function TimelinePage() {
           {RANGES.map(r => (
             <button key={r.days} onClick={() => setRangeDays(r.days)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                rangeDays === r.days ? "bg-[rgb(var(--card-bg))] dark:bg-surface-700 text-surface-900 dark:text-surface-50 shadow-sm" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200"
+                rangeDays === r.days ? "bg-[rgb(var(--card-bg))] dark:bg-surface-700 text-surface-900 dark:text-white shadow-sm" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200"
               }`}>
               {r.label}
             </button>
           ))}
         </div>
-        <label className="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-300 cursor-pointer">
+        <label className="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-500 cursor-pointer">
           <input type="checkbox" checked={showOverdue} onChange={e => setShowOverdue(e.target.checked)}
             className="rounded border-surface-300 dark:border-surface-600 text-brand-600 dark:text-brand-500 focus:ring-brand-500" />
           {t("timeline.showOverdue")}
@@ -258,7 +258,7 @@ export default function TimelinePage() {
 
                             {/* Content */}
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-surface-800 dark:text-surface-100">{item.title}</p>
+                              <p className="text-sm font-medium text-surface-800 dark:text-white">{item.title}</p>
                               <div className="flex items-center gap-2 mt-0.5">
                                 {item.moduleName && (
                                   <span className="text-[10px] text-surface-500 dark:text-surface-400">{item.moduleName}</span>
@@ -275,7 +275,7 @@ export default function TimelinePage() {
                                 <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                                   item.priority === "high" ? "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300" :
                                   item.priority === "medium" ? "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300" :
-                                  "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300"
+                                  "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-500"
                                 }`}>
                                   {item.priority === "high" ? t("timeline.priorityHigh") :
                                    item.priority === "medium" ? t("timeline.priorityMedium") :
@@ -289,7 +289,7 @@ export default function TimelinePage() {
                                 item.type === "exam" ? "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300" :
                                 item.priority === "high" ? "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300" :
                                 item.priority === "medium" ? "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300" :
-                                "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300"
+                                "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-500"
                               }`}>
                                 {item.type === "exam" ? t("timeline.exam") :
                                   item.daysLeft < 0 ? t("timeline.daysOverdue", { days: Math.abs(item.daysLeft) }) :
@@ -311,7 +311,7 @@ export default function TimelinePage() {
                               {/* Description */}
                               {item.description && (
                                 <div>
-                                  <p className="text-sm text-surface-600 dark:text-surface-300">{item.description}</p>
+                                  <p className="text-sm text-surface-600 dark:text-surface-500">{item.description}</p>
                                 </div>
                               )}
 
@@ -325,7 +325,7 @@ export default function TimelinePage() {
                               {/* Documents */}
                               {item.documents && item.documents.length > 0 && (
                                 <div>
-                                  <p className="text-xs font-medium text-surface-600 dark:text-surface-300 mb-2">{t("timeline.documents")}</p>
+                                  <p className="text-xs font-medium text-surface-600 dark:text-surface-500 mb-2">{t("timeline.documents")}</p>
                                   <div className="flex flex-wrap gap-2">
                                     {item.documents.map((doc, idx) => (
                                       <a
@@ -336,11 +336,11 @@ export default function TimelinePage() {
                                         className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 transition-colors"
                                       >
                                         {doc.kind === "file" || doc.kind === "pdf" ? (
-                                          <FileText size={12} className="text-surface-600 dark:text-surface-300" />
+                                          <FileText size={12} className="text-surface-600 dark:text-surface-500" />
                                         ) : (
-                                          <Link2 size={12} className="text-surface-600 dark:text-surface-300" />
+                                          <Link2 size={12} className="text-surface-600 dark:text-surface-500" />
                                         )}
-                                        <span className="text-xs text-surface-700 dark:text-surface-200 truncate max-w-[200px]">{doc.title}</span>
+                                        <span className="text-xs text-surface-700 dark:text-surface-800 truncate max-w-[200px]">{doc.title}</span>
                                         <ExternalLink size={11} className="text-surface-500 dark:text-surface-400" />
                                       </a>
                                     ))}
@@ -351,7 +351,7 @@ export default function TimelinePage() {
                               {/* Status for tasks */}
                               {item.status && item.type === "task" && (
                                 <div className="pt-1">
-                                  <span className="text-[10px] text-surface-600 dark:text-surface-300">
+                                  <span className="text-[10px] text-surface-600 dark:text-surface-500">
                                     {t("timeline.status", { status:
                                       item.status === "todo" ? t("timeline.statusTodo") :
                                       item.status === "in_progress" ? t("timeline.statusInProgress") :

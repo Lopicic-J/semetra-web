@@ -139,7 +139,7 @@ export default function UpdatePasswordPage() {
         </div>
 
         <div className="relative z-10 flex flex-col items-center justify-center flex-1 text-center">
-          <div className="w-20 h-20 rounded-2xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center mb-6">
+          <div className="w-20 h-20 rounded-2xl bg-white dark:bg-surface-800/[0.06] border border-white/[0.08] flex items-center justify-center mb-6">
             <ShieldCheck size={36} className="text-brand-300" />
           </div>
           <h2 className="text-2xl font-bold mb-3">Fast geschafft.</h2>
@@ -148,15 +148,15 @@ export default function UpdatePasswordPage() {
           </p>
 
           <div className="mt-10 space-y-3 w-full max-w-xs">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-surface-800/[0.04] border border-white/[0.06]">
               <div className="w-2 h-2 rounded-full bg-green-400" />
               <p className="text-xs text-white/50">Mindestens 8 Zeichen</p>
             </div>
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-surface-800/[0.04] border border-white/[0.06]">
               <div className="w-2 h-2 rounded-full bg-green-400" />
               <p className="text-xs text-white/50">Gross- und Kleinbuchstaben</p>
             </div>
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-surface-800/[0.04] border border-white/[0.06]">
               <div className="w-2 h-2 rounded-full bg-green-400" />
               <p className="text-xs text-white/50">Zahlen und Sonderzeichen</p>
             </div>
@@ -191,7 +191,7 @@ export default function UpdatePasswordPage() {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Neues Passwort</label>
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">Neues Passwort</label>
                   <div className="relative">
                     <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
                     <input
@@ -224,7 +224,7 @@ export default function UpdatePasswordPage() {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Passwort bestätigen</label>
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">Passwort bestätigen</label>
                   <div className="relative">
                     <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
                     <input

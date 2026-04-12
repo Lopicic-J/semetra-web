@@ -5,6 +5,29 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
+/* CRITICAL: Dark-mode bg-white override — MUST come AFTER @tailwind utilities */
+/* This ensures it wins over Tailwind's generated .bg-white utility class.    */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+.dark .bg-white,
+.dark .bg-white\/40,
+.dark .bg-white\/50,
+.dark .bg-white\/60,
+.dark .bg-white\/70,
+.dark .bg-white\/80,
+.dark .bg-white\/90,
+.dark .bg-white\/95 {
+  --tw-bg-opacity: 1 !important;
+  background-color: rgb(var(--card-bg) / var(--tw-bg-opacity)) !important;
+}
+
+/* Force all text to be readable in dark mode — catch-all for text-surface-* */
+.dark .text-surface-900 { color: rgb(var(--sf-900)) !important; }
+.dark .text-surface-800 { color: rgb(var(--sf-800)) !important; }
+.dark .text-surface-700 { color: rgb(var(--sf-700)) !important; }
+.dark .text-surface-600 { color: rgb(var(--sf-600)) !important; }
+.dark .text-surface-500 { color: rgb(var(--sf-500)) !important; }
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
 /* BASE — Design Tokens & Defaults                                            */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 

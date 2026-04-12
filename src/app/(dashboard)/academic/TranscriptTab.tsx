@@ -162,15 +162,15 @@ export default function TranscriptTab() {
           <p className="text-xs text-surface-500 mt-0.5">{gs.creditLabel} {t("academic.earned") || "erreicht"}</p>
         </div>
         <div className="card p-4 text-center">
-          <p className="text-2xl font-bold text-surface-900 dark:text-surface-100">{passedModules}/{totalModules}</p>
+          <p className="text-2xl font-bold text-surface-900 dark:text-white">{passedModules}/{totalModules}</p>
           <p className="text-xs text-surface-500 mt-0.5">{t("academic.modulesPassed") || "Module bestanden"}</p>
         </div>
         <div className="card p-4 text-center">
-          <p className="text-2xl font-bold text-surface-900 dark:text-surface-100">{gpa != null && typeof gpa === "number" ? gpa.toFixed(2) : "–"}</p>
+          <p className="text-2xl font-bold text-surface-900 dark:text-white">{gpa != null && typeof gpa === "number" ? gpa.toFixed(2) : "–"}</p>
           <p className="text-xs text-surface-500 mt-0.5">{t("academic.gpa") || "Notenschnitt"}</p>
         </div>
         <div className="card p-4 text-center">
-          <p className="text-2xl font-bold text-surface-900 dark:text-surface-100">{recognitions.length}</p>
+          <p className="text-2xl font-bold text-surface-900 dark:text-white">{recognitions.length}</p>
           <p className="text-xs text-surface-500 mt-0.5">{t("academic.recognitions") || "Anrechnungen"}</p>
         </div>
       </div>
@@ -179,7 +179,7 @@ export default function TranscriptTab() {
       {semesters.map(({ semester, modules: semModules, semCredits }) => (
         <div key={semester}>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-surface-900 dark:text-surface-100 flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-surface-900 dark:text-white flex items-center gap-2">
               <Calendar size={14} className="text-brand-500" />
               {semester}
             </h3>
@@ -211,14 +211,14 @@ export default function TranscriptTab() {
                       {mod.color && (
                         <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: mod.color }} />
                       )}
-                      <span className="text-sm font-medium text-surface-800 dark:text-surface-200 truncate">
+                      <span className="text-sm font-medium text-surface-800 dark:text-surface-800 truncate">
                         {mod.name}
                       </span>
                       {mod.code && (
                         <span className="text-[10px] font-mono text-surface-400 shrink-0">{mod.code}</span>
                       )}
                     </div>
-                    <div className="col-span-2 text-sm text-surface-600 dark:text-surface-300">
+                    <div className="col-span-2 text-sm text-surface-600 dark:text-surface-500">
                       {mod.ects ?? "–"}
                     </div>
                     <div className="col-span-2">
@@ -257,7 +257,7 @@ export default function TranscriptTab() {
       {/* Recognition section */}
       {recognitions.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold text-surface-900 dark:text-surface-100 flex items-center gap-2 mb-3">
+          <h3 className="text-sm font-semibold text-surface-900 dark:text-white flex items-center gap-2 mb-3">
             <Award size={14} className="text-purple-500" />
             {t("academic.transferCredits") || "Angerechnete Leistungen"}
           </h3>
@@ -269,12 +269,12 @@ export default function TranscriptTab() {
                   <div key={rec.id} className="flex items-center gap-3 px-4 py-3">
                     <CheckCircle size={16} className="text-emerald-500 shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-surface-800 dark:text-surface-200 truncate">
+                      <p className="text-sm text-surface-800 dark:text-surface-800 truncate">
                         {rec.sourceModuleName ?? rec.source_module_name ?? "Transfer Credit"}
                       </p>
                       <p className="text-[11px] text-surface-400">{rec.sourceInstitution ?? rec.source_institution ?? "Extern"}</p>
                     </div>
-                    <span className="text-sm font-medium text-surface-600 dark:text-surface-300">
+                    <span className="text-sm font-medium text-surface-600 dark:text-surface-500">
                       {rec.recognizedEcts ?? rec.recognized_ects ?? rec.sourceCreditValue ?? rec.source_credit_value ?? "–"} {gs.creditLabel}
                     </span>
                   </div>

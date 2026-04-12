@@ -113,13 +113,13 @@ export default function WelcomeTour() {
       <div className="relative w-full max-w-md bg-white dark:bg-surface-900 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
         {/* Header gradient */}
         <div className="bg-gradient-to-r from-brand-600 to-violet-600 p-5 text-white">
-          <button onClick={dismiss} className="absolute top-4 right-4 p-1 rounded-full hover:bg-white/20 transition-colors">
+          <button onClick={dismiss} className="absolute top-4 right-4 p-1 rounded-full hover:bg-white/20 dark:bg-surface-800 transition-colors">
             <X size={18} />
           </button>
 
           {step === 0 ? (
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-white/20 rounded-xl">
+              <div className="p-2.5 bg-white/20 dark:bg-surface-800 rounded-xl">
                 <Rocket size={24} />
               </div>
               <div>
@@ -142,7 +142,7 @@ export default function WelcomeTour() {
               <Icon size={24} />
             </div>
             <div>
-              <h3 className="text-base font-bold text-surface-900 dark:text-surface-100 mb-1">{current.title}</h3>
+              <h3 className="text-base font-bold text-surface-900 dark:text-white mb-1">{current.title}</h3>
               <p className="text-sm text-surface-600 dark:text-surface-400 leading-relaxed">{current.description}</p>
             </div>
           </div>

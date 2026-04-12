@@ -206,7 +206,7 @@ export default function KnowledgePage() {
     <div className="p-3 sm:p-5 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-surface-50">{t("knowledge.title")}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white">{t("knowledge.title")}</h1>
           <p className="text-surface-500 dark:text-surface-400 text-sm mt-0.5">
             {filteredTopics.filter(t => t.status === "understood").length}/{filteredTopics.length} verstanden
             {dueTopics.length > 0 && (
@@ -240,7 +240,7 @@ export default function KnowledgePage() {
                 w.understoodPct < 60 ? "text-orange-500 dark:text-orange-400" : "text-yellow-500 dark:text-yellow-400"
               } />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-surface-900 dark:text-surface-50">
+                <p className="text-sm font-semibold text-surface-900 dark:text-white">
                   {w.exam.title} — {w.understoodPct}% {t("knowledge.title")}
                 </p>
                 <p className="text-xs text-surface-500 dark:text-surface-400">
@@ -260,7 +260,7 @@ export default function KnowledgePage() {
       {filteredTopics.length > 0 && (
         <div className="card mb-5 bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700">
           <div className="flex justify-between text-sm mb-3">
-            <span className="font-medium text-surface-700 dark:text-surface-300">{t("knowledge.title")}</span>
+            <span className="font-medium text-surface-700 dark:text-surface-500">{t("knowledge.title")}</span>
             <span className="text-surface-500 dark:text-surface-400">{Math.round((filteredTopics.filter(t => (t.knowledge_level ?? 0) >= 3).length / filteredTopics.length) * 100)}% gut oder besser</span>
           </div>
           <div className="h-3 bg-surface-100 dark:bg-surface-900 rounded-full overflow-hidden flex">
@@ -290,12 +290,12 @@ export default function KnowledgePage() {
         <div className="flex gap-2 flex-wrap items-center">
           <span className="text-xs text-surface-400 dark:text-surface-500 font-medium w-14 shrink-0">{t("nav.modules")}:</span>
           <button onClick={() => { setFilterModule("all"); setFilterExam("all"); setFilterTask("all"); }}
-            className={`badge cursor-pointer text-xs ${filterModule === "all" ? "bg-brand-600 dark:bg-brand-700 text-white" : "badge-gray dark:bg-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600"}`}>
+            className={`badge cursor-pointer text-xs ${filterModule === "all" ? "bg-brand-600 dark:bg-brand-700 text-white" : "badge-gray dark:bg-surface-700 dark:text-surface-500 hover:bg-surface-200 dark:hover:bg-surface-600"}`}>
             {t("grades.filterAll")}
           </button>
           {modules.map(m => (
             <button key={m.id} onClick={() => { setFilterModule(m.id); setFilterExam("all"); setFilterTask("all"); }}
-              className={`badge cursor-pointer text-xs ${filterModule === m.id ? "text-white" : "badge-gray dark:bg-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600"}`}
+              className={`badge cursor-pointer text-xs ${filterModule === m.id ? "text-white" : "badge-gray dark:bg-surface-700 dark:text-surface-500 hover:bg-surface-200 dark:hover:bg-surface-600"}`}
               style={filterModule === m.id ? { background: m.color ?? "#6d28d9" } : {}}>
               {m.name}
             </button>
@@ -307,14 +307,14 @@ export default function KnowledgePage() {
           <div className="flex gap-2 flex-wrap items-center">
             <span className="text-xs text-surface-400 dark:text-surface-500 font-medium w-14 shrink-0">{t("knowledge.examLabel")}</span>
             <button onClick={() => setFilterExam("all")}
-              className={`badge cursor-pointer text-xs ${filterExam === "all" ? "bg-brand-600 dark:bg-brand-700 text-white" : "badge-gray dark:bg-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600"}`}>
+              className={`badge cursor-pointer text-xs ${filterExam === "all" ? "bg-brand-600 dark:bg-brand-700 text-white" : "badge-gray dark:bg-surface-700 dark:text-surface-500 hover:bg-surface-200 dark:hover:bg-surface-600"}`}>
               {t("grades.filterAll")}
             </button>
             {upcomingExams.map(e => {
               const count = topics.filter(t => t.exam_id === e.id).length;
               return (
                 <button key={e.id} onClick={() => setFilterExam(e.id)}
-                  className={`badge cursor-pointer text-xs flex items-center gap-1 ${filterExam === e.id ? "text-white" : "badge-gray dark:bg-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600"}`}
+                  className={`badge cursor-pointer text-xs flex items-center gap-1 ${filterExam === e.id ? "text-white" : "badge-gray dark:bg-surface-700 dark:text-surface-500 hover:bg-surface-200 dark:hover:bg-surface-600"}`}
                   style={filterExam === e.id ? { background: e.color ?? "#dc2626" } : {}}>
                   <GraduationCap size={10} /> {e.title}
                   {count > 0 && <span className="opacity-70">({count})</span>}
@@ -330,14 +330,14 @@ export default function KnowledgePage() {
           <div className="flex gap-2 flex-wrap items-center">
             <span className="text-xs text-surface-400 dark:text-surface-500 font-medium w-14 shrink-0">{t("nav.tasks")}:</span>
             <button onClick={() => setFilterTask("all")}
-              className={`badge cursor-pointer text-xs ${filterTask === "all" ? "bg-brand-600 dark:bg-brand-700 text-white" : "badge-gray dark:bg-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600"}`}>
+              className={`badge cursor-pointer text-xs ${filterTask === "all" ? "bg-brand-600 dark:bg-brand-700 text-white" : "badge-gray dark:bg-surface-700 dark:text-surface-500 hover:bg-surface-200 dark:hover:bg-surface-600"}`}>
               {t("grades.filterAll")}
             </button>
             {openTasks.slice(0, 8).map(t => {
               const count = topics.filter(tp => tp.task_id === t.id).length;
               return (
                 <button key={t.id} onClick={() => setFilterTask(t.id)}
-                  className={`badge cursor-pointer text-xs ${filterTask === t.id ? "bg-blue-600 dark:bg-blue-700 text-white" : "badge-gray dark:bg-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600"}`}>
+                  className={`badge cursor-pointer text-xs ${filterTask === t.id ? "bg-blue-600 dark:bg-blue-700 text-white" : "badge-gray dark:bg-surface-700 dark:text-surface-500 hover:bg-surface-200 dark:hover:bg-surface-600"}`}>
                   {t.title.length > 25 ? t.title.slice(0, 25) + "…" : t.title}
                   {count > 0 && <span className="opacity-70 ml-1">({count})</span>}
                 </button>
@@ -351,7 +351,7 @@ export default function KnowledgePage() {
       {filteredTopics.length > 0 && (
         <div className="card mb-5 bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700">
           <div className="flex flex-col sm:flex-row sm:justify-between text-sm mb-2 gap-1">
-            <span className="font-medium text-surface-700 dark:text-surface-300 truncate">
+            <span className="font-medium text-surface-700 dark:text-surface-500 truncate">
               {t("knowledge.title")}
               {filterExam !== "all" && <span className="text-brand-600 dark:text-brand-400 ml-1">· {examName(filterExam)}</span>}
               {filterTask !== "all" && <span className="text-blue-600 dark:text-blue-400 ml-1">· {taskName(filterTask)}</span>}
@@ -459,11 +459,11 @@ function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onTog
         </button>
 
         <button onClick={() => onToggleStatus(topic)}
-          className={`px-2 py-0.5 rounded-full text-xs font-medium shrink-0 cursor-pointer ${STATUS_COLORS[topic.status ?? "not_started"]} dark:${topic.status === "understood" ? "dark:bg-green-900 dark:text-green-200" : topic.status === "in_progress" ? "dark:bg-blue-900 dark:text-blue-200" : topic.status === "needs_review" ? "dark:bg-yellow-900 dark:text-yellow-200" : "dark:bg-surface-700 dark:text-surface-300"}`}>
+          className={`px-2 py-0.5 rounded-full text-xs font-medium shrink-0 cursor-pointer ${STATUS_COLORS[topic.status ?? "not_started"]} dark:${topic.status === "understood" ? "dark:bg-green-900 dark:text-green-200" : topic.status === "in_progress" ? "dark:bg-blue-900 dark:text-blue-200" : topic.status === "needs_review" ? "dark:bg-yellow-900 dark:text-yellow-200" : "dark:bg-surface-700 dark:text-surface-500"}`}>
           {statusLabels[topic.status ?? "not_started"]}
         </button>
 
-        <span className="flex-1 text-sm text-surface-800 dark:text-surface-200 font-medium truncate">{topic.title}</span>
+        <span className="flex-1 text-sm text-surface-800 dark:text-surface-800 font-medium truncate">{topic.title}</span>
 
         {/* Exam badge */}
         {linkedExam && (
@@ -571,7 +571,7 @@ function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; con
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
         <div className="bg-surface-50 dark:bg-surface-800 rounded-2xl shadow-xl w-full max-w-md text-center p-4 sm:p-8">
           <Check size={32} className="mx-auto mb-4 text-green-500" />
-          <h2 className="text-lg font-bold text-surface-900 dark:text-surface-50 mb-2">{t("knowledge.title")}</h2>
+          <h2 className="text-lg font-bold text-surface-900 dark:text-white mb-2">{t("knowledge.title")}</h2>
           <p className="text-surface-500 dark:text-surface-400 text-sm mb-4">{t("knowledge.statusUnderstood")}</p>
           <button onClick={onClose} className="btn-primary w-full justify-center">{t("tasks.modal.cancel")}</button>
         </div>
@@ -586,7 +586,7 @@ function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; con
           <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mx-auto mb-4">
             <Check size={32} className="text-green-600 dark:text-green-400" />
           </div>
-          <h2 className="text-xl font-bold text-surface-900 dark:text-surface-50 mb-2">{t("knowledge.title")}</h2>
+          <h2 className="text-xl font-bold text-surface-900 dark:text-white mb-2">{t("knowledge.title")}</h2>
           {contextLabel && <p className="text-brand-600 dark:text-brand-400 text-sm font-medium mb-1">{contextLabel}</p>}
           <p className="text-surface-500 dark:text-surface-400 mb-4">
             {stats.good + stats.again} {t("knowledge.title")}
@@ -616,7 +616,7 @@ function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; con
           <div className="flex items-center gap-3">
             <Brain size={18} className="text-brand-600" />
             <div>
-              <span className="font-semibold text-surface-900 dark:text-surface-50">Spaced Repetition Review</span>
+              <span className="font-semibold text-surface-900 dark:text-white">Spaced Repetition Review</span>
               {contextLabel && <p className="text-xs text-brand-600 dark:text-brand-400">{contextLabel}</p>}
             </div>
           </div>
@@ -631,12 +631,12 @@ function SRReviewModal({ topics, contextLabel, onClose }: { topics: Topic[]; con
         </div>
 
         <div className="p-6 sm:p-8 text-center min-h-[200px] flex flex-col items-center justify-center">
-          <h3 className="text-lg sm:text-xl font-bold text-surface-900 dark:text-surface-50 mb-2">{current.title}</h3>
+          <h3 className="text-lg sm:text-xl font-bold text-surface-900 dark:text-white mb-2">{current.title}</h3>
           {current.description && !showAnswer && (
             <p className="text-surface-400 dark:text-surface-500 text-sm">{t("knowledge.canYouExplain")}</p>
           )}
           {showAnswer && current.description && (
-            <p className="text-surface-600 dark:text-surface-300 mt-3 text-sm bg-surface-100 dark:bg-surface-900 rounded-xl p-4">{current.description}</p>
+            <p className="text-surface-600 dark:text-surface-500 mt-3 text-sm bg-surface-100 dark:bg-surface-900 rounded-xl p-4">{current.description}</p>
           )}
         </div>
 
@@ -719,28 +719,28 @@ function TopicModal({ initial, parentId, modules, exams, tasks, presetExam, pres
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-surface-50 dark:bg-surface-800 rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-5 border-b border-surface-100 dark:border-surface-700">
-          <h2 className="font-semibold text-surface-900 dark:text-surface-50">{initial ? t("knowledge.editTopic") : parentId ? t("knowledge.addSubtopic") : t("knowledge.newTopic")}</h2>
+          <h2 className="font-semibold text-surface-900 dark:text-white">{initial ? t("knowledge.editTopic") : parentId ? t("knowledge.addSubtopic") : t("knowledge.newTopic")}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("knowledge.labelTitle")} *</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("knowledge.labelTitle")} *</label>
             <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("knowledge.topicPlaceholder")} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("knowledge.labelDescription")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("knowledge.labelDescription")}</label>
             <textarea className="input resize-none" rows={2} value={form.description} onChange={e => set("description", e.target.value)} placeholder={t("knowledge.detailsPlaceholder")} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("knowledge.labelModule")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("knowledge.labelModule")}</label>
               <select className="input" value={form.module_id} onChange={e => set("module_id", e.target.value)}>
                 <option value="">—</option>
                 {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("knowledge.labelStatus")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("knowledge.labelStatus")}</label>
               <select className="input" value={form.status} onChange={e => set("status", e.target.value)}>
                 {Object.entries(getStatusLabels(t)).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
@@ -748,7 +748,7 @@ function TopicModal({ initial, parentId, modules, exams, tasks, presetExam, pres
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-1">
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1 flex items-center gap-1">
                 <GraduationCap size={12} /> {t("knowledge.labelExam")}
               </label>
               <select className="input" value={form.exam_id} onChange={e => set("exam_id", e.target.value)}>
@@ -757,7 +757,7 @@ function TopicModal({ initial, parentId, modules, exams, tasks, presetExam, pres
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("knowledge.labelTask")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("knowledge.labelTask")}</label>
               <select className="input" value={form.task_id} onChange={e => set("task_id", e.target.value)}>
                 <option value="">{t("knowledge.optionNone")}</option>
                 {tasks.map(t => <option key={t.id} value={t.id}>{t.title.length > 30 ? t.title.slice(0, 30) + "…" : t.title}</option>)}
@@ -765,7 +765,7 @@ function TopicModal({ initial, parentId, modules, exams, tasks, presetExam, pres
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">{t("knowledge.labelKnowledgeLevel")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-2">{t("knowledge.labelKnowledgeLevel")}</label>
             <div className="flex gap-2 flex-wrap">
               {getKnowledgeLevels(t).map(kl => (
                 <button key={kl.level} type="button"

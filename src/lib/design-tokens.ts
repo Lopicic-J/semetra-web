@@ -14,14 +14,14 @@
  * in tailwind.config.ts, so they adapt AUTOMATICALLY.
  *
  * The PROBLEM classes are:
- *   1. `bg-white` (161× in codebase) — hardcoded, doesn't adapt
+ *   1. `bg-white dark:bg-surface-800` (161× in codebase) — hardcoded, doesn't adapt
  *   2. `text-white` (177×) — usually fine (white on colored bg)
  *   3. Tailwind standard colors: orange-*, red-*, green-*, etc.
  *   4. Inline styles with hex colors (75×)
  *
  * ── HOW WE SOLVE EACH ──
  *
- * 1. bg-white → globals.css: `.dark .bg-white { bg: var(--card-bg) }`
+ * 1. bg-white dark:bg-surface-800 → globals.css: `.dark .bg-white dark:bg-surface-800 { bg: var(--card-bg) }`
  * 2. text-white → KEEP (white on brand/colored buttons stays white)
  * 3. Standard Tailwind colors → globals.css overrides (see SEMANTIC_OVERRIDES)
  * 4. Inline styles → use helper functions from this file
@@ -77,7 +77,7 @@
  * Purpose            │ Class / Var        │ Light        │ Dark
  * ───────────────────┼────────────────────┼──────────────┼──────────
  * Page               │ bg-surface-50      │ #f8fafc      │ #18181b
- * Card               │ .card / bg-white   │ #ffffff      │ #27272a
+ * Card               │ .card / bg-white dark:bg-surface-800   │ #ffffff      │ #27272a
  * Sidebar            │ --card-bg          │ #ffffff      │ #27272a
  * Input field        │ .input             │ #ffffff      │ #27272a
  * Hover row          │ bg-surface-100     │ #f1f5f9      │ #27272a

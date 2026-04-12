@@ -98,7 +98,7 @@ export default function MessagesPage() {
             <MessageCircle className="text-brand-600 dark:text-brand-400" size={26} />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-surface-50">
+            <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white">
               {t("messages.title") || "Nachrichten"}
             </h1>
             {totalUnread > 0 && (
@@ -126,7 +126,7 @@ export default function MessagesPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder={t("messages.search") || "Konversation suchen..."}
-            className="w-full pl-10 pr-3 py-2.5 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-50 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600"
+            className="w-full pl-10 pr-3 py-2.5 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-white dark:bg-surface-800 text-surface-900 dark:text-white placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600"
           />
         </div>
       )}
@@ -192,14 +192,14 @@ export default function MessagesPage() {
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <p className={`font-medium truncate ${conv.unreadCount > 0 ? "text-surface-900 dark:text-surface-50" : "text-surface-700 dark:text-surface-300"}`}>
+                  <p className={`font-medium truncate ${conv.unreadCount > 0 ? "text-surface-900 dark:text-white" : "text-surface-700 dark:text-surface-500"}`}>
                     {conv.partner.full_name || conv.partner.username}
                   </p>
                   <span className="text-[11px] text-surface-400 dark:text-surface-500 shrink-0 ml-2">
                     {formatTime(conv.lastMessage.created_at)}
                   </span>
                 </div>
-                <p className={`text-sm truncate mt-0.5 ${conv.unreadCount > 0 ? "text-surface-700 dark:text-surface-300 font-medium" : "text-surface-500 dark:text-surface-400"}`}>
+                <p className={`text-sm truncate mt-0.5 ${conv.unreadCount > 0 ? "text-surface-700 dark:text-surface-500 font-medium" : "text-surface-500 dark:text-surface-400"}`}>
                   {conv.lastMessage.isMine && <span className="text-surface-400 dark:text-surface-500">Du: </span>}
                   {conv.lastMessage.content}
                 </p>

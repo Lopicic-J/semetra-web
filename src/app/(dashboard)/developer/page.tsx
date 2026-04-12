@@ -190,7 +190,7 @@ export default function DeveloperPage() {
     <div className="p-4 sm:p-6 space-y-6 max-w-5xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-surface-100">{t("nav.developer") || "Developer Console"}</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-white">{t("nav.developer") || "Developer Console"}</h1>
         <p className="text-surface-600 dark:text-surface-400 mt-1">{t("developer.subtitle") || "API-Keys, Webhooks und Nutzungsstatistiken verwalten"}</p>
       </div>
 
@@ -242,12 +242,12 @@ export default function DeveloperPage() {
 
           {showNewKey && (
             <Card className="p-4 space-y-3 border-brand-200 dark:border-brand-800 bg-brand-50/30 dark:bg-brand-900/10">
-              <input type="text" value={newKeyName} onChange={(e) => setNewKeyName(e.target.value)} placeholder="Key-Name (z.B. 'Production App')" className="w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] dark:bg-surface-800 text-surface-900 dark:text-surface-100 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:focus:ring-brand-400" />
+              <input type="text" value={newKeyName} onChange={(e) => setNewKeyName(e.target.value)} placeholder="Key-Name (z.B. 'Production App')" className="w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] dark:bg-surface-800 text-surface-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:focus:ring-brand-400" />
               <div>
                 <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-1.5">Scopes</p>
                 <div className="flex flex-wrap gap-2">
                   {AVAILABLE_SCOPES.map((scope) => (
-                    <label key={scope.value} className="flex items-center gap-1.5 text-xs cursor-pointer text-surface-900 dark:text-surface-100">
+                    <label key={scope.value} className="flex items-center gap-1.5 text-xs cursor-pointer text-surface-900 dark:text-white">
                       <input type="checkbox" checked={newKeyScopes.includes(scope.value)} onChange={(e) => setNewKeyScopes(e.target.checked ? [...newKeyScopes, scope.value] : newKeyScopes.filter((s) => s !== scope.value))} className="rounded border-surface-300 dark:border-surface-600 text-brand-600 dark:text-brand-500 focus:ring-brand-500 dark:focus:ring-brand-400" />
                       {scope.label}
                     </label>
@@ -256,7 +256,7 @@ export default function DeveloperPage() {
               </div>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                 <label className="text-xs text-surface-600 dark:text-surface-400 whitespace-nowrap">Ablauf in</label>
-                <select value={newKeyExpiry} onChange={(e) => setNewKeyExpiry(Number(e.target.value))} className="text-sm px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] dark:bg-surface-800 text-surface-900 dark:text-surface-100">
+                <select value={newKeyExpiry} onChange={(e) => setNewKeyExpiry(Number(e.target.value))} className="text-sm px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] dark:bg-surface-800 text-surface-900 dark:text-white">
                   <option value={30}>30 Tagen</option><option value={90}>90 Tagen</option><option value={180}>180 Tagen</option><option value={365}>1 Jahr</option>
                 </select>
               </div>
@@ -279,11 +279,11 @@ export default function DeveloperPage() {
                 <Card key={k.id} padding="sm" className="flex flex-col sm:flex-row sm:items-center gap-3 group">
                   <Key size={16} className="text-surface-400 dark:text-surface-500 shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-surface-900 dark:text-surface-100 truncate">{k.name}</p>
+                    <p className="text-sm font-medium text-surface-900 dark:text-white truncate">{k.name}</p>
                     <p className="text-xs text-surface-500 dark:text-surface-400 font-mono break-all">{k.key_prefix}...</p>
                   </div>
                   <div className="flex flex-wrap gap-2 text-xs text-surface-400 dark:text-surface-500">
-                    {k.scopes.length > 0 && <span className="px-1.5 py-0.5 bg-surface-100 dark:bg-surface-700 rounded text-surface-600 dark:text-surface-300">{k.scopes.length} scope{k.scopes.length > 1 ? "s" : ""}</span>}
+                    {k.scopes.length > 0 && <span className="px-1.5 py-0.5 bg-surface-100 dark:bg-surface-700 rounded text-surface-600 dark:text-surface-500">{k.scopes.length} scope{k.scopes.length > 1 ? "s" : ""}</span>}
                     {k.last_used && <span className="truncate">Zuletzt: {new Date(k.last_used).toLocaleDateString("de-CH")}</span>}
                     {k.expires_at && <span className="truncate">Ablauf: {new Date(k.expires_at).toLocaleDateString("de-CH")}</span>}
                   </div>
@@ -327,12 +327,12 @@ export default function DeveloperPage() {
 
           {showNewWh && (
             <Card className="p-4 space-y-3 border-brand-200 dark:border-brand-800 bg-brand-50/30 dark:bg-brand-900/10">
-              <input type="url" value={newWhUrl} onChange={(e) => setNewWhUrl(e.target.value)} placeholder="https://example.com/webhook" className="w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] dark:bg-surface-800 text-surface-900 dark:text-surface-100 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:focus:ring-brand-400 break-all" />
+              <input type="url" value={newWhUrl} onChange={(e) => setNewWhUrl(e.target.value)} placeholder="https://example.com/webhook" className="w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] dark:bg-surface-800 text-surface-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:focus:ring-brand-400 break-all" />
               <div>
                 <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-1.5">Events</p>
                 <div className="flex flex-wrap gap-2">
                   {AVAILABLE_EVENTS.map((ev) => (
-                    <label key={ev.value} className="flex items-center gap-1.5 text-xs cursor-pointer text-surface-900 dark:text-surface-100">
+                    <label key={ev.value} className="flex items-center gap-1.5 text-xs cursor-pointer text-surface-900 dark:text-white">
                       <input type="checkbox" checked={newWhEvents.includes(ev.value)} onChange={(e) => setNewWhEvents(e.target.checked ? [...newWhEvents, ev.value] : newWhEvents.filter((v) => v !== ev.value))} className="rounded border-surface-300 dark:border-surface-600 text-brand-600 dark:text-brand-500 focus:ring-brand-500 dark:focus:ring-brand-400" />
                       {ev.label}
                     </label>
@@ -358,9 +358,9 @@ export default function DeveloperPage() {
                 <Card key={wh.id} padding="sm" className="flex flex-col sm:flex-row sm:items-center gap-3 group">
                   <Webhook size={16} className="text-surface-400 dark:text-surface-500 shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-surface-900 dark:text-surface-100 break-all">{wh.url}</p>
+                    <p className="text-sm font-medium text-surface-900 dark:text-white break-all">{wh.url}</p>
                     <div className="flex flex-wrap gap-1 mt-0.5">
-                      {wh.events.map((ev) => (<span key={ev} className="text-[10px] px-1.5 py-0.5 bg-surface-100 dark:bg-surface-700 rounded text-surface-600 dark:text-surface-300">{ev}</span>))}
+                      {wh.events.map((ev) => (<span key={ev} className="text-[10px] px-1.5 py-0.5 bg-surface-100 dark:bg-surface-700 rounded text-surface-600 dark:text-surface-500">{ev}</span>))}
                     </div>
                   </div>
                   <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded whitespace-nowrap ${wh.active ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400" : "bg-surface-100 dark:bg-surface-700 text-surface-500 dark:text-surface-400"}`}>{wh.active ? "Aktiv" : "Inaktiv"}</span>
@@ -388,7 +388,7 @@ export default function DeveloperPage() {
             <>
               <Card padding="md">
                 <p className="text-xs text-surface-500 dark:text-surface-400 uppercase tracking-wider font-semibold">Gesamt-Anfragen</p>
-                <p className="text-2xl sm:text-4xl font-bold text-surface-900 dark:text-surface-100 mt-1">{usage.total.toLocaleString("de-CH")}</p>
+                <p className="text-2xl sm:text-4xl font-bold text-surface-900 dark:text-white mt-1">{usage.total.toLocaleString("de-CH")}</p>
               </Card>
 
               <Card padding="md">
@@ -398,7 +398,7 @@ export default function DeveloperPage() {
                     {usage.daily.map((d) => (
                       <div key={d.date} className="flex-1 flex flex-col items-center group/bar relative min-w-[20px]">
                         <div className="w-full bg-brand-500 dark:bg-brand-600 rounded-t-sm transition-all hover:bg-brand-600 dark:hover:bg-brand-500 min-h-[2px]" style={{ height: `${(d.count / maxUsage) * 100}%` }} />
-                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover/bar:block bg-surface-900 dark:bg-surface-800 text-white dark:text-surface-100 text-[10px] px-2 py-1 rounded whitespace-nowrap z-10">
+                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover/bar:block bg-surface-900 dark:bg-surface-800 text-white dark:text-white text-[10px] px-2 py-1 rounded whitespace-nowrap z-10">
                           {new Date(d.date).toLocaleDateString("de-CH", { day: "2-digit", month: "short" })}: {d.count}
                         </div>
                       </div>
@@ -421,7 +421,7 @@ export default function DeveloperPage() {
                         <div key={bk.key_id} className="flex flex-col sm:flex-row sm:items-center gap-3">
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-col sm:flex-row sm:justify-between text-sm mb-0.5 gap-2">
-                              <span className="truncate text-surface-800 dark:text-surface-200 font-medium">{bk.name}</span>
+                              <span className="truncate text-surface-800 dark:text-surface-800 font-medium">{bk.name}</span>
                               <span className="text-surface-500 dark:text-surface-400 shrink-0">{bk.count.toLocaleString("de-CH")}</span>
                             </div>
                             <div className="h-1.5 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden">

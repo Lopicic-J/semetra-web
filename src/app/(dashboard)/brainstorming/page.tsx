@@ -252,7 +252,7 @@ export default function BrainstormingPage() {
     <div className="p-3 sm:p-5 max-w-5xl mx-auto space-y-4 sm:space-y-6">
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
             <Lightbulb className="text-yellow-300" /> {t("brainstorming.title")}
           </h1>
           <p className="text-surface-500 dark:text-surface-400 text-xs sm:text-sm mt-1">{t("brainstorming.createSession")}</p>
@@ -277,7 +277,7 @@ export default function BrainstormingPage() {
 
       {/* Technique overview cards */}
       <div className="mb-8">
-        <h2 className="text-sm font-semibold text-surface-700 dark:text-surface-300 uppercase tracking-wider mb-3">{t("brainstorming.techniques")}</h2>
+        <h2 className="text-sm font-semibold text-surface-700 dark:text-surface-500 uppercase tracking-wider mb-3">{t("brainstorming.techniques")}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {TECHNIQUES.map(tech => (
             <button
@@ -287,7 +287,7 @@ export default function BrainstormingPage() {
             >
               <div className="flex items-center gap-2 mb-1.5">
                 <span style={{ color: tech.color }}>{tech.icon}</span>
-                <span className="text-sm font-medium text-surface-800 dark:text-surface-100">{tech.label}</span>
+                <span className="text-sm font-medium text-surface-800 dark:text-white">{tech.label}</span>
               </div>
               <p className="text-xs text-surface-500 dark:text-surface-400 line-clamp-2 leading-relaxed">{tech.description}</p>
             </button>
@@ -296,7 +296,7 @@ export default function BrainstormingPage() {
       </div>
 
       {/* Session list */}
-      <h2 className="text-sm font-semibold text-surface-700 dark:text-surface-300 uppercase tracking-wider mb-3">{t("brainstorming.yourSessions")}</h2>
+      <h2 className="text-sm font-semibold text-surface-700 dark:text-surface-500 uppercase tracking-wider mb-3">{t("brainstorming.yourSessions")}</h2>
       {loading ? (
         <p className="text-surface-500 dark:text-surface-400 text-sm">{t("brainstorming.noSessions")}</p>
       ) : sessions.length === 0 ? (
@@ -317,7 +317,7 @@ export default function BrainstormingPage() {
                 className="bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl p-3 sm:p-4 text-left hover:border-brand-500/60 dark:hover:border-brand-600 hover:bg-surface-100 dark:hover:bg-surface-700 transition group"
               >
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-surface-800 dark:text-surface-100 text-sm group-hover:text-brand-600 dark:group-hover:text-brand-400 transition line-clamp-1">
+                  <h3 className="font-semibold text-surface-800 dark:text-white text-sm group-hover:text-brand-600 dark:group-hover:text-brand-400 transition line-clamp-1">
                     {s.title}
                   </h3>
                   <span className="w-3 h-3 rounded-full flex-shrink-0 mt-1" style={{ backgroundColor: s.color }} />
@@ -409,21 +409,21 @@ function CreateSessionModal({
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-5">
-          <h2 className="text-lg font-bold text-surface-900 dark:text-surface-50">{t("brainstorming.createSession")}</h2>
+          <h2 className="text-lg font-bold text-surface-900 dark:text-white">{t("brainstorming.createSession")}</h2>
           <button onClick={onClose} className="text-surface-500 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-200 transition"><X size={20} /></button>
         </div>
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5">{t("brainstorming.sessionTitle")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-800 mb-1.5">{t("brainstorming.sessionTitle")}</label>
         <input
           ref={inputRef}
           value={title}
           onChange={e => setTitle(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter") handleCreate(); }}
           placeholder={selectedTech.label}
-          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 dark:text-surface-50 placeholder:text-surface-400 dark:placeholder:text-surface-500 mb-4 focus:border-brand-500 dark:focus:border-brand-600 focus:outline-none transition"
+          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 mb-4 focus:border-brand-500 dark:focus:border-brand-600 focus:outline-none transition"
         />
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-2">{t("brainstorming.techniques")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-800 mb-2">{t("brainstorming.techniques")}</label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
           {getTechniques(t).map(tech => (
             <button
@@ -431,8 +431,8 @@ function CreateSessionModal({
               onClick={() => setTechnique(tech.key)}
               className={`flex items-center gap-2 p-1.5 sm:p-2.5 rounded-lg border text-xs text-left transition ${
                 technique === tech.key
-                  ? "border-brand-500 dark:border-brand-600 bg-brand-500/15 dark:bg-brand-950/30 text-surface-900 dark:text-surface-50"
-                  : "border-surface-200 dark:border-surface-600 bg-surface-50 dark:bg-surface-700 text-surface-700 dark:text-surface-300 hover:border-surface-300 dark:hover:border-surface-500"
+                  ? "border-brand-500 dark:border-brand-600 bg-brand-500/15 dark:bg-brand-950/30 text-surface-900 dark:text-white"
+                  : "border-surface-200 dark:border-surface-600 bg-surface-50 dark:bg-surface-700 text-surface-700 dark:text-surface-500 hover:border-surface-300 dark:hover:border-surface-500"
               }`}
             >
               <span style={{ color: tech.color }}>{tech.icon}</span>
@@ -441,17 +441,17 @@ function CreateSessionModal({
           ))}
         </div>
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5">{t("brainstorming.moduleLink")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-800 mb-1.5">{t("brainstorming.moduleLink")}</label>
         <select
           value={moduleId}
           onChange={e => setModuleId(e.target.value)}
-          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 dark:text-surface-50 mb-4"
+          className="w-full bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-surface-900 dark:text-white mb-4"
         >
           <option value="">{t("brainstorming.noModuleLink")}</option>
           {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
 
-        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-200 mb-1.5">{t("mindmaps.color")}</label>
+        <label className="block text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-800 mb-1.5">{t("mindmaps.color")}</label>
         <div className="flex gap-2 mb-5 flex-wrap">
           {IDEA_COLORS.map(c => (
             <button
@@ -1145,7 +1145,7 @@ function BrainstormEditor({
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h1 className="text-lg sm:text-xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
+            <h1 className="text-lg sm:text-xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
               <span style={{ color: tech.color }}>{tech.icon}</span>
               {session.title}
             </h1>
@@ -1165,22 +1165,22 @@ function BrainstormEditor({
 
         {/* Toolbar */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <button onClick={() => setShowSearch(s => !s)} className="p-2 rounded-lg bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 hover:text-surface-900 dark:hover:text-surface-100 hover:border-surface-300 dark:hover:border-surface-600 transition" title="Ctrl+F">
+          <button onClick={() => setShowSearch(s => !s)} className="p-2 rounded-lg bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-500 hover:text-surface-900 dark:hover:text-surface-100 hover:border-surface-300 dark:hover:border-surface-600 transition" title="Ctrl+F">
             <Search size={16} />
           </button>
-          <button onClick={undo} disabled={undoStack.length === 0} className="p-2 rounded-lg bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 hover:text-surface-900 dark:hover:text-surface-100 hover:border-surface-300 dark:hover:border-surface-600 transition disabled:opacity-30" title="Ctrl+Z">
+          <button onClick={undo} disabled={undoStack.length === 0} className="p-2 rounded-lg bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-500 hover:text-surface-900 dark:hover:text-surface-100 hover:border-surface-300 dark:hover:border-surface-600 transition disabled:opacity-30" title="Ctrl+Z">
             <Undo2 size={16} />
           </button>
-          <button onClick={redo} disabled={redoStack.length === 0} className="p-2 rounded-lg bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 hover:text-surface-900 dark:hover:text-surface-100 hover:border-surface-300 dark:hover:border-surface-600 transition disabled:opacity-30" title="Ctrl+Y">
+          <button onClick={redo} disabled={redoStack.length === 0} className="p-2 rounded-lg bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-500 hover:text-surface-900 dark:hover:text-surface-100 hover:border-surface-300 dark:hover:border-surface-600 transition disabled:opacity-30" title="Ctrl+Y">
             <Undo2 size={16} className="transform scale-x-[-1]" />
           </button>
           <button onClick={() => setShowAi(s => !s)} className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-brand-600 dark:bg-brand-600 border border-brand-500 dark:border-brand-600 text-white hover:bg-brand-500 dark:hover:bg-brand-500 text-xs font-medium transition">
             <Bot size={16} /> KI
           </button>
-          <button onClick={() => setShowExport(s => !s)} className="p-2 rounded-lg bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 hover:text-surface-900 dark:hover:text-surface-100 hover:border-surface-300 dark:hover:border-surface-600 transition">
+          <button onClick={() => setShowExport(s => !s)} className="p-2 rounded-lg bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-500 hover:text-surface-900 dark:hover:text-surface-100 hover:border-surface-300 dark:hover:border-surface-600 transition">
             <Download size={16} />
           </button>
-          <button onClick={() => setShowShortcuts(s => !s)} className="p-2 rounded-lg bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 hover:text-surface-900 dark:hover:text-surface-100 hover:border-surface-300 dark:hover:border-surface-600 transition" title="?">
+          <button onClick={() => setShowShortcuts(s => !s)} className="p-2 rounded-lg bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-500 hover:text-surface-900 dark:hover:text-surface-100 hover:border-surface-300 dark:hover:border-surface-600 transition" title="?">
             <Keyboard size={16} />
           </button>
           <button onClick={handleDeleteSession} className="p-2 rounded-lg bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-red-400 dark:text-red-500 hover:text-red-300 dark:hover:text-red-400 hover:border-red-500/40 transition">
@@ -1197,7 +1197,7 @@ function BrainstormEditor({
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder={t("brainstorming.searchPlaceholder")}
-            className="flex-1 bg-transparent text-sm text-surface-900 dark:text-surface-50 placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none"
+            className="flex-1 bg-transparent text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none"
             autoFocus
           />
           {searchQuery && (
@@ -1217,7 +1217,7 @@ function BrainstormEditor({
                 <Bot size={14} className="text-white" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-surface-900 dark:text-surface-50">{t("brainstorming.aiAssistant")}</h3>
+                <h3 className="text-sm font-semibold text-surface-900 dark:text-white">{t("brainstorming.aiAssistant")}</h3>
                 <p className="text-[10px] text-surface-500 dark:text-surface-400 leading-tight">{t("brainstorming.aiSubtitle")}</p>
               </div>
             </div>
@@ -1233,15 +1233,15 @@ function BrainstormEditor({
               <Sparkles size={11} /> {t("brainstorming.aiExpand")}
             </button>
             <button onClick={() => aiExpandIdeas("structure")} disabled={aiLoading || ideas.length === 0}
-              className="shrink-0 px-3 py-1.5 rounded-full bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300 text-xs font-medium hover:bg-surface-200 dark:hover:bg-surface-600 disabled:opacity-40 transition">
+              className="shrink-0 px-3 py-1.5 rounded-full bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-500 text-xs font-medium hover:bg-surface-200 dark:hover:bg-surface-600 disabled:opacity-40 transition">
               {t("brainstorming.aiStructure")}
             </button>
             <button onClick={() => aiExpandIdeas("summarize")} disabled={aiLoading || ideas.length === 0}
-              className="shrink-0 px-3 py-1.5 rounded-full bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300 text-xs font-medium hover:bg-surface-200 dark:hover:bg-surface-600 disabled:opacity-40 transition">
+              className="shrink-0 px-3 py-1.5 rounded-full bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-500 text-xs font-medium hover:bg-surface-200 dark:hover:bg-surface-600 disabled:opacity-40 transition">
               {t("brainstorming.aiSummarize")}
             </button>
             <button onClick={() => aiExpandIdeas("gaps")} disabled={aiLoading || ideas.length === 0}
-              className="shrink-0 px-3 py-1.5 rounded-full bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300 text-xs font-medium hover:bg-surface-200 dark:hover:bg-surface-600 disabled:opacity-40 transition">
+              className="shrink-0 px-3 py-1.5 rounded-full bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-500 text-xs font-medium hover:bg-surface-200 dark:hover:bg-surface-600 disabled:opacity-40 transition">
               {t("brainstorming.aiGaps")}
             </button>
             <button onClick={() => aiExpandIdeas("cleanup")} disabled={aiLoading || ideas.length === 0}
@@ -1267,7 +1267,7 @@ function BrainstormEditor({
                 <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
                   msg.role === "user"
                     ? "bg-brand-600 dark:bg-brand-600 text-white rounded-br-md"
-                    : "bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 text-surface-800 dark:text-surface-100 rounded-bl-md shadow-sm"
+                    : "bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 text-surface-800 dark:text-white rounded-bl-md shadow-sm"
                 }`}>
                   {msg.role === "assistant" && (
                     <div className="flex items-center gap-1.5 mb-1.5">
@@ -1299,7 +1299,7 @@ function BrainstormEditor({
             {/* Streaming result (not yet in history) */}
             {aiLoading && aiResult && (
               <div className="flex justify-start">
-                <div className="max-w-[85%] rounded-2xl rounded-bl-md px-3.5 py-2.5 bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 text-surface-800 dark:text-surface-100 shadow-sm">
+                <div className="max-w-[85%] rounded-2xl rounded-bl-md px-3.5 py-2.5 bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 text-surface-800 dark:text-white shadow-sm">
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <Bot size={11} className="text-brand-500 dark:text-brand-400" />
                     <span className="text-[10px] font-medium text-brand-500 dark:text-brand-400">Semetra KI</span>
@@ -1336,7 +1336,7 @@ function BrainstormEditor({
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); aiFollowUp(); } }}
                 placeholder={t("brainstorming.aiInputPlaceholder")}
                 disabled={aiLoading}
-                className="flex-1 px-3.5 py-2 rounded-xl bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-sm text-surface-900 dark:text-surface-100 placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400 disabled:opacity-50 transition"
+                className="flex-1 px-3.5 py-2 rounded-xl bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400 disabled:opacity-50 transition"
               />
               <button
                 onClick={aiFollowUp}
@@ -1354,22 +1354,22 @@ function BrainstormEditor({
       {showExport && (
         <div className="mb-4 p-3 sm:p-4 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-surface-800 dark:text-surface-100 flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-surface-800 dark:text-white flex items-center gap-2">
               <Download size={16} /> {t("brainstorming.export")}
             </h3>
             <button onClick={() => setShowExport(false)} className="text-surface-500 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-200"><X size={14} /></button>
           </div>
           <div className="flex gap-2 flex-wrap">
             <button onClick={() => { downloadFile(exportMarkdown(), `${session.title}.md`, "text/markdown"); }}
-              className="px-3 py-1.5 rounded-lg bg-surface-200 dark:bg-surface-700 text-surface-800 dark:text-surface-100 text-xs font-medium hover:bg-surface-300 dark:hover:bg-surface-600 transition flex items-center gap-1.5">
+              className="px-3 py-1.5 rounded-lg bg-surface-200 dark:bg-surface-700 text-surface-800 dark:text-white text-xs font-medium hover:bg-surface-300 dark:hover:bg-surface-600 transition flex items-center gap-1.5">
               <FileText size={14} /> Markdown
             </button>
             <button onClick={() => { downloadFile(exportJSON(), `${session.title}.json`, "application/json"); }}
-              className="px-3 py-1.5 rounded-lg bg-surface-200 dark:bg-surface-700 text-surface-800 dark:text-surface-100 text-xs font-medium hover:bg-surface-300 dark:hover:bg-surface-600 transition flex items-center gap-1.5">
+              className="px-3 py-1.5 rounded-lg bg-surface-200 dark:bg-surface-700 text-surface-800 dark:text-white text-xs font-medium hover:bg-surface-300 dark:hover:bg-surface-600 transition flex items-center gap-1.5">
               <Code size={14} /> JSON
             </button>
             <button onClick={() => copyToClipboard(exportMarkdown())}
-              className="px-3 py-1.5 rounded-lg bg-surface-200 dark:bg-surface-700 text-surface-800 dark:text-surface-100 text-xs font-medium hover:bg-surface-300 dark:hover:bg-surface-600 transition flex items-center gap-1.5">
+              className="px-3 py-1.5 rounded-lg bg-surface-200 dark:bg-surface-700 text-surface-800 dark:text-white text-xs font-medium hover:bg-surface-300 dark:hover:bg-surface-600 transition flex items-center gap-1.5">
               {copied ? <Check size={14} /> : <Copy size={14} />} {t("brainstorming.copyClipboard")}
             </button>
           </div>
@@ -1381,7 +1381,7 @@ function BrainstormEditor({
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-3 sm:p-4" onClick={() => setShowShortcuts(false)}>
           <div className="bg-surface-100 dark:bg-surface-800 rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold text-surface-900 dark:text-surface-50">{t("brainstorming.shortcuts")}</h2>
+              <h2 className="text-lg font-bold text-surface-900 dark:text-white">{t("brainstorming.shortcuts")}</h2>
               <button onClick={() => setShowShortcuts(false)} className="text-surface-500 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-200"><X size={20} /></button>
             </div>
             <div className="space-y-2 text-sm">
@@ -1399,8 +1399,8 @@ function BrainstormEditor({
                 ["Escape", t("brainstorming.shortcutEscape")],
               ].map(([key, desc]) => (
                 <div key={key} className="flex justify-between items-center py-1.5 border-b border-surface-100 dark:border-surface-700">
-                  <kbd className="px-2 py-0.5 bg-surface-100 dark:bg-surface-700 rounded text-xs font-mono text-surface-700 dark:text-surface-300">{key}</kbd>
-                  <span className="text-surface-600 dark:text-surface-300 text-xs">{desc}</span>
+                  <kbd className="px-2 py-0.5 bg-surface-100 dark:bg-surface-700 rounded text-xs font-mono text-surface-700 dark:text-surface-500">{key}</kbd>
+                  <span className="text-surface-600 dark:text-surface-500 text-xs">{desc}</span>
                 </div>
               ))}
             </div>
@@ -1415,7 +1415,7 @@ function BrainstormEditor({
           <div>
             <div className="space-y-1">
               {tech.prompts.slice(0, 4).map((p, pi) => (
-                <p key={pi} className={`text-sm leading-relaxed ${pi === 0 ? "text-surface-900 dark:text-surface-50 font-medium" : "text-surface-600 dark:text-surface-300"}`}>{pi > 0 ? "• " : ""}{p}</p>
+                <p key={pi} className={`text-sm leading-relaxed ${pi === 0 ? "text-surface-900 dark:text-white font-medium" : "text-surface-600 dark:text-surface-500"}`}>{pi > 0 ? "• " : ""}{p}</p>
               ))}
             </div>
             <p className="text-xs text-surface-500 dark:text-surface-400 mt-1.5">{t("brainstorming.startTyping")}</p>
@@ -1485,13 +1485,13 @@ function BrainstormEditor({
                       setEditIdx(-1);
                     }}
                     onKeyDown={e => handleRowKey(e, idx)}
-                    className="w-full bg-transparent text-sm text-surface-900 dark:text-surface-50 focus:outline-none py-0.5"
+                    className="w-full bg-transparent text-sm text-surface-900 dark:text-white focus:outline-none py-0.5"
                     autoFocus
                   />
                 ) : (
                   <div
                     className={`text-sm py-0.5 cursor-text min-h-[24px] ${
-                      idea.done ? "line-through text-surface-400 dark:text-surface-500 opacity-60" : "text-surface-800 dark:text-surface-100"
+                      idea.done ? "line-through text-surface-400 dark:text-surface-500 opacity-60" : "text-surface-800 dark:text-white"
                     }`}
                     onClick={() => { setEditIdx(idx); setEditText(idea.content); }}
                   >
@@ -1545,7 +1545,7 @@ function BrainstormEditor({
         <input
           ref={newInputRef}
           placeholder={t("brainstorming.newIdeaPlaceholder")}
-          className="flex-1 bg-transparent text-sm text-surface-900 dark:text-surface-50 placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none"
+          className="flex-1 bg-transparent text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none"
           onKeyDown={e => {
             if (e.key === "Enter" && (e.target as HTMLInputElement).value.trim()) {
               addIdeaAtEnd((e.target as HTMLInputElement).value);
@@ -1560,7 +1560,7 @@ function BrainstormEditor({
         <div className="mt-6 p-3 sm:p-4 bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-center">
             <div>
-              <p className="text-lg sm:text-2xl font-bold text-surface-900 dark:text-surface-50">{ideas.length}</p>
+              <p className="text-lg sm:text-2xl font-bold text-surface-900 dark:text-white">{ideas.length}</p>
               <p className="text-xs text-surface-500 dark:text-surface-400">{t("brainstorming.ideas")}</p>
             </div>
             <div>

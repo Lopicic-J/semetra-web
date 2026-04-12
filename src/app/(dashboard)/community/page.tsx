@@ -158,7 +158,7 @@ export default function CommunityPage() {
       institution: { label: "Institution", icon: GraduationCap, bgClass: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" },
       dozent: { label: "Dozent", icon: GraduationCap, bgClass: "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300" },
       student: { label: "Student", icon: Users, bgClass: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300" },
-      non_student: { label: "Gast", icon: Globe, bgClass: "bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-300" },
+      non_student: { label: "Gast", icon: Globe, bgClass: "bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-500" },
     };
     const config = roleConfig[role];
     if (!config) return null;
@@ -371,7 +371,7 @@ export default function CommunityPage() {
 
                     <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                       {member.current_semester && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 font-medium">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-500 font-medium">
                           Sem. {member.current_semester}
                         </span>
                       )}
@@ -416,7 +416,7 @@ export default function CommunityPage() {
                   setPage(p => p + 1);
                   loadMembers(false);
                 }}
-                className="px-6 py-2.5 rounded-xl bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 text-sm font-semibold hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
+                className="px-6 py-2.5 rounded-xl bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-500 text-sm font-semibold hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
               >
                 {t("community.loadMore") || "Mehr laden"} ({members.length}/{total})
               </button>

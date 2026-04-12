@@ -215,7 +215,7 @@ export default function FriendsPage() {
           <Users className="text-brand-600 dark:text-brand-400" size={26} />
         </div>
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-surface-50">
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white">
             {t("friends.title") || "Freunde"}
           </h1>
           <p className="text-sm text-surface-500 dark:text-surface-400">
@@ -226,7 +226,7 @@ export default function FriendsPage() {
 
       {/* Add Friend Quick Action */}
       <div className="bg-white dark:bg-surface-800 rounded-2xl border border-surface-200 dark:border-surface-700 p-4">
-        <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-2 block">
+        <label className="text-sm font-medium text-surface-700 dark:text-surface-500 mb-2 block">
           {t("friends.addByUsername") || "Freund per Benutzername hinzufügen"}
         </label>
         <div className="flex gap-2">
@@ -238,7 +238,7 @@ export default function FriendsPage() {
               onChange={e => setAddUsername(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleSendRequest()}
               placeholder={t("friends.usernamePlaceholder") || "benutzername"}
-              className="w-full pl-8 pr-3 py-2.5 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-surface-50 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600"
+              className="w-full pl-8 pr-3 py-2.5 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-white placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600"
             />
           </div>
           <button
@@ -306,7 +306,7 @@ export default function FriendsPage() {
               <div key={f.id} className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 hover:border-brand-200 dark:hover:border-brand-800 transition-colors cursor-pointer" onClick={() => setSelectedUserId(f.friend.id)}>
                 <Avatar user={f.friend} />
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-surface-900 dark:text-surface-50 truncate">
+                  <p className="font-medium text-surface-900 dark:text-white truncate">
                     {f.friend.full_name || f.friend.username}
                   </p>
                   <p className="text-xs text-surface-500 dark:text-surface-400">@{f.friend.username}</p>
@@ -359,7 +359,7 @@ export default function FriendsPage() {
             {/* Incoming */}
             {incomingRequests.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-300 mb-2 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-500 mb-2 flex items-center gap-2">
                   <ChevronDown size={14} />
                   {t("friends.incoming") || "Eingehende Anfragen"} ({incomingRequests.length})
                 </h3>
@@ -368,7 +368,7 @@ export default function FriendsPage() {
                     <div key={f.id} className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl border border-brand-200 dark:border-brand-800 cursor-pointer" onClick={() => setSelectedUserId(f.friend.id)}>
                       <Avatar user={f.friend} />
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-surface-900 dark:text-surface-50 truncate">
+                        <p className="font-medium text-surface-900 dark:text-white truncate">
                           {f.friend.full_name || f.friend.username}
                         </p>
                         <p className="text-xs text-surface-500 dark:text-surface-400">@{f.friend.username}</p>
@@ -385,7 +385,7 @@ export default function FriendsPage() {
                         <button
                           onClick={() => handleAction(f.id, "decline")}
                           disabled={actionLoading === f.id}
-                          className="p-2 bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-300 rounded-lg hover:bg-surface-300 dark:hover:bg-surface-600 disabled:opacity-50 transition-colors"
+                          className="p-2 bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-500 rounded-lg hover:bg-surface-300 dark:hover:bg-surface-600 disabled:opacity-50 transition-colors"
                           title={t("friends.decline") || "Ablehnen"}
                         >
                           <X size={16} />
@@ -400,7 +400,7 @@ export default function FriendsPage() {
             {/* Outgoing */}
             {outgoingRequests.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-300 mb-2 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-500 mb-2 flex items-center gap-2">
                   <Clock size={14} />
                   {t("friends.outgoing") || "Gesendete Anfragen"} ({outgoingRequests.length})
                 </h3>
@@ -409,7 +409,7 @@ export default function FriendsPage() {
                     <div key={f.id} className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 cursor-pointer" onClick={() => setSelectedUserId(f.friend.id)}>
                       <Avatar user={f.friend} />
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-surface-900 dark:text-surface-50 truncate">
+                        <p className="font-medium text-surface-900 dark:text-white truncate">
                           {f.friend.full_name || f.friend.username}
                         </p>
                         <p className="text-xs text-surface-500 dark:text-surface-400">@{f.friend.username}</p>
@@ -445,7 +445,7 @@ export default function FriendsPage() {
                 value={searchQuery}
                 onChange={e => handleSearchUsers(e.target.value)}
                 placeholder={t("friends.searchPlaceholder") || "Benutzer suchen..."}
-                className="w-full pl-10 pr-3 py-3 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-50 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600"
+                className="w-full pl-10 pr-3 py-3 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-white dark:bg-surface-800 text-surface-900 dark:text-white placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600"
               />
             </div>
 
@@ -465,7 +465,7 @@ export default function FriendsPage() {
                     <div key={user.id} className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 cursor-pointer" onClick={() => setSelectedUserId(user.id)}>
                       <Avatar user={user} />
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-surface-900 dark:text-surface-50 truncate">
+                        <p className="font-medium text-surface-900 dark:text-white truncate">
                           {user.full_name || user.username}
                         </p>
                         <p className="text-xs text-surface-500 dark:text-surface-400">@{user.username}</p>

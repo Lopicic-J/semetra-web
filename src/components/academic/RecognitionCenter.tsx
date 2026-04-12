@@ -148,7 +148,7 @@ function RecognitionCard({
           <StatusIcon size={18} className={statusCfg.color} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-surface-900 dark:text-surface-100 truncate">
+          <p className="text-sm font-semibold text-surface-900 dark:text-white truncate">
             {sourceModuleName ?? "Unbekanntes Modul"}
           </p>
           <p className="text-xs text-surface-400 mt-0.5">
@@ -181,19 +181,19 @@ function RecognitionCard({
                 {sourceInstitution && (
                   <div className="flex items-center gap-2">
                     <Building2 size={13} className="text-surface-400" />
-                    <span className="text-sm text-surface-600 dark:text-surface-300">{sourceInstitution}</span>
+                    <span className="text-sm text-surface-600 dark:text-surface-500">{sourceInstitution}</span>
                   </div>
                 )}
                 {sourceModuleName && (
                   <div className="flex items-center gap-2">
                     <FileText size={13} className="text-surface-400" />
-                    <span className="text-sm text-surface-600 dark:text-surface-300">{sourceModuleName}</span>
+                    <span className="text-sm text-surface-600 dark:text-surface-500">{sourceModuleName}</span>
                   </div>
                 )}
                 {sourceGradeValue != null && srcScale && (
                   <div className="flex items-center gap-2">
                     <Award size={13} className="text-surface-400" />
-                    <span className="text-sm text-surface-600 dark:text-surface-300">
+                    <span className="text-sm text-surface-600 dark:text-surface-500">
                       {formatGradeValue(sourceGradeValue, srcScale)} ({srcScale.name})
                     </span>
                   </div>
@@ -210,7 +210,7 @@ function RecognitionCard({
                 {convertedGrade != null && (
                   <div className="flex items-center gap-2">
                     <ArrowRightLeft size={13} className="text-brand-500" />
-                    <span className="text-sm font-medium text-surface-800 dark:text-surface-200">
+                    <span className="text-sm font-medium text-surface-800 dark:text-surface-800">
                       {formatGradeValue(convertedGrade.grade, currentGradeScale)}
                       {" "}({currentGradeScale.name})
                     </span>
@@ -219,7 +219,7 @@ function RecognitionCard({
                 {gradeBand && (
                   <div className="flex items-center gap-2">
                     <Award size={13} className="text-surface-400" />
-                    <span className="text-sm text-surface-600 dark:text-surface-300">{gradeBand.label}</span>
+                    <span className="text-sm text-surface-600 dark:text-surface-500">{gradeBand.label}</span>
                   </div>
                 )}
                 {convertedGrade != null && (
@@ -237,7 +237,7 @@ function RecognitionCard({
           {decisionNotes && (
             <div className="mt-4 p-3 rounded-xl bg-surface-50 dark:bg-surface-800">
               <p className="text-xs text-surface-400 mb-1">{t("academic.notes") || "Anmerkungen"}</p>
-              <p className="text-sm text-surface-600 dark:text-surface-300">{decisionNotes}</p>
+              <p className="text-sm text-surface-600 dark:text-surface-500">{decisionNotes}</p>
             </div>
           )}
         </div>
@@ -317,7 +317,7 @@ export function RecognitionCenter({
               <ArrowRightLeft className="text-purple-600" size={24} />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-surface-900 dark:text-surface-100">
+              <h2 className="text-lg font-bold text-surface-900 dark:text-white">
                 {t("academic.recognitionCenter") || "Anrechnungszentrum"}
               </h2>
               <p className="text-sm text-surface-500">
@@ -339,7 +339,7 @@ export function RecognitionCenter({
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
           <div className="text-center p-3 rounded-xl bg-surface-50 dark:bg-surface-800">
-            <p className="text-2xl font-bold text-surface-900 dark:text-surface-100">{stats.total}</p>
+            <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.total}</p>
             <p className="text-xs text-surface-500">{t("academic.totalRequests") || "Gesamt"}</p>
           </div>
           <div className="text-center p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20">
@@ -367,7 +367,7 @@ export function RecognitionCenter({
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 filter === f
                   ? "bg-brand-600 text-white"
-                  : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700"
+                  : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-500 hover:bg-surface-200 dark:hover:bg-surface-700"
               }`}
             >
               {f === "all" ? (t("academic.filterAll") || "Alle") :

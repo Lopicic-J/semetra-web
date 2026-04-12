@@ -248,7 +248,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-2">
             {editingField !== "name" ? (
               <>
-                <h1 className="text-2xl font-bold text-surface-900 dark:text-surface-100">{displayName}</h1>
+                <h1 className="text-2xl font-bold text-surface-900 dark:text-white">{displayName}</h1>
                 <button
                   onClick={() => startEdit("name", profile?.full_name || "")}
                   className="text-surface-400 hover:text-brand-600 transition"
@@ -286,7 +286,7 @@ export default function ProfilePage() {
                   ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
                   : userRole === "student"
                     ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                    : "bg-surface-200 text-surface-600 dark:bg-surface-700 dark:text-surface-300"
+                    : "bg-surface-200 text-surface-600 dark:bg-surface-700 dark:text-surface-500"
             }`}>
               {userRole === "admin" && <Shield size={10} />}
               {userRole === "institution" && <Building2 size={10} />}
@@ -333,7 +333,7 @@ export default function ProfilePage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         {/* Plan Card */}
         <div className="bg-gray-900 dark:bg-gray-800 text-white rounded-2xl p-3 sm:p-5 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5 dark:bg-surface-800 -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
             <div className="flex items-center gap-1.5 text-white/50 text-[10px] font-semibold uppercase tracking-wide mb-3">
               <CreditCard size={12} /> Dein Abo
@@ -343,21 +343,21 @@ export default function ProfilePage() {
             {isPro && (
               <div className="flex flex-wrap gap-1.5 mb-4">
                 {["Unbegrenzte Module", "Sync", "Themes", ...(planTier === "full" ? ["KI-Assistent"] : [])].map(f => (
-                  <span key={f} className="px-2 py-0.5 rounded-full bg-white/10 text-[11px] font-medium">{f}</span>
+                  <span key={f} className="px-2 py-0.5 rounded-full bg-white/10 dark:bg-surface-800 text-[11px] font-medium">{f}</span>
                 ))}
               </div>
             )}
             <div className="flex gap-2">
               {!isPro ? (
-                <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white/15 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/25 transition">
+                <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white/15 dark:bg-surface-800 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/25 dark:bg-surface-800 transition">
                   <Zap size={12} /> Upgrade auf Pro
                 </Link>
               ) : (
                 <>
-                  <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white/15 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/25 transition">
+                  <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white/15 dark:bg-surface-800 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/25 dark:bg-surface-800 transition">
                     Abo verwalten
                   </Link>
-                  <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white/10 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/20 transition">
+                  <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white/10 dark:bg-surface-800 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/20 dark:bg-surface-800 transition">
                     <Sparkles size={12} /> Add-on
                   </Link>
                 </>
@@ -372,7 +372,7 @@ export default function ProfilePage() {
             <Sparkles size={12} /> KI-Nutzung (Monat)
           </div>
           <div className="flex items-baseline gap-1 mb-1">
-            <span className="text-3xl font-bold text-surface-900 dark:text-surface-100">{aiUsage.used}</span>
+            <span className="text-3xl font-bold text-surface-900 dark:text-white">{aiUsage.used}</span>
             <span className="text-sm text-surface-400 dark:text-surface-500 font-medium">/ {totalPool}</span>
           </div>
           <div className="h-2 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden mb-2">
@@ -400,7 +400,7 @@ export default function ProfilePage() {
           <div className="bg-surface-100 dark:bg-surface-800 dark:border-surface-700 rounded-2xl border border-surface-200 p-3 sm:p-5">
             <div className="flex items-center gap-2 mb-1">
               <GraduationCap size={18} className="text-brand-600 dark:text-brand-400" />
-              <h2 className="font-semibold text-surface-900 dark:text-surface-100">
+              <h2 className="font-semibold text-surface-900 dark:text-white">
                 {t("settings.studyTitle") || "Mein Studium"}
               </h2>
             </div>
@@ -526,7 +526,7 @@ function InlineEditor({
         value={value}
         onChange={e => onChange(e.target.value)}
         type={type}
-        className="border border-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100 rounded-lg px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none"
+        className="border border-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none"
         placeholder={placeholder}
         autoFocus
         onKeyDown={e => e.key === "Enter" && onSave()}
@@ -548,7 +548,7 @@ function DetailRow({ icon, label, value }: { icon: React.ReactNode; label: strin
         {icon}
         <span className="text-sm">{label}</span>
       </div>
-      <span className="text-sm font-medium text-surface-900 dark:text-surface-100">{value}</span>
+      <span className="text-sm font-medium text-surface-900 dark:text-white">{value}</span>
     </div>
   );
 }
@@ -578,7 +578,7 @@ function EditableRow({
             <select
               value={editValue}
               onChange={e => onEditChange(e.target.value)}
-              className="border border-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100 rounded-lg px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none bg-surface-100"
+              className="border border-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none bg-surface-100"
               autoFocus
             >
               {options.map(o => (
@@ -592,7 +592,7 @@ function EditableRow({
               type={type}
               min={type === "number" ? "1" : undefined}
               max={type === "number" ? "20" : undefined}
-              className="border border-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100 rounded-lg px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none"
+              className="border border-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none"
               placeholder={placeholder}
               autoFocus
               onKeyDown={e => e.key === "Enter" && onSave()}
@@ -617,7 +617,7 @@ function EditableRow({
         <span className="text-sm">{label}</span>
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-surface-900 dark:text-surface-100">{value}</span>
+        <span className="text-sm font-medium text-surface-900 dark:text-white">{value}</span>
         <button onClick={onEdit} className="text-surface-400 dark:text-surface-500 hover:text-brand-600 dark:hover:text-brand-400 transition">
           <Edit3 size={12} />
         </button>

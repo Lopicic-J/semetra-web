@@ -529,7 +529,7 @@ export default function ChatBubble() {
                               )}
                               <StatusDot status={friend.online_status} size={6} />
                             </div>
-                            <span className="text-sm text-surface-700 dark:text-surface-300 truncate">
+                            <span className="text-sm text-surface-700 dark:text-surface-500 truncate">
                               {displayName(friend)}
                             </span>
                           </button>

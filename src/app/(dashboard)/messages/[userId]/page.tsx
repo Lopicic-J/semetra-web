@@ -204,7 +204,7 @@ export default function DirectMessagePage() {
               </div>
             )}
             <div className="min-w-0">
-              <p className="font-medium text-surface-900 dark:text-surface-50 truncate">
+              <p className="font-medium text-surface-900 dark:text-white truncate">
                 {partner.full_name || partner.username}
               </p>
               <p className="text-xs text-surface-500 dark:text-surface-400">@{partner.username}</p>
@@ -282,7 +282,7 @@ export default function DirectMessagePage() {
                         className={`px-3 py-2 rounded-2xl text-sm break-words ${
                           isMine
                             ? "bg-brand-500 text-white rounded-br-md"
-                            : "bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 border border-surface-200 dark:border-surface-700 rounded-bl-md"
+                            : "bg-white dark:bg-surface-800 text-surface-900 dark:text-white border border-surface-200 dark:border-surface-700 rounded-bl-md"
                         }`}
                       >
                         {msg.content}
@@ -321,7 +321,7 @@ export default function DirectMessagePage() {
             placeholder={t("messages.placeholder") || "Nachricht schreiben..."}
             disabled={sending}
             rows={1}
-            className="flex-1 px-3 py-2.5 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-surface-50 placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600 resize-none disabled:opacity-50"
+            className="flex-1 px-3 py-2.5 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600 resize-none disabled:opacity-50"
           />
           <button
             onClick={handleSend}

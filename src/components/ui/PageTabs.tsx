@@ -80,7 +80,7 @@ export function PageTabs({
       <div className="px-3 sm:px-6 pt-4 sm:pt-6 pb-0">
         <div className="flex items-center justify-between mb-3 sm:mb-4">
           <div className="min-w-0">
-            <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-surface-50 flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
               {icon}
               <span className="truncate">{title}</span>
             </h1>
