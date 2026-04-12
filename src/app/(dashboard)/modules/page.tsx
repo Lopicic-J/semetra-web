@@ -57,131 +57,26 @@ export default function ModulesPage() {
 
   // ── Auto-import: Builder template modules (program → student) ──
   // Runs when institution_modules_loaded is false (reset by enrollment API on program switch).
-  // 1. Deletes ALL institution modules that don't belong to the current program
-  // 2. Imports template modules from the new program
+  // Delegates to server-side API route that uses service client to read templates.
   useEffect(() => {
     if (autoImportTriggered.current) return;
     if (loading || profileLoading || !profile) return;
-    // Only run when enrollment API signals a re-import is needed
     if (profile.institution_modules_loaded) return;
-    // Need a program to import from
     if (!profile.active_program_id) return;
     autoImportTriggered.current = true;
 
     (async () => {
       setAutoImporting(true);
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        const currentProgram = profile.active_program_id!;
-
-        // ── Step 1: Remove ALL institution modules not matching current program ──
-        // This catches old-program modules, legacy modules without program_id, etc.
-        const { data: staleModules } = await supabase
-          .from("modules")
-          .select("id")
-          .eq("user_id", user.id)
-          .eq("source", "institution")
-          .neq("program_id", currentProgram);
-
-        if (staleModules && staleModules.length > 0) {
-          await supabase
-            .from("modules")
-            .delete()
-            .in("id", staleModules.map(m => m.id));
+        const res = await fetch("/api/academic/modules/auto-import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isPro }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          console.error("Auto-import API error:", err);
         }
-
-        // Also clean up institution modules with NULL program_id (legacy imports)
-        await supabase
-          .from("modules")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("source", "institution")
-          .is("program_id", null);
-
-        // ── Step 2: Import template modules from current program ──
-        // Semester-aware: uses study_mode to pick the right semester assignment
-        // and marks modules from past semesters as "credited"
-        const { data: templates } = await supabase
-          .from("modules")
-          .select("*")
-          .eq("program_id", currentProgram)
-          .is("user_id", null);
-
-        if (templates && templates.length > 0) {
-          // Check which templates the student doesn't already have
-          const { data: existing } = await supabase
-            .from("modules")
-            .select("module_code, code")
-            .eq("user_id", user.id)
-            .eq("program_id", currentProgram);
-
-          const existingCodes = new Set(
-            (existing ?? []).map(m => m.module_code ?? m.code).filter(Boolean)
-          );
-
-          const newTemplates = templates.filter(t => {
-            const tCode = t.module_code ?? t.code;
-            return !tCode || !existingCodes.has(tCode);
-          });
-
-          if (newTemplates.length > 0) {
-            const toImport = isPro ? newTemplates : newTemplates.slice(0, FREE_LIMITS.modules);
-
-            // Student context for semester-aware import
-            const studentStudyMode = profile.study_mode || "full_time";
-            const studentSemester = profile.current_semester || 1;
-
-            const rows = toImport.map((t: any) => {
-              // Pick the correct semester based on study mode
-              const rawSemester = studentStudyMode === "part_time" && t.semester_part_time
-                ? t.semester_part_time
-                : t.semester;
-
-              // Parse semester number (handles "1", "Semester 1", "HS1", etc.)
-              let semNum: number | null = null;
-              if (rawSemester) {
-                const num = parseInt(rawSemester.replace(/\D/g, ""), 10);
-                if (!isNaN(num)) semNum = num;
-              }
-
-              // Modules from past semesters → "credited", current/future → "planned"
-              const isCredited = semNum !== null && semNum < studentSemester;
-
-              return {
-                user_id: user.id,
-                name: t.name,
-                code: t.code,
-                module_code: t.module_code,
-                professor: t.professor,
-                ects: t.ects,
-                semester: rawSemester,
-                semester_part_time: t.semester_part_time,
-                module_type: t.module_type,
-                color: t.color ?? "#6366f1",
-                notes: t.notes,
-                program_id: currentProgram,
-                source: "institution" as const,
-                status: isCredited ? "credited" : "planned",
-                in_plan: true,
-                language: t.language,
-                delivery_mode: t.delivery_mode,
-                description: t.description,
-                ects_equivalent: t.ects_equivalent,
-                is_compulsory: t.is_compulsory,
-                term_type: t.term_type,
-                default_term_number: t.default_term_number,
-              };
-            });
-            await supabase.from("modules").insert(rows);
-          }
-        }
-
-        // ── Step 3: Mark as loaded ──
-        await supabase
-          .from("profiles")
-          .update({ institution_modules_loaded: true })
-          .eq("id", user.id);
         refetchProfile();
         refetch();
       } catch (err) {

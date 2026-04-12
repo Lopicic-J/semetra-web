@@ -473,29 +473,33 @@ export default function InstitutionDetailPage() {
               </button>
             </Card>
           ) : (
-            <div className="space-y-3">
-              {programs.map((prog) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {programs.map((prog: any) => (
                 <Link key={prog.id} href={`/builder/program/${prog.id}`}>
-                  <Card interactive padding="md">
+                  <Card interactive padding="md" className="dark:bg-surface-800 dark:border-surface-700">
                     <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-surface-900 dark:text-surface-100">{prog.name}</h3>
-                        <div className="flex flex-wrap gap-2 mt-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-surface-900 dark:text-surface-100 truncate">{prog.name}</h3>
+                        <div className="flex flex-wrap gap-1.5 mt-2">
                           {prog.degree_level && (
-                            <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300">
                               {prog.degree_level}
                             </span>
                           )}
                           {prog.required_total_credits && (
-                            <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300">
                               {prog.required_total_credits} ECTS
                             </span>
                           )}
-                          {/* Module count badge would go here if available in Program type */}
                         </div>
                       </div>
-                      <div className="text-right text-sm text-surface-600 dark:text-surface-400">
-                        {/* Additional metadata could go here */}
+                      <div className="text-right ml-3 flex-shrink-0">
+                        <div className="text-xl font-bold text-brand-600 dark:text-brand-400">
+                          {prog.module_count ?? 0}
+                        </div>
+                        <div className="text-[10px] text-surface-500 dark:text-surface-400">
+                          {prog.module_count === 1 ? "Modul" : "Module"}
+                        </div>
                       </div>
                     </div>
                   </Card>

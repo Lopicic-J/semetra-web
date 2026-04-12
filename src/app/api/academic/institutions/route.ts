@@ -23,7 +23,10 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const country = searchParams.get("country");
 
-    let query = supabase.from("institutions").select("*");
+    // Fetch institutions with program count via left join
+    let query = supabase
+      .from("institutions")
+      .select("*, programs(id)");
 
     if (country) {
       query = query.eq("country_code", country);
@@ -36,7 +39,16 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ institutions: data || [] });
+    // Transform: add program_count and remove nested programs array
+    const institutions = (data || []).map((inst: any) => {
+      const { programs, ...rest } = inst;
+      return {
+        ...rest,
+        program_count: Array.isArray(programs) ? programs.length : 0,
+      };
+    });
+
+    return NextResponse.json({ institutions });
   } catch (err: unknown) {
     log.error("GET failed", { error: err });
     return errorResponse(

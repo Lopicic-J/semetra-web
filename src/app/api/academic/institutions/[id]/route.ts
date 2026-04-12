@@ -45,15 +45,36 @@ export async function GET(
       .select("*")
       .eq("institution_id", id);
 
-    const { data: programs } = await db
+    // Fetch all programs for this institution
+    const { data: allPrograms } = await db
       .from("programs")
       .select("*")
       .eq("institution_id", id);
 
+    // Count template modules per program (user_id IS NULL = templates)
+    const programIds = (allPrograms || []).map((p: any) => p.id);
+    let moduleCounts: Record<string, number> = {};
+    if (programIds.length > 0) {
+      const { data: modRows } = await db
+        .from("modules")
+        .select("program_id")
+        .in("program_id", programIds)
+        .is("user_id", null);
+      for (const row of modRows || []) {
+        moduleCounts[row.program_id] = (moduleCounts[row.program_id] || 0) + 1;
+      }
+    }
+
+    // Merge counts into programs
+    const programsWithCount = (allPrograms || []).map((prog: any) => ({
+      ...prog,
+      module_count: moduleCounts[prog.id] || 0,
+    }));
+
     return NextResponse.json({
       institution,
       faculties: faculties || [],
-      programs: programs || [],
+      programs: programsWithCount,
     });
   } catch (err: unknown) {
     log.error("GET failed", { error: err });

@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/lib/i18n";
-import { Plus, Loader2, AlertCircle, Search, X } from "lucide-react";
+import { Plus, Loader2, AlertCircle, Search, X, Building2, BookOpen, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { Card } from "@/components/ui/Card";
@@ -251,6 +251,49 @@ export default function BuilderPage() {
         </div>
       )}
 
+      {/* Stats Summary */}
+      {institutions.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <Card padding="sm" className="dark:bg-surface-800 dark:border-surface-700">
+            <div className="flex items-center gap-3 px-1">
+              <div className="p-2 rounded-lg bg-brand-50 dark:bg-brand-900/30">
+                <Building2 className="w-5 h-5 text-brand-600 dark:text-brand-400" />
+              </div>
+              <div>
+                <div className="text-xl font-bold text-surface-900 dark:text-surface-100">{institutions.length}</div>
+                <div className="text-xs text-surface-500 dark:text-surface-400">Institutionen</div>
+              </div>
+            </div>
+          </Card>
+          <Card padding="sm" className="dark:bg-surface-800 dark:border-surface-700">
+            <div className="flex items-center gap-3 px-1">
+              <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/30">
+                <GraduationCap className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <div className="text-xl font-bold text-surface-900 dark:text-surface-100">
+                  {institutions.reduce((sum, i) => sum + (i.program_count ?? 0), 0)}
+                </div>
+                <div className="text-xs text-surface-500 dark:text-surface-400">Programme</div>
+              </div>
+            </div>
+          </Card>
+          <Card padding="sm" className="dark:bg-surface-800 dark:border-surface-700 col-span-2 sm:col-span-1">
+            <div className="flex items-center gap-3 px-1">
+              <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/30">
+                <BookOpen className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <div>
+                <div className="text-xl font-bold text-surface-900 dark:text-surface-100">
+                  {availableCountries.length}
+                </div>
+                <div className="text-xs text-surface-500 dark:text-surface-400">Länder</div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
       {/* Error State */}
       {error && (
         <Card className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 p-4">
@@ -267,12 +310,13 @@ export default function BuilderPage() {
       {/* Institutions Grid */}
       {institutions.length === 0 ? (
         <Card className="text-center py-12 dark:bg-surface-800 dark:border-surface-700">
+          <Building2 size={36} className="mx-auto mb-3 text-surface-300 dark:text-surface-600" />
           <p className="text-surface-600 dark:text-surface-400 mb-4">
             {t("builder.noInstitutions") || "Noch keine Institutionen angelegt"}
           </p>
           <button
             onClick={handleNewInstitution}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors font-medium"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 dark:bg-brand-700 text-white rounded-lg hover:bg-brand-700 dark:hover:bg-brand-600 transition-colors font-medium"
           >
             <Plus className="w-5 h-5" />
             {t("builder.newInstitution") || "Neue Institution"}
@@ -294,36 +338,46 @@ export default function BuilderPage() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {filtered.map((inst) => (
-            <Link key={inst.id} href={`/builder/institution/${inst.id}`}>
-              <Card interactive padding="md" className="dark:bg-surface-800 dark:border-surface-700">
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div className="text-2xl sm:text-4xl">{getCountryFlag(inst.country_code)}</div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                        {inst.program_count ?? 0}
+          {filtered.map((inst) => {
+            const typeLabel = inst.institution_type === "university_of_applied_sciences" ? "Fachhochschule"
+              : inst.institution_type === "university" ? "Universität"
+              : inst.institution_type === "college" ? "Hochschule"
+              : inst.institution_type === "polytechnic" ? "Polytechnikum"
+              : inst.institution_type || "";
+            return (
+              <Link key={inst.id} href={`/builder/institution/${inst.id}`}>
+                <Card interactive padding="md" className="dark:bg-surface-800 dark:border-surface-700 h-full">
+                  <div className="flex flex-col h-full">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="text-3xl">{getCountryFlag(inst.country_code)}</div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-brand-600 dark:text-brand-400">
+                          {inst.program_count ?? 0}
+                        </div>
+                        <div className="text-[10px] text-surface-500 dark:text-surface-400 uppercase tracking-wide">
+                          {(inst.program_count ?? 0) === 1 ? "Programm" : "Programme"}
+                        </div>
                       </div>
-                      <div className="text-xs text-surface-600 dark:text-surface-400">
-                        {inst.program_count === 1 ? "Programm" : "Programme"}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-surface-900 dark:text-surface-100 leading-tight">{inst.name}</h3>
+                      <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                        <span className="text-xs text-surface-500 dark:text-surface-400">
+                          {getCountryName(inst.country_code)}
+                        </span>
+                        {typeLabel && (
+                          <>
+                            <span className="text-surface-300 dark:text-surface-600">·</span>
+                            <span className="text-xs text-surface-500 dark:text-surface-400">{typeLabel}</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-surface-900 dark:text-surface-100">{inst.name}</h3>
-                    <p className="text-sm text-surface-600 dark:text-surface-400">
-                      {getCountryName(inst.country_code)}
-                    </p>
-                    {inst.institution_type && (
-                      <p className="text-xs text-surface-500 dark:text-surface-500 mt-1 capitalize">
-                        {inst.institution_type}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            </Link>
-          ))}
+                </Card>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
