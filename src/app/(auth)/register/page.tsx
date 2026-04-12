@@ -414,11 +414,11 @@ export default function RegisterPage() {
             <div className="lg:hidden inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-700 text-white mb-4 shadow-lg shadow-brand-500/25">
               <Gem size={28} />
             </div>
-            <h1 className="text-2xl font-bold text-surface-900">Konto erstellen</h1>
-            <p className="text-surface-500 text-sm mt-1">Starte kostenlos mit Semetra Workspace</p>
+            <h1 className="text-2xl font-bold text-surface-900 dark:text-white">Konto erstellen</h1>
+            <p className="text-surface-500 dark:text-surface-400 text-sm mt-1">Starte kostenlos mit Semetra Workspace</p>
           </div>
 
-          <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-xl shadow-surface-200/50 border border-surface-200/60 p-6 sm:p-8">
+          <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-xl shadow-surface-200/50 dark:shadow-black/50 border border-surface-200/60 dark:border-surface-700/60 p-6 sm:p-8">
             {/* OAuth */}
             {enabledProviders.length > 0 && (
               <>
@@ -437,9 +437,9 @@ export default function RegisterPage() {
                   ))}
                 </div>
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="h-px flex-1 bg-surface-200" />
-                  <span className="text-xs text-surface-400 font-medium">oder mit E-Mail</span>
-                  <div className="h-px flex-1 bg-surface-200" />
+                  <div className="h-px flex-1 bg-surface-200 dark:bg-surface-700" />
+                  <span className="text-xs text-surface-400 dark:text-surface-500 font-medium">oder mit E-Mail</span>
+                  <div className="h-px flex-1 bg-surface-200 dark:bg-surface-700" />
                 </div>
               </>
             )}
@@ -447,7 +447,7 @@ export default function RegisterPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Role Selection */}
               <div>
-                <label className="block text-sm font-medium text-surface-700 mb-2">Ich bin...</label>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">Ich bin...</label>
                 <div className="grid grid-cols-2 gap-2">
                   {ROLE_OPTIONS.map(({ value, label, desc, icon: Icon }) => (
                     <button
@@ -456,8 +456,8 @@ export default function RegisterPage() {
                       onClick={() => setSelectedRole(value)}
                       className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition text-center ${
                         selectedRole === value
-                          ? "border-brand-500 bg-brand-50 text-brand-700"
-                          : "border-surface-200 bg-surface-50 text-surface-600 hover:border-surface-300"
+                          ? "border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300"
+                          : "border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 text-surface-600 dark:text-surface-400 hover:border-surface-300 dark:hover:border-surface-600"
                       }`}
                     >
                       <Icon size={20} />
@@ -470,13 +470,13 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowInstitutionInfo(!showInstitutionInfo)}
-                  className="flex items-center gap-1 mt-2 text-[10px] text-surface-400 hover:text-surface-600 transition"
+                  className="flex items-center gap-1 mt-2 text-[10px] text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-400 transition"
                 >
                   <Building2 size={12} />
                   <span>Sie vertreten eine Hochschule?</span>
                 </button>
                 {showInstitutionInfo && (
-                  <div className="mt-2 p-3 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-800">
+                  <div className="mt-2 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 text-xs text-blue-800 dark:text-blue-300">
                     <div className="flex items-start gap-2">
                       <Info size={14} className="shrink-0 mt-0.5 text-blue-600" />
                       <div>
@@ -497,11 +497,11 @@ export default function RegisterPage() {
 
               {/* Username */}
               <div>
-                <label className="block text-sm font-medium text-surface-700 mb-1.5">Benutzername</label>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Benutzername</label>
                 <div className="relative">
-                  <AtSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                  <AtSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
                   <input
-                    className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+                    className="w-full bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
                     type="text"
                     placeholder="z. B. max_muster"
                     value={username}
@@ -513,10 +513,10 @@ export default function RegisterPage() {
                   />
                 </div>
                 <p className={`text-[10px] mt-1 ${
-                  usernameStatus === "available" ? "text-green-600" :
-                  usernameStatus === "taken" ? "text-red-500" :
-                  username.length > 0 && !usernameValid ? "text-red-500" :
-                  "text-surface-400"
+                  usernameStatus === "available" ? "text-green-600 dark:text-green-400" :
+                  usernameStatus === "taken" ? "text-red-500 dark:text-red-400" :
+                  username.length > 0 && !usernameValid ? "text-red-500 dark:text-red-400" :
+                  "text-surface-400 dark:text-surface-500"
                 }`}>
                   {usernameStatus === "checking" ? "Wird geprüft..." :
                    usernameStatus === "available" ? "\u2713 Verfügbar" :
@@ -528,11 +528,11 @@ export default function RegisterPage() {
 
               {/* Email with university detection */}
               <div>
-                <label className="block text-sm font-medium text-surface-700 mb-1.5">E-Mail</label>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">E-Mail</label>
                 <div className="relative">
-                  <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                  <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
                   <input
-                    className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+                    className="w-full bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
                     type="email"
                     placeholder={selectedRole === "student" ? "deine@hochschule.ch" : "deine@email.ch"}
                     value={email}
@@ -543,7 +543,7 @@ export default function RegisterPage() {
                 </div>
                 {/* University email detection feedback */}
                 {selectedRole === "student" && email.includes("@") && (
-                  <p className={`text-[10px] mt-1 ${isUniEmail ? "text-green-600" : "text-surface-400"}`}>
+                  <p className={`text-[10px] mt-1 ${isUniEmail ? "text-green-600 dark:text-green-400" : "text-surface-400 dark:text-surface-500"}`}>
                     {isUniEmail
                       ? `\u2713 Hochschul-Email erkannt: ${detectedUniversity} — automatische Verifizierung`
                       : "Tipp: Verwende deine Hochschul-Email (@zhaw.ch, @ethz.ch, etc.) für sofortige Verifizierung"}
@@ -552,11 +552,11 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-surface-700 mb-1.5">Passwort</label>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Passwort</label>
                 <div className="relative">
-                  <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                  <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
                   <input
-                    className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-10 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+                    className="w-full bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl pl-10 pr-10 py-2.5 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
                     type={showPw ? "text" : "password"}
                     placeholder="Mindestens 8 Zeichen"
                     value={password}
@@ -566,7 +566,7 @@ export default function RegisterPage() {
                     autoComplete="new-password"
                   />
                   <button type="button" onClick={() => setShowPw(!showPw)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600" tabIndex={-1}>
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-400" tabIndex={-1}>
                     {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
@@ -577,7 +577,7 @@ export default function RegisterPage() {
                         <div key={i} className={`h-1 flex-1 rounded-full transition ${i < pwStrength ? pwColors[pwStrength - 1] : "bg-surface-200"}`} />
                       ))}
                     </div>
-                    <p className={`text-[10px] ${pwStrength >= 3 ? "text-green-600" : pwStrength >= 2 ? "text-amber-600" : "text-red-500"}`}>
+                    <p className={`text-[10px] ${pwStrength >= 3 ? "text-green-600 dark:text-green-400" : pwStrength >= 2 ? "text-amber-600 dark:text-amber-400" : "text-red-500 dark:text-red-400"}`}>
                       {password.length < 8 ? "Mindestens 8 Zeichen" : pwLabels[pwStrength - 1]}
                     </p>
                   </div>
@@ -589,13 +589,13 @@ export default function RegisterPage() {
                 <>
                   {/* Institution: auto-assigned, locked */}
                   <div>
-                    <label className="block text-sm font-medium text-surface-700 mb-1.5">Hochschule</label>
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Hochschule</label>
                     <div className="relative">
                       <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-green-500" />
                       <select
                         value={selectedInstId}
                         disabled
-                        className="w-full border rounded-xl pl-10 pr-3 py-2.5 text-sm focus:outline-none transition appearance-none bg-green-50 border-green-300 text-surface-900 cursor-not-allowed"
+                        className="w-full border rounded-xl pl-10 pr-3 py-2.5 text-sm focus:outline-none transition appearance-none bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-800/50 text-surface-900 dark:text-white cursor-not-allowed"
                       >
                         <option value="">-- Hochschule wählen --</option>
                         {institutions.map(inst => (
@@ -603,7 +603,7 @@ export default function RegisterPage() {
                         ))}
                       </select>
                     </div>
-                    <p className="text-[10px] text-green-600 mt-1 flex items-center gap-1">
+                    <p className="text-[10px] text-green-600 dark:text-green-400 mt-1 flex items-center gap-1">
                       <CheckCircle2 size={10} />
                       Automatisch zugewiesen anhand deiner Hochschul-Email ({detectedUniversity})
                     </p>
@@ -612,13 +612,13 @@ export default function RegisterPage() {
                   {/* Program: student must select */}
                   {selectedInstId && (
                     <div>
-                      <label className="block text-sm font-medium text-surface-700 mb-1.5">Studiengang</label>
+                      <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Studiengang</label>
                       <div className="relative">
-                        <BookOpen size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                        <BookOpen size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
                         <select
                           value={selectedProgId}
                           onChange={e => setSelectedProgId(e.target.value)}
-                          className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition appearance-none"
+                          className="w-full bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 dark:text-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition appearance-none"
                         >
                           <option value="">{programs.length === 0 ? "Keine Studiengänge verfügbar" : "-- Studiengang wählen --"}</option>
                           {programs.map(prog => (
@@ -626,7 +626,7 @@ export default function RegisterPage() {
                           ))}
                         </select>
                       </div>
-                      <p className="text-[10px] text-amber-600 mt-1 flex items-center gap-1">
+                      <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-1 flex items-center gap-1">
                         <Info size={10} />
                         Wähle sorgfältig — der Studiengang kann nachträglich nur durch den Support oder deine Hochschule geändert werden.
                       </p>
@@ -636,7 +636,7 @@ export default function RegisterPage() {
                   {/* Study Mode (TZ/VZ) — shown when program is selected and supports both */}
                   {selectedProgId && (
                     <div>
-                      <label className="block text-sm font-medium text-surface-700 mb-1.5">Studienmodell</label>
+                      <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Studienmodell</label>
                       <div className="grid grid-cols-2 gap-2">
                         {(selectedProgStudyMode === "both" || selectedProgStudyMode === "full_time") && (
                           <button
@@ -644,8 +644,8 @@ export default function RegisterPage() {
                             onClick={() => setStudyMode("full_time")}
                             className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border-2 text-sm font-medium transition ${
                               studyMode === "full_time"
-                                ? "border-brand-500 bg-brand-50 text-brand-700"
-                                : "border-surface-200 bg-surface-50 text-surface-600 hover:border-surface-300"
+                                ? "border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300"
+                                : "border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 text-surface-600 dark:text-surface-400 hover:border-surface-300 dark:hover:border-surface-600"
                             }`}
                           >
                             Vollzeit
@@ -657,8 +657,8 @@ export default function RegisterPage() {
                             onClick={() => setStudyMode("part_time")}
                             className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border-2 text-sm font-medium transition ${
                               studyMode === "part_time"
-                                ? "border-brand-500 bg-brand-50 text-brand-700"
-                                : "border-surface-200 bg-surface-50 text-surface-600 hover:border-surface-300"
+                                ? "border-brand-500 bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300"
+                                : "border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 text-surface-600 dark:text-surface-400 hover:border-surface-300 dark:hover:border-surface-600"
                             }`}
                           >
                             Teilzeit
@@ -672,11 +672,11 @@ export default function RegisterPage() {
                   {selectedProgId && (
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-surface-700 mb-1.5">Aktuelles Semester</label>
+                        <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Aktuelles Semester</label>
                         <select
                           value={currentSemester}
                           onChange={(e) => setCurrentSemester(e.target.value)}
-                          className="w-full bg-surface-50 border border-surface-200 rounded-xl px-3 py-2.5 text-sm text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition appearance-none"
+                          className="w-full bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl px-3 py-2.5 text-sm text-surface-900 dark:text-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition appearance-none"
                         >
                           {Array.from({ length: 12 }, (_, i) => i + 1).map((s) => (
                             <option key={s} value={s}>{s}. Semester</option>
@@ -685,7 +685,7 @@ export default function RegisterPage() {
                       </div>
                       {parseInt(currentSemester) > 1 && (
                         <div>
-                          <label className="block text-sm font-medium text-surface-700 mb-1.5">Vorhandene ECTS</label>
+                          <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Vorhandene ECTS</label>
                           <input
                             type="number"
                             min="0"
@@ -694,7 +694,7 @@ export default function RegisterPage() {
                             value={existingEcts}
                             onChange={(e) => setExistingEcts(e.target.value)}
                             placeholder="z.B. 60"
-                            className="w-full bg-surface-50 border border-surface-200 rounded-xl px-3 py-2.5 text-sm text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+                            className="w-full bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl px-3 py-2.5 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
                           />
                           <p className="text-[10px] text-surface-400 mt-1">
                             Bereits erarbeitete ECTS-Punkte aus vorherigen Semestern
@@ -706,25 +706,25 @@ export default function RegisterPage() {
                 </>
               ) : selectedRole === "student" && detectingDomain && email.includes("@") ? (
                 /* Domain detection in progress */
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-xl">
                   <div className="flex items-center gap-2.5">
-                    <Loader2 size={16} className="text-blue-600 animate-spin shrink-0" />
-                    <p className="text-sm text-blue-700">Hochschule wird erkannt…</p>
+                    <Loader2 size={16} className="text-blue-600 dark:text-blue-400 animate-spin shrink-0" />
+                    <p className="text-sm text-blue-700 dark:text-blue-300">Hochschule wird erkannt…</p>
                   </div>
                 </div>
               ) : selectedRole === "student" && !institutionLocked ? (
                 /* No university email detected — show hint */
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl">
                   <div className="flex items-start gap-2.5">
-                    <Building2 size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                    <Building2 size={16} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium text-amber-800 mb-1">Hochschul-Email erforderlich</p>
-                      <p className="text-xs text-amber-700 leading-relaxed">
+                      <p className="text-sm font-medium text-amber-800 dark:text-amber-300 mb-1">Hochschul-Email erforderlich</p>
+                      <p className="text-xs text-amber-700 dark:text-amber-200 leading-relaxed">
                         Gib oben deine Hochschul-Email ein (z.B. @zhaw.ch, @ethz.ch, @fhnw.ch), damit deine Hochschule automatisch erkannt wird.
                         Deine Institution und dein Studiengang werden anhand deiner Email-Adresse zugewiesen.
                       </p>
                       {email.includes("@") && !isUniEmail && !detectingDomain && (
-                        <p className="text-xs text-amber-800 font-medium mt-2">
+                        <p className="text-xs text-amber-800 dark:text-amber-300 font-medium mt-2">
                           Die Domain &quot;{email.split("@")[1]}&quot; ist nicht als Hochschul-Email hinterlegt.
                           Falls deine Hochschule fehlt, kontaktiere <a href="mailto:support@semetra.ch" className="underline">support@semetra.ch</a>.
                         </p>
@@ -736,20 +736,20 @@ export default function RegisterPage() {
 
               {/* Country / Grading system */}
               <div>
-                <label className="block text-sm font-medium text-surface-700 mb-1.5">Land / Notensystem</label>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">Land / Notensystem</label>
                 <div className="relative">
-                  <Globe size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+                  <Globe size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
                   <select
                     value={country}
                     onChange={e => setCountry(e.target.value as CountryCode)}
-                    className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition appearance-none"
+                    className="w-full bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 dark:text-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition appearance-none"
                   >
                     {COUNTRY_LIST.map(c => (
                       <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
                     ))}
                   </select>
                 </div>
-                <p className="text-[10px] text-surface-400 mt-1">Bestimmt dein Notensystem. Kann später geändert werden.</p>
+                <p className="text-[10px] text-surface-400 dark:text-surface-500 mt-1">Bestimmt dein Notensystem. Kann später geändert werden.</p>
               </div>
 
               {error && (
@@ -767,7 +767,7 @@ export default function RegisterPage() {
               </button>
             </form>
 
-            <p className="text-center text-sm text-surface-500 mt-5">
+            <p className="text-center text-sm text-surface-500 dark:text-surface-400 mt-5">
               Bereits registriert?{" "}
               <Link href="/login" className="text-brand-600 font-semibold hover:text-brand-700 transition">
                 Anmelden
@@ -776,7 +776,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Footer (mobile) */}
-          <p className="text-center text-[11px] text-surface-400 mt-6 lg:hidden">
+          <p className="text-center text-[11px] text-surface-400 dark:text-surface-500 mt-6 lg:hidden">
             &copy; {new Date().getFullYear()} Lopicic Technologies &middot; Semetra Workspace
           </p>
         </div>

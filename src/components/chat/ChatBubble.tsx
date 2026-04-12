@@ -1,44 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   MessageCircle, X, Users, Search, Send,
-  ChevronLeft, Circle, Moon, ArrowLeft,
-  UserPlus, Settings, Wifi, WifiOff,
-  AlertCircle,
+  ChevronLeft, UserPlus,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/lib/i18n";
 import Link from "next/link";
-
-// ─── Error Boundary ─────────────────────────────────────────────────────────
-
-class ChatErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-  render() {
-    if (this.state.hasError) {
-      return (
-        <button
-          onClick={() => this.setState({ hasError: false })}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center bg-surface-400 hover:bg-surface-500 transition-colors"
-          title="Chat neu laden"
-        >
-          <MessageCircle className="text-white" size={22} />
-        </button>
-      );
-    }
-    return this.props.children;
-  }
-}
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -118,14 +87,6 @@ function usePresence() {
 // ─── ChatBubble Component ──────────────────────────────────────────────────────
 
 export default function ChatBubble() {
-  return (
-    <ChatErrorBoundary>
-      <ChatBubbleInner />
-    </ChatErrorBoundary>
-  );
-}
-
-function ChatBubbleInner() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<View>("list");
@@ -178,18 +139,47 @@ function ChatBubbleInner() {
         safeFetch("/api/presence"),
       ]);
 
-      if (convJson?.conversations) setConversations(convJson.conversations);
-      if (friendsJson?.friendships) {
-        setFriends(friendsJson.friendships.map((f: any) => ({
-          id: f.friend.id,
-          username: f.friend.username,
-          full_name: f.friend.full_name,
-          avatar_url: f.friend.avatar_url,
-          online_status: "offline",
-        })));
+      if (Array.isArray(convJson?.conversations)) {
+        // Filter out conversations with missing partner data or lastMessage
+        setConversations(
+          convJson.conversations
+            .filter((c: any) => c?.partner?.username && c?.lastMessage)
+            .map((c: any) => ({
+              ...c,
+              partner: {
+                ...c.partner,
+                full_name: c.partner.full_name ?? null,
+                avatar_url: c.partner.avatar_url ?? null,
+                online_status: c.partner.online_status ?? "offline",
+              },
+              lastMessage: {
+                content: c.lastMessage.content ?? "",
+                created_at: c.lastMessage.created_at ?? new Date().toISOString(),
+                isMine: !!c.lastMessage.isMine,
+              },
+              unreadCount: c.unreadCount ?? 0,
+            }))
+        );
       }
-      if (groupsJson?.groups) setGroups(groupsJson.groups);
-      setTotalUnread(unreadJson?.unread || 0);
+      if (Array.isArray(friendsJson?.friendships)) {
+        setFriends(
+          friendsJson.friendships
+            .filter((f: any) => f?.friend?.id && f?.friend?.username)
+            .map((f: any) => ({
+              id: f.friend.id,
+              username: f.friend.username,
+              full_name: f.friend.full_name ?? null,
+              avatar_url: f.friend.avatar_url ?? null,
+              online_status: f.friend.online_status ?? "offline",
+            }))
+        );
+      }
+      if (Array.isArray(groupsJson?.groups)) {
+        setGroups(
+          groupsJson.groups.filter((g: any) => g?.id && g?.name)
+        );
+      }
+      setTotalUnread(typeof unreadJson?.unread === "number" ? unreadJson.unread : 0);
     } catch (err) {
       console.error("ChatBubble loadData error:", err);
       setError(t("chat.loadError") || "Daten konnten nicht geladen werden.");
@@ -257,9 +247,10 @@ function ChatBubbleInner() {
 
     try {
       const json = await safeFetch(`/api/dm/${friend.id}`);
-      if (json?.messages) setMessages(json.messages);
+      if (Array.isArray(json?.messages)) {
+        setMessages(json.messages.filter((m: any) => m?.id && m?.content !== undefined));
+      }
       // Mark as read
-      await safeFetch(`/api/dm/${friend.id}`); // PATCH handled server-side
       fetch(`/api/dm/${friend.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -291,16 +282,29 @@ function ChatBubbleInner() {
   };
 
   const formatTime = (date: string) => {
-    const d = new Date(date);
-    const now = new Date();
-    const diff = now.getTime() - d.getTime();
-    const minutes = Math.floor(diff / 60000);
-    if (minutes < 1) return t("chat.justNow") || "Jetzt";
-    if (minutes < 60) return `${minutes}m`;
-    const hours = Math.floor(diff / 3600000);
-    if (hours < 24) return `${hours}h`;
-    return d.toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" });
+    try {
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return "";
+      const now = new Date();
+      const diff = now.getTime() - d.getTime();
+      const minutes = Math.floor(diff / 60000);
+      if (minutes < 1) return t("chat.justNow") || "Jetzt";
+      if (minutes < 60) return `${minutes}m`;
+      const hours = Math.floor(diff / 3600000);
+      if (hours < 24) return `${hours}h`;
+      return d.toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" });
+    } catch {
+      return "";
+    }
   };
+
+  /** Safe first-letter getter — never crashes on empty/null */
+  const initial = (name: string | null | undefined): string =>
+    (name && name.length > 0) ? name[0].toUpperCase() : "?";
+
+  /** Display name from friend/partner */
+  const displayName = (user: { full_name?: string | null; username?: string }): string =>
+    user.full_name || user.username || "?";
 
   const StatusDot = ({ status, size = 8 }: { status: string; size?: number }) => {
     const colors: Record<string, string> = {
@@ -354,7 +358,7 @@ function ChatBubbleInner() {
 
       {/* Chat Panel */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-50 w-[360px] max-h-[520px] bg-white dark:bg-surface-800 rounded-2xl shadow-2xl border border-surface-200 dark:border-surface-700 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed bottom-24 right-6 z-50 w-[360px] max-h-[520px] bg-white dark:bg-surface-800 rounded-2xl shadow-2xl border border-surface-200 dark:border-surface-700 flex flex-col overflow-hidden animate-slide-up">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-surface-100 dark:border-surface-700 bg-surface-50 dark:bg-surface-800/80">
             {view === "chat" && activeChatUser ? (
@@ -368,13 +372,13 @@ function ChatBubbleInner() {
                   ) : (
                     <div className="w-7 h-7 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
                       <span className="text-brand-600 dark:text-brand-400 font-bold text-xs">
-                        {(activeChatUser.full_name || activeChatUser.username)[0].toUpperCase()}
+                        {initial(activeChatUser.full_name || activeChatUser.username)}
                       </span>
                     </div>
                   )}
                   <div>
                     <p className="text-sm font-semibold text-surface-900 dark:text-white leading-tight">
-                      {activeChatUser.full_name || activeChatUser.username}
+                      {displayName(activeChatUser)}
                     </p>
                     <p className="text-[10px] text-surface-500 dark:text-surface-400 flex items-center gap-1">
                       <StatusDot status={activeChatUser.online_status} size={6} />
@@ -467,7 +471,7 @@ function ChatBubbleInner() {
                               ) : (
                                 <div className="w-9 h-9 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
                                   <span className="text-brand-600 dark:text-brand-400 font-bold text-sm">
-                                    {(conv.partner.full_name || conv.partner.username)[0].toUpperCase()}
+                                    {initial(conv.partner.full_name || conv.partner.username)}
                                   </span>
                                 </div>
                               )}
@@ -478,7 +482,7 @@ function ChatBubbleInner() {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between">
                                 <span className="text-sm font-semibold text-surface-900 dark:text-white truncate">
-                                  {conv.partner.full_name || conv.partner.username}
+                                  {displayName(conv.partner)}
                                 </span>
                                 <span className="text-[10px] text-surface-400 shrink-0 ml-2">
                                   {formatTime(conv.lastMessage.created_at)}
@@ -519,14 +523,14 @@ function ChatBubbleInner() {
                               ) : (
                                 <div className="w-8 h-8 rounded-full bg-surface-200 dark:bg-surface-700 flex items-center justify-center">
                                   <span className="text-surface-600 dark:text-surface-400 font-bold text-xs">
-                                    {(friend.full_name || friend.username)[0].toUpperCase()}
+                                    {initial(friend.full_name || friend.username)}
                                   </span>
                                 </div>
                               )}
                               <StatusDot status={friend.online_status} size={6} />
                             </div>
                             <span className="text-sm text-surface-700 dark:text-surface-300 truncate">
-                              {friend.full_name || friend.username}
+                              {displayName(friend)}
                             </span>
                           </button>
                         ))}
@@ -584,7 +588,7 @@ function ChatBubbleInner() {
                         className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-sm"
                         style={{ backgroundColor: group.color }}
                       >
-                        {group.name[0].toUpperCase()}
+                        {initial(group.name)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-surface-900 dark:text-white truncate">{group.name}</p>

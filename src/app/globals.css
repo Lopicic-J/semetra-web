@@ -529,13 +529,161 @@
 /* Ensure readable link colors in dark mode */
 .dark a.text-brand-600 { color: rgb(var(--accent-400)) !important; }
 
-/* ── 13. GLOBAL CONTRAST SAFETY NET ─────────────────────────────── */
+/* ── 13. FORM INPUTS — dark mode field backgrounds ─────────────── */
+/* Many inputs/selects use bg-surface-50 which = page bg in dark.
+   Give them a distinct darker background for visual separation. */
+
+.dark input[class*="bg-surface-50"],
+.dark textarea[class*="bg-surface-50"],
+.dark select[class*="bg-surface-50"],
+.dark div[class*="bg-surface-50"] > input,
+.dark div[class*="bg-surface-50"] > textarea {
+  background-color: rgb(var(--sf-100)) !important;
+}
+
+/* ── 14. TEXT COLOR COMPLETIONS — all gray families ──────────────── */
+/* Slate (same as gray) */
+.dark .text-slate-400, .dark .text-slate-500 { color: rgb(var(--sf-400)) !important; }
+.dark .text-slate-600 { color: rgb(var(--sf-500)) !important; }
+.dark .text-slate-700, .dark .text-slate-800, .dark .text-slate-900 { color: rgb(var(--sf-800)) !important; }
+
+/* Zinc */
+.dark .text-zinc-400, .dark .text-zinc-500 { color: rgb(var(--sf-400)) !important; }
+.dark .text-zinc-600 { color: rgb(var(--sf-500)) !important; }
+.dark .text-zinc-700, .dark .text-zinc-800, .dark .text-zinc-900 { color: rgb(var(--sf-800)) !important; }
+
+/* Neutral */
+.dark .text-neutral-400, .dark .text-neutral-500 { color: rgb(var(--sf-400)) !important; }
+.dark .text-neutral-600 { color: rgb(var(--sf-500)) !important; }
+.dark .text-neutral-700, .dark .text-neutral-800, .dark .text-neutral-900 { color: rgb(var(--sf-800)) !important; }
+
+/* ── 15. BORDER COMPLETIONS — all gray families ─────────────────── */
+
+.dark .border-gray-100, .dark .border-gray-200, .dark .border-gray-300 {
+  border-color: rgb(var(--sf-200) / 0.5) !important;
+}
+.dark .border-slate-100, .dark .border-slate-200, .dark .border-slate-300 {
+  border-color: rgb(var(--sf-200) / 0.5) !important;
+}
+.dark .border-zinc-100, .dark .border-zinc-200, .dark .border-zinc-300 {
+  border-color: rgb(var(--sf-200) / 0.5) !important;
+}
+
+/* ── 16. CARD SEPARATION — containers on dark page background ──── */
+/* Containers that use bg-surface-50 need distinct bg when inside main content.
+   bg-surface-50 = page bg (#18181b) in dark, so cards/panels need surface-100. */
+
+.dark main .bg-surface-50 {
+  background-color: rgb(var(--sf-100)) !important;
+}
+
+/* Restore actual page bg for the outermost surface-50 containers */
+.dark > .bg-surface-50,
+.dark .flex.h-screen > .bg-surface-50 {
+  background-color: rgb(var(--sf-50)) !important;
+}
+
+/* ── 17. SEMANTIC BG DEEPER TONES (100-level → richer) ──────────── */
+.dark .bg-success-100 { background-color: rgba(22,163,74,0.18) !important; }
+.dark .bg-warning-100 { background-color: rgba(217,119,6,0.18) !important; }
+.dark .bg-danger-100  { background-color: rgba(220,38,38,0.18) !important; }
+.dark .bg-info-100    { background-color: rgba(37,99,235,0.18) !important; }
+.dark .bg-red-200     { background-color: rgba(220,38,38,0.22) !important; }
+.dark .bg-orange-300  { background-color: rgba(234,88,12,0.25) !important; }
+.dark .bg-green-200   { background-color: rgba(22,163,74,0.22) !important; }
+.dark .bg-blue-200    { background-color: rgba(37,99,235,0.22) !important; }
+.dark .bg-amber-300   { background-color: rgba(217,119,6,0.25) !important; }
+.dark .bg-yellow-200  { background-color: rgba(202,138,4,0.22) !important; }
+.dark .bg-indigo-200  { background-color: rgba(99,102,241,0.22) !important; }
+.dark .bg-violet-200  { background-color: rgba(139,92,246,0.22) !important; }
+.dark .bg-purple-200  { background-color: rgba(168,85,247,0.22) !important; }
+.dark .bg-pink-200    { background-color: rgba(236,72,153,0.22) !important; }
+.dark .bg-teal-200    { background-color: rgba(20,184,166,0.22) !important; }
+
+/* ── 18. HOVER: colored hover states ────────────────────────────── */
+.dark .hover\:bg-red-50:hover    { background-color: rgba(220,38,38,0.12) !important; }
+.dark .hover\:bg-orange-50:hover { background-color: rgba(234,88,12,0.12) !important; }
+.dark .hover\:bg-amber-50:hover  { background-color: rgba(217,119,6,0.12) !important; }
+.dark .hover\:bg-green-50:hover  { background-color: rgba(22,163,74,0.12) !important; }
+.dark .hover\:bg-blue-50:hover   { background-color: rgba(37,99,235,0.12) !important; }
+.dark .hover\:bg-brand-50:hover  { background-color: rgb(var(--accent-950) / 0.25) !important; }
+.dark .hover\:bg-brand-100:hover { background-color: rgb(var(--accent-900) / 0.3) !important; }
+.dark .hover\:bg-white:hover     { background-color: rgb(var(--sf-100)) !important; }
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-slate-50:hover  { background-color: rgb(var(--sf-200) / 0.5) !important; }
+.dark .hover\:bg-gray-100:hover,
+.dark .hover\:bg-slate-100:hover { background-color: rgb(var(--sf-200) / 0.7) !important; }
+
+/* ── 19. PLACEHOLDER & DISABLED STATES ──────────────────────────── */
+.dark .placeholder\:text-surface-400::placeholder { color: rgb(var(--sf-400)) !important; }
+.dark .placeholder\:text-gray-400::placeholder,
+.dark .placeholder\:text-slate-400::placeholder { color: rgb(var(--sf-400)) !important; }
+.dark .disabled\:bg-surface-50:disabled { background-color: rgb(var(--sf-100)) !important; }
+.dark .disabled\:text-surface-400:disabled { color: rgb(var(--sf-400)) !important; }
+
+/* ── 20. TABLE STYLING ──────────────────────────────────────────── */
+.dark table thead th {
+  background-color: rgb(var(--sf-100));
+  color: rgb(var(--sf-600));
+  border-color: rgb(var(--sf-200) / 0.5);
+}
+.dark table tbody tr {
+  border-color: rgb(var(--sf-200) / 0.3);
+}
+.dark table tbody tr:hover {
+  background-color: rgb(var(--sf-200) / 0.3);
+}
+.dark table td {
+  color: rgb(var(--sf-600));
+}
+
+/* ── 21. SELECTION HIGHLIGHT ────────────────────────────────────── */
+.dark ::selection {
+  background: rgb(var(--accent-600) / 0.4);
+  color: #fff;
+}
+
+/* ── 22. GLOBAL CONTRAST SAFETY NET ─────────────────────────────── */
 /* Catch-all: text on colored backgrounds must stay readable */
 
 .dark .bg-brand-600 .text-white,
 .dark .bg-brand-700 .text-white,
 .dark .bg-brand-800 .text-white,
 .dark .bg-red-500 .text-white,
-.dark .bg-green-500 .text-white {
+.dark .bg-green-500 .text-white,
+.dark .bg-blue-500 .text-white,
+.dark .bg-indigo-500 .text-white,
+.dark .bg-purple-500 .text-white {
   color: #ffffff !important;
+}
+
+/* Text that's black/near-black in light and needs to flip in dark */
+.dark .text-gray-950, .dark .text-slate-950, .dark .text-zinc-950 {
+  color: rgb(var(--sf-900)) !important;
+}
+
+/* ── 23. RING / OUTLINE COLORS ──────────────────────────────────── */
+.dark .ring-surface-200      { --tw-ring-color: rgb(var(--sf-300) / 0.4) !important; }
+.dark .ring-surface-300      { --tw-ring-color: rgb(var(--sf-300) / 0.5) !important; }
+.dark .outline-surface-200   { outline-color: rgb(var(--sf-300) / 0.4) !important; }
+.dark .ring-gray-200,
+.dark .ring-slate-200         { --tw-ring-color: rgb(var(--sf-300) / 0.4) !important; }
+.dark .focus\:ring-brand-500\/20:focus { --tw-ring-color: rgb(var(--accent-500) / 0.35) !important; }
+
+/* ── 24. DIVIDER & SEPARATOR LINES ──────────────────────────────── */
+.dark .divide-surface-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgb(var(--sf-200) / 0.4) !important;
+}
+.dark .divide-surface-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgb(var(--sf-200) / 0.5) !important;
+}
+.dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgb(var(--sf-200) / 0.4) !important;
+}
+
+/* ── 25. PROGRESS BARS & BADGES on dark ─────────────────────────── */
+.dark .bg-surface-200[role="progressbar"],
+.dark div[class*="bg-surface-200"][style*="width"] {
+  background-color: rgb(var(--sf-300)) !important;
 }

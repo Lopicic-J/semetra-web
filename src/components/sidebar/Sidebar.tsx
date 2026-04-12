@@ -144,8 +144,8 @@ export default function Sidebar() {
                 active
                   ? "bg-brand-600 text-white shadow-sm"
                   : locked
-                    ? "text-surface-400 hover:bg-surface-50"
-                    : "text-surface-500 hover:bg-surface-100 hover:text-surface-800"
+                    ? "text-surface-400 hover:bg-surface-50 dark:hover:bg-surface-800"
+                    : "text-surface-500 hover:bg-surface-100 hover:text-surface-800 dark:hover:bg-surface-800"
               )}
             >
               <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
@@ -163,8 +163,8 @@ export default function Sidebar() {
                 active
                   ? "bg-brand-600 text-white shadow-sm"
                   : locked
-                    ? "text-surface-400 hover:bg-surface-50"
-                    : "text-surface-500 hover:bg-surface-100 hover:text-surface-800"
+                    ? "text-surface-400 hover:bg-surface-50 dark:hover:bg-surface-800"
+                    : "text-surface-500 hover:bg-surface-100 hover:text-surface-800 dark:hover:bg-surface-800"
               )}
             >
               <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
@@ -257,7 +257,7 @@ export default function Sidebar() {
                 <div key={child.href} className="flex items-center group">
                   <Link
                     href={child.href}
-                    className="flex items-center gap-2 flex-1 px-3 py-1.5 rounded-xl text-[12px] font-medium text-surface-500 hover:bg-surface-100 hover:text-surface-700 transition-all truncate"
+                    className="flex items-center gap-2 flex-1 px-3 py-1.5 rounded-xl text-[12px] font-medium text-surface-500 hover:bg-surface-100 hover:text-surface-700 transition-all truncate dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-300"
                   >
                     <ParentIcon size={13} strokeWidth={1.6} className="shrink-0 text-surface-400" />
                     <span className="truncate">{t(child.labelKey)}</span>
@@ -320,7 +320,7 @@ export default function Sidebar() {
                 "flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-150",
                 active
                   ? "bg-brand-600 text-white shadow-sm"
-                  : "text-surface-500 hover:bg-surface-100 hover:text-surface-800"
+                  : "text-surface-500 hover:bg-surface-100 hover:text-surface-800 dark:hover:bg-surface-800"
               )}
             >
               <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
@@ -367,7 +367,7 @@ export default function Sidebar() {
             <span className="text-xs font-semibold">{t("sidebar.proUpgrade")}</span>
           </div>
           <p className="text-[11px] text-brand-200 mb-2.5">{t("sidebar.aiCoach")}</p>
-          <div className="w-full py-1.5 rounded-lg bg-surface-50/95 text-brand-700 text-xs font-semibold text-center hover:bg-surface-50 transition-colors">
+          <div className="w-full py-1.5 rounded-lg bg-surface-50/95 text-brand-700 text-xs font-semibold text-center hover:bg-surface-50 transition-colors dark:bg-surface-800/95 dark:text-brand-400">
             {t("sidebar.upgradePrice")}
           </div>
         </Link>

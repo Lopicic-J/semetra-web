@@ -43,7 +43,7 @@ export function ProGate({ feature, isPro, children, mode = "full" }: ProGateProp
           <Sparkles size={16} className="text-brand-600" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-surface-800">{PRO_FEATURES[feature]}</p>
+          <p className="text-sm font-medium text-surface-800 dark:text-surface-100">{PRO_FEATURES[feature]}</p>
           <p className="text-xs text-surface-500">Verfügbar mit Semetra Pro</p>
         </div>
         <Link
@@ -62,7 +62,7 @@ export function ProGate({ feature, isPro, children, mode = "full" }: ProGateProp
       <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-100 to-violet-100 flex items-center justify-center mb-5">
         <Lock className="text-brand-600" size={24} />
       </div>
-      <h2 className="text-lg font-bold text-surface-900 mb-1">{PRO_FEATURES[feature]}</h2>
+      <h2 className="text-lg font-bold text-surface-900 dark:text-surface-100 mb-1">{PRO_FEATURES[feature]}</h2>
       <p className="text-surface-500 text-sm mb-6 max-w-sm">
         Dieses Feature ist Teil von Semetra Pro. Schalte es frei und hol das Beste aus deinem Studium.
       </p>
@@ -126,7 +126,7 @@ export function LimitCounter({ current, max, isPro }: LimitCounterProps) {
 
   return (
     <div className="flex items-center gap-2 text-xs">
-      <div className="w-16 h-1.5 bg-surface-200 rounded-full overflow-hidden">
+      <div className="w-16 h-1.5 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full transition-all ${
             isMax ? "bg-red-500" : isNear ? "bg-amber-500" : "bg-brand-500"
@@ -221,7 +221,7 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-surface-900">{tier.label}</span>
+                    <span className="text-sm font-semibold text-surface-900 dark:text-surface-100">{tier.label}</span>
                     {tier.popular && (
                       <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold flex items-center gap-0.5">
                         <Star size={8} /> {t("progate.modal.yearlyPopular")}
@@ -245,7 +245,7 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
               t("upgrade.basic.f5"),
               t("upgrade.basic.f6"),
             ].map(f => (
-              <div key={f} className="flex items-center gap-2.5 text-sm text-surface-700">
+              <div key={f} className="flex items-center gap-2.5 text-sm text-surface-700 dark:text-surface-300">
                 <Check size={16} className="text-brand-600 shrink-0" />
                 <span>{f}</span>
               </div>
