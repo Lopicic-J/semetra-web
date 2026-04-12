@@ -36,6 +36,7 @@ import Link from "next/link";
 import type { CalendarEvent, Topic } from "@/types/database";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import StudyStatusBanner from "@/components/dashboard/StudyStatusBanner";
+import { DailyNudgeCard } from "@/components/notifications/DailyNudgeCard";
 
 // Command Center sub-components
 import AlertBanner from "@/components/command-center/AlertBanner";
@@ -691,6 +692,21 @@ export default function ClassicDashboard() {
       {ccState && ccState.today.alerts.length > 0 && (
         <div className="mb-6">
           <AlertBanner alerts={ccState.today.alerts} />
+        </div>
+      )}
+
+      {/* ═══ DAILY NUDGE (personalized) ═══ */}
+      {ccState && ccModules.length > 0 && (
+        <div className="mb-6">
+          <DailyNudgeCard
+            state={ccState}
+            modules={ccModules}
+            streakData={streak ? {
+              currentStreak: streak.currentStreak,
+              longestStreak: streak.longestStreak,
+              todayDone: streak.todayDone,
+            } : undefined}
+          />
         </div>
       )}
 

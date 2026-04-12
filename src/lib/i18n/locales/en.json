@@ -2251,10 +2251,7 @@
   "smartSchedule.completed": "completed",
   "smartSchedule.weekGoal": "Week goal",
   "smartSchedule.bestDay": "Best day",
-
   "nav.weeklyReview": "Weekly Review",
-  "navGroup.progress": "Progress",
-
   "review.title": "Weekly Review",
   "review.subtitle": "Your weekly study analysis with insights and recommendations",
   "review.generate": "Generate Review",
@@ -2317,7 +2314,6 @@
   "review.highlights.best_session": "Best Session: {duration}min {module}",
   "review.highlights.perfect_focus": "Perfect Focus: {duration}min {module}",
   "review.highlights.perfect_day": "Perfect Day: All {blocks} blocks completed",
-
   "insights.peak_hours.title": "Your Peak Hours",
   "insights.peak_hours.desc": "You study best around {hours}",
   "insights.weak_hours.title": "Weak Study Times",
@@ -2340,14 +2336,12 @@
   "insights.adherence.declining.desc": "From {previous} to {current} — what happened?",
   "insights.energy_mismatch.title": "Energy Mismatch",
   "insights.energy_mismatch.desc": "{percent}% of sessions are in the {period} — your energy is lowest then",
-
   "reschedule.reason.moved_to_free_slot": "Moved to free slot",
   "reschedule.reason.shortened_to_fit": "Shortened to {newDuration}min (from {originalDuration}min)",
   "reschedule.reason.merged_with_similar": "Merged with {targetTitle}",
   "reschedule.reason.no_slots": "No free slot in the next {days} days",
   "reschedule.reason.optimized_timing": "Optimized: Score +{improvement}",
   "reschedule.warning.no_slot_for": "No slot found for: {0}",
-
   "academic.pageTitle": "Academic Profile",
   "academic.pageSubtitle": "Program overview, transcript, and credit recognition",
   "academic.programMap": "Program Map",
@@ -2399,7 +2393,6 @@
   "academic.conversion": "Conversion",
   "academic.notes": "Notes",
   "academic.noReferenceData": "Loading reference data...",
-
   "studium.pageTitle": "My Studies",
   "studium.pageSubtitle": "Academic progress, grades, credits and study plan",
   "studium.overview": "Overview",
@@ -2407,14 +2400,12 @@
   "studium.grades": "Grades",
   "studium.transcript": "Transcript",
   "studium.recognition": "Credit Transfers",
-
   "insights.pageTitle": "Insights",
   "insights.pageSubtitle": "Analytics, predictions and recommendations for your studies",
   "insights.weeklyReview": "Weekly Review",
   "insights.trends": "Trends & Forecasts",
   "insights.patterns": "Study Patterns",
   "insights.timeline": "Timeline",
-
   "nav.community": "Community",
   "community.title": "Community",
   "community.members": "Members",
@@ -2436,7 +2427,6 @@
   "community.empty": "No members in your community yet",
   "community.loadError": "Error loading data",
   "community.dnd": "Do Not Disturb",
-
   "chat.title": "Chat",
   "chat.search": "Search...",
   "chat.loading": "Loading...",
@@ -2453,7 +2443,6 @@
   "chat.dnd": "Do Not Disturb",
   "chat.openCommunity": "Open Community",
   "chat.openFull": "Full View →",
-
   "settings.communityVisibilityTitle": "Community Visibility",
   "settings.communityVisibleLabel": "Visible in Community",
   "settings.communityVisibleDesc": "Other students at your university can see your profile in the community.",
@@ -2462,7 +2451,6 @@
   "settings.statusAway": "Away",
   "settings.statusDnd": "Do Not Disturb",
   "settings.statusOffline": "Invisible",
-
   "profile.private": "This profile is private",
   "profile.privateDesc": "The user has hidden their profile from the community.",
   "profile.loadError": "Could not load profile",
@@ -2474,8 +2462,22 @@
   "profile.achievements": "Achievements",
   "profile.friends": "Friends",
   "profile.requestPending": "Request sent",
-
   "layout.edit": "Customize",
   "layout.done": "Done",
-  "layout.reset": "Reset"
+  "layout.reset": "Reset",
+  "notifications.title": "Notifications",
+  "notifications.empty": "No notifications",
+  "notifications.unread": "unread",
+  "notifications.mark_all_read": "Mark all as read",
+  "notifications.load_more": "Load more",
+  "notifications.loading": "Loading...",
+  "nudge.daily_plan": "Your Daily Plan",
+  "nudge.start_learning": "Start learning",
+  "nudge.focus_module": "Focus Module",
+  "nudge.time_budget": "Time Budget",
+  "nudge.best_time": "Best Study Time",
+  "nudge.exam_countdown": "Exams Coming Up",
+  "nudge.quick_win": "Quick Win",
+  "nudge.streak": "Streak",
+  "nudge.encouragement": "Motivation"
 }

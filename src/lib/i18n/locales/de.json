@@ -2253,10 +2253,7 @@
   "smartSchedule.completed": "erledigt",
   "smartSchedule.weekGoal": "Wochenziel",
   "smartSchedule.bestDay": "Bester Tag",
-
   "nav.weeklyReview": "Wochenreview",
-  "navGroup.progress": "Fortschritt",
-
   "review.title": "Wochenreview",
   "review.subtitle": "Deine wöchentliche Lernanalyse mit Insights und Empfehlungen",
   "review.generate": "Review generieren",
@@ -2319,7 +2316,6 @@
   "review.highlights.best_session": "Beste Session: {duration}min {module}",
   "review.highlights.perfect_focus": "Perfekter Fokus: {duration}min {module}",
   "review.highlights.perfect_day": "Perfekter Tag: Alle {blocks} Blöcke erledigt",
-
   "insights.peak_hours.title": "Deine produktivsten Stunden",
   "insights.peak_hours.desc": "Du lernst am besten um {hours} Uhr",
   "insights.weak_hours.title": "Schwache Lernzeiten",
@@ -2342,14 +2338,12 @@
   "insights.adherence.declining.desc": "Von {previous} auf {current} — was ist los?",
   "insights.energy_mismatch.title": "Energie-Mismatch",
   "insights.energy_mismatch.desc": "{percent}% deiner Sessions sind am {period} — deine Energie ist da am niedrigsten",
-
   "reschedule.reason.moved_to_free_slot": "Verschoben in freien Slot",
   "reschedule.reason.shortened_to_fit": "Gekürzt auf {newDuration}min (von {originalDuration}min)",
   "reschedule.reason.merged_with_similar": "Zusammengeführt mit {targetTitle}",
   "reschedule.reason.no_slots": "Kein freier Slot in den nächsten {days} Tagen",
   "reschedule.reason.optimized_timing": "Optimiert: Score +{improvement}",
   "reschedule.warning.no_slot_for": "Kein Slot gefunden für: {0}",
-
   "academic.pageTitle": "Akademisches Profil",
   "academic.pageSubtitle": "Studiengang, Leistungsnachweis und Anrechnungen",
   "academic.programMap": "Studienplan",
@@ -2401,7 +2395,6 @@
   "academic.conversion": "Umrechnung",
   "academic.notes": "Anmerkungen",
   "academic.noReferenceData": "Referenzdaten werden geladen...",
-
   "studium.pageTitle": "Mein Studium",
   "studium.pageSubtitle": "Akademischer Fortschritt, Noten, Credits und Studienplan",
   "studium.overview": "Übersicht",
@@ -2409,14 +2402,12 @@
   "studium.grades": "Noten",
   "studium.transcript": "Leistungsnachweis",
   "studium.recognition": "Anrechnungen",
-
   "insights.pageTitle": "Insights",
   "insights.pageSubtitle": "Analysen, Prognosen und Empfehlungen für dein Studium",
   "insights.weeklyReview": "Wochenreview",
   "insights.trends": "Trends & Prognosen",
   "insights.patterns": "Lernmuster",
   "insights.timeline": "Timeline",
-
   "nav.community": "Community",
   "community.title": "Community",
   "community.members": "Mitglieder",
@@ -2438,7 +2429,6 @@
   "community.empty": "Noch keine Mitglieder in deiner Community",
   "community.loadError": "Fehler beim Laden",
   "community.dnd": "Nicht stören",
-
   "chat.title": "Chat",
   "chat.search": "Suchen...",
   "chat.loading": "Laden...",
@@ -2455,7 +2445,6 @@
   "chat.dnd": "Nicht stören",
   "chat.openCommunity": "Community öffnen",
   "chat.openFull": "Vollansicht →",
-
   "settings.communityVisibilityTitle": "Community-Sichtbarkeit",
   "settings.communityVisibleLabel": "In der Community sichtbar",
   "settings.communityVisibleDesc": "Andere Studierende deiner Hochschule können dein Profil in der Community sehen.",
@@ -2464,7 +2453,6 @@
   "settings.statusAway": "Abwesend",
   "settings.statusDnd": "Nicht stören",
   "settings.statusOffline": "Unsichtbar",
-
   "profile.private": "Dieses Profil ist privat",
   "profile.privateDesc": "Der Benutzer hat sein Profil in der Community verborgen.",
   "profile.loadError": "Profil konnte nicht geladen werden",
@@ -2476,8 +2464,22 @@
   "profile.achievements": "Erfolge",
   "profile.friends": "Befreundet",
   "profile.requestPending": "Anfrage gesendet",
-
   "layout.edit": "Anpassen",
   "layout.done": "Fertig",
-  "layout.reset": "Zurücksetzen"
+  "layout.reset": "Zurücksetzen",
+  "notifications.title": "Benachrichtigungen",
+  "notifications.empty": "Keine Benachrichtigungen",
+  "notifications.unread": "ungelesen",
+  "notifications.mark_all_read": "Alle als gelesen markieren",
+  "notifications.load_more": "Weitere laden",
+  "notifications.loading": "Laden...",
+  "nudge.daily_plan": "Dein Tagesplan",
+  "nudge.start_learning": "Jetzt lernen",
+  "nudge.focus_module": "Fokusmodul",
+  "nudge.time_budget": "Zeitbudget",
+  "nudge.best_time": "Beste Lernzeit",
+  "nudge.exam_countdown": "Prüfungen bald",
+  "nudge.quick_win": "Quick Win",
+  "nudge.streak": "Streak",
+  "nudge.encouragement": "Motivation"
 }

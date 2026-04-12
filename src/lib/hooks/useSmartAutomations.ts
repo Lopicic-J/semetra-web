@@ -6,12 +6,15 @@
  * for important events. Uses deduplication to avoid showing the
  * same notification twice per session.
  *
+ * Phase 4: Now also persists notifications to the Notification Center
+ * so users can review them later.
+ *
  * WICHTIG: Dieser Hook erstellt KEINE eigene useModuleIntelligence-Instanz.
  * State und Modules werden von aussen übergeben, um doppelte
  * Supabase-Subscriptions zu vermeiden.
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { evaluateAutomations, filterNewAutomations } from "@/lib/decision/automations";
 import type { Automation } from "@/lib/decision/automations";
 import type { CommandCenterState, ModuleIntelligence } from "@/lib/decision/types";
@@ -31,6 +34,30 @@ export function useSmartAutomations({
   const shownKeysRef = useRef(new Set<string>());
   const initializedRef = useRef(false);
 
+  // Persist automation to notification center (fire-and-forget)
+  const persistToNotificationCenter = useCallback(async (automation: Automation) => {
+    try {
+      await fetch("/api/notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: automation.type,
+          priority: automation.priority,
+          title: automation.title,
+          message: automation.message,
+          dedupe_key: automation.dedupeKey,
+          module_id: automation.moduleId,
+          module_name: automation.moduleName,
+          module_color: automation.moduleColor,
+          action_label: automation.actionLabel,
+          action_href: automation.actionHref,
+        }),
+      });
+    } catch {
+      // Silent — toast already shown
+    }
+  }, []);
+
   useEffect(() => {
     if (!enabled || !state || modules.length === 0) return;
 
@@ -42,10 +69,18 @@ export function useSmartAutomations({
 
       for (const automation of critical) {
         showAutomationToast(automation);
+        persistToNotificationCenter(automation);
         shownKeysRef.current.add(automation.dedupeKey);
       }
 
-      // Mark non-critical as "seen"
+      // Persist all high-priority too (even if not shown as toast)
+      const high = allAutomations.filter((a) => a.priority === "high");
+      for (const automation of high) {
+        persistToNotificationCenter(automation);
+        shownKeysRef.current.add(automation.dedupeKey);
+      }
+
+      // Mark non-critical/high as "seen"
       for (const a of allAutomations) {
         shownKeysRef.current.add(a.dedupeKey);
       }
@@ -58,9 +93,16 @@ export function useSmartAutomations({
 
     for (const automation of newAutomations.slice(0, 3)) {
       showAutomationToast(automation);
+      persistToNotificationCenter(automation);
       shownKeysRef.current.add(automation.dedupeKey);
     }
-  }, [enabled, state, modules]);
+
+    // Persist remaining new ones without toast (for notification center only)
+    for (const automation of newAutomations.slice(3)) {
+      persistToNotificationCenter(automation);
+      shownKeysRef.current.add(automation.dedupeKey);
+    }
+  }, [enabled, state, modules, persistToNotificationCenter]);
 }
 
 function showAutomationToast(automation: Automation) {

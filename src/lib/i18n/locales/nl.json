@@ -2190,7 +2190,6 @@
   "insights.trends": "Trends & Voorspellingen",
   "insights.patterns": "Studiepatronen",
   "insights.timeline": "Tijdlijn",
-
   "nav.community": "Community",
   "community.title": "Community",
   "community.members": "Leden",
@@ -2212,7 +2211,6 @@
   "community.empty": "Nog geen leden in je community",
   "community.loadError": "Fout bij het laden",
   "community.dnd": "Niet storen",
-
   "chat.title": "Chat",
   "chat.search": "Zoeken...",
   "chat.loading": "Laden...",
@@ -2229,7 +2227,6 @@
   "chat.dnd": "Niet storen",
   "chat.openCommunity": "Community openen",
   "chat.openFull": "Volledig beeld →",
-
   "settings.communityVisibilityTitle": "Community-zichtbaarheid",
   "settings.communityVisibleLabel": "Zichtbaar in community",
   "settings.communityVisibleDesc": "Andere studenten van je universiteit kunnen je profiel in de community zien.",
@@ -2238,7 +2235,6 @@
   "settings.statusAway": "Afwezig",
   "settings.statusDnd": "Niet storen",
   "settings.statusOffline": "Onzichtbaar",
-
   "profile.private": "Dit profiel is privé",
   "profile.privateDesc": "De gebruiker heeft zijn profiel verborgen voor de community.",
   "profile.loadError": "Profiel kon niet worden geladen",
@@ -2250,8 +2246,22 @@
   "profile.achievements": "Prestaties",
   "profile.friends": "Vrienden",
   "profile.requestPending": "Verzoek verzonden",
-
   "layout.edit": "Aanpassen",
   "layout.done": "Klaar",
-  "layout.reset": "Herstellen"
+  "layout.reset": "Herstellen",
+  "notifications.title": "Meldingen",
+  "notifications.empty": "Geen meldingen",
+  "notifications.unread": "ongelezen",
+  "notifications.mark_all_read": "Alles als gelezen markeren",
+  "notifications.load_more": "Meer laden",
+  "notifications.loading": "Laden...",
+  "nudge.daily_plan": "Je dagplan",
+  "nudge.start_learning": "Begin met leren",
+  "nudge.focus_module": "Focusmodule",
+  "nudge.time_budget": "Tijdsbudget",
+  "nudge.best_time": "Beste studietijd",
+  "nudge.exam_countdown": "Examens binnenkort",
+  "nudge.quick_win": "Snelle winst",
+  "nudge.streak": "Reeks",
+  "nudge.encouragement": "Motivatie"
 }

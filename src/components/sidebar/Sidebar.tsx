@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { LogOut, Zap, Gem, Flame, Pin, PinOff, ChevronDown, ChevronRight } from "lucide-react";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { clsx } from "clsx";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { useStreaks } from "@/lib/hooks/useStreaks";
@@ -235,12 +236,15 @@ export default function Sidebar() {
           <p className="font-bold text-surface-900 text-sm leading-tight tracking-tight">Semetra</p>
           <p className="text-[10px] text-surface-400 leading-tight">Study Organizer</p>
         </div>
-        <span className={clsx(
-          "ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-md shrink-0",
-          isPro ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500"
-        )}>
-          {isPro ? "PRO" : "Free"}
-        </span>
+        <div className="ml-auto flex items-center gap-1 shrink-0">
+          <NotificationBell />
+          <span className={clsx(
+            "text-[9px] font-bold px-1.5 py-0.5 rounded-md",
+            isPro ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-500"
+          )}>
+            {isPro ? "PRO" : "Free"}
+          </span>
+        </div>
       </div>
 
       {/* Pinned Quick Access */}

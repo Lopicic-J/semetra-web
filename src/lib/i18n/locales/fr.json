@@ -2190,7 +2190,6 @@
   "insights.trends": "Tendances & Prévisions",
   "insights.patterns": "Habitudes d'étude",
   "insights.timeline": "Chronologie",
-
   "nav.community": "Communauté",
   "community.title": "Communauté",
   "community.members": "Membres",
@@ -2212,7 +2211,6 @@
   "community.empty": "Pas encore de membres dans votre communauté",
   "community.loadError": "Erreur lors du chargement",
   "community.dnd": "Ne pas déranger",
-
   "chat.title": "Chat",
   "chat.search": "Rechercher...",
   "chat.loading": "Chargement...",
@@ -2229,7 +2227,6 @@
   "chat.dnd": "Ne pas déranger",
   "chat.openCommunity": "Ouvrir la communauté",
   "chat.openFull": "Vue complète →",
-
   "settings.communityVisibilityTitle": "Visibilité communautaire",
   "settings.communityVisibleLabel": "Visible dans la communauté",
   "settings.communityVisibleDesc": "Les autres étudiants de votre université peuvent voir votre profil dans la communauté.",
@@ -2238,7 +2235,6 @@
   "settings.statusAway": "Absent",
   "settings.statusDnd": "Ne pas déranger",
   "settings.statusOffline": "Invisible",
-
   "profile.private": "Ce profil est privé",
   "profile.privateDesc": "L'utilisateur a masqué son profil de la communauté.",
   "profile.loadError": "Impossible de charger le profil",
@@ -2250,8 +2246,22 @@
   "profile.achievements": "Réussites",
   "profile.friends": "Amis",
   "profile.requestPending": "Demande envoyée",
-
   "layout.edit": "Personnaliser",
   "layout.done": "Terminé",
-  "layout.reset": "Réinitialiser"
+  "layout.reset": "Réinitialiser",
+  "notifications.title": "Notifications",
+  "notifications.empty": "Aucune notification",
+  "notifications.unread": "non lues",
+  "notifications.mark_all_read": "Tout marquer comme lu",
+  "notifications.load_more": "Charger plus",
+  "notifications.loading": "Chargement...",
+  "nudge.daily_plan": "Ton plan du jour",
+  "nudge.start_learning": "Commencer à étudier",
+  "nudge.focus_module": "Module prioritaire",
+  "nudge.time_budget": "Budget temps",
+  "nudge.best_time": "Meilleur moment",
+  "nudge.exam_countdown": "Examens à venir",
+  "nudge.quick_win": "Victoire rapide",
+  "nudge.streak": "Série",
+  "nudge.encouragement": "Motivation"
 }

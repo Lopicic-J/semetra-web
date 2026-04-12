@@ -119,6 +119,27 @@ export async function POST(req: NextRequest) {
     }
 
     log.info(`Weekly review generated for user ${user.id}, week ${weekStart}`);
+
+    // Phase 4: Persist as notification
+    const adherencePercent = Math.round((review.metrics.overallAdherence || 0) * 100);
+    const actualHours = Math.round((review.metrics.totalActualMinutes || 0) / 60 * 10) / 10;
+    await supabase.from("notifications").upsert({
+      user_id: user.id,
+      type: "weekly_briefing",
+      priority: "normal",
+      title: `Wochenrückblick bereit`,
+      message: `${actualHours}h gelernt, ${adherencePercent}% Planeinhaltung, ${review.metrics.sessionsCompleted || 0} Sessions.`,
+      dedupe_key: `weekly-briefing-${weekStart}`,
+      action_label: "Anzeigen",
+      action_href: `/weekly-review?week=${weekStart}`,
+      metadata: {
+        weekStart,
+        actualMinutes: review.metrics.totalActualMinutes,
+        adherence: adherencePercent,
+        sessions: review.metrics.sessionsCompleted,
+      },
+    }, { onConflict: "user_id,dedupe_key", ignoreDuplicates: true });
+
     return successResponse({ ...data, _computed: review });
   }
 

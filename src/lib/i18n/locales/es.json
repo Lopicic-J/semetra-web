@@ -2190,7 +2190,6 @@
   "insights.trends": "Tendencias y Pronósticos",
   "insights.patterns": "Patrones de estudio",
   "insights.timeline": "Línea temporal",
-
   "nav.community": "Comunidad",
   "community.title": "Comunidad",
   "community.members": "Miembros",
@@ -2212,7 +2211,6 @@
   "community.empty": "Aún no hay miembros en tu comunidad",
   "community.loadError": "Error al cargar",
   "community.dnd": "No molestar",
-
   "chat.title": "Chat",
   "chat.search": "Buscar...",
   "chat.loading": "Cargando...",
@@ -2229,7 +2227,6 @@
   "chat.dnd": "No molestar",
   "chat.openCommunity": "Abrir comunidad",
   "chat.openFull": "Vista completa →",
-
   "settings.communityVisibilityTitle": "Visibilidad en la comunidad",
   "settings.communityVisibleLabel": "Visible en la comunidad",
   "settings.communityVisibleDesc": "Otros estudiantes de tu universidad pueden ver tu perfil en la comunidad.",
@@ -2238,7 +2235,6 @@
   "settings.statusAway": "Ausente",
   "settings.statusDnd": "No molestar",
   "settings.statusOffline": "Invisible",
-
   "profile.private": "Este perfil es privado",
   "profile.privateDesc": "El usuario ha ocultado su perfil de la comunidad.",
   "profile.loadError": "No se pudo cargar el perfil",
@@ -2250,8 +2246,22 @@
   "profile.achievements": "Logros",
   "profile.friends": "Amigos",
   "profile.requestPending": "Solicitud enviada",
-
   "layout.edit": "Personalizar",
   "layout.done": "Listo",
-  "layout.reset": "Restablecer"
+  "layout.reset": "Restablecer",
+  "notifications.title": "Notificaciones",
+  "notifications.empty": "Sin notificaciones",
+  "notifications.unread": "no leídas",
+  "notifications.mark_all_read": "Marcar todo como leído",
+  "notifications.load_more": "Cargar más",
+  "notifications.loading": "Cargando...",
+  "nudge.daily_plan": "Tu plan del día",
+  "nudge.start_learning": "Empezar a estudiar",
+  "nudge.focus_module": "Módulo prioritario",
+  "nudge.time_budget": "Presupuesto de tiempo",
+  "nudge.best_time": "Mejor hora de estudio",
+  "nudge.exam_countdown": "Exámenes próximos",
+  "nudge.quick_win": "Victoria rápida",
+  "nudge.streak": "Racha",
+  "nudge.encouragement": "Motivación"
 }
