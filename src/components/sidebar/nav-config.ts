@@ -71,6 +71,7 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           { href: "/exams", labelKey: "nav.exams" },
           { href: "/noten", labelKey: "nav.grades" },
+          { href: "/intelligence", labelKey: "nav.examIntelligence" },
         ],
       },
       {

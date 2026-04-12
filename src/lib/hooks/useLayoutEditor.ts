@@ -284,11 +284,23 @@ export function useLayoutEditorState(): LayoutEditorState {
     [save],
   );
 
-  const resetLayout = useCallback(() => {
+  const resetLayout = useCallback(async () => {
     const defaults = buildDefaults();
     setPreferences(defaults);
-    save(defaults);
-  }, [save]);
+    await save(defaults);
+
+    // Also clear block_order for all pages
+    if (profile?.id) {
+      const supabase = createClient();
+      await supabase
+        .from("user_layout_preferences")
+        .update({ block_order: {} })
+        .eq("user_id", profile.id);
+    }
+
+    // Force page reload so useBlockOrder re-reads defaults
+    window.location.reload();
+  }, [save, profile?.id]);
 
   const toggleEditing = useCallback(() => setEditing((p) => !p), []);
 

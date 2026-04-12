@@ -59,35 +59,14 @@ const nextConfig = {
     ];
   },
 
-  // Route redirects for Phase 2 sidebar consolidation
+  // Route redirects — only legacy routes that no longer have standalone pages
   async redirects() {
     return [
-      // Calendar + Stundenplan → /schedule
-      { source: "/calendar", destination: "/schedule?tab=calendar", permanent: true },
-      { source: "/stundenplan", destination: "/schedule?tab=stundenplan", permanent: true },
-      // Lernplan + Flashcards + Knowledge + Timer → /learning
-      { source: "/lernplan", destination: "/learning?tab=lernplan", permanent: true },
-      { source: "/flashcards", destination: "/learning?tab=flashcards", permanent: true },
-      { source: "/knowledge", destination: "/learning?tab=knowledge", permanent: true },
-      { source: "/timer", destination: "/learning?tab=timer", permanent: true },
-      // Notes + Documents → /materials
-      { source: "/notes", destination: "/materials?tab=notes", permanent: true },
-      { source: "/documents", destination: "/materials?tab=documents", permanent: true },
-      // Mindmaps + Brainstorming → /werkzeuge
-      { source: "/mindmaps", destination: "/werkzeuge?tab=mindmaps", permanent: true },
-      { source: "/brainstorming", destination: "/werkzeuge?tab=brainstorming", permanent: true },
-      { source: "/creative", destination: "/werkzeuge?tab=mindmaps", permanent: true },
-      // Studienplan + Timeline → /progress
-      { source: "/studienplan", destination: "/progress?tab=studienplan", permanent: true },
-      { source: "/timeline", destination: "/progress?tab=timeline", permanent: true },
-      // Credits + Transcript → /grades
-      { source: "/credits", destination: "/grades?tab=credits", permanent: true },
-      { source: "/transcript", destination: "/grades?tab=transcript", permanent: true },
-      // Leaderboard → /achievements
-      { source: "/leaderboard", destination: "/fortschritt?tab=bestenliste", permanent: true },
-      // Navigator is now a standalone page — no redirect
-      // About → Settings (about tab)
+      // Old hub routes → redirect to their first child (standalone pages now exist)
+      { source: "/creative", destination: "/mindmaps", permanent: true },
       { source: "/about", destination: "/settings", permanent: true },
+      // Old leaderboard route
+      { source: "/leaderboard", destination: "/bestenliste", permanent: true },
     ];
   },
 
