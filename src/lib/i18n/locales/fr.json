@@ -1,5 +1,8 @@
 {
   "nav.dashboard": "Tableau de bord",
+  "nav.overview": "Aperçu",
+  "nav.materialien": "Matériaux",
+  "nav.patterns": "Habitudes d'apprentissage",
   "nav.fortschritt": "Progrès",
   "nav.werkzeuge": "Outils",
   "nav.navigator": "Navigateur",

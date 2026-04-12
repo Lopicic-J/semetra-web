@@ -1,5 +1,8 @@
 {
   "nav.dashboard": "Tablero",
+  "nav.overview": "Resumen",
+  "nav.materialien": "Materiales",
+  "nav.patterns": "Patrones de estudio",
   "nav.fortschritt": "Progreso",
   "nav.werkzeuge": "Herramientas",
   "nav.navigator": "Navegador",

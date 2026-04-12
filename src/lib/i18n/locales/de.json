@@ -1,5 +1,8 @@
 {
   "nav.dashboard": "Dashboard",
+  "nav.overview": "Übersicht",
+  "nav.materialien": "Materialien",
+  "nav.patterns": "Lernmuster",
   "nav.fortschritt": "Fortschritt",
   "nav.werkzeuge": "Werkzeuge",
   "nav.navigator": "Navigator",

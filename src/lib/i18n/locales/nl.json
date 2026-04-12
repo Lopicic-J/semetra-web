@@ -1,5 +1,8 @@
 {
   "nav.dashboard": "Dashboard",
+  "nav.overview": "Overzicht",
+  "nav.materialien": "Materialen",
+  "nav.patterns": "Studiepatronen",
   "nav.fortschritt": "Voortgang",
   "nav.werkzeuge": "Gereedschap",
   "nav.navigator": "Navigator",

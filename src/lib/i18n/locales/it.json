@@ -1,5 +1,8 @@
 {
   "nav.dashboard": "Dashboard",
+  "nav.overview": "Panoramica",
+  "nav.materialien": "Materiali",
+  "nav.patterns": "Modelli di studio",
   "nav.fortschritt": "Progresso",
   "nav.werkzeuge": "Strumenti",
   "nav.navigator": "Navigatore",

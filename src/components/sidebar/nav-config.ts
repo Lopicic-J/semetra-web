@@ -2,7 +2,7 @@ import {
   LayoutDashboard, BookOpen, Calendar, GraduationCap,
   Brain, TrendingUp, Wrench, Compass, Users, MessageCircle,
   Shield, Settings, UserCircle, Terminal, Puzzle, ClipboardList,
-  Dna, Trophy, Fingerprint,
+  Dna, Trophy, FileText,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRole } from "@/lib/hooks/useProfile";
@@ -32,21 +32,13 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     labelKey: "",
     items: [
-      {
-        href: "/dashboard",
-        icon: LayoutDashboard,
-        labelKey: "nav.dashboard",
-        pro: false,
-      },
-      {
-        href: "/navigator",
-        icon: Compass,
-        labelKey: "nav.navigator",
-        pro: false,
-      },
+      { href: "/dashboard", icon: LayoutDashboard, labelKey: "nav.dashboard", pro: false },
+      { href: "/navigator", icon: Compass, labelKey: "nav.navigator", pro: false },
     ],
   },
+
   // ── Studium ──
+  // Alles rund um Studiengang, Module, Noten, Zeitplan, Prüfungen
   {
     labelKey: "navGroup.study",
     items: [
@@ -55,11 +47,18 @@ export const NAV_GROUPS: NavGroup[] = [
         icon: BookOpen,
         labelKey: "nav.modules",
         pro: false,
+      },
+      {
+        href: "/studium",
+        icon: GraduationCap,
+        labelKey: "nav.studium",
+        pro: false,
         children: [
-          { href: "/modules", labelKey: "nav.modules" },
-          { href: "/tasks", labelKey: "nav.tasks" },
+          { href: "/studium", labelKey: "nav.overview" },
           { href: "/studium?tab=studienplan", labelKey: "nav.studienplan", tab: "studienplan" },
           { href: "/studium?tab=noten", labelKey: "nav.grades", tab: "noten" },
+          { href: "/studium?tab=transcript", labelKey: "nav.transcript", tab: "transcript" },
+          { href: "/studium?tab=anrechnungen", labelKey: "nav.recognition", tab: "anrechnungen" },
         ],
       },
       {
@@ -81,13 +80,13 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           { href: "/exams", labelKey: "nav.exams" },
           { href: "/exams?tab=intelligence", labelKey: "nav.examIntelligence", tab: "intelligence" },
-          { href: "/studium?tab=transcript", labelKey: "nav.transcript", tab: "transcript" },
-          { href: "/studium?tab=anrechnungen", labelKey: "nav.recognition", tab: "anrechnungen" },
         ],
       },
     ],
   },
+
   // ── Lernen ──
+  // Aktives Lernen: Lernraum, Materialien, Werkzeuge
   {
     labelKey: "navGroup.learning",
     items: [
@@ -97,10 +96,21 @@ export const NAV_GROUPS: NavGroup[] = [
         labelKey: "nav.learning",
         pro: false,
         children: [
+          { href: "/learning", labelKey: "nav.lernplan" },
           { href: "/learning?tab=timer", labelKey: "nav.timer", tab: "timer" },
+          { href: "/learning?tab=flashcards", labelKey: "nav.flashcards", tab: "flashcards" },
+          { href: "/learning?tab=knowledge", labelKey: "nav.knowledge", tab: "knowledge" },
           { href: "/learning?tab=materials", labelKey: "nav.materials", tab: "materials" },
-          { href: "/werkzeuge?tab=brainstorming", labelKey: "nav.brainstorming", tab: "brainstorming" },
-          { href: "/werkzeuge?tab=mathe", labelKey: "nav.math", tab: "mathe" },
+        ],
+      },
+      {
+        href: "/materials",
+        icon: FileText,
+        labelKey: "nav.materialien",
+        pro: false,
+        children: [
+          { href: "/materials", labelKey: "nav.notes" },
+          { href: "/materials?tab=documents", labelKey: "nav.documents", tab: "documents" },
         ],
       },
       {
@@ -111,11 +121,15 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           { href: "/werkzeuge?tab=ki", labelKey: "nav.aiAssistant", tab: "ki" },
           { href: "/werkzeuge?tab=mindmaps", labelKey: "nav.mindmaps", tab: "mindmaps" },
+          { href: "/werkzeuge?tab=brainstorming", labelKey: "nav.brainstorming", tab: "brainstorming" },
+          { href: "/werkzeuge?tab=mathe", labelKey: "nav.math", tab: "mathe" },
         ],
       },
     ],
   },
+
   // ── Persönlichkeit ──
+  // Lern-DNA, Analysen, Erfolge
   {
     labelKey: "navGroup.personality",
     items: [
@@ -125,8 +139,9 @@ export const NAV_GROUPS: NavGroup[] = [
         labelKey: "nav.dna",
         pro: false,
         children: [
-          { href: "/fortschritt?tab=dna", labelKey: "nav.lernDna", tab: "dna" },
-          { href: "/fortschritt?tab=insights", labelKey: "nav.insights", tab: "insights" },
+          { href: "/fortschritt", labelKey: "nav.lernDna" },
+          { href: "/fortschritt?tab=patterns", labelKey: "nav.patterns", tab: "patterns" },
+          { href: "/fortschritt?tab=timeline", labelKey: "nav.timeline", tab: "timeline" },
         ],
       },
       {
@@ -138,39 +153,25 @@ export const NAV_GROUPS: NavGroup[] = [
           { href: "/fortschritt?tab=erfolge", labelKey: "nav.achievements", tab: "erfolge" },
           { href: "/fortschritt?tab=bestenliste", labelKey: "nav.leaderboard", tab: "bestenliste" },
           { href: "/fortschritt?tab=trends", labelKey: "nav.trends", tab: "trends" },
+          { href: "/fortschritt?tab=review", labelKey: "nav.weeklyReview", tab: "review" },
         ],
       },
     ],
   },
+
   // ── Soziales ──
+  // Community, Freunde, Lerngruppen, Nachrichten
   {
     labelKey: "navGroup.social",
     items: [
-      {
-        href: "/community",
-        icon: Users,
-        labelKey: "nav.community",
-        pro: false,
-        children: [
-          { href: "/community", labelKey: "nav.community" },
-          { href: "/friends", labelKey: "nav.friends" },
-        ],
-      },
-      {
-        href: "/groups",
-        icon: Users,
-        labelKey: "nav.groups",
-        pro: false,
-      },
-      {
-        href: "/messages",
-        icon: MessageCircle,
-        labelKey: "nav.messages",
-        pro: false,
-      },
+      { href: "/community", icon: Users, labelKey: "nav.community", pro: false },
+      { href: "/friends", icon: Users, labelKey: "nav.friends", pro: false },
+      { href: "/groups", icon: Users, labelKey: "nav.groups", pro: false },
+      { href: "/messages", icon: MessageCircle, labelKey: "nav.messages", pro: false },
     ],
   },
-  // ── Verwaltung (Admin) — only visible to admins/institutions ──
+
+  // ── Verwaltung (Admin/Institution) ──
   {
     labelKey: "navGroup.admin",
     requiredRoles: ["admin", "institution"],
