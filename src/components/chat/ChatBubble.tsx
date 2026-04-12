@@ -505,7 +505,7 @@ export default function ChatBubble() {
                       {t("chat.noGroups") || "Noch keine Lerngruppen"}
                     </p>
                     <Link
-                      href="/learning?tab=groups"
+                      href="/groups"
                       onClick={() => setOpen(false)}
                       className="inline-flex items-center gap-1 mt-2 text-xs text-brand-600 dark:text-brand-400 font-semibold hover:underline"
                     >
@@ -517,7 +517,7 @@ export default function ChatBubble() {
                   groups.map(group => (
                     <Link
                       key={group.id}
-                      href={`/learning?tab=groups&group=${group.id}`}
+                      href={`/groups&group=${group.id}`}
                       onClick={() => setOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-surface-50 dark:hover:bg-surface-700/50 transition-colors"
                     >

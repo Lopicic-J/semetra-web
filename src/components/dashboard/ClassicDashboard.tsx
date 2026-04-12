@@ -265,7 +265,7 @@ export default function ClassicDashboard() {
       {/* ═══ STAT CARDS ROW ═══ */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         {/* Streak */}
-        <Link href="/learning?tab=timer" className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 rounded-xl border border-orange-100 dark:border-orange-900/30 p-4 hover:shadow-md transition-shadow">
+        <Link href="/timer" className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 rounded-xl border border-orange-100 dark:border-orange-900/30 p-4 hover:shadow-md transition-shadow">
           <div className="flex items-center gap-2 mb-2">
             <div className="bg-orange-100 dark:bg-orange-900/40 w-8 h-8 rounded-lg flex items-center justify-center">
               <Flame className="w-4 h-4 text-orange-600 dark:text-orange-400" />
@@ -279,7 +279,7 @@ export default function ClassicDashboard() {
         </Link>
 
         {/* ECTS */}
-        <Link href="/fortschritt?tab=studium" className="bg-surface-100/50 dark:bg-surface-800/30 rounded-xl border border-surface-200 dark:border-surface-700 p-4 hover:shadow-md transition-shadow">
+        <Link href="/studium" className="bg-surface-100/50 dark:bg-surface-800/30 rounded-xl border border-surface-200 dark:border-surface-700 p-4 hover:shadow-md transition-shadow">
           <div className="flex items-center gap-2 mb-2">
             <div className="bg-brand-50 dark:bg-brand-950/30 w-8 h-8 rounded-lg flex items-center justify-center">
               <Target className="w-4 h-4 text-brand-600 dark:text-brand-400" />
@@ -381,7 +381,7 @@ export default function ClassicDashboard() {
           </h2>
           <div className="flex items-center gap-3 text-xs text-surface-400">
             <span>{t("dashboard.totalStudyTime")}: <strong className="text-surface-700">{fmtStudyTime(streak.totalSeconds)}</strong></span>
-            <Link href="/learning?tab=timer" className="text-brand-600 hover:underline flex items-center gap-1">{t("dashboard.openTimer")} <ArrowRight size={10} /></Link>
+            <Link href="/timer" className="text-brand-600 hover:underline flex items-center gap-1">{t("dashboard.openTimer")} <ArrowRight size={10} /></Link>
           </div>
         </div>
         <HeatmapRow last30Days={streak.last30Days} />
@@ -615,7 +615,7 @@ export default function ClassicDashboard() {
             <h2 className="font-semibold text-surface-900 flex items-center gap-2">
               <Timer size={16} className="text-green-500" /> {t("dashboard.weeklyLearning")}
             </h2>
-            <Link href="/learning?tab=timer" className="text-xs text-brand-600 hover:underline">{t("dashboard.openTimer")}</Link>
+            <Link href="/timer" className="text-xs text-brand-600 hover:underline">{t("dashboard.openTimer")}</Link>
           </div>
           <WeeklyChart logs={logs} />
         </div>

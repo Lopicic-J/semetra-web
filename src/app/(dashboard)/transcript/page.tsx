@@ -1,6 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
 
-// Consolidated into /studium hub — redirect to transcript tab
+import TranscriptTab from "../academic/TranscriptTab";
+
 export default function TranscriptPage() {
-  redirect("/studium?tab=transcript");
+  return <TranscriptTab />;
 }

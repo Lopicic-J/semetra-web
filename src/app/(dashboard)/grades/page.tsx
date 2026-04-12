@@ -1,6 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
 
-// Consolidated into /studium hub — redirect to grades tab
+import GradesTab from "./GradesTab";
+
 export default function GradesPage() {
-  redirect("/studium?tab=noten");
+  return <GradesTab />;
 }

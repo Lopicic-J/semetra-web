@@ -1,6 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
 
-// Consolidated into /studium hub — redirect to overview tab
+import ProgressTab from "./ProgressTab";
+
 export default function ProgressPage() {
-  redirect("/studium?tab=uebersicht");
+  return <ProgressTab />;
 }
