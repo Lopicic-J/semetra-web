@@ -985,6 +985,8 @@
   "navigator.knowledgeSection": "Wissen",
   "navigator.analyticsSection": "Analyse",
   "navigator.systemSection": "System",
+  "navigator.toolsSection": "Werkzeuge",
+  "navigator.socialSection": "Soziales",
   "navigator.dashboardDesc": "Deine Startseite mit Statistiken, anstehenden Prüfungen, offenen Aufgaben und Lernzeit-Übersicht.",
   "navigator.modulesDesc": "Verwalte alle deine Studienmodule — Dozenten, ECTS, Zeitplan, Links und Materialien.",
   "navigator.tasksDesc": "To-Do-Liste mit Prioritäten, Status-Tracking, Modul-Zuordnung und Anhängen.",

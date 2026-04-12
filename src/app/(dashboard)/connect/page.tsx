@@ -8,6 +8,12 @@ import {
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { useConnect, type ConnectStudent, type ConnectRequest, type ConnectPeer } from "@/lib/hooks/useConnect";
+import UserProfileModal from "@/components/community/UserProfileModal";
+
+const COUNTRY_FLAGS: Record<string, string> = {
+  CH: "🇨🇭", DE: "🇩🇪", AT: "🇦🇹", FR: "🇫🇷",
+  IT: "🇮🇹", ES: "🇪🇸", NL: "🇳🇱", UK: "🇬🇧", GB: "🇬🇧",
+};
 
 // ─── Status Dot ──────────────────────────────────────────────────────────────
 
@@ -72,8 +78,8 @@ function TabBtn({ active, onClick, icon: Icon, label, badge }: {
 
 // ─── Discovery Card ──────────────────────────────────────────────────────────
 
-function StudentCard({ student, onConnect, loading }: {
-  student: ConnectStudent; onConnect: (id: string) => void; loading: boolean;
+function StudentCard({ student, onConnect, onProfile, loading }: {
+  student: ConnectStudent; onConnect: (id: string) => void; onProfile: (id: string) => void; loading: boolean;
 }) {
   const { t } = useTranslation();
   const alreadySent = student.connection_status === "pending";
@@ -81,12 +87,20 @@ function StudentCard({ student, onConnect, loading }: {
 
   return (
     <div className="card p-3 sm:p-4 flex items-start gap-3 sm:gap-4 hover:shadow-md transition-shadow">
-      <Avatar url={student.avatar_url} name={student.full_name ?? student.username} status={student.online_status} size={36} />
+      <div className="cursor-pointer" onClick={() => onProfile(student.user_id)}>
+        <Avatar url={student.avatar_url} name={student.full_name ?? student.username} status={student.online_status} size={36} />
+      </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-semibold text-sm sm:text-base text-surface-900 dark:text-white truncate">
+          <span
+            className="font-semibold text-sm sm:text-base text-surface-900 dark:text-white truncate cursor-pointer hover:text-brand-600 transition-colors"
+            onClick={() => onProfile(student.user_id)}
+          >
             {student.full_name || student.username || t("connect.anonymous")}
           </span>
+          {student.country && (
+            <span className="text-xs" title={student.country}>{COUNTRY_FLAGS[student.country] || "🌐"}</span>
+          )}
           <span className="text-xs px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-300 font-medium">
             Lv. {student.level}
           </span>
@@ -145,22 +159,29 @@ function StudentCard({ student, onConnect, loading }: {
 
 // ─── Request Card ────────────────────────────────────────────────────────────
 
-function RequestCard({ request, direction, onAccept, onDecline, onCancel, loading }: {
+function RequestCard({ request, direction, onAccept, onDecline, onCancel, onProfile, loading }: {
   request: ConnectRequest;
   direction: "incoming" | "sent";
   onAccept?: (id: string) => void;
   onDecline?: (id: string) => void;
   onCancel?: (id: string) => void;
+  onProfile?: (id: string) => void;
   loading: boolean;
 }) {
   const { t } = useTranslation();
   const person = direction === "incoming" ? request.requester : request.addressee;
+  const personId = direction === "incoming" ? request.requester_id : request.addressee_id;
 
   return (
     <div className="card p-4 flex items-center gap-4">
-      <Avatar url={person?.avatar_url} name={person?.full_name ?? person?.username} status={person?.online_status} />
+      <div className="cursor-pointer" onClick={() => personId && onProfile?.(personId)}>
+        <Avatar url={person?.avatar_url} name={person?.full_name ?? person?.username} status={person?.online_status} />
+      </div>
       <div className="flex-1 min-w-0">
-        <span className="font-semibold text-surface-900 dark:text-white truncate block">
+        <span
+          className="font-semibold text-surface-900 dark:text-white truncate block cursor-pointer hover:text-brand-600 transition-colors"
+          onClick={() => personId && onProfile?.(personId)}
+        >
           {person?.full_name || person?.username || "?"}
         </span>
         {request.program_match && (
@@ -210,15 +231,20 @@ function RequestCard({ request, direction, onAccept, onDecline, onCancel, loadin
 
 // ─── Connection Card ─────────────────────────────────────────────────────────
 
-function ConnectionCard({ conn, onMessage, onRemove, loading }: {
-  conn: ConnectPeer; onMessage: (id: string) => void; onRemove: (connId: string) => void; loading: boolean;
+function ConnectionCard({ conn, onMessage, onRemove, onProfile, loading }: {
+  conn: ConnectPeer; onMessage: (id: string) => void; onRemove: (connId: string) => void; onProfile: (id: string) => void; loading: boolean;
 }) {
   const { t } = useTranslation();
   return (
     <div className="card p-4 flex items-center gap-4 hover:shadow-md transition-shadow">
-      <Avatar url={conn.peer.avatar_url} name={conn.peer.full_name ?? conn.peer.username} status={conn.peer.online_status} />
+      <div className="cursor-pointer" onClick={() => onProfile(conn.peer.id)}>
+        <Avatar url={conn.peer.avatar_url} name={conn.peer.full_name ?? conn.peer.username} status={conn.peer.online_status} />
+      </div>
       <div className="flex-1 min-w-0">
-        <span className="font-semibold text-surface-900 dark:text-white truncate block">
+        <span
+          className="font-semibold text-surface-900 dark:text-white truncate block cursor-pointer hover:text-brand-600 transition-colors"
+          onClick={() => onProfile(conn.peer.id)}
+        >
           {conn.peer.full_name || conn.peer.username || "?"}
         </span>
         {conn.program_match && (
@@ -278,6 +304,7 @@ export default function ConnectPage() {
 
   const [messageModal, setMessageModal] = useState<string | null>(null);
   const [connectMessage, setConnectMessage] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const handleConnect = async (targetId: string) => {
     await sendRequest(targetId, connectMessage || undefined);
@@ -385,6 +412,7 @@ export default function ConnectPage() {
                     key={s.user_id}
                     student={s}
                     onConnect={(id) => handleConnect(id)}
+                    onProfile={(id) => setSelectedUserId(id)}
                     loading={actionLoading === s.user_id}
                   />
                 ))
@@ -408,6 +436,7 @@ export default function ConnectPage() {
                         direction="incoming"
                         onAccept={(id) => respondToRequest(id, "accept")}
                         onDecline={(id) => respondToRequest(id, "decline")}
+                        onProfile={(id) => setSelectedUserId(id)}
                         loading={actionLoading === r.id}
                       />
                     ))}
@@ -427,6 +456,7 @@ export default function ConnectPage() {
                         request={r}
                         direction="sent"
                         onCancel={(id) => cancelRequest(id)}
+                        onProfile={(id) => setSelectedUserId(id)}
                         loading={actionLoading === r.id}
                       />
                     ))}
@@ -460,6 +490,7 @@ export default function ConnectPage() {
                     conn={c}
                     onMessage={handleMessage}
                     onRemove={(connId) => removeConnection(connId)}
+                    onProfile={(id) => setSelectedUserId(id)}
                     loading={actionLoading === c.id}
                   />
                 ))
@@ -468,6 +499,9 @@ export default function ConnectPage() {
           )}
         </>
       )}
+
+      {/* User Profile Modal */}
+      <UserProfileModal userId={selectedUserId} onClose={() => setSelectedUserId(null)} />
 
       {/* Connect-with-message modal */}
       {messageModal && (

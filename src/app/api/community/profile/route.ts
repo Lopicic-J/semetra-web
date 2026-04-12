@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
       id, username, full_name, avatar_url,
       institution_id, active_program_id,
       current_semester, study_mode, user_role,
-      language, plan, xp_total, level,
+      language, country, plan, xp_total, level,
       online_status, community_visible,
       created_at
     `)
@@ -124,6 +124,7 @@ export async function GET(req: NextRequest) {
       study_mode: target.study_mode,
       user_role: target.user_role,
       language: target.language,
+      country: target.country ?? null,
       plan: target.plan,
       xp_total: target.xp_total,
       level: target.level,

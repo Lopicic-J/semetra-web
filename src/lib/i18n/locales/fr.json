@@ -673,6 +673,8 @@
   "navigator.knowledgeSection": "Connaissances",
   "navigator.analyticsSection": "Analyse",
   "navigator.systemSection": "Système",
+  "navigator.toolsSection": "Outils",
+  "navigator.socialSection": "Social",
   "navigator.dashboardDesc": "Ta page d'accueil avec statistiques, examens à venir, tâches ouvertes et aperçu du temps d'apprentissage.",
   "navigator.modulesDesc": "Gère tous tes modules d'études — instructeurs, ECTS, horaires, liens et matériaux.",
   "navigator.tasksDesc": "Liste de tâches avec priorités, suivi du statut, attribution de modules et pièces jointes.",

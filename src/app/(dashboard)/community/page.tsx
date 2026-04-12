@@ -24,6 +24,7 @@ interface CommunityMember {
   current_semester: number | null;
   user_role: string;
   language: string | null;
+  country: string | null;
   plan: string | null;
   xp_total: number;
   level: number;
@@ -170,11 +171,11 @@ export default function CommunityPage() {
     );
   };
 
-  const LanguageFlag = ({ lang }: { lang: string | null }) => {
+  const CountryFlag = ({ country }: { country: string | null }) => {
     const flags: Record<string, string> = {
-      de: "🇩🇪", en: "🇬🇧", fr: "🇫🇷", it: "🇮🇹", es: "🇪🇸", nl: "🇳🇱",
+      CH: "🇨🇭", DE: "🇩🇪", AT: "🇦🇹", FR: "🇫🇷", IT: "🇮🇹", ES: "🇪🇸", NL: "🇳🇱", UK: "🇬🇧", GB: "🇬🇧",
     };
-    return lang ? <span className="text-xs" title={lang}>{flags[lang] || "🌐"}</span> : null;
+    return country ? <span className="text-xs" title={country}>{flags[country] || "🌐"}</span> : null;
   };
 
   if (!profile?.institution_id) {
@@ -356,7 +357,7 @@ export default function CommunityPage() {
                       <span className="font-semibold text-sm text-surface-900 dark:text-white truncate">
                         {member.full_name || member.username}
                       </span>
-                      <LanguageFlag lang={member.language} />
+                      <CountryFlag country={member.country} />
                     </div>
 
                     <p className="text-xs text-surface-500 dark:text-surface-400 truncate">

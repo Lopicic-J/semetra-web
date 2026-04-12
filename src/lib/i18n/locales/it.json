@@ -673,6 +673,8 @@
   "navigator.knowledgeSection": "Conoscenza",
   "navigator.analyticsSection": "Analisi",
   "navigator.systemSection": "Sistema",
+  "navigator.toolsSection": "Strumenti",
+  "navigator.socialSection": "Sociale",
   "navigator.dashboardDesc": "La tua home page con statistiche, esami imminenti, compiti aperti e panoramica del tempo di studio.",
   "navigator.modulesDesc": "Gestisci tutti i tuoi moduli di studio — docenti, ECTS, orario, link e materiali.",
   "navigator.tasksDesc": "To-do list con priorità, tracciamento dello stato, assegnazione modulo e allegati.",

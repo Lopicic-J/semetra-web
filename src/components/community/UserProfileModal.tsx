@@ -23,6 +23,7 @@ interface UserProfile {
   study_mode: string | null;
   user_role: string;
   language: string | null;
+  country: string | null;
   plan: string | null;
   xp_total: number;
   level: number;
@@ -42,13 +43,14 @@ interface Props {
   onClose: () => void;
 }
 
-const LANGUAGE_NAMES: Record<string, string> = {
-  de: "Deutsch", en: "English", fr: "Français",
-  it: "Italiano", es: "Español", nl: "Nederlands",
+const COUNTRY_FLAGS: Record<string, string> = {
+  CH: "🇨🇭", DE: "🇩🇪", AT: "🇦🇹", FR: "🇫🇷",
+  IT: "🇮🇹", ES: "🇪🇸", NL: "🇳🇱", UK: "🇬🇧", GB: "🇬🇧",
 };
 
-const LANGUAGE_FLAGS: Record<string, string> = {
-  de: "🇩🇪", en: "🇬🇧", fr: "🇫🇷", it: "🇮🇹", es: "🇪🇸", nl: "🇳🇱",
+const COUNTRY_NAMES: Record<string, string> = {
+  CH: "Schweiz", DE: "Deutschland", AT: "Österreich", FR: "France",
+  IT: "Italia", ES: "España", NL: "Nederland", UK: "UK", GB: "UK",
 };
 
 export default function UserProfileModal({ userId, onClose }: Props) {
@@ -232,9 +234,9 @@ export default function UserProfileModal({ userId, onClose }: Props) {
                 <h2 className="text-xl font-bold text-surface-900 dark:text-white">
                   {profile.full_name || profile.username}
                 </h2>
-                {profile.language && (
-                  <span className="text-base" title={LANGUAGE_NAMES[profile.language] || profile.language}>
-                    {LANGUAGE_FLAGS[profile.language] || "🌐"}
+                {(profile.country || profile.language) && (
+                  <span className="text-base" title={profile.country ? (COUNTRY_NAMES[profile.country] || profile.country) : profile.language || ""}>
+                    {profile.country ? (COUNTRY_FLAGS[profile.country] || "🌐") : "🌐"}
                   </span>
                 )}
                 {/* Role badge */}

@@ -8,7 +8,7 @@ async function fetchProfiles(supabase: any, ids: string[]) {
   if (ids.length === 0) return new Map<string, any>();
   const { data } = await supabase
     .from("profiles")
-    .select("id, username, full_name, avatar_url, institution_id, current_semester, level, online_status, connect_bio")
+    .select("id, username, full_name, avatar_url, institution_id, current_semester, level, online_status, connect_bio, country")
     .in("id", ids);
   const map = new Map<string, any>();
   for (const p of data ?? []) map.set(p.id, p);
@@ -75,6 +75,8 @@ export async function GET(req: NextRequest) {
       // Enrich with profile data
       const incoming = (incomingRaw ?? []).map((r: any) => ({
         id: r.id,
+        requester_id: r.requester_id,
+        addressee_id: r.addressee_id,
         status: r.status,
         message: r.message,
         program_match: r.program_match,
@@ -84,6 +86,8 @@ export async function GET(req: NextRequest) {
 
       const sent = (sentRaw ?? []).map((r: any) => ({
         id: r.id,
+        requester_id: r.requester_id,
+        addressee_id: r.addressee_id,
         status: r.status,
         message: r.message,
         program_match: r.program_match,

@@ -694,6 +694,8 @@
   "navigator.knowledgeSection": "Knowledge",
   "navigator.analyticsSection": "Analytics",
   "navigator.systemSection": "System",
+  "navigator.toolsSection": "Tools",
+  "navigator.socialSection": "Social",
   "navigator.dashboardDesc": "Your home page with statistics, upcoming exams, open tasks and learning time overview.",
   "navigator.modulesDesc": "Manage all your study modules — instructors, ECTS, schedule, links and materials.",
   "navigator.tasksDesc": "To-do list with priorities, status tracking, module assignment and attachments.",

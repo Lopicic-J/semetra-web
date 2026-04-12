@@ -22,10 +22,13 @@ export interface ConnectStudent {
   xp_total: number;
   online_status: string | null;
   connection_status: string | null; // null = no connection, "pending", "accepted"
+  country: string | null;
 }
 
 export interface ConnectRequest {
   id: string;
+  requester_id: string;
+  addressee_id: string;
   status: string;
   message: string | null;
   program_match: string | null;
