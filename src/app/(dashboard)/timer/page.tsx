@@ -175,10 +175,7 @@ function TimerPageInner() {
 
   // ── Filtered context ───────────────────────────────────────────────────
   const filteredExams = selectedModule
-    ? exams.filter(e => {
-        const mod = modules.find(m => m.id === selectedModule);
-        return mod && e.title.toLowerCase().includes(mod.name.toLowerCase().split(" ")[0]);
-      })
+    ? exams.filter(e => e.module_id === selectedModule)
     : exams;
   const filteredTopics = selectedModule ? topics.filter(tp => tp.module_id === selectedModule) : topics;
   const filteredTasks = selectedModule ? tasks.filter(tk => tk.module_id === selectedModule) : tasks;

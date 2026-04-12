@@ -36,7 +36,6 @@ import { DEFAULT_PREFERENCES } from "@/lib/schedule";
 export function useTimerSession(preferences?: SchedulePreferences) {
   const prefs = preferences || DEFAULT_PREFERENCES;
   const [state, setState] = useState<TimerState>(INITIAL_TIMER_STATE);
-  const tickRef = useRef<number | null>(null);
   const serverSessionId = useRef<string | null>(null);
 
   // ── Dispatch ──────────────────────────────────────────────────────────
@@ -54,20 +53,33 @@ export function useTimerSession(preferences?: SchedulePreferences) {
   }, [prefs]);
 
   // ── Tick Loop ─────────────────────────────────────────────────────────
+  // Uses setInterval (1 s) so the timer keeps running when the tab is
+  // in the background.  A visibilitychange listener forces an immediate
+  // TICK when the user returns, so the display catches up instantly.
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   useEffect(() => {
     if (state.isRunning && !state.isPaused) {
-      const tick = () => {
+      // Primary tick — runs even in background tabs
+      intervalRef.current = setInterval(() => {
         dispatch({ type: "TICK" });
-        tickRef.current = requestAnimationFrame(tick);
+      }, 1000);
+
+      // Catch-up tick when tab becomes visible again
+      const onVisibility = () => {
+        if (document.visibilityState === "visible") {
+          dispatch({ type: "TICK" });
+        }
       };
-      tickRef.current = requestAnimationFrame(tick);
+      document.addEventListener("visibilitychange", onVisibility);
 
       return () => {
-        if (tickRef.current) cancelAnimationFrame(tickRef.current);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        document.removeEventListener("visibilitychange", onVisibility);
       };
     }
     return () => {
-      if (tickRef.current) cancelAnimationFrame(tickRef.current);
+      if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [state.isRunning, state.isPaused, dispatch]);
 
