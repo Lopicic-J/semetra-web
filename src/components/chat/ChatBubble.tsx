@@ -86,9 +86,29 @@ function usePresence() {
 
 // ─── ChatBubble Component ──────────────────────────────────────────────────────
 
-export default function ChatBubble() {
+interface ChatBubbleProps {
+  /** Hide the floating bubble button (when using UnifiedFAB) */
+  hideBubble?: boolean;
+  /** External open state (controlled mode) */
+  externalOpen?: boolean;
+  /** Callback when external toggle requested */
+  onExternalToggle?: () => void;
+  /** Callback to report unread count changes */
+  onUnreadChange?: (count: number) => void;
+}
+
+export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle, onUnreadChange }: ChatBubbleProps = {}) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const controlled = externalOpen !== undefined;
+  const open = controlled ? externalOpen : internalOpen;
+  const setOpen = useCallback((v: boolean | ((prev: boolean) => boolean)) => {
+    if (controlled) {
+      onExternalToggle?.();
+    } else {
+      setInternalOpen(v);
+    }
+  }, [controlled, onExternalToggle]);
   const [view, setView] = useState<View>("list");
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [friends, setFriends] = useState<Friend[]>([]);
@@ -97,6 +117,9 @@ export default function ChatBubble() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+
+  // Report unread count to parent (UnifiedFAB)
+  useEffect(() => { onUnreadChange?.(totalUnread); }, [totalUnread, onUnreadChange]);
 
   // Active chat state
   const [activeChatUser, setActiveChatUser] = useState<Friend | null>(null);
@@ -332,8 +355,8 @@ export default function ChatBubble() {
 
   return (
     <>
-      {/* Bubble Button */}
-      <button
+      {/* Bubble Button — hidden when using UnifiedFAB */}
+      {!hideBubble && <button
         onClick={() => setOpen(!open)}
         className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${
           open
@@ -354,7 +377,7 @@ export default function ChatBubble() {
             )}
           </>
         )}
-      </button>
+      </button>}
 
       {/* Chat Panel */}
       {open && (
