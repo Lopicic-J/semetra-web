@@ -53,25 +53,28 @@
      surface-500 = secondary text, surface-800/900 = headings.
      In dark mode we invert so surface-400 must still be readable
      as muted text on dark bg, and surface-800/900 must be near-white. */
+  /* ── Dark Mode: Claude-inspired smooth dark palette ──
+     Designed for excellent readability and pleasant contrast.
+     Every surface-* step maps to the same semantic role as light mode. */
   .dark {
     --sf-50:  24  24  27;    /* #18181b — page bg */
-    --sf-100: 39  39  42;    /* #27272a — card bg / sidebar */
-    --sf-200: 55  55  60;    /* #37373c — borders, dividers */
-    --sf-300: 75  75  82;    /* #4b4b52 — muted borders */
-    --sf-400: 140 140 150;   /* #8c8c96 — placeholder text (brighter!) */
-    --sf-500: 180 180 188;   /* #b4b4bc — secondary text (brighter!) */
-    --sf-600: 210 210 215;   /* #d2d2d7 — body text */
-    --sf-700: 232 232 235;   /* #e8e8eb — strong text */
-    --sf-800: 245 245 246;   /* #f5f5f6 — headings */
-    --sf-900: 252 252 252;   /* #fcfcfc — brightest text */
+    --sf-100: 32  32  36;    /* #202024 — card bg / sidebar (slightly brighter for separation) */
+    --sf-200: 50  50  56;    /* #323238 — borders, dividers */
+    --sf-300: 70  70  78;    /* #46464e — muted borders */
+    --sf-400: 150 150 160;   /* #9696a0 — placeholder text (crisp & readable) */
+    --sf-500: 185 185 194;   /* #b9b9c2 — secondary text */
+    --sf-600: 212 212 218;   /* #d4d4da — body text (high contrast) */
+    --sf-700: 234 234 237;   /* #eaeaed — strong text */
+    --sf-800: 246 246 247;   /* #f6f6f7 — headings */
+    --sf-900: 253 253 253;   /* #fdfdfd — brightest text */
 
-    --page-bg: 24 24 27;        /* #18181b */
-    --card-bg: 39 39 42;        /* #27272a */
-    --card-border: 55 55 60;    /* #37373c */
+    --page-bg: 24 24 27;          /* #18181b */
+    --card-bg: 32 32 36;          /* #202024 */
+    --card-border: 50 50 56;      /* #323238 */
 
-    --text-primary:   252 252 252;  /* #fcfcfc */
-    --text-secondary: 210 210 215;  /* #d2d2d7 */
-    --text-muted:     140 140 150;  /* #8c8c96 */
+    --text-primary:   253 253 253;  /* #fdfdfd */
+    --text-secondary: 212 212 218;  /* #d4d4da */
+    --text-muted:     150 150 160;  /* #9696a0 */
   }
 
   * { box-sizing: border-box; }
@@ -238,7 +241,7 @@
   scrollbar-color: rgb(203 213 225 / 0.5) transparent;
 }
 .dark * {
-  scrollbar-color: rgb(55 55 60 / 0.6) transparent;
+  scrollbar-color: rgb(70 70 78 / 0.5) transparent;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -376,3 +379,163 @@
 
 /* ── 5. RING / FOCUS COLORS ──────────────────────────────────────────── */
 .dark .ring-brand-500\/20 { --tw-ring-color: rgb(var(--accent-500) / 0.3) !important; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   6–12: COMPREHENSIVE DARK MODE — covers all Tailwind color utilities
+   Ensures every colored background, text, border, and gradient has
+   proper contrast on dark surfaces. Claude-style: smooth, readable, consistent.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 6. MISSING COLOR OVERRIDES (Indigo, Emerald, Violet, etc.) ── */
+
+/* Indigo */
+.dark .bg-indigo-50,
+.dark .bg-indigo-50\/50 { background-color: rgba(99,102,241,0.10) !important; }
+.dark .bg-indigo-100     { background-color: rgba(99,102,241,0.15) !important; }
+.dark .text-indigo-600   { color: #a5b4fc !important; }
+.dark .text-indigo-700   { color: #a5b4fc !important; }
+.dark .text-indigo-400   { color: #c7d2fe !important; }
+.dark .text-indigo-900   { color: #e0e7ff !important; }
+.dark .border-indigo-100,
+.dark .border-indigo-200 { border-color: rgba(99,102,241,0.25) !important; }
+
+/* Emerald */
+.dark .bg-emerald-50,
+.dark .bg-emerald-50\/50 { background-color: rgba(16,185,129,0.10) !important; }
+.dark .bg-emerald-100     { background-color: rgba(16,185,129,0.15) !important; }
+.dark .text-emerald-600   { color: #6ee7b7 !important; }
+.dark .text-emerald-700   { color: #6ee7b7 !important; }
+.dark .text-emerald-400   { color: #a7f3d0 !important; }
+.dark .text-emerald-900   { color: #d1fae5 !important; }
+.dark .border-emerald-200 { border-color: rgba(16,185,129,0.25) !important; }
+
+/* Violet / Purple */
+.dark .bg-violet-50,
+.dark .bg-violet-50\/50  { background-color: rgba(139,92,246,0.10) !important; }
+.dark .bg-violet-100      { background-color: rgba(139,92,246,0.15) !important; }
+.dark .bg-purple-50,
+.dark .bg-purple-50\/50  { background-color: rgba(168,85,247,0.10) !important; }
+.dark .bg-purple-100      { background-color: rgba(168,85,247,0.15) !important; }
+.dark .text-violet-600    { color: #c4b5fd !important; }
+.dark .text-violet-700    { color: #c4b5fd !important; }
+.dark .text-violet-400    { color: #ddd6fe !important; }
+.dark .text-violet-900,
+.dark .text-violet-800    { color: #ede9fe !important; }
+.dark .text-purple-600    { color: #d8b4fe !important; }
+.dark .text-purple-700    { color: #d8b4fe !important; }
+.dark .border-violet-200,
+.dark .border-violet-800  { border-color: rgba(139,92,246,0.25) !important; }
+.dark .border-purple-200  { border-color: rgba(168,85,247,0.25) !important; }
+
+/* Teal / Cyan */
+.dark .bg-teal-50         { background-color: rgba(20,184,166,0.10) !important; }
+.dark .bg-teal-100        { background-color: rgba(20,184,166,0.15) !important; }
+.dark .bg-cyan-50         { background-color: rgba(6,182,212,0.10) !important; }
+.dark .bg-cyan-100        { background-color: rgba(6,182,212,0.15) !important; }
+.dark .text-teal-600      { color: #5eead4 !important; }
+.dark .text-teal-700      { color: #5eead4 !important; }
+.dark .text-cyan-600      { color: #67e8f9 !important; }
+.dark .text-cyan-700      { color: #67e8f9 !important; }
+
+/* Pink / Rose */
+.dark .bg-pink-50         { background-color: rgba(236,72,153,0.10) !important; }
+.dark .bg-pink-100        { background-color: rgba(236,72,153,0.15) !important; }
+.dark .bg-rose-50         { background-color: rgba(244,63,94,0.10) !important; }
+.dark .bg-rose-100        { background-color: rgba(244,63,94,0.15) !important; }
+.dark .text-pink-600      { color: #f9a8d4 !important; }
+.dark .text-pink-700      { color: #f9a8d4 !important; }
+.dark .text-rose-600      { color: #fda4af !important; }
+.dark .text-rose-700      { color: #fda4af !important; }
+
+/* ── 7. SURFACE OPACITY PATTERNS ─────────────────────────────────── */
+
+.dark .bg-surface-50\/30,
+.dark .bg-surface-50\/50,
+.dark .bg-surface-50\/80  { background-color: rgb(var(--sf-50) / 0.8) !important; }
+.dark .bg-surface-100\/30,
+.dark .bg-surface-100\/50,
+.dark .bg-surface-100\/80 { background-color: rgb(var(--sf-100) / 0.7) !important; }
+.dark .bg-surface-800\/30,
+.dark .bg-surface-800\/50  { background-color: rgb(var(--sf-100) / 0.5) !important; }
+
+/* Colored opacity variants */
+.dark .bg-red-50\/30,
+.dark .bg-red-50\/50       { background-color: rgba(220,38,38,0.08) !important; }
+.dark .bg-orange-50\/30    { background-color: rgba(234,88,12,0.08) !important; }
+.dark .bg-green-50\/30,
+.dark .bg-green-50\/50     { background-color: rgba(22,163,74,0.08) !important; }
+.dark .bg-blue-50\/30,
+.dark .bg-blue-50\/50      { background-color: rgba(37,99,235,0.08) !important; }
+
+/* ── 8. GRADIENT BACKGROUNDS ─────────────────────────────────────── */
+
+.dark .from-violet-50   { --tw-gradient-from: rgba(139,92,246,0.10) !important; }
+.dark .to-purple-50     { --tw-gradient-to: rgba(168,85,247,0.10) !important; }
+.dark .from-emerald-50  { --tw-gradient-from: rgba(16,185,129,0.10) !important; }
+.dark .to-green-50      { --tw-gradient-to: rgba(22,163,74,0.10) !important; }
+.dark .from-amber-50    { --tw-gradient-from: rgba(217,119,6,0.10) !important; }
+.dark .from-indigo-50   { --tw-gradient-from: rgba(99,102,241,0.10) !important; }
+.dark .to-indigo-50     { --tw-gradient-to: rgba(99,102,241,0.10) !important; }
+.dark .from-red-50      { --tw-gradient-from: rgba(220,38,38,0.10) !important; }
+.dark .to-red-50        { --tw-gradient-to: rgba(220,38,38,0.10) !important; }
+.dark .from-blue-50     { --tw-gradient-from: rgba(37,99,235,0.10) !important; }
+.dark .to-blue-50       { --tw-gradient-to: rgba(37,99,235,0.10) !important; }
+.dark .from-green-50    { --tw-gradient-from: rgba(22,163,74,0.10) !important; }
+.dark .from-pink-50     { --tw-gradient-from: rgba(236,72,153,0.10) !important; }
+.dark .to-pink-50       { --tw-gradient-to: rgba(236,72,153,0.10) !important; }
+.dark .from-teal-50     { --tw-gradient-from: rgba(20,184,166,0.10) !important; }
+.dark .to-teal-50       { --tw-gradient-to: rgba(20,184,166,0.10) !important; }
+.dark .from-cyan-50     { --tw-gradient-from: rgba(6,182,212,0.10) !important; }
+.dark .from-rose-50     { --tw-gradient-from: rgba(244,63,94,0.10) !important; }
+.dark .to-rose-50       { --tw-gradient-to: rgba(244,63,94,0.10) !important; }
+
+/* ── 9. IMPROVED SHADOWS FOR DARK MODE ───────────────────────────── */
+
+.dark .shadow-card    { box-shadow: 0 1px 3px 0 rgba(0,0,0,.25), 0 1px 2px -1px rgba(0,0,0,.2) !important; }
+.dark .shadow-card-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,.3), 0 2px 4px -2px rgba(0,0,0,.2) !important; }
+.dark .shadow-lg      { box-shadow: 0 10px 15px -3px rgba(0,0,0,.3), 0 4px 6px -4px rgba(0,0,0,.2) !important; }
+.dark .shadow-sm      { box-shadow: 0 1px 2px 0 rgba(0,0,0,.2) !important; }
+.dark .shadow-md      { box-shadow: 0 4px 6px -1px rgba(0,0,0,.25), 0 2px 4px -2px rgba(0,0,0,.15) !important; }
+
+/* ── 10. HOVER STATES ────────────────────────────────────────────── */
+
+.dark .hover\:bg-surface-50:hover  { background-color: rgb(var(--sf-200) / 0.5) !important; }
+.dark .hover\:bg-surface-100:hover { background-color: rgb(var(--sf-200) / 0.7) !important; }
+.dark .hover\:bg-surface-200:hover { background-color: rgb(var(--sf-300) / 0.5) !important; }
+
+/* ── 11. SEMANTIC DARK MODE TEXT ─────────────────────────────────── */
+
+.dark .text-success-600, .dark .text-success-700 { color: #86efac !important; }
+.dark .text-warning-600, .dark .text-warning-700 { color: #fcd34d !important; }
+.dark .text-danger-600,  .dark .text-danger-700  { color: #fca5a5 !important; }
+.dark .text-info-600,    .dark .text-info-700    { color: #93c5fd !important; }
+
+.dark .border-success-100 { border-color: rgba(22,163,74,0.25) !important; }
+.dark .border-warning-100 { border-color: rgba(217,119,6,0.25) !important; }
+.dark .border-danger-100  { border-color: rgba(220,38,38,0.25) !important; }
+.dark .border-info-100    { border-color: rgba(37,99,235,0.25) !important; }
+
+/* ── 12. SIDEBAR & LAYOUT SPECIFICS ─────────────────────────────── */
+
+/* Ensure sidebar border is subtle in dark mode */
+.dark .border-surface-200\/60 { border-color: rgb(var(--sf-200) / 0.3) !important; }
+.dark .border-surface-100 { border-color: rgb(var(--sf-200) / 0.4) !important; }
+
+/* SiblingTabs in dark mode */
+.dark .border-surface-100.rounded-xl {
+  border-color: rgb(var(--sf-200) / 0.3);
+}
+
+/* Ensure readable link colors in dark mode */
+.dark a.text-brand-600 { color: rgb(var(--accent-400)) !important; }
+
+/* ── 13. GLOBAL CONTRAST SAFETY NET ─────────────────────────────── */
+/* Catch-all: text on colored backgrounds must stay readable */
+
+.dark .bg-brand-600 .text-white,
+.dark .bg-brand-700 .text-white,
+.dark .bg-brand-800 .text-white,
+.dark .bg-red-500 .text-white,
+.dark .bg-green-500 .text-white {
+  color: #ffffff !important;
+}

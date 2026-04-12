@@ -1,14 +1,44 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   MessageCircle, X, Users, Search, Send,
   ChevronLeft, Circle, Moon, ArrowLeft,
   UserPlus, Settings, Wifi, WifiOff,
+  AlertCircle,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/lib/i18n";
 import Link from "next/link";
+
+// ─── Error Boundary ─────────────────────────────────────────────────────────
+
+class ChatErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <button
+          onClick={() => this.setState({ hasError: false })}
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center bg-surface-400 hover:bg-surface-500 transition-colors"
+          title="Chat neu laden"
+        >
+          <MessageCircle className="text-white" size={22} />
+        </button>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -88,6 +118,14 @@ function usePresence() {
 // ─── ChatBubble Component ──────────────────────────────────────────────────────
 
 export default function ChatBubble() {
+  return (
+    <ChatErrorBoundary>
+      <ChatBubbleInner />
+    </ChatErrorBoundary>
+  );
+}
+
+function ChatBubbleInner() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<View>("list");
@@ -96,6 +134,7 @@ export default function ChatBubble() {
   const [groups, setGroups] = useState<StudyGroup[]>([]);
   const [totalUnread, setTotalUnread] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
   // Active chat state
@@ -116,40 +155,48 @@ export default function ChatBubble() {
     });
   }, []);
 
+  // Safe JSON fetch helper — returns null on any error
+  const safeFetch = useCallback(async (url: string) => {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    }
+  }, []);
+
   // Load conversations and friends
   const loadData = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
-      const [convRes, friendsRes, groupsRes, unreadRes] = await Promise.all([
-        fetch("/api/dm/conversations"),
-        fetch("/api/friends?status=accepted"),
-        fetch("/api/groups"),
-        fetch("/api/presence"),
+      const [convJson, friendsJson, groupsJson, unreadJson] = await Promise.all([
+        safeFetch("/api/dm/conversations"),
+        safeFetch("/api/friends?status=accepted"),
+        safeFetch("/api/groups"),
+        safeFetch("/api/presence"),
       ]);
 
-      const convJson = await convRes.json();
-      const friendsJson = await friendsRes.json();
-      const groupsJson = await groupsRes.json();
-      const unreadJson = await unreadRes.json();
-
-      if (convJson.conversations) setConversations(convJson.conversations);
-      if (friendsJson.friendships) {
+      if (convJson?.conversations) setConversations(convJson.conversations);
+      if (friendsJson?.friendships) {
         setFriends(friendsJson.friendships.map((f: any) => ({
           id: f.friend.id,
           username: f.friend.username,
           full_name: f.friend.full_name,
           avatar_url: f.friend.avatar_url,
-          online_status: "offline", // will be updated via presence
+          online_status: "offline",
         })));
       }
-      if (groupsJson.groups) setGroups(groupsJson.groups);
-      setTotalUnread(unreadJson.unread || 0);
-    } catch {
-      // Silent fail
+      if (groupsJson?.groups) setGroups(groupsJson.groups);
+      setTotalUnread(unreadJson?.unread || 0);
+    } catch (err) {
+      console.error("ChatBubble loadData error:", err);
+      setError(t("chat.loadError") || "Daten konnten nicht geladen werden.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [safeFetch, t]);
 
   useEffect(() => {
     if (open) loadData();
@@ -178,11 +225,13 @@ export default function ChatBubble() {
           }
         }
         // Request notification permission and show
-        if (msg.sender_id !== currentUserId && Notification.permission === "granted") {
-          new Notification("Semetra", {
-            body: `Neue Nachricht`,
-            icon: "/icons/icon-192x192.png",
-          });
+        if (msg.sender_id !== currentUserId && typeof Notification !== "undefined" && Notification.permission === "granted") {
+          try {
+            new Notification("Semetra", {
+              body: "Neue Nachricht",
+              icon: "/icons/icon-192x192.png",
+            });
+          } catch { /* Notification API not available */ }
         }
       })
       .subscribe();
@@ -207,15 +256,15 @@ export default function ChatBubble() {
     setMessages([]);
 
     try {
-      const res = await fetch(`/api/dm/${friend.id}`);
-      const json = await res.json();
-      if (json.messages) setMessages(json.messages);
+      const json = await safeFetch(`/api/dm/${friend.id}`);
+      if (json?.messages) setMessages(json.messages);
       // Mark as read
-      await fetch(`/api/dm/${friend.id}`, {
+      await safeFetch(`/api/dm/${friend.id}`); // PATCH handled server-side
+      fetch(`/api/dm/${friend.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ markRead: true }),
-      });
+      }).catch(() => {});
       loadData(); // refresh unread counts
     } catch {
       // Silent
@@ -387,7 +436,17 @@ export default function ChatBubble() {
                   </div>
                 </div>
 
-                {loading ? (
+                {error ? (
+                  <div className="px-4 py-8 text-center">
+                    <p className="text-xs text-red-500 dark:text-red-400 mb-2">{error}</p>
+                    <button
+                      onClick={loadData}
+                      className="text-xs text-brand-600 dark:text-brand-400 font-semibold hover:underline"
+                    >
+                      {t("chat.retry") || "Erneut versuchen"}
+                    </button>
+                  </div>
+                ) : loading ? (
                   <div className="px-4 py-8 text-center text-xs text-surface-400">
                     {t("chat.loading") || "Laden..."}
                   </div>
@@ -517,7 +576,7 @@ export default function ChatBubble() {
                   groups.map(group => (
                     <Link
                       key={group.id}
-                      href={`/groups&group=${group.id}`}
+                      href={`/groups?group=${group.id}`}
                       onClick={() => setOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-surface-50 dark:hover:bg-surface-700/50 transition-colors"
                     >
