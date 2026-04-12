@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, BookOpen, Calendar, GraduationCap,
   Brain, TrendingUp, Wrench, Compass, Users, MessageCircle,
-  Shield, Settings, UserCircle, Terminal, Puzzle,
+  Shield, Settings, UserCircle, Terminal, Puzzle, ClipboardList,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRole } from "@/lib/hooks/useProfile";
@@ -72,11 +72,16 @@ export const NAV_GROUPS: NavGroup[] = [
       },
       {
         href: "/exams",
-        icon: GraduationCap,
-        labelKey: "nav.exams",
+        icon: ClipboardList,
+        labelKey: "nav.pruefungen",
         pro: false,
         children: [
+          { href: "/exams", labelKey: "nav.exams" },
           { href: "/exams?tab=intelligence", labelKey: "nav.examIntelligence", tab: "intelligence" },
+          { href: "/studium?tab=noten", labelKey: "nav.grades", tab: "noten" },
+          { href: "/studium?tab=studienplan", labelKey: "nav.studienplan", tab: "studienplan" },
+          { href: "/studium?tab=transcript", labelKey: "nav.transcript", tab: "transcript" },
+          { href: "/studium?tab=anrechnungen", labelKey: "nav.recognition", tab: "anrechnungen" },
         ],
       },
     ],

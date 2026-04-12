@@ -71,12 +71,18 @@ export default function Sidebar() {
     router.refresh();
   }
 
-  // Auto-expand the active parent
+  // Auto-expand the active parent (also checks children hrefs for cross-page links)
   useEffect(() => {
     const groups = getFilteredNavGroups(userRole);
     for (const g of groups) {
       for (const item of g.items) {
-        if (item.children && (pathname === item.href || pathname.startsWith(item.href))) {
+        if (!item.children) continue;
+        const directMatch = pathname === item.href || pathname.startsWith(item.href);
+        const childMatch = item.children.some(c => {
+          const childPath = c.href.split("?")[0];
+          return pathname === childPath || pathname.startsWith(childPath);
+        });
+        if (directMatch || childMatch) {
           setExpandedItems((prev) => new Set([...prev, item.href]));
         }
       }
@@ -100,7 +106,13 @@ export default function Sidebar() {
   // ── Render helpers ────────────────────────────────────────────────────────
 
   function NavItem({ href, icon: Icon, labelKey, pro, children }: NavItemType) {
-    const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+    const directActive = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+    // Also active if any child path matches (for cross-page children like /studium tabs under /exams)
+    const childActive = children?.some(c => {
+      const childPath = c.href.split("?")[0];
+      return pathname === childPath || pathname.startsWith(childPath + "/");
+    }) ?? false;
+    const active = directActive || childActive;
     const locked = pro && !isPro;
     const hasChildren = children && children.length > 0;
     const isExpanded = expandedItems.has(href);
