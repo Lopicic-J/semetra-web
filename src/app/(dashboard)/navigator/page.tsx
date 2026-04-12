@@ -49,7 +49,7 @@ function getFeatures(t: (k: string) => string): Feature[] {
       description: "Erstelle und verwalte To-Dos mit Deadlines und Prioritäten.", keywords: ["todo", "aufgabe", "erledigen", "deadline", "task"], color: "#059669", pro: false },
 
     // Planung
-    { href: "/smart-schedule", icon: Zap, label: "Smart Schedule", group: "planning",
+    { href: "/smart", icon: Zap, label: "Smart Schedule", group: "planning",
       description: "KI-optimierter Lernplan, der sich an deinen Rhythmus anpasst.", keywords: ["smart", "schedule", "automatisch", "plan", "ki"], color: "#7c3aed", pro: false },
     { href: "/stundenplan", icon: LayoutGrid, label: "Stundenplan", group: "planning",
       description: "Dein Wochenstundenplan mit Vorlesungen und Lernblöcken.", keywords: ["stundenplan", "wochenplan", "raum", "vorlesung"], color: "#4f46e5", pro: false },
@@ -57,7 +57,7 @@ function getFeatures(t: (k: string) => string): Feature[] {
       description: "Alle Termine, Prüfungen und Deadlines im Überblick.", keywords: ["kalender", "termin", "datum", "woche"], color: "#ea580c", pro: false },
     { href: "/exams", icon: Award, label: "Prüfungen", group: "planning",
       description: "Prüfungstermine verwalten, Vorbereitung planen und Fortschritt tracken.", keywords: ["prüfung", "exam", "klausur", "test"], color: "#be123c", pro: false },
-    { href: "/exam-intelligence", icon: AlertTriangle, label: "Prüfungs-Intelligence", group: "planning",
+    { href: "/intelligence", icon: AlertTriangle, label: "Prüfungs-Intelligence", group: "planning",
       description: "Risikoanalyse und Prognosen für deine bevorstehenden Prüfungen.", keywords: ["risiko", "prognose", "vorbereitung", "intelligence"], color: "#dc2626", pro: true },
 
     // Lernen
@@ -73,30 +73,30 @@ function getFeatures(t: (k: string) => string): Feature[] {
       description: "Definiere und tracke Lernziele pro Modul und Thema.", keywords: ["lernziel", "wissen", "kompetenz", "fortschritt"], color: "#db2777", pro: false },
 
     // Werkzeuge
-    { href: "/werkzeuge", icon: Sparkles, label: "KI-Assistent", group: "tools",
+    { href: "/ki", icon: Sparkles, label: "KI-Assistent", group: "tools",
       description: "Frag die KI was du nicht verstehst — kennt deine Module und passt sich an.", keywords: ["ki", "ai", "chatbot", "frage", "erklärung", "assistent"], color: "#6d28d9", pro: false },
     { href: "/mindmaps", icon: Network, label: "Mind Maps", group: "tools",
       description: "Gedanken strukturieren, Themen visualisieren, im Vollbild arbeiten.", keywords: ["mindmap", "gedankenkarte", "struktur", "visuell"], color: "#7c3aed", pro: false },
     { href: "/brainstorming", icon: Lightbulb, label: "Brainstorming", group: "tools",
       description: "Ideen sammeln mit SCAMPER, Pro/Con, Starbursting und mehr.", keywords: ["brainstorming", "idee", "kreativ", "scamper"], color: "#f59e0b", pro: false },
-    { href: "/math", icon: Calculator, label: "Mathe-Raum", group: "tools",
+    { href: "/mathe", icon: Calculator, label: "Mathe-Raum", group: "tools",
       description: "Gleichungen lösen, Formeln speichern, Schritt-für-Schritt-Lösungen.", keywords: ["mathe", "rechner", "gleichung", "formel", "math"], color: "#6366f1", pro: false },
 
     // Analyse & Fortschritt
-    { href: "/studium", icon: Trophy, label: "Studienfortschritt", group: "analytics",
+    { href: "/overview", icon: Trophy, label: "Studienfortschritt", group: "analytics",
       description: "ECTS, Credits und akademischer Gesamtfortschritt auf einen Blick.", keywords: ["ects", "credits", "fortschritt", "übersicht"], color: "#d97706", pro: false },
-    { href: "/grades", icon: BarChart3, label: "Noten & Durchschnitt", group: "analytics",
+    { href: "/noten", icon: BarChart3, label: "Noten & Durchschnitt", group: "analytics",
       description: "Alle Noten, Durchschnitt, Bestanden/Nicht-Bestanden Analyse.", keywords: ["note", "durchschnitt", "bestanden", "gpa"], color: "#059669", pro: false },
     { href: "/studienplan", icon: Target, label: "Studienplan", group: "analytics",
       description: "Langzeit-Studienplanung über alle Semester hinweg.", keywords: ["plan", "semester", "langzeit", "ziel", "studienplan"], color: "#dc2626", pro: false },
-    { href: "/lern-dna", icon: Flame, label: "Lern-DNA", group: "analytics",
+    { href: "/dna", icon: Flame, label: "Lern-DNA", group: "analytics",
       description: "Dein persönliches Lernprofil — Stärken, Muster und Optimierungspotenzial.", keywords: ["dna", "profil", "muster", "stärken", "analyse"], color: "#f97316", pro: true },
-    { href: "/weekly-review", icon: TrendingUp, label: "Weekly Review", group: "analytics",
+    { href: "/review", icon: TrendingUp, label: "Weekly Review", group: "analytics",
       description: "Wöchentlicher Rückblick auf deine Lernzeit und Fortschritte.", keywords: ["woche", "review", "rückblick", "insights"], color: "#0891b2", pro: false },
-    { href: "/achievements", icon: Award, label: "Erfolge", group: "analytics",
+    { href: "/erfolge", icon: Award, label: "Erfolge", group: "analytics",
       description: "Achievements und Meilensteine auf deinem Lernweg.", keywords: ["erfolg", "achievement", "badge", "meilenstein"], color: "#eab308", pro: false },
 
-    { href: "/leaderboard", icon: Medal, label: "Bestenliste", group: "analytics",
+    { href: "/bestenliste", icon: Medal, label: "Bestenliste", group: "analytics",
       description: "Rangliste: Wer hat die meisten XP gesammelt?", keywords: ["bestenliste", "leaderboard", "rang", "ranking", "xp"], color: "#f59e0b", pro: false },
 
     // Soziales

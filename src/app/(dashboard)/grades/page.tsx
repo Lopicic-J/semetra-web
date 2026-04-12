@@ -1,7 +1,5 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import GradesTab from "./GradesTab";
-
-export default function GradesPage() {
-  return <GradesTab />;
+export default function GradesRedirect() {
+  redirect("/noten");
 }

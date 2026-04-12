@@ -279,7 +279,7 @@ export default function ClassicDashboard() {
         </Link>
 
         {/* ECTS */}
-        <Link href="/studium" className="bg-surface-100/50 dark:bg-surface-800/30 rounded-xl border border-surface-200 dark:border-surface-700 p-4 hover:shadow-md transition-shadow">
+        <Link href="/overview" className="bg-surface-100/50 dark:bg-surface-800/30 rounded-xl border border-surface-200 dark:border-surface-700 p-4 hover:shadow-md transition-shadow">
           <div className="flex items-center gap-2 mb-2">
             <div className="bg-brand-50 dark:bg-brand-950/30 w-8 h-8 rounded-lg flex items-center justify-center">
               <Target className="w-4 h-4 text-brand-600 dark:text-brand-400" />

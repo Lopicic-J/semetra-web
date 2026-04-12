@@ -1,7 +1,5 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import AchievementsTab from "./AchievementsTab";
-
-export default function AchievementsPage() {
-  return <AchievementsTab />;
+export default function AchievementsRedirect() {
+  redirect("/erfolge");
 }

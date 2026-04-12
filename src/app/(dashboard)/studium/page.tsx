@@ -1,9 +1,5 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import ProgressTab from "../progress/ProgressTab";
-
-// Mein Studium — Übersicht
-// Studienplan, Noten, Leistungsnachweis, Anrechnungen sind jetzt eigenständige Seiten
-export default function StudiumPage() {
-  return <ProgressTab />;
+export default function StudiumRedirect() {
+  redirect("/overview");
 }

@@ -175,7 +175,7 @@ export default function SmartSchedulePanel() {
           <Brain size={14} className="text-brand-600" />
           <span className="text-xs font-semibold text-gray-900 dark:text-white">Smart Schedule</span>
         </div>
-        <Link href="/smart-schedule" className="text-[10px] text-brand-600 hover:underline">
+        <Link href="/smart" className="text-[10px] text-brand-600 hover:underline">
           Vollansicht →
         </Link>
       </div>

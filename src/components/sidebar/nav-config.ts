@@ -60,7 +60,7 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           { href: "/calendar", labelKey: "nav.calendar" },
           { href: "/stundenplan", labelKey: "nav.stundenplan" },
-          { href: "/smart-schedule", labelKey: "nav.smartSchedule" },
+          { href: "/smart", labelKey: "nav.smartSchedule" },
         ],
       },
       {
@@ -70,17 +70,17 @@ export const NAV_GROUPS: NavGroup[] = [
         pro: false,
         children: [
           { href: "/exams", labelKey: "nav.exams" },
-          { href: "/exam-intelligence", labelKey: "nav.examIntelligence" },
-          { href: "/grades", labelKey: "nav.grades" },
+          { href: "/intelligence", labelKey: "nav.examIntelligence" },
+          { href: "/noten", labelKey: "nav.grades" },
         ],
       },
       {
-        href: "/studium",
+        href: "/overview",
         icon: GraduationCap,
         labelKey: "nav.studium",
         pro: false,
         children: [
-          { href: "/studium", labelKey: "nav.overview" },
+          { href: "/overview", labelKey: "nav.overview" },
           { href: "/transcript", labelKey: "nav.transcript" },
           { href: "/anrechnungen", labelKey: "nav.recognition" },
           { href: "/trends", labelKey: "nav.trends" },
@@ -103,7 +103,7 @@ export const NAV_GROUPS: NavGroup[] = [
           { href: "/knowledge", labelKey: "nav.knowledge" },
           { href: "/timer", labelKey: "nav.timer" },
           { href: "/flashcards", labelKey: "nav.flashcards" },
-          { href: "/math", labelKey: "nav.math" },
+          { href: "/mathe", labelKey: "nav.math" },
         ],
       },
       {
@@ -117,12 +117,12 @@ export const NAV_GROUPS: NavGroup[] = [
         ],
       },
       {
-        href: "/werkzeuge",
+        href: "/ki",
         icon: Wrench,
         labelKey: "nav.werkzeuge",
         pro: false,
         children: [
-          { href: "/werkzeuge", labelKey: "nav.aiAssistant" },
+          { href: "/ki", labelKey: "nav.aiAssistant" },
           { href: "/mindmaps", labelKey: "nav.mindmaps" },
           { href: "/brainstorming", labelKey: "nav.brainstorming" },
         ],
@@ -135,25 +135,25 @@ export const NAV_GROUPS: NavGroup[] = [
     labelKey: "navGroup.personality",
     items: [
       {
-        href: "/lern-dna",
+        href: "/dna",
         icon: Dna,
         labelKey: "nav.dna",
         pro: false,
         children: [
-          { href: "/lern-dna", labelKey: "nav.lernDna" },
+          { href: "/dna", labelKey: "nav.lernDna" },
           { href: "/patterns", labelKey: "nav.patterns" },
           { href: "/timeline", labelKey: "nav.timeline" },
         ],
       },
       {
-        href: "/achievements",
+        href: "/erfolge",
         icon: Trophy,
         labelKey: "nav.leistung",
         pro: false,
         children: [
-          { href: "/achievements", labelKey: "nav.achievements" },
-          { href: "/leaderboard", labelKey: "nav.leaderboard" },
-          { href: "/weekly-review", labelKey: "nav.weeklyReview" },
+          { href: "/erfolge", labelKey: "nav.achievements" },
+          { href: "/bestenliste", labelKey: "nav.leaderboard" },
+          { href: "/review", labelKey: "nav.weeklyReview" },
         ],
       },
     ],
