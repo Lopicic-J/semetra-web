@@ -1,6 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+// ─── Helper: fetch profiles by IDs ─────────────────────────────────────────
+async function fetchProfiles(supabase: any, ids: string[]) {
+  if (ids.length === 0) return new Map<string, any>();
+  const { data } = await supabase
+    .from("profiles")
+    .select("id, username, full_name, avatar_url, institution_id, current_semester, level, online_status, connect_bio")
+    .in("id", ids);
+  const map = new Map<string, any>();
+  for (const p of data ?? []) map.set(p.id, p);
+  return map;
+}
+
 /**
  * GET /api/connect?tab=discover|requests|connections&search=...&limit=20&offset=0
  */
@@ -23,7 +37,6 @@ export async function GET(req: NextRequest) {
       });
       if (error) throw error;
 
-      // Get counts
       const { data: counts } = await supabase.rpc("get_connect_counts");
 
       return NextResponse.json({
@@ -33,72 +46,84 @@ export async function GET(req: NextRequest) {
     }
 
     if (tab === "requests") {
-      // Incoming pending requests
-      const { data, error } = await supabase
+      // Fetch raw incoming pending connections
+      const { data: incomingRaw, error } = await supabase
         .from("student_connections")
-        .select(`
-          id, status, message, program_match, created_at,
-          requester:profiles!student_connections_requester_id_fkey(
-            id, username, full_name, avatar_url, institution_id, current_semester, level, online_status
-          )
-        `)
+        .select("id, requester_id, addressee_id, status, message, program_match, created_at")
         .eq("addressee_id", user.id)
         .eq("status", "pending")
         .order("created_at", { ascending: false })
         .range(offset, offset + limit - 1);
       if (error) throw error;
 
-      // Also get sent requests
-      const { data: sent, error: sentErr } = await supabase
+      // Fetch raw sent pending connections
+      const { data: sentRaw, error: sentErr } = await supabase
         .from("student_connections")
-        .select(`
-          id, status, message, program_match, created_at,
-          addressee:profiles!student_connections_addressee_id_fkey(
-            id, username, full_name, avatar_url, institution_id, current_semester, level, online_status
-          )
-        `)
+        .select("id, requester_id, addressee_id, status, message, program_match, created_at")
         .eq("requester_id", user.id)
         .eq("status", "pending")
         .order("created_at", { ascending: false });
       if (sentErr) throw sentErr;
 
+      // Collect all user IDs we need profiles for
+      const profileIds = new Set<string>();
+      for (const r of incomingRaw ?? []) profileIds.add(r.requester_id);
+      for (const r of sentRaw ?? []) profileIds.add(r.addressee_id);
+
+      const profiles = await fetchProfiles(supabase, [...profileIds]);
+
+      // Enrich with profile data
+      const incoming = (incomingRaw ?? []).map((r: any) => ({
+        id: r.id,
+        status: r.status,
+        message: r.message,
+        program_match: r.program_match,
+        created_at: r.created_at,
+        requester: profiles.get(r.requester_id) ?? null,
+      }));
+
+      const sent = (sentRaw ?? []).map((r: any) => ({
+        id: r.id,
+        status: r.status,
+        message: r.message,
+        program_match: r.program_match,
+        created_at: r.created_at,
+        addressee: profiles.get(r.addressee_id) ?? null,
+      }));
+
       const { data: counts } = await supabase.rpc("get_connect_counts");
 
       return NextResponse.json({
-        incoming: data ?? [],
-        sent: sent ?? [],
+        incoming,
+        sent,
         counts: counts?.[0] ?? { total_connections: 0, pending_received: 0, pending_sent: 0 },
       });
     }
 
     if (tab === "connections") {
-      // Accepted connections
-      const { data, error } = await supabase
+      // Fetch raw accepted connections
+      const { data: raw, error } = await supabase
         .from("student_connections")
-        .select(`
-          id, status, program_match, created_at, updated_at,
-          requester:profiles!student_connections_requester_id_fkey(
-            id, username, full_name, avatar_url, institution_id, current_semester, level, online_status, connect_bio
-          ),
-          addressee:profiles!student_connections_addressee_id_fkey(
-            id, username, full_name, avatar_url, institution_id, current_semester, level, online_status, connect_bio
-          )
-        `)
+        .select("id, requester_id, addressee_id, status, program_match, created_at, updated_at")
         .eq("status", "accepted")
         .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
         .order("updated_at", { ascending: false })
         .range(offset, offset + limit - 1);
       if (error) throw error;
 
-      // Transform: identify the "other" person
-      const connections = (data ?? []).map((c) => {
-        const req = c.requester as unknown as { id: string } | null;
-        const isRequester = req?.id === user.id;
+      // Collect peer IDs
+      const peerIds = (raw ?? []).map((c: any) =>
+        c.requester_id === user.id ? c.addressee_id : c.requester_id
+      );
+      const profiles = await fetchProfiles(supabase, peerIds);
+
+      const connections = (raw ?? []).map((c: any) => {
+        const peerId = c.requester_id === user.id ? c.addressee_id : c.requester_id;
         return {
           id: c.id,
           program_match: c.program_match,
           connected_at: c.updated_at,
-          peer: isRequester ? c.addressee : c.requester,
+          peer: profiles.get(peerId) ?? null,
         };
       });
 
@@ -163,7 +188,6 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Ihr seid bereits verbunden" }, { status: 409 });
       }
       if (existing.status === "pending") {
-        // Auto-accept if reverse request
         if (existing.requester_id === targetId) {
           const { error: upErr } = await supabase
             .from("student_connections")
@@ -177,7 +201,6 @@ export async function POST(req: NextRequest) {
       if (existing.status === "blocked") {
         return NextResponse.json({ error: "Aktion nicht möglich" }, { status: 403 });
       }
-      // Declined → allow re-request
       if (existing.status === "declined") {
         const { error: upErr } = await supabase
           .from("student_connections")
