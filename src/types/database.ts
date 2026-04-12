@@ -497,6 +497,7 @@ export interface AssessmentComponent {
   grade_scale_id: string | null;
   pass_policy_id: string | null;
   min_pass_required: boolean;
+  min_grade: number | null;
   contributes_to_final: boolean;
   mandatory_to_pass: boolean;
   sequence_order: number;

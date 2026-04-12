@@ -194,8 +194,9 @@ export default function ModuleEditorPage() {
   // Component form fields
   const [componentName, setComponentName] = useState("");
   const [componentType, setComponentType] = useState("written_exam");
-  const [componentWeight, setComponentWeight] = useState("1");
+  const [componentWeight, setComponentWeight] = useState("100");
   const [minPassRequired, setMinPassRequired] = useState(false);
+  const [minGradeValue, setMinGradeValue] = useState("4.0");
   const [mandatoryToPass, setMandatoryToPass] = useState(false);
 
   // Helper function to fetch country defaults and requirement groups
@@ -323,7 +324,7 @@ export default function ModuleEditorPage() {
         if (data.module.learning_objectives) setLearningObjectives(data.module.learning_objectives);
         if (data.module.module_contents) setModuleContents(data.module.module_contents);
         if (data.module.remarks) setRemarks(data.module.remarks);
-        setIsPublished(data.module.is_published || false);
+        setIsPublished(data.module.status === "active");
 
         // Load other section fields if available
         if (data.module.professor) setProfessor(data.module.professor);
@@ -493,28 +494,36 @@ export default function ModuleEditorPage() {
         return;
       }
 
+      const weightNum = parseInt(componentWeight);
+      if (isNaN(weightNum) || weightNum < 1 || weightNum > 100) {
+        toast.error("Gewichtung muss zwischen 1% und 100% liegen");
+        return;
+      }
+
       const response = await fetch(`/api/academic/modules/${id}/components`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: componentName,
           component_type: componentType,
-          weight_percent: parseInt(componentWeight),
+          weight_percent: weightNum,
           min_pass_required: minPassRequired,
+          min_grade: minPassRequired ? parseFloat(minGradeValue) || null : null,
           mandatory_to_pass: mandatoryToPass,
         }),
       });
 
+      const data = await response.json();
       if (!response.ok) {
-        throw new Error("Failed to create component");
+        throw new Error(data.error || "Fehler beim Hinzufügen der Komponente");
       }
 
-      const data = await response.json();
       setComponents([...components, data.component]);
       setComponentName("");
       setComponentType("written_exam");
-      setComponentWeight("1");
+      setComponentWeight("100");
       setMinPassRequired(false);
+      setMinGradeValue("4.0");
       setMandatoryToPass(false);
       setShowComponentForm(false);
       toast.success("Komponente hinzugefügt");
@@ -522,6 +531,16 @@ export default function ModuleEditorPage() {
       const message = err instanceof Error ? err.message : "Fehler beim Hinzufügen";
       toast.error(message);
     }
+  };
+
+  const refreshComponents = async () => {
+    try {
+      const res = await fetch(`/api/academic/modules/${id}/components`);
+      if (res.ok) {
+        const data = await res.json();
+        setComponents(data.components || []);
+      }
+    } catch { /* ignore */ }
   };
 
   const handleDeleteComponent = async (compId: string) => {
@@ -538,11 +557,16 @@ export default function ModuleEditorPage() {
         throw new Error(errData?.error || "Fehler beim Löschen der Komponente");
       }
 
-      setComponents(components.filter((c) => c.id !== compId));
+      // Remove from local state immediately, then refresh from server
+      setComponents((prev) => prev.filter((c) => c.id !== compId));
       toast.success("Komponente gelöscht");
+      // Refresh from server to ensure consistency
+      await refreshComponents();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Fehler beim Löschen";
       toast.error(message);
+      // Refresh from server in case of error to restore correct state
+      await refreshComponents();
     }
   };
 
@@ -584,11 +608,11 @@ export default function ModuleEditorPage() {
         method: "POST",
       });
 
+      const data = await response.json();
       if (!response.ok) {
-        throw new Error("Failed to publish module");
+        throw new Error(data.error || "Modul konnte nicht veröffentlicht werden");
       }
 
-      const data = await response.json();
       setModule(data.module);
       setIsPublished(true);
       toast.success("Modul veröffentlicht");
@@ -1539,13 +1563,18 @@ export default function ModuleEditorPage() {
                           </option>
                         ))}
                       </select>
-                      <input
-                        type="number"
-                        value={componentWeight}
-                        onChange={(e) => setComponentWeight(e.target.value)}
-                        placeholder="Gewicht (%)"
-                        className="px-4 py-2 bg-white dark:bg-surface-800 border border-blue-200 dark:border-blue-800 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min={1}
+                          max={100}
+                          value={componentWeight}
+                          onChange={(e) => setComponentWeight(e.target.value)}
+                          placeholder="100"
+                          className="w-full px-4 py-2 pr-10 bg-white dark:bg-surface-800 border border-blue-200 dark:border-blue-800 rounded-lg text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-surface-500">%</span>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <label className="flex items-center gap-3 cursor-pointer">
@@ -1559,6 +1588,20 @@ export default function ModuleEditorPage() {
                           Min. Note erforderlich
                         </span>
                       </label>
+                      {minPassRequired && (
+                        <div className="ml-7 flex items-center gap-2">
+                          <label className="text-xs text-surface-600 dark:text-surface-400">Mindestnote:</label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="1"
+                            max="6"
+                            value={minGradeValue}
+                            onChange={(e) => setMinGradeValue(e.target.value)}
+                            className="w-20 px-3 py-1.5 bg-white dark:bg-surface-800 border border-blue-200 dark:border-blue-800 rounded-lg text-sm text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                      )}
                       <label className="flex items-center gap-3 cursor-pointer">
                         <input
                           type="checkbox"
@@ -1619,7 +1662,7 @@ export default function ModuleEditorPage() {
                           </p>
                           {(comp.min_pass_required || comp.mandatory_to_pass) && (
                             <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
-                              {comp.min_pass_required && "✓ Min. Note erforderlich"}
+                              {comp.min_pass_required && `✓ Min. Note: ${comp.min_grade ?? "–"}`}
                               {comp.min_pass_required && comp.mandatory_to_pass && " · "}
                               {comp.mandatory_to_pass && "✓ Muss bestanden werden"}
                             </p>

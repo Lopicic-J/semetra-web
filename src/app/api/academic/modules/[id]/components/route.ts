@@ -188,6 +188,7 @@ export async function POST(
         grade_scale_id: body.grade_scale_id || null,
         pass_policy_id: body.pass_policy_id || null,
         min_pass_required: body.min_pass_required || false,
+        min_grade: body.min_pass_required && body.min_grade ? body.min_grade : null,
         mandatory_to_pass: body.mandatory_to_pass || false,
         sequence_order: nextSequenceOrder,
       })

@@ -52,14 +52,19 @@ export async function POST(
 
     if (publishError) {
       log.error("POST publish RPC failed", { error: publishError });
-      // Check if it's a validation error
-      if (publishError.message.includes("validation") || publishError.message.includes("invalid")) {
-        return NextResponse.json(
-          { error: publishError.message, details: publishResult },
-          { status: 422 }
-        );
-      }
       return errorResponse(publishError.message, 500);
+    }
+
+    // RPC returns { success: false, errors: [...] } if validation fails
+    if (publishResult && publishResult.success === false) {
+      const errors = publishResult.errors || [];
+      const errorMessages = Array.isArray(errors)
+        ? errors.map((e: unknown) => (typeof e === "string" ? e : JSON.stringify(e))).join("; ")
+        : "Validierungsfehler";
+      return NextResponse.json(
+        { error: `Validierung fehlgeschlagen: ${errorMessages}`, details: publishResult },
+        { status: 422 }
+      );
     }
 
     // Fetch updated module to return
