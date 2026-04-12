@@ -50,9 +50,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
             <VerificationBanner />
             <main id="main-content" className="flex-1 overflow-y-auto">
-              <div className="px-4 pt-4 md:px-6 md:pt-5">
-                <SiblingTabs />
-              </div>
+              <SiblingTabs />
               {children}
             </main>
           </div>

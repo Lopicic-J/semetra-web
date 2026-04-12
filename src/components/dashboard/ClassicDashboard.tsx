@@ -25,6 +25,7 @@ import { useProfile } from "@/lib/hooks/useProfile";
 import { useCommandCenter } from "@/lib/hooks/useCommandCenter";
 import { useSmartAutomations } from "@/lib/hooks/useSmartAutomations";
 import { formatDate, ectsWeightedAvg } from "@/lib/utils";
+import PageBlocks, { type BlockDef } from "@/components/ui/PageBlocks";
 import {
   BookOpen, CheckSquare, Clock, TrendingUp, AlertCircle, Calendar,
   GraduationCap, Brain, AlertTriangle, Flame, Target, Zap, Trophy,
@@ -198,44 +199,12 @@ export default function ClassicDashboard() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? t("dashboard.greetingMorning") : hour < 18 ? t("dashboard.greetingAfternoon") : t("dashboard.greetingEvening");
 
-  return (
-    <>
-      {/* ═══ HEADER ═══ */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-surface-900">
-            {greeting || t("dashboard.title")}
-          </h1>
-          <p className="text-surface-500 text-sm mt-0.5">
-            {new Date().toLocaleDateString("de-CH", {
-              weekday: "long",
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-          </p>
-        </div>
-        <button
-          onClick={ccRefetch}
-          className="p-2 rounded-lg hover:bg-surface-200 transition-colors text-surface-500 hover:text-surface-700"
-          title="Dashboard aktualisieren"
-        >
-          <RefreshCw className={`w-4 h-4 ${ccLoading ? "animate-spin" : ""}`} />
-        </button>
-      </div>
-
-      {/* ═══ STUDY STATUS BANNER ═══ */}
-      <StudyStatusBanner />
-
-      {/* ═══ ALERT BANNER (Decision Engine) ═══ */}
-      {ccState && ccState.today.alerts.length > 0 && (
-        <div className="mb-6">
-          <AlertBanner alerts={ccState.today.alerts} />
-        </div>
-      )}
-
-      {/* ═══ KNOWLEDGE WARNINGS ═══ */}
-      {examKnowledgeWarnings.length > 0 && (
+  // ─── Block definitions for drag & drop reordering ───
+  const dashboardBlocks: BlockDef[] = useMemo(() => [
+    {
+      id: "knowledge-warnings",
+      hidden: examKnowledgeWarnings.length === 0,
+      content: (
         <div className="space-y-2 mb-6">
           {examKnowledgeWarnings.map(w => (
             <Link key={w.exam.id} href="/knowledge" className="flex items-center gap-3 p-3 rounded-xl border transition-colors hover:shadow-sm no-underline"
@@ -260,10 +229,12 @@ export default function ClassicDashboard() {
             </Link>
           ))}
         </div>
-      )}
-
-      {/* ═══ STAT CARDS ROW ═══ */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+      ),
+    },
+    {
+      id: "stat-cards",
+      content: (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         {/* Streak */}
         <Link href="/timer" className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 rounded-xl border border-orange-100 dark:border-orange-900/30 p-4 hover:shadow-md transition-shadow">
           <div className="flex items-center gap-2 mb-2">
@@ -357,9 +328,12 @@ export default function ClassicDashboard() {
           )}
         </Link>
       </div>
-
-      {/* ═══ DAILY ACTIONS + MODULE PRIORITIES (Decision Engine) ═══ */}
-      {ccState && (
+      ),
+    },
+    {
+      id: "daily-actions",
+      hidden: !ccState,
+      content: ccState ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
           <DailyActions
             actions={ccState.today.actions}
@@ -371,10 +345,12 @@ export default function ClassicDashboard() {
             modules={ccModules}
           />
         </div>
-      )}
-
-      {/* ═══ 30-DAY HEATMAP ═══ */}
-      <div className="card mb-6">
+      ) : null,
+    },
+    {
+      id: "heatmap",
+      content: (
+        <div className="card mb-6">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-semibold text-surface-900 flex items-center gap-2">
             <Calendar size={16} className="text-brand-500" /> {t("dashboard.studyHeatmap")}
@@ -386,9 +362,12 @@ export default function ClassicDashboard() {
         </div>
         <HeatmapRow last30Days={streak.last30Days} />
       </div>
-
-      {/* ═══ EXAMS + TASKS ═══ */}
-      <div className="grid lg:grid-cols-2 gap-4 mb-6">
+      ),
+    },
+    {
+      id: "exams-tasks",
+      content: (
+        <div className="grid lg:grid-cols-2 gap-4 mb-6">
         {/* Upcoming exams */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
@@ -593,9 +572,12 @@ export default function ClassicDashboard() {
           )}
         </div>
       </div>
-
-      {/* ═══ RISK MONITOR + PREDICTIONS (Decision Engine) ═══ */}
-      {ccState && (
+      ),
+    },
+    {
+      id: "risk-predictions",
+      hidden: !ccState,
+      content: ccState ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
           <RiskOverview
             risks={ccState.risks}
@@ -606,10 +588,12 @@ export default function ClassicDashboard() {
             modules={ccModules}
           />
         </div>
-      )}
-
-      {/* ═══ WEEKLY CHART + MODULE PROGRESS ═══ */}
-      <div className="grid lg:grid-cols-2 gap-4">
+      ) : null,
+    },
+    {
+      id: "weekly-progress",
+      content: (
+        <div className="grid lg:grid-cols-2 gap-4">
         <div className="card">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-surface-900 flex items-center gap-2">
@@ -664,8 +648,56 @@ export default function ClassicDashboard() {
           )}
         </div>
       </div>
+      ),
+    },
+  ], [
+    examKnowledgeWarnings, isDark, t, ccState, ccModules, streak,
+    earnedEcts, totalEcts, ectsAvg, modules, todaySecs, overdue, openTasks,
+    exams, expandedExam, examAttachments, topics, toggleExamExpand,
+    expandedTask, taskAttachments, toggleTaskExpand, logs, moduleProgress, ml,
+    fmtStudyTime,
+  ]);
 
-      {/* ═══ COMPUTED AT ═══ */}
+  return (
+    <>
+      {/* ═══ HEADER (fixed) ═══ */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-surface-900">
+            {greeting || t("dashboard.title")}
+          </h1>
+          <p className="text-surface-500 text-sm mt-0.5">
+            {new Date().toLocaleDateString("de-CH", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </p>
+        </div>
+        <button
+          onClick={ccRefetch}
+          className="p-2 rounded-lg hover:bg-surface-200 transition-colors text-surface-500 hover:text-surface-700"
+          title="Dashboard aktualisieren"
+        >
+          <RefreshCw className={`w-4 h-4 ${ccLoading ? "animate-spin" : ""}`} />
+        </button>
+      </div>
+
+      {/* ═══ STUDY STATUS BANNER (fixed) ═══ */}
+      <StudyStatusBanner />
+
+      {/* ═══ ALERT BANNER (fixed) ═══ */}
+      {ccState && ccState.today.alerts.length > 0 && (
+        <div className="mb-6">
+          <AlertBanner alerts={ccState.today.alerts} />
+        </div>
+      )}
+
+      {/* ═══ SORTABLE BLOCKS ═══ */}
+      <PageBlocks blocks={dashboardBlocks} />
+
+      {/* ═══ COMPUTED AT (fixed) ═══ */}
       {computedAt && (
         <p className="text-xs text-surface-400 text-right mt-4">
           Decision Engine: {new Date(computedAt).toLocaleTimeString("de-CH")}

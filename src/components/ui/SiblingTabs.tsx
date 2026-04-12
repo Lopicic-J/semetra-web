@@ -33,7 +33,7 @@ export default function SiblingTabs() {
 
   return (
     <div className={clsx(
-      "flex items-center gap-1 px-1 py-1 mb-4 rounded-xl border overflow-x-auto scrollbar-none",
+      "flex items-center gap-1 px-1 py-1 mx-4 mt-4 mb-0 md:mx-6 md:mt-5 rounded-xl border overflow-x-auto scrollbar-none",
       editing
         ? "bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800"
         : "bg-surface-50 dark:bg-surface-800/50 border-surface-100 dark:border-surface-800",

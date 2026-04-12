@@ -1,48 +1,7 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import { Suspense, lazy } from "react";
-import { Calendar, Clock3, Zap } from "lucide-react";
-import { PageTabs } from "@/components/ui/PageTabs";
-import { useTranslation } from "@/lib/i18n";
-
-const SmartScheduleContent = lazy(() => import("../smart-schedule/page"));
-const CalendarContent = lazy(() => import("../calendar/page"));
-const StundenplanContent = lazy(() => import("../stundenplan/page"));
-
-function Loading() {
-  return <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin" /></div>;
-}
-
-export default function SchedulePage() {
-  const { t } = useTranslation();
-
-  const tabs = [
-    {
-      id: "smart",
-      label: t("nav.smartSchedule") || "Smart Schedule",
-      icon: Zap,
-      content: <Suspense fallback={<Loading />}><SmartScheduleContent /></Suspense>,
-    },
-    {
-      id: "calendar",
-      label: t("nav.calendar") || "Kalender",
-      icon: Calendar,
-      content: <Suspense fallback={<Loading />}><CalendarContent /></Suspense>,
-    },
-    {
-      id: "stundenplan",
-      label: t("nav.stundenplan") || "Stundenplan",
-      icon: Clock3,
-      content: <Suspense fallback={<Loading />}><StundenplanContent /></Suspense>,
-    },
-  ];
-
-  return (
-    <PageTabs
-      title={t("nav.schedule") || "Zeitplan"}
-      subtitle="Smart Schedule, Kalender & Stundenplan"
-      icon={<Calendar className="text-brand-600" size={26} />}
-      tabs={tabs}
-    />
-  );
+// Schedule hub aufgelöst — Kalender, Stundenplan, Smart Schedule sind eigenständige Seiten.
+// SiblingTabs (aus Layout) zeigt: Kalender | Stundenplan | Smart Schedule
+export default function ScheduleRedirect() {
+  redirect("/calendar");
 }

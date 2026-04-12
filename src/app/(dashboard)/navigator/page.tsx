@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useTranslation } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
 import { useStreaks } from "@/lib/hooks/useStreaks";
+import PageBlocks, { type BlockDef } from "@/components/ui/PageBlocks";
 import {
   Search, LayoutDashboard, BookOpen, CheckSquare, GraduationCap,
   Target, Calendar, Clock, LayoutGrid, Award, FileText, FolderOpen,
@@ -259,45 +260,12 @@ export default function NavigatorPage() {
     }
   }, [filtered, search, router]);
 
-  return (
-    <div className="max-w-6xl mx-auto space-y-6 p-3 sm:p-5">
-
-      {/* ── Header ── */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-surface-100 flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
-              <Zap size={18} className="text-brand-600 dark:text-brand-400" />
-            </div>
-            {t("navigator.title") || "Navigator"}
-          </h1>
-          <p className="text-surface-500 dark:text-surface-400 text-xs sm:text-sm mt-1">{t("navigator.subtitle") || "Dein Studien-Kommandozentrale"}</p>
-        </div>
-      </div>
-
-      {/* ── Search Bar (Cmd+K style) ── */}
-      <div className="relative group">
-        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 group-focus-within:text-brand-500 transition" />
-        <input
-          id="nav-search"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder={t("navigator.searchPlaceholder") || "Suche nach Funktionen, Tools, Seiten..."}
-          className="w-full bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-surface-100 rounded-2xl px-12 py-3.5 border border-surface-200 dark:border-surface-700 text-sm focus:outline-none focus:border-brand-400 dark:focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900/50 transition-all shadow-sm"
-        />
-        {search ? (
-          <button onClick={() => setSearch("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-surface-300 dark:text-surface-600 hover:text-surface-600 dark:hover:text-surface-400 transition">
-            <X size={16} />
-          </button>
-        ) : (
-          <kbd className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-surface-300 dark:text-surface-600 border border-surface-200 dark:border-surface-700 rounded px-1.5 py-0.5 font-mono hidden sm:inline bg-surface-50 dark:bg-surface-900">
-            <Command size={10} className="inline mr-0.5" />K
-          </kbd>
-        )}
-      </div>
-
-      {/* ── Quick Stats ── */}
-      {!search && !activeGroup && (
+  // ─── Block definitions for drag & drop reordering ───
+  const navigatorBlocks: BlockDef[] = useMemo(() => [
+    {
+      id: "quick-stats",
+      hidden: !!(search || activeGroup),
+      content: (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {quickStats.map(stat => {
             const Icon = stat.icon;
@@ -321,10 +289,12 @@ export default function NavigatorPage() {
             );
           })}
         </div>
-      )}
-
-      {/* ── Quick Actions (context-aware) ── */}
-      {!search && !activeGroup && (
+      ),
+    },
+    {
+      id: "quick-actions",
+      hidden: !!(search || activeGroup),
+      content: (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {dueFlashcards > 0 && (
             <Link href="/flashcards" className="flex items-center gap-3 bg-gradient-to-r from-violet-50 dark:from-violet-900/20 to-purple-50 dark:to-purple-900/20 border border-violet-200 dark:border-violet-800 rounded-xl p-3 sm:p-4 hover:shadow-md transition-all group">
@@ -361,9 +331,51 @@ export default function NavigatorPage() {
             <ArrowRight size={16} className="text-amber-300 dark:text-amber-600 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition ml-auto shrink-0" />
           </Link>
         </div>
-      )}
+      ),
+    },
+  ], [search, activeGroup, quickStats, dueFlashcards, dueTasks, t]);
 
-      {/* ── Group Filter Chips ── */}
+  return (
+    <div className="max-w-6xl mx-auto space-y-6 p-3 sm:p-5">
+
+      {/* ── Header (fixed) ── */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-surface-100 flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+              <Zap size={18} className="text-brand-600 dark:text-brand-400" />
+            </div>
+            {t("navigator.title") || "Navigator"}
+          </h1>
+          <p className="text-surface-500 dark:text-surface-400 text-xs sm:text-sm mt-1">{t("navigator.subtitle") || "Dein Studien-Kommandozentrale"}</p>
+        </div>
+      </div>
+
+      {/* ── Search Bar (fixed) ── */}
+      <div className="relative group">
+        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 group-focus-within:text-brand-500 transition" />
+        <input
+          id="nav-search"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder={t("navigator.searchPlaceholder") || "Suche nach Funktionen, Tools, Seiten..."}
+          className="w-full bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-surface-100 rounded-2xl px-12 py-3.5 border border-surface-200 dark:border-surface-700 text-sm focus:outline-none focus:border-brand-400 dark:focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900/50 transition-all shadow-sm"
+        />
+        {search ? (
+          <button onClick={() => setSearch("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-surface-300 dark:text-surface-600 hover:text-surface-600 dark:hover:text-surface-400 transition">
+            <X size={16} />
+          </button>
+        ) : (
+          <kbd className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-surface-300 dark:text-surface-600 border border-surface-200 dark:border-surface-700 rounded px-1.5 py-0.5 font-mono hidden sm:inline bg-surface-50 dark:bg-surface-900">
+            <Command size={10} className="inline mr-0.5" />K
+          </kbd>
+        )}
+      </div>
+
+      {/* ── Sortable Blocks ── */}
+      <PageBlocks blocks={navigatorBlocks} className="space-y-6" />
+
+      {/* ── Group Filter Chips (fixed) ── */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
         <button
           onClick={() => setActiveGroup(null)}
