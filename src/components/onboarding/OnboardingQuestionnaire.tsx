@@ -14,7 +14,9 @@ import {
   Loader2,
   Sparkles,
   Gem,
+  Rocket,
 } from "lucide-react";
+import QuickSetupStep from "./QuickSetupStep";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -33,6 +35,7 @@ const STEPS: StepConfig[] = [
   { step: 3, step_name: "energy", title: "Energie & Fokus", subtitle: "Wann bist du am produktivsten?", icon: Zap, gradient: "from-amber-500 to-orange-600" },
   { step: 4, step_name: "learning_style", title: "Dein Lernstil", subtitle: "Wie lernst du am liebsten?", icon: Brain, gradient: "from-violet-500 to-purple-600" },
   { step: 5, step_name: "situation", title: "Deine Situation", subtitle: "Wo stehst du gerade im Studium?", icon: BookOpen, gradient: "from-emerald-500 to-green-600" },
+  { step: 6, step_name: "quick_setup", title: "Deine Module", subtitle: "Leg deine Module an — dann bist du startklar!", icon: Rocket, gradient: "from-rose-500 to-pink-600" },
 ];
 
 type GoalType = "pass_exams" | "improve_grades" | "time_management" | "reduce_stress" | "learn_efficiently";
@@ -222,6 +225,7 @@ export default function OnboardingQuestionnaire() {
       case 2: return energy.preferred_session_length > 0;
       case 3: return !!learningStyle.learning_style;
       case 4: return situation.semester_number > 0 && situation.modules_this_semester > 0;
+      case 5: return true; // Quick setup is optional
       default: return false;
     }
   }, [currentStep, goals, schedule, energy, learningStyle, situation]);
@@ -501,6 +505,7 @@ export default function OnboardingQuestionnaire() {
       case 2: return renderEnergyStep();
       case 3: return renderLearningStyleStep();
       case 4: return renderSituationStep();
+      case 5: return <QuickSetupStep modulesThisSemester={situation.modules_this_semester} semesterNumber={situation.semester_number} />;
       default: return null;
     }
   };
@@ -524,7 +529,7 @@ export default function OnboardingQuestionnaire() {
           </div>
 
           <h2 className="text-xl font-bold mb-2">Personalisiere dein Lernerlebnis</h2>
-          <p className="text-white/50 text-sm mb-10">5 kurze Schritte, damit Semetra perfekt zu dir passt.</p>
+          <p className="text-white/50 text-sm mb-10">6 kurze Schritte, damit Semetra perfekt zu dir passt.</p>
 
           {/* Step list */}
           <div className="space-y-2">

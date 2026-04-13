@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 import {
   BookOpen, Timer, Calendar, Brain, Users, BarChart3,
   GraduationCap, ArrowRight, X, Sparkles, Rocket,
@@ -20,56 +20,56 @@ const TOUR_STEPS: TourStep[] = [
     icon: BookOpen,
     color: "text-brand-500 bg-brand-50 dark:bg-brand-950/30",
     title: "Module & Aufgaben",
-    description: "Verwalte deine Studienmodule, Aufgaben und Prüfungstermine an einem Ort.",
-    tip: "Tipp: Starte mit dem Anlegen deiner aktuellen Module",
+    description: "Deine Studienmodule, Aufgaben und Prüfungstermine an einem Ort. Semetra berechnet Prioritäten automatisch.",
+    tip: "Sofort loslegen: Öffne Module und leg deine 3 wichtigsten Module an",
     path: "/modules",
   },
   {
     icon: Timer,
     color: "text-violet-500 bg-violet-50 dark:bg-violet-950/30",
     title: "Lernzeit tracken",
-    description: "Starte den Timer wenn du lernst — Semetra trackt deine Fortschritte und baut Streaks auf.",
-    tip: "Tipp: Wähle ein Modul bevor du startest, für bessere Statistiken",
+    description: "Timer starten, Modul wählen — Semetra erkennt deine Muster und baut Streak-Motivation auf.",
+    tip: "Pro-Tipp: 25-Minuten-Pomodoro ist ideal zum Einstieg. Wähle immer ein Modul für genaue Statistiken",
     path: "/timer",
   },
   {
     icon: Calendar,
     color: "text-blue-500 bg-blue-50 dark:bg-blue-950/30",
     title: "Stundenplan",
-    description: "Trage deinen Stundenplan ein — Semetra plant Lernblöcke intelligent um deine Vorlesungen.",
-    tip: "Tipp: Auf Mobile kannst du durch die Tage wischen",
+    description: "Trage Vorlesungen ein — Semetra plant Lernblöcke intelligent in deine freie Zeit.",
+    tip: "Zeitspar-Tipp: Wiederkehrende Termine nur einmal anlegen, Semetra wiederholt sie automatisch",
     path: "/stundenplan",
   },
   {
     icon: Brain,
     color: "text-purple-500 bg-purple-50 dark:bg-purple-950/30",
     title: "KI-Assistent",
-    description: "Frag den KI-Assistenten was du nicht verstehst — er kennt deine Module und passt sich an.",
-    tip: "Tipp: Je spezifischer die Frage, desto besser die Antwort",
+    description: "Dein persönlicher Tutor — kennt deine Module, erklärt Konzepte, hilft bei Aufgaben.",
+    tip: "Beste Ergebnisse: \"Erkläre mir [Konzept] aus [Modul] so, als wäre ich Anfänger\"",
     path: "/ai-assistant",
   },
   {
     icon: Users,
     color: "text-green-500 bg-green-50 dark:bg-green-950/30",
-    title: "Lerngruppen",
-    description: "Erstelle Gruppen mit Kommilitonen, chattet und teilt Module, Notizen und Dokumente.",
-    tip: "Tipp: Teile den Einladungscode mit deiner WhatsApp-Gruppe",
+    title: "Lerngruppen & Community",
+    description: "Finde Studierende an deiner Hochschule, erstelle Lerngruppen und teile Materialien.",
+    tip: "Schneller Kontakt: Teile den Gruppen-Code per WhatsApp — andere treten mit einem Klick bei",
     path: "/groups",
   },
   {
     icon: BarChart3,
     color: "text-orange-500 bg-orange-50 dark:bg-orange-950/30",
-    title: "Fortschritt & Analytics",
-    description: "Sieh wie viel du gelernt hast, erkenne Muster und optimiere dein Studium.",
-    tip: "Tipp: Schau wöchentlich rein für dein Weekly Review",
-    path: "/progress",
+    title: "Fortschritt & Insights",
+    description: "Dein Weekly Review zeigt Trends, Lern-DNA analysiert deine Stärken, und die Prüfungs-Ampel warnt frühzeitig.",
+    tip: "Ritual: Jeden Sonntagabend 5 Minuten Weekly Review — das allein verbessert deine Noten",
+    path: "/lern-dna",
   },
 ];
 
 export default function WelcomeTour() {
+  const router = useRouter();
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(0);
-  const supabase = createClient();
 
   useEffect(() => {
     // Check if user has seen the tour
@@ -168,6 +168,17 @@ export default function WelcomeTour() {
               />
             ))}
           </div>
+
+          {/* Quick action */}
+          <button
+            onClick={() => {
+              dismiss();
+              router.push(current.path);
+            }}
+            className="w-full mb-3 py-2.5 rounded-xl border-2 border-dashed border-brand-200 dark:border-brand-800 text-sm font-medium text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/5 transition-colors"
+          >
+            Jetzt ausprobieren →
+          </button>
 
           {/* Actions */}
           <div className="flex items-center gap-2">

@@ -36,6 +36,7 @@ import Link from "next/link";
 import type { CalendarEvent, Topic } from "@/types/database";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import StudyStatusBanner from "@/components/dashboard/StudyStatusBanner";
+import StarterGuide from "@/components/dashboard/StarterGuide";
 import { DailyNudgeCard } from "@/components/notifications/DailyNudgeCard";
 
 // Command Center sub-components
@@ -684,6 +685,9 @@ export default function ClassicDashboard() {
           <RefreshCw className={`w-4 h-4 ${ccLoading ? "animate-spin" : ""}`} />
         </button>
       </div>
+
+      {/* ═══ STARTER GUIDE (new users) ═══ */}
+      <StarterGuide />
 
       {/* ═══ STUDY STATUS BANNER (fixed) ═══ */}
       <StudyStatusBanner />
