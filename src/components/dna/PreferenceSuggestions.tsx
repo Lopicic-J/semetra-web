@@ -64,7 +64,7 @@ export function PreferenceSuggestions() {
   const [generating, setGenerating] = useState(false);
   const [actioning, setActioning] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [resolved, setResolved] = useState<Map<string, "accepted" | "dismissed">>(new Map());
+  const [resolved, setResolved] = useState<Map<string, "accept" | "dismiss">>(new Map());
 
   // ── Fetch pending suggestions ──
   const fetchSuggestions = useCallback(async () => {
@@ -312,19 +312,19 @@ export function PreferenceSuggestions() {
                 key={s.id}
                 className={clsx(
                   "flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all",
-                  action === "accepted"
+                  action === "accept"
                     ? "bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400"
                     : "bg-surface-50 text-surface-500 line-through"
                 )}
               >
-                {action === "accepted" ? (
+                {action === "accept" ? (
                   <Check size={12} className="shrink-0" />
                 ) : (
                   <X size={12} className="shrink-0" />
                 )}
                 <span>
                   {info.label}
-                  {action === "accepted" && (
+                  {action === "accept" && (
                     <span className="ml-1 font-medium">
                       → {formatValue(s.preference_key, s.suggested_value)}
                     </span>
