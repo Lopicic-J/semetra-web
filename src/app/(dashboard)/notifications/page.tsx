@@ -99,7 +99,7 @@ function NotificationRow({
     <div
       className={clsx(
         "flex items-start gap-3 p-3 sm:p-4 rounded-xl border transition-all",
-        notification.read_at
+        notification.is_read
           ? "bg-surface-50 dark:bg-surface-900 border-surface-200 dark:border-surface-700 opacity-70"
           : "bg-white dark:bg-surface-800 border-surface-200 dark:border-surface-700"
       )}
@@ -114,7 +114,7 @@ function NotificationRow({
         <div className="flex items-center gap-2 mb-0.5">
           <span className="text-xs font-medium text-surface-500">{meta.label}</span>
           <span className="text-xs text-surface-400">{timeAgo(notification.created_at)}</span>
-          {!notification.read_at && (
+          {!notification.is_read && (
             <span className="w-2 h-2 rounded-full bg-brand-500 shrink-0" />
           )}
         </div>
@@ -138,7 +138,7 @@ function NotificationRow({
 
       {/* Actions */}
       <div className="flex items-center gap-1 shrink-0">
-        {!notification.read_at && (
+        {!notification.is_read && (
           <button
             onClick={() => onMarkRead(notification.id)}
             className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 text-surface-400 hover:text-surface-600 transition-colors"
@@ -189,7 +189,7 @@ export default function NotificationsPage() {
 
     // Unread filter
     if (showUnreadOnly) {
-      list = list.filter((n) => !n.read_at);
+      list = list.filter((n) => !n.is_read);
     }
 
     return list;
