@@ -83,7 +83,16 @@ const nextConfig = {
   // Server actions
   experimental: {
     serverActions: { allowedOrigins: ["localhost:3000"] },
+    optimizePackageImports: [
+      "lucide-react",
+      "recharts",
+      "clsx",
+      "date-fns",
+    ],
   },
+
+  // Bundle analyzer (enable with ANALYZE=true)
+  ...(process.env.ANALYZE === "true" ? { webpack: (config) => config } : {}),
 };
 
 export default nextConfig;
