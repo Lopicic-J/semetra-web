@@ -16,6 +16,7 @@ import { useConfirm } from "@/components/ui/ConfirmDialog";
 import GroupChat from "@/components/groups/GroupChat";
 import ActivityFeed from "@/components/groups/ActivityFeed";
 import RoleManager from "@/components/groups/RoleManager";
+import { Leaderboard } from "@/components/groups/Leaderboard";
 import { createClient } from "@/lib/supabase/client";
 import UserProfileModal from "@/components/community/UserProfileModal";
 
@@ -62,7 +63,7 @@ export default function GroupDetailPage() {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
   const [currentUserId, setCurrentUserId] = useState("");
-  const [activeTab, setActiveTab] = useState<"chat" | "members" | "activity" | "shared">("chat");
+  const [activeTab, setActiveTab] = useState<"chat" | "members" | "activity" | "shared" | "ranking">("chat");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -242,6 +243,7 @@ export default function GroupDetailPage() {
           { id: "members" as const, label: t("groups.tabs.members") || "Mitglieder", icon: Users },
           { id: "activity" as const, label: t("groups.tabs.activity") || "Aktivität", icon: Activity },
           { id: "shared" as const, label: t("groups.tabs.shared") || "Geteilt", icon: Share2 },
+          { id: "ranking" as const, label: "Ranking", icon: Activity },
         ].map(tab => {
           const TabIcon = tab.icon;
           return (
@@ -343,6 +345,14 @@ export default function GroupDetailPage() {
       {activeTab === "shared" && (
         <SharedResourcesTab groupId={groupId} shares={shares} currentUserId={currentUserId} isAdmin={isAdmin} onUpdate={load} />
       )}
+
+      {/* ── Ranking Tab ────────────────────────────── */}
+      {activeTab === "ranking" && (
+        <div className="max-w-2xl">
+          <Leaderboard groupId={groupId} />
+        </div>
+      )}
+
         {/* Profile Modal */}
         <UserProfileModal
           userId={selectedUserId}

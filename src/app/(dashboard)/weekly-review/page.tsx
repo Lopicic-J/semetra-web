@@ -9,7 +9,7 @@ import {
   BarChart3, TrendingUp, TrendingDown, Minus, Clock, Target,
   Calendar, Star, Zap, Brain, AlertTriangle, CheckCircle2,
   ChevronLeft, ChevronRight, RefreshCw, Sparkles, BookOpen,
-  Trophy, ArrowRight, Flame, Coffee, MessageSquare,
+  Trophy, ArrowRight, Flame, Coffee, MessageSquare, Printer,
 } from "lucide-react";
 
 export default function WeeklyReviewPage() {
@@ -74,6 +74,16 @@ export default function WeeklyReviewPage() {
             <RefreshCw className="w-4 h-4 shrink-0" />
             <span className="hidden sm:inline">{t("review.generate")}</span>
           </button>
+          {review && (
+            <button
+              onClick={() => window.print()}
+              className="px-2 sm:px-3 py-2 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 rounded-lg text-xs sm:text-sm flex items-center gap-1 sm:gap-1.5 hover:bg-surface-200 dark:hover:bg-surface-600 touch-target whitespace-nowrap print:hidden"
+              title="Drucken / PDF"
+            >
+              <Printer className="w-4 h-4 shrink-0" />
+              <span className="hidden sm:inline">Drucken</span>
+            </button>
+          )}
         </div>
       </div>
 

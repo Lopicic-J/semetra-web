@@ -7,15 +7,16 @@ import { useProfile } from "@/lib/hooks/useProfile";
 import { useLayoutEditor } from "@/lib/hooks/useLayoutEditor";
 
 /**
- * useBlockOrder — manages per-page block ordering.
- * Blocks are identified by string IDs. The hook returns the ordered IDs
- * and a reorder function.
+ * useBlockOrder — manages per-page block ordering and visibility.
+ * Blocks are identified by string IDs. The hook returns the ordered IDs,
+ * hidden set, a reorder function, and toggle visibility.
  */
 export function useBlockOrder(defaultOrder: string[]) {
   const pathname = usePathname();
   const { profile } = useProfile();
   const { editing } = useLayoutEditor();
   const [order, setOrder] = useState<string[]>(defaultOrder);
+  const [hiddenBlocks, setHiddenBlocks] = useState<Set<string>>(new Set());
   const [loaded, setLoaded] = useState(false);
 
   // Load from Supabase
@@ -26,7 +27,7 @@ export function useBlockOrder(defaultOrder: string[]) {
     (async () => {
       const { data } = await supabase
         .from("user_layout_preferences")
-        .select("block_order")
+        .select("block_order, hidden_blocks")
         .eq("user_id", profile.id)
         .single();
 
@@ -37,6 +38,12 @@ export function useBlockOrder(defaultOrder: string[]) {
           const savedSet = new Set(pageOrder);
           const missing = defaultOrder.filter((id) => !savedSet.has(id));
           setOrder([...pageOrder.filter((id) => defaultOrder.includes(id)), ...missing]);
+        }
+      }
+      if (data?.hidden_blocks) {
+        const pageHidden = (data.hidden_blocks as Record<string, string[]>)?.[pathname];
+        if (pageHidden?.length) {
+          setHiddenBlocks(new Set(pageHidden));
         }
       }
       setLoaded(true);
@@ -70,6 +77,32 @@ export function useBlockOrder(defaultOrder: string[]) {
     [profile?.id, pathname],
   );
 
+  // Save hidden blocks to Supabase
+  const saveHidden = useCallback(
+    async (newHidden: Set<string>) => {
+      if (!profile?.id) return;
+      const supabase = createClient();
+
+      const { data } = await supabase
+        .from("user_layout_preferences")
+        .select("hidden_blocks")
+        .eq("user_id", profile.id)
+        .single();
+
+      const current = (data?.hidden_blocks as Record<string, string[]>) ?? {};
+      const updated = { ...current, [pathname]: Array.from(newHidden) };
+
+      await supabase.from("user_layout_preferences").upsert(
+        {
+          user_id: profile.id,
+          hidden_blocks: updated,
+        },
+        { onConflict: "user_id" },
+      );
+    },
+    [profile?.id, pathname],
+  );
+
   const reorder = useCallback(
     (fromIndex: number, toIndex: number) => {
       setOrder((prev) => {
@@ -83,10 +116,28 @@ export function useBlockOrder(defaultOrder: string[]) {
     [save],
   );
 
+  const toggleBlock = useCallback(
+    (blockId: string) => {
+      setHiddenBlocks((prev) => {
+        const next = new Set(prev);
+        if (next.has(blockId)) {
+          next.delete(blockId);
+        } else {
+          next.add(blockId);
+        }
+        saveHidden(next);
+        return next;
+      });
+    },
+    [saveHidden],
+  );
+
   const reset = useCallback(() => {
     setOrder(defaultOrder);
+    setHiddenBlocks(new Set());
     save(defaultOrder);
-  }, [defaultOrder, save]);
+    saveHidden(new Set());
+  }, [defaultOrder, save, saveHidden]);
 
-  return { order, reorder, reset, editing, loaded };
+  return { order, reorder, reset, editing, loaded, hiddenBlocks, toggleBlock };
 }

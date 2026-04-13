@@ -1,7 +1,10 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/lib/i18n";
+import { useProfile } from "@/lib/hooks/useProfile";
+import { isHoliday } from "@/lib/holidays";
+import type { HolidayCountry } from "@/lib/holidays";
 import { ChevronLeft, ChevronRight, Plus, X, Trash2 } from "lucide-react";
 import type { CalendarEvent } from "@/types/database";
 
@@ -10,6 +13,8 @@ function daysInMonth(y: number, m: number) { return new Date(y, m + 1, 0).getDat
 
 export default function CalendarPage() {
   const { t } = useTranslation();
+  const { profile } = useProfile();
+  const country = (profile?.country as HolidayCountry) ?? "CH";
   const DOW = t("calendar.dayHeaders").split("|");
   const monthNames = t("calendar.monthNames").split("|");
   const weekdayNames = t("calendar.weekdayNames").split("|");
@@ -86,21 +91,27 @@ export default function CalendarPage() {
             const isToday = day !== null && dateStr(day) === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
             const dayEvs = day ? eventsOnDay(day) : [];
             const isSelected = selected === (day ? dateStr(day) : "");
+            const holiday = day ? isHoliday(dateStr(day), country) : null;
             return (
               <div key={i}
                 onClick={() => day && setSelected(selected === dateStr(day) ? null : dateStr(day))}
-                className={`min-h-[64px] sm:min-h-[90px] p-1.5 sm:p-2.5 border-b border-r border-surface-200 dark:border-surface-700 cursor-pointer transition-colors text-xs sm:text-sm active:scale-95 ${day ? `hover:bg-brand-50 dark:hover:bg-surface-800 ${isSelected ? "bg-brand-50 dark:bg-surface-700" : "bg-white dark:bg-surface-900"}` : "bg-surface-50 dark:bg-surface-800"}`}>
+                className={`min-h-[64px] sm:min-h-[90px] p-1.5 sm:p-2.5 border-b border-r border-surface-200 dark:border-surface-700 cursor-pointer transition-colors text-xs sm:text-sm active:scale-95 ${day ? `hover:bg-brand-50 dark:hover:bg-surface-800 ${isSelected ? "bg-brand-50 dark:bg-surface-700" : holiday ? "bg-amber-50/60 dark:bg-amber-900/20" : "bg-white dark:bg-surface-900"}` : "bg-surface-50 dark:bg-surface-800"}`}>
                 {day && (
                   <>
- <div className={`w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full text-xs sm:text-sm font-medium mb-1 ${isToday ?"bg-brand-600 text-white" :"text-surface-700"}`}>{day}</div>
+ <div className={`w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full text-xs sm:text-sm font-medium mb-1 ${isToday ? "bg-brand-600 text-white" : holiday ? "text-amber-700 dark:text-amber-400" : "text-surface-700"}`}>{day}</div>
+                    {holiday && (
+                      <div className="text-[10px] sm:text-xs px-1 py-0.5 rounded truncate text-amber-700 dark:text-amber-400 font-medium leading-none bg-amber-100/80 dark:bg-amber-900/40 mb-0.5">
+                        {holiday.name}
+                      </div>
+                    )}
                     <div className="space-y-0.5">
-                      {dayEvs.slice(0, 3).map(ev => (
+                      {dayEvs.slice(0, holiday ? 2 : 3).map(ev => (
                         <div key={ev.id} className="text-[10px] sm:text-xs px-1 py-0.5 rounded truncate text-white font-medium leading-none"
                           style={{ background: ev.color ?? "#6d28d9" }}>
                           {ev.title}
                         </div>
                       ))}
- {dayEvs.length > 3 && <div className="text-[9px] sm:text-[10px] text-surface-400 font-medium">+{dayEvs.length - 3}</div>}
+ {dayEvs.length > (holiday ? 2 : 3) && <div className="text-[9px] sm:text-[10px] text-surface-400 font-medium">+{dayEvs.length - (holiday ? 2 : 3)}</div>}
                     </div>
                   </>
                 )}

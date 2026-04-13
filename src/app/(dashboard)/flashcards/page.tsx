@@ -10,7 +10,7 @@ import {
   Eye, Check, X, Loader2, Keyboard, Maximize2, Minimize2,
   Flame, AlertTriangle, CheckCircle2, XCircle, BarChart3,
   Calendar, Tag, FileText, Zap, Copy, Clock, Target,
-  TrendingUp, ArrowRight, CheckSquare, Square, Filter, type LucideIcon,
+  TrendingUp, ArrowRight, CheckSquare, Square, Filter, Upload, type LucideIcon,
 } from "lucide-react";
 import type { Flashcard, Module, CalendarEvent, Task } from "@/types/database";
 import { useTranslation } from "@/lib/i18n";
@@ -1099,6 +1099,8 @@ export default function FlashcardsPage() {
   const [showBulk, setShowBulk] = useState(false);
   const [showAiGen, setShowAiGen] = useState(false);
   const [showStats, setShowStats] = useState(true);
+  const [ankiImporting, setAnkiImporting] = useState(false);
+  const ankiInputRef = useRef<HTMLInputElement>(null);
 
   // Multi-select state
   const [selectMode, setSelectMode] = useState(false);
@@ -1240,6 +1242,29 @@ export default function FlashcardsPage() {
   async function handleDelete(id: string) {
     await supabase.from("flashcards").delete().eq("id", id);
     load();
+  }
+
+  async function handleAnkiImport(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAnkiImporting(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("deck_name", file.name.replace(/\.apkg$/i, ""));
+      const res = await fetch("/api/flashcards/import-anki", { method: "POST", body: form });
+      const json = await res.json();
+      if (!res.ok) {
+        alert(json.error || "Import fehlgeschlagen");
+      } else {
+        alert(`${json.imported} Karten importiert${json.truncated ? ` (max. 500, ${json.total} total)` : ""}`);
+        load();
+      }
+    } catch {
+      alert("Fehler beim Import");
+    }
+    setAnkiImporting(false);
+    if (ankiInputRef.current) ankiInputRef.current.value = "";
   }
 
   async function handleDeleteSelected() {
@@ -1461,6 +1486,15 @@ export default function FlashcardsPage() {
         <button onClick={() => setShowAiGen(true)} className="btn-secondary text-sm gap-1.5">
           <Sparkles size={14} /> {t("fc.aiGenerate")}
         </button>
+        <button
+          onClick={() => ankiInputRef.current?.click()}
+          disabled={ankiImporting}
+          className="btn-secondary text-sm gap-1.5"
+        >
+          {ankiImporting ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+          Anki Import
+        </button>
+        <input ref={ankiInputRef} type="file" accept=".apkg" className="hidden" onChange={handleAnkiImport} />
         <button
           onClick={() => {
             setSelectMode(!selectMode);

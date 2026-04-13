@@ -16,6 +16,8 @@ import {
   DEFAULT_PREFERENCES, BLOCK_TYPE_META, getBlockDurationMinutes,
   getSessionDurationMinutes, isLearningBlock,
 } from "./types";
+import { isHoliday as checkHoliday } from "@/lib/holidays";
+import type { HolidayCountry } from "@/lib/holidays";
 
 // ── Constants ───────────────────────────────────────────────────────────────
 
@@ -671,6 +673,8 @@ export interface DailyBudget {
   actualMinutes: number;
   remainingMinutes: number;
   isWeekend: boolean;
+  isHoliday: boolean;
+  holidayName: string | null;
   overBudget: boolean;
 }
 
@@ -682,10 +686,19 @@ export function computeDailyBudget(
   sessions: TimerSession[],
   preferences: SchedulePreferences,
   date: string,
+  country?: string,
 ): DailyBudget {
   const dayOfWeek = new Date(date).getDay();
   const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-  const maxMinutes = isWeekend
+
+  // Holiday check
+  let holidayMatch: { name: string } | null = null;
+  if (country === "CH" || country === "DE" || country === "AT") {
+    holidayMatch = checkHoliday(date, country as HolidayCountry);
+  }
+  const isFeiertag = holidayMatch !== null;
+
+  const maxMinutes = (isWeekend || isFeiertag)
     ? Math.min(preferences.weekend_max_minutes, preferences.max_daily_study_minutes)
     : preferences.max_daily_study_minutes;
 
@@ -706,6 +719,8 @@ export function computeDailyBudget(
     actualMinutes,
     remainingMinutes: remaining,
     isWeekend,
+    isHoliday: isFeiertag,
+    holidayName: holidayMatch?.name ?? null,
     overBudget: actualMinutes > maxMinutes,
   };
 }

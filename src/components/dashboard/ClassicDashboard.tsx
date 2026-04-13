@@ -37,6 +37,7 @@ import type { CalendarEvent, Topic } from "@/types/database";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import StudyStatusBanner from "@/components/dashboard/StudyStatusBanner";
 import StarterGuide from "@/components/dashboard/StarterGuide";
+import { SemesterTransitionBanner } from "@/components/dashboard/SemesterTransitionBanner";
 import { DailyNudgeCard } from "@/components/notifications/DailyNudgeCard";
 
 // Command Center sub-components
@@ -205,6 +206,7 @@ export default function ClassicDashboard() {
   const dashboardBlocks: BlockDef[] = useMemo(() => [
     {
       id: "knowledge-warnings",
+      label: "Wissenslücken",
       hidden: examKnowledgeWarnings.length === 0,
       content: (
         <div className="space-y-2 mb-6">
@@ -235,6 +237,7 @@ export default function ClassicDashboard() {
     },
     {
       id: "stat-cards",
+      label: "KPI-Karten",
       content: (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         {/* Streak */}
@@ -334,6 +337,7 @@ export default function ClassicDashboard() {
     },
     {
       id: "daily-actions",
+      label: "Tages-Aktionen",
       hidden: !ccState,
       content: ccState ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
@@ -351,6 +355,7 @@ export default function ClassicDashboard() {
     },
     {
       id: "heatmap",
+      label: "Lern-Heatmap",
       content: (
         <div className="card mb-6">
         <div className="flex items-center justify-between mb-3">
@@ -368,6 +373,7 @@ export default function ClassicDashboard() {
     },
     {
       id: "exams-tasks",
+      label: "Prüfungen & Aufgaben",
       content: (
         <div className="grid lg:grid-cols-2 gap-4 mb-6">
         {/* Upcoming exams */}
@@ -578,6 +584,7 @@ export default function ClassicDashboard() {
     },
     {
       id: "risk-predictions",
+      label: "Risiko & Prognosen",
       hidden: !ccState,
       content: ccState ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
@@ -594,6 +601,7 @@ export default function ClassicDashboard() {
     },
     {
       id: "weekly-progress",
+      label: "Wochenfortschritt",
       content: (
         <div className="grid lg:grid-cols-2 gap-4">
         <div className="card">
@@ -685,6 +693,9 @@ export default function ClassicDashboard() {
           <RefreshCw className={`w-4 h-4 ${ccLoading ? "animate-spin" : ""}`} />
         </button>
       </div>
+
+      {/* ═══ SEMESTER TRANSITION (auto-reset) ═══ */}
+      <SemesterTransitionBanner />
 
       {/* ═══ STARTER GUIDE (new users) ═══ */}
       <StarterGuide />

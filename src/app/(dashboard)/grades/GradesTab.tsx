@@ -13,6 +13,7 @@ import { FREE_LIMITS } from "@/lib/gates";
 import { UpgradeModal, ProGate } from "@/components/ui/ProGate";
 import { Plus, X, Trash2, Pencil, BarChart2, TrendingUp, AlertTriangle, Award, Target, GraduationCap, RotateCcw } from "lucide-react";
 import { GradeAnalytics } from "@/components/grades/GradeAnalytics";
+import { GradeCalculator } from "@/components/grades/GradeCalculator";
 import ComponentGradePanel from "@/components/grades/ComponentGradePanel";
 import type { Grade, Module, CalendarEvent } from "@/types/database";
 
@@ -412,6 +413,9 @@ export default function GradesTabContent() {
           ))}
         </div>
       )}
+
+      {/* ─── Notenrechner Widget ─── */}
+      <GradeCalculator grades={grades} modules={modules ?? []} gs={gs} />
 
       {/* ─── Notenprognosen & Trendanalyse (Pro Feature) ─── */}
       <ProGate feature="gradeAnalytics" isPro={isPro} mode="overlay">
