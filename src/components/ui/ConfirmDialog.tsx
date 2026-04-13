@@ -111,13 +111,13 @@ export function ConfirmDialog({
       aria-modal="true"
       aria-labelledby="confirm-title"
     >
-      <div className="w-full max-w-sm mx-4 bg-surface-100 rounded-2xl shadow-xl border border-surface-200 overflow-hidden">
+      <div className="w-full max-w-sm mx-4 bg-surface-100 dark:bg-surface-800 rounded-2xl shadow-xl border border-surface-200 dark:border-surface-700 overflow-hidden">
         {/* Close button */}
         <button
           onClick={onClose}
           disabled={loading}
           aria-disabled={loading}
-          className="absolute top-3 right-3 p-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          className="absolute top-3 right-3 p-1 rounded-lg text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors"
           aria-label="Schliessen"
         >
           <X className="w-4 h-4" />
@@ -132,14 +132,14 @@ export function ConfirmDialog({
           {/* Title */}
           <h3
             id="confirm-title"
-            className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center mb-2"
+            className="text-lg font-semibold text-surface-900 dark:text-surface-100 text-center mb-2"
           >
             {title}
           </h3>
 
           {/* Description */}
           {description && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">
+            <p className="text-sm text-surface-500 dark:text-surface-400 text-center mb-6">
               {description}
             </p>
           )}
@@ -150,7 +150,7 @@ export function ConfirmDialog({
               onClick={onClose}
               disabled={loading}
               aria-disabled={loading}
-              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors disabled:opacity-50"
             >
               {cancelLabel}
             </button>

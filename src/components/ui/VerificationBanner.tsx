@@ -27,14 +27,14 @@ export function VerificationBanner() {
 
   if (verificationStatus === "pending") {
     return (
-      <div className="bg-amber-50 border-b border-amber-200 px-4 py-3">
+      <div className="bg-amber-50 dark:bg-amber-950/20 border-b border-amber-200 dark:border-amber-800 px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center gap-3">
-          <Clock className="w-5 h-5 text-amber-600 shrink-0" />
+          <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-amber-800">
+            <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
               Verifizierung ausstehend
             </p>
-            <p className="text-xs text-amber-600">
+            <p className="text-xs text-amber-600 dark:text-amber-400">
               {userRole === "student"
                 ? "Tipp: Verwende deine Hochschul-Email (@zhaw.ch, @ethz.ch, etc.) für sofortige Verifizierung. Alternativ prüft ein Admin deinen Antrag."
                 : "Dein Institutions-Zugang wird eingerichtet. Bei Fragen kontaktiere uns unter kontakt@semetra.ch."}
@@ -43,7 +43,7 @@ export function VerificationBanner() {
           {userRole === "student" && (
             <Link
               href="/profile"
-              className="shrink-0 flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-amber-700 bg-amber-100 rounded-lg hover:bg-amber-200 transition"
+              className="shrink-0 flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/40 rounded-lg hover:bg-amber-200 dark:hover:bg-amber-800/60 transition"
             >
               <Mail className="w-3.5 h-3.5" />
               Email ändern
@@ -56,14 +56,14 @@ export function VerificationBanner() {
 
   if (verificationStatus === "rejected") {
     return (
-      <div className="bg-red-50 border-b border-red-200 px-4 py-3">
+      <div className="bg-red-50 dark:bg-red-950/20 border-b border-red-200 dark:border-red-800 px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center gap-3">
-          <XCircle className="w-5 h-5 text-red-600 shrink-0" />
+          <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-red-800">
+            <p className="text-sm font-medium text-red-800 dark:text-red-200">
               Verifizierung abgelehnt
             </p>
-            <p className="text-xs text-red-600">
+            <p className="text-xs text-red-600 dark:text-red-400">
               {profile.verification_note
                 ? `Grund: ${profile.verification_note}`
                 : "Verwende deine Hochschul-Email für eine automatische Verifizierung."}
@@ -71,7 +71,7 @@ export function VerificationBanner() {
           </div>
           <Link
             href="/profile"
-            className="shrink-0 flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition"
+            className="shrink-0 flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/40 rounded-lg hover:bg-red-200 dark:hover:bg-red-800/60 transition"
           >
             <Mail className="w-3.5 h-3.5" />
             Email ändern
@@ -84,14 +84,14 @@ export function VerificationBanner() {
   // Status "none" but role requires verification (student/institution without submitted request)
   if (verificationStatus === "none") {
     return (
-      <div className="bg-blue-50 border-b border-blue-200 px-4 py-3">
+      <div className="bg-blue-50 dark:bg-blue-950/20 border-b border-blue-200 dark:border-blue-800 px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center gap-3">
-          <AlertTriangle className="w-5 h-5 text-blue-600 shrink-0" />
+          <AlertTriangle className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-blue-800">
+            <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
               Verifizierung erforderlich
             </p>
-            <p className="text-xs text-blue-600">
+            <p className="text-xs text-blue-600 dark:text-blue-400">
               {userRole === "student"
                 ? "Verwende deine Hochschul-Email (@zhaw.ch, @ethz.ch, etc.) um alle Funktionen freizuschalten."
                 : "Kontaktiere uns unter kontakt@semetra.ch für die Einrichtung deines Institutions-Zugangs."}
@@ -100,7 +100,7 @@ export function VerificationBanner() {
           {userRole === "student" && (
             <Link
               href="/profile"
-              className="shrink-0 flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 transition"
+              className="shrink-0 flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/40 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800/60 transition"
             >
               <Mail className="w-3.5 h-3.5" />
               Email ändern

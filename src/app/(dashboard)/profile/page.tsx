@@ -271,8 +271,8 @@ export default function ProfilePage() {
           <div className="flex items-center gap-2 mt-1 flex-wrap">
             <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
               isPro
-                ? planTier === "full" ? "bg-violet-100 text-violet-700" : "bg-brand-100 text-brand-700"
-                : "bg-surface-100 text-surface-500"
+                ? planTier === "full" ? "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300" : "bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300"
+                : "bg-surface-100 text-surface-500 dark:bg-surface-700 dark:text-surface-400"
             }`}>
               {isLifetime && <Crown size={10} />}
               {isPro && planTier === "full" && <Sparkles size={10} />}
@@ -318,7 +318,7 @@ export default function ProfilePage() {
               </span>
             )}
             {profile?.university && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-surface-100 text-surface-600">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-surface-100 text-surface-600 dark:bg-surface-700 dark:text-surface-400">
                 <GraduationCap size={10} /> {profile.university}
               </span>
             )}

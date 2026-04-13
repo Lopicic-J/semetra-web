@@ -260,7 +260,7 @@ export default function GroupsPage() {
                   <div className="flex-1 min-w-0 w-full">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-semibold text-surface-900 dark:text-white truncate">{group.name}</h3>
-                      <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-500">
+                      <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-400">
                         <RoleIcon size={10} />
                         {t(`groups.role.${group.myRole}`)}
                       </span>

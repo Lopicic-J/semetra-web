@@ -741,12 +741,12 @@ export default function StundenplanPage() {
 
       {deleteDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-sm">
-            <div className="p-5 border-b border-surface-100">
-              <h2 className="font-semibold text-surface-900">{t("stundenplan.deleteDialogTitle")}</h2>
+          <div className="bg-surface-100 dark:bg-surface-800 rounded-2xl shadow-xl w-full max-w-sm">
+            <div className="p-5 border-b border-surface-100 dark:border-surface-700">
+              <h2 className="font-semibold text-surface-900 dark:text-white">{t("stundenplan.deleteDialogTitle")}</h2>
             </div>
             <div className="p-5">
-              <p className="text-sm text-surface-600 mb-6">
+              <p className="text-sm text-surface-600 dark:text-surface-400 mb-6">
                 {t("stundenplan.deleteDialogText", { count: deleteDialog.siblings.length + 1 })}
               </p>
               <div className="flex gap-3">
@@ -778,12 +778,12 @@ export default function StundenplanPage() {
 
       {moveDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-sm">
-            <div className="p-5 border-b border-surface-100">
-              <h2 className="font-semibold text-surface-900">{t("stundenplan.moveDialogTitle")}</h2>
+          <div className="bg-surface-100 dark:bg-surface-800 rounded-2xl shadow-xl w-full max-w-sm">
+            <div className="p-5 border-b border-surface-100 dark:border-surface-700">
+              <h2 className="font-semibold text-surface-900 dark:text-white">{t("stundenplan.moveDialogTitle")}</h2>
             </div>
             <div className="p-5">
-              <p className="text-sm text-surface-600 mb-6">
+              <p className="text-sm text-surface-600 dark:text-surface-400 mb-6">
                 {t("stundenplan.moveDialogText", { day: moveDialog.newDay, time: `${moveDialog.newStart} – ${moveDialog.newEnd}` })}
               </p>
               <div className="flex gap-3">
@@ -814,7 +814,7 @@ export default function StundenplanPage() {
 
       {/* ── RIGHT: Smart Schedule Panel ────────────────────────────── */}
       {showSchedulePanel && (
-        <div className="hidden lg:flex w-[320px] shrink-0 border-l border-gray-100 dark:border-gray-800 bg-[rgb(var(--card-bg))] dark:bg-gray-900/50">
+        <div className="hidden lg:flex w-[320px] shrink-0 border-l border-surface-100 dark:border-surface-800 bg-[rgb(var(--card-bg))] dark:bg-gray-900/50">
           <SmartSchedulePanel />
         </div>
       )}
@@ -919,29 +919,29 @@ function StundenplanModal({ modules, currentKw, currentSemester, prefilledEntry,
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between p-5 border-b border-surface-100">
-          <h2 className="font-semibold text-surface-900">{t("stundenplan.modal.title")}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
+      <div className="bg-surface-100 dark:bg-surface-800 rounded-2xl shadow-xl w-full max-w-md">
+        <div className="flex items-center justify-between p-5 border-b border-surface-100 dark:border-surface-700">
+          <h2 className="font-semibold text-surface-900 dark:text-white">{t("stundenplan.modal.title")}</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.nameLabel")} *</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("stundenplan.modal.nameLabel")} *</label>
             <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("stundenplan.modal.namePlaceholder")} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.dayLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("stundenplan.modal.dayLabel")}</label>
               <select className="input" value={form.day} onChange={e => set("day", e.target.value)}>
                 {DAYS_SHORT.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.fromLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("stundenplan.modal.fromLabel")}</label>
               <input className="input" type="time" value={form.time_start} onChange={e => set("time_start", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.toLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("stundenplan.modal.toLabel")}</label>
               <input className="input" type="time" value={form.time_end} onChange={e => set("time_end", e.target.value)} />
             </div>
           </div>
@@ -949,11 +949,11 @@ function StundenplanModal({ modules, currentKw, currentSemester, prefilledEntry,
           {/* KW range */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.fromKwLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("stundenplan.modal.fromKwLabel")}</label>
               <input className="input" type="number" min="1" max={MAX_KW} value={form.kw_from} onChange={e => set("kw_from", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.toKwLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("stundenplan.modal.toKwLabel")}</label>
               <input className="input" type="number" min={form.kw_from} max={MAX_KW} value={form.kw_to} onChange={e => set("kw_to", e.target.value)} />
             </div>
           </div>
@@ -965,11 +965,11 @@ function StundenplanModal({ modules, currentKw, currentSemester, prefilledEntry,
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.roomLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("stundenplan.modal.roomLabel")}</label>
               <input className="input" value={form.room} onChange={e => set("room", e.target.value)} placeholder={t("stundenplan.modal.roomPlaceholder")} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.moduleLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("stundenplan.modal.moduleLabel")}</label>
               <select className="input" value={form.module_id} onChange={e => set("module_id", e.target.value)}>
                 <option value="">—</option>
                 {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -977,7 +977,7 @@ function StundenplanModal({ modules, currentKw, currentSemester, prefilledEntry,
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-2">{t("stundenplan.modal.colorLabel")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">{t("stundenplan.modal.colorLabel")}</label>
             <div className="flex gap-2 flex-wrap">
               {COLORS.map(c => (
                 <button key={c} type="button" onClick={() => set("color", c)}
@@ -1044,40 +1044,40 @@ function StundenplanEditModal({ modules, entry, onClose, onSaved }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between p-5 border-b border-surface-100">
-          <h2 className="font-semibold text-surface-900">{t("stundenplan.modal.editTitle") || "Edit Entry"}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100"><X size={16} /></button>
+      <div className="bg-surface-100 dark:bg-surface-800 rounded-2xl shadow-xl w-full max-w-md">
+        <div className="flex items-center justify-between p-5 border-b border-surface-100 dark:border-surface-700">
+          <h2 className="font-semibold text-surface-900 dark:text-white">{t("stundenplan.modal.editTitle") || "Edit Entry"}</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.nameLabel")} *</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("stundenplan.modal.nameLabel")} *</label>
             <input className="input" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("stundenplan.modal.namePlaceholder")} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.dayLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("stundenplan.modal.dayLabel")}</label>
               <select className="input" value={form.day} onChange={e => set("day", e.target.value)}>
                 {DAYS_SHORT.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.fromLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("stundenplan.modal.fromLabel")}</label>
               <input className="input" type="time" value={form.time_start} onChange={e => set("time_start", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.toLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("stundenplan.modal.toLabel")}</label>
               <input className="input" type="time" value={form.time_end} onChange={e => set("time_end", e.target.value)} />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.roomLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("stundenplan.modal.roomLabel")}</label>
               <input className="input" value={form.room} onChange={e => set("room", e.target.value)} placeholder={t("stundenplan.modal.roomPlaceholder")} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-700 mb-1">{t("stundenplan.modal.moduleLabel")}</label>
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">{t("stundenplan.modal.moduleLabel")}</label>
               <select className="input" value={form.module_id} onChange={e => set("module_id", e.target.value)}>
                 <option value="">—</option>
                 {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -1085,7 +1085,7 @@ function StundenplanEditModal({ modules, entry, onClose, onSaved }: {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-2">{t("stundenplan.modal.colorLabel")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">{t("stundenplan.modal.colorLabel")}</label>
             <div className="flex gap-2 flex-wrap">
               {COLORS.map(c => (
                 <button key={c} type="button" onClick={() => set("color", c)}

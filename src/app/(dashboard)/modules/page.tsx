@@ -32,7 +32,7 @@ const MODULE_TYPES = ["pflicht","wahl","vertiefung"];
 const STATUS_OPTIONS = ["planned","active","completed","paused","credited"];
 
 const STATUS_CONFIG: Record<string, { label: string; icon: React.ElementType; cls: string }> = {
-  planned:   { label: "Geplant",      icon: Clock,        cls: "bg-surface-100 text-surface-600" },
+  planned:   { label: "Geplant",      icon: Clock,        cls: "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-400" },
   active:    { label: "Aktiv",        icon: AlertCircle,  cls: "bg-blue-50 text-blue-700" },
   completed: { label: "Abgeschlossen",icon: CheckCircle,  cls: "bg-green-50 text-green-700" },
   paused:    { label: "Pausiert",     icon: PauseCircle,  cls: "bg-amber-50 text-amber-700" },

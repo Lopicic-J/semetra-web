@@ -233,7 +233,7 @@ export default function Sidebar() {
           <Gem size={16} strokeWidth={2.2} />
         </div>
         <div className="min-w-0">
-          <p className="font-bold text-surface-900 text-sm leading-tight tracking-tight">Semetra</p>
+          <p className="font-bold text-surface-900 dark:text-white text-sm leading-tight tracking-tight">Semetra</p>
           <p className="text-[10px] text-surface-400 leading-tight">Study Organizer</p>
         </div>
         <div className="ml-auto flex items-center gap-1 shrink-0">
@@ -283,7 +283,7 @@ export default function Sidebar() {
               );
             })}
           </div>
-          <div className="border-t border-surface-100 mx-3 mt-2" />
+          <div className="border-t border-surface-100 dark:border-surface-800 mx-3 mt-2" />
         </div>
       )}
 
@@ -292,7 +292,7 @@ export default function Sidebar() {
         {allGroups.map((group, idx) => (
           <div key={group.labelKey || `g-${idx}`}>
             {idx > 0 && group.labelKey && (
-              <div className="border-t border-surface-100 mx-3 my-1" />
+              <div className="border-t border-surface-100 dark:border-surface-800 mx-3 my-1" />
             )}
             {group.labelKey && (
               <p className="px-3 pt-4 pb-1.5 text-[10px] font-semibold text-surface-400 tracking-wider uppercase select-none">
@@ -318,7 +318,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom */}
-      <div className="mt-2 pt-3 border-t border-surface-100 space-y-0.5">
+      <div className="mt-2 pt-3 border-t border-surface-100 dark:border-surface-800 space-y-0.5">
         {BOTTOM_ITEMS.map((item) => {
           const active = pathname === item.href;
           const Icon = item.icon;

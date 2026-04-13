@@ -38,13 +38,13 @@ export function ProGate({ feature, isPro, children, mode = "full" }: ProGateProp
 
   if (mode === "inline") {
     return (
-      <div className="flex items-center gap-3 bg-gradient-to-r from-brand-50 to-violet-50 border border-brand-200/60 rounded-xl px-4 py-3">
+      <div className="flex items-center gap-3 bg-gradient-to-r from-brand-50 to-violet-50 dark:from-brand-950/20 dark:to-violet-950/20 border border-brand-200/60 dark:border-brand-800/60 rounded-xl px-4 py-3">
         <div className="w-8 h-8 rounded-lg bg-brand-100 flex items-center justify-center shrink-0">
-          <Sparkles size={16} className="text-brand-600" />
+          <Sparkles size={16} className="text-brand-600 dark:text-brand-400" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-surface-800 dark:text-white">{PRO_FEATURES[feature]}</p>
-          <p className="text-xs text-surface-500">Verfügbar mit Semetra Pro</p>
+          <p className="text-sm font-medium text-surface-800 dark:text-surface-200">{PRO_FEATURES[feature]}</p>
+          <p className="text-xs text-surface-500 dark:text-surface-400">Verfügbar mit Semetra Pro</p>
         </div>
         <Link
           href="/upgrade"
@@ -59,11 +59,11 @@ export function ProGate({ feature, isPro, children, mode = "full" }: ProGateProp
   // mode === "full"
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center px-6">
-      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-100 to-violet-100 flex items-center justify-center mb-5">
-        <Lock className="text-brand-600" size={24} />
+      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-100 to-violet-100 dark:from-brand-900/40 dark:to-violet-900/40 flex items-center justify-center mb-5">
+        <Lock className="text-brand-600 dark:text-brand-400" size={24} />
       </div>
       <h2 className="text-lg font-bold text-surface-900 dark:text-white mb-1">{PRO_FEATURES[feature]}</h2>
-      <p className="text-surface-500 text-sm mb-6 max-w-sm">
+      <p className="text-surface-500 dark:text-surface-400 text-sm mb-6 max-w-sm">
         Dieses Feature ist Teil von Semetra Pro. Schalte es frei und hol das Beste aus deinem Studium.
       </p>
       <Link
@@ -89,15 +89,15 @@ export function LimitNudge({ current, max, isPro, label }: LimitNudgeProps) {
   if (isPro || current < max) return null;
 
   return (
-    <div className="flex items-center gap-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 rounded-xl px-4 py-3 mb-4">
+    <div className="flex items-center gap-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200/60 dark:border-amber-800/60 rounded-xl px-4 py-3 mb-4">
       <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
-        <Sparkles size={16} className="text-amber-600" />
+        <Sparkles size={16} className="text-amber-600 dark:text-amber-400" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-surface-800">
+        <p className="text-sm font-medium text-surface-800 dark:text-surface-200">
           {current}/{max} {label} erreicht
         </p>
-        <p className="text-xs text-surface-500">
+        <p className="text-xs text-surface-500 dark:text-surface-400">
           Upgrade auf Pro für unbegrenzte {label}
         </p>
       </div>
@@ -256,7 +256,7 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 rounded-xl text-sm text-red-700">
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/20 rounded-xl text-sm text-red-700 dark:text-red-400">
               {error}
             </div>
           )}
@@ -283,7 +283,7 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
 /** Small inline lock badge for sidebar items */
 export function ProBadge() {
   return (
-    <span className="ml-auto flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
+    <span className="ml-auto flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
       <Lock size={8} />
       PRO
     </span>

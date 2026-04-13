@@ -229,7 +229,7 @@ export default function CommunityPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder={t("community.searchPlaceholder") || "Nach Name oder Benutzername suchen..."}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
             />
           </div>
           <button
@@ -256,7 +256,7 @@ export default function CommunityPage() {
               <select
                 value={selectedProgram}
                 onChange={e => { setSelectedProgram(e.target.value); setPage(0); }}
-                className="w-full appearance-none pl-9 pr-8 py-2 rounded-xl bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-sm text-surface-900 dark:text-white focus:ring-2 focus:ring-brand-500"
+                className="w-full appearance-none pl-9 pr-8 py-2 rounded-xl bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-sm text-surface-900 dark:text-white dark:placeholder:text-surface-500 focus:ring-2 focus:ring-brand-500"
               >
                 <option value="">{t("community.allPrograms") || "Alle Studiengänge"}</option>
                 {programs.map(p => (
@@ -273,7 +273,7 @@ export default function CommunityPage() {
               <select
                 value={selectedSemester}
                 onChange={e => { setSelectedSemester(e.target.value); setPage(0); }}
-                className="w-full appearance-none px-4 pr-8 py-2 rounded-xl bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-sm text-surface-900 dark:text-white focus:ring-2 focus:ring-brand-500"
+                className="w-full appearance-none px-4 pr-8 py-2 rounded-xl bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-sm text-surface-900 dark:text-white dark:placeholder:text-surface-500 focus:ring-2 focus:ring-brand-500"
               >
                 <option value="">{t("community.allSemesters") || "Alle Semester"}</option>
                 {Array.from({ length: maxSemester }, (_, i) => i + 1).map(s => (

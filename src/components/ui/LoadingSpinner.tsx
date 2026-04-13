@@ -18,7 +18,7 @@ export function LoadingSpinner({ size = "md", label = "Laden..." }: LoadingSpinn
       <div
         className={clsx(
           sizeStyles[size],
-          "animate-spin rounded-full border-2 border-gray-200 border-t-violet-600 dark:border-gray-700 dark:border-t-violet-500"
+          "animate-spin rounded-full border-2 border-surface-200 border-t-violet-600 dark:border-surface-700 dark:border-t-violet-500"
         )}
         role="status"
         aria-label={label}

@@ -463,7 +463,7 @@ function TopicNode({ topic, children, allTopics, expanded, onToggleExpand, onTog
           {statusLabels[topic.status ?? "not_started"]}
         </button>
 
-        <span className="flex-1 text-sm text-surface-800 dark:text-surface-800 font-medium truncate">{topic.title}</span>
+        <span className="flex-1 text-sm text-surface-800 dark:text-surface-200 font-medium truncate">{topic.title}</span>
 
         {/* Exam badge */}
         {linkedExam && (

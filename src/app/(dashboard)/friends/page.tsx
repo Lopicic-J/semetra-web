@@ -238,7 +238,7 @@ export default function FriendsPage() {
               onChange={e => setAddUsername(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleSendRequest()}
               placeholder={t("friends.usernamePlaceholder") || "benutzername"}
-              className="w-full pl-8 pr-3 py-2.5 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-white placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600"
+              className="w-full pl-8 pr-3 py-2.5 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600"
             />
           </div>
           <button
@@ -359,7 +359,7 @@ export default function FriendsPage() {
             {/* Incoming */}
             {incomingRequests.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-500 mb-2 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-400 mb-2 flex items-center gap-2">
                   <ChevronDown size={14} />
                   {t("friends.incoming") || "Eingehende Anfragen"} ({incomingRequests.length})
                 </h3>
@@ -400,7 +400,7 @@ export default function FriendsPage() {
             {/* Outgoing */}
             {outgoingRequests.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-500 mb-2 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-400 mb-2 flex items-center gap-2">
                   <Clock size={14} />
                   {t("friends.outgoing") || "Gesendete Anfragen"} ({outgoingRequests.length})
                 </h3>
@@ -445,7 +445,7 @@ export default function FriendsPage() {
                 value={searchQuery}
                 onChange={e => handleSearchUsers(e.target.value)}
                 placeholder={t("friends.searchPlaceholder") || "Benutzer suchen..."}
-                className="w-full pl-10 pr-3 py-3 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-white dark:bg-surface-800 text-surface-900 dark:text-white placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600"
+                className="w-full pl-10 pr-3 py-3 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-white dark:bg-surface-800 text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600"
               />
             </div>
 
