@@ -12,7 +12,7 @@ import {
   Target, Calendar, Clock, LayoutGrid, Award, FileText, FolderOpen,
   Brain, Network, Lightbulb, Layers, Calculator, Timer, BarChart3,
   Trophy, Settings, Info, Flame, ArrowRight, Zap, Sparkles, TrendingUp,
-  AlertTriangle, Command, X, Users, MessageCircle, Medal, type LucideIcon,
+  AlertTriangle, Command, X, Users, MessageCircle, Medal, Globe2, type LucideIcon,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -101,8 +101,14 @@ function getFeatures(t: (k: string) => string): Feature[] {
       description: "Rangliste: Wer hat die meisten XP gesammelt?", keywords: ["bestenliste", "leaderboard", "rang", "ranking", "xp"], color: "#f59e0b", pro: false },
 
     // Soziales
+    { href: "/connect", icon: Globe2, label: "Connect", group: "social",
+      description: "Studierende anderer Hochschulen entdecken und vernetzen.", keywords: ["connect", "netzwerk", "entdecken", "hochschule", "vernetzen"], color: "#8b5cf6", pro: false },
+    { href: "/community", icon: Users, label: "Community", group: "social",
+      description: "Alle Mitglieder der Semetra-Community durchsuchen.", keywords: ["community", "mitglieder", "alle", "suchen", "studenten"], color: "#7c3aed", pro: false },
     { href: "/friends", icon: Users, label: "Freunde", group: "social",
       description: "Freunde finden, hinzufügen und verwalten.", keywords: ["freund", "freunde", "friend", "anfrage", "hinzufügen"], color: "#6366f1", pro: false },
+    { href: "/groups", icon: Users, label: "Lerngruppen", group: "social",
+      description: "Lerngruppen erstellen und gemeinsam lernen.", keywords: ["gruppe", "lerngruppe", "team", "gemeinsam", "group"], color: "#6366f1", pro: false },
     { href: "/messages", icon: MessageCircle, label: "Nachrichten", group: "social",
       description: "Private Nachrichten mit Freunden austauschen.", keywords: ["nachricht", "chat", "dm", "privat", "message", "schreiben"], color: "#6366f1", pro: false },
 
