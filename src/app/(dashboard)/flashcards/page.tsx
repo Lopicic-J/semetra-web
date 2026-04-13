@@ -521,6 +521,8 @@ function CardDialog({
   // Filter exams by module (or show all if no module)
   const filteredExams = moduleId
     ? exams.filter(e => {
+        // Match by module_id directly if available, fallback to name-based matching
+        if (e.module_id) return e.module_id === moduleId;
         const mod = modules.find(m => m.id === moduleId);
         return mod && e.title?.toLowerCase().includes(mod.name.toLowerCase().slice(0, 5));
       })
@@ -1106,6 +1108,17 @@ export default function FlashcardsPage() {
   const [selectMode, setSelectMode] = useState(false);
   const [selectedCards, setSelectedCards] = useState<Set<string>>(new Set());
 
+  // Due-counter refresh trigger (increments to force useMemo recalc)
+  const [dueRefreshTick, setDueRefreshTick] = useState(0);
+
+  // Auto-refresh due counter every 60 seconds while page is visible
+  useEffect(() => {
+    const interval = setInterval(() => setDueRefreshTick(t => t + 1), 60_000);
+    const onVisible = () => { if (document.visibilityState === "visible") setDueRefreshTick(t => t + 1); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => { clearInterval(interval); document.removeEventListener("visibilitychange", onVisible); };
+  }, []);
+
   // Study session tracking
   const studyStartTime = useRef<number | null>(null);
   const reviewCount = useRef<number>(0);
@@ -1176,7 +1189,8 @@ export default function FlashcardsPage() {
       if (c.last_quality != null && studyRatings.has(c.last_quality)) return true;
       return false;
     });
-  }, [filtered, studyRatings, hasActiveFilter]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtered, studyRatings, hasActiveFilter, dueRefreshTick]);
 
   // Stats
   const stats = useMemo(() => {

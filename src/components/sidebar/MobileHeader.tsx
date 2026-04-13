@@ -3,11 +3,12 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Menu, X, LogOut, Zap, Gem, ChevronRight, ChevronDown } from "lucide-react";
+import { Menu, X, LogOut, Zap, Gem, ChevronRight, ChevronDown, Bell } from "lucide-react";
 import { clsx } from "clsx";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { useTranslation } from "@/lib/i18n";
 import { ProBadge } from "@/components/ui/ProGate";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { BOTTOM_ITEMS, getFilteredNavGroups, getAllNavItems } from "./nav-config";
 
 export default function MobileHeader() {
@@ -79,7 +80,8 @@ export default function MobileHeader() {
           </span>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          <NotificationBell />
           {profileLoading ? (
  <span className="text-[9px] font-bold px-2 py-1 rounded-md bg-surface-100 text-transparent animate-pulse w-8">
               —

@@ -381,34 +381,43 @@ export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle,
 
       {/* Chat Panel */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-50 w-[360px] max-h-[520px] bg-white dark:bg-surface-800 rounded-2xl shadow-2xl border border-surface-200 dark:border-surface-700 flex flex-col overflow-hidden animate-slide-up">
+        <div className="fixed bottom-24 right-6 z-[60] w-[360px] max-h-[520px] bg-white dark:bg-surface-800 rounded-2xl shadow-2xl border border-surface-200 dark:border-surface-700 flex flex-col overflow-hidden animate-slide-up">
           {/* Header */}
  <div className="flex items-center justify-between px-4 py-3 border-b border-surface-100 bg-surface-50">
             {view === "chat" && activeChatUser ? (
-              <div className="flex items-center gap-2">
-                <button onClick={() => { setView("list"); setActiveChatUser(null); }} className="p-1 hover:bg-surface-200 dark:hover:bg-surface-700 rounded-lg transition-colors">
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2 min-w-0">
+                  <button onClick={() => { setView("list"); setActiveChatUser(null); }} className="p-1 hover:bg-surface-200 dark:hover:bg-surface-700 rounded-lg transition-colors shrink-0">
  <ChevronLeft size={18} className="text-surface-600" />
-                </button>
-                <div className="flex items-center gap-2">
-                  {activeChatUser.avatar_url ? (
-                    <img src={activeChatUser.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-7 h-7 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
-                      <span className="text-brand-600 dark:text-brand-400 font-bold text-xs">
-                        {initial(activeChatUser.full_name || activeChatUser.username)}
-                      </span>
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-sm font-semibold text-surface-900 dark:text-white leading-tight">
-                      {displayName(activeChatUser)}
-                    </p>
+                  </button>
+                  <div className="flex items-center gap-2 min-w-0">
+                    {activeChatUser.avatar_url ? (
+                      <img src={activeChatUser.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover shrink-0" />
+                    ) : (
+                      <div className="w-7 h-7 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center shrink-0">
+                        <span className="text-brand-600 dark:text-brand-400 font-bold text-xs">
+                          {initial(activeChatUser.full_name || activeChatUser.username)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-surface-900 dark:text-white leading-tight truncate">
+                        {displayName(activeChatUser)}
+                      </p>
  <p className="text-[10px] text-surface-500 flex items-center gap-1">
-                      <StatusDot status={activeChatUser.online_status} size={6} />
-                      {activeChatUser.online_status === "online" ? "Online" : activeChatUser.online_status === "dnd" ? (t("chat.dnd") || "Nicht stören") : "Offline"}
-                    </p>
+                        <StatusDot status={activeChatUser.online_status} size={6} />
+                        {activeChatUser.online_status === "online" ? "Online" : activeChatUser.online_status === "dnd" ? (t("chat.dnd") || "Nicht stören") : "Offline"}
+                      </p>
+                    </div>
                   </div>
                 </div>
+                <button
+                  onClick={() => setOpen(false)}
+                  className="p-1.5 rounded-lg text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 hover:text-surface-600 transition-colors shrink-0 ml-2"
+                  title="Schliessen"
+                >
+                  <X size={16} />
+                </button>
               </div>
             ) : (
               <div className="flex items-center gap-2">
@@ -439,6 +448,13 @@ export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle,
                   title={t("chat.groups") || "Gruppen"}
                 >
                   <Users size={16} />
+                </button>
+                <button
+                  onClick={() => setOpen(false)}
+                  className="p-1.5 rounded-lg text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 hover:text-surface-600 transition-colors ml-1"
+                  title="Schliessen"
+                >
+                  <X size={16} />
                 </button>
               </div>
             )}

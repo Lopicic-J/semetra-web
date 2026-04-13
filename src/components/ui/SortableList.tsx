@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { clsx } from "clsx";
 import { GripVertical } from "lucide-react";
 
@@ -15,12 +15,11 @@ interface SortableListProps<T> {
 }
 
 /**
- * Generic sortable list using native HTML5 Drag & Drop.
+ * Generic sortable list with HTML5 Drag & Drop + Touch fallback.
  * Pass `disabled` to turn off DnD (e.g. when editor mode is off).
  *
  * Uses midpoint detection: dropping on the top half of an item places
  * the dragged item above it; dropping on the bottom half places it below.
- * This makes it easy to move items both up and down.
  */
 export default function SortableList<T>({
   items,
@@ -33,10 +32,32 @@ export default function SortableList<T>({
 }: SortableListProps<T>) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
-  // "before" = cursor is in top/left half, "after" = bottom/right half
   const [dropPosition, setDropPosition] = useState<"before" | "after">("after");
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
+  // ── Touch DnD state ──────────────────────────────────────────────
+  const touchState = useRef<{
+    active: boolean;
+    startIndex: number;
+    startY: number;
+    startX: number;
+    clone: HTMLDivElement | null;
+    scrollInterval: ReturnType<typeof setInterval> | null;
+  }>({ active: false, startIndex: -1, startY: 0, startX: 0, clone: null, scrollInterval: null });
+
+  // Cleanup clone on unmount
+  useEffect(() => {
+    return () => {
+      if (touchState.current.clone) {
+        touchState.current.clone.remove();
+      }
+      if (touchState.current.scrollInterval) {
+        clearInterval(touchState.current.scrollInterval);
+      }
+    };
+  }, []);
+
+  // ── HTML5 Drag handlers ──────────────────────────────────────────
   const handleDragStart = useCallback(
     (e: React.DragEvent, index: number) => {
       if (disabled) return;
@@ -53,19 +74,15 @@ export default function SortableList<T>({
       e.preventDefault();
       e.dataTransfer.dropEffect = "move";
 
-      // Calculate midpoint to determine before/after position
       const el = itemRefs.current.get(index);
       if (el) {
         const rect = el.getBoundingClientRect();
         if (direction === "horizontal") {
-          const midX = rect.left + rect.width / 2;
-          setDropPosition(e.clientX < midX ? "before" : "after");
+          setDropPosition(e.clientX < rect.left + rect.width / 2 ? "before" : "after");
         } else {
-          const midY = rect.top + rect.height / 2;
-          setDropPosition(e.clientY < midY ? "before" : "after");
+          setDropPosition(e.clientY < rect.top + rect.height / 2 ? "before" : "after");
         }
       }
-
       setOverIndex(index);
     },
     [disabled, direction],
@@ -78,15 +95,9 @@ export default function SortableList<T>({
       const fromIndex = Number(e.dataTransfer.getData("text/plain"));
       if (isNaN(fromIndex)) return;
 
-      // Compute the actual target index based on drop position
       let toIndex = rawToIndex;
-      if (dropPosition === "after") {
-        toIndex = rawToIndex + 1;
-      }
-      // Adjust if dragging downward (splice removes the item first)
-      if (fromIndex < toIndex) {
-        toIndex -= 1;
-      }
+      if (dropPosition === "after") toIndex = rawToIndex + 1;
+      if (fromIndex < toIndex) toIndex -= 1;
 
       if (fromIndex !== toIndex && toIndex >= 0 && toIndex < items.length) {
         onReorder(fromIndex, toIndex);
@@ -103,6 +114,135 @@ export default function SortableList<T>({
     setOverIndex(null);
   }, []);
 
+  // ── Touch handlers ───────────────────────────────────────────────
+  const findTouchOverIndex = useCallback(
+    (clientX: number, clientY: number): { index: number; position: "before" | "after" } | null => {
+      for (const [idx, el] of itemRefs.current.entries()) {
+        const rect = el.getBoundingClientRect();
+        if (
+          clientX >= rect.left &&
+          clientX <= rect.right &&
+          clientY >= rect.top &&
+          clientY <= rect.bottom
+        ) {
+          if (direction === "horizontal") {
+            return { index: idx, position: clientX < rect.left + rect.width / 2 ? "before" : "after" };
+          }
+          return { index: idx, position: clientY < rect.top + rect.height / 2 ? "before" : "after" };
+        }
+      }
+      return null;
+    },
+    [direction],
+  );
+
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent, index: number) => {
+      if (disabled) return;
+      const touch = e.touches[0];
+      touchState.current = {
+        active: false,
+        startIndex: index,
+        startY: touch.clientY,
+        startX: touch.clientX,
+        clone: null,
+        scrollInterval: null,
+      };
+    },
+    [disabled],
+  );
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (disabled) return;
+      const ts = touchState.current;
+      const touch = e.touches[0];
+      const dx = touch.clientX - ts.startX;
+      const dy = touch.clientY - ts.startY;
+
+      // Activate drag after 8px movement
+      if (!ts.active && Math.sqrt(dx * dx + dy * dy) > 8) {
+        ts.active = true;
+        setDragIndex(ts.startIndex);
+
+        // Create floating clone
+        const el = itemRefs.current.get(ts.startIndex);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          const clone = document.createElement("div");
+          clone.innerHTML = el.innerHTML;
+          clone.style.cssText = `
+            position: fixed; top: ${rect.top}px; left: ${rect.left}px;
+            width: ${rect.width}px; height: ${rect.height}px;
+            opacity: 0.85; pointer-events: none; z-index: 9999;
+            background: var(--card-bg, #fff); border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            transition: none;
+          `;
+          document.body.appendChild(clone);
+          ts.clone = clone;
+        }
+      }
+
+      if (!ts.active) return;
+
+      // Prevent scroll while dragging
+      e.preventDefault();
+
+      // Move clone
+      if (ts.clone) {
+        const el = itemRefs.current.get(ts.startIndex);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          ts.clone.style.top = `${rect.top + dy}px`;
+          ts.clone.style.left = `${rect.left + dx}px`;
+        }
+      }
+
+      // Find target
+      const hit = findTouchOverIndex(touch.clientX, touch.clientY);
+      if (hit) {
+        setOverIndex(hit.index);
+        setDropPosition(hit.position);
+      }
+    },
+    [disabled, findTouchOverIndex],
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    const ts = touchState.current;
+
+    // Cleanup clone
+    if (ts.clone) {
+      ts.clone.remove();
+      ts.clone = null;
+    }
+    if (ts.scrollInterval) {
+      clearInterval(ts.scrollInterval);
+      ts.scrollInterval = null;
+    }
+
+    if (!ts.active || dragIndex === null || overIndex === null) {
+      setDragIndex(null);
+      setOverIndex(null);
+      ts.active = false;
+      return;
+    }
+
+    const fromIndex = ts.startIndex;
+    let toIndex = overIndex;
+    if (dropPosition === "after") toIndex = overIndex + 1;
+    if (fromIndex < toIndex) toIndex -= 1;
+
+    if (fromIndex !== toIndex && toIndex >= 0 && toIndex < items.length) {
+      onReorder(fromIndex, toIndex);
+    }
+
+    setDragIndex(null);
+    setOverIndex(null);
+    ts.active = false;
+  }, [dragIndex, overIndex, dropPosition, items.length, onReorder]);
+
   return (
     <div
       className={clsx(
@@ -117,9 +257,12 @@ export default function SortableList<T>({
 
         const dragHandle = disabled ? null : (
           <div
-            className="cursor-grab active:cursor-grabbing p-1 text-surface-400 hover:text-surface-600 transition-colors touch-none"
+            className="cursor-grab active:cursor-grabbing p-1 text-surface-400 hover:text-surface-600 transition-colors touch-none select-none"
             draggable
             onDragStart={(e) => handleDragStart(e, index)}
+            onTouchStart={(e) => handleTouchStart(e, index)}
+            onTouchMove={(e) => handleTouchMove(e)}
+            onTouchEnd={handleTouchEnd}
           >
             <GripVertical size={14} />
           </div>

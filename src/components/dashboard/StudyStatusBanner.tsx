@@ -73,9 +73,9 @@ export default function StudyStatusBanner() {
 
   return (
     <div className="card bg-gradient-to-r from-brand-50/80 via-white to-brand-50/40 border-brand-100 mb-6">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-4">
         {/* Left: Program info */}
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3 min-w-0">
           <div className="p-2.5 rounded-xl bg-brand-100 text-brand-600 shrink-0">
             <GraduationCap size={22} />
           </div>
@@ -92,9 +92,9 @@ export default function StudyStatusBanner() {
             </div>
             <div className="flex items-center gap-3 mt-1 text-xs text-surface-500">
               {institution && (
-                <span className="flex items-center gap-1">
-                  <Building2 size={11} />
-                  {institution.name}
+                <span className="flex items-center gap-1 max-w-[180px] sm:max-w-none">
+                  <Building2 size={11} className="shrink-0" />
+                  <span className="truncate">{institution.name}</span>
                 </span>
               )}
               <span className="flex items-center gap-1">
@@ -112,7 +112,7 @@ export default function StudyStatusBanner() {
         </div>
 
         {/* Right: Quick stats */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
           {statsLoading ? (
             <Loader2 size={16} className="animate-spin text-surface-300" />
           ) : stats ? (
@@ -136,8 +136,8 @@ export default function StudyStatusBanner() {
           ) : null}
 
           {/* Completion ring */}
-          <div className="relative w-14 h-14 shrink-0">
-            <svg className="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
+          <div className="relative w-11 h-11 sm:w-14 sm:h-14 shrink-0">
+            <svg className="w-11 h-11 sm:w-14 sm:h-14 -rotate-90" viewBox="0 0 56 56">
               <circle cx="28" cy="28" r="24" fill="none" stroke="currentColor" strokeWidth="4" className="text-surface-100" />
               <circle
                 cx="28" cy="28" r="24" fill="none" stroke="currentColor" strokeWidth="4"

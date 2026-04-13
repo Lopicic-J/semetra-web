@@ -99,7 +99,7 @@ export function GradeCalculator({ grades, modules, gs }: GradeCalculatorProps) {
           <select
             value={selectedModule}
             onChange={(e) => setSelectedModule(e.target.value)}
-            className="w-full rounded-xl border border-surface-200 dark:border-surface-600 bg-surface-50 dark:bg-surface-800 px-3 py-2 text-sm text-surface-900 dark:text-white"
+            className="w-full rounded-xl border border-surface-200 dark:border-surface-600 bg-surface-50 dark:bg-surface-800 px-3 py-2 text-sm text-surface-900 dark:text-white [&>option]:bg-white [&>option]:dark:bg-surface-800 [&>option]:text-surface-900 [&>option]:dark:text-white"
           >
             <option value="">Modul wählen...</option>
             {modulesWithGrades.map((m) => (
