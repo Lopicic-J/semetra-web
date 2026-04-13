@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
+import {
+  checkRateLimit,
+  validatePayloadSize,
+  createSandboxContext,
+  PluginSandboxError,
+} from "@/lib/plugins/sandbox";
 
 const log = logger("api:plugins:execute");
 
@@ -62,6 +68,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // --- Sandbox checks ---
+
+    // Rate limiting
+    const rateCheck = checkRateLimit(user.id, pluginId);
+    if (!rateCheck.allowed) {
+      log.warn("Rate limit exceeded", { userId: user.id, pluginId });
+      return NextResponse.json(
+        { error: "Rate limit erreicht. Bitte warte eine Stunde." },
+        { status: 429 }
+      );
+    }
+
+    // Payload size validation
+    const sizeError = validatePayloadSize(body);
+    if (sizeError) {
+      log.warn("Payload too large", { userId: user.id, pluginId });
+      return NextResponse.json({ error: sizeError }, { status: 413 });
+    }
+
+    // Create sandbox context
+    const sandbox = createSandboxContext(pluginId, user.id);
+
     // Execute plugin based on ID
     if (pluginId === "grade-export") {
       return handleGradeExport(supabase, user.id);
@@ -75,6 +103,13 @@ export async function POST(req: NextRequest) {
       );
     }
   } catch (err: unknown) {
+    if (err instanceof PluginSandboxError) {
+      log.warn("Sandbox violation", { error: err.message });
+      return NextResponse.json(
+        { error: `Sicherheitsverletzung: ${err.message}` },
+        { status: 403 }
+      );
+    }
     log.error("POST execute failed", { error: err });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Interner Fehler" },
