@@ -239,7 +239,7 @@ export default function Sidebar() {
         <div className="ml-auto flex items-center gap-1 shrink-0">
           <NotificationBell />
           {profileLoading ? (
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-surface-100 dark:bg-surface-800 text-transparent animate-pulse w-8">
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-surface-100 text-transparent animate-pulse w-8">
               —
             </span>
           ) : (
@@ -283,7 +283,7 @@ export default function Sidebar() {
               );
             })}
           </div>
-          <div className="border-t border-surface-100 dark:border-surface-800 mx-3 mt-2" />
+          <div className="border-t border-surface-100 mx-3 mt-2" />
         </div>
       )}
 
@@ -292,7 +292,7 @@ export default function Sidebar() {
         {allGroups.map((group, idx) => (
           <div key={group.labelKey || `g-${idx}`}>
             {idx > 0 && group.labelKey && (
-              <div className="border-t border-surface-100 dark:border-surface-800 mx-3 my-1" />
+              <div className="border-t border-surface-100 mx-3 my-1" />
             )}
             {group.labelKey && (
               <p className="px-3 pt-4 pb-1.5 text-[10px] font-semibold text-surface-400 tracking-wider uppercase select-none">
@@ -318,7 +318,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom */}
-      <div className="mt-2 pt-3 border-t border-surface-100 dark:border-surface-800 space-y-0.5">
+      <div className="mt-2 pt-3 border-t border-surface-100 space-y-0.5">
         {BOTTOM_ITEMS.map((item) => {
           const active = pathname === item.href;
           const Icon = item.icon;
@@ -377,7 +377,7 @@ export default function Sidebar() {
             <span className="text-xs font-semibold">{t("sidebar.proUpgrade")}</span>
           </div>
           <p className="text-[11px] text-brand-200 mb-2.5">{t("sidebar.aiCoach")}</p>
-          <div className="w-full py-1.5 rounded-lg bg-surface-50/95 text-brand-700 text-xs font-semibold text-center hover:bg-surface-50 transition-colors dark:bg-surface-800/95 dark:text-brand-400">
+          <div className="w-full py-1.5 rounded-lg bg-surface-50/95 text-brand-700 text-xs font-semibold text-center hover:bg-surface-50 transition-colors">
             {t("sidebar.upgradePrice")}
           </div>
         </Link>

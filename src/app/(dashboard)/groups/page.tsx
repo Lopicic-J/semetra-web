@@ -163,7 +163,7 @@ export default function GroupsPage() {
 
       {/* ── Create Modal ──────────────────────────────────── */}
       {showCreate && (
-        <div className="card mb-6 border-brand-200 dark:border-brand-800 bg-surface-100 dark:bg-surface-800">
+        <div className="card mb-6 border-brand-200 dark:border-brand-800 bg-surface-100">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-surface-800 dark:text-white">{t("groups.createTitle")}</h3>
             <button onClick={() => setShowCreate(false)} className="p-1 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400 dark:text-surface-500">
@@ -198,7 +198,7 @@ export default function GroupsPage() {
 
       {/* ── Join Modal ────────────────────────────────────── */}
       {showJoin && (
-        <div className="card mb-6 border-blue-200 dark:border-blue-800 bg-surface-100 dark:bg-surface-800">
+        <div className="card mb-6 border-blue-200 dark:border-blue-800 bg-surface-100">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-surface-800 dark:text-white">{t("groups.joinTitle")}</h3>
             <button onClick={() => setShowJoin(false)} className="p-1 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400 dark:text-surface-500">
@@ -228,7 +228,7 @@ export default function GroupsPage() {
       {/* ── Group cards ───────────────────────────────────── */}
       {loading ? (
         <div className="space-y-3">
-          {[1, 2].map(i => <div key={i} className="h-24 bg-surface-100 dark:bg-surface-800 rounded-2xl animate-pulse" />)}
+          {[1, 2].map(i => <div key={i} className="h-24 bg-surface-100 rounded-2xl animate-pulse" />)}
         </div>
       ) : groups.length === 0 ? (
         <EmptyState
@@ -244,7 +244,7 @@ export default function GroupsPage() {
             return (
               <div
                 key={group.id}
-                className="card p-3 sm:p-4 hover:shadow-md dark:hover:shadow-lg transition-shadow cursor-pointer bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700"
+                className="card p-3 sm:p-4 hover:shadow-md dark:hover:shadow-lg transition-shadow cursor-pointer bg-surface-50 border border-surface-200"
                 onClick={() => router.push(`/groups/${group.id}`)}
               >
                 <div className="flex items-center gap-3 sm:gap-4 flex-col sm:flex-row">
@@ -275,7 +275,7 @@ export default function GroupsPage() {
                     {/* Invite code */}
                     <button
                       onClick={() => copyCode(group.invite_code)}
-                      className="flex items-center gap-1 px-2 py-1 text-xs text-surface-600 dark:text-surface-500 bg-surface-200 dark:bg-surface-700 rounded-lg hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors font-mono"
+                      className="flex items-center gap-1 px-2 py-1 text-xs text-surface-600 bg-surface-200 rounded-lg hover:bg-surface-300 transition-colors font-mono"
                       title={t("groups.copyCode")}
                     >
                       {copied === group.invite_code ? <Check size={12} className="text-green-500 dark:text-green-400" /> : <Copy size={12} />}

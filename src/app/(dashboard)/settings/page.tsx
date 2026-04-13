@@ -129,11 +129,11 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
         <div className="space-y-3">
           <div>
             <label className="block text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wider mb-1">E-Mail</label>
-            <p className="text-sm text-surface-800 dark:text-surface-200 bg-surface-50 dark:bg-surface-700 px-3 py-2.5 rounded-xl">{user?.email ?? "—"}</p>
+            <p className="text-sm text-surface-800 bg-surface-50 px-3 py-2.5 rounded-xl">{user?.email ?? "—"}</p>
           </div>
           <div>
             <label className="block text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wider mb-1">{t("settings.accountCreated")}</label>
-            <p className="text-sm text-surface-800 dark:text-surface-200 bg-surface-50 dark:bg-surface-700 px-3 py-2.5 rounded-xl">
+            <p className="text-sm text-surface-800 bg-surface-50 px-3 py-2.5 rounded-xl">
               {user?.created_at ? new Date(user.created_at).toLocaleDateString(locale === "de" ? "de-CH" : "en-US", { day: "2-digit", month: "long", year: "numeric" }) : "—"}
             </p>
           </div>
@@ -166,9 +166,9 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
           </button>
         </div>
         {/* Preview of selected system */}
-        <div className="mt-3 bg-surface-50 dark:bg-surface-700 rounded-xl p-3 text-xs text-surface-500 dark:text-surface-400 space-y-1">
-          <p>{t("settings.scaleLabel")}: <strong className="text-surface-700 dark:text-surface-300">{currentSystem.scaleLabel}</strong></p>
-          <p>{t("settings.passingLabel")}: <strong className="text-surface-700 dark:text-surface-300">{currentSystem.passingGrade}</strong> · {t("settings.creditsLabel")}: <strong className="text-surface-700 dark:text-surface-300">{currentSystem.creditLabel}</strong></p>
+        <div className="mt-3 bg-surface-50 rounded-xl p-3 text-xs text-surface-500 dark:text-surface-400 space-y-1">
+          <p>{t("settings.scaleLabel")}: <strong className="text-surface-700">{currentSystem.scaleLabel}</strong></p>
+          <p>{t("settings.passingLabel")}: <strong className="text-surface-700">{currentSystem.passingGrade}</strong> · {t("settings.creditsLabel")}: <strong className="text-surface-700">{currentSystem.creditLabel}</strong></p>
         </div>
         {countryMsg && (
           <p className={`text-sm px-3 py-2 rounded-lg mt-3 ${countryMsg.type === "success" ? "bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-200" : "bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-200"}`}>
@@ -269,9 +269,9 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
             </p>
           </div>
           <span className={`px-3 py-1 rounded-full text-xs font-bold shrink-0 ${
-            isLifetime ? "bg-surface-800 dark:bg-surface-700 text-white" :
+            isLifetime ? "bg-surface-800 text-white" :
             isPro ? "bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-200" :
-            "bg-surface-100 dark:bg-surface-700 text-surface-500 dark:text-surface-400"
+            "bg-surface-100 text-surface-500 dark:text-surface-400"
           }`}>
             {isLifetime ? "LIFETIME" : isPro ? "PRO" : "FREE"}
           </span>
@@ -283,7 +283,7 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
               <CheckCircle size={15} className="text-green-500 dark:text-green-400" />
               {t("settings.lifetimeActive")}
             </div>
-            <div className="bg-surface-50 dark:bg-surface-700 rounded-xl p-4">
+            <div className="bg-surface-50 rounded-xl p-4">
               <p className="text-sm text-surface-600 dark:text-surface-500">
                 {t("settings.proInfo")}
               </p>
@@ -370,7 +370,7 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
         <p className="text-sm text-surface-600 dark:text-surface-400 mb-2">
           {t("settings.syncInfo")}
         </p>
-        <div className="bg-surface-50 dark:bg-surface-700 rounded-xl p-3 text-xs text-surface-500 dark:text-surface-400 font-mono break-all">
+        <div className="bg-surface-50 rounded-xl p-3 text-xs text-surface-500 dark:text-surface-400 font-mono break-all">
           Supabase URL: {process.env.NEXT_PUBLIC_SUPABASE_URL ?? "—"}
         </div>
         {!isPro && (
@@ -425,7 +425,7 @@ function AppearanceTab() {
               className={`flex flex-col items-center gap-1 px-3 py-2.5 sm:p-3 rounded-xl border-2 text-sm font-medium transition-all ${
                 mode === item.id
                   ? "border-brand-500 bg-brand-50 dark:bg-brand-900 text-brand-700 dark:text-brand-200 shadow-sm"
-                  : "border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-700 text-surface-600 dark:text-surface-400 hover:border-surface-300 dark:hover:border-surface-600"
+                  : "border-surface-200 dark:border-surface-700 bg-surface-50 text-surface-600 dark:text-surface-400 hover:border-surface-300 dark:hover:border-surface-600"
               }`}
             >
               <span className="text-xl">{item.emoji}</span>
@@ -494,7 +494,7 @@ function NotificationsTab() {
         ].map(item => (
           <div key={item.key} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 py-2">
             <div className="flex-1">
-              <p className="text-sm font-medium text-surface-800 dark:text-surface-200">{item.label}</p>
+              <p className="text-sm font-medium text-surface-800">{item.label}</p>
               <p className="text-xs text-surface-400 dark:text-surface-500">{item.description}</p>
             </div>
             <button onClick={() => setSettings(s => ({ ...s, [item.key]: !s[item.key] }))}
@@ -792,7 +792,7 @@ function PrivacyTab() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-surface-800 dark:text-surface-200">
+              <p className="text-sm font-medium text-surface-800">
                 {t("settings.communityVisibleLabel") || "In der Community sichtbar"}
               </p>
               <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">
@@ -813,7 +813,7 @@ function PrivacyTab() {
           </div>
 
           <div className="border-t border-surface-100 dark:border-surface-700 pt-4">
-            <p className="text-sm font-medium text-surface-800 dark:text-surface-200 mb-2">
+            <p className="text-sm font-medium text-surface-800 mb-2">
               {t("settings.onlineStatusLabel") || "Online-Status"}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -858,7 +858,7 @@ function PrivacyTab() {
           ].map((toggle) => (
             <div key={toggle.key} className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-surface-800 dark:text-surface-200">{toggle.label}</p>
+                <p className="text-sm font-medium text-surface-800">{toggle.label}</p>
                 <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">{toggle.desc}</p>
               </div>
               <button
@@ -877,7 +877,7 @@ function PrivacyTab() {
 
           {/* Bio */}
           <div className="border-t border-surface-100 dark:border-surface-700 pt-4">
-            <p className="text-sm font-medium text-surface-800 dark:text-surface-200 mb-1">
+            <p className="text-sm font-medium text-surface-800 mb-1">
               {t("settings.connectBioLabel") || "Über dich"}
             </p>
             <p className="text-xs text-surface-500 dark:text-surface-400 mb-2">
@@ -915,7 +915,7 @@ function PrivacyTab() {
           >
             <HardDrive size={20} className={exportFormat === "desktop" ? "text-brand-600 dark:text-brand-400" : "text-surface-400 dark:text-surface-500"} />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-surface-800 dark:text-surface-200">{t("settings.exportDesktopTitle")}</p>
+              <p className="text-sm font-semibold text-surface-800">{t("settings.exportDesktopTitle")}</p>
               <p className="text-xs text-surface-500 dark:text-surface-400">
                 {t("settings.exportDesktopDesc")}
               </p>
@@ -937,7 +937,7 @@ function PrivacyTab() {
           >
             <Database size={20} className={exportFormat === "json" ? "text-brand-600 dark:text-brand-400" : "text-surface-400 dark:text-surface-500"} />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-surface-800 dark:text-surface-200">{t("settings.exportJsonTitle")}</p>
+              <p className="text-sm font-semibold text-surface-800">{t("settings.exportJsonTitle")}</p>
               <p className="text-xs text-surface-500 dark:text-surface-400">
                 {t("settings.exportJsonDesc")}
               </p>

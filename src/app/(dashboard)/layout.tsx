@@ -38,7 +38,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         >
           Zum Hauptinhalt springen
         </a>
-        <div className="flex h-screen bg-surface-50 dark:bg-surface-900 overflow-hidden">
+        <div className="flex h-screen bg-surface-50 overflow-hidden">
           {/* Desktop sidebar — hidden on mobile */}
           <div className="hidden md:flex">
             <Sidebar />

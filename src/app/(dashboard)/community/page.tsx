@@ -229,7 +229,7 @@ export default function CommunityPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder={t("community.searchPlaceholder") || "Nach Name oder Benutzername suchen..."}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-100 border border-surface-200 text-sm text-surface-900 placeholder:text-surface-400 focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
             />
           </div>
           <button
@@ -256,7 +256,7 @@ export default function CommunityPage() {
               <select
                 value={selectedProgram}
                 onChange={e => { setSelectedProgram(e.target.value); setPage(0); }}
-                className="w-full appearance-none pl-9 pr-8 py-2 rounded-xl bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-sm text-surface-900 dark:text-white dark:placeholder:text-surface-500 focus:ring-2 focus:ring-brand-500"
+                className="w-full appearance-none pl-9 pr-8 py-2 rounded-xl bg-surface-100 border border-surface-200 text-sm text-surface-900 focus:ring-2 focus:ring-brand-500"
               >
                 <option value="">{t("community.allPrograms") || "Alle Studiengänge"}</option>
                 {programs.map(p => (
@@ -273,7 +273,7 @@ export default function CommunityPage() {
               <select
                 value={selectedSemester}
                 onChange={e => { setSelectedSemester(e.target.value); setPage(0); }}
-                className="w-full appearance-none px-4 pr-8 py-2 rounded-xl bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-sm text-surface-900 dark:text-white dark:placeholder:text-surface-500 focus:ring-2 focus:ring-brand-500"
+                className="w-full appearance-none px-4 pr-8 py-2 rounded-xl bg-surface-100 border border-surface-200 text-sm text-surface-900 focus:ring-2 focus:ring-brand-500"
               >
                 <option value="">{t("community.allSemesters") || "Alle Semester"}</option>
                 {Array.from({ length: maxSemester }, (_, i) => i + 1).map(s => (
@@ -304,11 +304,11 @@ export default function CommunityPage() {
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="card animate-pulse">
               <div className="flex items-start gap-3">
-                <div className="w-12 h-12 rounded-full bg-surface-200 dark:bg-surface-700" />
+                <div className="w-12 h-12 rounded-full bg-surface-200" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 w-24 bg-surface-200 dark:bg-surface-700 rounded" />
-                  <div className="h-3 w-32 bg-surface-200 dark:bg-surface-700 rounded" />
-                  <div className="h-3 w-20 bg-surface-200 dark:bg-surface-700 rounded" />
+                  <div className="h-4 w-24 bg-surface-200 rounded" />
+                  <div className="h-3 w-32 bg-surface-200 rounded" />
+                  <div className="h-3 w-20 bg-surface-200 rounded" />
                 </div>
               </div>
             </div>
@@ -372,7 +372,7 @@ export default function CommunityPage() {
 
                     <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                       {member.current_semester && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-500 font-medium">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-surface-100 text-surface-600 font-medium">
                           Sem. {member.current_semester}
                         </span>
                       )}
@@ -399,7 +399,7 @@ export default function CommunityPage() {
                   <Link
                     href={`/messages?user=${member.id}`}
                     onClick={(e) => e.stopPropagation()}
-                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-100 dark:bg-surface-700/50 text-surface-600 dark:text-surface-400 text-xs font-semibold hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
+                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-100 text-surface-600 text-xs font-semibold hover:bg-surface-200 transition-colors"
                   >
                     <MessageCircle size={14} />
                     {t("community.message") || "Nachricht"}
@@ -417,7 +417,7 @@ export default function CommunityPage() {
                   setPage(p => p + 1);
                   loadMembers(false);
                 }}
-                className="px-6 py-2.5 rounded-xl bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-500 text-sm font-semibold hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
+                className="px-6 py-2.5 rounded-xl bg-surface-100 text-surface-700 text-sm font-semibold hover:bg-surface-200 transition-colors"
               >
                 {t("community.loadMore") || "Mehr laden"} ({members.length}/{total})
               </button>

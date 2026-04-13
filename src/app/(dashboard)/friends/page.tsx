@@ -225,7 +225,7 @@ export default function FriendsPage() {
       </div>
 
       {/* Add Friend Quick Action */}
-      <div className="bg-white dark:bg-surface-800 rounded-2xl border border-surface-200 dark:border-surface-700 p-4">
+      <div className="bg-white rounded-2xl border border-surface-200 p-4">
         <label className="text-sm font-medium text-surface-700 dark:text-surface-500 mb-2 block">
           {t("friends.addByUsername") || "Freund per Benutzername hinzufügen"}
         </label>
@@ -238,7 +238,7 @@ export default function FriendsPage() {
               onChange={e => setAddUsername(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleSendRequest()}
               placeholder={t("friends.usernamePlaceholder") || "benutzername"}
-              className="w-full pl-8 pr-3 py-2.5 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600"
+              className="w-full pl-8 pr-3 py-2.5 border border-surface-200 rounded-xl text-sm bg-surface-50 text-surface-900 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-300"
             />
           </div>
           <button
@@ -253,7 +253,7 @@ export default function FriendsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-surface-100 dark:bg-surface-800 rounded-xl p-1">
+      <div className="flex gap-1 bg-surface-100 rounded-xl p-1">
         {tabs.map(tab => (
           <button
             key={tab.id}
@@ -282,17 +282,17 @@ export default function FriendsPage() {
           loading ? (
             <div className="space-y-3">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="flex gap-3 animate-pulse p-4 bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700">
-                  <div className="w-10 h-10 bg-surface-200 dark:bg-surface-700 rounded-full" />
+                <div key={i} className="flex gap-3 animate-pulse p-4 bg-white rounded-xl border border-surface-200">
+                  <div className="w-10 h-10 bg-surface-200 rounded-full" />
                   <div className="flex-1">
-                    <div className="h-4 bg-surface-200 dark:bg-surface-700 rounded w-32 mb-2" />
-                    <div className="h-3 bg-surface-200 dark:bg-surface-700 rounded w-20" />
+                    <div className="h-4 bg-surface-200 rounded w-32 mb-2" />
+                    <div className="h-3 bg-surface-200 rounded w-20" />
                   </div>
                 </div>
               ))}
             </div>
           ) : friends.length === 0 ? (
-            <div className="text-center py-16 bg-white dark:bg-surface-800 rounded-2xl border border-surface-200 dark:border-surface-700">
+            <div className="text-center py-16 bg-white rounded-2xl border border-surface-200">
               <Users className="mx-auto text-surface-300 dark:text-surface-600 mb-3" size={40} />
               <p className="text-surface-600 dark:text-surface-400 font-medium">
                 {t("friends.noFriends") || "Noch keine Freunde"}
@@ -303,7 +303,7 @@ export default function FriendsPage() {
             </div>
           ) : (
             friends.map(f => (
-              <div key={f.id} className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 hover:border-brand-200 dark:hover:border-brand-800 transition-colors cursor-pointer" onClick={() => setSelectedUserId(f.friend.id)}>
+              <div key={f.id} className="flex items-center gap-3 p-4 bg-white rounded-xl border border-surface-200 hover:border-brand-200 dark:hover:border-brand-800 transition-colors cursor-pointer" onClick={() => setSelectedUserId(f.friend.id)}>
                 <Avatar user={f.friend} />
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-surface-900 dark:text-white truncate">
@@ -327,7 +327,7 @@ export default function FriendsPage() {
                       <MoreHorizontal size={18} />
                     </button>
                     {openMenu === f.id && (
-                      <div className="absolute right-0 top-full mt-1 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl shadow-lg z-10 py-1 min-w-[160px]">
+                      <div className="absolute right-0 top-full mt-1 bg-white border border-surface-200 rounded-xl shadow-lg z-10 py-1 min-w-[160px]">
                         <button
                           onClick={() => handleUnfriend(f.id)}
                           disabled={actionLoading === f.id}
@@ -365,7 +365,7 @@ export default function FriendsPage() {
                 </h3>
                 <div className="space-y-2">
                   {incomingRequests.map(f => (
-                    <div key={f.id} className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl border border-brand-200 dark:border-brand-800 cursor-pointer" onClick={() => setSelectedUserId(f.friend.id)}>
+                    <div key={f.id} className="flex items-center gap-3 p-4 bg-white rounded-xl border border-brand-200 cursor-pointer" onClick={() => setSelectedUserId(f.friend.id)}>
                       <Avatar user={f.friend} />
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-surface-900 dark:text-white truncate">
@@ -385,7 +385,7 @@ export default function FriendsPage() {
                         <button
                           onClick={() => handleAction(f.id, "decline")}
                           disabled={actionLoading === f.id}
-                          className="p-2 bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-500 rounded-lg hover:bg-surface-300 dark:hover:bg-surface-600 disabled:opacity-50 transition-colors"
+                          className="p-2 bg-surface-200 text-surface-600 rounded-lg hover:bg-surface-300 disabled:opacity-50 transition-colors"
                           title={t("friends.decline") || "Ablehnen"}
                         >
                           <X size={16} />
@@ -406,7 +406,7 @@ export default function FriendsPage() {
                 </h3>
                 <div className="space-y-2">
                   {outgoingRequests.map(f => (
-                    <div key={f.id} className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 cursor-pointer" onClick={() => setSelectedUserId(f.friend.id)}>
+                    <div key={f.id} className="flex items-center gap-3 p-4 bg-white rounded-xl border border-surface-200 cursor-pointer" onClick={() => setSelectedUserId(f.friend.id)}>
                       <Avatar user={f.friend} />
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-surface-900 dark:text-white truncate">
@@ -425,7 +425,7 @@ export default function FriendsPage() {
             )}
 
             {incomingRequests.length === 0 && outgoingRequests.length === 0 && (
-              <div className="text-center py-16 bg-white dark:bg-surface-800 rounded-2xl border border-surface-200 dark:border-surface-700">
+              <div className="text-center py-16 bg-white rounded-2xl border border-surface-200">
                 <UserCheck className="mx-auto text-surface-300 dark:text-surface-600 mb-3" size={40} />
                 <p className="text-surface-600 dark:text-surface-400 font-medium">
                   {t("friends.noRequests") || "Keine offenen Anfragen"}
@@ -462,7 +462,7 @@ export default function FriendsPage() {
                     f => f.friend.id === user.id
                   );
                   return (
-                    <div key={user.id} className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 cursor-pointer" onClick={() => setSelectedUserId(user.id)}>
+                    <div key={user.id} className="flex items-center gap-3 p-4 bg-white rounded-xl border border-surface-200 cursor-pointer" onClick={() => setSelectedUserId(user.id)}>
                       <Avatar user={user} />
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-surface-900 dark:text-white truncate">
@@ -471,7 +471,7 @@ export default function FriendsPage() {
                         <p className="text-xs text-surface-500 dark:text-surface-400">@{user.username}</p>
                       </div>
                       {existingFriendship ? (
-                        <span className="text-xs px-3 py-1.5 rounded-lg bg-surface-100 dark:bg-surface-700 text-surface-500 dark:text-surface-400">
+                        <span className="text-xs px-3 py-1.5 rounded-lg bg-surface-100 text-surface-500">
                           {existingFriendship.status === "accepted"
                             ? (t("friends.alreadyFriend") || "Befreundet")
                             : (t("friends.pending") || "Ausstehend")}

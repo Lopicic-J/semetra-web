@@ -318,7 +318,7 @@ export default function ProfilePage() {
               </span>
             )}
             {profile?.university && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-surface-100 text-surface-600 dark:bg-surface-700 dark:text-surface-400">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-surface-100 text-surface-600">
                 <GraduationCap size={10} /> {profile.university}
               </span>
             )}
@@ -333,7 +333,7 @@ export default function ProfilePage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         {/* Plan Card */}
         <div className="bg-gray-900 dark:bg-gray-800 text-white rounded-2xl p-3 sm:p-5 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5 dark:bg-surface-800 -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
             <div className="flex items-center gap-1.5 text-white/50 text-[10px] font-semibold uppercase tracking-wide mb-3">
               <CreditCard size={12} /> Dein Abo
@@ -343,21 +343,21 @@ export default function ProfilePage() {
             {isPro && (
               <div className="flex flex-wrap gap-1.5 mb-4">
                 {["Unbegrenzte Module", "Sync", "Themes", ...(planTier === "full" ? ["KI-Assistent"] : [])].map(f => (
-                  <span key={f} className="px-2 py-0.5 rounded-full bg-white/10 dark:bg-surface-800 text-[11px] font-medium">{f}</span>
+                  <span key={f} className="px-2 py-0.5 rounded-full bg-white/10 text-[11px] font-medium">{f}</span>
                 ))}
               </div>
             )}
             <div className="flex gap-2">
               {!isPro ? (
-                <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white/15 dark:bg-surface-800 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/25 dark:bg-surface-800 transition">
+                <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white/15 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/25 transition">
                   <Zap size={12} /> Upgrade auf Pro
                 </Link>
               ) : (
                 <>
-                  <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white/15 dark:bg-surface-800 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/25 dark:bg-surface-800 transition">
+                  <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white/15 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/25 transition">
                     Abo verwalten
                   </Link>
-                  <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white/10 dark:bg-surface-800 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/20 dark:bg-surface-800 transition">
+                  <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-white/10 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-white/20 transition">
                     <Sparkles size={12} /> Add-on
                   </Link>
                 </>
@@ -367,7 +367,7 @@ export default function ProfilePage() {
         </div>
 
         {/* AI Usage Card */}
-        <div className="bg-surface-100 dark:bg-surface-800 dark:border-surface-700 rounded-2xl border border-surface-200 p-3 sm:p-5">
+        <div className="bg-surface-100 rounded-2xl border border-surface-200 p-3 sm:p-5">
           <div className="flex items-center gap-1.5 text-surface-400 dark:text-surface-500 text-[10px] font-semibold uppercase tracking-wide mb-3">
             <Sparkles size={12} /> KI-Nutzung (Monat)
           </div>
@@ -375,7 +375,7 @@ export default function ProfilePage() {
             <span className="text-3xl font-bold text-surface-900 dark:text-white">{aiUsage.used}</span>
             <span className="text-sm text-surface-400 dark:text-surface-500 font-medium">/ {totalPool}</span>
           </div>
-          <div className="h-2 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden mb-2">
+          <div className="h-2 bg-surface-200 rounded-full overflow-hidden mb-2">
             <div className="h-full rounded-full bg-gradient-to-r from-brand-500 to-violet-500 transition-all duration-500" style={{ width: `${aiPercent}%` }} />
           </div>
           <div className="flex justify-between text-xs text-surface-400 dark:text-surface-500">
@@ -397,7 +397,7 @@ export default function ProfilePage() {
       {/* Study Info — read-only for students, editable for others */}
       <div className="mb-4">
         {userRole === "student" ? (
-          <div className="bg-surface-100 dark:bg-surface-800 dark:border-surface-700 rounded-2xl border border-surface-200 p-3 sm:p-5">
+          <div className="bg-surface-100 rounded-2xl border border-surface-200 p-3 sm:p-5">
             <div className="flex items-center gap-2 mb-1">
               <GraduationCap size={18} className="text-brand-600 dark:text-brand-400" />
               <h2 className="font-semibold text-surface-900 dark:text-white">
@@ -432,7 +432,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Account Details */}
-      <div className="bg-surface-100 dark:bg-surface-800 dark:border-surface-700 rounded-2xl border border-surface-200 p-3 sm:p-5 mb-4">
+      <div className="bg-surface-100 rounded-2xl border border-surface-200 p-3 sm:p-5 mb-4">
         <div className="flex items-center gap-1.5 text-surface-400 dark:text-surface-500 text-[10px] font-semibold uppercase tracking-wide mb-4">
           <User size={12} /> Konto-Details
         </div>
@@ -489,7 +489,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-surface-100 dark:bg-surface-800 dark:border-surface-700 rounded-2xl border border-surface-200 p-3 sm:p-5">
+      <div className="bg-surface-100 rounded-2xl border border-surface-200 p-3 sm:p-5">
         <div className="flex items-center gap-1.5 text-surface-400 text-[10px] font-semibold uppercase tracking-wide mb-4">
           Schnellzugriff
         </div>
@@ -543,7 +543,7 @@ function InlineEditor({
 
 function DetailRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-surface-100 dark:border-surface-700 last:border-0">
+    <div className="flex items-center justify-between py-3 border-b border-surface-100 last:border-0">
       <div className="flex items-center gap-2.5 text-surface-500 dark:text-surface-400">
         {icon}
         <span className="text-sm">{label}</span>
@@ -568,7 +568,7 @@ function EditableRow({
 }) {
   if (editing) {
     return (
-      <div className="py-3 border-b border-surface-100 dark:border-surface-700 last:border-0">
+      <div className="py-3 border-b border-surface-100 last:border-0">
         <div className="flex items-center gap-2.5 text-surface-500 dark:text-surface-400 mb-2">
           {icon}
           <span className="text-sm">{label}</span>
@@ -578,7 +578,7 @@ function EditableRow({
             <select
               value={editValue}
               onChange={e => onEditChange(e.target.value)}
-              className="border border-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none bg-surface-100"
+              className="border border-surface-200 rounded-lg px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none bg-surface-100"
               autoFocus
             >
               {options.map(o => (
@@ -611,7 +611,7 @@ function EditableRow({
   }
 
   return (
-    <div className="flex items-center justify-between py-3 border-b border-surface-100 dark:border-surface-700 last:border-0">
+    <div className="flex items-center justify-between py-3 border-b border-surface-100 last:border-0">
       <div className="flex items-center gap-2.5 text-surface-500 dark:text-surface-400">
         {icon}
         <span className="text-sm">{label}</span>
