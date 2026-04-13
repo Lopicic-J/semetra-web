@@ -1314,6 +1314,20 @@ export default function FlashcardsPage() {
         await supabase.from("flashcards").update(rest).eq("id", id);
       }
       reviewCount.current += 1;
+
+      // Sync SR data to parent topic (if card has a topic_id)
+      // This keeps topic knowledge_level in sync with flashcard reviews
+      if ((card as any).topic_id) {
+        const knowledgeLevel = Math.min(1, (updates.ease_factor ?? 2.5) / 5) *
+          Math.min(1, (updates.repetitions ?? 0) / 5);
+        supabase.from("topics").update({
+          sr_easiness: updates.ease_factor,
+          sr_interval: updates.interval_days,
+          sr_repetitions: updates.repetitions,
+          sr_next_review: updates.next_review,
+          knowledge_level: Math.round(knowledgeLevel * 100),
+        }).eq("id", (card as any).topic_id).then(() => {});
+      }
     } catch (e) {
       console.warn("Error rating flashcard:", e);
     }

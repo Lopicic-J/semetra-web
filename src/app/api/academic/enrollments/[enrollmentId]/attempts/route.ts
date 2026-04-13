@@ -162,6 +162,61 @@ export async function POST(
         log.error("POST component_results insert failed", { error: crErr });
       }
       componentResults = crData || [];
+
+      // ── Auto-calculate final grade from component results ──
+      // If no explicit final_grade_value was provided, compute from components
+      if (body.final_grade_value === undefined && componentResults.length > 0) {
+        const validResults = (componentResults as Array<{
+          grade_value?: number | null;
+          weight_applied?: number | null;
+          passed?: boolean | null;
+        }>).filter(r => r.grade_value != null);
+
+        if (validResults.length > 0) {
+          let totalWeight = 0;
+          let weightedSum = 0;
+          let allPassed = true;
+
+          for (const r of validResults) {
+            const w = r.weight_applied ?? 1;
+            weightedSum += (r.grade_value ?? 0) * w;
+            totalWeight += w;
+            if (r.passed === false) allPassed = false;
+          }
+
+          const calculatedGrade = totalWeight > 0
+            ? Math.round((weightedSum / totalWeight) * 100) / 100
+            : null;
+
+          if (calculatedGrade !== null) {
+            // Update attempt with calculated grade
+            const { error: gradeUpdateErr } = await supabase
+              .from("attempts")
+              .update({
+                final_grade_value: calculatedGrade,
+                passed: allPassed && calculatedGrade >= 4.0, // Swiss pass = 4.0
+                status: "completed",
+                date_completed: body.date_completed || new Date().toISOString(),
+              })
+              .eq("id", attempt.id);
+
+            if (!gradeUpdateErr) {
+              attempt.final_grade_value = calculatedGrade;
+              attempt.passed = allPassed && calculatedGrade >= 4.0;
+              attempt.status = "completed";
+
+              // Propagate to enrollment.current_final_grade
+              await supabase
+                .from("enrollments")
+                .update({
+                  current_final_grade: calculatedGrade,
+                  status: (allPassed && calculatedGrade >= 4.0) ? "passed" : "enrolled",
+                })
+                .eq("id", enrollmentId);
+            }
+          }
+        }
+      }
     }
 
     // Update enrollment attempts_used

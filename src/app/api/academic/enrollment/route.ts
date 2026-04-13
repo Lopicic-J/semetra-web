@@ -160,6 +160,42 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // ── Prerequisite check for module enrollments ──
+    // If a specific module_id is provided (module-level enrollment),
+    // validate prerequisites before proceeding
+    if (body.module_id) {
+      const { data: mod } = await supabase
+        .from("modules")
+        .select("id, prerequisites_json")
+        .eq("id", body.module_id)
+        .eq("user_id", user.id)
+        .single();
+
+      if (mod?.prerequisites_json && Array.isArray(mod.prerequisites_json)) {
+        const requiredPrereqs = (mod.prerequisites_json as Array<{ moduleId: string; type: string }>)
+          .filter(p => p.type === "required");
+
+        if (requiredPrereqs.length > 0) {
+          // Fetch passed modules
+          const { data: passedGrades } = await supabase
+            .from("grades")
+            .select("module_id, grade")
+            .eq("user_id", user.id);
+          const passedSet = new Set(
+            (passedGrades || []).filter(g => g.grade >= 4.0).map(g => g.module_id)
+          );
+
+          const unmet = requiredPrereqs.filter(p => !passedSet.has(p.moduleId));
+          if (unmet.length > 0) {
+            return NextResponse.json({
+              error: "Voraussetzungen nicht erfüllt",
+              unmetPrerequisites: unmet.map(p => p.moduleId),
+            }, { status: 422 });
+          }
+        }
+      }
+    }
+
     // Update profile — the DB trigger sync_student_program() handles student_programs
     // Reset institution_modules_loaded so the modules page re-imports for the new program
     const profileUpdate: Record<string, unknown> = {
