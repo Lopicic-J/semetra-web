@@ -6,7 +6,7 @@
  * Integrates with Supabase Realtime for live updates.
  */
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useId } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 // ─── Types ──────────────────────────────────────────────────────
@@ -168,27 +168,43 @@ export function useNotifications() {
     fetchNotifications(state.notifications.length, true);
   }, [fetchNotifications, state.notifications.length]);
 
+  // Unique channel name per hook instance to avoid "already subscribed" conflicts
+  const instanceId = useId();
+  const channelName = `notifications-rt-${instanceId.replace(/:/g, "")}`;
+
   // Initial fetch + Realtime subscription
   useEffect(() => {
     mountedRef.current = true;
     fetchNotifications();
 
-    const channel = supabase
-      .channel("notifications-realtime")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notifications" },
-        () => {
-          if (mountedRef.current) fetchNotifications();
-        }
-      )
-      .subscribe();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    try {
+      channel = supabase
+        .channel(channelName)
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "notifications" },
+          () => {
+            if (mountedRef.current) fetchNotifications();
+          }
+        )
+        .subscribe();
+    } catch {
+      // Graceful fallback: poll every 30s if realtime fails
+      const pollInterval = setInterval(() => {
+        if (mountedRef.current) fetchNotifications();
+      }, 30_000);
+      return () => {
+        mountedRef.current = false;
+        clearInterval(pollInterval);
+      };
+    }
 
     return () => {
       mountedRef.current = false;
-      supabase.removeChannel(channel);
+      if (channel) supabase.removeChannel(channel);
     };
-  }, [supabase, fetchNotifications]);
+  }, [supabase, fetchNotifications, channelName]);
 
   return {
     ...state,
