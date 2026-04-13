@@ -240,7 +240,7 @@ function TimerPageInner() {
   }
 
   function handleStop() {
-    const actualMin = timer.elapsed ? Math.round(timer.elapsed / 60) : 0;
+    const actualMin = timer.elapsedSeconds ? Math.round(timer.elapsedSeconds / 60) : 0;
     timer.stop(undefined, note || undefined);
     events.timerCompleted(selectedModule || null, actualMin);
     setNote("");
