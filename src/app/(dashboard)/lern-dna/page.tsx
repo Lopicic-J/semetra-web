@@ -29,6 +29,7 @@ import { useCommandCenter } from "@/lib/hooks/useCommandCenter";
 import type { RiskLevel, Action } from "@/lib/decision/types";
 import Link from "next/link";
 import { PreferenceSuggestions } from "@/components/dna/PreferenceSuggestions";
+import { DnaTrendChart } from "@/components/dna/DnaTrendChart";
 
 // ── Error Boundary for Engine Section (prevents page crash) ─────────────────
 
@@ -643,6 +644,9 @@ export default function LernDnaPage() {
               </div>
             </Card>
           </div>
+
+          {/* DNA Trend History */}
+          <DnaTrendChart />
 
           {/* Preference Suggestions — DNA-based recommendations */}
           <PreferenceSuggestions />

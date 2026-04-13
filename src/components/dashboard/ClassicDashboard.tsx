@@ -39,6 +39,7 @@ import StudyStatusBanner from "@/components/dashboard/StudyStatusBanner";
 import StarterGuide from "@/components/dashboard/StarterGuide";
 import { SemesterTransitionBanner } from "@/components/dashboard/SemesterTransitionBanner";
 import { DailyNudgeCard } from "@/components/notifications/DailyNudgeCard";
+import { NudgeBanner } from "@/components/dashboard/NudgeBanner";
 
 // Command Center sub-components
 import AlertBanner from "@/components/command-center/AlertBanner";
@@ -696,6 +697,9 @@ export default function ClassicDashboard() {
 
       {/* ═══ SEMESTER TRANSITION (auto-reset) ═══ */}
       <SemesterTransitionBanner />
+
+      {/* ═══ SMART NUDGES (DNA-based) ═══ */}
+      <NudgeBanner />
 
       {/* ═══ STARTER GUIDE (new users) ═══ */}
       <StarterGuide />
