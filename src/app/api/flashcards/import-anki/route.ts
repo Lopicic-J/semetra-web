@@ -55,43 +55,28 @@ export async function POST(req: NextRequest) {
 
       const dbData = await zip.file(dbFileName)!.async("uint8array");
 
-      // Try sql.js for proper SQLite parsing
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const initSqlJs = (await import("sql.js")).default;
-        const SQL = await initSqlJs();
-        const db = new SQL.Database(dbData);
+      // Extract cards from the SQLite binary using field separator (0x1f)
+      // Anki stores note fields separated by 0x1f in the `notes` table.
+      // We scan the raw binary for these patterns without needing a full SQLite parser.
+      const text = new TextDecoder("utf-8", { fatal: false }).decode(dbData);
+      const fieldSep = "\x1f";
 
-        try {
-          const results = db.exec("SELECT flds FROM notes");
-          if (results.length > 0) {
-            for (const row of results[0].values) {
-              const fields = String(row[0]).split("\x1f");
-              if (fields.length >= 2) {
-                const front = stripHtml(fields[0]).trim();
-                const back = stripHtml(fields[1]).trim();
-                if (front && back) {
-                  cards.push({ front, back });
-                }
-              }
-            }
-          }
-        } finally {
-          db.close();
-        }
-      } catch {
-        // sql.js not available — try text-based extraction as fallback
-        const text = new TextDecoder("utf-8", { fatal: false }).decode(dbData);
-        // Search for field separator pattern (0x1f) in the raw text
-        const fieldSep = "\x1f";
-        const chunks = text.split(fieldSep);
-        // Heuristic: pairs of non-empty chunks that look like card content
-        for (let i = 0; i < chunks.length - 1; i += 2) {
-          const front = stripHtml(chunks[i]).trim();
-          const back = stripHtml(chunks[i + 1]).trim();
-          if (front.length > 2 && front.length < 500 && back.length > 1 && back.length < 2000) {
-            cards.push({ front, back });
-          }
+      // Find all occurrences of the field separator and extract field groups
+      const segments = text.split(fieldSep);
+
+      // Heuristic: Anki notes have fields separated by 0x1f.
+      // We look for segments that appear to be card content (reasonable length, no binary garbage).
+      for (let i = 0; i < segments.length - 1; i++) {
+        const front = stripHtml(segments[i]).trim();
+        const back = stripHtml(segments[i + 1]).trim();
+
+        // Filter: both sides must be meaningful text (not binary/metadata)
+        const isFrontValid = front.length > 2 && front.length < 1000 && /[a-zA-ZäöüÄÖÜ]/.test(front);
+        const isBackValid = back.length > 1 && back.length < 3000 && /[a-zA-ZäöüÄÖÜ]/.test(back);
+
+        if (isFrontValid && isBackValid) {
+          cards.push({ front, back });
+          i++; // Skip the back segment for next iteration
         }
       }
     } catch (parseError) {
