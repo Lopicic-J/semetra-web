@@ -80,8 +80,8 @@ export function DailyNudgeCard({ state, modules, streakData }: DailyNudgeCardPro
   if (!nudge || nudge.sections.length === 0) return null;
 
   return (
-    <div className="rounded-2xl border border-surface-200 dark:border-surface-700
-      bg-gradient-to-br from-brand-50/50 to-white dark:from-brand-950/20 dark:to-surface-800
+ <div className="rounded-2xl border border-surface-200
+ bg-gradient-to-br from-brand-50/50 to-white dark:from-brand-950/20
       p-4 space-y-3">
 
       {/* Header */}
@@ -92,13 +92,13 @@ export function DailyNudgeCard({ state, modules, streakData }: DailyNudgeCardPro
             {t("nudge.daily_plan")}
           </h3>
         </div>
-        <span className="text-[10px] text-surface-400 dark:text-surface-500">
+ <span className="text-[10px] text-surface-400">
           {new Date().toLocaleDateString("de-CH", { weekday: "long", day: "numeric", month: "long" })}
         </span>
       </div>
 
       {/* Greeting */}
-      <p className="text-xs text-surface-600 dark:text-surface-400">
+ <p className="text-xs text-surface-600">
         {nudge.greeting}
       </p>
 
@@ -132,10 +132,10 @@ function NudgeSectionRow({ section }: { section: NudgeSection }) {
     <div className="flex items-start gap-2.5 py-1">
       <Icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${color}`} />
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-medium text-surface-800 dark:text-surface-200 leading-tight">
+ <p className="text-xs font-medium text-surface-800 leading-tight">
           {section.title}
         </p>
-        <p className="text-[11px] text-surface-500 dark:text-surface-400 leading-tight mt-0.5">
+ <p className="text-[11px] text-surface-500 leading-tight mt-0.5">
           {section.message}
         </p>
       </div>

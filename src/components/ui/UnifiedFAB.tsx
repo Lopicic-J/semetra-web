@@ -106,7 +106,7 @@ export default function UnifiedFAB({ unreadCount = 0, chatOpen = false, onToggle
       {editing && (
         <button
           onClick={resetLayout}
-          className="absolute -top-12 right-0 flex items-center gap-1.5 px-3 py-1.5 bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400 rounded-xl shadow-lg border border-surface-200 dark:border-surface-700 hover:bg-surface-200 dark:hover:bg-surface-700 transition-all text-[11px] font-medium whitespace-nowrap"
+ className="absolute -top-12 right-0 flex items-center gap-1.5 px-3 py-1.5 bg-surface-100 text-surface-600 rounded-xl shadow-lg border border-surface-200 hover:bg-surface-200 dark:hover:bg-surface-700 transition-all text-[11px] font-medium whitespace-nowrap"
         >
           <RotateCcw size={12} />
           {t("layout.reset") || "Zurücksetzen"}
@@ -121,7 +121,7 @@ export default function UnifiedFAB({ unreadCount = 0, chatOpen = false, onToggle
             onClick={handleAI}
             className="flex items-center gap-2.5 pl-4 pr-3 py-2.5 rounded-2xl bg-white dark:bg-surface-800 shadow-lg border border-surface-200 dark:border-surface-700 hover:border-brand-300 dark:hover:border-brand-600 hover:shadow-xl transition-all group"
           >
-            <span className="text-sm font-medium text-surface-700 dark:text-surface-300 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+ <span className="text-sm font-medium text-surface-700 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
               {t("fab.aiAssistant") || "KI-Assistent"}
             </span>
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-brand-600 flex items-center justify-center text-white shadow-sm">
@@ -134,10 +134,10 @@ export default function UnifiedFAB({ unreadCount = 0, chatOpen = false, onToggle
             onClick={handleEditor}
             className="flex items-center gap-2.5 pl-4 pr-3 py-2.5 rounded-2xl bg-white dark:bg-surface-800 shadow-lg border border-surface-200 dark:border-surface-700 hover:border-brand-300 dark:hover:border-brand-600 hover:shadow-xl transition-all group"
           >
-            <span className="text-sm font-medium text-surface-700 dark:text-surface-300 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+ <span className="text-sm font-medium text-surface-700 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
               {t("fab.layoutEditor") || "Layout anpassen"}
             </span>
-            <div className="w-10 h-10 rounded-xl bg-surface-100 dark:bg-surface-700 flex items-center justify-center text-surface-600 dark:text-surface-300 shadow-sm">
+ <div className="w-10 h-10 rounded-xl bg-surface-100 flex items-center justify-center text-surface-600 shadow-sm">
               <Pencil size={18} />
             </div>
           </button>
@@ -147,10 +147,10 @@ export default function UnifiedFAB({ unreadCount = 0, chatOpen = false, onToggle
             onClick={handleChat}
             className="flex items-center gap-2.5 pl-4 pr-3 py-2.5 rounded-2xl bg-white dark:bg-surface-800 shadow-lg border border-surface-200 dark:border-surface-700 hover:border-brand-300 dark:hover:border-brand-600 hover:shadow-xl transition-all group"
           >
-            <span className="text-sm font-medium text-surface-700 dark:text-surface-300 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+ <span className="text-sm font-medium text-surface-700 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
               {t("fab.messages") || "Nachrichten"}
             </span>
-            <div className="relative w-10 h-10 rounded-xl bg-surface-100 dark:bg-surface-700 flex items-center justify-center text-surface-600 dark:text-surface-300 shadow-sm">
+ <div className="relative w-10 h-10 rounded-xl bg-surface-100 flex items-center justify-center text-surface-600 shadow-sm">
               <MessageCircle size={18} />
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
@@ -173,9 +173,9 @@ export default function UnifiedFAB({ unreadCount = 0, chatOpen = false, onToggle
           editing
             ? "bg-red-500 hover:bg-red-600 text-white shadow-red-500/30"
             : chatOpen
-              ? "bg-surface-700 dark:bg-surface-600 text-white shadow-surface-700/30"
+ ?"bg-surface-700 text-white shadow-surface-700/30"
               : expanded
-                ? "bg-surface-800 dark:bg-surface-700 text-white shadow-surface-800/30 rotate-45"
+ ?"bg-surface-800 text-white shadow-surface-800/30 rotate-45"
                 : "bg-brand-600 hover:bg-brand-700 text-white shadow-brand-600/30",
         )}
         title={editing ? (t("layout.done") || "Fertig") : (t("fab.toggle") || "Menü")}

@@ -220,11 +220,11 @@ export default function ClassicDashboard() {
                 <p className="text-sm font-semibold text-surface-900 dark:text-white">
                   {t("dashboard.knowledgeWarning", { exam: w.exam.title, percent: w.understoodPct })}
                 </p>
-                <p className="text-xs text-surface-500 dark:text-surface-400">
+ <p className="text-xs text-surface-500">
                   {t("dashboard.examInDays", { days: w.exam.daysLeft ?? 0, topics: w.topicCount })}
                 </p>
               </div>
-              <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-[rgb(var(--card-bg))] border border-surface-200 dark:border-surface-700 text-brand-600 dark:text-brand-400 shrink-0">
+ <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-[rgb(var(--card-bg))] border border-surface-200 text-brand-600 dark:text-brand-400 shrink-0">
                 <Brain size={12} /> {t("dashboard.review")}
               </div>
             </Link>
@@ -244,53 +244,53 @@ export default function ClassicDashboard() {
             </div>
           </div>
           <p className="text-2xl font-bold text-surface-900 dark:text-white">{streak.currentStreak}</p>
-          <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">{t("dashboard.streak")}</p>
-          <p className="text-[10px] text-surface-400 dark:text-surface-500 mt-0.5">
+ <p className="text-xs text-surface-500 mt-0.5">{t("dashboard.streak")}</p>
+ <p className="text-[10px] text-surface-400 mt-0.5">
             {streak.todayDone ? t("dashboard.streakToday") : t("dashboard.streakTodayMissing")}
           </p>
         </Link>
 
         {/* ECTS */}
-        <Link href="/overview" className="bg-surface-100/50 dark:bg-surface-800/30 rounded-xl border border-surface-200 dark:border-surface-700 p-4 hover:shadow-md transition-shadow">
+ <Link href="/overview" className="bg-surface-100/50 rounded-xl border border-surface-200 p-4 hover:shadow-md transition-shadow">
           <div className="flex items-center gap-2 mb-2">
             <div className="bg-brand-50 dark:bg-brand-950/30 w-8 h-8 rounded-lg flex items-center justify-center">
               <Target className="w-4 h-4 text-brand-600 dark:text-brand-400" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-surface-900 dark:text-white">{earnedEcts}<span className="text-sm text-surface-400 dark:text-surface-500">/{totalEcts || 180}</span></p>
-          <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">ECTS</p>
-          <div className="w-full h-1.5 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden mt-1.5">
+ <p className="text-2xl font-bold text-surface-900 dark:text-white">{earnedEcts}<span className="text-sm text-surface-400">/{totalEcts || 180}</span></p>
+ <p className="text-xs text-surface-500 mt-0.5">ECTS</p>
+ <div className="w-full h-1.5 bg-surface-200 rounded-full overflow-hidden mt-1.5">
             <div className="h-full bg-brand-500 rounded-full transition-all duration-500" style={{ width: `${Math.min((earnedEcts / (totalEcts || 180)) * 100, 100)}%` }} />
           </div>
         </Link>
 
         {/* GPA */}
-        <div className="bg-surface-100/50 dark:bg-surface-800/30 rounded-xl border border-surface-200 dark:border-surface-700 p-4">
+ <div className="bg-surface-100/50 rounded-xl border border-surface-200 p-4">
           <div className="flex items-center gap-2 mb-2">
             <div className="bg-green-50 dark:bg-green-950/30 w-8 h-8 rounded-lg flex items-center justify-center">
               <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />
             </div>
           </div>
           <p className="text-2xl font-bold text-surface-900 dark:text-white">{ectsAvg ? ectsAvg.toFixed(2) : "—"}</p>
-          <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">{t("dashboard.gpa")}</p>
-          <p className="text-[10px] text-surface-400 dark:text-surface-500 mt-0.5">{modules.length} {t("dashboard.modules")}</p>
+ <p className="text-xs text-surface-500 mt-0.5">{t("dashboard.gpa")}</p>
+ <p className="text-[10px] text-surface-400 mt-0.5">{modules.length} {t("dashboard.modules")}</p>
         </div>
 
         {/* Study Time Today */}
-        <div className="bg-surface-100/50 dark:bg-surface-800/30 rounded-xl border border-surface-200 dark:border-surface-700 p-4">
+ <div className="bg-surface-100/50 rounded-xl border border-surface-200 p-4">
           <div className="flex items-center gap-2 mb-2">
             <div className="bg-emerald-50 dark:bg-emerald-950/30 w-8 h-8 rounded-lg flex items-center justify-center">
               <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
           </div>
           <p className="text-2xl font-bold text-surface-900 dark:text-white">{fmtStudyTime(todaySecs)}</p>
-          <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">{t("dashboard.studyToday") || "Heute gelernt"}</p>
+ <p className="text-xs text-surface-500 mt-0.5">{t("dashboard.studyToday") ||"Heute gelernt"}</p>
         </div>
 
         {/* Open Tasks */}
         <div className={`rounded-xl border p-4 ${overdue.length > 0
           ? "bg-red-50/50 dark:bg-red-950/20 border-red-100 dark:border-red-900/30"
-          : "bg-surface-100/50 dark:bg-surface-800/30 border-surface-200 dark:border-surface-700"
+ :"bg-surface-100/50 border-surface-200"
         }`}>
           <div className="flex items-center gap-2 mb-2">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${overdue.length > 0
@@ -304,7 +304,7 @@ export default function ClassicDashboard() {
             </div>
           </div>
           <p className="text-2xl font-bold text-surface-900 dark:text-white">{openTasks.length}</p>
-          <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">{t("dashboard.openTasks")}</p>
+ <p className="text-xs text-surface-500 mt-0.5">{t("dashboard.openTasks")}</p>
           {overdue.length > 0 && (
             <p className="text-[10px] text-red-600 dark:text-red-400 font-medium mt-0.5">{overdue.length} {t("dashboard.taskOverdue")}</p>
           )}
@@ -313,7 +313,7 @@ export default function ClassicDashboard() {
         {/* Upcoming Exams */}
         <Link href="/exams" className={`rounded-xl border p-4 hover:shadow-md transition-shadow ${exams.length > 0 && (exams[0].daysLeft ?? 999) <= 7
           ? "bg-indigo-50/50 dark:bg-indigo-950/20 border-indigo-100 dark:border-indigo-900/30"
-          : "bg-surface-100/50 dark:bg-surface-800/30 border-surface-200 dark:border-surface-700"
+ :"bg-surface-100/50 border-surface-200"
         }`}>
           <div className="flex items-center gap-2 mb-2">
             <div className="bg-indigo-50 dark:bg-indigo-950/30 w-8 h-8 rounded-lg flex items-center justify-center">
@@ -321,9 +321,9 @@ export default function ClassicDashboard() {
             </div>
           </div>
           <p className="text-2xl font-bold text-surface-900 dark:text-white">{exams.length}</p>
-          <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">{t("dashboard.upcomingExams")}</p>
+ <p className="text-xs text-surface-500 mt-0.5">{t("dashboard.upcomingExams")}</p>
           {exams.length > 0 && (
-            <p className="text-[10px] text-surface-400 dark:text-surface-500 mt-0.5">
+ <p className="text-[10px] text-surface-400 mt-0.5">
               {t("dashboard.nextIn") || "Nächste in"} {exams[0].daysLeft ?? "?"} {t("dashboard.daysLeft")}
             </p>
           )}
@@ -356,8 +356,8 @@ export default function ClassicDashboard() {
           <h2 className="font-semibold text-surface-900 dark:text-white flex items-center gap-2">
             <Calendar size={16} className="text-brand-500" /> {t("dashboard.studyHeatmap")}
           </h2>
-          <div className="flex items-center gap-3 text-xs text-surface-400 dark:text-surface-500">
-            <span>{t("dashboard.totalStudyTime")}: <strong className="text-surface-700 dark:text-surface-500">{fmtStudyTime(streak.totalSeconds)}</strong></span>
+ <div className="flex items-center gap-3 text-xs text-surface-400">
+ <span>{t("dashboard.totalStudyTime")}: <strong className="text-surface-700">{fmtStudyTime(streak.totalSeconds)}</strong></span>
             <Link href="/timer" className="text-brand-600 hover:underline flex items-center gap-1">{t("dashboard.openTimer")} <ArrowRight size={10} /></Link>
           </div>
         </div>
@@ -378,7 +378,7 @@ export default function ClassicDashboard() {
             <Link href="/exams" className="text-xs text-brand-600 hover:underline">{t("dashboard.showAll")}</Link>
           </div>
           {exams.length === 0 ? (
-            <p className="text-sm text-surface-400 dark:text-surface-500 text-center py-4">{t("dashboard.allDone")}</p>
+ <p className="text-sm text-surface-400 text-center py-4">{t("dashboard.allDone")}</p>
           ) : (
             <div className="space-y-2">
               {exams.slice(0, 5).map(exam => {
@@ -398,7 +398,7 @@ export default function ClassicDashboard() {
                         isToday ? "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800" :
                         isUrgent ? "bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800" :
                         isSoon ? "bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-100 dark:border-yellow-900" :
-                        "bg-surface-50 dark:bg-surface-800/50 hover:bg-surface-100 dark:hover:bg-surface-800"
+"bg-surface-50 hover:bg-surface-100 dark:hover:bg-surface-800"
                       } ${isExpanded ? "rounded-b-none border-b-0" : ""}`}>
                       <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 text-white"
                         style={{ background: exam.color ?? "#6d28d9" }}>
@@ -406,7 +406,7 @@ export default function ClassicDashboard() {
                       </div>
                       <div className="flex-1 min-w-0 text-left">
                         <p className="text-sm font-semibold text-surface-900 dark:text-white truncate">{exam.title}</p>
-                        <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">{formatDate(exam.start_dt)}{exam.location ? ` · ${exam.location}` : ""}</p>
+ <p className="text-xs text-surface-500 mt-0.5">{formatDate(exam.start_dt)}{exam.location ?` · ${exam.location}` :""}</p>
                       </div>
                       <div className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0 ${
                         isToday ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300" :
@@ -420,48 +420,48 @@ export default function ClassicDashboard() {
                       </div>
                     </button>
                     {isExpanded && (
-                      <div className="bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 border-t-0 rounded-b-xl p-3 text-sm space-y-2">
+ <div className="bg-surface-50 border border-surface-200 border-t-0 rounded-b-xl p-3 text-sm space-y-2">
                         {exam.description && (
                           <div>
-                            <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">{t("dashboard.description")}</p>
-                            <p className="text-xs text-surface-700 dark:text-surface-500">{exam.description}</p>
+ <p className="text-xs font-medium text-surface-500 mb-1">{t("dashboard.description")}</p>
+ <p className="text-xs text-surface-700">{exam.description}</p>
                           </div>
                         )}
                         {examTopics.length > 0 && (
                           <div>
-                            <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">{t("dashboard.relatedTopics")}</p>
+ <p className="text-xs font-medium text-surface-500 mb-1">{t("dashboard.relatedTopics")}</p>
                             <div className="space-y-1">
                               {examTopics.slice(0, 3).map(topic => (
                                 <div key={topic.id} className="flex items-center justify-between text-xs">
-                                  <span className="text-surface-700 dark:text-surface-500 truncate">{topic.title}</span>
-                                  <span className="text-surface-400 dark:text-surface-500 text-[10px] ml-2 shrink-0">
+ <span className="text-surface-700 truncate">{topic.title}</span>
+ <span className="text-surface-400 text-[10px] ml-2 shrink-0">
                                     {topic.knowledge_level >= 3 ? "✓" : topic.knowledge_level === 2 ? "◐" : "○"}
                                   </span>
                                 </div>
                               ))}
                               {examTopics.length > 3 && (
-                                <p className="text-[10px] text-surface-400 dark:text-surface-500">+{examTopics.length - 3} {t("dashboard.more")}</p>
+ <p className="text-[10px] text-surface-400">+{examTopics.length - 3} {t("dashboard.more")}</p>
                               )}
                             </div>
                           </div>
                         )}
                         {attachments.length > 0 && (
                           <div>
-                            <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">{t("dashboard.attachments")}</p>
+ <p className="text-xs font-medium text-surface-500 mb-1">{t("dashboard.attachments")}</p>
                             <div className="space-y-1">
                               {attachments.slice(0, 3).map(att => (
-                                <div key={att.id} className="text-xs text-surface-600 dark:text-surface-400 truncate">
+ <div key={att.id} className="text-xs text-surface-600 truncate">
                                   {att.kind === "link" ? "🔗" : att.kind === "note" ? "📝" : "📎"} {att.label || att.url}
                                 </div>
                               ))}
                               {attachments.length > 3 && (
-                                <p className="text-[10px] text-surface-400 dark:text-surface-500">+{attachments.length - 3}</p>
+ <p className="text-[10px] text-surface-400">+{attachments.length - 3}</p>
                               )}
                             </div>
                           </div>
                         )}
                         {attachments.length === 0 && examTopics.length === 0 && !exam.description && (
-                          <p className="text-xs text-surface-400 dark:text-surface-500">{t("dashboard.noDetails")}</p>
+ <p className="text-xs text-surface-400">{t("dashboard.noDetails")}</p>
                         )}
                       </div>
                     )}
@@ -481,7 +481,7 @@ export default function ClassicDashboard() {
             <Link href="/tasks" className="text-xs text-brand-600 hover:underline">{t("dashboard.showAll")}</Link>
           </div>
           {overdue.length === 0 && openTasks.length === 0 ? (
-            <p className="text-sm text-surface-400 dark:text-surface-500 text-center py-4">{t("dashboard.allDone")}</p>
+ <p className="text-sm text-surface-400 text-center py-4">{t("dashboard.allDone")}</p>
           ) : (
             <div className="space-y-2">
               {[...overdue, ...openTasks.filter(t => !overdue.includes(t))].slice(0, 6).map(task => {
@@ -497,7 +497,7 @@ export default function ClassicDashboard() {
                       className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${
                         isOverdue ? "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800" :
                         task.priority === "high" ? "bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800" :
-                        "bg-surface-50 dark:bg-surface-800/50 hover:bg-surface-100 dark:hover:bg-surface-800 border border-transparent"
+"bg-surface-50 hover:bg-surface-100 dark:hover:bg-surface-800 border border-transparent"
                       } ${isExpanded ? "rounded-b-none border-b-0" : ""}`}
                     >
                       <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
@@ -506,7 +506,7 @@ export default function ClassicDashboard() {
                       }`} />
                       <div className="flex-1 min-w-0 text-left">
                         <p className="text-sm font-semibold text-surface-900 dark:text-white truncate">{task.title}</p>
-                        <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">
+ <p className="text-xs text-surface-500 mt-0.5">
                           {task.due_date && formatDate(task.due_date)}
                           {mod ? ` · ${mod.name}` : ""}
                         </p>
@@ -516,24 +516,24 @@ export default function ClassicDashboard() {
                           {t("dashboard.taskOverdue")}
                         </span>
                       )}
-                      <ChevronDown size={14} className={`text-surface-400 dark:text-surface-500 shrink-0 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+ <ChevronDown size={14} className={`text-surface-400 shrink-0 transition-transform ${isExpanded ?"rotate-180" :""}`} />
                     </button>
                     {isExpanded && (
                       <div className={`border border-t-0 rounded-b-xl p-3 text-sm space-y-2 ${
                         isOverdue ? "bg-red-50/50 dark:bg-red-950/10 border-red-200 dark:border-red-800" :
                         task.priority === "high" ? "bg-orange-50/50 dark:bg-orange-950/10 border-orange-200 dark:border-orange-800" :
-                        "bg-surface-50 dark:bg-surface-800/50 border-surface-200 dark:border-surface-700"
+"bg-surface-50 border-surface-200"
                       }`}>
                         {task.description && (
                           <div>
-                            <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">{t("dashboard.description")}</p>
-                            <p className="text-xs text-surface-700 dark:text-surface-500 whitespace-pre-line">{task.description}</p>
+ <p className="text-xs font-medium text-surface-500 mb-1">{t("dashboard.description")}</p>
+ <p className="text-xs text-surface-700 whitespace-pre-line">{task.description}</p>
                           </div>
                         )}
                         {mod && (
                           <div className="flex items-center gap-2">
-                            <p className="text-xs font-medium text-surface-500 dark:text-surface-400">{t("dashboard.taskModule")}:</p>
-                            <span className="flex items-center gap-1.5 text-xs text-surface-700 dark:text-surface-500">
+ <p className="text-xs font-medium text-surface-500">{t("dashboard.taskModule")}:</p>
+ <span className="flex items-center gap-1.5 text-xs text-surface-700">
                               <span className="w-2.5 h-2.5 rounded-full" style={{ background: mod.color }} />
                               {mod.name}
                             </span>
@@ -541,17 +541,17 @@ export default function ClassicDashboard() {
                         )}
                         {attachments.length > 0 && (
                           <div>
-                            <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">{t("dashboard.attachments")}</p>
+ <p className="text-xs font-medium text-surface-500 mb-1">{t("dashboard.attachments")}</p>
                             <div className="space-y-1">
                               {attachments.slice(0, 4).map((att: any) => (
                                 <a key={att.id} href={att.url} target="_blank" rel="noopener noreferrer"
-                                  className="flex items-center gap-2 text-xs text-surface-600 dark:text-surface-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+ className="flex items-center gap-2 text-xs text-surface-600 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                                   {att.kind === "link" ? <Link2 size={11} /> : <Paperclip size={11} />}
                                   <span className="truncate">{att.label || att.url}</span>
                                 </a>
                               ))}
                               {attachments.length > 4 && (
-                                <p className="text-[10px] text-surface-400 dark:text-surface-500">+{attachments.length - 4} {t("dashboard.more")}</p>
+ <p className="text-[10px] text-surface-400">+{attachments.length - 4} {t("dashboard.more")}</p>
                               )}
                             </div>
                           </div>
@@ -614,10 +614,10 @@ export default function ClassicDashboard() {
           </div>
           {ml ? (
             <div className="space-y-3">
-              {[1,2,3].map(i => <div key={i} className="h-10 bg-surface-100 dark:bg-surface-700 rounded-lg animate-pulse" />)}
+ {[1,2,3].map(i => <div key={i} className="h-10 bg-surface-100 rounded-lg animate-pulse" />)}
             </div>
           ) : moduleProgress.length === 0 ? (
-            <p className="text-sm text-surface-400 dark:text-surface-500 text-center py-4">{t("dashboard.noModules")}</p>
+ <p className="text-sm text-surface-400 text-center py-4">{t("dashboard.noModules")}</p>
           ) : (
             <div className="space-y-3">
               {moduleProgress.map(mod => (
@@ -625,16 +625,16 @@ export default function ClassicDashboard() {
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: mod.color ?? "#6d28d9" }} />
-                      <span className="text-sm font-medium text-surface-800 dark:text-surface-800 truncate">{mod.name}</span>
+ <span className="text-sm font-medium text-surface-800 truncate">{mod.name}</span>
                     </div>
-                    <span className="text-[10px] text-surface-400 dark:text-surface-500 shrink-0 ml-2">
+ <span className="text-[10px] text-surface-400 shrink-0 ml-2">
                       {mod.topicCount > 0
                         ? t("dashboard.topicsUnderstood", { count: String(mod.understood), total: String(mod.topicCount) })
                         : t("dashboard.noTopics")
                       }
                     </span>
                   </div>
-                  <div className="w-full h-1.5 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden">
+ <div className="w-full h-1.5 bg-surface-100 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{
@@ -667,7 +667,7 @@ export default function ClassicDashboard() {
           <h1 className="text-2xl font-bold text-surface-900 dark:text-white">
             {greeting || t("dashboard.title")}
           </h1>
-          <p className="text-surface-500 dark:text-surface-400 text-sm mt-0.5">
+ <p className="text-surface-500 text-sm mt-0.5">
             {new Date().toLocaleDateString("de-CH", {
               weekday: "long",
               day: "numeric",
@@ -678,7 +678,7 @@ export default function ClassicDashboard() {
         </div>
         <button
           onClick={ccRefetch}
-          className="p-2 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300"
+ className="p-2 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-500 hover:text-surface-700 dark:hover:text-surface-300"
           title="Dashboard aktualisieren"
         >
           <RefreshCw className={`w-4 h-4 ${ccLoading ? "animate-spin" : ""}`} />

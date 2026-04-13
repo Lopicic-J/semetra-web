@@ -25,7 +25,7 @@ export function triggerAchievementUnlock(achievement: Achievement) {
 function AchievementToastItem({ achievement, onDismiss }: { achievement: Achievement; onDismiss: () => void }) {
   const TIER_COLORS = {
     bronze: { bg: "from-amber-400 to-amber-600", light: "bg-amber-100", text: "text-amber-700" },
-    silver: { bg: "from-slate-400 to-slate-600", light: "bg-surface-200 dark:bg-surface-700", text: "text-surface-700 dark:text-surface-500" },
+ silver: { bg:"from-slate-400 to-slate-600", light:"bg-surface-200", text:"text-surface-700" },
     gold: { bg: "from-yellow-400 to-amber-500", light: "bg-yellow-100", text: "text-yellow-700" },
     diamond: { bg: "from-cyan-400 to-blue-500", light: "bg-cyan-100", text: "text-cyan-700" },
   };

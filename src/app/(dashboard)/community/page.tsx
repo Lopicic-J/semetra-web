@@ -125,11 +125,11 @@ export default function CommunityPage() {
       online: "bg-green-500",
       away: "bg-amber-500",
       dnd: "bg-red-500",
-      offline: "bg-surface-400 dark:bg-surface-600",
+ offline:"bg-surface-400",
     };
     return (
       <span
-        className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-surface-800 ${colors[status] || colors.offline}`}
+ className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white ${colors[status] || colors.offline}`}
         title={status === "dnd" ? (t("community.dnd") || "Nicht stören") : status}
       />
     );
@@ -137,7 +137,7 @@ export default function CommunityPage() {
 
   const PlanBadge = ({ plan }: { plan: string | null }) => {
     if (!plan || plan === "free") return (
-      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-surface-200 dark:bg-surface-700 text-surface-500 dark:text-surface-400 font-medium">
+ <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-surface-200 text-surface-500 font-medium">
         Free
       </span>
     );
@@ -159,7 +159,7 @@ export default function CommunityPage() {
       institution: { label: "Institution", icon: GraduationCap, bgClass: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" },
       dozent: { label: "Dozent", icon: GraduationCap, bgClass: "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300" },
       student: { label: "Student", icon: Users, bgClass: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300" },
-      non_student: { label: "Gast", icon: Globe, bgClass: "bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-500" },
+ non_student: { label:"Gast", icon: Globe, bgClass:"bg-surface-200 text-surface-600" },
     };
     const config = roleConfig[role];
     if (!config) return null;
@@ -186,7 +186,7 @@ export default function CommunityPage() {
           <h2 className="text-lg font-semibold text-surface-900 dark:text-white mb-2">
             {t("community.noInstitution") || "Keine Institution ausgewählt"}
           </h2>
-          <p className="text-sm text-surface-500 dark:text-surface-400 max-w-md mx-auto">
+ <p className="text-sm text-surface-500 max-w-md mx-auto">
             {t("community.noInstitutionDesc") || "Wähle in den Einstellungen deine Hochschule aus, um die Community zu sehen."}
           </p>
           <Link
@@ -212,7 +212,7 @@ export default function CommunityPage() {
             <h1 className="text-xl font-bold text-surface-900 dark:text-white">
               {t("community.title") || "Community"}
             </h1>
-            <p className="text-sm text-surface-500 dark:text-surface-400">
+ <p className="text-sm text-surface-500">
               {total} {t("community.members") || "Mitglieder"} · {onlineCount} {t("community.online") || "online"}
             </p>
           </div>
@@ -237,7 +237,7 @@ export default function CommunityPage() {
             className={`flex items-center gap-1.5 px-3 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
               showFilters || selectedProgram || selectedSemester
                 ? "border-brand-300 dark:border-brand-700 bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300"
-                : "border-surface-200 dark:border-surface-700 text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800"
+ :"border-surface-200 text-surface-600 hover:bg-surface-100 dark:hover:bg-surface-800"
             }`}
           >
             <Filter size={16} />
@@ -317,7 +317,7 @@ export default function CommunityPage() {
       ) : members.length === 0 ? (
         <div className="card text-center py-12">
           <Users className="mx-auto text-surface-400 mb-4" size={40} />
-          <p className="text-surface-600 dark:text-surface-400 font-medium">
+ <p className="text-surface-600 font-medium">
             {search
               ? (t("community.noResults") || "Keine Ergebnisse gefunden")
               : (t("community.empty") || "Noch keine Mitglieder in deiner Community")}
@@ -360,12 +360,12 @@ export default function CommunityPage() {
                       <CountryFlag country={member.country} />
                     </div>
 
-                    <p className="text-xs text-surface-500 dark:text-surface-400 truncate">
+ <p className="text-xs text-surface-500 truncate">
                       @{member.username}
                     </p>
 
                     {member.program_name && (
-                      <p className="text-xs text-surface-600 dark:text-surface-400 mt-0.5 truncate" title={member.program_name}>
+ <p className="text-xs text-surface-600 mt-0.5 truncate" title={member.program_name}>
                         {member.program_name}
                       </p>
                     )}
@@ -388,7 +388,7 @@ export default function CommunityPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-surface-100 dark:border-surface-700/50">
+ <div className="flex items-center gap-2 mt-3 pt-3 border-t border-surface-100">
                   <button
                     onClick={(e) => { e.stopPropagation(); handleAddFriend(member.id); }}
                     className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 text-xs font-semibold hover:bg-brand-100 dark:hover:bg-brand-900/40 transition-colors"

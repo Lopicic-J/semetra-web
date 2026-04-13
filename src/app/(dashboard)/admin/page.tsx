@@ -132,7 +132,7 @@ const ROLE_COLORS: Record<string, string> = {
   admin: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
   institution: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
   student: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-  non_student: "bg-surface-200 text-surface-900 dark:bg-surface-700 dark:text-surface-800",
+ non_student:"bg-surface-200 text-surface-900",
 };
 
 const VERIFICATION_BADGES: Record<string, { label: string; className: string } | null> = {
@@ -472,8 +472,8 @@ export default function AdminPage() {
 
       {/* ── Verification Queue (Platform admin only) ── */}
       {isPlatformAdmin && (
-        <Card className="bg-surface-100 dark:bg-surface-800">
-          <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+ <Card className="bg-surface-100">
+ <div className="p-6 border-b border-surface-200">
             <h2 className="text-xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-amber-600" />
               Verifizierungs-Warteschlange
@@ -488,14 +488,14 @@ export default function AdminPage() {
             {verificationLoading ? (
               <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-brand-600" /></div>
             ) : verificationQueue.length === 0 ? (
-              <div className="text-center py-8 text-surface-500 dark:text-surface-400">
+ <div className="text-center py-8 text-surface-500">
                 <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-green-500 dark:text-green-400" />
                 <p>Keine ausstehenden Verifizierungen</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {verificationQueue.map((req) => (
-                  <div key={req.id} className="bg-[rgb(var(--card-bg))] dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600 p-3 sm:p-4">
+ <div key={req.id} className="bg-[rgb(var(--card-bg))] rounded-lg border border-surface-200 p-3 sm:p-4">
                     <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -504,11 +504,11 @@ export default function AdminPage() {
                             {ROLE_LABELS[req.user_role] || req.user_role}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-sm text-surface-500 dark:text-surface-400">
+ <div className="flex items-center gap-1.5 text-sm text-surface-500">
                           <Mail className="w-3.5 h-3.5" />{req.email}
                         </div>
-                        {req.university && <p className="text-xs text-surface-400 dark:text-surface-500 mt-0.5">{req.university}</p>}
-                        <p className="text-[10px] text-surface-400 dark:text-surface-500 mt-1">
+ {req.university && <p className="text-xs text-surface-400 mt-0.5">{req.university}</p>}
+ <p className="text-[10px] text-surface-400 mt-1">
                           Domain: <span className="font-mono">{req.email.split("@")[1] || "?"}</span>
                         </p>
                       </div>
@@ -542,13 +542,13 @@ export default function AdminPage() {
       )}
 
       {/* ── User Management ── */}
-      <Card className="bg-surface-100 dark:bg-surface-800">
-        <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+ <Card className="bg-surface-100">
+ <div className="p-6 border-b border-surface-200">
           <h2 className="text-xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
             <Users className="w-5 h-5 text-brand-600" />
             Benutzerverwaltung
           </h2>
-          <p className="text-surface-600 dark:text-surface-400 text-sm mt-1">
+ <p className="text-surface-600 text-sm mt-1">
             {isPlatformAdmin
               ? "Rollen und Abo-Pläne aller Benutzer verwalten"
               : "Studierende deiner Institution verwalten"}
@@ -558,13 +558,13 @@ export default function AdminPage() {
         <div className="p-6 space-y-4">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-3 w-4 h-4 text-surface-500 dark:text-surface-400" />
+ <Search className="absolute left-3 top-3 w-4 h-4 text-surface-500" />
             <input
               type="text"
               placeholder="Nach E-Mail oder Name suchen..."
               value={usersSearch}
               onChange={(e) => setUsersSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-[rgb(var(--card-bg))] dark:bg-surface-700 text-surface-900 dark:text-white placeholder-surface-500 dark:placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:focus:ring-brand-600"
+ className="w-full pl-10 pr-4 py-2 border border-surface-300 rounded-lg bg-[rgb(var(--card-bg))] text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:focus:ring-brand-600"
             />
           </div>
 
@@ -572,7 +572,7 @@ export default function AdminPage() {
           {usersLoading ? (
             <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-brand-600" /></div>
           ) : users.length === 0 ? (
-            <p className="text-center text-surface-600 dark:text-surface-400 py-8">Keine Benutzer gefunden</p>
+ <p className="text-center text-surface-600 py-8">Keine Benutzer gefunden</p>
           ) : (
             <div className="space-y-3">
               {users.map((user) => (
@@ -624,13 +624,13 @@ export default function AdminPage() {
         const instTotalPages = Math.ceil(allInst.length / PAGE_SIZE);
         const instSlice = allInst.slice((instPage - 1) * PAGE_SIZE, instPage * PAGE_SIZE);
         return (
-          <Card className="bg-surface-100 dark:bg-surface-800">
-            <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+ <Card className="bg-surface-100">
+ <div className="p-6 border-b border-surface-200">
               <h2 className="text-xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-brand-600" />
                 Institutionen — Übersicht
               </h2>
-              <p className="text-surface-600 dark:text-surface-400 text-sm mt-1">
+ <p className="text-surface-600 text-sm mt-1">
                 Studenten, Admins und aktive Nutzer pro Institution
               </p>
             </div>
@@ -638,7 +638,7 @@ export default function AdminPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-surface-200 dark:border-surface-700">
+ <tr className="border-b border-surface-200">
                       <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-white">Institution</th>
                       <th className="text-right py-3 px-4 font-medium text-surface-900 dark:text-white">Studenten</th>
                       <th className="text-right py-3 px-4 font-medium text-surface-900 dark:text-white">Admins</th>
@@ -647,14 +647,14 @@ export default function AdminPage() {
                   </thead>
                   <tbody>
                     {instSlice.map((inst) => (
-                      <tr key={inst.id} className="border-b border-surface-200 dark:border-surface-700 hover:bg-surface-50 dark:hover:bg-surface-700/50">
+ <tr key={inst.id} className="border-b border-surface-200 hover:bg-surface-50 dark:hover:bg-surface-700/50">
                         <td className="py-3 px-4 font-medium text-surface-900 dark:text-white">{inst.name}</td>
-                        <td className="py-3 px-4 text-right text-surface-600 dark:text-surface-400">{inst.studentCount}</td>
-                        <td className="py-3 px-4 text-right text-surface-600 dark:text-surface-400">{inst.adminCount}</td>
+ <td className="py-3 px-4 text-right text-surface-600">{inst.studentCount}</td>
+ <td className="py-3 px-4 text-right text-surface-600">{inst.adminCount}</td>
                         <td className="py-3 px-4 text-right">
                           <span className="inline-flex items-center gap-1.5">
                             <OnlineDot online={inst.activeCount > 0} />
-                            <span className="text-surface-600 dark:text-surface-400">{inst.activeCount}</span>
+ <span className="text-surface-600">{inst.activeCount}</span>
                           </span>
                         </td>
                       </tr>
@@ -678,13 +678,13 @@ export default function AdminPage() {
 
       {/* ── Institution Admin Assignments (Platform admin only) ── */}
       {isPlatformAdmin && (
-        <Card className="bg-surface-100 dark:bg-surface-800">
-          <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+ <Card className="bg-surface-100">
+ <div className="p-6 border-b border-surface-200">
             <h2 className="text-xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
               <Building2 className="w-5 h-5 text-brand-600" />
               Institutions-Admins
             </h2>
-            <p className="text-surface-600 dark:text-surface-400 text-sm mt-1">
+ <p className="text-surface-600 text-sm mt-1">
               Welche Institutions-Admins welchen Institutionen zugewiesen sind
             </p>
           </div>
@@ -692,17 +692,17 @@ export default function AdminPage() {
             {institutionAdminsLoading ? (
               <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-brand-600" /></div>
             ) : institutionAdmins.length === 0 ? (
-              <p className="text-center text-surface-600 dark:text-surface-400 py-8">Keine Institutions-Admins vorhanden</p>
+ <p className="text-center text-surface-600 py-8">Keine Institutions-Admins vorhanden</p>
             ) : (() => {
               const iaTotalPages = Math.ceil(institutionAdmins.length / PAGE_SIZE);
               const iaSlice = institutionAdmins.slice((instAdminPage - 1) * PAGE_SIZE, instAdminPage * PAGE_SIZE);
               return (
                 <div className="space-y-3">
                   {iaSlice.map((a) => (
-                    <div key={a.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 gap-3 sm:gap-4 bg-[rgb(var(--card-bg))] dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600">
+ <div key={a.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 gap-3 sm:gap-4 bg-[rgb(var(--card-bg))] rounded-lg border border-surface-200">
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-surface-900 dark:text-white truncate">{a.user_name || a.user_email}</p>
-                        <p className="text-sm text-surface-600 dark:text-surface-400 truncate">{a.user_email} → {a.institution_name}</p>
+ <p className="text-sm text-surface-600 truncate">{a.user_email} → {a.institution_name}</p>
                       </div>
                       <button
                         onClick={async () => {
@@ -718,7 +718,7 @@ export default function AdminPage() {
                             if (fetchRes.ok) { const data = await fetchRes.json(); setInstitutionAdmins(data.assignments || []); }
                           } catch { toast.error("Fehler beim Entfernen"); }
                         }}
-                        className="p-2 text-surface-600 dark:text-surface-400 hover:text-red-600 dark:hover:text-red-400 transition-colors shrink-0"
+ className="p-2 text-surface-600 hover:text-red-600 dark:hover:text-red-400 transition-colors shrink-0"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -742,28 +742,28 @@ export default function AdminPage() {
 
       {/* ── Institutions-Admins section for institution role ── */}
       {isInstitution && !isPlatformAdmin && (
-        <Card className="bg-surface-100 dark:bg-surface-800">
-          <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+ <Card className="bg-surface-100">
+ <div className="p-6 border-b border-surface-200">
             <h2 className="text-xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
               <Building2 className="w-5 h-5 text-brand-600" />
               Institutions-Admins
             </h2>
-            <p className="text-surface-600 dark:text-surface-400 text-sm mt-1">
+ <p className="text-surface-600 text-sm mt-1">
               Übersicht der Admins deiner Institution
             </p>
           </div>
           <div className="p-6">
             {users.filter((u) => u.user_role === "institution").length === 0 ? (
-              <p className="text-center text-surface-600 dark:text-surface-400 py-8">Keine weiteren Institutions-Admins</p>
+ <p className="text-center text-surface-600 py-8">Keine weiteren Institutions-Admins</p>
             ) : (
               <div className="space-y-3">
                 {users.filter((u) => u.user_role === "institution").map((u) => (
-                  <div key={u.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 gap-3 sm:gap-4 bg-[rgb(var(--card-bg))] dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600">
+ <div key={u.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 gap-3 sm:gap-4 bg-[rgb(var(--card-bg))] rounded-lg border border-surface-200">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <OnlineDot online={isOnline(u.last_seen_at)} />
                       <div className="min-w-0">
                         <p className="font-medium text-surface-900 dark:text-white truncate">{u.full_name || u.username || u.email}</p>
-                        <p className="text-sm text-surface-600 dark:text-surface-400 truncate">{u.email}</p>
+ <p className="text-sm text-surface-600 truncate">{u.email}</p>
                       </div>
                     </div>
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${ROLE_COLORS.institution}`}>
@@ -782,8 +782,8 @@ export default function AdminPage() {
 
       {/* ── Audit Log (Platform admin only) ── */}
       {isPlatformAdmin && (
-        <Card className="bg-surface-100 dark:bg-surface-800">
-          <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+ <Card className="bg-surface-100">
+ <div className="p-6 border-b border-surface-200">
             <h2 className="text-xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
               <Clock className="w-5 h-5 text-brand-600" />
               Audit-Log
@@ -793,12 +793,12 @@ export default function AdminPage() {
             {auditLoading ? (
               <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-brand-600" /></div>
             ) : auditLog.length === 0 ? (
-              <p className="text-center text-surface-600 dark:text-surface-400 py-8">Keine Audit-Log-Einträge</p>
+ <p className="text-center text-surface-600 py-8">Keine Audit-Log-Einträge</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-surface-200 dark:border-surface-700">
+ <tr className="border-b border-surface-200">
                       <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-white">Zeitpunkt</th>
                       <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-white">Benutzer</th>
                       <th className="text-left py-3 px-4 font-medium text-surface-900 dark:text-white">Aktion</th>
@@ -807,18 +807,18 @@ export default function AdminPage() {
                   </thead>
                   <tbody>
                     {auditLog.map((entry) => (
-                      <tr key={entry.id} className="border-b border-surface-200 dark:border-surface-700 hover:bg-surface-50 dark:hover:bg-surface-700/50">
-                        <td className="py-3 px-4 text-surface-600 dark:text-surface-400">{new Date(entry.created_at).toLocaleString("de-CH")}</td>
+ <tr key={entry.id} className="border-b border-surface-200 hover:bg-surface-50 dark:hover:bg-surface-700/50">
+ <td className="py-3 px-4 text-surface-600">{new Date(entry.created_at).toLocaleString("de-CH")}</td>
                         <td className="py-3 px-4">
                           <p className="font-medium text-surface-900 dark:text-white">{entry.user_name || entry.user_email}</p>
-                          <p className="text-xs text-surface-600 dark:text-surface-400">{entry.user_email}</p>
+ <p className="text-xs text-surface-600">{entry.user_email}</p>
                         </td>
                         <td className="py-3 px-4">
-                          <span className="px-2 py-1 bg-surface-200 dark:bg-surface-700 text-surface-900 dark:text-white rounded text-xs font-medium">{entry.action}</span>
+ <span className="px-2 py-1 bg-surface-200 text-surface-900 dark:text-white rounded text-xs font-medium">{entry.action}</span>
                         </td>
-                        <td className="py-3 px-4 text-surface-600 dark:text-surface-400">
+ <td className="py-3 px-4 text-surface-600">
                           <p className="font-medium text-surface-900 dark:text-white">{entry.entity_type}</p>
-                          <p className="text-xs text-surface-600 dark:text-surface-400">{entry.entity_name || entry.entity_id}</p>
+ <p className="text-xs text-surface-600">{entry.entity_name || entry.entity_id}</p>
                         </td>
                       </tr>
                     ))}
@@ -937,15 +937,15 @@ function EmailDomainsSection({ isPlatformAdmin }: { isPlatformAdmin: boolean }) 
   }, {});
 
   return (
-    <Card className="bg-surface-100 dark:bg-surface-800">
-      <div className="p-6 border-b border-surface-200 dark:border-surface-700">
+ <Card className="bg-surface-100">
+ <div className="p-6 border-b border-surface-200">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
               <Mail className="w-5 h-5 text-brand-600" />
               Email-Domains
             </h2>
-            <p className="text-surface-600 dark:text-surface-400 text-sm mt-1">
+ <p className="text-surface-600 text-sm mt-1">
               {isPlatformAdmin
                 ? "Email-Domains aller Institutionen verwalten"
                 : "Email-Domains deiner Institution verwalten"}
@@ -963,15 +963,15 @@ function EmailDomainsSection({ isPlatformAdmin }: { isPlatformAdmin: boolean }) 
       <div className="p-6 space-y-4">
         {/* Add form */}
         {adding && (
-          <div className="bg-[rgb(var(--card-bg))] dark:bg-surface-700 rounded-lg border border-brand-200 dark:border-brand-800 p-4 space-y-3">
+ <div className="bg-[rgb(var(--card-bg))] rounded-lg border border-brand-200 dark:border-brand-800 p-4 space-y-3">
             <p className="text-sm font-semibold text-surface-900 dark:text-white">Neue Email-Domain hinterlegen</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-surface-600 dark:text-surface-400 mb-1 block">Institution</label>
+ <label className="text-xs text-surface-600 mb-1 block">Institution</label>
                 <select
                   value={newInstitutionId}
                   onChange={(e) => setNewInstitutionId(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-[rgb(var(--card-bg))] dark:bg-surface-700 text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+ className="w-full px-3 py-2 text-sm border border-surface-300 rounded-lg bg-[rgb(var(--card-bg))] text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
                 >
                   <option value="">Institution wählen…</option>
                   {institutions.map((inst) => (
@@ -982,13 +982,13 @@ function EmailDomainsSection({ isPlatformAdmin }: { isPlatformAdmin: boolean }) 
                 </select>
               </div>
               <div>
-                <label className="text-xs text-surface-600 dark:text-surface-400 mb-1 block">Domain</label>
+ <label className="text-xs text-surface-600 mb-1 block">Domain</label>
                 <input
                   type="text"
                   placeholder="z.B. students.ffhs.ch"
                   value={newDomain}
                   onChange={(e) => setNewDomain(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-[rgb(var(--card-bg))] dark:bg-surface-700 text-surface-900 dark:text-white placeholder-surface-500 dark:placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+ className="w-full px-3 py-2 text-sm border border-surface-300 rounded-lg bg-[rgb(var(--card-bg))] text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
             </div>
@@ -1008,7 +1008,7 @@ function EmailDomainsSection({ isPlatformAdmin }: { isPlatformAdmin: boolean }) 
             <Loader2 className="w-5 h-5 animate-spin text-brand-600" />
           </div>
         ) : domains.length === 0 ? (
-          <div className="text-center py-8 text-surface-500 dark:text-surface-400">
+ <div className="text-center py-8 text-surface-500">
             <Mail className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p>Keine Email-Domains hinterlegt</p>
             <p className="text-xs mt-1">Füge Domains hinzu, damit Studenten bei der Registrierung automatisch erkannt werden.</p>
@@ -1026,7 +1026,7 @@ function EmailDomainsSection({ isPlatformAdmin }: { isPlatformAdmin: boolean }) 
                   {instDomains.map((d) => (
                     <div
                       key={d.id}
-                      className="flex items-center justify-between px-4 py-2.5 bg-[rgb(var(--card-bg))] dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600"
+ className="flex items-center justify-between px-4 py-2.5 bg-[rgb(var(--card-bg))] rounded-lg border border-surface-200"
                     >
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-mono text-sm text-surface-900 dark:text-white">@{d.domain}</span>
@@ -1090,13 +1090,13 @@ function PaginationBar({
   label?: string;
 }) {
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-surface-200 dark:border-surface-700">
-      <p className="text-sm text-surface-500 dark:text-surface-400">{total} {label} insgesamt</p>
+ <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-surface-200">
+ <p className="text-sm text-surface-500">{total} {label} insgesamt</p>
       <div className="flex items-center gap-1">
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-          className="p-2 text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+ className="p-2 text-surface-600 hover:text-surface-900 dark:hover:text-surface-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
@@ -1109,7 +1109,7 @@ function PaginationBar({
           }, [])
           .map((item, idx) =>
             item === "..." ? (
-              <span key={`dots-${idx}`} className="px-2 text-surface-400 dark:text-surface-500 text-sm">...</span>
+ <span key={`dots-${idx}`} className="px-2 text-surface-400 text-sm">...</span>
             ) : (
               <button
                 key={item}
@@ -1117,7 +1117,7 @@ function PaginationBar({
                 className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${
                   item === page
                     ? "bg-brand-600 text-white dark:bg-brand-700 dark:text-white"
-                    : "text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700"
+ :"text-surface-600 hover:bg-surface-200 dark:hover:bg-surface-700"
                 }`}
               >
                 {item}
@@ -1127,7 +1127,7 @@ function PaginationBar({
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-          className="p-2 text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+ className="p-2 text-surface-600 hover:text-surface-900 dark:hover:text-surface-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
@@ -1224,7 +1224,7 @@ function UserRow({
           </span>
           <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
             isPro ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
-              : "bg-surface-100 text-surface-600 dark:bg-surface-700 dark:text-surface-400"
+ :"bg-surface-100 text-surface-600"
           }`}>
             {isPro && <Crown className="w-3 h-3 inline mr-1 -mt-0.5" />}{planLabel}
           </span>
@@ -1246,7 +1246,7 @@ function UserRow({
 
       {/* Expanded detail panel */}
       {isExpanded && canEdit && (
-        <div className="border-t border-surface-200 p-4 bg-surface-50 dark:bg-surface-800/50 space-y-4">
+ <div className="border-t border-surface-200 p-4 bg-surface-50 space-y-4">
           {/* ─── Role editing ─── */}
           <div>
             <p className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-2">Rolle</p>
@@ -1386,7 +1386,7 @@ function UserRow({
                     setEditingPlanType(user.plan_type === "lifetime" ? "lifetime" : user.plan_type === "subscription" ? "subscription" : "free");
                     setEditingPlanTier(user.plan_tier === "full" ? "full" : "basic");
                   }}
-                  className="px-3 py-1.5 text-xs font-medium bg-surface-100 text-surface-700 dark:bg-surface-700 dark:text-surface-500 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-600 transition"
+ className="px-3 py-1.5 text-xs font-medium bg-surface-100 text-surface-700 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-600 transition"
                 >
                   <Edit2 className="w-3 h-3 inline mr-1 -mt-0.5" />Manuell setzen
                 </button>
@@ -1566,7 +1566,7 @@ function StudiengangEditor({ userId, institutionId, onRefresh }: { userId: strin
         <div className="flex items-center gap-2">
           <button
             onClick={() => setEditing(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-surface-100 text-surface-700 dark:bg-surface-700 dark:text-surface-500 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-600 transition"
+ className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-surface-100 text-surface-700 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-600 transition"
           >
             <Edit2 className="w-3 h-3" />Studiengang ändern
           </button>

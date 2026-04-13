@@ -22,9 +22,9 @@ export function Button({
 
   const variantStyles = {
     primary: "bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800 focus-visible:ring-brand-500 shadow-sm hover:shadow-md",
-    secondary: "bg-surface-100 text-surface-700 border border-surface-200/60 hover:bg-surface-200/70 hover:text-surface-800 focus-visible:ring-surface-400 dark:bg-surface-800 dark:text-surface-500 dark:border-surface-700",
+ secondary:"bg-surface-100 text-surface-700 border border-surface-200/60 hover:bg-surface-200/70 hover:text-surface-800 focus-visible:ring-surface-400",
     danger: "bg-danger-50 text-danger-700 border border-danger-100 hover:bg-danger-100 focus-visible:ring-danger-500 dark:bg-danger-500/15 dark:text-danger-400 dark:border-danger-500/25",
-    ghost: "text-surface-500 hover:bg-surface-100 hover:text-surface-700 focus-visible:ring-surface-400 dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-200",
+ ghost:"text-surface-500 hover:bg-surface-100 hover:text-surface-700 focus-visible:ring-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-200",
   };
 
   const sizeStyles = {

@@ -76,12 +76,12 @@ export class ErrorBoundary extends Component<Props, State> {
           <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
             <AlertTriangle className="w-7 h-7 text-red-500" />
           </div>
-          <h3 className="text-base font-semibold text-surface-900 dark:text-surface-100 mb-1">
+ <h3 className="text-base font-semibold text-surface-900 mb-1">
             {this.props.feature
               ? `Fehler in ${this.props.feature}`
               : "Etwas ist schiefgelaufen"}
           </h3>
-          <p className="text-sm text-surface-500 dark:text-surface-400 max-w-sm mb-5">
+ <p className="text-sm text-surface-500 max-w-sm mb-5">
             Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut.
           </p>
           {process.env.NODE_ENV === "development" && (

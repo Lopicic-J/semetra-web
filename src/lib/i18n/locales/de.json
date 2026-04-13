@@ -2500,6 +2500,7 @@
   "lernnachweis.no_data": "Noch keine Daten vorhanden",
   "lernnachweis.longest_streak": "Längste Serie",
   "lernnachweis.total_study_days": "Lerntage insgesamt",
+  "lernnachweis.certificate": "Modul-Zertifikat herunterladen",
 
   "export.button": "Exportieren",
   "export.pdf": "PDF Report",

@@ -641,6 +641,37 @@
 :where(.dark) .bg-pink-200    { background-color: rgba(236,72,153,0.22); }
 :where(.dark) .bg-teal-200    { background-color: rgba(20,184,166,0.22); }
 
+/* Additional semantic text colors for dark mode */
+:where(.dark) .text-blue-600   { color: #93c5fd; }
+:where(.dark) .text-emerald-600 { color: #6ee7b7; }
+:where(.dark) .text-violet-600  { color: #c4b5fd; }
+:where(.dark) .text-purple-600  { color: #d8b4fe; }
+:where(.dark) .text-pink-600    { color: #f9a8d4; }
+:where(.dark) .text-teal-600    { color: #5eead4; }
+:where(.dark) .text-cyan-600    { color: #67e8f9; }
+:where(.dark) .text-indigo-600  { color: #a5b4fc; }
+:where(.dark) .text-sky-600     { color: #7dd3fc; }
+
+/* Additional bg shades needed */
+:where(.dark) .bg-emerald-50  { background-color: rgba(16,185,129,0.10); }
+:where(.dark) .bg-emerald-100 { background-color: rgba(16,185,129,0.15); }
+:where(.dark) .bg-violet-50   { background-color: rgba(139,92,246,0.10); }
+:where(.dark) .bg-violet-100  { background-color: rgba(139,92,246,0.15); }
+:where(.dark) .bg-purple-50   { background-color: rgba(168,85,247,0.10); }
+:where(.dark) .bg-purple-100  { background-color: rgba(168,85,247,0.15); }
+:where(.dark) .bg-indigo-50   { background-color: rgba(99,102,241,0.10); }
+:where(.dark) .bg-indigo-100  { background-color: rgba(99,102,241,0.15); }
+:where(.dark) .bg-pink-50     { background-color: rgba(236,72,153,0.10); }
+:where(.dark) .bg-teal-50     { background-color: rgba(20,184,166,0.10); }
+:where(.dark) .bg-cyan-50     { background-color: rgba(6,182,212,0.10); }
+:where(.dark) .bg-sky-50      { background-color: rgba(14,165,233,0.10); }
+
+/* Additional border shades */
+:where(.dark) .border-emerald-200 { border-color: rgba(16,185,129,0.25); }
+:where(.dark) .border-violet-200  { border-color: rgba(139,92,246,0.25); }
+:where(.dark) .border-purple-200  { border-color: rgba(168,85,247,0.25); }
+:where(.dark) .border-indigo-200  { border-color: rgba(99,102,241,0.25); }
+
 /* ── 18. HOVER: colored hover states ────────────────────────────── */
 :where(.dark) .hover\:bg-red-50:hover    { background-color: rgba(220,38,38,0.12); }
 :where(.dark) .hover\:bg-orange-50:hover { background-color: rgba(234,88,12,0.12); }

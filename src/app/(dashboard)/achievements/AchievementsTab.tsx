@@ -41,7 +41,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
 
 const TIER_COLORS = {
   bronze:  { bg: "bg-amber-100",  text: "text-amber-700",  ring: "ring-amber-300",  gradient: "from-amber-400 to-amber-600" },
-  silver:  { bg: "bg-surface-200 dark:bg-surface-700",  text: "text-surface-600 dark:text-surface-500",  ring: "ring-surface-300 dark:ring-surface-600",  gradient: "from-slate-400 to-slate-500" },
+ silver: { bg:"bg-surface-200", text:"text-surface-600", ring:"ring-surface-300", gradient:"from-slate-400 to-slate-500" },
   gold:    { bg: "bg-yellow-100", text: "text-yellow-700", ring: "ring-yellow-400", gradient: "from-yellow-400 to-amber-500" },
   diamond: { bg: "bg-cyan-100",   text: "text-cyan-700",   ring: "ring-cyan-400",   gradient: "from-cyan-400 to-blue-500" },
 };
@@ -231,7 +231,7 @@ export default function AchievementsTabContent() {
                 }
 
                 return (
-                  <div key={a.id} className={`card p-4 border-l-4 border-yellow-400 bg-gradient-to-r from-yellow-50 to-white dark:from-yellow-950/30 dark:to-surface-800`}>
+ <div key={a.id} className={`card p-4 border-l-4 border-yellow-400 bg-gradient-to-r from-yellow-50 to-white dark:from-yellow-950/30`}>
                     <div className="flex items-start gap-3">
                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-gradient-to-br ${tier.gradient} text-white shadow-sm`}>
                         <Icon size={18} />
@@ -284,7 +284,7 @@ export default function AchievementsTabContent() {
                 key={a.id}
                 className={`card p-4 transition-all ${
                   a.unlocked
-                    ? "border-yellow-200 dark:border-yellow-800 bg-gradient-to-br from-white to-yellow-50/50 dark:from-surface-800 dark:to-yellow-950/20"
+ ?"border-yellow-200 dark:border-yellow-800 bg-gradient-to-br from-white to-yellow-50/50 dark:to-yellow-950/20"
                     : "opacity-70"
                 }`}
               >

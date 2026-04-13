@@ -132,10 +132,10 @@ export default function LoginPage() {
               <Gem size={28} />
             </div>
             <h1 className="text-2xl font-bold text-surface-900 dark:text-white">Willkommen zurück</h1>
-            <p className="text-surface-500 dark:text-surface-400 text-sm mt-1">Melde dich bei Semetra Workspace an</p>
+ <p className="text-surface-500 text-sm mt-1">Melde dich bei Semetra Workspace an</p>
           </div>
 
-          <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-xl shadow-surface-200/50 dark:shadow-black/50 border border-surface-200/60 dark:border-surface-700/60 p-6 sm:p-8">
+ <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-xl shadow-surface-200/50 dark:shadow-black/50 border border-surface-200/60 p-6 sm:p-8">
             {/* OAuth Buttons */}
             {enabledProviders.length > 0 && (
               <>
@@ -158,9 +158,9 @@ export default function LoginPage() {
                   ))}
                 </div>
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="h-px flex-1 bg-surface-200 dark:bg-surface-700" />
-                  <span className="text-xs text-surface-400 dark:text-surface-500 font-medium">oder mit E-Mail</span>
-                  <div className="h-px flex-1 bg-surface-200 dark:bg-surface-700" />
+ <div className="h-px flex-1 bg-surface-200" />
+ <span className="text-xs text-surface-400 font-medium">oder mit E-Mail</span>
+ <div className="h-px flex-1 bg-surface-200" />
                 </div>
               </>
             )}
@@ -168,11 +168,11 @@ export default function LoginPage() {
             {/* Email/Password Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">Benutzername oder E-Mail</label>
+ <label className="block text-sm font-medium text-surface-700 mb-1.5">Benutzername oder E-Mail</label>
                 <div className="relative">
-                  <AtSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
+ <AtSign size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
                   <input
-                    className="w-full bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+ className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
                     type="text"
                     placeholder="max_muster oder deine@email.ch"
                     value={identifier}
@@ -184,7 +184,7 @@ export default function LoginPage() {
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-sm font-medium text-surface-700 dark:text-surface-500">Passwort</label>
+ <label className="text-sm font-medium text-surface-700">Passwort</label>
                   <Link href="/reset-password" className="text-xs text-brand-600 hover:text-brand-700 font-medium">
                     Vergessen?
                   </Link>
@@ -192,7 +192,7 @@ export default function LoginPage() {
                 <div className="relative">
                   <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
                   <input
-                    className="w-full bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl pl-10 pr-10 py-2.5 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+ className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-10 py-2.5 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
                     type={showPw ? "text" : "password"}
                     placeholder="••••••••"
                     value={password}
@@ -203,7 +203,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPw(!showPw)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-400"
+ className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-400"
                     tabIndex={-1}
                   >
                     {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -230,7 +230,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <p className="text-center text-sm text-surface-500 dark:text-surface-400 mt-5">
+ <p className="text-center text-sm text-surface-500 mt-5">
               Noch kein Konto?{" "}
               <Link href="/register" className="text-brand-600 font-semibold hover:text-brand-700 transition">
                 Kostenlos registrieren
@@ -239,7 +239,7 @@ export default function LoginPage() {
           </div>
 
           {/* Footer (mobile) */}
-          <p className="text-center text-[11px] text-surface-400 dark:text-surface-500 mt-6 lg:hidden">
+ <p className="text-center text-[11px] text-surface-400 mt-6 lg:hidden">
             &copy; {new Date().getFullYear()} Lopicic Technologies &middot; Semetra Workspace
           </p>
         </div>

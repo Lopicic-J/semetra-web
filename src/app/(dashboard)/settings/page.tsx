@@ -44,7 +44,7 @@ export default function SettingsPage() {
     <div className="p-3 sm:p-6 max-w-4xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-surface-900 dark:text-white">{t("settings.title")}</h1>
-        <p className="text-surface-500 dark:text-surface-400 text-sm mt-0.5">{t("settings.subtitle")}</p>
+ <p className="text-surface-500 text-sm mt-0.5">{t("settings.subtitle")}</p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
@@ -52,13 +52,13 @@ export default function SettingsPage() {
         <nav className="lg:w-48 lg:shrink-0 space-y-1 order-2 lg:order-1 flex flex-col lg:flex-col">
           {tabs.map(t => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
-              className={`flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === t.id ? "bg-brand-600 text-white" : "text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800"}`}>
+ className={`flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === t.id ?"bg-brand-600 text-white" :"text-surface-600 hover:bg-surface-100 dark:hover:bg-surface-800"}`}>
               <t.icon size={16} />
               {t.label}
             </button>
           ))}
           <button onClick={handleLogout}
-            className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-surface-500 dark:text-surface-400 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-600 dark:hover:text-red-400 transition-colors mt-4">
+ className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-surface-500 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-600 dark:hover:text-red-400 transition-colors mt-4">
             <LogOut size={16} />
             {t("sidebar.logout")}
           </button>
@@ -128,11 +128,11 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
         <h2 className="font-semibold text-surface-900 dark:text-white mb-4">{t("settings.accountInfo")}</h2>
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wider mb-1">E-Mail</label>
+ <label className="block text-xs font-medium text-surface-500 uppercase tracking-wider mb-1">E-Mail</label>
             <p className="text-sm text-surface-800 bg-surface-50 px-3 py-2.5 rounded-xl">{user?.email ?? "—"}</p>
           </div>
           <div>
-            <label className="block text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wider mb-1">{t("settings.accountCreated")}</label>
+ <label className="block text-xs font-medium text-surface-500 uppercase tracking-wider mb-1">{t("settings.accountCreated")}</label>
             <p className="text-sm text-surface-800 bg-surface-50 px-3 py-2.5 rounded-xl">
               {user?.created_at ? new Date(user.created_at).toLocaleDateString(locale === "de" ? "de-CH" : "en-US", { day: "2-digit", month: "long", year: "numeric" }) : "—"}
             </p>
@@ -143,10 +143,10 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
       {/* Country / Grading System */}
       <div className="card">
         <h2 className="font-semibold text-surface-900 dark:text-white mb-1">{t("settings.countryTitle")}</h2>
-        <p className="text-xs text-surface-400 dark:text-surface-500 mb-4">{t("settings.countryDesc")}</p>
+ <p className="text-xs text-surface-400 mb-4">{t("settings.countryDesc")}</p>
         <div className="flex flex-col sm:flex-row items-end gap-2 sm:gap-3">
           <div className="flex-1 w-full sm:w-auto">
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("settings.countryLabel")}</label>
+ <label className="block text-sm font-medium text-surface-700 mb-1">{t("settings.countryLabel")}</label>
             <select
               value={selectedCountry}
               onChange={e => setSelectedCountry(e.target.value)}
@@ -166,7 +166,7 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
           </button>
         </div>
         {/* Preview of selected system */}
-        <div className="mt-3 bg-surface-50 rounded-xl p-3 text-xs text-surface-500 dark:text-surface-400 space-y-1">
+ <div className="mt-3 bg-surface-50 rounded-xl p-3 text-xs text-surface-500 space-y-1">
           <p>{t("settings.scaleLabel")}: <strong className="text-surface-700">{currentSystem.scaleLabel}</strong></p>
           <p>{t("settings.passingLabel")}: <strong className="text-surface-700">{currentSystem.passingGrade}</strong> · {t("settings.creditsLabel")}: <strong className="text-surface-700">{currentSystem.creditLabel}</strong></p>
         </div>
@@ -187,11 +187,11 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
         <h2 className="font-semibold text-surface-900 dark:text-white mb-4">{t("settings.passwordTitle")}</h2>
         <form onSubmit={handlePasswordChange} className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("settings.newPassword")}</label>
+ <label className="block text-sm font-medium text-surface-700 mb-1">{t("settings.newPassword")}</label>
             <input className="input" type="password" minLength={8} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder={t("settings.minChars")} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("settings.confirmPassword")}</label>
+ <label className="block text-sm font-medium text-surface-700 mb-1">{t("settings.confirmPassword")}</label>
             <input className="input" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder={t("settings.confirmPlaceholder")} />
           </div>
           {msg && (
@@ -258,20 +258,20 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
   return (
     <div className="space-y-5">
       {/* Plan card */}
-      <div className={`card border-2 ${isPro ? "border-brand-500 dark:border-brand-600" : "border-surface-200 dark:border-surface-700"}`}>
+ <div className={`card border-2 ${isPro ?"border-brand-500 dark:border-brand-600" :"border-surface-200"}`}>
         <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-0 mb-4">
           <div>
             <h2 className="font-semibold text-surface-900 dark:text-white">
               {isLifetime ? t("settings.proLifetime") : isPro ? t("settings.proSubscription") : t("settings.yourPlan")}
             </h2>
-            <p className="text-xs text-surface-400 dark:text-surface-500 mt-0.5">
+ <p className="text-xs text-surface-400 mt-0.5">
               {isLifetime ? t("settings.lifetimeDesc") : isPro ? t("settings.monthlyDesc") : t("settings.freeDesc")}
             </p>
           </div>
           <span className={`px-3 py-1 rounded-full text-xs font-bold shrink-0 ${
             isLifetime ? "bg-surface-800 text-white" :
             isPro ? "bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-200" :
-            "bg-surface-100 text-surface-500 dark:text-surface-400"
+"bg-surface-100 text-surface-500"
           }`}>
             {isLifetime ? "LIFETIME" : isPro ? "PRO" : "FREE"}
           </span>
@@ -279,19 +279,19 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
 
         {isLifetime ? (
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-400">
+ <div className="flex items-center gap-2 text-sm text-surface-600">
               <CheckCircle size={15} className="text-green-500 dark:text-green-400" />
               {t("settings.lifetimeActive")}
             </div>
             <div className="bg-surface-50 rounded-xl p-4">
-              <p className="text-sm text-surface-600 dark:text-surface-500">
+ <p className="text-sm text-surface-600">
                 {t("settings.proInfo")}
               </p>
             </div>
           </div>
         ) : isPro ? (
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-400">
+ <div className="flex items-center gap-2 text-sm text-surface-600">
               <CheckCircle size={15} className="text-green-500 dark:text-green-400" />
               {t("settings.subscriptionActive")} · {profile?.stripe_subscription_status === "trialing" ? t("settings.trialPhase") : t("settings.paid")}
             </div>
@@ -304,7 +304,7 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
                 "bg-brand-50 dark:bg-brand-900 border border-brand-100 dark:border-brand-800"
               }`}>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-2">
-                  <span className="text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wider">Laufzeit</span>
+ <span className="text-xs font-medium text-surface-500 uppercase tracking-wider">Laufzeit</span>
                   <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                     aboExpired ? "bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-200" :
                     isCanceling ? "bg-amber-100 dark:bg-amber-800 text-amber-700 dark:text-amber-200" :
@@ -327,14 +327,14 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
                 )}
 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 text-xs">
-                  <span className={aboExpired ? "text-red-600 dark:text-red-300" : "text-surface-500 dark:text-surface-400"}>
+ <span className={aboExpired ?"text-red-600 dark:text-red-300" :"text-surface-500"}>
                     {aboExpired
                       ? `${t("settings.expiredOn")} ${expiresAt.toLocaleDateString(locale === "de" ? "de-CH" : "en-US", { day: "2-digit", month: "long", year: "numeric" })}`
                       : `${t("settings.validUntil")} ${expiresAt.toLocaleDateString(locale === "de" ? "de-CH" : "en-US", { day: "2-digit", month: "long", year: "numeric" })}`
                     }
                   </span>
                   {!aboExpired && (
-                    <span className="text-surface-400 dark:text-surface-500">{remainingDays} Tage</span>
+ <span className="text-surface-400">{remainingDays} Tage</span>
                   )}
                 </div>
               </div>
@@ -351,7 +351,7 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
           </div>
         ) : (
           <div>
-            <p className="text-sm text-surface-500 dark:text-surface-400 mb-3">
+ <p className="text-sm text-surface-500 mb-3">
               {t("settings.freeUsing")}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -367,10 +367,10 @@ function PlanTab({ isPro, isLifetime, profile }: { isPro: boolean; isLifetime: b
       {/* Desktop ↔ Web Sync */}
       <div className="card">
         <h2 className="font-semibold text-surface-900 dark:text-white mb-3">{t("settings.desktopWebSync")}</h2>
-        <p className="text-sm text-surface-600 dark:text-surface-400 mb-2">
+ <p className="text-sm text-surface-600 mb-2">
           {t("settings.syncInfo")}
         </p>
-        <div className="bg-surface-50 rounded-xl p-3 text-xs text-surface-500 dark:text-surface-400 font-mono break-all">
+ <div className="bg-surface-50 rounded-xl p-3 text-xs text-surface-500 font-mono break-all">
           Supabase URL: {process.env.NEXT_PUBLIC_SUPABASE_URL ?? "—"}
         </div>
         {!isPro && (
@@ -425,7 +425,7 @@ function AppearanceTab() {
               className={`flex flex-col items-center gap-1 px-3 py-2.5 sm:p-3 rounded-xl border-2 text-sm font-medium transition-all ${
                 mode === item.id
                   ? "border-brand-500 bg-brand-50 dark:bg-brand-900 text-brand-700 dark:text-brand-200 shadow-sm"
-                  : "border-surface-200 dark:border-surface-700 bg-surface-50 text-surface-600 dark:text-surface-400 hover:border-surface-300 dark:hover:border-surface-600"
+ :"border-surface-200 bg-surface-50 text-surface-600 hover:border-surface-300 dark:hover:border-surface-600"
               }`}
             >
               <span className="text-xl">{item.emoji}</span>
@@ -466,7 +466,7 @@ function AppearanceTab() {
           ))}
         </div>
         {!isPro && (
-          <p className="text-xs text-surface-400 dark:text-surface-500 mt-3">{t("settings.accentProHint")}</p>
+ <p className="text-xs text-surface-400 mt-3">{t("settings.accentProHint")}</p>
         )}
       </div>
     </div>
@@ -495,15 +495,15 @@ function NotificationsTab() {
           <div key={item.key} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 py-2">
             <div className="flex-1">
               <p className="text-sm font-medium text-surface-800">{item.label}</p>
-              <p className="text-xs text-surface-400 dark:text-surface-500">{item.description}</p>
+ <p className="text-xs text-surface-400">{item.description}</p>
             </div>
             <button onClick={() => setSettings(s => ({ ...s, [item.key]: !s[item.key] }))}
               className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${settings[item.key] ? "bg-brand-600 dark:bg-brand-700" : "bg-surface-200 dark:bg-surface-600"}`}>
-              <span className={`inline-block h-4 w-4 rounded-full bg-[rgb(var(--card-bg))] dark:bg-surface-900 shadow transform transition-transform ${settings[item.key] ? "translate-x-6" : "translate-x-1"}`} />
+ <span className={`inline-block h-4 w-4 rounded-full bg-[rgb(var(--card-bg))] shadow transform transition-transform ${settings[item.key] ?"translate-x-6" :"translate-x-1"}`} />
             </button>
           </div>
         ))}
-        <p className="text-xs text-surface-400 dark:text-surface-500 pt-2">{t("settings.settingsSavedLocally")}</p>
+ <p className="text-xs text-surface-400 pt-2">{t("settings.settingsSavedLocally")}</p>
       </div>
     </div>
   );
@@ -781,7 +781,7 @@ function PrivacyTab() {
     <div className="space-y-4">
       <div className="card">
         <h2 className="font-semibold text-surface-900 dark:text-white mb-3">{t("settings.privacyTitle")}</h2>
-        <p className="text-sm text-surface-600 dark:text-surface-400 leading-relaxed">
+ <p className="text-sm text-surface-600 leading-relaxed">
           {t("settings.privacyDesc")}
         </p>
       </div>
@@ -795,7 +795,7 @@ function PrivacyTab() {
               <p className="text-sm font-medium text-surface-800">
                 {t("settings.communityVisibleLabel") || "In der Community sichtbar"}
               </p>
-              <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">
+ <p className="text-xs text-surface-500 mt-0.5">
                 {t("settings.communityVisibleDesc") || "Andere Studierende deiner Hochschule können dein Profil in der Community sehen."}
               </p>
             </div>
@@ -812,7 +812,7 @@ function PrivacyTab() {
             </button>
           </div>
 
-          <div className="border-t border-surface-100 dark:border-surface-700 pt-4">
+ <div className="border-t border-surface-100 pt-4">
             <p className="text-sm font-medium text-surface-800 mb-2">
               {t("settings.onlineStatusLabel") || "Online-Status"}
             </p>
@@ -829,7 +829,7 @@ function PrivacyTab() {
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
                     onlineStatusPref === opt.value
                       ? "border-brand-300 dark:border-brand-700 bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300"
-                      : "border-surface-200 dark:border-surface-700 text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800"
+ :"border-surface-200 text-surface-600 hover:bg-surface-100 dark:hover:bg-surface-800"
                   }`}
                 >
                   <span className={`w-2 h-2 rounded-full ${opt.color}`} />
@@ -844,7 +844,7 @@ function PrivacyTab() {
       {/* Semetra Connect Privacy */}
       <div className="card">
         <h2 className="font-semibold text-surface-900 dark:text-white mb-1">{t("settings.connectTitle") || "Semetra Connect"}</h2>
-        <p className="text-xs text-surface-500 dark:text-surface-400 mb-4">
+ <p className="text-xs text-surface-500 mb-4">
           {t("settings.connectDesc") || "Steuere, wie du in Semetra Connect für Studierende anderer Hochschulen sichtbar bist."}
         </p>
         <div className="space-y-4">
@@ -859,7 +859,7 @@ function PrivacyTab() {
             <div key={toggle.key} className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-surface-800">{toggle.label}</p>
-                <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">{toggle.desc}</p>
+ <p className="text-xs text-surface-500 mt-0.5">{toggle.desc}</p>
               </div>
               <button
                 onClick={() => { toggle.setter(!toggle.value); updateConnectField(toggle.key, !toggle.value); }}
@@ -876,11 +876,11 @@ function PrivacyTab() {
           ))}
 
           {/* Bio */}
-          <div className="border-t border-surface-100 dark:border-surface-700 pt-4">
+ <div className="border-t border-surface-100 pt-4">
             <p className="text-sm font-medium text-surface-800 mb-1">
               {t("settings.connectBioLabel") || "Über dich"}
             </p>
-            <p className="text-xs text-surface-500 dark:text-surface-400 mb-2">
+ <p className="text-xs text-surface-500 mb-2">
               {t("settings.connectBioDesc") || "Kurze Bio für dein Connect-Profil (max. 280 Zeichen)."}
             </p>
             <textarea
@@ -890,7 +890,7 @@ function PrivacyTab() {
               rows={2}
               maxLength={280}
               placeholder={t("settings.connectBioPlaceholder") || "z.B. Studiere Informatik im 4. Semester, interessiere mich für ML und Web Dev..."}
-              className="w-full p-3 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 text-sm resize-none focus:ring-2 focus:ring-brand-500 outline-none"
+ className="w-full p-3 rounded-xl border border-surface-200 bg-surface-50 text-sm resize-none focus:ring-2 focus:ring-brand-500 outline-none"
             />
             <p className="text-xs text-surface-400 mt-1 text-right">{connectBio.length}/280</p>
           </div>
@@ -899,7 +899,7 @@ function PrivacyTab() {
 
       <div className="card">
         <h2 className="font-semibold text-surface-900 dark:text-white mb-2">{t("settings.exportTitle")}</h2>
-        <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
+ <p className="text-sm text-surface-500 mb-4">
           {t("settings.exportDesc")}
         </p>
 
@@ -910,18 +910,18 @@ function PrivacyTab() {
             className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-colors ${
               exportFormat === "desktop"
                 ? "border-brand-300 dark:border-brand-700 bg-brand-50 dark:bg-brand-900"
-                : "border-surface-200 dark:border-surface-700 hover:border-surface-300 dark:hover:border-surface-600"
+ :"border-surface-200 hover:border-surface-300 dark:hover:border-surface-600"
             }`}
           >
-            <HardDrive size={20} className={exportFormat === "desktop" ? "text-brand-600 dark:text-brand-400" : "text-surface-400 dark:text-surface-500"} />
+ <HardDrive size={20} className={exportFormat ==="desktop" ?"text-brand-600 dark:text-brand-400" :"text-surface-400"} />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-surface-800">{t("settings.exportDesktopTitle")}</p>
-              <p className="text-xs text-surface-500 dark:text-surface-400">
+ <p className="text-xs text-surface-500">
                 {t("settings.exportDesktopDesc")}
               </p>
             </div>
             <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
-              exportFormat === "desktop" ? "border-brand-600 dark:border-brand-400" : "border-surface-300 dark:border-surface-600"
+ exportFormat ==="desktop" ?"border-brand-600 dark:border-brand-400" :"border-surface-300"
             }`}>
               {exportFormat === "desktop" && <div className="w-2 h-2 rounded-full bg-brand-600 dark:bg-brand-400" />}
             </div>
@@ -932,18 +932,18 @@ function PrivacyTab() {
             className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-colors ${
               exportFormat === "json"
                 ? "border-brand-300 dark:border-brand-700 bg-brand-50 dark:bg-brand-900"
-                : "border-surface-200 dark:border-surface-700 hover:border-surface-300 dark:hover:border-surface-600"
+ :"border-surface-200 hover:border-surface-300 dark:hover:border-surface-600"
             }`}
           >
-            <Database size={20} className={exportFormat === "json" ? "text-brand-600 dark:text-brand-400" : "text-surface-400 dark:text-surface-500"} />
+ <Database size={20} className={exportFormat ==="json" ?"text-brand-600 dark:text-brand-400" :"text-surface-400"} />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-surface-800">{t("settings.exportJsonTitle")}</p>
-              <p className="text-xs text-surface-500 dark:text-surface-400">
+ <p className="text-xs text-surface-500">
                 {t("settings.exportJsonDesc")}
               </p>
             </div>
             <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
-              exportFormat === "json" ? "border-brand-600 dark:border-brand-400" : "border-surface-300 dark:border-surface-600"
+ exportFormat ==="json" ?"border-brand-600 dark:border-brand-400" :"border-surface-300"
             }`}>
               {exportFormat === "json" && <div className="w-2 h-2 rounded-full bg-brand-600 dark:bg-brand-400" />}
             </div>
@@ -1011,10 +1011,10 @@ function LanguageCard() {
         <Languages size={16} className="text-brand-600 dark:text-brand-400" />
         <h2 className="font-semibold text-surface-900 dark:text-white">{t("settings.language")}</h2>
       </div>
-      <p className="text-xs text-surface-400 dark:text-surface-500 mb-4">{t("settings.languageDesc2")}</p>
+ <p className="text-xs text-surface-400 mb-4">{t("settings.languageDesc2")}</p>
       <div className="flex flex-col sm:flex-row items-start sm:items-end gap-2 sm:gap-3">
         <div className="flex-1 w-full sm:w-auto">
-          <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">{t("settings.language")}</label>
+ <label className="block text-sm font-medium text-surface-700 mb-1">{t("settings.language")}</label>
           <select
             value={selectedLang}
             onChange={e => setSelectedLang(e.target.value as Locale)}
@@ -1085,7 +1085,7 @@ function DeleteAccountSection({ t }: { t: (key: string) => string }) {
     <>
       <div className="card border-red-100 dark:border-red-900">
         <h2 className="font-semibold text-red-700 dark:text-red-400 mb-2">{t("settings.dangerZone")}</h2>
-        <p className="text-sm text-surface-500 dark:text-surface-400 mb-3">{t("settings.deleteAccountWarning")}</p>
+ <p className="text-sm text-surface-500 mb-3">{t("settings.deleteAccountWarning")}</p>
 
         {isStudent ? (
           /* Students cannot delete directly — must contact support */
@@ -1126,7 +1126,7 @@ function DeleteAccountSection({ t }: { t: (key: string) => string }) {
               </div>
               <div>
                 <h3 className="font-bold text-surface-900 dark:text-white">Konto endgültig löschen?</h3>
-                <p className="text-xs text-surface-500 dark:text-surface-400">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+ <p className="text-xs text-surface-500">Diese Aktion kann nicht rückgängig gemacht werden.</p>
               </div>
             </div>
 
@@ -1137,7 +1137,7 @@ function DeleteAccountSection({ t }: { t: (key: string) => string }) {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">
+ <label className="block text-sm font-medium text-surface-700 mb-1.5">
                 Gib <strong className="text-red-600 dark:text-red-400">KONTO LÖSCHEN</strong> ein zur Bestätigung
               </label>
               <input
@@ -1145,7 +1145,7 @@ function DeleteAccountSection({ t }: { t: (key: string) => string }) {
                 value={confirmation}
                 onChange={e => setConfirmation(e.target.value)}
                 placeholder="KONTO LÖSCHEN"
-                className="w-full px-3 py-2.5 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-white placeholder:text-surface-300 dark:placeholder:text-surface-600 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-700"
+ className="w-full px-3 py-2.5 border border-surface-200 rounded-xl text-sm bg-surface-50 text-surface-900 dark:text-white placeholder:text-surface-300 dark:placeholder:text-surface-600 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-700"
                 autoFocus
               />
             </div>
@@ -1160,7 +1160,7 @@ function DeleteAccountSection({ t }: { t: (key: string) => string }) {
               <button
                 onClick={() => { setShowModal(false); setConfirmation(""); setError(""); }}
                 disabled={deleting}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 text-sm font-medium text-surface-700 dark:text-surface-500 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors disabled:opacity-50"
+ className="flex-1 px-4 py-2.5 rounded-xl border border-surface-200 text-sm font-medium text-surface-700 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors disabled:opacity-50"
               >
                 Abbrechen
               </button>

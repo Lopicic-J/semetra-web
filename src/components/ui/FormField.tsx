@@ -25,7 +25,7 @@ export function FormField({
       {label && (
         <label htmlFor={id} className={clsx(
           "block text-sm font-medium mb-1",
-          error ? "text-red-700 dark:text-red-400" : "text-surface-700 dark:text-surface-400"
+ error ?"text-red-700 dark:text-red-400" :"text-surface-700"
         )}>
           {label}
           {required && <span className="text-red-500 ml-1" aria-label="erforderlich">*</span>}

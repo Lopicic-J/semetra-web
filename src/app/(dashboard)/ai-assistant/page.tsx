@@ -350,22 +350,22 @@ export default function AIAssistantPage() {
   if (context.topicTitle) contextParts.push(context.topicTitle);
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] dark:bg-surface-900">
+ <div className="flex h-[calc(100vh-3.5rem)]">
       {/* ── History Sidebar ── */}
       {showHistory && (
-        <div className="w-72 shrink-0 border-r border-surface-100 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 flex flex-col">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-surface-100 dark:border-surface-700">
-            <div className="flex items-center gap-2 text-sm font-semibold text-surface-700 dark:text-surface-500">
+ <div className="w-72 shrink-0 border-r border-surface-100 bg-surface-50 flex flex-col">
+ <div className="flex items-center justify-between px-4 py-3 border-b border-surface-100">
+ <div className="flex items-center gap-2 text-sm font-semibold text-surface-700">
               <History size={16} />
               {t("ai.history") || "Verlauf"}
             </div>
-            <button onClick={() => setShowHistory(false)} className="p-1 rounded hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400 dark:text-surface-500">
+ <button onClick={() => setShowHistory(false)} className="p-1 rounded hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400">
               <PanelLeftClose size={16} />
             </button>
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
             {conversations.length === 0 ? (
-              <p className="text-xs text-surface-400 dark:text-surface-500 text-center py-8">{t("ai.noHistory") || "Noch keine Gespräche"}</p>
+ <p className="text-xs text-surface-400 text-center py-8">{t("ai.noHistory") ||"Noch keine Gespräche"}</p>
             ) : (
               conversations.map(conv => (
                 <div
@@ -373,7 +373,7 @@ export default function AIAssistantPage() {
                   className={`group flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer text-xs transition-all ${
                     activeConvId === conv.id
                       ? "bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300"
-                      : "text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700"
+ :"text-surface-600 hover:bg-surface-100 dark:hover:bg-surface-700"
                   }`}
                   onClick={() => loadConversation(conv.id)}
                 >
@@ -381,7 +381,7 @@ export default function AIAssistantPage() {
                   <span className="flex-1 truncate">{conv.title}</span>
                   <button
                     onClick={e => { e.stopPropagation(); deleteConversation(conv.id); }}
-                    className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900 text-surface-400 dark:text-surface-500 hover:text-red-500 dark:hover:text-red-400 transition-all"
+ className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900 text-surface-400 hover:text-red-500 dark:hover:text-red-400 transition-all"
                   >
                     <Trash2 size={12} />
                   </button>
@@ -393,15 +393,15 @@ export default function AIAssistantPage() {
       )}
 
       {/* ── Main Chat Area ── */}
-      <div className="flex-1 flex flex-col min-w-0 dark:bg-surface-900">
+ <div className="flex-1 flex flex-col min-w-0">
       {/* Header */}
-      <div className="shrink-0 border-b border-surface-100 dark:border-surface-700 bg-[rgb(var(--card-bg))] dark:bg-surface-800 px-4 sm:px-6 py-3">
+ <div className="shrink-0 border-b border-surface-100 bg-[rgb(var(--card-bg))] px-4 sm:px-6 py-3">
         <div className="flex items-center justify-between max-w-3xl mx-auto gap-3">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             {/* History toggle */}
             <button
               onClick={() => setShowHistory(!showHistory)}
-              className="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 text-surface-400 dark:text-surface-500 shrink-0"
+ className="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 text-surface-400 shrink-0"
               title={t("ai.history") || "Verlauf"}
             >
               {showHistory ? <PanelLeftClose size={16} /> : <PanelLeft size={16} />}
@@ -411,18 +411,18 @@ export default function AIAssistantPage() {
             </div>
             <div className="min-w-0">
               <h1 className="text-lg font-bold text-surface-900 dark:text-white truncate">{t("ai.title")}</h1>
-              <p className="text-xs text-surface-500 dark:text-surface-400">{t("ai.subtitle")}</p>
+ <p className="text-xs text-surface-500">{t("ai.subtitle")}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {/* Usage counter */}
             {!isPro && (
-              <div className="flex items-center gap-1.5 text-xs text-surface-500 dark:text-surface-400 bg-surface-50 dark:bg-surface-700 px-2.5 py-1 rounded-lg whitespace-nowrap">
+ <div className="flex items-center gap-1.5 text-xs text-surface-500 bg-surface-50 px-2.5 py-1 rounded-lg whitespace-nowrap">
                 <Zap size={12} className={usage.remaining <= 1 ? "text-red-500" : "text-brand-500"} />
                 {usage.remaining}/{usage.max} {t("ai.actionsLeft")}
               </div>
             )}
-            <button onClick={newChat} className="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 text-surface-400 dark:text-surface-500" title={t("ai.newChat")}>
+ <button onClick={newChat} className="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 text-surface-400" title={t("ai.newChat")}>
               <RotateCcw size={16} />
             </button>
           </div>
@@ -430,7 +430,7 @@ export default function AIAssistantPage() {
       </div>
 
       {/* Mode & Context Selector */}
-      <div className="shrink-0 bg-surface-50 dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 px-4 sm:px-6 py-2 overflow-x-auto">
+ <div className="shrink-0 bg-surface-50 border-b border-surface-100 px-4 sm:px-6 py-2 overflow-x-auto">
         <div className="flex items-center gap-2 max-w-3xl mx-auto flex-wrap">
           {/* Mode pills */}
           {(["chat", "explain", "quiz", "summarize", "study_plan", "module_advice"] as ChatMode[]).map(m => {
@@ -440,7 +440,7 @@ export default function AIAssistantPage() {
                 key={m}
                 onClick={() => setMode(m)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
-                  mode === m ? cfg.colorClass + " shadow-sm" : "text-surface-500 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700"
+ mode === m ? cfg.colorClass +" shadow-sm" :"text-surface-500 hover:bg-surface-100 dark:hover:bg-surface-700"
                 }`}
               >
                 {cfg.icon}
@@ -449,7 +449,7 @@ export default function AIAssistantPage() {
             );
           })}
 
-          <div className="w-px h-5 bg-surface-200 dark:bg-surface-700 mx-1" />
+ <div className="w-px h-5 bg-surface-200 mx-1" />
 
           {/* Context button */}
           <button
@@ -457,7 +457,7 @@ export default function AIAssistantPage() {
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
               contextParts.length > 0
                 ? "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300"
-                : "text-surface-500 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700"
+ :"text-surface-500 hover:bg-surface-100 dark:hover:bg-surface-700"
             }`}
           >
             <BookOpen size={12} />
@@ -468,13 +468,13 @@ export default function AIAssistantPage() {
 
         {/* Context dropdown */}
         {showContext && (
-          <div className="max-w-3xl mx-auto mt-2 p-3 bg-[rgb(var(--card-bg))] dark:bg-surface-700 rounded-xl border border-surface-100 dark:border-surface-600 shadow-sm">
+ <div className="max-w-3xl mx-auto mt-2 p-3 bg-[rgb(var(--card-bg))] rounded-xl border border-surface-100 shadow-sm">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {/* Module */}
               <div>
-                <label className="text-[10px] font-semibold text-surface-500 dark:text-surface-400 uppercase">{t("ai.contextModule")}</label>
+ <label className="text-[10px] font-semibold text-surface-500 uppercase">{t("ai.contextModule")}</label>
                 <select
-                  className="input text-xs mt-1 dark:bg-surface-800 dark:text-white dark:border-surface-600"
+ className="input text-xs mt-1 dark:text-white"
                   value={context.moduleId ?? ""}
                   onChange={e => {
                     const mod = modules.find(m => m.id === e.target.value);
@@ -489,9 +489,9 @@ export default function AIAssistantPage() {
               </div>
               {/* Exam */}
               <div>
-                <label className="text-[10px] font-semibold text-surface-500 dark:text-surface-400 uppercase">{t("ai.contextExam")}</label>
+ <label className="text-[10px] font-semibold text-surface-500 uppercase">{t("ai.contextExam")}</label>
                 <select
-                  className="input text-xs mt-1 dark:bg-surface-800 dark:text-white dark:border-surface-600"
+ className="input text-xs mt-1 dark:text-white"
                   value={context.examId ?? ""}
                   onChange={e => {
                     const exam = exams.find(ex => ex.id === e.target.value);
@@ -506,9 +506,9 @@ export default function AIAssistantPage() {
               </div>
               {/* Topic */}
               <div>
-                <label className="text-[10px] font-semibold text-surface-500 dark:text-surface-400 uppercase">{t("ai.contextTopic")}</label>
+ <label className="text-[10px] font-semibold text-surface-500 uppercase">{t("ai.contextTopic")}</label>
                 <select
-                  className="input text-xs mt-1 dark:bg-surface-800 dark:text-white dark:border-surface-600"
+ className="input text-xs mt-1 dark:text-white"
                   value={context.topicId ?? ""}
                   onChange={e => {
                     const topic = topics.find(tp => tp.id === e.target.value);
@@ -535,7 +535,7 @@ export default function AIAssistantPage() {
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 dark:bg-surface-900">
+ <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
         <div className="max-w-3xl mx-auto space-y-4">
           {messages.length === 0 ? (
             <WelcomeScreen mode={mode} onSuggestion={(text) => { setInput(text); inputRef.current?.focus(); }} />
@@ -549,7 +549,7 @@ export default function AIAssistantPage() {
       </div>
 
       {/* Input Area */}
-      <div className="shrink-0 border-t border-surface-100 dark:border-surface-700 bg-[rgb(var(--card-bg))] dark:bg-surface-800 px-4 sm:px-6 py-3">
+ <div className="shrink-0 border-t border-surface-100 bg-[rgb(var(--card-bg))] px-4 sm:px-6 py-3">
         <div className="max-w-3xl mx-auto">
           {/* Usage limit warning */}
           {!isPro && !usage.allowed && (
@@ -573,7 +573,7 @@ export default function AIAssistantPage() {
                 onKeyDown={handleKeyDown}
                 placeholder={t(`ai.placeholder.${mode}`)}
                 disabled={streaming || (!isPro && !usage.allowed)}
-                className="input text-sm resize-none pr-4 min-h-[42px] max-h-[120px] dark:bg-surface-700 dark:text-white dark:border-surface-600 dark:placeholder-surface-500"
+ className="input text-sm resize-none pr-4 min-h-[42px] max-h-[120px] dark:text-white"
                 rows={1}
                 style={{ height: "auto" }}
                 onInput={e => {
@@ -597,7 +597,7 @@ export default function AIAssistantPage() {
               </button>
             )}
           </div>
-          <p className="text-[10px] text-surface-400 dark:text-surface-500 mt-1.5 text-center">{t("ai.disclaimer")}</p>
+ <p className="text-[10px] text-surface-400 mt-1.5 text-center">{t("ai.disclaimer")}</p>
         </div>
       </div>
       </div>{/* end Main Chat Area */}
@@ -622,17 +622,17 @@ function WelcomeScreen({ mode, onSuggestion }: { mode: ChatMode; onSuggestion: (
         <Sparkles size={28} />
       </div>
       <h2 className="text-xl font-bold text-surface-900 dark:text-white mb-1">{t("ai.welcomeTitle")}</h2>
-      <p className="text-sm text-surface-500 dark:text-surface-400 mb-8 max-w-md">{t("ai.welcomeDesc")}</p>
+ <p className="text-sm text-surface-500 mb-8 max-w-md">{t("ai.welcomeDesc")}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">
         {suggestions.map((s, i) => (
           <button
             key={i}
             onClick={() => onSuggestion(s.text)}
-            className={`flex items-start gap-3 p-4 rounded-xl border border-surface-200 dark:border-surface-700 text-left transition-all dark:bg-surface-800 ${s.color}`}
+ className={`flex items-start gap-3 p-4 rounded-xl border border-surface-200 text-left transition-all ${s.color}`}
           >
-            <span className="text-surface-400 dark:text-surface-500 mt-0.5">{s.icon}</span>
-            <span className="text-sm text-surface-700 dark:text-surface-500">{s.text}</span>
+ <span className="text-surface-400 mt-0.5">{s.icon}</span>
+ <span className="text-sm text-surface-700">{s.text}</span>
           </button>
         ))}
       </div>
@@ -654,7 +654,7 @@ function ChatBubble({ message, streaming }: { message: ChatMessage; streaming: b
       <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
         isUser
           ? "bg-brand-600 text-white dark:bg-brand-700"
-          : "bg-surface-100 dark:bg-surface-700 text-surface-800 dark:text-white"
+ :"bg-surface-100 text-surface-800 dark:text-white"
       }`}>
         {isUser ? (
           <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -662,9 +662,9 @@ function ChatBubble({ message, streaming }: { message: ChatMessage; streaming: b
           <div className="text-sm whitespace-pre-wrap leading-relaxed">
             {!message.content && streaming ? (
               <span className="inline-flex gap-1">
-                <span className="w-1.5 h-1.5 bg-surface-400 dark:bg-surface-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                <span className="w-1.5 h-1.5 bg-surface-400 dark:bg-surface-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                <span className="w-1.5 h-1.5 bg-surface-400 dark:bg-surface-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+ <span className="w-1.5 h-1.5 bg-surface-400 rounded-full animate-bounce" style={{ animationDelay:"0ms" }} />
+ <span className="w-1.5 h-1.5 bg-surface-400 rounded-full animate-bounce" style={{ animationDelay:"150ms" }} />
+ <span className="w-1.5 h-1.5 bg-surface-400 rounded-full animate-bounce" style={{ animationDelay:"300ms" }} />
               </span>
             ) : (
               message.content

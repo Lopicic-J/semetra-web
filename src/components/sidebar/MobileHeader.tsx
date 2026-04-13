@@ -61,13 +61,13 @@ export default function MobileHeader() {
   return (
     <>
       {/* Mobile top bar */}
-      <header className="md:hidden flex items-center justify-between px-4 h-14 bg-[rgb(var(--card-bg))] border-b border-surface-200/60 dark:border-surface-800/60 shrink-0 safe-area-top">
+ <header className="md:hidden flex items-center justify-between px-4 h-14 bg-[rgb(var(--card-bg))] border-b border-surface-200/60 shrink-0 safe-area-top">
         <button
           onClick={() => setOpen(true)}
           className="p-2.5 -ml-2 rounded-xl hover:bg-surface-100 dark:hover:bg-surface-800 active:bg-surface-200 dark:active:bg-surface-700 transition-colors"
           aria-label="Menü öffnen"
         >
-          <Menu size={22} className="text-surface-600 dark:text-surface-400" />
+ <Menu size={22} className="text-surface-600" />
         </button>
 
         <div className="flex items-center gap-2">
@@ -81,7 +81,7 @@ export default function MobileHeader() {
 
         <div className="flex items-center gap-1">
           {profileLoading ? (
-            <span className="text-[9px] font-bold px-2 py-1 rounded-md bg-surface-100 dark:bg-surface-800 text-transparent animate-pulse w-8">
+ <span className="text-[9px] font-bold px-2 py-1 rounded-md bg-surface-100 text-transparent animate-pulse w-8">
               —
             </span>
           ) : (
@@ -109,7 +109,7 @@ export default function MobileHeader() {
       <aside
         className={clsx(
           "md:hidden fixed inset-y-0 left-0 z-50 w-[280px] max-w-[85vw]",
-          "bg-[rgb(var(--card-bg))] dark:bg-surface-900 shadow-2xl",
+"bg-[rgb(var(--card-bg))] shadow-2xl",
           "transition-transform duration-300 ease-out flex flex-col",
           open ? "translate-x-0" : "-translate-x-full"
         )}
@@ -118,14 +118,14 @@ export default function MobileHeader() {
         aria-label="Navigation"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-surface-100 dark:border-surface-800 safe-area-top">
+ <div className="flex items-center justify-between px-4 py-4 border-b border-surface-100 safe-area-top">
           <div className="flex items-center gap-2.5">
             <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-md shadow-brand-500/20">
               <Gem size={17} strokeWidth={2.2} />
             </div>
             <div>
               <p className="font-bold text-surface-900 dark:text-white text-sm leading-tight tracking-tight">Semetra</p>
-              <p className="text-[10px] text-surface-400 dark:text-surface-500 leading-tight">{t("sidebar.study")}</p>
+ <p className="text-[10px] text-surface-400 leading-tight">{t("sidebar.study")}</p>
             </div>
           </div>
           <button
@@ -142,7 +142,7 @@ export default function MobileHeader() {
           {getFilteredNavGroups(userRole).map((group) => (
             <div key={group.labelKey}>
               {group.labelKey && (
-                <p className="px-3 pt-5 pb-2 text-[10px] font-semibold text-surface-400 dark:text-surface-500 tracking-wider uppercase select-none">
+ <p className="px-3 pt-5 pb-2 text-[10px] font-semibold text-surface-400 tracking-wider uppercase select-none">
                   {t(group.labelKey)}
                 </p>
               )}
@@ -173,8 +173,8 @@ export default function MobileHeader() {
                           active
                             ? "bg-brand-600 text-white shadow-md shadow-brand-600/20"
                             : locked
-                              ? "text-surface-400 dark:text-surface-500 hover:bg-surface-50 dark:hover:bg-surface-800"
-                              : "text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 active:bg-surface-200 dark:active:bg-surface-700"
+ ?"text-surface-400 hover:bg-surface-50 dark:hover:bg-surface-800"
+ :"text-surface-600 hover:bg-surface-100 dark:hover:bg-surface-800 active:bg-surface-200 dark:active:bg-surface-700"
                         )}
                       >
                         <Icon size={18} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
@@ -193,8 +193,8 @@ export default function MobileHeader() {
                           active
                             ? "bg-brand-600 text-white shadow-md shadow-brand-600/20"
                             : locked
-                              ? "text-surface-400 dark:text-surface-500 hover:bg-surface-50 dark:hover:bg-surface-800"
-                              : "text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 active:bg-surface-200 dark:active:bg-surface-700"
+ ?"text-surface-400 hover:bg-surface-50 dark:hover:bg-surface-800"
+ :"text-surface-600 hover:bg-surface-100 dark:hover:bg-surface-800 active:bg-surface-200 dark:active:bg-surface-700"
                         )}
                       >
                         <Icon size={18} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
@@ -218,7 +218,7 @@ export default function MobileHeader() {
                                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-[12px] font-medium transition-all duration-150 active:scale-[0.98]",
                                 childActive
                                   ? "bg-brand-500 text-white"
-                                  : "text-surface-500 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800"
+ :"text-surface-500 hover:bg-surface-100 dark:hover:bg-surface-800"
                               )}
                             >
                               <span className="flex-1 truncate">{t(child.labelKey)}</span>
@@ -236,7 +236,7 @@ export default function MobileHeader() {
         </nav>
 
         {/* Bottom */}
-        <div className="px-3 pt-2 pb-3 border-t border-surface-100 dark:border-surface-800 space-y-0.5">
+ <div className="px-3 pt-2 pb-3 border-t border-surface-100 space-y-0.5">
           {BOTTOM_ITEMS.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.href;
@@ -249,7 +249,7 @@ export default function MobileHeader() {
                   "flex items-center gap-3 px-3 py-3 rounded-xl text-[13px] font-medium transition-all duration-150 active:scale-[0.98]",
                   active
                     ? "bg-brand-600 text-white shadow-md shadow-brand-600/20"
-                    : "text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800"
+ :"text-surface-600 hover:bg-surface-100 dark:hover:bg-surface-800"
                 )}
               >
                 <Icon size={18} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
@@ -259,7 +259,7 @@ export default function MobileHeader() {
           })}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-[13px] font-medium text-surface-400 dark:text-surface-500 hover:bg-danger-50 dark:hover:bg-danger-500/10 hover:text-danger-600 dark:hover:text-danger-400 transition-all duration-150 active:scale-[0.98]"
+ className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-[13px] font-medium text-surface-400 hover:bg-danger-50 dark:hover:bg-danger-500/10 hover:text-danger-600 dark:hover:text-danger-400 transition-all duration-150 active:scale-[0.98]"
           >
             <LogOut size={18} strokeWidth={1.8} className="shrink-0" />
             {t("sidebar.logout")}

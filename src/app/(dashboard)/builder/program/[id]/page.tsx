@@ -346,7 +346,7 @@ export default function ProgramDetailPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="z.B. Informatik Bachelor"
-              className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -358,7 +358,7 @@ export default function ProgramDetailPage() {
               <select
                 value={degreeLevel}
                 onChange={(e) => handleDegreeLevelChange(e.target.value)}
-                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {DEGREE_LEVELS.map((d) => (
                   <option key={d.value} value={d.value}>
@@ -375,7 +375,7 @@ export default function ProgramDetailPage() {
               <select
                 value={facultyId}
                 onChange={(e) => setFacultyId(e.target.value)}
-                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Keine Auswahl</option>
                 {faculties.map((f) => (
@@ -396,7 +396,7 @@ export default function ProgramDetailPage() {
                 type="number"
                 value={totalEcts}
                 onChange={(e) => setTotalEcts(e.target.value)}
-                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -408,13 +408,13 @@ export default function ProgramDetailPage() {
                 type="number"
                 value={durationTerms}
                 onChange={(e) => setDurationTerms(e.target.value)}
-                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
           {/* Study Mode (TZ/VZ) */}
-          <div className="pt-2 border-t border-surface-200 dark:border-surface-700">
+ <div className="pt-2 border-t border-surface-200">
             <label className="block text-sm font-medium text-surface-900 dark:text-white mb-3">
               Studienmodell
             </label>
@@ -431,7 +431,7 @@ export default function ProgramDetailPage() {
                   className={`px-3 py-2 rounded-lg text-sm font-medium border-2 transition ${
                     studyModeAvailable === opt.value
                       ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300"
-                      : "border-surface-200 dark:border-surface-600 bg-surface-50 dark:bg-surface-800 text-surface-600 dark:text-surface-400 hover:border-surface-300"
+ :"border-surface-200 bg-surface-50 text-surface-600 hover:border-surface-300"
                   }`}
                 >
                   {opt.label}
@@ -443,18 +443,18 @@ export default function ProgramDetailPage() {
             {(studyModeAvailable === "both" || studyModeAvailable === "part_time") && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+ <label className="block text-xs font-medium text-surface-600 mb-1">
                     Vollzeit-Semester
                   </label>
                   <input
                     type="number"
                     value={durationTerms}
                     onChange={(e) => setDurationTerms(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-sm text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-3 py-1.5 bg-surface-50 border border-surface-300 rounded-lg text-sm text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+ <label className="block text-xs font-medium text-surface-600 mb-1">
                     Teilzeit-Semester
                   </label>
                   <input
@@ -462,7 +462,7 @@ export default function ProgramDetailPage() {
                     value={durationTermsPartTime}
                     onChange={(e) => setDurationTermsPartTime(e.target.value)}
                     placeholder={durationTerms ? `z.B. ${Math.ceil(parseInt(durationTerms) * 1.5)}` : ""}
-                    className="w-full px-3 py-1.5 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-sm text-surface-900 dark:text-white placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-3 py-1.5 bg-surface-50 border border-surface-300 rounded-lg text-sm text-surface-900 dark:text-white placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -475,7 +475,7 @@ export default function ProgramDetailPage() {
                 type="checkbox"
                 checked={thesisRequired}
                 onChange={(e) => setThesisRequired(e.target.checked)}
-                className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-blue-600 focus:ring-blue-500"
+ className="w-4 h-4 rounded border-surface-300 text-blue-600 focus:ring-blue-500"
               />
               <span className="text-sm font-medium text-surface-900 dark:text-white">
                 Thesis erforderlich
@@ -487,7 +487,7 @@ export default function ProgramDetailPage() {
                 type="checkbox"
                 checked={internshipRequired}
                 onChange={(e) => setInternshipRequired(e.target.checked)}
-                className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-blue-600 focus:ring-blue-500"
+ className="w-4 h-4 rounded border-surface-300 text-blue-600 focus:ring-blue-500"
               />
               <span className="text-sm font-medium text-surface-900 dark:text-white">
                 Praktikum erforderlich
@@ -499,7 +499,7 @@ export default function ProgramDetailPage() {
                 type="checkbox"
                 checked={finalExamRequired}
                 onChange={(e) => setFinalExamRequired(e.target.checked)}
-                className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-blue-600 focus:ring-blue-500"
+ className="w-4 h-4 rounded border-surface-300 text-blue-600 focus:ring-blue-500"
               />
               <span className="text-sm font-medium text-surface-900 dark:text-white">
                 Abschlussprüfung erforderlich
@@ -621,7 +621,7 @@ export default function ProgramDetailPage() {
 
           {requirementGroups.length === 0 ? (
             <Card className="text-center py-8">
-              <p className="text-surface-600 dark:text-surface-400 mb-4">Noch keine Anforderungsgruppen</p>
+ <p className="text-surface-600 mb-4">Noch keine Anforderungsgruppen</p>
             </Card>
           ) : (
             <div className="space-y-3">
@@ -654,12 +654,12 @@ export default function ProgramDetailPage() {
                               </span>
                             )}
                           </div>
-                          <p className="text-sm text-surface-600 dark:text-surface-400 mt-1">
+ <p className="text-sm text-surface-600 mt-1">
                             {groupModuleList.length} Module · {groupEcts} ECTS
                             {minCreditsRequired > 0 && ` / ${minCreditsRequired} erforderlich`}
                           </p>
                           {minCreditsRequired > 0 && (
-                            <div className="mt-2 h-2 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden w-32">
+ <div className="mt-2 h-2 bg-surface-200 rounded-full overflow-hidden w-32">
                               <div
                                 className={`h-full transition-all ${
                                   ectsPercentage >= 100 ? "bg-green-500" : "bg-amber-500"
@@ -689,19 +689,19 @@ export default function ProgramDetailPage() {
                     </div>
 
                     {isExpanded && (
-                      <div className="mt-4 pt-4 border-t border-surface-200 dark:border-surface-700 space-y-2">
+ <div className="mt-4 pt-4 border-t border-surface-200 space-y-2">
                         {groupModuleList.length === 0 ? (
-                          <p className="text-sm text-surface-600 dark:text-surface-400">Keine Module in dieser Gruppe</p>
+ <p className="text-sm text-surface-600">Keine Module in dieser Gruppe</p>
                         ) : (
                           groupModuleList.map((mod) => (
                             <Link key={mod.id} href={`/builder/module/${mod.id}`}>
-                              <div className="flex items-center justify-between p-3 hover:bg-surface-100 dark:hover:bg-surface-700 rounded transition-colors border border-surface-200 dark:border-surface-700">
+ <div className="flex items-center justify-between p-3 hover:bg-surface-100 dark:hover:bg-surface-700 rounded transition-colors border border-surface-200">
                                 <div className="flex-1">
                                   <p className="text-sm font-medium text-surface-900 dark:text-white">
                                     {mod.code && `[${mod.code}] `}
                                     {mod.name}
                                   </p>
-                                  <p className="text-xs text-surface-600 dark:text-surface-400 mt-1">
+ <p className="text-xs text-surface-600 mt-1">
                                     {mod.ects} ECTS
                                     {mod.semester && ` · Semester ${mod.semester}`}
                                     {mod.status === "active" && ` · Veröffentlicht`}
@@ -738,7 +738,7 @@ export default function ProgramDetailPage() {
 
           {modules.length === 0 ? (
             <Card className="text-center py-8">
-              <p className="text-surface-600 dark:text-surface-400 mb-4">Noch keine Module angelegt</p>
+ <p className="text-surface-600 mb-4">Noch keine Module angelegt</p>
               <button
                 onClick={handleNewModule}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
@@ -755,7 +755,7 @@ export default function ProgramDetailPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-semibold text-surface-900 dark:text-white">{mod.name}</h3>
-                        <p className="text-sm text-surface-600 dark:text-surface-400 mt-1">
+ <p className="text-sm text-surface-600 mt-1">
                           {mod.code} · {mod.ects} ECTS
                         </p>
                       </div>

@@ -91,9 +91,9 @@ function getModuleStatus(
 const STATUS_CONFIG: Record<ModuleStatus, { icon: typeof CheckCircle; color: string; bg: string; label: string }> = {
   completed:   { icon: CheckCircle,    color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800", label: "Bestanden" },
   in_progress: { icon: Clock,          color: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800",       label: "Laufend" },
-  planned:     { icon: Target,         color: "text-surface-400", bg: "bg-surface-50 dark:bg-surface-800 border-surface-200 dark:border-surface-700",  label: "Geplant" },
+ planned: { icon: Target, color:"text-surface-400", bg:"bg-surface-50 border-surface-200", label:"Geplant" },
   failed:      { icon: AlertTriangle,  color: "text-red-600",     bg: "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800",         label: "Nicht bestanden" },
-  locked:      { icon: Lock,           color: "text-surface-300", bg: "bg-surface-50/50 dark:bg-surface-900 border-dashed border-surface-200 dark:border-surface-700", label: "Gesperrt" },
+ locked: { icon: Lock, color:"text-surface-300", bg:"bg-surface-50/50 border-dashed border-surface-200", label:"Gesperrt" },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -137,7 +137,7 @@ function ModuleCard({
               <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${
                 status === "completed" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" :
                 status === "failed" ? "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300" :
-                "bg-surface-100 text-surface-600 dark:bg-surface-700 dark:text-surface-500"
+"bg-surface-100 text-surface-600"
               }`}>
                 {formatGradeValue(grade, { decimalPlaces: 1 } as GradeScale)}
               </span>
@@ -222,13 +222,13 @@ function RequirementGroupCard({
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <div className="w-24 h-2 rounded-full bg-surface-100 dark:bg-surface-700 overflow-hidden">
+ <div className="w-24 h-2 rounded-full bg-surface-100 overflow-hidden">
             <div
               className="h-full rounded-full bg-brand-500 transition-all duration-500"
               style={{ width: `${progress.percentage}%` }}
             />
           </div>
-          <span className="text-xs font-semibold text-surface-600 dark:text-surface-500 w-10 text-right">{progress.percentage}%</span>
+ <span className="text-xs font-semibold text-surface-600 w-10 text-right">{progress.percentage}%</span>
         </div>
       </button>
 
@@ -351,23 +351,23 @@ export function ProgramMap({
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-5">
-          <div className="text-center p-3 rounded-xl bg-surface-50 dark:bg-surface-800">
+ <div className="text-center p-3 rounded-xl bg-surface-50">
             <p className="text-2xl font-bold text-brand-600">{overallProgress.percentage}%</p>
             <p className="text-xs text-surface-500 mt-0.5">{t("academic.completion") || "Fortschritt"}</p>
           </div>
-          <div className="text-center p-3 rounded-xl bg-surface-50 dark:bg-surface-800">
+ <div className="text-center p-3 rounded-xl bg-surface-50">
             <p className="text-2xl font-bold text-surface-900 dark:text-white">
               {overallProgress.earnedCredits}/{overallProgress.totalRequired}
             </p>
             <p className="text-xs text-surface-500 mt-0.5">{gs.creditLabel}</p>
           </div>
-          <div className="text-center p-3 rounded-xl bg-surface-50 dark:bg-surface-800">
+ <div className="text-center p-3 rounded-xl bg-surface-50">
             <p className="text-2xl font-bold text-surface-900 dark:text-white">
               {overallProgress.completedModules}/{overallProgress.totalModules}
             </p>
             <p className="text-xs text-surface-500 mt-0.5">{t("academic.modules") || "Module"}</p>
           </div>
-          <div className="text-center p-3 rounded-xl bg-surface-50 dark:bg-surface-800">
+ <div className="text-center p-3 rounded-xl bg-surface-50">
             <p className="text-2xl font-bold text-surface-900 dark:text-white">
               {gpa?.gpa != null ? gpa.gpa.toFixed(2) : "–"}
             </p>
@@ -377,7 +377,7 @@ export function ProgramMap({
 
         {/* Progress bar */}
         <div className="mt-4">
-          <div className="w-full h-3 rounded-full bg-surface-100 dark:bg-surface-700 overflow-hidden">
+ <div className="w-full h-3 rounded-full bg-surface-100 overflow-hidden">
             <div
               className="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-600 transition-all duration-700"
               style={{ width: `${overallProgress.percentage}%` }}

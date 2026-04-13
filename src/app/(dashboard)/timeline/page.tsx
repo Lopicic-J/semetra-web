@@ -172,7 +172,7 @@ export default function TimelinePage() {
             <Calendar className="text-brand-600" size={26} />
             {t("nav.timeline")}
           </h1>
-          <p className="text-surface-500 dark:text-surface-400 text-sm mt-0.5">
+ <p className="text-surface-500 text-sm mt-0.5">
             {t("timeline.subtitle", { count: items.length, overdue: overdueCount > 0 ? t("timeline.overdue", { count: overdueCount }) : "" })}
           </p>
         </div>
@@ -180,26 +180,26 @@ export default function TimelinePage() {
 
       {/* Filters */}
       <div className="flex items-center gap-3 mb-6 flex-wrap">
-        <div className="flex gap-1 bg-surface-100 dark:bg-surface-800 rounded-xl p-1">
+ <div className="flex gap-1 bg-surface-100 rounded-xl p-1">
           {RANGES.map(r => (
             <button key={r.days} onClick={() => setRangeDays(r.days)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                rangeDays === r.days ? "bg-[rgb(var(--card-bg))] dark:bg-surface-700 text-surface-900 dark:text-white shadow-sm" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200"
+ rangeDays === r.days ?"bg-[rgb(var(--card-bg))] text-surface-900 dark:text-white shadow-sm" :"text-surface-500 hover:text-surface-700 dark:hover:text-surface-200"
               }`}>
               {r.label}
             </button>
           ))}
         </div>
-        <label className="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-500 cursor-pointer">
+ <label className="flex items-center gap-2 text-sm text-surface-600 cursor-pointer">
           <input type="checkbox" checked={showOverdue} onChange={e => setShowOverdue(e.target.checked)}
-            className="rounded border-surface-300 dark:border-surface-600 text-brand-600 dark:text-brand-500 focus:ring-brand-500" />
+ className="rounded border-surface-300 text-brand-600 dark:text-brand-500 focus:ring-brand-500" />
           {t("timeline.showOverdue")}
         </label>
       </div>
 
       {/* Timeline */}
       {items.length === 0 ? (
-        <div className="text-center py-20 text-surface-400 dark:text-surface-500">
+ <div className="text-center py-20 text-surface-400">
           <Calendar size={48} className="mx-auto mb-3 opacity-30" />
           <p className="font-medium">{t("timeline.noEntries")}</p>
           <p className="text-sm mt-1">{t("timeline.noEntriesHint")}</p>
@@ -216,13 +216,13 @@ export default function TimelinePage() {
                 <div className="flex items-center gap-2 mb-3">
                   {isOverdue && <AlertTriangle size={14} className="text-red-500" />}
                   <h2 className={`text-sm font-semibold uppercase tracking-wider ${
-                    isOverdue ? "text-red-500" : label === t("timeline.groupToday") ? "text-brand-600" : "text-surface-400 dark:text-surface-500"
+ isOverdue ?"text-red-500" : label === t("timeline.groupToday") ?"text-brand-600" :"text-surface-400"
                   }`}>
                     {label}
                   </h2>
-                  <span className="text-xs text-surface-400 dark:text-surface-500">({group.length})</span>
+ <span className="text-xs text-surface-400">({group.length})</span>
                 </div>
-                <div className="space-y-2 relative pl-6 border-l-2 border-surface-100 dark:border-surface-700">
+ <div className="space-y-2 relative pl-6 border-l-2 border-surface-100">
                   {group.map(item => {
                     const isExpanded = expandedItems.has(item.id);
 
@@ -240,7 +240,7 @@ export default function TimelinePage() {
                         <div className={`rounded-xl border transition-colors ${
                           isOverdue
                             ? "border-red-200 dark:border-red-900 bg-red-50/50 dark:bg-red-950/20"
-                            : "border-surface-100 dark:border-surface-700 hover:border-brand-200 dark:hover:border-brand-700 bg-[rgb(var(--card-bg))] dark:bg-surface-800"
+ :"border-surface-100 hover:border-brand-200 dark:hover:border-brand-700 bg-[rgb(var(--card-bg))]"
                         }`}>
                           {/* Header - clickable */}
                           <button
@@ -261,10 +261,10 @@ export default function TimelinePage() {
                               <p className="text-sm font-medium text-surface-800 dark:text-white">{item.title}</p>
                               <div className="flex items-center gap-2 mt-0.5">
                                 {item.moduleName && (
-                                  <span className="text-[10px] text-surface-500 dark:text-surface-400">{item.moduleName}</span>
+ <span className="text-[10px] text-surface-500">{item.moduleName}</span>
                                 )}
                                 {item.location && (
-                                  <span className="text-[10px] text-surface-400 dark:text-surface-500">· {item.location}</span>
+ <span className="text-[10px] text-surface-400">· {item.location}</span>
                                 )}
                               </div>
                             </div>
@@ -275,21 +275,21 @@ export default function TimelinePage() {
                                 <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                                   item.priority === "high" ? "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300" :
                                   item.priority === "medium" ? "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300" :
-                                  "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-500"
+"bg-surface-100 text-surface-600"
                                 }`}>
                                   {item.priority === "high" ? t("timeline.priorityHigh") :
                                    item.priority === "medium" ? t("timeline.priorityMedium") :
                                    t("timeline.priorityLow")}
                                 </span>
                               )}
-                              <span className="text-xs text-surface-500 dark:text-surface-400 w-10 text-right">
+ <span className="text-xs text-surface-500 w-10 text-right">
                                 {item.date.toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" })}
                               </span>
                               <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                                 item.type === "exam" ? "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300" :
                                 item.priority === "high" ? "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300" :
                                 item.priority === "medium" ? "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300" :
-                                "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-500"
+"bg-surface-100 text-surface-600"
                               }`}>
                                 {item.type === "exam" ? t("timeline.exam") :
                                   item.daysLeft < 0 ? t("timeline.daysOverdue", { days: Math.abs(item.daysLeft) }) :
@@ -298,34 +298,34 @@ export default function TimelinePage() {
                                 }
                               </span>
                               {isExpanded ? (
-                                <ChevronUp size={16} className="text-surface-400 dark:text-surface-500" />
+ <ChevronUp size={16} className="text-surface-400" />
                               ) : (
-                                <ChevronDown size={16} className="text-surface-400 dark:text-surface-500" />
+ <ChevronDown size={16} className="text-surface-400" />
                               )}
                             </div>
                           </button>
 
                           {/* Expanded content */}
                           {isExpanded && (
-                            <div className="border-t border-surface-100 dark:border-surface-700 px-3 py-3 space-y-3 bg-surface-50/30 dark:bg-surface-700/30">
+ <div className="border-t border-surface-100 px-3 py-3 space-y-3 bg-surface-50/30">
                               {/* Description */}
                               {item.description && (
                                 <div>
-                                  <p className="text-sm text-surface-600 dark:text-surface-500">{item.description}</p>
+ <p className="text-sm text-surface-600">{item.description}</p>
                                 </div>
                               )}
 
                               {/* Notes */}
                               {item.notes && (
                                 <div>
-                                  <p className="text-xs text-surface-500 dark:text-surface-400 italic">{item.notes}</p>
+ <p className="text-xs text-surface-500 italic">{item.notes}</p>
                                 </div>
                               )}
 
                               {/* Documents */}
                               {item.documents && item.documents.length > 0 && (
                                 <div>
-                                  <p className="text-xs font-medium text-surface-600 dark:text-surface-500 mb-2">{t("timeline.documents")}</p>
+ <p className="text-xs font-medium text-surface-600 mb-2">{t("timeline.documents")}</p>
                                   <div className="flex flex-wrap gap-2">
                                     {item.documents.map((doc, idx) => (
                                       <a
@@ -333,15 +333,15 @@ export default function TimelinePage() {
                                         href={doc.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 transition-colors"
+ className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-100 hover:bg-surface-200 dark:hover:bg-surface-600 transition-colors"
                                       >
                                         {doc.kind === "file" || doc.kind === "pdf" ? (
-                                          <FileText size={12} className="text-surface-600 dark:text-surface-500" />
+ <FileText size={12} className="text-surface-600" />
                                         ) : (
-                                          <Link2 size={12} className="text-surface-600 dark:text-surface-500" />
+ <Link2 size={12} className="text-surface-600" />
                                         )}
-                                        <span className="text-xs text-surface-700 dark:text-surface-800 truncate max-w-[200px]">{doc.title}</span>
-                                        <ExternalLink size={11} className="text-surface-500 dark:text-surface-400" />
+ <span className="text-xs text-surface-700 truncate max-w-[200px]">{doc.title}</span>
+ <ExternalLink size={11} className="text-surface-500" />
                                       </a>
                                     ))}
                                   </div>
@@ -351,7 +351,7 @@ export default function TimelinePage() {
                               {/* Status for tasks */}
                               {item.status && item.type === "task" && (
                                 <div className="pt-1">
-                                  <span className="text-[10px] text-surface-600 dark:text-surface-500">
+ <span className="text-[10px] text-surface-600">
                                     {t("timeline.status", { status:
                                       item.status === "todo" ? t("timeline.statusTodo") :
                                       item.status === "in_progress" ? t("timeline.statusInProgress") :

@@ -285,7 +285,7 @@ export default function InstitutionDetailPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="z.B. ETH Zürich"
-              className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -298,7 +298,7 @@ export default function InstitutionDetailPage() {
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
               placeholder="https://www.beispiel.ch"
-              className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -310,7 +310,7 @@ export default function InstitutionDetailPage() {
               <select
                 value={countryCode}
                 onChange={(e) => handleCountryChange(e.target.value)}
-                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {COUNTRY_OPTIONS.map((c) => (
                   <option key={c.code} value={c.code}>
@@ -327,7 +327,7 @@ export default function InstitutionDetailPage() {
               <select
                 value={institutionType}
                 onChange={(e) => setInstitutionType(e.target.value)}
-                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {INSTITUTION_TYPES.map((t) => (
                   <option key={t.value} value={t.value}>
@@ -346,7 +346,7 @@ export default function InstitutionDetailPage() {
               <select
                 value={officialLanguage}
                 onChange={(e) => setOfficialLanguage(e.target.value)}
-                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {LANGUAGE_OPTIONS.map((lang) => (
                   <option key={lang.code} value={lang.code}>
@@ -363,7 +363,7 @@ export default function InstitutionDetailPage() {
               <select
                 value={academicYearStartMonth}
                 onChange={(e) => setAcademicYearStartMonth(parseInt(e.target.value))}
-                className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value={1}>Januar</option>
                 <option value={2}>Februar</option>
@@ -463,7 +463,7 @@ export default function InstitutionDetailPage() {
 
           {programs.length === 0 ? (
             <Card className="text-center py-8">
-              <p className="text-surface-600 dark:text-surface-400 mb-4">Noch keine Programme angelegt</p>
+ <p className="text-surface-600 mb-4">Noch keine Programme angelegt</p>
               <button
                 onClick={handleNewProgram}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
@@ -476,7 +476,7 @@ export default function InstitutionDetailPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {programs.map((prog: any) => (
                 <Link key={prog.id} href={`/builder/program/${prog.id}`}>
-                  <Card interactive padding="md" className="dark:bg-surface-800 dark:border-surface-700">
+ <Card interactive padding="md" className="">
                     <div className="flex justify-between items-start">
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-surface-900 dark:text-white truncate">{prog.name}</h3>
@@ -487,7 +487,7 @@ export default function InstitutionDetailPage() {
                             </span>
                           )}
                           {prog.required_total_credits && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-500">
+ <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-100 text-surface-700">
                               {prog.required_total_credits} ECTS
                             </span>
                           )}
@@ -497,7 +497,7 @@ export default function InstitutionDetailPage() {
                         <div className="text-xl font-bold text-brand-600 dark:text-brand-400">
                           {prog.module_count ?? 0}
                         </div>
-                        <div className="text-[10px] text-surface-500 dark:text-surface-400">
+ <div className="text-[10px] text-surface-500">
                           {prog.module_count === 1 ? "Modul" : "Module"}
                         </div>
                       </div>

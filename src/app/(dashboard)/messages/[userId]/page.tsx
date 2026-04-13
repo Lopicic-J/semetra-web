@@ -190,7 +190,7 @@ export default function DirectMessagePage() {
       <div className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700">
         <Link
           href="/messages"
-          className="p-1.5 text-surface-500 hover:text-surface-700 dark:text-surface-400 dark:hover:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-700 rounded-lg transition-colors"
+ className="p-1.5 text-surface-500 hover:text-surface-700 dark:hover:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-700 rounded-lg transition-colors"
         >
           <ArrowLeft size={20} />
         </Link>
@@ -207,13 +207,13 @@ export default function DirectMessagePage() {
               <p className="font-medium text-surface-900 dark:text-white truncate">
                 {partner.full_name || partner.username}
               </p>
-              <p className="text-xs text-surface-500 dark:text-surface-400">@{partner.username}</p>
+ <p className="text-xs text-surface-500">@{partner.username}</p>
             </div>
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-surface-200 dark:bg-surface-700 rounded-full animate-pulse" />
-            <div className="h-4 w-24 bg-surface-200 dark:bg-surface-700 rounded animate-pulse" />
+ <div className="w-9 h-9 bg-surface-200 rounded-full animate-pulse" />
+ <div className="h-4 w-24 bg-surface-200 rounded animate-pulse" />
           </div>
         )}
         <Link
@@ -225,21 +225,21 @@ export default function DirectMessagePage() {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-1 bg-surface-50 dark:bg-surface-900">
+ <div className="flex-1 overflow-y-auto px-4 py-3 space-y-1 bg-surface-50">
         {loading ? (
           <div className="space-y-3 py-8">
             {[...Array(6)].map((_, i) => (
               <div key={i} className={`flex gap-2 ${i % 2 === 0 ? "" : "flex-row-reverse"} animate-pulse`}>
-                <div className="w-8 h-8 bg-surface-200 dark:bg-surface-700 rounded-full shrink-0" />
-                <div className={`h-8 bg-surface-200 dark:bg-surface-700 rounded-xl ${i % 3 === 0 ? "w-48" : "w-32"}`} />
+ <div className="w-8 h-8 bg-surface-200 rounded-full shrink-0" />
+ <div className={`h-8 bg-surface-200 rounded-xl ${i % 3 === 0 ?"w-48" :"w-32"}`} />
               </div>
             ))}
           </div>
         ) : messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-center py-12">
             <div>
-              <MessageCircleEmpty className="mx-auto text-surface-300 dark:text-surface-600 mb-3" />
-              <p className="text-sm text-surface-500 dark:text-surface-400">
+ <MessageCircleEmpty className="mx-auto text-surface-300 mb-3" />
+ <p className="text-sm text-surface-500">
                 {t("messages.startConversation") || "Schreibe die erste Nachricht!"}
               </p>
             </div>
@@ -249,11 +249,11 @@ export default function DirectMessagePage() {
             <div key={gi}>
               {/* Date separator */}
               <div className="flex items-center gap-3 my-4">
-                <div className="flex-1 h-px bg-surface-200 dark:bg-surface-700" />
-                <span className="text-[11px] text-surface-400 dark:text-surface-500 font-medium">
+ <div className="flex-1 h-px bg-surface-200" />
+ <span className="text-[11px] text-surface-400 font-medium">
                   {formatDateSeparator(group.date)}
                 </span>
-                <div className="flex-1 h-px bg-surface-200 dark:bg-surface-700" />
+ <div className="flex-1 h-px bg-surface-200" />
               </div>
 
               {group.messages.map(msg => {
@@ -287,7 +287,7 @@ export default function DirectMessagePage() {
                       >
                         {msg.content}
                       </div>
-                      <p className={`text-[10px] text-surface-400 dark:text-surface-500 mt-0.5 px-1 ${isMine ? "text-right" : ""}`}>
+ <p className={`text-[10px] text-surface-400 mt-0.5 px-1 ${isMine ?"text-right" :""}`}>
                         {formatTime(msg.created_at)}
                         {isMine && msg.read_at && (
                           <span className="ml-1 text-brand-400">✓</span>
@@ -321,7 +321,7 @@ export default function DirectMessagePage() {
             placeholder={t("messages.placeholder") || "Nachricht schreiben..."}
             disabled={sending}
             rows={1}
-            className="flex-1 px-3 py-2.5 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600 resize-none disabled:opacity-50"
+ className="flex-1 px-3 py-2.5 border border-surface-200 rounded-xl text-sm bg-surface-50 text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600 resize-none disabled:opacity-50"
           />
           <button
             onClick={handleSend}
@@ -332,7 +332,7 @@ export default function DirectMessagePage() {
             <Send size={16} />
           </button>
         </div>
-        <p className="text-[10px] text-surface-400 dark:text-surface-500 mt-1">
+ <p className="text-[10px] text-surface-400 mt-1">
           Enter = {t("groups.chat.sendAction") || "senden"} • Shift+Enter = {t("groups.chat.newLine") || "Zeilenumbruch"}
         </p>
       </div>

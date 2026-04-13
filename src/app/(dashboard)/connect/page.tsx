@@ -26,7 +26,7 @@ function StatusDot({ status }: { status: string | null }) {
   };
   return (
     <span
-      className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-surface-800 ${colors[status ?? "offline"] ?? colors.offline}`}
+ className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${colors[status ??"offline"] ?? colors.offline}`}
     />
   );
 }
@@ -60,7 +60,7 @@ function TabBtn({ active, onClick, icon: Icon, label, badge }: {
       className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
         active
           ? "bg-brand-600 text-white shadow-sm"
-          : "text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800"
+ :"text-surface-600 hover:bg-surface-100 dark:hover:bg-surface-800"
       }`}
     >
       <Icon size={16} />
@@ -129,7 +129,7 @@ function StudentCard({ student, onConnect, onProfile, loading }: {
         </div>
 
         {student.connect_bio && (
-          <p className="text-xs text-surface-600 dark:text-surface-400 mt-1.5 line-clamp-2">{student.connect_bio}</p>
+ <p className="text-xs text-surface-600 mt-1.5 line-clamp-2">{student.connect_bio}</p>
         )}
       </div>
 
@@ -188,7 +188,7 @@ function RequestCard({ request, direction, onAccept, onDecline, onCancel, onProf
           <span className="text-xs text-surface-500">{request.program_match}</span>
         )}
         {request.message && (
-          <p className="text-xs text-surface-600 dark:text-surface-400 mt-1 italic">&ldquo;{request.message}&rdquo;</p>
+ <p className="text-xs text-surface-600 mt-1 italic">&ldquo;{request.message}&rdquo;</p>
         )}
         <span className="text-xs text-surface-400 mt-0.5 block">
           {new Date(request.created_at).toLocaleDateString("de-CH")}
@@ -284,8 +284,8 @@ function ConnectionCard({ conn, onMessage, onRemove, onProfile, loading }: {
 function EmptyState({ icon: Icon, title, subtitle }: { icon: typeof Users; title: string; subtitle: string }) {
   return (
     <div className="text-center py-16 px-4">
-      <Icon size={48} className="mx-auto text-surface-300 dark:text-surface-600 mb-4" />
-      <h3 className="text-lg font-semibold text-surface-700 dark:text-surface-300">{title}</h3>
+ <Icon size={48} className="mx-auto text-surface-300 mb-4" />
+ <h3 className="text-lg font-semibold text-surface-700">{title}</h3>
       <p className="text-sm text-surface-500 mt-1 max-w-md mx-auto">{subtitle}</p>
     </div>
   );
@@ -333,7 +333,7 @@ export default function ConnectPage() {
 
       {/* Stats Bar */}
       <div className="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm flex-wrap">
-        <span className="flex items-center gap-1.5 text-surface-600 dark:text-surface-400">
+ <span className="flex items-center gap-1.5 text-surface-600">
           <Users size={16} className="text-brand-500" />
           <strong>{counts.total_connections}</strong> {t("connect.connections_label")}
         </span>
@@ -425,7 +425,7 @@ export default function ConnectPage() {
             <div className="space-y-6">
               {incoming.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-300 mb-3 flex items-center gap-2">
+ <h3 className="text-sm font-semibold text-surface-700 mb-3 flex items-center gap-2">
                     <Inbox size={16} /> {t("connect.incoming_requests")} ({incoming.length})
                   </h3>
                   <div className="space-y-3">
@@ -446,7 +446,7 @@ export default function ConnectPage() {
 
               {sent.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-300 mb-3 flex items-center gap-2">
+ <h3 className="text-sm font-semibold text-surface-700 mb-3 flex items-center gap-2">
                     <Send size={16} /> {t("connect.sent_requests")} ({sent.length})
                   </h3>
                   <div className="space-y-3">
@@ -514,7 +514,7 @@ export default function ConnectPage() {
               placeholder={t("connect.message_placeholder")}
               rows={3}
               maxLength={280}
-              className="w-full p-3 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 text-sm resize-none focus:ring-2 focus:ring-brand-500 outline-none"
+ className="w-full p-3 rounded-xl border border-surface-200 bg-surface-50 text-sm resize-none focus:ring-2 focus:ring-brand-500 outline-none"
             />
             <div className="flex justify-end gap-2 mt-4">
               <button

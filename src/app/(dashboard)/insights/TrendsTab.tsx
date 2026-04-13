@@ -179,7 +179,7 @@ export default function TrendsTab() {
         </p>
         <div className="flex gap-4">
           {analysis.predictions.map((pred, i) => (
-            <div key={i} className="flex-1 text-center p-3 rounded-xl bg-surface-50 dark:bg-surface-800/40">
+ <div key={i} className="flex-1 text-center p-3 rounded-xl bg-surface-50">
               <p className="text-xs text-surface-400 mb-1">Note {analysis.totalGrades + i + 1}</p>
               <p className="text-2xl font-bold text-surface-800">{pred.toFixed(1)}</p>
             </div>

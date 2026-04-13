@@ -138,7 +138,7 @@ export default function StudyProgramCard({ country, onEnrolled }: Props) {
       <div className="space-y-3">
         {/* Institution */}
         <div>
-          <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">
+ <label className="block text-sm font-medium text-surface-700 mb-1">
             <Building2 size={13} className="inline mr-1.5 -mt-0.5" />
             {t("settings.studyInstitution") || "Hochschule / Universitaet"}
           </label>
@@ -171,7 +171,7 @@ export default function StudyProgramCard({ country, onEnrolled }: Props) {
 
         {/* Program */}
         <div>
-          <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">
+ <label className="block text-sm font-medium text-surface-700 mb-1">
             <BookOpen size={13} className="inline mr-1.5 -mt-0.5" />
             {t("settings.studyProgram") || "Studiengang"}
           </label>
@@ -203,7 +203,7 @@ export default function StudyProgramCard({ country, onEnrolled }: Props) {
 
         {/* Semester */}
         <div>
-          <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1">
+ <label className="block text-sm font-medium text-surface-700 mb-1">
             {t("settings.studySemester") || "Aktuelles Semester"}
           </label>
           <select

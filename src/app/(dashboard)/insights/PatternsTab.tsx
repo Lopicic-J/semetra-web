@@ -118,7 +118,7 @@ export default function PatternsTab() {
                 <span className="text-sm font-medium text-surface-700 w-16">
                   {String(h.hour).padStart(2, "0")}:00
                 </span>
-                <div className="flex-1 h-6 rounded-lg bg-surface-100 dark:bg-surface-800 overflow-hidden">
+ <div className="flex-1 h-6 rounded-lg bg-surface-100 overflow-hidden">
                   <div
                     className="h-full rounded-lg transition-all"
                     style={{
@@ -144,7 +144,7 @@ export default function PatternsTab() {
           </h3>
           <div className="flex gap-3">
             {bestDays.map((d, i) => (
-              <div key={d.day} className="flex-1 text-center p-3 rounded-xl bg-surface-50 dark:bg-surface-800/40">
+ <div key={d.day} className="flex-1 text-center p-3 rounded-xl bg-surface-50">
                 <p className="text-lg font-bold text-surface-800">{d.label}</p>
                 <p className="text-xs text-surface-400">Ø {Math.round(d.avgMinutes)} Min.</p>
               </div>
@@ -190,7 +190,7 @@ export default function PatternsTab() {
                 return (
                   <div key={mp.moduleId} className="flex items-center gap-3">
                     <span className="text-sm text-surface-700 truncate w-40">{mp.moduleName}</span>
-                    <div className="flex-1 h-5 rounded-lg bg-surface-100 dark:bg-surface-800 overflow-hidden">
+ <div className="flex-1 h-5 rounded-lg bg-surface-100 overflow-hidden">
                       <div
                         className="h-full rounded-lg bg-brand-400"
                         style={{ width: `${(mp.totalMinutes / maxMin) * 100}%` }}

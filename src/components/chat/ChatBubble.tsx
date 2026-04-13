@@ -360,7 +360,7 @@ export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle,
         onClick={() => setOpen(!open)}
         className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${
           open
-            ? "bg-surface-700 dark:bg-surface-600 scale-90"
+ ?"bg-surface-700 scale-90"
             : "bg-brand-600 hover:bg-brand-700 dark:bg-brand-700 dark:hover:bg-brand-600 hover:scale-105"
         }`}
         aria-label="Chat"
@@ -383,11 +383,11 @@ export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle,
       {open && (
         <div className="fixed bottom-24 right-6 z-50 w-[360px] max-h-[520px] bg-white dark:bg-surface-800 rounded-2xl shadow-2xl border border-surface-200 dark:border-surface-700 flex flex-col overflow-hidden animate-slide-up">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-surface-100 dark:border-surface-700 bg-surface-50 dark:bg-surface-800/80">
+ <div className="flex items-center justify-between px-4 py-3 border-b border-surface-100 bg-surface-50">
             {view === "chat" && activeChatUser ? (
               <div className="flex items-center gap-2">
                 <button onClick={() => { setView("list"); setActiveChatUser(null); }} className="p-1 hover:bg-surface-200 dark:hover:bg-surface-700 rounded-lg transition-colors">
-                  <ChevronLeft size={18} className="text-surface-600 dark:text-surface-400" />
+ <ChevronLeft size={18} className="text-surface-600" />
                 </button>
                 <div className="flex items-center gap-2">
                   {activeChatUser.avatar_url ? (
@@ -403,7 +403,7 @@ export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle,
                     <p className="text-sm font-semibold text-surface-900 dark:text-white leading-tight">
                       {displayName(activeChatUser)}
                     </p>
-                    <p className="text-[10px] text-surface-500 dark:text-surface-400 flex items-center gap-1">
+ <p className="text-[10px] text-surface-500 flex items-center gap-1">
                       <StatusDot status={activeChatUser.online_status} size={6} />
                       {activeChatUser.online_status === "online" ? "Online" : activeChatUser.online_status === "dnd" ? (t("chat.dnd") || "Nicht stören") : "Offline"}
                     </p>
@@ -458,7 +458,7 @@ export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle,
                       value={search}
                       onChange={e => setSearch(e.target.value)}
                       placeholder={t("chat.search") || "Suchen..."}
-                      className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-surface-100 dark:bg-surface-700/50 border-none text-xs text-surface-900 dark:text-white placeholder:text-surface-400 focus:ring-1 focus:ring-brand-500"
+ className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-surface-100 border-none text-xs text-surface-900 dark:text-white placeholder:text-surface-400 focus:ring-1 focus:ring-brand-500"
                     />
                   </div>
                 </div>
@@ -498,7 +498,7 @@ export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle,
                                   </span>
                                 </div>
                               )}
-                              <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-surface-800 ${
+ <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${
                                 conv.partner.online_status === "online" ? "bg-green-500" : "bg-surface-400"
                               }`} />
                             </div>
@@ -512,7 +512,7 @@ export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle,
                                 </span>
                               </div>
                               <div className="flex items-center justify-between">
-                                <p className="text-xs text-surface-500 dark:text-surface-400 truncate">
+ <p className="text-xs text-surface-500 truncate">
                                   {conv.lastMessage.isMine && <span className="text-surface-400">Du: </span>}
                                   {conv.lastMessage.content}
                                 </p>
@@ -544,15 +544,15 @@ export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle,
                               {friend.avatar_url ? (
                                 <img src={friend.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
                               ) : (
-                                <div className="w-8 h-8 rounded-full bg-surface-200 dark:bg-surface-700 flex items-center justify-center">
-                                  <span className="text-surface-600 dark:text-surface-400 font-bold text-xs">
+ <div className="w-8 h-8 rounded-full bg-surface-200 flex items-center justify-center">
+ <span className="text-surface-600 font-bold text-xs">
                                     {initial(friend.full_name || friend.username)}
                                   </span>
                                 </div>
                               )}
                               <StatusDot status={friend.online_status} size={6} />
                             </div>
-                            <span className="text-sm text-surface-700 dark:text-surface-500 truncate">
+ <span className="text-sm text-surface-700 truncate">
                               {displayName(friend)}
                             </span>
                           </button>
@@ -562,8 +562,8 @@ export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle,
 
                     {filteredConversations.length === 0 && friendsWithoutConvo.length === 0 && (
                       <div className="px-4 py-8 text-center">
-                        <MessageCircle className="mx-auto text-surface-300 dark:text-surface-600 mb-2" size={32} />
-                        <p className="text-xs text-surface-500 dark:text-surface-400">
+ <MessageCircle className="mx-auto text-surface-300 mb-2" size={32} />
+ <p className="text-xs text-surface-500">
                           {t("chat.noConversations") || "Noch keine Unterhaltungen"}
                         </p>
                         <Link
@@ -586,8 +586,8 @@ export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle,
               <div>
                 {groups.length === 0 ? (
                   <div className="px-4 py-8 text-center">
-                    <Users className="mx-auto text-surface-300 dark:text-surface-600 mb-2" size={32} />
-                    <p className="text-xs text-surface-500 dark:text-surface-400">
+ <Users className="mx-auto text-surface-300 mb-2" size={32} />
+ <p className="text-xs text-surface-500">
                       {t("chat.noGroups") || "Noch keine Lerngruppen"}
                     </p>
                     <Link
@@ -641,7 +641,7 @@ export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle,
                           className={`max-w-[75%] px-3 py-1.5 rounded-2xl text-sm ${
                             isMine
                               ? "bg-brand-600 text-white rounded-br-md"
-                              : "bg-surface-100 dark:bg-surface-700 text-surface-900 dark:text-white rounded-bl-md"
+ :"bg-surface-100 text-surface-900 dark:text-white rounded-bl-md"
                           }`}
                         >
                           <p className="whitespace-pre-wrap break-words text-[13px]">{msg.content}</p>
@@ -657,7 +657,7 @@ export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle,
                 </div>
 
                 {/* Input */}
-                <div className="px-3 py-2 border-t border-surface-100 dark:border-surface-700">
+ <div className="px-3 py-2 border-t border-surface-100">
                   <div className="flex items-center gap-2">
                     <input
                       type="text"
@@ -665,7 +665,7 @@ export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle,
                       onChange={e => setNewMessage(e.target.value)}
                       onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage()}
                       placeholder={t("chat.typePlaceholder") || "Nachricht schreiben..."}
-                      className="flex-1 px-3 py-2 rounded-xl bg-surface-100 dark:bg-surface-700/50 border-none text-sm text-surface-900 dark:text-white placeholder:text-surface-400 focus:ring-1 focus:ring-brand-500"
+ className="flex-1 px-3 py-2 rounded-xl bg-surface-100 border-none text-sm text-surface-900 dark:text-white placeholder:text-surface-400 focus:ring-1 focus:ring-brand-500"
                       disabled={sending}
                     />
                     <button
@@ -683,7 +683,7 @@ export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle,
 
           {/* Footer link */}
           {view !== "chat" && (
-            <div className="px-4 py-2 border-t border-surface-100 dark:border-surface-700 flex items-center justify-between">
+ <div className="px-4 py-2 border-t border-surface-100 flex items-center justify-between">
               <Link
                 href="/community"
                 onClick={() => setOpen(false)}
@@ -695,7 +695,7 @@ export default function ChatBubble({ hideBubble, externalOpen, onExternalToggle,
               <Link
                 href="/messages"
                 onClick={() => setOpen(false)}
-                className="text-[11px] text-surface-500 dark:text-surface-400 hover:underline"
+ className="text-[11px] text-surface-500 hover:underline"
               >
                 {t("chat.openFull") || "Vollansicht →"}
               </Link>

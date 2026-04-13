@@ -65,7 +65,7 @@ export function ExportButton({ semester, compact = false }: ExportButtonProps) {
         disabled={loading !== null}
         className={`flex items-center gap-2 rounded-xl font-medium transition-all
           ${compact
-            ? "px-3 py-1.5 text-xs bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-300 dark:hover:bg-surface-700"
+ ?"px-3 py-1.5 text-xs bg-surface-100 text-surface-600 hover:bg-surface-200 dark:hover:bg-surface-700"
             : "px-4 py-2.5 text-sm bg-brand-600 text-white hover:bg-brand-700 shadow-sm"
           }
           disabled:opacity-50`}
@@ -94,7 +94,7 @@ export function ExportButton({ semester, compact = false }: ExportButtonProps) {
                 onClick={() => handleExport(key)}
                 disabled={loading !== null}
                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left
-                  text-surface-700 dark:text-surface-300
+ text-surface-700
                   hover:bg-surface-50 dark:hover:bg-surface-700 transition-colors
                   disabled:opacity-50"
               >

@@ -141,12 +141,12 @@ export default function GroupsPage() {
             <Users className="text-brand-600" size={26} />
             {t("groups.title")}
           </h1>
-          <p className="text-surface-500 dark:text-surface-400 text-sm mt-1">{t("groups.subtitle")}</p>
+ <p className="text-surface-500 text-sm mt-1">{t("groups.subtitle")}</p>
         </div>
         <div className="flex gap-2 flex-wrap sm:flex-nowrap">
           <button
             onClick={() => { setShowJoin(true); setShowCreate(false); setError(""); }}
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-500 rounded-xl text-sm font-medium hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors flex-1 sm:flex-none"
+ className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-surface-200 text-surface-700 rounded-xl text-sm font-medium hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors flex-1 sm:flex-none"
           >
             <LogIn size={16} />
             {t("groups.join")}
@@ -166,7 +166,7 @@ export default function GroupsPage() {
         <div className="card mb-6 border-brand-200 dark:border-brand-800 bg-surface-100">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-surface-800 dark:text-white">{t("groups.createTitle")}</h3>
-            <button onClick={() => setShowCreate(false)} className="p-1 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400 dark:text-surface-500">
+ <button onClick={() => setShowCreate(false)} className="p-1 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400">
               <X size={16} />
             </button>
           </div>
@@ -175,14 +175,14 @@ export default function GroupsPage() {
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder={t("groups.namePlaceholder")}
-              className="w-full px-3 py-2 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600"
+ className="w-full px-3 py-2 border border-surface-200 rounded-xl text-sm bg-surface-50 text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600"
             />
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder={t("groups.descPlaceholder")}
               rows={2}
-              className="w-full px-3 py-2 border border-surface-200 dark:border-surface-700 rounded-xl text-sm bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600 resize-none"
+ className="w-full px-3 py-2 border border-surface-200 rounded-xl text-sm bg-surface-50 text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-brand-300 dark:focus:ring-brand-600 resize-none"
             />
             {error && <p className="text-xs text-red-500 dark:text-red-400">{error}</p>}
             <button
@@ -201,7 +201,7 @@ export default function GroupsPage() {
         <div className="card mb-6 border-blue-200 dark:border-blue-800 bg-surface-100">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-surface-800 dark:text-white">{t("groups.joinTitle")}</h3>
-            <button onClick={() => setShowJoin(false)} className="p-1 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400 dark:text-surface-500">
+ <button onClick={() => setShowJoin(false)} className="p-1 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400">
               <X size={16} />
             </button>
           </div>
@@ -211,7 +211,7 @@ export default function GroupsPage() {
               onChange={e => setInviteCode(e.target.value)}
               onKeyDown={e => e.key === "Enter" && joinGroup()}
               placeholder={t("groups.codePlaceholder")}
-              className="flex-1 px-3 py-2 border border-surface-200 dark:border-surface-700 rounded-xl text-sm font-mono bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600"
+ className="flex-1 px-3 py-2 border border-surface-200 rounded-xl text-sm font-mono bg-surface-50 text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600"
             />
             <button
               onClick={joinGroup}
@@ -260,13 +260,13 @@ export default function GroupsPage() {
                   <div className="flex-1 min-w-0 w-full">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-semibold text-surface-900 dark:text-white truncate">{group.name}</h3>
-                      <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-400">
+ <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-surface-200 text-surface-600">
                         <RoleIcon size={10} />
                         {t(`groups.role.${group.myRole}`)}
                       </span>
                     </div>
                     {group.description && (
-                      <p className="text-xs text-surface-500 dark:text-surface-400 truncate mt-0.5">{group.description}</p>
+ <p className="text-xs text-surface-500 truncate mt-0.5">{group.description}</p>
                     )}
                   </div>
 
@@ -285,13 +285,13 @@ export default function GroupsPage() {
                     {group.myRole === "owner" && (
                       <button
                         onClick={() => deleteGroup(group.id)}
-                        className="p-1.5 text-surface-400 dark:text-surface-500 hover:text-red-500 dark:hover:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900 transition-colors"
+ className="p-1.5 text-surface-400 hover:text-red-500 dark:hover:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900 transition-colors"
                       >
                         <Trash2 size={14} />
                       </button>
                     )}
 
-                    <ChevronRight size={16} className="text-surface-300 dark:text-surface-600" />
+ <ChevronRight size={16} className="text-surface-300" />
                   </div>
                 </div>
               </div>

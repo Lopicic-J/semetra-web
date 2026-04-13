@@ -28,6 +28,7 @@ import { useStudyPatterns } from "@/lib/hooks/useStudyPatterns";
 import { useCommandCenter } from "@/lib/hooks/useCommandCenter";
 import type { RiskLevel, Action } from "@/lib/decision/types";
 import Link from "next/link";
+import { PreferenceSuggestions } from "@/components/dna/PreferenceSuggestions";
 
 // ── Error Boundary for Engine Section (prevents page crash) ─────────────────
 
@@ -150,7 +151,7 @@ function DnaRadar({ dimensions }: { dimensions: DnaDimension[] }) {
           stroke="currentColor"
           strokeWidth={0.5}
           opacity={0.2}
-          className="text-surface-400 dark:text-surface-600"
+ className="text-surface-400"
         />
       ))}
       {/* Axes */}
@@ -166,7 +167,7 @@ function DnaRadar({ dimensions }: { dimensions: DnaDimension[] }) {
             stroke="currentColor"
             strokeWidth={0.5}
             opacity={0.15}
-            className="text-surface-400 dark:text-surface-600"
+ className="text-surface-400"
           />
         );
       })}
@@ -210,7 +211,7 @@ function ScoreBar({ dimension }: { dimension: DnaDimension }) {
     ? Minus
     : dimension.change > 0 ? TrendingUp : TrendingDown;
   const trendColor = dimension.change === null || dimension.change === 0
-    ? "text-surface-400 dark:text-surface-600"
+ ?"text-surface-400"
     : dimension.change > 0 ? "text-green-500" : "text-red-500";
 
   return (
@@ -218,7 +219,7 @@ function ScoreBar({ dimension }: { dimension: DnaDimension }) {
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
           <Icon size={16} className={clsx(dimension.color, "shrink-0")} />
-          <span className="text-xs sm:text-sm font-medium text-surface-800 dark:text-surface-800 truncate">{dimension.label}</span>
+ <span className="text-xs sm:text-sm font-medium text-surface-800 truncate">{dimension.label}</span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-xs sm:text-sm font-semibold text-surface-900 dark:text-white">{Math.round(dimension.score)}%</span>
@@ -230,13 +231,13 @@ function ScoreBar({ dimension }: { dimension: DnaDimension }) {
           )}
         </div>
       </div>
-      <div className="h-2 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden">
+ <div className="h-2 bg-surface-200 rounded-full overflow-hidden">
         <div
           className={clsx("h-full rounded-full transition-all duration-700", dimension.color.replace("text-", "bg-"))}
           style={{ width: `${Math.min(100, dimension.score)}%` }}
         />
       </div>
-      <p className="text-xs text-surface-600 dark:text-surface-400">{dimension.description}</p>
+ <p className="text-xs text-surface-600">{dimension.description}</p>
     </div>
   );
 }
@@ -374,7 +375,7 @@ function EngineContextSection({
     <Card padding="lg">
       <div className="flex items-center gap-2 mb-4">
         <Brain size={16} className="text-brand-500 shrink-0" />
-        <h3 className="text-xs sm:text-sm font-semibold text-surface-800 dark:text-surface-800">DNA trifft Decision Engine</h3>
+ <h3 className="text-xs sm:text-sm font-semibold text-surface-800">DNA trifft Decision Engine</h3>
       </div>
 
       <div className="space-y-3 sm:space-y-4">
@@ -402,8 +403,8 @@ function EngineContextSection({
 
         {/* At-risk modules (from engine) */}
         {topRiskModules.length > 0 && (
-          <div className="pt-2 border-t border-surface-200 dark:border-surface-700">
-            <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-2">Gefährdete Module</p>
+ <div className="pt-2 border-t border-surface-200">
+ <p className="text-xs font-medium text-surface-600 mb-2">Gefährdete Module</p>
             <div className="space-y-1.5">
               {topRiskModules.map((mod, i) => (
                 <div key={i} className="flex items-center gap-2 min-w-0">
@@ -411,7 +412,7 @@ function EngineContextSection({
                     className="w-2 h-6 rounded-full shrink-0"
                     style={{ backgroundColor: mod.color || "rgb(var(--surface-300))" }}
                   />
-                  <span className="text-xs text-surface-700 dark:text-surface-500 flex-1 truncate">{mod.name}</span>
+ <span className="text-xs text-surface-700 flex-1 truncate">{mod.name}</span>
                   <span className={clsx("text-xs px-1.5 py-0.5 rounded font-medium shrink-0", RISK_BADGE[mod.risk])}>
                     {RISK_LABELS[mod.risk]}
                   </span>
@@ -423,15 +424,15 @@ function EngineContextSection({
 
         {/* Today's top actions from engine */}
         {topActions.length > 0 && (
-          <div className={topRiskModules.length > 0 ? "pt-2 border-t border-surface-200 dark:border-surface-700" : ""}>
-            <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-2">Empfohlene Aktionen heute</p>
+ <div className={topRiskModules.length > 0 ?"pt-2 border-t border-surface-200" :""}>
+ <p className="text-xs font-medium text-surface-600 mb-2">Empfohlene Aktionen heute</p>
             <div className="space-y-1">
               {topActions.map((action, i) => (
-                <div key={i} className="flex items-center gap-2 text-xs text-surface-700 dark:text-surface-500 min-w-0">
+ <div key={i} className="flex items-center gap-2 text-xs text-surface-700 min-w-0">
                   <Zap size={10} className="shrink-0 text-brand-400" />
                   <span className="truncate">{action.title}</span>
                   {action.estimatedMinutes && (
-                    <span className="text-surface-500 dark:text-surface-500 shrink-0">{action.estimatedMinutes}min</span>
+ <span className="text-surface-500 shrink-0">{action.estimatedMinutes}min</span>
                   )}
                 </div>
               ))}
@@ -564,7 +565,7 @@ export default function LernDnaPage() {
           </div>
           <div className="min-w-0">
             <h1 className="text-lg sm:text-xl font-bold text-surface-900 dark:text-white">Deine Lern-DNA</h1>
-            <p className="text-xs sm:text-sm text-surface-600 dark:text-surface-400">Dein persönliches Lernprofil</p>
+ <p className="text-xs sm:text-sm text-surface-600">Dein persönliches Lernprofil</p>
           </div>
         </div>
         <Button
@@ -589,11 +590,11 @@ export default function LernDnaPage() {
       {!snapshot ? (
         <Card padding="lg" className="text-center">
           <div className="py-6 sm:py-8 space-y-4">
-            <div className="w-14 sm:w-16 h-14 sm:h-16 rounded-full bg-surface-100 dark:bg-surface-700 text-surface-400 dark:text-surface-500 flex items-center justify-center mx-auto">
+ <div className="w-14 sm:w-16 h-14 sm:h-16 rounded-full bg-surface-100 text-surface-400 flex items-center justify-center mx-auto">
               <Dna size={28} className="sm:w-8 sm:h-8" />
             </div>
-            <h2 className="text-base sm:text-lg font-semibold text-surface-800 dark:text-surface-800">Noch keine Lern-DNA</h2>
-            <p className="text-xs sm:text-sm text-surface-600 dark:text-surface-400 max-w-md mx-auto">
+ <h2 className="text-base sm:text-lg font-semibold text-surface-800">Noch keine Lern-DNA</h2>
+ <p className="text-xs sm:text-sm text-surface-600 max-w-md mx-auto">
               Starte ein paar Lerneinheiten mit dem Timer, damit Semetra dein Lernprofil erstellen kann.
               Je mehr Daten, desto genauer werden deine Empfehlungen.
             </p>
@@ -615,9 +616,9 @@ export default function LernDnaPage() {
                     {Math.round(snapshot.overall_score)}% Gesamt
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm text-surface-600 dark:text-surface-400">{learnerInfo.description}</p>
+ <p className="text-xs sm:text-sm text-surface-600">{learnerInfo.description}</p>
               </div>
-              <div className="text-right text-xs text-surface-500 dark:text-surface-500 shrink-0">
+ <div className="text-right text-xs text-surface-500 shrink-0">
                 <p>{snapshot.sessions_analyzed} Sessions</p>
                 <p>{Math.round(snapshot.total_study_minutes / 60)}h total</p>
               </div>
@@ -627,14 +628,14 @@ export default function LernDnaPage() {
           {/* DNA Radar + Scores */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <Card padding="lg">
-              <h3 className="text-xs sm:text-sm font-semibold text-surface-800 dark:text-surface-800 mb-4">DNA-Profil</h3>
+ <h3 className="text-xs sm:text-sm font-semibold text-surface-800 mb-4">DNA-Profil</h3>
               <div className="max-w-xs mx-auto">
                 <DnaRadar dimensions={dimensions} />
               </div>
             </Card>
 
             <Card padding="lg">
-              <h3 className="text-xs sm:text-sm font-semibold text-surface-800 dark:text-surface-800 mb-4">Dimensionen im Detail</h3>
+ <h3 className="text-xs sm:text-sm font-semibold text-surface-800 mb-4">Dimensionen im Detail</h3>
               <div className="space-y-3 sm:space-y-4">
                 {dimensions.map((d) => (
                   <ScoreBar key={d.key} dimension={d} />
@@ -642,6 +643,9 @@ export default function LernDnaPage() {
               </div>
             </Card>
           </div>
+
+          {/* Preference Suggestions — DNA-based recommendations */}
+          <PreferenceSuggestions />
 
           {/* Decision Engine Bridge — wrapped in error boundary */}
           <EngineErrorBoundary>
@@ -654,19 +658,19 @@ export default function LernDnaPage() {
               <p className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white">
                 {patterns?.currentStreakDays ?? 0}
               </p>
-              <p className="text-xs text-surface-600 dark:text-surface-400 mt-1">Tage Serie</p>
+ <p className="text-xs text-surface-600 mt-1">Tage Serie</p>
             </Card>
             <Card padding="md" className="text-center">
               <p className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white">
                 {Math.round(snapshot.avg_daily_minutes)} min
               </p>
-              <p className="text-xs text-surface-600 dark:text-surface-400 mt-1">Ø pro Tag</p>
+ <p className="text-xs text-surface-600 mt-1">Ø pro Tag</p>
             </Card>
             <Card padding="md" className="text-center">
               <p className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white">
                 {patterns?.avgSessionMinutes ? Math.round(patterns.avgSessionMinutes) : "–"} min
               </p>
-              <p className="text-xs text-surface-600 dark:text-surface-400 mt-1">Ø Session</p>
+ <p className="text-xs text-surface-600 mt-1">Ø Session</p>
             </Card>
             <Card padding="md" className="text-center">
               <p className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white">
@@ -674,7 +678,7 @@ export default function LernDnaPage() {
                  snapshot.data_quality === "reliable" ? "Gut" :
                  snapshot.data_quality === "emerging" ? "Wachsend" : "Wenig"}
               </p>
-              <p className="text-xs text-surface-600 dark:text-surface-400 mt-1">Datenqualität</p>
+ <p className="text-xs text-surface-600 mt-1">Datenqualität</p>
             </Card>
           </div>
 
@@ -683,7 +687,7 @@ export default function LernDnaPage() {
             <Card padding="lg">
               <div className="flex items-center gap-2 mb-4">
                 <BarChart3 size={16} className="text-brand-500 shrink-0" />
-                <h3 className="text-xs sm:text-sm font-semibold text-surface-800 dark:text-surface-800">Erkenntnisse</h3>
+ <h3 className="text-xs sm:text-sm font-semibold text-surface-800">Erkenntnisse</h3>
               </div>
               <div className="space-y-2 sm:space-y-2.5">
                 {insights.map((insight, i) => (
@@ -699,7 +703,7 @@ export default function LernDnaPage() {
           )}
 
           {/* Period info */}
-          <p className="text-xs text-surface-500 dark:text-surface-500 text-center px-2">
+ <p className="text-xs text-surface-500 text-center px-2">
             Zeitraum: {new Date(snapshot.period_start).toLocaleDateString("de-CH")} –{" "}
             {new Date(snapshot.period_end).toLocaleDateString("de-CH")} | Erstellt:{" "}
             {new Date(snapshot.created_at).toLocaleDateString("de-CH", { hour: "2-digit", minute: "2-digit" })}

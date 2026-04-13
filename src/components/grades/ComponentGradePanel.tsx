@@ -259,7 +259,7 @@ export default function ComponentGradePanel({
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 text-surface-400 dark:text-surface-500 py-3">
+ <div className="flex items-center gap-2 text-surface-400 py-3">
         <Loader2 size={14} className="animate-spin" />
         <span className="text-xs">Pruefungskomponenten laden...</span>
       </div>
@@ -274,13 +274,13 @@ export default function ComponentGradePanel({
   );
 
   return (
-    <div className="border border-surface-200 dark:border-surface-700 rounded-xl overflow-hidden mt-3">
+ <div className="border border-surface-200 rounded-xl overflow-hidden mt-3">
       {/* Header */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-4 py-2.5 bg-surface-50 dark:bg-surface-800 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors"
+ className="w-full flex items-center justify-between px-4 py-2.5 bg-surface-50 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors"
       >
-        <span className="flex items-center gap-2 text-sm font-medium text-surface-700 dark:text-surface-500">
+ <span className="flex items-center gap-2 text-sm font-medium text-surface-700">
           <Calculator size={14} className="text-brand-500" />
           Pruefungskomponenten ({components.length})
         </span>
@@ -290,7 +290,7 @@ export default function ComponentGradePanel({
               className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                 calculation.finalPassed
                   ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                  : "bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-400"
+ :"bg-surface-200 text-surface-600"
               }`}
             >
               {calculation.finalGrade?.toFixed(2) || "—"}
@@ -303,7 +303,7 @@ export default function ComponentGradePanel({
       {expanded && (
         <div className="px-4 py-3 space-y-2">
           {/* Weight summary */}
-          <div className="flex items-center justify-between text[10px] text-surface-400 dark:text-surface-500 mb-1">
+ <div className="flex items-center justify-between text[10px] text-surface-400 mb-1">
             <span>Gewichtung Total: {totalWeight}%</span>
             {totalWeight !== 100 && (
               <span className="text-amber-500 font-medium">
@@ -329,12 +329,12 @@ export default function ComponentGradePanel({
               >
                 {/* Icon + name */}
                 <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <Icon size={13} className="text-surface-400 dark:text-surface-500 shrink-0" />
+ <Icon size={13} className="text-surface-400 shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-sm text-surface-700 dark:text-surface-500 truncate">
+ <p className="text-sm text-surface-700 truncate">
                       {comp.name}
                     </p>
-                    <p className="text-[10px] text-surface-400 dark:text-surface-500">
+ <p className="text-[10px] text-surface-400">
                       {typeLabels[comp.component_type] || comp.component_type} ·{" "}
                       {comp.weight_percent}%
                       {comp.mandatory_to_pass && (
@@ -356,7 +356,7 @@ export default function ComponentGradePanel({
                     }))
                   }
                   placeholder="—"
-                  className="w-20 text-right text-sm font-mono bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg px-2 py-1.5 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 focus:outline-none"
+ className="w-20 text-right text-sm font-mono bg-surface-50 border border-surface-200 rounded-lg px-2 py-1.5 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 focus:outline-none"
                 />
 
                 {/* Pass indicator */}
@@ -378,10 +378,10 @@ export default function ComponentGradePanel({
               className={`flex items-center justify-between rounded-lg px-3 py-2 mt-2 ${
                 calculation.finalPassed
                   ? "bg-green-50 dark:bg-green-950/20 border border-green-100 dark:border-green-900/30"
-                  : "bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700"
+ :"bg-surface-50 border border-surface-200"
               }`}
             >
-              <span className="text-xs text-surface-600 dark:text-surface-400">
+ <span className="text-xs text-surface-600">
                 Berechnete Modulnote
                 {!calculation.allMandatoryOk && (
                   <span className="text-red-500 ml-1">
@@ -393,7 +393,7 @@ export default function ComponentGradePanel({
                 className={`text-base font-bold ${
                   calculation.finalPassed
                     ? "text-green-700 dark:text-green-400"
-                    : "text-surface-700 dark:text-surface-500"
+ :"text-surface-700"
                 }`}
               >
                 {calculation.finalGrade?.toFixed(2) || "—"}
@@ -417,7 +417,7 @@ export default function ComponentGradePanel({
               </button>
               <button
                 onClick={() => setGrades({})}
-                className="text-xs text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-400 flex items-center gap-1"
+ className="text-xs text-surface-400 hover:text-surface-600 dark:hover:text-surface-400 flex items-center gap-1"
               >
                 <RotateCcw size={11} />
                 Zuruecksetzen

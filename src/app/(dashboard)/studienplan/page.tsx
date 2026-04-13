@@ -93,13 +93,13 @@ export default function StudienplanPage() {
   }
 
   return (
-    <div className="p-3 sm:p-5 max-w-7xl mx-auto dark:bg-surface-900">
+ <div className="p-3 sm:p-5 max-w-7xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
           <Target className="text-brand-600" size={26} />
           {t("nav.studienplan")}
         </h1>
-        <p className="text-surface-500 dark:text-surface-400 text-sm mt-1">{t("studienplan.subtitle")}</p>
+ <p className="text-surface-500 text-sm mt-1">{t("studienplan.subtitle")}</p>
       </div>
 
       {/* Stat cards */}
@@ -107,32 +107,32 @@ export default function StudienplanPage() {
         <div className="rounded-2xl p-3 sm:p-4 bg-brand-50 dark:bg-brand-950 dark:border dark:border-brand-800">
           <Award className="text-brand-600 dark:text-brand-400 mb-2" size={20} />
           <p className="text-2xl font-bold text-surface-900 dark:text-white">{completedEcts}/{totalEcts}</p>
-          <p className="text-xs text-surface-600 dark:text-surface-400">{t("studienplan.ectsReached")}</p>
+ <p className="text-xs text-surface-600">{t("studienplan.ectsReached")}</p>
         </div>
         <div className="rounded-2xl p-3 sm:p-4 bg-blue-50 dark:bg-blue-950 dark:border dark:border-blue-800">
           <BookOpen className="text-blue-600 dark:text-blue-400 mb-2" size={20} />
           <p className="text-2xl font-bold text-surface-900 dark:text-white">{activeCount}</p>
-          <p className="text-xs text-surface-600 dark:text-surface-400">{t("studienplan.activeModules")}</p>
+ <p className="text-xs text-surface-600">{t("studienplan.activeModules")}</p>
         </div>
         <div className="rounded-2xl p-3 sm:p-4 bg-green-50 dark:bg-green-950 dark:border dark:border-green-800">
           <CheckCircle className="text-green-600 dark:text-green-400 mb-2" size={20} />
           <p className="text-2xl font-bold text-surface-900 dark:text-white">{completedCount}/{inPlanModules.length}</p>
-          <p className="text-xs text-surface-600 dark:text-surface-400">{t("studienplan.modulesComplete")}</p>
+ <p className="text-xs text-surface-600">{t("studienplan.modulesComplete")}</p>
         </div>
         <div className="rounded-2xl p-3 sm:p-4 bg-amber-50 dark:bg-amber-950 dark:border dark:border-amber-800">
           <Clock className="text-amber-600 dark:text-amber-400 mb-2" size={20} />
           <p className="text-2xl font-bold text-surface-900 dark:text-white">{doneTasks}/{totalTasks}</p>
-          <p className="text-xs text-surface-600 dark:text-surface-400">{t("studienplan.tasksComplete")}</p>
+ <p className="text-xs text-surface-600">{t("studienplan.tasksComplete")}</p>
         </div>
       </div>
 
       {/* ECTS Progress bar */}
-      <div className="card mb-6 dark:bg-surface-800 dark:border-surface-700">
+ <div className="card mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-surface-700 dark:text-surface-500">{t("studienplan.ectsProgress")}</span>
+ <span className="text-sm font-medium text-surface-700">{t("studienplan.ectsProgress")}</span>
           <span className="text-sm font-bold text-brand-600 dark:text-brand-400">{totalEcts > 0 ? Math.round((completedEcts / totalEcts) * 100) : 0}%</span>
         </div>
-        <div className="h-3 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden">
+ <div className="h-3 bg-surface-100 rounded-full overflow-hidden">
           <div className="h-full bg-gradient-to-r from-brand-500 to-indigo-500 rounded-full transition-all duration-700"
             style={{ width: `${totalEcts > 0 ? (completedEcts / totalEcts) * 100 : 0}%` }} />
         </div>
@@ -143,7 +143,7 @@ export default function StudienplanPage() {
         {/* Left: Semester blocks */}
         <div className="lg:col-span-3 space-y-3 sm:space-y-4">
           {sortedSemesters.length === 0 ? (
-            <div className="text-center py-16 text-surface-400 dark:text-surface-500">
+ <div className="text-center py-16 text-surface-400">
               <GraduationCap size={48} className="mx-auto mb-3 opacity-30" />
               <p className="font-medium">{t("studienplan.noModules")}</p>
               <p className="text-sm mt-1">{t("studienplan.noModulesHint")}</p>
@@ -156,23 +156,23 @@ export default function StudienplanPage() {
               const isExpanded = expandedSemesters.has(sem);
 
               return (
-                <div key={sem} className="card p-0 overflow-hidden dark:bg-surface-800 dark:border-surface-700">
+ <div key={sem} className="card p-0 overflow-hidden">
                   {/* Semester header */}
                   <button
                     onClick={() => toggleSemester(sem)}
-                    className="w-full flex items-center justify-between px-4 py-3 bg-surface-50 dark:bg-surface-700 hover:bg-surface-100 dark:hover:bg-surface-600 transition-colors border-b border-surface-100 dark:border-surface-600"
+ className="w-full flex items-center justify-between px-4 py-3 bg-surface-50 hover:bg-surface-100 dark:hover:bg-surface-600 transition-colors border-b border-surface-100"
                   >
                     <div className="flex items-center gap-3">
-                      {isExpanded ? <ChevronDown size={16} className="text-surface-400 dark:text-surface-500" /> : <ChevronRight size={16} className="text-surface-400 dark:text-surface-500" />}
+ {isExpanded ? <ChevronDown size={16} className="text-surface-400" /> : <ChevronRight size={16} className="text-surface-400" />}
                       <span className="font-semibold text-surface-800 dark:text-white">{sem}</span>
-                      <span className="text-xs text-surface-500 dark:text-surface-400">{mods.length} Module · {semEcts} ECTS</span>
+ <span className="text-xs text-surface-500">{mods.length} Module · {semEcts} ECTS</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="w-20 h-2 bg-surface-200 dark:bg-surface-600 rounded-full overflow-hidden">
+ <div className="w-20 h-2 bg-surface-200 rounded-full overflow-hidden">
                         <div className="h-full bg-brand-500 rounded-full transition-all"
                           style={{ width: `${semEcts > 0 ? (semCompleted / semEcts) * 100 : 0}%` }} />
                       </div>
-                      <span className="text-xs font-medium text-surface-600 dark:text-surface-400 w-8 text-right">
+ <span className="text-xs font-medium text-surface-600 w-8 text-right">
                         {semEcts > 0 ? Math.round((semCompleted / semEcts) * 100) : 0}%
                       </span>
                     </div>
@@ -191,17 +191,17 @@ export default function StudienplanPage() {
                           <button
                             key={mod.id}
                             onClick={() => setSelectedModule(mod)}
-                            className={`text-left p-3 rounded-xl border transition-all dark:border-surface-600 ${
+ className={`text-left p-3 rounded-xl border transition-all ${
                               isSelected
                                 ? "border-brand-300 bg-brand-50 dark:bg-brand-950 dark:border-brand-700 shadow-sm"
                                 : isInPlan
-                                  ? "border-surface-100 dark:border-surface-700 hover:border-brand-200 dark:hover:border-brand-600 hover:bg-surface-50 dark:hover:bg-surface-700"
-                                  : "border-surface-100 dark:border-surface-700 opacity-50 hover:opacity-70"
+ ?"border-surface-100 hover:border-brand-200 dark:hover:border-brand-600 hover:bg-surface-50 dark:hover:bg-surface-700"
+ :"border-surface-100 opacity-50 hover:opacity-70"
                             }`}
                           >
                             <div className="flex items-center gap-2 mb-1.5">
                               <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: mod.color }} />
-                              <span className={`text-sm font-medium flex-1 truncate ${!isInPlan ? "line-through text-surface-400 dark:text-surface-500" : "text-surface-800 dark:text-white"}`}>
+ <span className={`text-sm font-medium flex-1 truncate ${!isInPlan ?"line-through text-surface-400" :"text-surface-800 dark:text-white"}`}>
                                 {mod.name}
                               </span>
                               <button
@@ -238,7 +238,7 @@ export default function StudienplanPage() {
         {/* Right: Detail panel */}
         <div className="lg:col-span-2">
           {selectedModule ? (
-            <div className="card sticky top-6 dark:bg-surface-800 dark:border-surface-700">
+ <div className="card sticky top-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
                   style={{ background: selectedModule.color }}>
@@ -246,7 +246,7 @@ export default function StudienplanPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-surface-900 dark:text-white truncate">{selectedModule.name}</h3>
-                  <p className="text-xs text-surface-500 dark:text-surface-400">
+ <p className="text-xs text-surface-500">
                     {selectedModule.code && `${selectedModule.code} · `}
                     {selectedModule.ects ?? 0} ECTS · {selectedModule.semester ?? "—"}
                   </p>
@@ -257,25 +257,25 @@ export default function StudienplanPage() {
               <div className="space-y-2 mb-4 text-sm">
                 {selectedModule.professor && (
                   <div className="flex justify-between">
-                    <span className="text-surface-500 dark:text-surface-400">{t("studienplan.instructor")}</span>
-                    <span className="text-surface-800 dark:text-surface-800">{selectedModule.professor}</span>
+ <span className="text-surface-500">{t("studienplan.instructor")}</span>
+ <span className="text-surface-800">{selectedModule.professor}</span>
                   </div>
                 )}
                 {selectedModule.exam_date && (
                   <div className="flex justify-between">
-                    <span className="text-surface-500 dark:text-surface-400">{t("studienplan.exam")}</span>
-                    <span className="text-surface-800 dark:text-surface-800">{selectedModule.exam_date}</span>
+ <span className="text-surface-500">{t("studienplan.exam")}</span>
+ <span className="text-surface-800">{selectedModule.exam_date}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-surface-500 dark:text-surface-400">{t("studienplan.status")}</span>
+ <span className="text-surface-500">{t("studienplan.status")}</span>
                   <span className={`${STATUS_COLORS[(selectedModule.status ?? "planned") as keyof typeof STATUS_COLORS].text} font-medium`}>
                     {STATUS_COLORS[(selectedModule.status ?? "planned") as keyof typeof STATUS_COLORS].label}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-surface-500 dark:text-surface-400">{t("studienplan.type")}</span>
-                  <span className="text-surface-800 dark:text-surface-800">{TYPE_BADGES[(selectedModule.module_type ?? "pflicht") as keyof typeof TYPE_BADGES]?.label ?? t("studienplan.typeMandatory")}</span>
+ <span className="text-surface-500">{t("studienplan.type")}</span>
+ <span className="text-surface-800">{TYPE_BADGES[(selectedModule.module_type ??"pflicht") as keyof typeof TYPE_BADGES]?.label ?? t("studienplan.typeMandatory")}</span>
                 </div>
               </div>
 
@@ -295,10 +295,10 @@ export default function StudienplanPage() {
               )}
 
               {/* Tasks for this module */}
-              <div className="border-t border-surface-100 dark:border-surface-600 pt-4">
-                <h4 className="text-sm font-semibold text-surface-700 dark:text-surface-500 mb-3">{t("studienplan.tasks", { count: moduleTasks.length })}</h4>
+ <div className="border-t border-surface-100 pt-4">
+ <h4 className="text-sm font-semibold text-surface-700 mb-3">{t("studienplan.tasks", { count: moduleTasks.length })}</h4>
                 {moduleTasks.length === 0 ? (
-                  <p className="text-xs text-surface-400 dark:text-surface-500">{t("studienplan.noTasksForModule")}</p>
+ <p className="text-xs text-surface-400">{t("studienplan.noTasksForModule")}</p>
                 ) : (
                   <div className="space-y-1.5 max-h-60 overflow-y-auto">
                     {moduleTasks.map(t => (
@@ -306,7 +306,7 @@ export default function StudienplanPage() {
                         <span className={`w-2 h-2 rounded-full shrink-0 ${
                           t.status === "done" ? "bg-green-500" : t.status === "in_progress" ? "bg-blue-500" : "bg-surface-300 dark:bg-surface-600"
                         }`} />
-                        <span className={`flex-1 truncate ${t.status === "done" ? "line-through text-surface-400 dark:text-surface-500" : "text-surface-700 dark:text-surface-500"}`}>
+ <span className={`flex-1 truncate ${t.status ==="done" ?"line-through text-surface-400" :"text-surface-700"}`}>
                           {t.title}
                         </span>
                         {t.due_date && (
@@ -321,7 +321,7 @@ export default function StudienplanPage() {
               </div>
             </div>
           ) : (
-            <div className="card text-center py-12 text-surface-400 dark:text-surface-500 sticky top-6 dark:bg-surface-800 dark:border-surface-700">
+ <div className="card text-center py-12 text-surface-400 sticky top-6">
               <BookOpen size={32} className="mx-auto mb-3 opacity-30" />
               <p className="text-sm">{t("studienplan.selectModuleForDetails")}</p>
             </div>

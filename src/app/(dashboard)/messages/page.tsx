@@ -110,7 +110,7 @@ export default function MessagesPage() {
         </div>
         <Link
           href="/friends"
-          className="p-2.5 text-surface-500 hover:text-brand-600 dark:text-surface-400 dark:hover:text-brand-400 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-xl transition-colors"
+ className="p-2.5 text-surface-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-xl transition-colors"
           title={t("friends.title") || "Freunde"}
         >
           <Users size={20} />
@@ -136,21 +136,21 @@ export default function MessagesPage() {
         <div className="space-y-2">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="flex gap-3 p-4 animate-pulse bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700">
-              <div className="w-12 h-12 bg-surface-200 dark:bg-surface-700 rounded-full shrink-0" />
+ <div className="w-12 h-12 bg-surface-200 rounded-full shrink-0" />
               <div className="flex-1">
-                <div className="h-4 bg-surface-200 dark:bg-surface-700 rounded w-28 mb-2" />
-                <div className="h-3 bg-surface-200 dark:bg-surface-700 rounded w-48" />
+ <div className="h-4 bg-surface-200 rounded w-28 mb-2" />
+ <div className="h-3 bg-surface-200 rounded w-48" />
               </div>
             </div>
           ))}
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-20 bg-white dark:bg-surface-800 rounded-2xl border border-surface-200 dark:border-surface-700">
-          <MessageCircle className="mx-auto text-surface-300 dark:text-surface-600 mb-3" size={40} />
-          <p className="text-surface-600 dark:text-surface-400 font-medium">
+ <MessageCircle className="mx-auto text-surface-300 mb-3" size={40} />
+ <p className="text-surface-600 font-medium">
             {t("messages.empty") || "Noch keine Nachrichten"}
           </p>
-          <p className="text-sm text-surface-400 dark:text-surface-500 mt-1">
+ <p className="text-sm text-surface-400 mt-1">
             {t("messages.emptyHint") || "Schreibe einem Freund eine Nachricht!"}
           </p>
           <Link
@@ -192,15 +192,15 @@ export default function MessagesPage() {
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <p className={`font-medium truncate ${conv.unreadCount > 0 ? "text-surface-900 dark:text-white" : "text-surface-700 dark:text-surface-500"}`}>
+ <p className={`font-medium truncate ${conv.unreadCount > 0 ?"text-surface-900 dark:text-white" :"text-surface-700"}`}>
                     {conv.partner.full_name || conv.partner.username}
                   </p>
-                  <span className="text-[11px] text-surface-400 dark:text-surface-500 shrink-0 ml-2">
+ <span className="text-[11px] text-surface-400 shrink-0 ml-2">
                     {formatTime(conv.lastMessage.created_at)}
                   </span>
                 </div>
-                <p className={`text-sm truncate mt-0.5 ${conv.unreadCount > 0 ? "text-surface-700 dark:text-surface-500 font-medium" : "text-surface-500 dark:text-surface-400"}`}>
-                  {conv.lastMessage.isMine && <span className="text-surface-400 dark:text-surface-500">Du: </span>}
+ <p className={`text-sm truncate mt-0.5 ${conv.unreadCount > 0 ?"text-surface-700 font-medium" :"text-surface-500"}`}>
+ {conv.lastMessage.isMine && <span className="text-surface-400">Du: </span>}
                   {conv.lastMessage.content}
                 </p>
               </div>

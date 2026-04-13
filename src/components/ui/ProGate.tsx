@@ -43,8 +43,8 @@ export function ProGate({ feature, isPro, children, mode = "full" }: ProGateProp
           <Sparkles size={16} className="text-brand-600 dark:text-brand-400" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-surface-800 dark:text-surface-200">{PRO_FEATURES[feature]}</p>
-          <p className="text-xs text-surface-500 dark:text-surface-400">Verfügbar mit Semetra Pro</p>
+ <p className="text-sm font-medium text-surface-800">{PRO_FEATURES[feature]}</p>
+ <p className="text-xs text-surface-500">Verfügbar mit Semetra Pro</p>
         </div>
         <Link
           href="/upgrade"
@@ -63,7 +63,7 @@ export function ProGate({ feature, isPro, children, mode = "full" }: ProGateProp
         <Lock className="text-brand-600 dark:text-brand-400" size={24} />
       </div>
       <h2 className="text-lg font-bold text-surface-900 dark:text-white mb-1">{PRO_FEATURES[feature]}</h2>
-      <p className="text-surface-500 dark:text-surface-400 text-sm mb-6 max-w-sm">
+ <p className="text-surface-500 text-sm mb-6 max-w-sm">
         Dieses Feature ist Teil von Semetra Pro. Schalte es frei und hol das Beste aus deinem Studium.
       </p>
       <Link
@@ -94,10 +94,10 @@ export function LimitNudge({ current, max, isPro, label }: LimitNudgeProps) {
         <Sparkles size={16} className="text-amber-600 dark:text-amber-400" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-surface-800 dark:text-surface-200">
+ <p className="text-sm font-medium text-surface-800">
           {current}/{max} {label} erreicht
         </p>
-        <p className="text-xs text-surface-500 dark:text-surface-400">
+ <p className="text-xs text-surface-500">
           Upgrade auf Pro für unbegrenzte {label}
         </p>
       </div>
@@ -126,7 +126,7 @@ export function LimitCounter({ current, max, isPro }: LimitCounterProps) {
 
   return (
     <div className="flex items-center gap-2 text-xs">
-      <div className="w-16 h-1.5 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden">
+ <div className="w-16 h-1.5 bg-surface-200 rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full transition-all ${
             isMax ? "bg-red-500" : isNear ? "bg-amber-500" : "bg-brand-500"
@@ -245,7 +245,7 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
               t("upgrade.basic.f5"),
               t("upgrade.basic.f6"),
             ].map(f => (
-              <div key={f} className="flex items-center gap-2.5 text-sm text-surface-700 dark:text-surface-500">
+ <div key={f} className="flex items-center gap-2.5 text-sm text-surface-700">
                 <Check size={16} className="text-brand-600 shrink-0" />
                 <span>{f}</span>
               </div>

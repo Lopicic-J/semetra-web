@@ -195,13 +195,13 @@ export default function GroupDetailPage() {
       {/* Back button */}
       <button
         onClick={() => router.push("/groups")}
-        className="flex items-center gap-1.5 text-sm text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200 mb-4"
+ className="flex items-center gap-1.5 text-sm text-surface-500 hover:text-surface-700 dark:hover:text-surface-200 mb-4"
       >
         <ArrowLeft size={16} /> {t("groups.backToGroups")}
       </button>
 
       {/* Header */}
-      <div className="card mb-6 dark:bg-surface-800 dark:border-surface-700">
+ <div className="card mb-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
           <div
             className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center text-white shrink-0"
@@ -212,13 +212,13 @@ export default function GroupDetailPage() {
           <div className="flex-1 min-w-0">
             <h1 className="text-lg sm:text-xl font-bold text-surface-900 dark:text-white truncate">{group.name}</h1>
             {group.description && (
-              <p className="text-sm text-surface-500 dark:text-surface-400 mt-0.5 line-clamp-2">{group.description}</p>
+ <p className="text-sm text-surface-500 mt-0.5 line-clamp-2">{group.description}</p>
             )}
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={copyCode}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-50 dark:bg-surface-700 rounded-lg text-xs font-mono text-surface-600 dark:text-surface-500 hover:bg-surface-100 dark:hover:bg-surface-600 transition-colors"
+ className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-50 rounded-lg text-xs font-mono text-surface-600 hover:bg-surface-100 dark:hover:bg-surface-600 transition-colors"
             >
               {copied ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
               {group.invite_code}
@@ -236,7 +236,7 @@ export default function GroupDetailPage() {
       </div>
 
       {/* ── Tabs ────────────────────────────────── */}
-      <div className="border-b border-surface-200 dark:border-surface-700 mb-6 flex gap-0.5 overflow-x-auto scrollbar-hide">
+ <div className="border-b border-surface-200 mb-6 flex gap-0.5 overflow-x-auto scrollbar-hide">
         {[
           { id: "chat" as const, label: t("groups.tabs.chat") || "Chat", icon: MessageCircle },
           { id: "members" as const, label: t("groups.tabs.members") || "Mitglieder", icon: Users },
@@ -251,7 +251,7 @@ export default function GroupDetailPage() {
               className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === tab.id
                   ? "border-brand-600 text-brand-600 dark:text-brand-400 dark:border-brand-400"
-                  : "border-transparent text-surface-600 dark:text-surface-400 hover:text-surface-800 dark:hover:text-surface-200"
+ :"border-transparent text-surface-600 hover:text-surface-800 dark:hover:text-surface-200"
               }`}
             >
               <TabIcon size={15} />
@@ -305,7 +305,7 @@ export default function GroupDetailPage() {
                 {members.map(m => {
                   const RoleIcon = ROLE_ICONS[m.role as keyof typeof ROLE_ICONS] ?? UserCircle;
                   return (
-                    <div key={m.id} className="flex items-center justify-between py-2 px-3 bg-surface-50 dark:bg-surface-700/50 rounded-xl cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors" onClick={() => setSelectedUserId(m.user_id)}>
+ <div key={m.id} className="flex items-center justify-between py-2 px-3 bg-surface-50 rounded-xl cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors" onClick={() => setSelectedUserId(m.user_id)}>
                       <div className="flex items-center gap-2.5">
                         {m.profiles?.avatar_url ? (
                           <img src={m.profiles.avatar_url} className="w-8 h-8 rounded-full object-cover" alt="" />
@@ -315,10 +315,10 @@ export default function GroupDetailPage() {
                           </div>
                         )}
                         <div>
-                          <p className="text-sm font-medium text-surface-800 dark:text-surface-800">
+ <p className="text-sm font-medium text-surface-800">
                             {m.profiles?.full_name || m.profiles?.username}
                           </p>
-                          <p className="text-[10px] text-surface-400 dark:text-surface-500">@{m.profiles?.username}</p>
+ <p className="text-[10px] text-surface-400">@{m.profiles?.username}</p>
                         </div>
                       </div>
                       <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-surface-200 text-surface-600">
@@ -493,7 +493,7 @@ function SharedResourcesTab({
           <Share2 size={16} className="text-brand-600" />
           Geteilte Ressourcen
           {shares.length > 0 && (
-            <span className="text-xs bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-500 px-1.5 py-0.5 rounded-full">{shares.length}</span>
+ <span className="text-xs bg-surface-200 text-surface-600 px-1.5 py-0.5 rounded-full">{shares.length}</span>
           )}
         </h2>
         <button
@@ -506,7 +506,7 @@ function SharedResourcesTab({
 
       {/* Share Dialog */}
       {showShareDialog && (
-        <div className="card border-brand-200 dark:border-brand-800 bg-surface-50 dark:bg-surface-800">
+ <div className="card border-brand-200 dark:border-brand-800 bg-surface-50">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-surface-800 dark:text-white text-sm">Ressource teilen</h3>
             <button onClick={() => setShowShareDialog(false)} className="p-1 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400">
@@ -525,7 +525,7 @@ function SharedResourcesTab({
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium shrink-0 transition-all ${
                     shareType === key
                       ? "bg-brand-600 text-white"
-                      : "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-500 hover:bg-surface-200 dark:hover:bg-surface-600"
+ :"bg-surface-100 text-surface-600 hover:bg-surface-200 dark:hover:bg-surface-600"
                   }`}
                 >
                   <Icon size={13} />
@@ -546,7 +546,7 @@ function SharedResourcesTab({
           {/* Results */}
           <div className="max-h-48 overflow-y-auto space-y-1">
             {filteredResults.length === 0 ? (
-              <p className="text-xs text-surface-400 dark:text-surface-500 text-center py-4">
+ <p className="text-xs text-surface-400 text-center py-4">
                 {searchResults.length === 0 ? `Keine ${RESOURCE_TYPE_META[shareType]?.label || "Ressourcen"} vorhanden` : "Keine Treffer"}
               </p>
             ) : (
@@ -557,7 +557,7 @@ function SharedResourcesTab({
                 return (
                   <div key={r.id} className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors">
                     <Icon size={14} className={meta?.color || "text-surface-400"} />
-                    <span className="flex-1 text-sm text-surface-800 dark:text-surface-800 truncate">{r.name}</span>
+ <span className="flex-1 text-sm text-surface-800 truncate">{r.name}</span>
                     {isShared ? (
                       <span className="text-[10px] text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
                         <Check size={12} /> Geteilt
@@ -581,7 +581,7 @@ function SharedResourcesTab({
 
       {/* Shared resources list grouped by type */}
       {shares.length === 0 ? (
-        <div className="card text-center py-10 text-surface-400 dark:text-surface-500">
+ <div className="card text-center py-10 text-surface-400">
           <FolderOpen size={36} className="mx-auto mb-3 opacity-30" />
           <p className="text-sm font-medium">Noch nichts geteilt</p>
           <p className="text-xs mt-1.5">Teile Module, Prüfungen, Notizen oder Dokumente mit deiner Lerngruppe.</p>
@@ -593,7 +593,7 @@ function SharedResourcesTab({
             const Icon = meta?.icon || FileText;
             return (
               <div key={type} className="card">
-                <h3 className="flex items-center gap-2 text-sm font-semibold text-surface-700 dark:text-surface-800 mb-3">
+ <h3 className="flex items-center gap-2 text-sm font-semibold text-surface-700 mb-3">
                   <Icon size={15} className={meta?.color || "text-surface-400"} />
                   {meta?.label || type} ({typeShares.length})
                 </h3>
@@ -601,13 +601,13 @@ function SharedResourcesTab({
                   {typeShares.map(s => {
                     const canRemove = s.shared_by === currentUserId || isAdmin;
                     return (
-                      <div key={s.id} className="flex items-center gap-2.5 py-2 px-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl group">
+ <div key={s.id} className="flex items-center gap-2.5 py-2 px-3 bg-surface-50 rounded-xl group">
                         <Icon size={14} className={meta?.color || "text-surface-400"} />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-surface-800 dark:text-surface-800 truncate">
+ <p className="text-sm font-medium text-surface-800 truncate">
                             {s.resource_name || `${meta?.label || type} #${s.resource_id.slice(0, 8)}`}
                           </p>
-                          <p className="text-[10px] text-surface-400 dark:text-surface-500">
+ <p className="text-[10px] text-surface-400">
                             @{s.profiles?.username} · {new Date(s.created_at).toLocaleDateString("de-CH")}
                           </p>
                         </div>
@@ -615,7 +615,7 @@ function SharedResourcesTab({
                           <button
                             onClick={() => unshareResource(s.id)}
                             disabled={deleting === s.id}
-                            className="p-1.5 text-surface-300 dark:text-surface-600 hover:text-red-500 dark:hover:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors opacity-0 group-hover:opacity-100"
+ className="p-1.5 text-surface-300 hover:text-red-500 dark:hover:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors opacity-0 group-hover:opacity-100"
                           >
                             <Trash2 size={13} />
                           </button>

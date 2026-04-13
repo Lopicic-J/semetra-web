@@ -96,14 +96,14 @@ function AttemptBadge({ attempt, gradeScale, gradeBands }: {
         ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800"
         : status === "graded"
           ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
-          : "bg-surface-50 dark:bg-surface-800 border-surface-200 dark:border-surface-700"
+ :"bg-surface-50 border-surface-200"
     }`}>
       <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
         passing ? "bg-emerald-100 dark:bg-emerald-800/40" :
         status === "graded" ? "bg-red-100 dark:bg-red-800/40" :
-        "bg-surface-100 dark:bg-surface-700"
+"bg-surface-100"
       }`}>
-        <span className="text-sm font-bold text-surface-600 dark:text-surface-500">
+ <span className="text-sm font-bold text-surface-600">
           #{attemptNumber(attempt)}
         </span>
       </div>
@@ -129,7 +129,7 @@ function AttemptBadge({ attempt, gradeScale, gradeBands }: {
       {grade != null && (
         <div className="text-right shrink-0">
           <p className="text-xs text-surface-400">Normalisiert</p>
-          <p className="text-sm font-semibold text-surface-600 dark:text-surface-500">
+ <p className="text-sm font-semibold text-surface-600">
             {normalizeGrade(grade, gradeScale)?.normalizedScore0to100?.toFixed(1) ?? "–"}/100
           </p>
         </div>
@@ -151,9 +151,9 @@ function ComponentRow({ component, result, gradeScale }: {
   const score = result?.score ?? result?.grade_value ?? result?.raw_score ?? null;
 
   return (
-    <div className="flex items-center gap-3 py-2.5 border-b border-surface-50 dark:border-surface-800 last:border-0">
+ <div className="flex items-center gap-3 py-2.5 border-b border-surface-50 last:border-0">
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-surface-800 dark:text-surface-800 truncate">{name}</p>
+ <p className="text-sm text-surface-800 truncate">{name}</p>
         <p className="text-[11px] text-surface-400">
           {type} · Gewichtung: {weightStr}
           {mandatory && " · Pflicht"}
@@ -164,7 +164,7 @@ function ComponentRow({ component, result, gradeScale }: {
           <span className={`text-sm font-semibold px-2 py-0.5 rounded ${
             score >= (gradeScale.passValue ?? 0)
               ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
-              : "bg-surface-100 text-surface-600 dark:bg-surface-700 dark:text-surface-500"
+ :"bg-surface-100 text-surface-600"
           }`}>
             {formatGradeValue(score, gradeScale)}
           </span>
@@ -299,7 +299,7 @@ export function ModuleAcademicDetail({
           </div>
           {effectiveGrade != null && (
             <div className="text-right shrink-0">
-              <p className={`text-2xl font-bold ${isPassed ? "text-emerald-600" : isFailed ? "text-red-600" : "text-surface-800 dark:text-surface-800"}`}>
+ <p className={`text-2xl font-bold ${isPassed ?"text-emerald-600" : isFailed ?"text-red-600" :"text-surface-800"}`}>
                 {formatGradeValue(effectiveGrade, gradeScale)}
               </p>
               {currentBand && (
@@ -361,8 +361,8 @@ export function ModuleAcademicDetail({
               })}
           </div>
           {calculatedGrade != null && (
-            <div className="mt-3 pt-3 border-t border-surface-100 dark:border-surface-700 flex items-center justify-between">
-              <span className="text-sm font-medium text-surface-600 dark:text-surface-500">
+ <div className="mt-3 pt-3 border-t border-surface-100 flex items-center justify-between">
+ <span className="text-sm font-medium text-surface-600">
                 {t("academic.calculatedGrade") || "Berechnete Gesamtnote"}
               </span>
               <span className="text-lg font-bold text-brand-600">
@@ -410,7 +410,7 @@ export function ModuleAcademicDetail({
             <Info size={16} className="text-surface-400" />
             {t("academic.description") || "Beschreibung"}
           </h3>
-          <p className="text-sm text-surface-600 dark:text-surface-400 leading-relaxed">
+ <p className="text-sm text-surface-600 leading-relaxed">
             {moduleDescription}
           </p>
         </div>

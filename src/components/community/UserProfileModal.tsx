@@ -108,7 +108,7 @@ export default function UserProfileModal({ userId, onClose }: Props) {
     online: "bg-green-500",
     away: "bg-amber-500",
     dnd: "bg-red-500",
-    offline: "bg-surface-400 dark:bg-surface-600",
+ offline:"bg-surface-400",
   };
 
   const statusLabels: Record<string, string> = {
@@ -126,7 +126,7 @@ export default function UserProfileModal({ userId, onClose }: Props) {
       phd: { label: "Ph.D.", color: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300" },
       diploma: { label: "Dipl.", color: "bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300" },
     };
-    const config = labels[level] || { label: level, color: "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-500" };
+ const config = labels[level] || { label: level, color:"bg-surface-100 text-surface-600" };
     return (
       <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${config.color}`}>
         <GraduationCap size={12} className="mr-1" />
@@ -167,17 +167,17 @@ export default function UserProfileModal({ userId, onClose }: Props) {
           </div>
         ) : error === "private" ? (
           <div className="flex flex-col items-center justify-center py-20 px-6">
-            <Shield size={40} className="text-surface-300 dark:text-surface-600 mb-3" />
-            <p className="text-surface-600 dark:text-surface-400 font-medium text-center">
+ <Shield size={40} className="text-surface-300 mb-3" />
+ <p className="text-surface-600 font-medium text-center">
               {t("profile.private") || "Dieses Profil ist privat"}
             </p>
-            <p className="text-sm text-surface-400 dark:text-surface-500 mt-1 text-center">
+ <p className="text-sm text-surface-400 mt-1 text-center">
               {t("profile.privateDesc") || "Der Benutzer hat sein Profil in der Community verborgen."}
             </p>
           </div>
         ) : error || !profile ? (
           <div className="flex flex-col items-center justify-center py-20 px-6">
-            <p className="text-surface-600 dark:text-surface-400">{t("profile.loadError") || "Profil konnte nicht geladen werden"}</p>
+ <p className="text-surface-600">{t("profile.loadError") ||"Profil konnte nicht geladen werden"}</p>
           </div>
         ) : (
           <>
@@ -212,17 +212,17 @@ export default function UserProfileModal({ userId, onClose }: Props) {
                   <img
                     src={profile.avatar_url}
                     alt={profile.username}
-                    className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-surface-800 shadow-lg"
+ className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
                   />
                 ) : (
-                  <div className="w-24 h-24 rounded-full bg-brand-100 dark:bg-brand-900/40 border-4 border-white dark:border-surface-800 shadow-lg flex items-center justify-center">
+ <div className="w-24 h-24 rounded-full bg-brand-100 dark:bg-brand-900/40 border-4 border-white shadow-lg flex items-center justify-center">
                     <span className="text-brand-600 dark:text-brand-400 font-bold text-3xl">
                       {(profile.full_name || profile.username || "?")[0].toUpperCase()}
                     </span>
                   </div>
                 )}
                 {/* Level badge on avatar */}
-                <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center border-2 border-white dark:border-surface-800 shadow">
+ <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center border-2 border-white shadow">
                   {profile.level}
                 </div>
               </div>
@@ -246,7 +246,7 @@ export default function UserProfileModal({ userId, onClose }: Props) {
                     institution: { label: "Institution", icon: GraduationCap, bgClass: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" },
                     dozent: { label: "Dozent", icon: GraduationCap, bgClass: "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300" },
                     student: { label: "Student", icon: Users, bgClass: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300" },
-                    non_student: { label: "Gast", icon: Globe, bgClass: "bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-500" },
+ non_student: { label:"Gast", icon: Globe, bgClass:"bg-surface-200 text-surface-600" },
                   };
                   const config = roleConfig[profile.user_role];
                   if (!config) return null;
@@ -258,7 +258,7 @@ export default function UserProfileModal({ userId, onClose }: Props) {
                   );
                 })()}
               </div>
-              <p className="text-sm text-surface-500 dark:text-surface-400">@{profile.username}</p>
+ <p className="text-sm text-surface-500">@{profile.username}</p>
 
               {/* Plan badge */}
               <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -271,12 +271,12 @@ export default function UserProfileModal({ userId, onClose }: Props) {
                     <Star size={12} /> Pro
                   </span>
                 ) : (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-surface-100 dark:bg-surface-700 text-surface-500 dark:text-surface-400 font-medium">
+ <span className="text-xs px-2 py-0.5 rounded-full bg-surface-100 text-surface-500 font-medium">
                     Free
                   </span>
                 )}
                 {profile.member_since && (
-                  <span className="text-xs text-surface-400 dark:text-surface-500 flex items-center gap-1">
+ <span className="text-xs text-surface-400 flex items-center gap-1">
                     <Calendar size={12} />
                     {t("profile.memberSince") || "Dabei seit"} {formatDate(profile.member_since)}
                   </span>
@@ -287,25 +287,25 @@ export default function UserProfileModal({ userId, onClose }: Props) {
             {/* Study Info */}
             <div className="px-5 pb-3 space-y-1.5">
               {profile.institution_name && (
-                <div className="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-400">
-                  <GraduationCap size={15} className="text-surface-400 dark:text-surface-500 flex-shrink-0" />
+ <div className="flex items-center gap-2 text-sm text-surface-600">
+ <GraduationCap size={15} className="text-surface-400 flex-shrink-0" />
                   <span className="truncate">{profile.institution_name}</span>
                 </div>
               )}
               {profile.program_name && (
-                <div className="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-400">
-                  <BookOpen size={15} className="text-surface-400 dark:text-surface-500 flex-shrink-0" />
+ <div className="flex items-center gap-2 text-sm text-surface-600">
+ <BookOpen size={15} className="text-surface-400 flex-shrink-0" />
                   <span className="truncate">
                     {profile.program_name}
                     {profile.current_semester && (
-                      <span className="text-surface-400 dark:text-surface-500"> · Sem. {profile.current_semester}</span>
+ <span className="text-surface-400"> · Sem. {profile.current_semester}</span>
                     )}
                   </span>
                 </div>
               )}
               {profile.study_mode && (
-                <div className="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-400">
-                  <Clock size={15} className="text-surface-400 dark:text-surface-500 flex-shrink-0" />
+ <div className="flex items-center gap-2 text-sm text-surface-600">
+ <Clock size={15} className="text-surface-400 flex-shrink-0" />
                   <span>{profile.study_mode === "full_time" ? (t("profile.fullTime") || "Vollzeit") : (t("profile.partTime") || "Teilzeit")}</span>
                 </div>
               )}
@@ -315,33 +315,33 @@ export default function UserProfileModal({ userId, onClose }: Props) {
             {stats && (
               <div className="px-5 pb-4">
                 <div className="grid grid-cols-4 gap-2">
-                  <div className="bg-surface-50 dark:bg-surface-700/50 rounded-xl p-2.5 text-center">
+ <div className="bg-surface-50 rounded-xl p-2.5 text-center">
                     <Trophy size={16} className="mx-auto text-amber-500 mb-1" />
                     <div className="text-base font-bold text-surface-900 dark:text-white">
                       {stats.rank ? `#${stats.rank}` : "—"}
                     </div>
-                    <div className="text-[10px] text-surface-500 dark:text-surface-400">{t("profile.rank") || "Rang"}</div>
+ <div className="text-[10px] text-surface-500">{t("profile.rank") ||"Rang"}</div>
                   </div>
-                  <div className="bg-surface-50 dark:bg-surface-700/50 rounded-xl p-2.5 text-center">
+ <div className="bg-surface-50 rounded-xl p-2.5 text-center">
                     <TrendingUp size={16} className="mx-auto text-brand-500 mb-1" />
                     <div className="text-base font-bold text-surface-900 dark:text-white">
                       {profile.xp_total.toLocaleString()}
                     </div>
-                    <div className="text-[10px] text-surface-500 dark:text-surface-400">XP</div>
+ <div className="text-[10px] text-surface-500">XP</div>
                   </div>
-                  <div className="bg-surface-50 dark:bg-surface-700/50 rounded-xl p-2.5 text-center">
+ <div className="bg-surface-50 rounded-xl p-2.5 text-center">
                     <Clock size={16} className="mx-auto text-blue-500 mb-1" />
                     <div className="text-base font-bold text-surface-900 dark:text-white">
                       {stats.total_study_hours}h
                     </div>
-                    <div className="text-[10px] text-surface-500 dark:text-surface-400">{t("profile.studyTime") || "Lernzeit"}</div>
+ <div className="text-[10px] text-surface-500">{t("profile.studyTime") ||"Lernzeit"}</div>
                   </div>
-                  <div className="bg-surface-50 dark:bg-surface-700/50 rounded-xl p-2.5 text-center">
+ <div className="bg-surface-50 rounded-xl p-2.5 text-center">
                     <Award size={16} className="mx-auto text-emerald-500 mb-1" />
                     <div className="text-base font-bold text-surface-900 dark:text-white">
                       {stats.achievements}
                     </div>
-                    <div className="text-[10px] text-surface-500 dark:text-surface-400">{t("profile.achievements") || "Erfolge"}</div>
+ <div className="text-[10px] text-surface-500">{t("profile.achievements") ||"Erfolge"}</div>
                   </div>
                 </div>
               </div>
@@ -350,17 +350,17 @@ export default function UserProfileModal({ userId, onClose }: Props) {
             {/* XP Progress Bar */}
             {profile.level > 0 && (
               <div className="px-5 pb-4">
-                <div className="flex items-center justify-between text-xs text-surface-500 dark:text-surface-400 mb-1">
+ <div className="flex items-center justify-between text-xs text-surface-500 mb-1">
                   <span>Level {profile.level}</span>
                   <span>Level {profile.level + 1}</span>
                 </div>
-                <div className="h-2 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden">
+ <div className="h-2 bg-surface-100 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all"
                     style={{ width: `${Math.min(((profile.xp_total % 1000) / 1000) * 100, 100)}%` }}
                   />
                 </div>
-                <p className="text-[10px] text-surface-400 dark:text-surface-500 mt-0.5">
+ <p className="text-[10px] text-surface-400 mt-0.5">
                   {profile.xp_total % 1000} / 1000 XP
                 </p>
               </div>
@@ -374,7 +374,7 @@ export default function UserProfileModal({ userId, onClose }: Props) {
                   {t("profile.friends") || "Befreundet"}
                 </div>
               ) : friendshipStatus === "pending" ? (
-                <div className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-surface-100 dark:bg-surface-700 text-surface-500 dark:text-surface-400 text-sm font-semibold">
+ <div className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-surface-100 text-surface-500 text-sm font-semibold">
                   <Clock size={16} />
                   {t("profile.requestPending") || "Anfrage gesendet"}
                 </div>
@@ -390,7 +390,7 @@ export default function UserProfileModal({ userId, onClose }: Props) {
               <Link
                 href={`/messages?user=${profile.id}`}
                 onClick={onClose}
-                className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 dark:text-surface-500 text-sm font-semibold transition-colors"
+ className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-surface-100 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 text-sm font-semibold transition-colors"
               >
                 <MessageCircle size={16} />
                 {t("community.message") || "Nachricht"}

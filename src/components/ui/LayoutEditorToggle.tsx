@@ -18,7 +18,7 @@ export default function LayoutEditorToggle() {
       {editing && (
         <button
           onClick={resetLayout}
-          className="flex items-center gap-2 px-3 py-2 bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-500 rounded-xl shadow-lg border border-surface-200 dark:border-surface-700 hover:bg-surface-200 dark:hover:bg-surface-700 transition-all text-[12px] font-medium"
+ className="flex items-center gap-2 px-3 py-2 bg-surface-100 text-surface-600 rounded-xl shadow-lg border border-surface-200 hover:bg-surface-200 dark:hover:bg-surface-700 transition-all text-[12px] font-medium"
           title={t("layout.reset") || "Layout zurücksetzen"}
         >
           <RotateCcw size={14} />

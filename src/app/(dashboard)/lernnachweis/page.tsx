@@ -9,7 +9,7 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   FileText, Download, Clock, GraduationCap, Target, Flame,
-  TrendingUp, BookOpen, Award, BarChart3, Calendar
+  TrendingUp, BookOpen, Award, BarChart3, Calendar, ShieldCheck
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/lib/i18n";
@@ -120,7 +120,7 @@ export default function LernnachweisPage() {
             <Award className="w-6 h-6 text-brand-600 dark:text-brand-400" />
             {t("lernnachweis.title")}
           </h1>
-          <p className="text-sm text-surface-500 dark:text-surface-400 mt-1">
+ <p className="text-sm text-surface-500 mt-1">
             {t("lernnachweis.subtitle")}
           </p>
         </div>
@@ -168,22 +168,22 @@ export default function LernnachweisPage() {
 
       {/* Module Breakdown */}
       <div className="rounded-2xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-800 overflow-hidden">
-        <div className="px-5 py-4 border-b border-surface-100 dark:border-surface-700 flex items-center justify-between">
+ <div className="px-5 py-4 border-b border-surface-100 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-surface-900 dark:text-white flex items-center gap-2">
             <FileText className="w-4 h-4 text-surface-400" />
             {t("lernnachweis.module_breakdown")}
           </h2>
-          <span className="text-xs text-surface-400 dark:text-surface-500">
+ <span className="text-xs text-surface-400">
             {moduleOutputs.length} {t("lernnachweis.modules")}
           </span>
         </div>
 
         {moduleOutputs.length === 0 ? (
-          <div className="py-12 text-center text-surface-400 dark:text-surface-500 text-sm">
+ <div className="py-12 text-center text-surface-400 text-sm">
             {t("lernnachweis.no_data")}
           </div>
         ) : (
-          <div className="divide-y divide-surface-50 dark:divide-surface-800">
+ <div className="divide-y divide-surface-50">
             {moduleOutputs.map((mod) => (
               <div key={mod.id} className="px-3 sm:px-5 py-3 flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4 hover:bg-surface-50 dark:hover:bg-surface-800/50 transition-colors">
                 {/* Color dot */}
@@ -197,7 +197,7 @@ export default function LernnachweisPage() {
                   <p className="text-sm font-medium text-surface-900 dark:text-white truncate">
                     {mod.name}
                   </p>
-                  <p className="text-xs text-surface-400 dark:text-surface-500">
+ <p className="text-xs text-surface-400">
                     {mod.code || ""} · {mod.ects} ECTS · {mod.studyHours}h · {mod.sessions} Sessions
                   </p>
                 </div>
@@ -223,7 +223,7 @@ export default function LernnachweisPage() {
                   <div className="w-16 hidden sm:block">
                     {mod.tasks.total > 0 ? (
                       <div>
-                        <div className="h-1.5 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden">
+ <div className="h-1.5 bg-surface-100 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-brand-500 rounded-full transition-all"
                             style={{ width: `${(mod.tasks.completed / mod.tasks.total) * 100}%` }}
@@ -237,6 +237,19 @@ export default function LernnachweisPage() {
                       <span className="text-[10px] text-surface-300">—</span>
                     )}
                   </div>
+
+                  {/* Certificate button for passed modules */}
+                  {mod.passed && (
+                    <button
+                      onClick={() => {
+                        window.open(`/api/academic/certificate?module_id=${mod.id}`, "_blank");
+                      }}
+                      className="p-1.5 rounded-lg bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-900/30 transition-colors hidden sm:flex items-center gap-1"
+                      title={t("lernnachweis.certificate")}
+                    >
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -252,7 +265,7 @@ export default function LernnachweisPage() {
             <p className="text-sm font-medium text-surface-900 dark:text-white">
               {t("lernnachweis.longest_streak")}: {streak.longestStreak} {t("lernnachweis.days")}
             </p>
-            <p className="text-xs text-surface-500 dark:text-surface-400">
+ <p className="text-xs text-surface-500">
               {t("lernnachweis.total_study_days")}: {streak.totalDays || 0}
             </p>
           </div>
@@ -272,10 +285,10 @@ function KPICard({ icon: Icon, label, value, color, bg }: {
   bg: string;
 }) {
   return (
-    <div className={`rounded-2xl ${bg} border border-surface-200/50 dark:border-surface-700/50 p-4`}>
+ <div className={`rounded-2xl ${bg} border border-surface-200/50 p-4`}>
       <Icon className={`w-5 h-5 ${color} mb-2`} />
       <p className="text-2xl font-bold text-surface-900 dark:text-white">{value}</p>
-      <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">{label}</p>
+ <p className="text-xs text-surface-500 mt-0.5">{label}</p>
     </div>
   );
 }
@@ -290,7 +303,7 @@ function MiniStat({ icon: Icon, label, value }: {
       <Icon className="w-4 h-4 text-surface-400 flex-shrink-0" />
       <div>
         <p className="text-lg font-bold text-surface-900 dark:text-white">{value}</p>
-        <p className="text-[11px] text-surface-400 dark:text-surface-500">{label}</p>
+ <p className="text-[11px] text-surface-400">{label}</p>
       </div>
     </div>
   );

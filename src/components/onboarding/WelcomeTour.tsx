@@ -143,7 +143,7 @@ export default function WelcomeTour() {
             </div>
             <div>
               <h3 className="text-base font-bold text-surface-900 dark:text-white mb-1">{current.title}</h3>
-              <p className="text-sm text-surface-600 dark:text-surface-400 leading-relaxed">{current.description}</p>
+ <p className="text-sm text-surface-600 leading-relaxed">{current.description}</p>
             </div>
           </div>
 
@@ -163,7 +163,7 @@ export default function WelcomeTour() {
                     ? "w-6 bg-brand-600 dark:bg-brand-500"
                     : i < step
                     ? "bg-brand-300 dark:bg-brand-700"
-                    : "bg-surface-200 dark:bg-surface-700"
+ :"bg-surface-200"
                 }`}
               />
             ))}
@@ -172,7 +172,7 @@ export default function WelcomeTour() {
           {/* Actions */}
           <div className="flex items-center gap-2">
             {step > 0 && (
-              <button onClick={prev} className="px-4 py-2 rounded-xl text-sm font-medium text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors">
+ <button onClick={prev} className="px-4 py-2 rounded-xl text-sm font-medium text-surface-600 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors">
                 Zurück
               </button>
             )}

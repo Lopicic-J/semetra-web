@@ -218,7 +218,7 @@ export default function FriendsPage() {
           <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white">
             {t("friends.title") || "Freunde"}
           </h1>
-          <p className="text-sm text-surface-500 dark:text-surface-400">
+ <p className="text-sm text-surface-500">
             {t("friends.subtitle") || "Freunde hinzufügen und private Nachrichten senden"}
           </p>
         </div>
@@ -226,7 +226,7 @@ export default function FriendsPage() {
 
       {/* Add Friend Quick Action */}
       <div className="bg-white rounded-2xl border border-surface-200 p-4">
-        <label className="text-sm font-medium text-surface-700 dark:text-surface-500 mb-2 block">
+ <label className="text-sm font-medium text-surface-700 mb-2 block">
           {t("friends.addByUsername") || "Freund per Benutzername hinzufügen"}
         </label>
         <div className="flex gap-2">
@@ -261,7 +261,7 @@ export default function FriendsPage() {
             className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors relative ${
               activeTab === tab.id
                 ? "bg-white dark:bg-surface-700 text-brand-600 dark:text-brand-400 shadow-sm"
-                : "text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-200"
+ :"text-surface-600 hover:text-surface-900 dark:hover:text-surface-200"
             }`}
           >
             <tab.icon size={16} />
@@ -293,11 +293,11 @@ export default function FriendsPage() {
             </div>
           ) : friends.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-2xl border border-surface-200">
-              <Users className="mx-auto text-surface-300 dark:text-surface-600 mb-3" size={40} />
-              <p className="text-surface-600 dark:text-surface-400 font-medium">
+ <Users className="mx-auto text-surface-300 mb-3" size={40} />
+ <p className="text-surface-600 font-medium">
                 {t("friends.noFriends") || "Noch keine Freunde"}
               </p>
-              <p className="text-sm text-surface-400 dark:text-surface-500 mt-1">
+ <p className="text-sm text-surface-400 mt-1">
                 {t("friends.noFriendsHint") || "Füge Freunde über den Benutzernamen hinzu!"}
               </p>
             </div>
@@ -309,7 +309,7 @@ export default function FriendsPage() {
                   <p className="font-medium text-surface-900 dark:text-white truncate">
                     {f.friend.full_name || f.friend.username}
                   </p>
-                  <p className="text-xs text-surface-500 dark:text-surface-400">@{f.friend.username}</p>
+ <p className="text-xs text-surface-500">@{f.friend.username}</p>
                 </div>
                 <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                   <Link
@@ -359,7 +359,7 @@ export default function FriendsPage() {
             {/* Incoming */}
             {incomingRequests.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-400 mb-2 flex items-center gap-2">
+ <h3 className="text-sm font-semibold text-surface-700 mb-2 flex items-center gap-2">
                   <ChevronDown size={14} />
                   {t("friends.incoming") || "Eingehende Anfragen"} ({incomingRequests.length})
                 </h3>
@@ -371,7 +371,7 @@ export default function FriendsPage() {
                         <p className="font-medium text-surface-900 dark:text-white truncate">
                           {f.friend.full_name || f.friend.username}
                         </p>
-                        <p className="text-xs text-surface-500 dark:text-surface-400">@{f.friend.username}</p>
+ <p className="text-xs text-surface-500">@{f.friend.username}</p>
                       </div>
                       <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
                         <button
@@ -400,7 +400,7 @@ export default function FriendsPage() {
             {/* Outgoing */}
             {outgoingRequests.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-surface-700 dark:text-surface-400 mb-2 flex items-center gap-2">
+ <h3 className="text-sm font-semibold text-surface-700 mb-2 flex items-center gap-2">
                   <Clock size={14} />
                   {t("friends.outgoing") || "Gesendete Anfragen"} ({outgoingRequests.length})
                 </h3>
@@ -412,9 +412,9 @@ export default function FriendsPage() {
                         <p className="font-medium text-surface-900 dark:text-white truncate">
                           {f.friend.full_name || f.friend.username}
                         </p>
-                        <p className="text-xs text-surface-500 dark:text-surface-400">@{f.friend.username}</p>
+ <p className="text-xs text-surface-500">@{f.friend.username}</p>
                       </div>
-                      <span className="text-xs text-surface-400 dark:text-surface-500 flex items-center gap-1">
+ <span className="text-xs text-surface-400 flex items-center gap-1">
                         <Clock size={12} />
                         {t("friends.pending") || "Ausstehend"}
                       </span>
@@ -426,8 +426,8 @@ export default function FriendsPage() {
 
             {incomingRequests.length === 0 && outgoingRequests.length === 0 && (
               <div className="text-center py-16 bg-white rounded-2xl border border-surface-200">
-                <UserCheck className="mx-auto text-surface-300 dark:text-surface-600 mb-3" size={40} />
-                <p className="text-surface-600 dark:text-surface-400 font-medium">
+ <UserCheck className="mx-auto text-surface-300 mb-3" size={40} />
+ <p className="text-surface-600 font-medium">
                   {t("friends.noRequests") || "Keine offenen Anfragen"}
                 </p>
               </div>
@@ -468,7 +468,7 @@ export default function FriendsPage() {
                         <p className="font-medium text-surface-900 dark:text-white truncate">
                           {user.full_name || user.username}
                         </p>
-                        <p className="text-xs text-surface-500 dark:text-surface-400">@{user.username}</p>
+ <p className="text-xs text-surface-500">@{user.username}</p>
                       </div>
                       {existingFriendship ? (
                         <span className="text-xs px-3 py-1.5 rounded-lg bg-surface-100 text-surface-500">
@@ -493,7 +493,7 @@ export default function FriendsPage() {
             )}
 
             {searchQuery.length >= 2 && !searching && searchResults.length === 0 && (
-              <div className="text-center py-8 text-surface-500 dark:text-surface-400 text-sm">
+ <div className="text-center py-8 text-surface-500 text-sm">
                 {t("friends.noResults") || "Keine Benutzer gefunden"}
               </div>
             )}

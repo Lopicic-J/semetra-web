@@ -64,7 +64,7 @@ export default function ProgramMapTab() {
     return (
       <div className="card p-8 text-center max-w-lg mx-auto">
         <GraduationCap size={40} className="mx-auto text-surface-300 mb-3" />
-        <h3 className="text-base font-semibold text-surface-800 dark:text-surface-800 mb-2">
+ <h3 className="text-base font-semibold text-surface-800 mb-2">
           {t("academic.noProgramSelected") || "Kein Studiengang ausgewählt"}
         </h3>
         <p className="text-sm text-surface-500 mb-4">

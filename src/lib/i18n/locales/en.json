@@ -2498,6 +2498,7 @@
   "lernnachweis.no_data": "No data available yet",
   "lernnachweis.longest_streak": "Longest Streak",
   "lernnachweis.total_study_days": "Total Study Days",
+  "lernnachweis.certificate": "Download module certificate",
 
   "export.button": "Export",
   "export.pdf": "PDF Report",

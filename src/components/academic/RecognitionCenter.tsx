@@ -170,7 +170,7 @@ function RecognitionCard({
       </button>
 
       {expanded && (
-        <div className="px-4 pb-4 border-t border-surface-100 dark:border-surface-800">
+ <div className="px-4 pb-4 border-t border-surface-100">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
             {/* Source Info */}
             <div className="space-y-2">
@@ -181,19 +181,19 @@ function RecognitionCard({
                 {sourceInstitution && (
                   <div className="flex items-center gap-2">
                     <Building2 size={13} className="text-surface-400" />
-                    <span className="text-sm text-surface-600 dark:text-surface-500">{sourceInstitution}</span>
+ <span className="text-sm text-surface-600">{sourceInstitution}</span>
                   </div>
                 )}
                 {sourceModuleName && (
                   <div className="flex items-center gap-2">
                     <FileText size={13} className="text-surface-400" />
-                    <span className="text-sm text-surface-600 dark:text-surface-500">{sourceModuleName}</span>
+ <span className="text-sm text-surface-600">{sourceModuleName}</span>
                   </div>
                 )}
                 {sourceGradeValue != null && srcScale && (
                   <div className="flex items-center gap-2">
                     <Award size={13} className="text-surface-400" />
-                    <span className="text-sm text-surface-600 dark:text-surface-500">
+ <span className="text-sm text-surface-600">
                       {formatGradeValue(sourceGradeValue, srcScale)} ({srcScale.name})
                     </span>
                   </div>
@@ -210,7 +210,7 @@ function RecognitionCard({
                 {convertedGrade != null && (
                   <div className="flex items-center gap-2">
                     <ArrowRightLeft size={13} className="text-brand-500" />
-                    <span className="text-sm font-medium text-surface-800 dark:text-surface-800">
+ <span className="text-sm font-medium text-surface-800">
                       {formatGradeValue(convertedGrade.grade, currentGradeScale)}
                       {" "}({currentGradeScale.name})
                     </span>
@@ -219,7 +219,7 @@ function RecognitionCard({
                 {gradeBand && (
                   <div className="flex items-center gap-2">
                     <Award size={13} className="text-surface-400" />
-                    <span className="text-sm text-surface-600 dark:text-surface-500">{gradeBand.label}</span>
+ <span className="text-sm text-surface-600">{gradeBand.label}</span>
                   </div>
                 )}
                 {convertedGrade != null && (
@@ -235,9 +235,9 @@ function RecognitionCard({
           </div>
 
           {decisionNotes && (
-            <div className="mt-4 p-3 rounded-xl bg-surface-50 dark:bg-surface-800">
+ <div className="mt-4 p-3 rounded-xl bg-surface-50">
               <p className="text-xs text-surface-400 mb-1">{t("academic.notes") || "Anmerkungen"}</p>
-              <p className="text-sm text-surface-600 dark:text-surface-500">{decisionNotes}</p>
+ <p className="text-sm text-surface-600">{decisionNotes}</p>
             </div>
           )}
         </div>
@@ -338,7 +338,7 @@ export function RecognitionCenter({
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
-          <div className="text-center p-3 rounded-xl bg-surface-50 dark:bg-surface-800">
+ <div className="text-center p-3 rounded-xl bg-surface-50">
             <p className="text-2xl font-bold text-surface-900 dark:text-white">{stats.total}</p>
             <p className="text-xs text-surface-500">{t("academic.totalRequests") || "Gesamt"}</p>
           </div>
@@ -367,7 +367,7 @@ export function RecognitionCenter({
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 filter === f
                   ? "bg-brand-600 text-white"
-                  : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-500 hover:bg-surface-200 dark:hover:bg-surface-700"
+ :"bg-surface-100 text-surface-600 hover:bg-surface-200 dark:hover:bg-surface-700"
               }`}
             >
               {f === "all" ? (t("academic.filterAll") || "Alle") :

@@ -171,13 +171,13 @@ export default function StudiengaengePage() {
   // Pro gate: FH import is Pro-only
   if (!isPro) {
     return (
-      <div className="p-3 sm:p-5 max-w-4xl mx-auto dark:bg-surface-900">
+ <div className="p-3 sm:p-5 max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
             <GraduationCap className="text-brand-600" size={26} />
             {t("studiengaenge.title")}
           </h1>
-          <p className="text-surface-500 dark:text-surface-400 text-sm mt-1">
+ <p className="text-surface-500 text-sm mt-1">
             {t("studiengaenge.subtitle")}
           </p>
         </div>
@@ -189,13 +189,13 @@ export default function StudiengaengePage() {
   }
 
   return (
-    <div className="p-3 sm:p-5 max-w-4xl mx-auto dark:bg-surface-900">
+ <div className="p-3 sm:p-5 max-w-4xl mx-auto">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
           <GraduationCap className="text-brand-600" size={26} />
           {t("studiengaenge.title")}
         </h1>
-        <p className="text-surface-500 dark:text-surface-400 text-sm mt-1">
+ <p className="text-surface-500 text-sm mt-1">
           {t("studiengaenge.subtitle")}
         </p>
       </div>
@@ -203,7 +203,7 @@ export default function StudiengaengePage() {
       {step === "choose" && (
         <>
           {/* Country Tabs */}
-          <div className="flex flex-wrap gap-1.5 mb-5 pb-3 border-b border-surface-100 dark:border-surface-700">
+ <div className="flex flex-wrap gap-1.5 mb-5 pb-3 border-b border-surface-100">
             {COUNTRY_TABS_LOCALIZED.map(ct => (
               <button
                 key={ct.code}
@@ -211,7 +211,7 @@ export default function StudiengaengePage() {
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   activeCountry === ct.code
                     ? "bg-brand-600 text-white"
-                    : "bg-surface-50 dark:bg-surface-800 text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700"
+ :"bg-surface-50 text-surface-600 hover:bg-surface-100 dark:hover:bg-surface-700"
                 }`}
               >
                 {ct.flag} {ct.label}
@@ -226,7 +226,7 @@ export default function StudiengaengePage() {
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 activeFh === null
                   ? "bg-brand-600 text-white"
-                  : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700"
+ :"bg-surface-100 text-surface-600 hover:bg-surface-200 dark:hover:bg-surface-700"
               }`}
             >
               {t("studiengaenge.all", { count: countryProgrammes.length })}
@@ -238,7 +238,7 @@ export default function StudiengaengePage() {
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   activeFh === fh
                     ? "text-white"
-                    : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700"
+ :"bg-surface-100 text-surface-600 hover:bg-surface-200 dark:hover:bg-surface-700"
                 }`}
                 style={activeFh === fh ? { background: FH_INFO[fh]?.color ?? "#6d28d9" } : undefined}
               >
@@ -260,7 +260,7 @@ export default function StudiengaengePage() {
                   </div>
                   <div>
                     <p className="font-semibold text-surface-900 dark:text-white text-sm">{fh}</p>
-                    <p className="text-xs text-surface-400 dark:text-surface-500">{FH_INFO[fh]?.full ?? fh}</p>
+ <p className="text-xs text-surface-400">{FH_INFO[fh]?.full ?? fh}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -268,7 +268,7 @@ export default function StudiengaengePage() {
                     <button
                       key={p.id}
                       onClick={() => pickProgram(p)}
-                      className="card p-3 sm:p-4 text-left hover:shadow-md hover:border-brand-200 dark:hover:border-brand-700 border border-transparent dark:bg-surface-800 dark:border-surface-700 transition-all group"
+ className="card p-3 sm:p-4 text-left hover:shadow-md hover:border-brand-200 dark:hover:border-brand-700 border border-transparent transition-all group"
                     >
                       <div className="flex items-start gap-3">
                         <div
@@ -279,12 +279,12 @@ export default function StudiengaengePage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-surface-900 dark:text-white text-sm truncate">{p.name}</p>
-                          <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">{p.abschluss} · {p.semester_count} Semester</p>
+ <p className="text-xs text-surface-500 mt-0.5">{p.abschluss} · {p.semester_count} Semester</p>
                           <p className="text-xs font-medium mt-1" style={{ color: isDark ? `${FH_INFO[fh]?.color ?? "#6d28d9"}dd` : (FH_INFO[fh]?.color ?? "#6d28d9") }}>
                             {p.ects_total} {gs.creditLabel} · {(p.modules_json ?? []).length} Module
                           </p>
                         </div>
-                        <ChevronRight size={16} className="text-surface-300 dark:text-surface-600 group-hover:text-brand-500 mt-1 transition-colors shrink-0" />
+ <ChevronRight size={16} className="text-surface-300 group-hover:text-brand-500 mt-1 transition-colors shrink-0" />
                       </div>
                     </button>
                   ))}
@@ -294,22 +294,22 @@ export default function StudiengaengePage() {
           </div>
 
           {countryProgrammes.length === 0 && programmes.length > 0 && (
-            <div className="text-center py-12 text-surface-400 dark:text-surface-500">
+ <div className="text-center py-12 text-surface-400">
               <GraduationCap size={40} className="mx-auto mb-3 opacity-30" />
               <p>{t("studiengaenge.noProgrammes")}</p>
             </div>
           )}
 
           {programmes.length === 0 && (
-            <div className="text-center py-12 text-surface-400 dark:text-surface-500">
+ <div className="text-center py-12 text-surface-400">
               <GraduationCap size={40} className="mx-auto mb-3 opacity-30" />
               <p>{t("studiengaenge.noProgrammesFound")}</p>
             </div>
           )}
 
           {/* Legal Disclaimer */}
-          <div className="mt-8 pt-6 border-t border-surface-100 dark:border-surface-700">
-            <p className="text-[11px] text-surface-400 dark:text-surface-500 leading-relaxed">
+ <div className="mt-8 pt-6 border-t border-surface-100">
+ <p className="text-[11px] text-surface-400 leading-relaxed">
               {t("studiengaenge.disclaimer")}
             </p>
           </div>
@@ -324,19 +324,19 @@ export default function StudiengaengePage() {
             </button>
             <div>
               <h2 className="font-semibold text-surface-800 dark:text-white">{selected.name}</h2>
-              <p className="text-xs text-surface-500 dark:text-surface-400">{selected.fh} · {selected.abschluss} · {selected.semester_count} Semester</p>
+ <p className="text-xs text-surface-500">{selected.fh} · {selected.abschluss} · {selected.semester_count} Semester</p>
             </div>
           </div>
 
-          <div className="card p-0 overflow-hidden mb-6 dark:bg-surface-800 dark:border-surface-700">
-            <div className="grid grid-cols-12 gap-2 px-4 py-2.5 bg-surface-50 dark:bg-surface-700 text-xs font-semibold text-surface-500 dark:text-surface-400 border-b border-surface-100 dark:border-surface-600">
+ <div className="card p-0 overflow-hidden mb-6">
+ <div className="grid grid-cols-12 gap-2 px-4 py-2.5 bg-surface-50 text-xs font-semibold text-surface-500 border-b border-surface-100">
               <div className="col-span-4">{t("studiengaenge.modal.module")}</div>
               <div className="col-span-2">{t("studiengaenge.modal.code")}</div>
               <div className="col-span-2">{gs.creditLabel}</div>
               <div className="col-span-2">{t("studiengaenge.modal.type")}</div>
               <div className="col-span-2">Semester</div>
             </div>
-            <div className="divide-y divide-surface-50 dark:divide-surface-700">
+ <div className="divide-y divide-surface-50">
               {(selected.modules_json ?? []).map((m, i) => (
                 <div key={i} className="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-surface-50/50 dark:hover:bg-surface-700/50">
                   <div className="col-span-4 flex items-center gap-2">
@@ -344,10 +344,10 @@ export default function StudiengaengePage() {
                     <span className="text-sm font-medium text-surface-800 dark:text-white truncate">{m.name}</span>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-xs font-mono bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-500 px-1.5 py-0.5 rounded">{m.code}</span>
+ <span className="text-xs font-mono bg-surface-100 text-surface-600 px-1.5 py-0.5 rounded">{m.code}</span>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-sm text-surface-600 dark:text-surface-400">{m.ects}</span>
+ <span className="text-sm text-surface-600">{m.ects}</span>
                   </div>
                   <div className="col-span-2">
                     <span className={`badge text-[10px] ${m.module_type === "pflicht" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}>
@@ -371,7 +371,7 @@ export default function StudiengaengePage() {
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="text-sm text-surface-500 dark:text-surface-400">
+ <div className="text-sm text-surface-500">
               {t("studiengaenge.modal.modulesTotal", { count: (selected.modules_json ?? []).length, credits: selected.ects_total, creditLabel: gs.creditLabel })}
             </div>
             <button
@@ -392,7 +392,7 @@ export default function StudiengaengePage() {
             <CheckCircle className="text-green-600 dark:text-green-400" size={36} />
           </div>
           <h2 className="text-xl font-bold text-surface-900 dark:text-white mb-2">{t("studiengaenge.modal.successTitle")}</h2>
-          <p className="text-surface-500 dark:text-surface-400 mb-6">
+ <p className="text-surface-500 mb-6">
             {t("studiengaenge.modal.successSubtitle", { programme: selected?.name ?? "", fh: selected?.fh ?? "" })}
           </p>
           <div className="flex gap-3 justify-center">

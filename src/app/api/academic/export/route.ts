@@ -22,6 +22,11 @@ import {
   type SemesterReportData,
   type StudyMetrics,
 } from "@/lib/pdf/report-generator";
+import {
+  generateReportHash,
+  generateReportId,
+  type ReportHashInput,
+} from "@/lib/verification/hash";
 
 const log = logger("api:export");
 
@@ -194,6 +199,45 @@ export async function GET(req: NextRequest) {
       generatedAt: new Date().toISOString(),
     };
 
+    // ── Store verification hash (for PDF and JSON) ──
+    const reportId = generateReportId();
+    const contentJson = JSON.stringify({
+      modules: moduleReports.map((m) => ({
+        name: m.module.name,
+        grade: m.bestGrade,
+        ects: m.ectsEarned,
+        passed: m.passed,
+      })),
+      summary: reportData.summary,
+    });
+
+    try {
+      const hashInput: ReportHashInput = {
+        reportId,
+        userId: user.id,
+        reportType: "semester-report",
+        contentJson,
+        generatedAt: reportData.generatedAt!,
+      };
+      const hash = await generateReportHash(hashInput);
+
+      await supabase.from("report_verifications").upsert(
+        {
+          report_id: reportId,
+          user_id: user.id,
+          report_type: "semester-report",
+          hash,
+          content_snapshot: contentJson,
+          generated_at: reportData.generatedAt,
+          created_at: new Date().toISOString(),
+        },
+        { onConflict: "report_id" }
+      );
+      log.info(`Report verification hash stored: ${reportId}`);
+    } catch (hashErr) {
+      log.warn("Failed to store report hash (non-blocking)", hashErr);
+    }
+
     // ── Generate output ──
     if (format === "pdf") {
       const pdfBytes = await generateSemesterReportPDF(reportData);
@@ -203,6 +247,8 @@ export async function GET(req: NextRequest) {
         headers: {
           "Content-Type": "application/pdf",
           "Content-Disposition": `attachment; filename="${filename}"`,
+          "X-Semetra-Report-Id": reportId,
+          "X-Semetra-Verify-Url": `https://app.semetra.ch/verify/${reportId}`,
         },
       });
     }

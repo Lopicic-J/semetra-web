@@ -85,14 +85,14 @@ export function PageTabs({
               <span className="truncate">{title}</span>
             </h1>
             {subtitle && (
-              <p className="text-surface-500 dark:text-surface-400 text-xs sm:text-sm mt-1 truncate">{subtitle}</p>
+ <p className="text-surface-500 text-xs sm:text-sm mt-1 truncate">{subtitle}</p>
             )}
           </div>
           {headerActions && <div className="flex gap-2 shrink-0">{headerActions}</div>}
         </div>
 
         {/* ── Tab bar ──────────────────────────────────── */}
-        <div className="flex gap-0.5 border-b border-surface-200 dark:border-surface-700 -mx-3 sm:-mx-6 px-3 sm:px-6 overflow-x-auto scrollbar-hide">
+ <div className="flex gap-0.5 border-b border-surface-200 -mx-3 sm:-mx-6 px-3 sm:px-6 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => {
             const isActive = tab.id === activeTab;
             const Icon = tab.icon;
@@ -106,7 +106,7 @@ export function PageTabs({
                   ${
                     isActive
                       ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-950/30"
-                      : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200 hover:bg-surface-50 dark:hover:bg-surface-800"
+ :"text-surface-500 hover:text-surface-700 dark:hover:text-surface-200 hover:bg-surface-50 dark:hover:bg-surface-800"
                   }
                 `}
               >

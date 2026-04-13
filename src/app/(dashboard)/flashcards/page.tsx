@@ -243,14 +243,14 @@ function StudyMode({
 
   if (!card) {
     return (
-      <div className={`${focusMode ? "fixed inset-0 z-50 bg-surface-50 dark:bg-surface-900" : ""} flex items-center justify-center min-h-[60vh]`}>
+ <div className={`${focusMode ?"fixed inset-0 z-50 bg-surface-50" :""} flex items-center justify-center min-h-[60vh]`}>
         <div className="text-center py-16 px-4 sm:px-0">
           <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mx-auto mb-4">
             <Check className="text-green-600 dark:text-green-400" size={36} />
           </div>
           <h2 className="text-xl font-bold text-surface-900 dark:text-white mb-2">{t("fc.sessionComplete")}</h2>
-          <p className="text-surface-500 dark:text-surface-400 mb-2">{t("fc.reviewedCards", { count: String(idx) })}</p>
-          <p className="text-sm text-surface-400 dark:text-surface-500 mb-6">{t("fc.todayTotal", { count: String(todayCount) })}</p>
+ <p className="text-surface-500 mb-2">{t("fc.reviewedCards", { count: String(idx) })}</p>
+ <p className="text-sm text-surface-400 mb-6">{t("fc.todayTotal", { count: String(todayCount) })}</p>
           <button onClick={onClose} className="btn-primary">{t("fc.backToOverview")}</button>
         </div>
       </div>
@@ -300,10 +300,10 @@ function StudyMode({
               <Calendar size={10} /> {t("fc.examIn", { days: String(daysUntilExam) })}
             </span>
           )}
-          <span className="text-sm text-surface-400 dark:text-surface-500">{idx + 1} / {cards.length}</span>
+ <span className="text-sm text-surface-400">{idx + 1} / {cards.length}</span>
           <button
             onClick={() => setFocusMode(f => !f)}
-            className="p-2 sm:p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 text-surface-400 dark:text-surface-500 hover:text-surface-700 dark:hover:text-surface-300 transition"
+ className="p-2 sm:p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 text-surface-400 hover:text-surface-700 dark:hover:text-surface-300 transition"
             title="Focus Mode (F)"
           >
             {focusMode ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
@@ -317,7 +317,7 @@ function StudyMode({
         {card.card_type === "basic" && (
           <div
             onClick={() => !flipped && setFlipped(true)}
-            className={`bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-2xl p-6 sm:p-8 lg:p-12 min-h-[280px] flex items-center justify-center cursor-pointer
+ className={`bg-surface-100 border border-surface-200 rounded-2xl p-6 sm:p-8 lg:p-12 min-h-[280px] flex items-center justify-center cursor-pointer
               hover:shadow-lg transition-all select-none ${focusMode ? "min-h-[360px]" : ""}`}
           >
             <div className="text-center max-w-lg px-4">
@@ -328,7 +328,7 @@ function StudyMode({
                 {flipped ? card.back : card.front}
               </p>
               {!flipped && (
-                <p className="text-xs text-surface-400 dark:text-surface-500 mt-6 flex items-center justify-center gap-1.5">
+ <p className="text-xs text-surface-400 mt-6 flex items-center justify-center gap-1.5">
                   <Keyboard size={12} /> {t("fc.pressSpace")}
                 </p>
               )}
@@ -338,7 +338,7 @@ function StudyMode({
 
         {/* ── Cloze card ── */}
         {card.card_type === "cloze" && cloze && (
-          <div className={`bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-2xl p-6 sm:p-8 lg:p-12 min-h-[280px] flex flex-col items-center justify-center ${focusMode ? "min-h-[360px]" : ""}`}>
+ <div className={`bg-surface-100 border border-surface-200 rounded-2xl p-6 sm:p-8 lg:p-12 min-h-[280px] flex flex-col items-center justify-center ${focusMode ?"min-h-[360px]" :""}`}>
             <p className="text-xs font-semibold text-purple-600 dark:text-purple-400 mb-4 tracking-wider uppercase">{t("fc.cloze")}</p>
             <p className={`text-surface-800 dark:text-white whitespace-pre-wrap leading-relaxed text-center mb-6 px-4 ${focusMode ? "text-2xl" : "text-lg"}`}>
               {cloze.display}
@@ -351,7 +351,7 @@ function StudyMode({
                   onChange={e => setClozeInput(e.target.value)}
                   onKeyDown={e => { if (e.key === "Enter") handleClozeCheck(); }}
                   placeholder={t("fc.clozeInputPlaceholder")}
-                  className="flex-1 bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-4 py-2.5 text-sm text-surface-900 dark:text-white focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none"
+ className="flex-1 bg-surface-50 border border-surface-200 rounded-lg px-4 py-2.5 text-sm text-surface-900 dark:text-white focus:border-brand-500 dark:focus:border-brand-400 focus:outline-none"
                   autoFocus
                 />
                 <button onClick={handleClozeCheck} className="btn-primary text-sm px-4 w-full sm:w-auto">{t("fc.check")}</button>
@@ -361,11 +361,11 @@ function StudyMode({
                 <p className={`text-sm font-medium mb-1 ${isCorrectCloze ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
                   {isCorrectCloze ? t("fc.correct") : t("fc.incorrect")}
                 </p>
-                <p className="text-sm text-surface-600 dark:text-surface-400">
+ <p className="text-sm text-surface-600">
                   {t("fc.correctAnswer")}: <strong>{cloze.answer}</strong>
                 </p>
                 {clozeInput && !isCorrectCloze && (
-                  <p className="text-xs text-surface-400 dark:text-surface-500 mt-1">{t("fc.yourAnswer")}: {clozeInput}</p>
+ <p className="text-xs text-surface-400 mt-1">{t("fc.yourAnswer")}: {clozeInput}</p>
                 )}
               </div>
             )}
@@ -374,10 +374,10 @@ function StudyMode({
 
         {/* ── Multiple Choice card ── */}
         {card.card_type === "mc" && card.choices && (
-          <div className={`bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-2xl p-6 sm:p-8 lg:p-12 min-h-[280px] ${focusMode ? "min-h-[360px]" : ""}`}>
+ <div className={`bg-surface-100 border border-surface-200 rounded-2xl p-6 sm:p-8 lg:p-12 min-h-[280px] ${focusMode ?"min-h-[360px]" :""}`}>
             <p className="text-xs font-semibold text-cyan-600 dark:text-cyan-400 mb-4 tracking-wider uppercase text-center">
               {t("fc.multipleChoice")}
-              {isMultiCorrectMc && <span className="ml-2 text-surface-400 dark:text-surface-500">({mcCorrectSet.size} {t("fc.mcCorrectLabel")})</span>}
+ {isMultiCorrectMc && <span className="ml-2 text-surface-400">({mcCorrectSet.size} {t("fc.mcCorrectLabel")})</span>}
             </p>
             <p className={`text-surface-800 dark:text-white whitespace-pre-wrap leading-relaxed text-center mb-8 px-4 ${focusMode ? "text-2xl" : "text-lg"}`}>
               {card.front}
@@ -386,7 +386,7 @@ function StudyMode({
               {card.choices.map((choice, ci) => {
                 const isCorrectChoice = mcCorrectSet.has(choice);
                 const isSelected = mcSelected === ci;
-                let style = "bg-surface-50 dark:bg-surface-700 border-surface-200 dark:border-surface-600 text-surface-800 dark:text-white hover:border-surface-300 dark:hover:border-surface-500";
+ let style ="bg-surface-50 border-surface-200 text-surface-800 dark:text-white hover:border-surface-300 dark:hover:border-surface-500";
                 if (flipped && isCorrectChoice) style = "bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700 text-green-800 dark:text-green-300";
                 else if (flipped && isSelected && !isCorrectChoice) style = "bg-red-50 dark:bg-red-900/30 border-red-300 dark:border-red-700 text-red-800 dark:text-red-300";
                 return (
@@ -396,7 +396,7 @@ function StudyMode({
                     disabled={flipped}
                     className={`px-4 py-3 rounded-xl border text-sm font-medium text-left transition ${style}`}
                   >
-                    <span className="text-xs text-surface-400 dark:text-surface-500 mr-2">{String.fromCharCode(65 + ci)}</span>
+ <span className="text-xs text-surface-400 mr-2">{String.fromCharCode(65 + ci)}</span>
                     {choice}
                   </button>
                 );
@@ -422,12 +422,12 @@ function StudyMode({
                 </button>
               ))}
             </div>
-            <p className="text-center text-xs text-surface-400 dark:text-surface-500 mt-3">{t("fc.rateHint")}</p>
+ <p className="text-center text-xs text-surface-400 mt-3">{t("fc.rateHint")}</p>
           </div>
         )}
 
         {/* Progress bar */}
-        <div className="mt-6 h-1.5 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden">
+ <div className="mt-6 h-1.5 bg-surface-100 rounded-full overflow-hidden">
           <div
             className="h-full bg-brand-500 dark:bg-brand-600 rounded-full transition-all duration-300"
             style={{ width: `${progress * 100}%` }}
@@ -574,14 +574,14 @@ function CardDialog({
         {/* Module + Deck */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
           <div>
-            <label className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1 block">{t("nav.modules")}</label>
+ <label className="text-xs font-medium text-surface-500 mb-1 block">{t("nav.modules")}</label>
             <select className="input w-full" value={moduleId} onChange={e => { setModuleId(e.target.value); setExamId(""); setTaskId(""); }}>
               <option value="">— {t("tasks.modal.moduleEmpty")} —</option>
               {modules.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
             </select>
           </div>
           <div>
-            <label className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1 block">{t("flashcards.deck")}</label>
+ <label className="text-xs font-medium text-surface-500 mb-1 block">{t("flashcards.deck")}</label>
             <input className="input w-full" value={deckName} onChange={e => setDeckName(e.target.value)} placeholder={t("flashcards.deckPlaceholder")} />
           </div>
         </div>
@@ -589,7 +589,7 @@ function CardDialog({
         {/* Prüfung + Aufgabe — always visible, optional */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
           <div>
-            <label className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1 block">{t("fc.linkExam")}</label>
+ <label className="text-xs font-medium text-surface-500 mb-1 block">{t("fc.linkExam")}</label>
             <select className="input w-full" value={examId} onChange={e => setExamId(e.target.value)}>
               <option value="">— {t("fc.noExamLink")} —</option>
               {filteredExams.map(e => (
@@ -600,7 +600,7 @@ function CardDialog({
             </select>
           </div>
           <div>
-            <label className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1 block">{t("fc.linkTask")}</label>
+ <label className="text-xs font-medium text-surface-500 mb-1 block">{t("fc.linkTask")}</label>
             <select className="input w-full" value={taskId} onChange={e => setTaskId(e.target.value)}>
               <option value="">— {t("fc.noTaskLink")} —</option>
               {filteredTasks.map(tk => (
@@ -1025,7 +1025,7 @@ function Heatmap() {
   const maxCount = Math.max(...days.map(d => d.count), 1);
 
   function getColor(count: number): string {
-    if (count === 0) return "bg-surface-100 dark:bg-surface-800";
+ if (count === 0) return"bg-surface-100";
     const ratio = count / maxCount;
     if (ratio > 0.75) return "bg-green-600 dark:bg-green-700";
     if (ratio > 0.5) return "bg-green-500 dark:bg-green-600";
@@ -1061,15 +1061,15 @@ function Heatmap() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-center">
         <div>
           <p className="text-lg font-bold text-surface-900 dark:text-white">{totalReviewed}</p>
-          <p className="text-xs text-surface-500 dark:text-surface-400">{t("fc.totalReviewed")}</p>
+ <p className="text-xs text-surface-500">{t("fc.totalReviewed")}</p>
         </div>
         <div>
           <p className="text-lg font-bold text-green-600 dark:text-green-400">{activeDays}</p>
-          <p className="text-xs text-surface-500 dark:text-surface-400">{t("fc.activeDays")}</p>
+ <p className="text-xs text-surface-500">{t("fc.activeDays")}</p>
         </div>
         <div>
           <p className="text-lg font-bold text-brand-600 dark:text-brand-400">{currentStreak}</p>
-          <p className="text-xs text-surface-500 dark:text-surface-400">{t("fc.currentStreak")}</p>
+ <p className="text-xs text-surface-500">{t("fc.currentStreak")}</p>
         </div>
       </div>
     </div>
@@ -1345,7 +1345,7 @@ export default function FlashcardsPage() {
           <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white flex items-center gap-2">
             <BookOpen className="text-brand-600 dark:text-brand-400" size={24} /> {t("flashcards.title")}
           </h1>
-          <p className="text-surface-500 dark:text-surface-400 text-xs sm:text-sm mt-1">
+ <p className="text-surface-500 text-xs sm:text-sm mt-1">
             {stats.total} {t("fc.cardsTotal")} · {stats.due} {t("fc.cardsDue")}
           </p>
         </div>
@@ -1366,25 +1366,25 @@ export default function FlashcardsPage() {
       {showStats && stats.total > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
           {/* Progress overview */}
-          <div className="bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl p-4">
+ <div className="bg-surface-100 border border-surface-200 rounded-xl p-4">
             <h3 className="text-sm font-semibold text-surface-800 dark:text-white mb-3 flex items-center gap-2">
               <Target size={14} className="text-brand-600 dark:text-brand-400" /> {t("fc.progress")}
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center mb-4">
               <div>
                 <p className="text-xl font-bold text-surface-900 dark:text-white">{stats.total}</p>
-                <p className="text-xs text-surface-500 dark:text-surface-400">{t("fc.totalCards")}</p>
+ <p className="text-xs text-surface-500">{t("fc.totalCards")}</p>
               </div>
               <div>
                 <p className="text-xl font-bold text-green-600 dark:text-green-400">{stats.mastered}</p>
-                <p className="text-xs text-surface-500 dark:text-surface-400">{t("fc.mastered")}</p>
+ <p className="text-xs text-surface-500">{t("fc.mastered")}</p>
               </div>
               <div>
                 <p className="text-xl font-bold text-amber-500 dark:text-amber-400">{stats.learning}</p>
-                <p className="text-xs text-surface-500 dark:text-surface-400">{t("fc.learning")}</p>
+ <p className="text-xs text-surface-500">{t("fc.learning")}</p>
               </div>
               <div>
-                <p className="text-xl font-bold text-surface-400 dark:text-surface-500">{stats.newCards}</p>
+ <p className="text-xl font-bold text-surface-400">{stats.newCards}</p>
                 <p className="text-xs text-surface-500">{t("fc.new")}</p>
               </div>
             </div>
@@ -1394,11 +1394,11 @@ export default function FlashcardsPage() {
                 <>
                   <div className="bg-green-500 dark:bg-green-600 h-full" style={{ width: `${stats.mastered / stats.total * 100}%` }} />
                   <div className="bg-amber-400 dark:bg-amber-500 h-full" style={{ width: `${stats.learning / stats.total * 100}%` }} />
-                  <div className="bg-surface-300 dark:bg-surface-600 h-full" style={{ width: `${stats.newCards / stats.total * 100}%` }} />
+ <div className="bg-surface-300 h-full" style={{ width:`${stats.newCards / stats.total * 100}%` }} />
                 </>
               )}
             </div>
-            <div className="flex justify-between mt-2 text-xs text-surface-400 dark:text-surface-500">
+ <div className="flex justify-between mt-2 text-xs text-surface-400">
               <span>{Math.round(stats.mastered / Math.max(stats.total, 1) * 100)}% {t("fc.mastered")}</span>
               <span>{t("fc.todayReviewed", { count: String(getTodayReviews()) })}</span>
             </div>
@@ -1413,7 +1413,7 @@ export default function FlashcardsPage() {
       {examProgress.length > 0 && (
         <div className="mb-6 space-y-2">
           {examProgress.map(ep => (
-            <div key={ep.exam.id} className="bg-surface-100/50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 rounded-xl p-3 flex items-center gap-4">
+ <div key={ep.exam.id} className="bg-surface-100/50 border border-surface-200 rounded-xl p-3 flex items-center gap-4">
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold ${
                 ep.days <= 3 ? "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-400" : ep.days <= 7 ? "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-400" : "bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-500"
               }`}>
@@ -1421,9 +1421,9 @@ export default function FlashcardsPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-surface-800 dark:text-white truncate">{ep.exam.title}</p>
-                <p className="text-xs text-surface-500 dark:text-surface-400">{ep.cards} {t("fc.cardsLinked")} · {ep.readiness}% {t("fc.ready")}</p>
+ <p className="text-xs text-surface-500">{ep.cards} {t("fc.cardsLinked")} · {ep.readiness}% {t("fc.ready")}</p>
               </div>
-              <div className="w-24 h-2 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden">
+ <div className="w-24 h-2 bg-surface-100 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full ${ep.readiness >= 70 ? "bg-green-500 dark:bg-green-600" : ep.readiness >= 40 ? "bg-amber-400 dark:bg-amber-500" : "bg-red-400 dark:bg-red-600"}`}
                   style={{ width: `${ep.readiness}%` }}
@@ -1466,15 +1466,15 @@ export default function FlashcardsPage() {
             setSelectMode(!selectMode);
             if (!selectMode) setSelectedCards(new Set());
           }}
-          className={`text-sm px-3 py-1.5 rounded-lg transition flex items-center gap-2 ${selectMode ? "bg-brand-50 dark:bg-brand-900 text-brand-700 dark:text-brand-400 border border-brand-300 dark:border-brand-700" : "text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700 border border-surface-200 dark:border-surface-700"}`}
+ className={`text-sm px-3 py-1.5 rounded-lg transition flex items-center gap-2 ${selectMode ?"bg-brand-50 dark:bg-brand-900 text-brand-700 dark:text-brand-400 border border-brand-300 dark:border-brand-700" :"text-surface-600 hover:bg-surface-100 dark:hover:bg-surface-700 border border-surface-200"}`}
         >
           <CheckSquare size={16} /> {t("flashcards.select")}
         </button>
       </div>
 
       {/* ── Study Rating Filter — choose which ratings to include ── */}
-      <div className="bg-surface-100/50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 rounded-xl p-3 mb-6">
-        <p className="text-xs font-semibold text-surface-600 dark:text-surface-400 mb-2 flex items-center gap-1.5">
+ <div className="bg-surface-100/50 border border-surface-200 rounded-xl p-3 mb-6">
+ <p className="text-xs font-semibold text-surface-600 mb-2 flex items-center gap-1.5">
           <Filter size={12} /> {t("fc.studyFilter") || "Lernfilter — Welche Bewertungen wiederholen?"}
         </p>
         <div className="flex flex-wrap gap-2">
@@ -1505,7 +1505,7 @@ export default function FlashcardsPage() {
             );
           })}
         </div>
-        <p className="text-[10px] text-surface-400 dark:text-surface-500 mt-1.5">
+ <p className="text-[10px] text-surface-400 mt-1.5">
           {t("fc.studyFilterHint") || "Aktive Bewertungen werden auch wiederholt, wenn sie noch nicht fällig sind."}
         </p>
       </div>
@@ -1541,7 +1541,7 @@ export default function FlashcardsPage() {
       {loading ? (
         <div className="text-center py-12"><Loader2 className="animate-spin mx-auto text-brand-400 dark:text-brand-500" size={32} /></div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-12 text-surface-400 dark:text-surface-500 px-4">
+ <div className="text-center py-12 text-surface-400 px-4">
           <BookOpen size={40} className="mx-auto mb-3 opacity-30" />
           <p className="font-medium">{t("fc.noCards")}</p>
           <p className="text-sm mt-1">{t("fc.noCardsHint")}</p>
@@ -1560,9 +1560,9 @@ export default function FlashcardsPage() {
               <div
                 key={card.id}
                 onClick={() => selectMode && toggleCardSelection(card.id)}
-                className={`bg-surface-100 dark:bg-surface-800 border rounded-xl p-3 sm:p-4 hover:shadow-md transition-all group relative cursor-pointer ${
+ className={`bg-surface-100 border rounded-xl p-3 sm:p-4 hover:shadow-md transition-all group relative cursor-pointer ${
                   selectMode ? "cursor-pointer" : ""
-                } ${isSelected ? "bg-brand-50 dark:bg-brand-950 border-brand-300 dark:border-brand-700" : isMastered ? "border-green-200 dark:border-green-800 bg-green-50/30 dark:bg-green-950/20" : "border-surface-200 dark:border-surface-700"}`}
+ } ${isSelected ?"bg-brand-50 dark:bg-brand-950 border-brand-300 dark:border-brand-700" : isMastered ?"border-green-200 dark:border-green-800 bg-green-50/30 dark:bg-green-950/20" :"border-surface-200"}`}
               >
                 {/* Badges */}
                 <div className="flex items-center gap-1.5 mb-2 flex-wrap">
@@ -1605,26 +1605,26 @@ export default function FlashcardsPage() {
                     </span>
                   )}
                   {card.deck_name !== "Standard" && (
-                    <span className="text-[10px] text-surface-400 dark:text-surface-500">{card.deck_name}</span>
+ <span className="text-[10px] text-surface-400">{card.deck_name}</span>
                   )}
                 </div>
 
                 {/* Content */}
                 <p className="text-sm font-medium text-surface-800 dark:text-white mb-1 line-clamp-2">{card.front}</p>
-                <p className="text-xs text-surface-500 dark:text-surface-400 line-clamp-1">{card.back}</p>
+ <p className="text-xs text-surface-500 line-clamp-1">{card.back}</p>
 
                 {/* Tags */}
                 {card.tags && card.tags.length > 0 && (
                   <div className="flex gap-1 mt-2 flex-wrap">
                     {card.tags.map(tag => (
-                      <span key={tag} className="text-[10px] px-1.5 py-0.5 bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-500 rounded"># {tag}</span>
+ <span key={tag} className="text-[10px] px-1.5 py-0.5 bg-surface-100 text-surface-600 rounded"># {tag}</span>
                     ))}
                   </div>
                 )}
 
                 {/* Stats row */}
-                <div className="flex items-center justify-between mt-3 pt-2 border-t border-surface-100 dark:border-surface-700">
-                  <div className="flex items-center gap-2 text-[10px] text-surface-400 dark:text-surface-500">
+ <div className="flex items-center justify-between mt-3 pt-2 border-t border-surface-100">
+ <div className="flex items-center gap-2 text-[10px] text-surface-400">
                     {(card.streak ?? 0) > 0 && (
                       <span className="flex items-center gap-0.5 text-green-600 dark:text-green-400"><Flame size={10} /> {card.streak}</span>
                     )}
@@ -1645,19 +1645,19 @@ export default function FlashcardsPage() {
                     isSelected ? (
                       <CheckSquare size={20} className="text-brand-600 dark:text-brand-400" />
                     ) : (
-                      <Square size={20} className="text-surface-300 dark:text-surface-600" />
+ <Square size={20} className="text-surface-300" />
                     )
                   ) : (
                     <>
                       <button
                         onClick={(e) => { e.stopPropagation(); setEditCard(card); setShowDialog(true); }}
-                        className="p-2 sm:p-1.5 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-300 transition-colors"
+ className="p-2 sm:p-1.5 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors"
                       >
                         <BookOpen size={14} />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDelete(card.id); }}
-                        className="p-2 sm:p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 text-surface-400 dark:text-surface-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+ className="p-2 sm:p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 text-surface-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -1672,7 +1672,7 @@ export default function FlashcardsPage() {
 
       {/* ── Floating Action Bar (Multi-select) ── */}
       {selectMode && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg shadow-lg p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 z-40 mx-4 sm:mx-0 max-w-sm sm:max-w-none">
+ <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-surface-100 border border-surface-200 rounded-lg shadow-lg p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 z-40 mx-4 sm:mx-0 max-w-sm sm:max-w-none">
           <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full">
             {/* Select All / Deselect All Toggle */}
             <button
@@ -1685,7 +1685,7 @@ export default function FlashcardsPage() {
                   setSelectedCards(new Set(filtered.map(c => c.id)));
                 }
               }}
-              className="text-sm px-3 py-2 sm:py-1.5 rounded-lg transition flex items-center gap-2 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 dark:text-surface-500 w-full sm:w-auto justify-center"
+ className="text-sm px-3 py-2 sm:py-1.5 rounded-lg transition flex items-center gap-2 bg-surface-100 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 w-full sm:w-auto justify-center"
               title={selectedCards.size === filtered.length && filtered.length > 0 ? t("flashcards.deselectAll") : t("flashcards.selectAll")}
             >
               {selectedCards.size === filtered.length && filtered.length > 0 ? (
@@ -1700,7 +1700,7 @@ export default function FlashcardsPage() {
             </button>
 
             {/* Count Display */}
-            <span className="text-sm font-medium text-surface-700 dark:text-surface-500 whitespace-nowrap">
+ <span className="text-sm font-medium text-surface-700 whitespace-nowrap">
               {selectedCards.size} {t("flashcards.of")} {filtered.length} {t("flashcards.selected")}
             </span>
 

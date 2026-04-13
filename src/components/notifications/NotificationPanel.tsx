@@ -45,14 +45,14 @@ const TYPE_META: Record<string, { icon: typeof Bell; color: string; label: strin
   risk_escalation:    { icon: Zap,           color: "text-red-600 dark:text-red-500",        label: "Risiko" },
   daily_nudge:        { icon: Sparkles,      color: "text-brand-500 dark:text-brand-400",    label: "Tagesplan" },
   weekly_briefing:    { icon: Calendar,       color: "text-indigo-500 dark:text-indigo-400", label: "Wochenbericht" },
-  system:             { icon: Bell,          color: "text-surface-500 dark:text-surface-400", label: "System" },
+ system: { icon: Bell, color:"text-surface-500", label:"System" },
 };
 
 const PRIORITY_DOT: Record<string, string> = {
   critical: "bg-red-500",
   high: "bg-amber-500",
   normal: "bg-blue-400",
-  low: "bg-surface-300 dark:bg-surface-500",
+ low:"bg-surface-300",
 };
 
 // ─── Time Ago ──────────────────────────────────────────────────
@@ -134,11 +134,11 @@ export function NotificationPanel({
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3
-        border-b border-surface-100 dark:border-surface-700">
+ border-b border-surface-100">
         <h3 className="font-semibold text-surface-900 dark:text-white text-sm">
           {t("notifications.title")}
           {unreadCount > 0 && (
-            <span className="ml-2 text-xs font-normal text-surface-500 dark:text-surface-400">
+ <span className="ml-2 text-xs font-normal text-surface-500">
               {unreadCount} {t("notifications.unread")}
             </span>
           )}
@@ -148,7 +148,7 @@ export function NotificationPanel({
             <button
               onClick={onMarkAllRead}
               className="p-1.5 rounded-lg text-surface-400 hover:text-brand-600
-                dark:text-surface-500 dark:hover:text-brand-400 transition-colors"
+ dark:hover:text-brand-400 transition-colors"
               title={t("notifications.mark_all_read")}
             >
               <CheckCheck className="w-4 h-4" />
@@ -157,7 +157,7 @@ export function NotificationPanel({
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg text-surface-400 hover:text-surface-600
-              dark:text-surface-500 dark:hover:text-surface-300 transition-colors"
+ dark:hover:text-surface-300 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -167,13 +167,13 @@ export function NotificationPanel({
       {/* Notification List */}
       <div className="flex-1 overflow-y-auto overscroll-contain">
         {loading && notifications.length === 0 ? (
-          <div className="py-12 text-center text-surface-400 dark:text-surface-500 text-sm">
+ <div className="py-12 text-center text-surface-400 text-sm">
             {t("notifications.loading")}
           </div>
         ) : notifications.length === 0 ? (
           <div className="py-12 text-center">
-            <Bell className="w-8 h-8 mx-auto mb-2 text-surface-300 dark:text-surface-600" />
-            <p className="text-sm text-surface-500 dark:text-surface-400">
+ <Bell className="w-8 h-8 mx-auto mb-2 text-surface-300" />
+ <p className="text-sm text-surface-500">
               {t("notifications.empty")}
             </p>
           </div>
@@ -182,7 +182,7 @@ export function NotificationPanel({
             {groups.map((group) => (
               <div key={group.label}>
                 <div className="px-4 py-1.5 text-[11px] font-medium uppercase tracking-wider
-                  text-surface-400 dark:text-surface-500 bg-surface-50 dark:bg-surface-900">
+ text-surface-400 bg-surface-50">
                   {group.label}
                 </div>
                 {group.items.map((n) => {
@@ -194,7 +194,7 @@ export function NotificationPanel({
                       key={n.id}
                       onClick={() => handleClick(n)}
                       className={`group flex gap-3 px-4 py-3 cursor-pointer transition-colors
-                        border-b border-surface-50 dark:border-surface-800 last:border-0
+ border-b border-surface-50 last:border-0
                         ${n.is_read
                           ? "bg-transparent hover:bg-surface-50 dark:hover:bg-surface-800"
                           : "bg-brand-50/30 dark:bg-brand-950/20 hover:bg-brand-50/50 dark:hover:bg-brand-950/30"
@@ -215,16 +215,16 @@ export function NotificationPanel({
                         <div className="flex items-start justify-between gap-2">
                           <p className={`text-sm leading-tight ${
                             n.is_read
-                              ? "text-surface-700 dark:text-surface-300"
+ ?"text-surface-700"
                               : "text-surface-900 dark:text-white font-medium"
                           }`}>
                             {n.title}
                           </p>
-                          <span className="text-[10px] text-surface-400 dark:text-surface-500 whitespace-nowrap flex-shrink-0">
+ <span className="text-[10px] text-surface-400 whitespace-nowrap flex-shrink-0">
                             {timeAgo(n.created_at)}
                           </span>
                         </div>
-                        <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5 line-clamp-2">
+ <p className="text-xs text-surface-500 mt-0.5 line-clamp-2">
                           {n.message}
                         </p>
                         {n.module_name && (
@@ -235,7 +235,7 @@ export function NotificationPanel({
                                 style={{ backgroundColor: n.module_color }}
                               />
                             )}
-                            <span className="text-[11px] text-surface-400 dark:text-surface-500">
+ <span className="text-[11px] text-surface-400">
                               {n.module_name}
                             </span>
                           </div>
@@ -250,7 +250,7 @@ export function NotificationPanel({
                         }}
                         className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity
                           p-1 rounded text-surface-300 hover:text-surface-500
-                          dark:text-surface-600 dark:hover:text-surface-400"
+ dark:hover:text-surface-400"
                         title="Entfernen"
                       >
                         <X className="w-3.5 h-3.5" />
@@ -265,7 +265,7 @@ export function NotificationPanel({
             {hasMore && (
               <button
                 onClick={onLoadMore}
-                className="w-full py-2.5 text-xs text-surface-500 dark:text-surface-400
+ className="w-full py-2.5 text-xs text-surface-500
                   hover:text-brand-600 dark:hover:text-brand-400 transition-colors
                   flex items-center justify-center gap-1"
               >

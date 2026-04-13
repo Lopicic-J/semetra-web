@@ -279,8 +279,8 @@ export default function NavigatorPage() {
               <Link
                 key={stat.label}
                 href={stat.href}
-                className={`bg-surface-100 dark:bg-surface-800 rounded-xl border p-3 sm:p-3.5 hover:shadow-md transition-all group ${
-                  stat.urgent ? "border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-900/20" : "border-surface-200 dark:border-surface-700"
+ className={`bg-surface-100 rounded-xl border p-3 sm:p-3.5 hover:shadow-md transition-all group ${
+ stat.urgent ?"border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-900/20" :"border-surface-200"
                 }`}
               >
                 <div className="flex items-center gap-2 mb-1.5">
@@ -290,7 +290,7 @@ export default function NavigatorPage() {
                   {stat.urgent && <AlertTriangle size={12} className="text-red-500 dark:text-red-400" />}
                 </div>
                 <p className="text-xl font-bold text-surface-900 dark:text-white">{stat.value}</p>
-                <p className="text-[11px] text-surface-500 dark:text-surface-400 mt-0.5">{stat.label}</p>
+ <p className="text-[11px] text-surface-500 mt-0.5">{stat.label}</p>
               </Link>
             );
           })}
@@ -353,26 +353,26 @@ export default function NavigatorPage() {
             </div>
             {t("navigator.title") || "Navigator"}
           </h1>
-          <p className="text-surface-500 dark:text-surface-400 text-xs sm:text-sm mt-1">{t("navigator.subtitle") || "Dein Studien-Kommandozentrale"}</p>
+ <p className="text-surface-500 text-xs sm:text-sm mt-1">{t("navigator.subtitle") ||"Dein Studien-Kommandozentrale"}</p>
         </div>
       </div>
 
       {/* ── Search Bar (fixed) ── */}
       <div className="relative group">
-        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 group-focus-within:text-brand-500 transition" />
+ <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-400 group-focus-within:text-brand-500 transition" />
         <input
           id="nav-search"
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder={t("navigator.searchPlaceholder") || "Suche nach Funktionen, Tools, Seiten..."}
-          className="w-full bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-white rounded-2xl px-12 py-3.5 border border-surface-200 dark:border-surface-700 text-sm focus:outline-none focus:border-brand-400 dark:focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900/50 transition-all shadow-sm"
+ className="w-full bg-surface-100 text-surface-900 dark:text-white rounded-2xl px-12 py-3.5 border border-surface-200 text-sm focus:outline-none focus:border-brand-400 dark:focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900/50 transition-all shadow-sm"
         />
         {search ? (
-          <button onClick={() => setSearch("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-surface-300 dark:text-surface-600 hover:text-surface-600 dark:hover:text-surface-400 transition">
+ <button onClick={() => setSearch("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-surface-300 hover:text-surface-600 dark:hover:text-surface-400 transition">
             <X size={16} />
           </button>
         ) : (
-          <kbd className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-surface-300 dark:text-surface-600 border border-surface-200 dark:border-surface-700 rounded px-1.5 py-0.5 font-mono hidden sm:inline bg-surface-50 dark:bg-surface-900">
+ <kbd className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-surface-300 border border-surface-200 rounded px-1.5 py-0.5 font-mono hidden sm:inline bg-surface-50">
             <Command size={10} className="inline mr-0.5" />K
           </kbd>
         )}
@@ -418,7 +418,7 @@ export default function NavigatorPage() {
         const Icon = cfg.icon;
         return (
           <div key={gKey}>
-            <h2 className="text-xs font-bold text-surface-400 dark:text-surface-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+ <h2 className="text-xs font-bold text-surface-400 uppercase tracking-wider mb-3 flex items-center gap-2">
               <Icon size={13} /> {t(cfg.labelKey) || cfg.fallback}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
@@ -428,7 +428,7 @@ export default function NavigatorPage() {
                   <Link
                     key={f.href}
                     href={f.href}
-                    className="bg-surface-100 dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 p-3 sm:p-3.5 hover:border-brand-300 dark:hover:border-brand-600 hover:shadow-md transition-all group relative"
+ className="bg-surface-100 rounded-xl border border-surface-200 p-3 sm:p-3.5 hover:border-brand-300 dark:hover:border-brand-600 hover:shadow-md transition-all group relative"
                   >
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: f.color + "12" }}>
@@ -441,9 +441,9 @@ export default function NavigatorPage() {
                             <span className="text-[9px] bg-brand-900 dark:bg-brand-900 text-brand-300 dark:text-brand-300 px-1.5 py-0.5 rounded font-bold">PRO</span>
                           )}
                         </div>
-                        <p className="text-[11px] text-surface-500 dark:text-surface-400 mt-0.5 leading-relaxed line-clamp-2">{f.description}</p>
+ <p className="text-[11px] text-surface-500 mt-0.5 leading-relaxed line-clamp-2">{f.description}</p>
                       </div>
-                      <ArrowRight size={14} className="text-surface-200 dark:text-surface-700 group-hover:text-brand-400 dark:group-hover:text-brand-400 transition shrink-0 mt-1" />
+ <ArrowRight size={14} className="text-surface-200 group-hover:text-brand-400 dark:group-hover:text-brand-400 transition shrink-0 mt-1" />
                     </div>
                   </Link>
                 );
@@ -464,8 +464,8 @@ export default function NavigatorPage() {
       {/* ── Empty state ── */}
       {filtered.length === 0 && (
         <div className="text-center py-16">
-          <Search size={40} className="mx-auto mb-3 text-surface-200 dark:text-surface-700" />
-          <p className="text-surface-500 dark:text-surface-400 text-sm">{t("navigator.noResults") || `Keine Ergebnisse für "${search}"`}</p>
+ <Search size={40} className="mx-auto mb-3 text-surface-200" />
+ <p className="text-surface-500 text-sm">{t("navigator.noResults") ||`Keine Ergebnisse für"${search}"`}</p>
           <button
             onClick={() => { setSearch(""); setActiveGroup(null); }}
             className="mt-3 text-brand-600 dark:text-brand-400 text-sm hover:text-brand-700 dark:hover:text-brand-300 font-medium"

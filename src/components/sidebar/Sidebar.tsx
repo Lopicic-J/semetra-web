@@ -267,7 +267,7 @@ export default function Sidebar() {
                 <div key={child.href} className="flex items-center group">
                   <Link
                     href={child.href}
-                    className="flex items-center gap-2 flex-1 px-3 py-1.5 rounded-xl text-[12px] font-medium text-surface-500 hover:bg-surface-100 hover:text-surface-700 transition-all truncate dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-300"
+ className="flex items-center gap-2 flex-1 px-3 py-1.5 rounded-xl text-[12px] font-medium text-surface-500 hover:bg-surface-100 hover:text-surface-700 transition-all truncate dark:hover:bg-surface-800 dark:hover:text-surface-300"
                   >
                     <ParentIcon size={13} strokeWidth={1.6} className="shrink-0 text-surface-400" />
                     <span className="truncate">{t(child.labelKey)}</span>

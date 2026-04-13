@@ -82,7 +82,7 @@ export default function UpdatePasswordPage() {
               <AlertTriangle size={32} />
             </div>
             <h1 className="text-xl font-bold text-surface-900 dark:text-white mb-2">Link ungültig oder abgelaufen</h1>
-            <p className="text-surface-500 dark:text-surface-400 text-sm mb-6">
+ <p className="text-surface-500 text-sm mb-6">
               Bitte fordere einen neuen Link zum Zurücksetzen deines Passworts an.
             </p>
             <Link href="/reset-password"
@@ -114,7 +114,7 @@ export default function UpdatePasswordPage() {
               <CheckCircle2 size={32} />
             </div>
             <h1 className="text-xl font-bold text-surface-900 dark:text-white mb-2">Passwort aktualisiert</h1>
-            <p className="text-surface-500 dark:text-surface-400 text-sm">Du wirst zum Dashboard weitergeleitet...</p>
+ <p className="text-surface-500 text-sm">Du wirst zum Dashboard weitergeleitet...</p>
             <Loader2 size={20} className="animate-spin text-brand-500 mx-auto mt-4" />
           </div>
         </div>
@@ -178,24 +178,24 @@ export default function UpdatePasswordPage() {
               <Gem size={28} />
             </div>
             <h1 className="text-2xl font-bold text-surface-900 dark:text-white">Neues Passwort setzen</h1>
-            <p className="text-surface-500 dark:text-surface-400 text-sm mt-1">Wähle ein starkes neues Passwort</p>
+ <p className="text-surface-500 text-sm mt-1">Wähle ein starkes neues Passwort</p>
           </div>
 
-          <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-xl shadow-surface-200/50 dark:shadow-black/50 border border-surface-200/60 dark:border-surface-700/60 p-6 sm:p-8">
+ <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-xl shadow-surface-200/50 dark:shadow-black/50 border border-surface-200/60 p-6 sm:p-8">
             {!sessionReady ? (
               <div className="text-center py-8">
                 <Loader2 size={28} className="animate-spin text-brand-500 mx-auto mb-4" />
-                <p className="text-sm text-surface-500 dark:text-surface-400">Sitzung wird überprüft...</p>
-                <p className="text-xs text-surface-400 dark:text-surface-500 mt-1">Einen Moment bitte</p>
+ <p className="text-sm text-surface-500">Sitzung wird überprüft...</p>
+ <p className="text-xs text-surface-400 mt-1">Einen Moment bitte</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">Neues Passwort</label>
+ <label className="block text-sm font-medium text-surface-700 mb-1.5">Neues Passwort</label>
                   <div className="relative">
-                    <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
+ <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
                     <input
-                      className="w-full bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl pl-10 pr-10 py-2.5 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+ className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-10 py-2.5 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
                       type={showPw ? "text" : "password"}
                       placeholder="Mindestens 8 Zeichen"
                       value={password}
@@ -206,7 +206,7 @@ export default function UpdatePasswordPage() {
                       autoComplete="new-password"
                     />
                     <button type="button" onClick={() => setShowPw(!showPw)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-400" tabIndex={-1}>
+ className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-400" tabIndex={-1}>
                       {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
@@ -224,11 +224,11 @@ export default function UpdatePasswordPage() {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-500 mb-1.5">Passwort bestätigen</label>
+ <label className="block text-sm font-medium text-surface-700 mb-1.5">Passwort bestätigen</label>
                   <div className="relative">
-                    <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
+ <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
                     <input
-                      className="w-full bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
+ className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-10 pr-3 py-2.5 text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"
                       type={showPw ? "text" : "password"}
                       placeholder="Passwort wiederholen"
                       value={confirm}
@@ -260,7 +260,7 @@ export default function UpdatePasswordPage() {
             )}
           </div>
 
-          <p className="text-center text-[11px] text-surface-400 dark:text-surface-500 mt-6 lg:hidden">
+ <p className="text-center text-[11px] text-surface-400 mt-6 lg:hidden">
             &copy; {new Date().getFullYear()} Lopicic Technologies &middot; Semetra Workspace
           </p>
         </div>

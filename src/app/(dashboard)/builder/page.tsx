@@ -181,7 +181,7 @@ export default function BuilderPage() {
           <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-white">
             {t("nav.builder") || "Academic Builder"}
           </h1>
-          <p className="text-surface-600 dark:text-surface-400 mt-1">
+ <p className="text-surface-600 mt-1">
             {t("builder.subtitle") || "Verwalte Institutionen, Programme und Module"}
           </p>
         </div>
@@ -201,18 +201,18 @@ export default function BuilderPage() {
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Search */}
           <div className="relative flex-1">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />
+ <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Institution suchen..."
-              className="input w-full pl-9 pr-9 bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-white border-surface-200 dark:border-surface-700"
+ className="input w-full pl-9 pr-9 bg-surface-100 text-surface-900 dark:text-white border-surface-200"
             />
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-400"
+ className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-400"
               >
                 <X size={14} />
               </button>
@@ -226,7 +226,7 @@ export default function BuilderPage() {
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 countryFilter === "all"
                   ? "bg-brand-600 dark:bg-brand-700 text-white"
-                  : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700"
+ :"bg-surface-100 text-surface-600 hover:bg-surface-200 dark:hover:bg-surface-700"
               }`}
             >
               Alle ({institutions.length})
@@ -240,7 +240,7 @@ export default function BuilderPage() {
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     countryFilter === code
                       ? "bg-brand-600 dark:bg-brand-700 text-white"
-                      : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700"
+ :"bg-surface-100 text-surface-600 hover:bg-surface-200 dark:hover:bg-surface-700"
                   }`}
                 >
                   {COUNTRY_FLAGS[code] || ""} {COUNTRY_NAMES[code] || code} ({count})
@@ -254,18 +254,18 @@ export default function BuilderPage() {
       {/* Stats Summary */}
       {institutions.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <Card padding="sm" className="dark:bg-surface-800 dark:border-surface-700">
+ <Card padding="sm" className="">
             <div className="flex items-center gap-3 px-1">
               <div className="p-2 rounded-lg bg-brand-50 dark:bg-brand-900/30">
                 <Building2 className="w-5 h-5 text-brand-600 dark:text-brand-400" />
               </div>
               <div>
                 <div className="text-xl font-bold text-surface-900 dark:text-white">{institutions.length}</div>
-                <div className="text-xs text-surface-500 dark:text-surface-400">Institutionen</div>
+ <div className="text-xs text-surface-500">Institutionen</div>
               </div>
             </div>
           </Card>
-          <Card padding="sm" className="dark:bg-surface-800 dark:border-surface-700">
+ <Card padding="sm" className="">
             <div className="flex items-center gap-3 px-1">
               <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/30">
                 <GraduationCap className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -274,11 +274,11 @@ export default function BuilderPage() {
                 <div className="text-xl font-bold text-surface-900 dark:text-white">
                   {institutions.reduce((sum, i) => sum + (i.program_count ?? 0), 0)}
                 </div>
-                <div className="text-xs text-surface-500 dark:text-surface-400">Programme</div>
+ <div className="text-xs text-surface-500">Programme</div>
               </div>
             </div>
           </Card>
-          <Card padding="sm" className="dark:bg-surface-800 dark:border-surface-700 col-span-2 sm:col-span-1">
+ <Card padding="sm" className=" col-span-2 sm:col-span-1">
             <div className="flex items-center gap-3 px-1">
               <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/30">
                 <BookOpen className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
@@ -287,7 +287,7 @@ export default function BuilderPage() {
                 <div className="text-xl font-bold text-surface-900 dark:text-white">
                   {availableCountries.length}
                 </div>
-                <div className="text-xs text-surface-500 dark:text-surface-400">Länder</div>
+ <div className="text-xs text-surface-500">Länder</div>
               </div>
             </div>
           </Card>
@@ -309,9 +309,9 @@ export default function BuilderPage() {
 
       {/* Institutions Grid */}
       {institutions.length === 0 ? (
-        <Card className="text-center py-12 dark:bg-surface-800 dark:border-surface-700">
-          <Building2 size={36} className="mx-auto mb-3 text-surface-300 dark:text-surface-600" />
-          <p className="text-surface-600 dark:text-surface-400 mb-4">
+ <Card className="text-center py-12">
+ <Building2 size={36} className="mx-auto mb-3 text-surface-300" />
+ <p className="text-surface-600 mb-4">
             {t("builder.noInstitutions") || "Noch keine Institutionen angelegt"}
           </p>
           <button
@@ -323,10 +323,10 @@ export default function BuilderPage() {
           </button>
         </Card>
       ) : filtered.length === 0 ? (
-        <Card className="text-center py-12 dark:bg-surface-800 dark:border-surface-700">
-          <Search size={36} className="mx-auto mb-3 text-surface-300 dark:text-surface-700 opacity-50" />
-          <p className="text-surface-600 dark:text-surface-400 mb-1 font-medium">Keine Ergebnisse</p>
-          <p className="text-surface-400 dark:text-surface-500 text-sm">
+ <Card className="text-center py-12">
+ <Search size={36} className="mx-auto mb-3 text-surface-300 opacity-50" />
+ <p className="text-surface-600 mb-1 font-medium">Keine Ergebnisse</p>
+ <p className="text-surface-400 text-sm">
             {search ? `Keine Institution für "${search}" gefunden.` : "Keine Institutionen in diesem Land."}
           </p>
           <button
@@ -346,7 +346,7 @@ export default function BuilderPage() {
               : inst.institution_type || "";
             return (
               <Link key={inst.id} href={`/builder/institution/${inst.id}`}>
-                <Card interactive padding="md" className="dark:bg-surface-800 dark:border-surface-700 h-full">
+ <Card interactive padding="md" className=" h-full">
                   <div className="flex flex-col h-full">
                     <div className="flex items-start justify-between mb-3">
                       <div className="text-3xl">{getCountryFlag(inst.country_code)}</div>
@@ -354,7 +354,7 @@ export default function BuilderPage() {
                         <div className="text-2xl font-bold text-brand-600 dark:text-brand-400">
                           {inst.program_count ?? 0}
                         </div>
-                        <div className="text-[10px] text-surface-500 dark:text-surface-400 uppercase tracking-wide">
+ <div className="text-[10px] text-surface-500 uppercase tracking-wide">
                           {(inst.program_count ?? 0) === 1 ? "Programm" : "Programme"}
                         </div>
                       </div>
@@ -362,13 +362,13 @@ export default function BuilderPage() {
                     <div className="flex-1">
                       <h3 className="font-semibold text-surface-900 dark:text-white leading-tight">{inst.name}</h3>
                       <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                        <span className="text-xs text-surface-500 dark:text-surface-400">
+ <span className="text-xs text-surface-500">
                           {getCountryName(inst.country_code)}
                         </span>
                         {typeLabel && (
                           <>
-                            <span className="text-surface-300 dark:text-surface-600">·</span>
-                            <span className="text-xs text-surface-500 dark:text-surface-400">{typeLabel}</span>
+ <span className="text-surface-300">·</span>
+ <span className="text-xs text-surface-500">{typeLabel}</span>
                           </>
                         )}
                       </div>

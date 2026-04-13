@@ -281,13 +281,13 @@ function TimerPageInner() {
               <p className="text-sm sm:text-lg font-bold text-brand-600">{formatDuration(weekStudySec)}</p>
               <p className="text-[10px] text-surface-500">Woche</p>
             </div>
-            <div className="rounded-xl bg-surface-50 dark:bg-surface-800/40 p-2 sm:p-3 text-center shrink-0 min-w-[80px] sm:min-w-0 flex-1">
+ <div className="rounded-xl bg-surface-50 p-2 sm:p-3 text-center shrink-0 min-w-[80px] sm:min-w-0 flex-1">
               <p className="text-sm sm:text-lg font-bold text-surface-800">
                 {streaks.last30Days[today] ? formatDuration(streaks.last30Days[today]) : "0m"}
               </p>
               <p className="text-[10px] text-surface-500">Heute</p>
             </div>
-            <div className="rounded-xl bg-surface-50 dark:bg-surface-800/40 p-2 sm:p-3 text-center shrink-0 min-w-[80px] sm:min-w-0 flex-1">
+ <div className="rounded-xl bg-surface-50 p-2 sm:p-3 text-center shrink-0 min-w-[80px] sm:min-w-0 flex-1">
               <p className="text-sm sm:text-lg font-bold text-surface-800">{timer.pomodoroCount}</p>
               <p className="text-[10px] text-surface-500">Pomodoros</p>
             </div>
@@ -301,7 +301,7 @@ function TimerPageInner() {
                 {Math.round(weekStudySec / 60)} / {weeklyGoalMinutes} Min.
               </span>
             </div>
-            <div className="h-2 rounded-full bg-surface-100 dark:bg-surface-800 overflow-hidden">
+ <div className="h-2 rounded-full bg-surface-100 overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-500"
                 style={{ width: `${weeklyProgress * 100}%`, background: accentColor }}
@@ -319,7 +319,7 @@ function TimerPageInner() {
                   className={`flex items-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all active:scale-[0.97] ${
                     focusMode === key
                       ? "text-white shadow-md scale-[1.02]"
-                      : "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700"
+ :"bg-surface-100 text-surface-600 hover:bg-surface-200 dark:hover:bg-surface-700"
                   }`}
                   style={focusMode === key ? { background: preset.color } : {}}
                 >
@@ -404,7 +404,7 @@ function TimerPageInner() {
               </button>
 
               {showContext && (
-                <div className="grid gap-2 p-3 bg-surface-50 dark:bg-surface-800/30 rounded-xl border border-surface-100 dark:border-surface-700">
+ <div className="grid gap-2 p-3 bg-surface-50 rounded-xl border border-surface-100">
                   <div className="flex items-center gap-2">
                     <GraduationCap size={14} className="text-red-400 shrink-0" />
                     <select className="input flex-1 text-sm" value={selectedExam} onChange={e => setSelectedExam(e.target.value)}>
@@ -443,7 +443,7 @@ function TimerPageInner() {
                       className={`px-2 sm:px-2.5 py-1 rounded-lg text-xs font-medium transition-all active:scale-[0.95] ${
                         customMinutes === String(min)
                           ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-300 dark:ring-emerald-700"
-                          : "bg-surface-50 dark:bg-surface-800 text-surface-500 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-700"
+ :"bg-surface-50 text-surface-500 hover:bg-surface-100 dark:hover:bg-surface-700"
                       }`}
                     >
                       {min}m
@@ -509,7 +509,7 @@ function TimerPageInner() {
       {/* ══════════════════════════════════════════════════════════════════
           RIGHT: Sidebar — Schedule + History
           ══════════════════════════════════════════════════════════════ */}
-      <div className="w-full lg:w-80 xl:w-96 lg:border-l border-surface-200 dark:border-surface-700 bg-surface-50/50 dark:bg-surface-900/50 lg:overflow-y-auto">
+ <div className="w-full lg:w-80 xl:w-96 lg:border-l border-surface-200 bg-surface-50/50 lg:overflow-y-auto">
         <div className="p-3 sm:p-4">
 
           {/* ── Today's Planned Blocks ────────────────────────────── */}
@@ -650,7 +650,7 @@ function MiniStreakCalendar({ last30Days }: { last30Days: Record<string, number>
           : day.seconds < 7200 ? 3
           : 4;
         const colors = [
-          "bg-surface-100 dark:bg-surface-800",
+"bg-surface-100",
           "bg-orange-100 dark:bg-orange-900/30",
           "bg-orange-200 dark:bg-orange-800/40",
           "bg-orange-400 dark:bg-orange-600/60",
@@ -681,7 +681,7 @@ function SessionRow({ session }: { session: any }) {
     <div className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-white dark:bg-surface-800 dark:hover:bg-surface-800 transition-colors">
       <div className="w-2 h-2 rounded-full shrink-0" style={{ background: moduleColor }} />
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-medium text-surface-700 dark:text-surface-500 truncate">{moduleName}</p>
+ <p className="text-xs font-medium text-surface-700 truncate">{moduleName}</p>
         <p className="text-[10px] text-surface-400">
           {isToday ? "Heute" : date.toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit" })} · {date.toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}
           {alignment === "within_plan" && " · geplant"}

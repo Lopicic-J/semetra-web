@@ -57,7 +57,7 @@ export function NotificationBell() {
         onClick={() => setOpen(!open)}
         className="relative p-2 rounded-lg transition-colors
           text-surface-500 hover:text-surface-700 hover:bg-surface-100
-          dark:text-surface-400 dark:hover:text-surface-200 dark:hover:bg-surface-800"
+ dark:hover:text-surface-200 dark:hover:bg-surface-800"
         aria-label={t("notifications.title")}
         aria-expanded={open}
       >

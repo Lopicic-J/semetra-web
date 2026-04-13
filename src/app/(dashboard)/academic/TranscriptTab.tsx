@@ -193,14 +193,14 @@ export default function TranscriptTab() {
           </div>
 
           <div className="card p-0 overflow-hidden">
-            <div className="grid grid-cols-12 gap-2 px-4 py-2.5 bg-surface-50 dark:bg-surface-800 text-[11px] font-semibold text-surface-500 border-b border-surface-100 dark:border-surface-700">
+ <div className="grid grid-cols-12 gap-2 px-4 py-2.5 bg-surface-50 text-[11px] font-semibold text-surface-500 border-b border-surface-100">
               <div className="col-span-5">{t("academic.module") || "Modul"}</div>
               <div className="col-span-2">{gs.creditLabel}</div>
               <div className="col-span-2">{t("academic.grade") || "Note"}</div>
               <div className="col-span-2">{t("academic.band") || "Bewertung"}</div>
               <div className="col-span-1">{t("academic.status") || "Status"}</div>
             </div>
-            <div className="divide-y divide-surface-50 dark:divide-surface-800">
+ <div className="divide-y divide-surface-50">
               {semModules.map(({ module: mod, bestGrade }) => {
                 const isPassed = bestGrade != null && (
                   gradeScale ? isPassingGrade(bestGrade, gradeScale) :
@@ -217,14 +217,14 @@ export default function TranscriptTab() {
                       {mod.color && (
                         <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: mod.color }} />
                       )}
-                      <span className="text-sm font-medium text-surface-800 dark:text-surface-800 truncate">
+ <span className="text-sm font-medium text-surface-800 truncate">
                         {mod.name}
                       </span>
                       {mod.code && (
                         <span className="text-[10px] font-mono text-surface-400 shrink-0">{mod.code}</span>
                       )}
                     </div>
-                    <div className="col-span-2 text-sm text-surface-600 dark:text-surface-500">
+ <div className="col-span-2 text-sm text-surface-600">
                       {mod.ects ?? "–"}
                     </div>
                     <div className="col-span-2">
@@ -268,19 +268,19 @@ export default function TranscriptTab() {
             {t("academic.transferCredits") || "Angerechnete Leistungen"}
           </h3>
           <div className="card p-0 overflow-hidden">
-            <div className="divide-y divide-surface-50 dark:divide-surface-800">
+ <div className="divide-y divide-surface-50">
               {recognitions
                 .filter((r: any) => (r.recognitionStatus ?? r.recognition_status ?? r.status) === "accepted" || (r.recognitionStatus ?? r.recognition_status ?? r.status) === "approved")
                 .map((rec: any) => (
                   <div key={rec.id} className="flex items-center gap-3 px-4 py-3">
                     <CheckCircle size={16} className="text-emerald-500 shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-surface-800 dark:text-surface-800 truncate">
+ <p className="text-sm text-surface-800 truncate">
                         {rec.sourceModuleName ?? rec.source_module_name ?? "Transfer Credit"}
                       </p>
                       <p className="text-[11px] text-surface-400">{rec.sourceInstitution ?? rec.source_institution ?? "Extern"}</p>
                     </div>
-                    <span className="text-sm font-medium text-surface-600 dark:text-surface-500">
+ <span className="text-sm font-medium text-surface-600">
                       {rec.recognizedEcts ?? rec.recognized_ects ?? rec.sourceCreditValue ?? rec.source_credit_value ?? "–"} {gs.creditLabel}
                     </span>
                   </div>

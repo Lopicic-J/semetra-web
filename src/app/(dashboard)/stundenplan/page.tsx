@@ -534,8 +534,8 @@ export default function StundenplanPage() {
         <div className="relative" style={{ height: `${14 * 48}px` }}>
           {HOURS.map(h => (
             <div key={h} className="absolute w-full flex items-start" style={{ top: `${(h - 7) * 48}px`, height: "48px" }}>
-              <div className="w-10 text-[10px] text-surface-400 dark:text-surface-500 text-right pr-1.5 pt-0.5 shrink-0">{h}:00</div>
-              <div className="flex-1 border-t border-surface-100 dark:border-surface-800" />
+ <div className="w-10 text-[10px] text-surface-400 text-right pr-1.5 pt-0.5 shrink-0">{h}:00</div>
+ <div className="flex-1 border-t border-surface-100" />
             </div>
           ))}
 
@@ -600,16 +600,16 @@ export default function StundenplanPage() {
       <div className={`${mobileView === "week" ? "block" : "hidden lg:block"} card p-0 overflow-hidden overflow-x-auto`}>
         <div className="min-w-[800px]">
           {/* Header */}
-          <div className="grid border-b border-surface-100 dark:border-surface-800" style={{ gridTemplateColumns: "48px repeat(7, 1fr)" }}>
+ <div className="grid border-b border-surface-100" style={{ gridTemplateColumns:"48px repeat(7, 1fr)" }}>
             <div className="py-2 text-center text-[10px] font-medium text-surface-400 leading-tight">
               <span className="font-semibold">KW{currentKw}</span>
               <br />
-              <span className="text-[9px] text-surface-300 dark:text-surface-500">{formatDateShort(weekDates[0])} – {formatDateShort(weekDates[6])}</span>
+ <span className="text-[9px] text-surface-300">{formatDateShort(weekDates[0])} – {formatDateShort(weekDates[6])}</span>
             </div>
             {DAYS_SHORT.map((d, i) => (
-              <div key={d} className="py-2 text-center border-l border-surface-100 dark:border-surface-800">
-                <div className="text-sm font-semibold text-surface-600 dark:text-surface-500">{d}</div>
-                <div className="text-[10px] text-surface-400 dark:text-surface-500">{formatDateShort(weekDates[i])}</div>
+ <div key={d} className="py-2 text-center border-l border-surface-100">
+ <div className="text-sm font-semibold text-surface-600">{d}</div>
+ <div className="text-[10px] text-surface-400">{formatDateShort(weekDates[i])}</div>
               </div>
             ))}
           </div>
@@ -619,14 +619,14 @@ export default function StundenplanPage() {
             {HOURS.map(h => (
               <div key={h} className="absolute w-full flex items-start" style={{ top: `${(h - 7) * 56}px`, height: "56px" }}>
                 <div className="w-12 text-[10px] text-surface-400 text-right pr-2 pt-0.5 shrink-0">{h}:00</div>
-                <div className="flex-1 border-t border-surface-100 dark:border-surface-800" />
+ <div className="flex-1 border-t border-surface-100" />
               </div>
             ))}
 
             <div className="ml-12 grid relative" style={{ gridTemplateColumns: "repeat(7, 1fr)", height: `${14 * 56}px` }}>
               {DAYS.map((_, i) => (
                 <div key={i}
-                  className="border-l border-surface-100 dark:border-surface-800 transition-colors cursor-pointer hover:bg-brand-50/30 dark:hover:bg-brand-950/20"
+ className="border-l border-surface-100 transition-colors cursor-pointer hover:bg-brand-50/30 dark:hover:bg-brand-950/20"
                   onDragOver={(e) => handleDayDropZoneDragOver(e, i)}
                   onDrop={(e) => handleDayDropZoneDrop(e, i)}
                   onClick={(e) => {
@@ -814,7 +814,7 @@ export default function StundenplanPage() {
 
       {/* ── RIGHT: Smart Schedule Panel ────────────────────────────── */}
       {showSchedulePanel && (
-        <div className="hidden lg:flex w-[320px] shrink-0 border-l border-surface-100 dark:border-surface-800 bg-[rgb(var(--card-bg))] dark:bg-gray-900/50">
+ <div className="hidden lg:flex w-[320px] shrink-0 border-l border-surface-100 bg-[rgb(var(--card-bg))] dark:bg-gray-900/50">
           <SmartSchedulePanel />
         </div>
       )}

@@ -36,7 +36,7 @@ export default function SiblingTabs() {
       "flex items-center gap-1 px-1 py-1 mx-4 mt-4 mb-0 md:mx-6 md:mt-5 rounded-xl border overflow-x-auto scrollbar-none",
       editing
         ? "bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800"
-        : "bg-surface-50 dark:bg-surface-800/50 border-surface-100 dark:border-surface-800",
+ :"bg-surface-50 border-surface-100",
     )}>
       <SortableList
         items={orderedChildren}
@@ -57,7 +57,7 @@ export default function SiblingTabs() {
                   "px-4 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 whitespace-nowrap",
                   isActive
                     ? "bg-white dark:bg-surface-700 text-brand-600 dark:text-brand-400 shadow-sm"
-                    : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700/50",
+ :"text-surface-500 hover:text-surface-700 dark:hover:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700/50",
                 )}
               >
                 {t(child.labelKey)}

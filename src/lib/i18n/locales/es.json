@@ -2282,6 +2282,7 @@
   "lernnachweis.no_data": "Aún no hay datos disponibles",
   "lernnachweis.longest_streak": "Racha más larga",
   "lernnachweis.total_study_days": "Días de estudio totales",
+  "lernnachweis.certificate": "Descargar certificado del módulo",
 
   "export.button": "Exportar",
   "export.pdf": "Informe PDF",

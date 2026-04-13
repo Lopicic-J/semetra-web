@@ -856,7 +856,7 @@ export default function ModuleEditorPage() {
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     placeholder="z.B. CS101"
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -868,7 +868,7 @@ export default function ModuleEditorPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="z.B. Einführung in die Informatik"
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -880,7 +880,7 @@ export default function ModuleEditorPage() {
                   type="number"
                   value={ects}
                   onChange={(e) => setEcts(e.target.value)}
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -911,7 +911,7 @@ export default function ModuleEditorPage() {
                   value={professor}
                   onChange={(e) => setProfessor(e.target.value)}
                   placeholder="z.B. Prof. Dr. Max Mustermann"
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -922,7 +922,7 @@ export default function ModuleEditorPage() {
                   <select
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {LANGUAGES.map((l) => (
                       <option key={l.code} value={l.code}>
@@ -938,7 +938,7 @@ export default function ModuleEditorPage() {
                   <select
                     value={deliveryMode}
                     onChange={(e) => setDeliveryMode(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {DELIVERY_MODES.map((m) => (
                       <option key={m.key} value={m.key}>
@@ -956,7 +956,7 @@ export default function ModuleEditorPage() {
                     value={semester}
                     onChange={(e) => setSemester(e.target.value)}
                     placeholder="z.B. 1 oder HS2025"
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -968,7 +968,7 @@ export default function ModuleEditorPage() {
                     value={semesterPartTime}
                     onChange={(e) => setSemesterPartTime(e.target.value)}
                     placeholder="z.B. 2 (leer = gleich wie VZ)"
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -980,7 +980,7 @@ export default function ModuleEditorPage() {
                   <select
                     value={termType}
                     onChange={(e) => setTermType(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {TERM_TYPES.map((t) => (
                       <option key={t.key} value={t.key}>
@@ -997,7 +997,7 @@ export default function ModuleEditorPage() {
                     type="number"
                     value={defaultTermNumber}
                     onChange={(e) => setDefaultTermNumber(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -1028,7 +1028,7 @@ export default function ModuleEditorPage() {
                   <select
                     value={day}
                     onChange={(e) => setDay(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">-- Wählen --</option>
                     {DAYS_OF_WEEK.map((d) => (
@@ -1049,7 +1049,7 @@ export default function ModuleEditorPage() {
                     type="time"
                     value={timeStart}
                     onChange={(e) => setTimeStart(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -1060,7 +1060,7 @@ export default function ModuleEditorPage() {
                     type="time"
                     value={timeEnd}
                     onChange={(e) => setTimeEnd(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -1073,7 +1073,7 @@ export default function ModuleEditorPage() {
                   value={room}
                   onChange={(e) => setRoom(e.target.value)}
                   placeholder="z.B. A-201"
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -1117,7 +1117,7 @@ export default function ModuleEditorPage() {
                       value={gradeScaleId}
                       onChange={(e) => setGradeScaleId(e.target.value)}
                       disabled={dropdownsLoading}
-                      className="flex-1 px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+ className="flex-1 px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                     >
                       <option value="">-- Wählen --</option>
                       {countryDefaults?.grade_scales.map((scale) => (
@@ -1152,7 +1152,7 @@ export default function ModuleEditorPage() {
                     step="0.1"
                     value={minGrade}
                     onChange={(e) => setMinGrade(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -1166,7 +1166,7 @@ export default function ModuleEditorPage() {
                       value={passPolicyId}
                       onChange={(e) => setPassPolicyId(e.target.value)}
                       disabled={dropdownsLoading}
-                      className="flex-1 px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+ className="flex-1 px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                     >
                       <option value="">-- Wählen --</option>
                       {countryDefaults?.pass_policies.map((policy) => (
@@ -1201,7 +1201,7 @@ export default function ModuleEditorPage() {
                       value={retakePolicyId}
                       onChange={(e) => setRetakePolicyId(e.target.value)}
                       disabled={dropdownsLoading}
-                      className="flex-1 px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+ className="flex-1 px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                     >
                       <option value="">-- Wählen --</option>
                       {countryDefaults?.retake_policies.map((policy) => (
@@ -1237,7 +1237,7 @@ export default function ModuleEditorPage() {
                     value={roundingPolicyId}
                     onChange={(e) => setRoundingPolicyId(e.target.value)}
                     disabled={dropdownsLoading}
-                    className="flex-1 px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+ className="flex-1 px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                   >
                     <option value="">-- Wählen --</option>
                     {countryDefaults?.rounding_policies.map((policy) => (
@@ -1326,7 +1326,7 @@ export default function ModuleEditorPage() {
                         max="10"
                         value={maxRetakes}
                         onChange={(e) => setMaxRetakes(e.target.value)}
-                        className="w-20 px-3 py-1 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-20 px-3 py-1 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       <span className="text-sm text-surface-600">Versuche</span>
                     </div>
@@ -1341,7 +1341,7 @@ export default function ModuleEditorPage() {
                   <select
                     value={moduleType}
                     onChange={(e) => setModuleType(e.target.value)}
-                    className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {MODULE_TYPES.map((t) => (
                       <option key={t.key} value={t.key}>
@@ -1488,7 +1488,7 @@ export default function ModuleEditorPage() {
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
                   placeholder="Allgemeine Beschreibung des Moduls…"
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -1500,7 +1500,7 @@ export default function ModuleEditorPage() {
                   onChange={(e) => setLearningObjectives(e.target.value)}
                   rows={3}
                   placeholder="Was die Studierenden nach Abschluss des Moduls können…"
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -1512,7 +1512,7 @@ export default function ModuleEditorPage() {
                   onChange={(e) => setModuleContents(e.target.value)}
                   rows={3}
                   placeholder="Themen, Kapitel, Schwerpunkte des Moduls…"
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -1524,7 +1524,7 @@ export default function ModuleEditorPage() {
                   onChange={(e) => setRemarks(e.target.value)}
                   rows={2}
                   placeholder="Zusätzliche Hinweise, Voraussetzungen, Literatur…"
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -1606,7 +1606,7 @@ export default function ModuleEditorPage() {
                       </label>
                       {minPassRequired && (
                         <div className="ml-7 flex items-center gap-2">
-                          <label className="text-xs text-surface-600 dark:text-surface-400">Mindestnote:</label>
+ <label className="text-xs text-surface-600">Mindestnote:</label>
                           <input
                             type="number"
                             step="0.1"
@@ -1639,7 +1639,7 @@ export default function ModuleEditorPage() {
                       </button>
                       <button
                         onClick={() => setShowComponentForm(false)}
-                        className="flex-1 px-4 py-2 bg-surface-200 dark:bg-surface-700 text-surface-900 dark:text-white rounded-lg hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors font-medium"
+ className="flex-1 px-4 py-2 bg-surface-200 text-surface-900 dark:text-white rounded-lg hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors font-medium"
                       >
                         Abbrechen
                       </button>
@@ -1670,7 +1670,7 @@ export default function ModuleEditorPage() {
                 ) : (
                   <div className="space-y-2">
                     {components.map((comp) => (
-                      <div key={comp.id} className="flex justify-between items-start p-4 bg-surface-50 dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700">
+ <div key={comp.id} className="flex justify-between items-start p-4 bg-surface-50 rounded-lg border border-surface-200">
                         <div>
                           <h3 className="font-semibold text-surface-900 dark:text-white">{comp.name}</h3>
                           <p className="text-sm text-surface-600">
@@ -1715,7 +1715,7 @@ export default function ModuleEditorPage() {
           {saving ? "Speichern..." : "Speichern"}
         </button>
         <Link href={programId ? `/builder/program/${programId}` : "/builder"}>
-          <button className="px-4 py-2 bg-surface-200 dark:bg-surface-700 text-surface-900 dark:text-white rounded-lg hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors font-medium">
+ <button className="px-4 py-2 bg-surface-200 text-surface-900 dark:text-white rounded-lg hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors font-medium">
             Abbrechen
           </button>
         </Link>
@@ -1781,7 +1781,7 @@ export default function ModuleEditorPage() {
                   value={customEntryName}
                   onChange={(e) => setCustomEntryName(e.target.value)}
                   placeholder={`z.B. Eigene ${customEntryModal.label}`}
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   autoFocus
                 />
               </div>
@@ -1794,7 +1794,7 @@ export default function ModuleEditorPage() {
                   onChange={(e) => setCustomEntryDesc(e.target.value)}
                   placeholder="Kurze Beschreibung (optional)"
                   rows={2}
-                  className="w-full px-4 py-2 bg-surface-50 dark:bg-surface-800 border border-surface-300 dark:border-surface-600 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+ className="w-full px-4 py-2 bg-surface-50 border border-surface-300 rounded-lg text-surface-900 dark:text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
             </div>
