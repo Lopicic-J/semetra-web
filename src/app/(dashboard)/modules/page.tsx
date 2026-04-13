@@ -16,6 +16,7 @@ import {
 import { ProGate } from "@/components/ui/ProGate";
 import type { Module } from "@/types/database";
 import { useTranslation } from "@/lib/i18n";
+import { events } from "@/lib/analytics/tracker";
 
 const SEMESTERS = ["Semester 1","Semester 2","Semester 3","Semester 4","Semester 5","Semester 6","Semester 7","Semester 8","Semester 9"];
 const DAYS = ["Mo","Di","Mi","Do","Fr","Sa"];
@@ -715,6 +716,7 @@ function ModuleModal({ initial, onClose, onSaved }: {
       await supabase.from("modules").update(payload).eq("id", initial.id);
     } else {
       await supabase.from("modules").insert({ ...payload, user_id: user.id, source: "manual" });
+      events.moduleCreated(form.name || "unknown");
     }
     setSaving(false);
     onSaved();

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import ThemeWrapper from "@/components/providers/ThemeWrapper";
+import UmamiScript from "@/components/analytics/UmamiScript";
 
 export const metadata: Metadata = {
   title: {
@@ -71,6 +72,46 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
+        {/* JSON-LD Structured Data — SoftwareApplication schema for rich search results */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: "Semetra Workspace",
+              applicationCategory: "EducationalApplication",
+              operatingSystem: "Web",
+              url: "https://app.semetra.ch",
+              description:
+                "Der smarte Studienplaner für FH und Uni — Module, Aufgaben, Noten, Lernzeit, KI-Assistent und mehr.",
+              offers: {
+                "@type": "AggregateOffer",
+                priceCurrency: "CHF",
+                lowPrice: "0",
+                highPrice: "9.90",
+                offerCount: "2",
+              },
+              author: {
+                "@type": "Organization",
+                name: "Lopicic Technologies",
+                url: "https://semetra.ch",
+              },
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: "4.8",
+                ratingCount: "1",
+                bestRating: "5",
+                worstRating: "1",
+              },
+              featureList:
+                "Modulverwaltung, Aufgabenmanagement, Lernzeit-Tracking, KI-Assistent, Notenrechner, ECTS-Tracker, Stundenplan, Lerngruppen, Lernnachweis",
+              screenshot: "https://app.semetra.ch/og-image.png",
+              inLanguage: ["de", "en", "fr", "it", "es", "nl"],
+            }),
+          }}
+        />
+        <UmamiScript />
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-brand-600 focus:text-white focus:rounded-lg focus:outline-none">
           Zum Inhalt springen
         </a>

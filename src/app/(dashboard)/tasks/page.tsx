@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import { formatDate } from "@/lib/utils";
 import { Plus, CheckSquare, X, Pencil, Trash2, Check, Paperclip, Link2, Upload, ExternalLink, FileText, ChevronDown, BookOpen } from "lucide-react";
 import type { Task, TaskStatus, TaskPriority, TaskAttachment } from "@/types/database";
+import { events } from "@/lib/analytics/tracker";
 
 // Note: Status and priority labels are moved to i18n translations
 // const STATUS_LABELS: Record<string, string> = { todo: "Offen", in_progress: "In Arbeit", done: "Erledigt" };
@@ -46,6 +47,7 @@ export default function TasksPage() {
   async function toggleDone(task: Task) {
     const newStatus: TaskStatus = task.status === "done" ? "todo" : "done";
     await supabase.from("tasks").update({ status: newStatus }).eq("id", task.id);
+    if (newStatus === "done") events.taskCompleted();
     refetch();
   }
 
@@ -349,6 +351,7 @@ function TaskModal({ initial, modules, onClose, onSaved }: {
       await supabase.from("tasks").update(payload).eq("id", initial.id);
     } else {
       await supabase.from("tasks").insert({ ...payload, user_id: user.id });
+      events.taskCreated();
     }
     setSaving(false);
     onSaved();

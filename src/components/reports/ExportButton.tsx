@@ -8,6 +8,7 @@
 import { useState } from "react";
 import { Download, FileText, Table, Code, ChevronDown, Loader2 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
+import { events } from "@/lib/analytics/tracker";
 
 interface ExportButtonProps {
   semester?: string | number;
@@ -51,6 +52,7 @@ export function ExportButton({ semester, compact = false }: ExportButtonProps) {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      events.exportGenerated(format);
     } catch (err) {
       console.error("Export error:", err);
     } finally {

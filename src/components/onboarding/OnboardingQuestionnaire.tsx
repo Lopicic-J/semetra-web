@@ -17,6 +17,7 @@ import {
   Rocket,
 } from "lucide-react";
 import QuickSetupStep from "./QuickSetupStep";
+import { events } from "@/lib/analytics/tracker";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -286,7 +287,11 @@ export default function OnboardingQuestionnaire() {
         throw new Error(json.error || "Speichern fehlgeschlagen");
       }
 
+      // Track funnel event
+      events.onboardingStepCompleted(currentStep + 1, STEPS[currentStep].step_name);
+
       if (isLastStep) {
+        events.onboardingCompleted();
         router.push("/dashboard");
       } else {
         setCurrentStep((s) => s + 1);
@@ -631,7 +636,10 @@ export default function OnboardingQuestionnaire() {
 
             <button
               type="button"
-              onClick={() => router.push("/dashboard")}
+              onClick={() => {
+                events.onboardingSkipped(currentStep);
+                router.push("/dashboard");
+              }}
               className="text-xs text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition px-3 py-2"
             >
               Überspringen

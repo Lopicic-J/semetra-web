@@ -13,6 +13,7 @@ import {
   Compass, History, Trash2, PanelLeftClose, PanelLeft
 } from "lucide-react";
 import type { CalendarEvent, Topic } from "@/types/database";
+import { events } from "@/lib/analytics/tracker";
 
 type ChatMode = "chat" | "explain" | "quiz" | "summarize" | "study_plan" | "module_advice";
 
@@ -218,6 +219,7 @@ export default function AIAssistantPage() {
     // Increment usage counter
     aiUsageIncrement();
     setUsage(aiUsageThisMonth(isPro));
+    events.aiMessageSent();
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -242,6 +244,7 @@ export default function AIAssistantPage() {
       let convId = activeConvId;
       if (!convId && isPro) {
         convId = await createConversation();
+        events.aiConversationStarted();
       }
 
       const res = await fetch("/api/ai/chat", {

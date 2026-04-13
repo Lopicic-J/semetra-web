@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { events } from "@/lib/analytics/tracker";
 
 interface Group {
   id: string;
@@ -70,6 +71,7 @@ export default function GroupsPage() {
         setName("");
         setDescription("");
         await loadGroups();
+        events.groupCreated();
         toast.success(t("groups.created") || "Gruppe erstellt!");
       }
     } catch { setError("Netzwerkfehler"); }
@@ -92,6 +94,7 @@ export default function GroupsPage() {
         setShowJoin(false);
         setInviteCode("");
         await loadGroups();
+        events.groupJoined();
         toast.success(t("groups.joined") || "Gruppe beigetreten!");
       }
     } catch { setError("Netzwerkfehler"); }

@@ -17,6 +17,7 @@ import {
   Clock, Zap, Calendar, CheckCircle2, Timer as TimerIcon,
   StickyNote, Save, X, Trash2, Layers, TrendingUp, SlidersHorizontal,
 } from "lucide-react";
+import { events } from "@/lib/analytics/tracker";
 
 // ── Mode Presets ────────────────────────────────────────────────────────────
 
@@ -230,6 +231,7 @@ function TimerPageInner() {
       topicId: selectedTopic || undefined,
       examId: selectedExam || undefined,
     });
+    events.timerStarted(selectedModule || null, targetMin ?? 0);
   }
 
   function handleStartFromBlock(block: ScheduleBlock) {
@@ -238,7 +240,9 @@ function TimerPageInner() {
   }
 
   function handleStop() {
+    const actualMin = timer.elapsed ? Math.round(timer.elapsed / 60) : 0;
     timer.stop(undefined, note || undefined);
+    events.timerCompleted(selectedModule || null, actualMin);
     setNote("");
   }
 
