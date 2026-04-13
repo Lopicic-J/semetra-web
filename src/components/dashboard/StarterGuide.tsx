@@ -76,7 +76,7 @@ export default function StarterGuide() {
         cta: "Stundenplan öffnen",
         check: async () => {
           const { count } = await supabase
-            .from("timetable_entries")
+            .from("stundenplan")
             .select("*", { count: "exact", head: true });
           return (count ?? 0) > 0;
         },
@@ -92,7 +92,7 @@ export default function StarterGuide() {
         cta: "Timer starten",
         check: async () => {
           const { count } = await supabase
-            .from("time_logs")
+            .from("timer_sessions")
             .select("*", { count: "exact", head: true });
           return (count ?? 0) > 0;
         },
@@ -124,7 +124,7 @@ export default function StarterGuide() {
         cta: "KI fragen",
         check: async () => {
           const { count } = await supabase
-            .from("ai_conversations")
+            .from("chat_conversations")
             .select("*", { count: "exact", head: true });
           return (count ?? 0) > 0;
         },
@@ -133,7 +133,7 @@ export default function StarterGuide() {
     [supabase]
   );
 
-  // Check completion status on mount
+  // Check completion status on mount + when page becomes visible again
   useEffect(() => {
     const wasDismissed = localStorage.getItem("semetra_starter_dismissed");
     if (wasDismissed) {
@@ -163,6 +163,26 @@ export default function StarterGuide() {
     }
 
     checkAll();
+
+    // Re-check when user navigates back to the page (tab visibility change)
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        checkAll();
+      }
+    }
+
+    // Re-check on window focus (user navigated back from another page)
+    function handleFocus() {
+      checkAll();
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+    };
   }, [steps]);
 
   const dismiss = () => {

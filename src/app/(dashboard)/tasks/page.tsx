@@ -348,9 +348,11 @@ function TaskModal({ initial, modules, onClose, onSaved }: {
       module_id: form.module_id || null,
     };
     if (initial) {
-      await supabase.from("tasks").update(payload).eq("id", initial.id);
+      const { error } = await supabase.from("tasks").update(payload).eq("id", initial.id);
+      if (error) { console.error("Task update failed:", error); setSaving(false); return; }
     } else {
-      await supabase.from("tasks").insert({ ...payload, user_id: user.id });
+      const { error } = await supabase.from("tasks").insert({ ...payload, user_id: user.id });
+      if (error) { console.error("Task insert failed:", error); setSaving(false); return; }
       events.taskCreated();
     }
     setSaving(false);
