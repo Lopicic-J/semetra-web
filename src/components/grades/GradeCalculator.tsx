@@ -13,6 +13,7 @@ import { Calculator, Target, Info } from "lucide-react";
 import type { Grade, Module } from "@/types/database";
 import type { GradingSystem } from "@/lib/grading-systems";
 import { getGradeColor, formatGrade } from "@/lib/grading-systems";
+import type { CountryCode } from "@/lib/grading-systems";
 
 interface GradeCalculatorProps {
   grades: Grade[];
@@ -118,9 +119,9 @@ export function GradeCalculator({ grades, modules, gs }: GradeCalculatorProps) {
               </span>
               <span
                 className="text-lg font-bold"
-                style={{ color: currentAvg ? getGradeColor(currentAvg, gs) : undefined }}
+                style={{ color: currentAvg ? getGradeColor(currentAvg, gs.country) : undefined }}
               >
-                {currentAvg !== null ? formatGrade(currentAvg, gs) : "–"}
+                {currentAvg !== null ? formatGrade(currentAvg, gs.country) : "–"}
               </span>
             </div>
 
@@ -175,13 +176,13 @@ export function GradeCalculator({ grades, modules, gs }: GradeCalculatorProps) {
                       : "text-red-600 dark:text-red-400"
                   }`}
                 >
-                  {formatGrade(Math.round(neededGrade * 100) / 100, gs)}
+                  {formatGrade(Math.round(neededGrade * 100) / 100, gs.country)}
                 </p>
                 <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
                   {isFeasible ? (
                     <>
                       um in <strong>{selectedModuleName}</strong> auf{" "}
-                      <strong>{formatGrade(parseFloat(targetGrade), gs)}</strong> zu kommen
+                      <strong>{formatGrade(parseFloat(targetGrade), gs.country)}</strong> zu kommen
                     </>
                   ) : (
                     <>

@@ -6,11 +6,15 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
+
+interface MemberRow { user_id: string; role: string }
+interface ProfileRow { id: string; username: string | null; full_name: string | null; avatar_url: string | null }
+interface TimeLogRow { user_id: string; duration: number }
+interface StreakRow { user_id: string; current_streak: number; longest_streak: number }
 
 export async function GET(req: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -32,53 +36,57 @@ export async function GET(req: NextRequest) {
   }
 
   // Get all group members
-  const { data: members } = await supabase
+  const { data: membersRaw } = await supabase
     .from("group_members")
     .select("user_id, role")
     .eq("group_id", groupId);
 
-  if (!members || members.length === 0) {
+  const members = (membersRaw ?? []) as MemberRow[];
+  if (members.length === 0) {
     return NextResponse.json({ leaderboard: [] });
   }
 
-  const memberIds = members.map((m) => m.user_id);
+  const memberIds = members.map((m: MemberRow) => m.user_id);
 
   // Get profiles (for display names)
-  const { data: profiles } = await supabase
+  const { data: profilesRaw } = await supabase
     .from("profiles")
     .select("id, username, full_name, avatar_url")
     .in("id", memberIds);
+  const profiles = (profilesRaw ?? []) as ProfileRow[];
 
   // Get study time for last 7 days
   const weekAgo = new Date();
   weekAgo.setDate(weekAgo.getDate() - 7);
 
-  const { data: timeLogs } = await supabase
+  const { data: timeLogsRaw } = await supabase
     .from("time_logs")
     .select("user_id, duration")
     .in("user_id", memberIds)
     .gte("date", weekAgo.toISOString().slice(0, 10));
+  const timeLogs = (timeLogsRaw ?? []) as TimeLogRow[];
 
   // Get streaks
-  const { data: streaks } = await supabase
+  const { data: streaksRaw } = await supabase
     .from("streaks")
     .select("user_id, current_streak, longest_streak")
     .in("user_id", memberIds);
+  const streakData = (streaksRaw ?? []) as StreakRow[];
 
   // Aggregate
-  const leaderboard = memberIds.map((uid) => {
-    const profile = profiles?.find((p) => p.id === uid);
-    const logs = timeLogs?.filter((l) => l.user_id === uid) ?? [];
-    const streak = streaks?.find((s) => s.user_id === uid);
+  const leaderboard = memberIds.map((uid: string) => {
+    const profile = profiles.find((p: ProfileRow) => p.id === uid);
+    const logs = timeLogs.filter((l: TimeLogRow) => l.user_id === uid);
+    const streak = streakData.find((s: StreakRow) => s.user_id === uid);
 
-    const totalMinutes = logs.reduce((sum, l) => sum + (l.duration ?? 0), 0);
+    const totalMinutes = logs.reduce((sum: number, l: TimeLogRow) => sum + (l.duration ?? 0), 0);
 
     return {
       userId: uid,
       isMe: uid === user.id,
       displayName:
         profile?.username || profile?.full_name?.split(" ")[0] || "Anonym",
-      avatarUrl: profile?.avatar_url,
+      avatarUrl: profile?.avatar_url ?? null,
       studyMinutes7d: totalMinutes,
       studyHours7d: Math.round((totalMinutes / 60) * 10) / 10,
       currentStreak: streak?.current_streak ?? 0,
@@ -88,10 +96,10 @@ export async function GET(req: NextRequest) {
   });
 
   // Sort by study hours descending
-  leaderboard.sort((a, b) => b.studyMinutes7d - a.studyMinutes7d);
+  leaderboard.sort((a: { studyMinutes7d: number }, b: { studyMinutes7d: number }) => b.studyMinutes7d - a.studyMinutes7d);
 
   // Add rank
-  const ranked = leaderboard.map((entry, i) => ({
+  const ranked = leaderboard.map((entry: typeof leaderboard[0], i: number) => ({
     ...entry,
     rank: i + 1,
   }));

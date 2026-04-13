@@ -1,27 +1,17 @@
 /**
  * /api/flashcards/import-anki — Import Anki .apkg files
  *
- * .apkg files are ZIP archives containing a SQLite database (collection.anki2)
- * with notes and cards. We extract the front/back fields from notes.
+ * .apkg files are ZIP archives containing a SQLite database (collection.anki2).
+ * We extract notes from the SQLite DB using sql.js (loaded at runtime).
  *
- * Since we can't run SQLite in Edge/Node easily, we parse the .apkg
- * by extracting it as ZIP and reading the SQLite db with sql.js.
+ * Falls back to a text-based extraction if sql.js is unavailable.
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
-
-// sql.js will be loaded dynamically
-let initSqlJs: (() => Promise<{ Database: new (data: Uint8Array) => SqlJsDatabase }>) | null = null;
-
-interface SqlJsDatabase {
-  exec: (sql: string) => Array<{ columns: string[]; values: unknown[][] }>;
-  close: () => void;
-}
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -41,22 +31,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Only .apkg files are supported" }, { status: 400 });
     }
 
-    // Read the file as ArrayBuffer
     const buffer = await file.arrayBuffer();
     const uint8 = new Uint8Array(buffer);
-
-    // .apkg is a ZIP file — we need to find collection.anki2 (or collection.anki21)
-    // Use a simple approach: try to parse with sql.js directly (works for .anki2 format)
-    // or extract from ZIP
 
     let cards: Array<{ front: string; back: string }> = [];
 
     try {
-      // Try to dynamically import sql.js
-      const sqlJsModule = await import("sql.js");
-      const SQL = await sqlJsModule.default();
-
-      // Try to decompress ZIP and find the SQLite database
+      // Dynamic imports at runtime (not build time)
       const JSZip = (await import("jszip")).default;
       const zip = await JSZip.loadAsync(uint8);
 
@@ -73,26 +54,45 @@ export async function POST(req: NextRequest) {
       }
 
       const dbData = await zip.file(dbFileName)!.async("uint8array");
-      const db = new SQL.Database(dbData);
 
-      // Anki stores notes in the `notes` table with `flds` column (fields separated by \x1f)
-      // and models in `col` table's `models` JSON field
+      // Try sql.js for proper SQLite parsing
       try {
-        const results = db.exec("SELECT flds FROM notes");
-        if (results.length > 0) {
-          for (const row of results[0].values) {
-            const fields = String(row[0]).split("\x1f");
-            if (fields.length >= 2) {
-              const front = stripHtml(fields[0]).trim();
-              const back = stripHtml(fields[1]).trim();
-              if (front && back) {
-                cards.push({ front, back });
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const initSqlJs = (await import("sql.js")).default;
+        const SQL = await initSqlJs();
+        const db = new SQL.Database(dbData);
+
+        try {
+          const results = db.exec("SELECT flds FROM notes");
+          if (results.length > 0) {
+            for (const row of results[0].values) {
+              const fields = String(row[0]).split("\x1f");
+              if (fields.length >= 2) {
+                const front = stripHtml(fields[0]).trim();
+                const back = stripHtml(fields[1]).trim();
+                if (front && back) {
+                  cards.push({ front, back });
+                }
               }
             }
           }
+        } finally {
+          db.close();
         }
-      } finally {
-        db.close();
+      } catch {
+        // sql.js not available — try text-based extraction as fallback
+        const text = new TextDecoder("utf-8", { fatal: false }).decode(dbData);
+        // Search for field separator pattern (0x1f) in the raw text
+        const fieldSep = "\x1f";
+        const chunks = text.split(fieldSep);
+        // Heuristic: pairs of non-empty chunks that look like card content
+        for (let i = 0; i < chunks.length - 1; i += 2) {
+          const front = stripHtml(chunks[i]).trim();
+          const back = stripHtml(chunks[i + 1]).trim();
+          if (front.length > 2 && front.length < 500 && back.length > 1 && back.length < 2000) {
+            cards.push({ front, back });
+          }
+        }
       }
     } catch (parseError) {
       console.error("[anki-import] Parse error:", parseError);
@@ -147,9 +147,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-/**
- * Strip HTML tags from Anki field content
- */
 function stripHtml(html: string): string {
   return html
     .replace(/<br\s*\/?>/gi, "\n")

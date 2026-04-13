@@ -6,11 +6,15 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
+
+interface CardRow { front: string; back: string; card_type: string; choices: unknown; correct_answers: unknown; tags: unknown }
+interface MembershipRow { group_id: string }
+interface ShareRow { id: string; group_id: string; shared_by: string; resource_name: string; resource_data: Record<string, unknown>; created_at: string }
+interface GroupRow { id: string; name: string }
 
 export async function POST(req: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -34,13 +38,14 @@ export async function POST(req: NextRequest) {
   }
 
   // Get the deck cards
-  const { data: cards } = await supabase
+  const { data: cardsRaw } = await supabase
     .from("flashcards")
     .select("front, back, card_type, choices, correct_answers, tags")
     .eq("user_id", user.id)
     .eq("deck_name", deckName);
 
-  if (!cards || cards.length === 0) {
+  const cards = (cardsRaw ?? []) as CardRow[];
+  if (cards.length === 0) {
     return NextResponse.json({ error: "Deck not found or empty" }, { status: 404 });
   }
 
@@ -60,7 +65,7 @@ export async function POST(req: NextRequest) {
     resource_type: "flashcard_deck",
     resource_name: deckName,
     resource_data: {
-      cards: cards.map((c) => ({
+      cards: cards.map((c: CardRow) => ({
         front: c.front,
         back: c.back,
         card_type: c.card_type,
@@ -86,48 +91,51 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   // Get user's group IDs
-  const { data: memberships } = await supabase
+  const { data: membershipsRaw } = await supabase
     .from("group_members")
     .select("group_id")
     .eq("user_id", user.id);
 
-  if (!memberships || memberships.length === 0) {
+  const memberships = (membershipsRaw ?? []) as MembershipRow[];
+  if (memberships.length === 0) {
     return NextResponse.json({ decks: [] });
   }
 
-  const groupIds = memberships.map((m) => m.group_id);
+  const groupIds = memberships.map((m: MembershipRow) => m.group_id);
 
   // Get shared flashcard decks
-  const { data: shares } = await supabase
+  const { data: sharesRaw } = await supabase
     .from("group_shares")
     .select("id, group_id, shared_by, resource_name, resource_data, created_at")
     .eq("resource_type", "flashcard_deck")
     .in("group_id", groupIds)
     .order("created_at", { ascending: false })
     .limit(50);
+  const shares = (sharesRaw ?? []) as ShareRow[];
 
   // Get group names
-  const { data: groups } = await supabase
+  const { data: groupsRaw } = await supabase
     .from("groups")
     .select("id, name")
     .in("id", groupIds);
+  const groups = (groupsRaw ?? []) as GroupRow[];
 
-  const groupMap = new Map(groups?.map((g) => [g.id, g.name]) ?? []);
+  const groupMap = new Map(groups.map((g: GroupRow) => [g.id, g.name]));
 
-  const decks = (shares ?? []).map((s) => ({
+  const decks = shares.map((s: ShareRow) => ({
     id: s.id,
     deckName: s.resource_name,
     groupId: s.group_id,
     groupName: groupMap.get(s.group_id) ?? "—",
-    sharedBy: (s.resource_data as Record<string, unknown>)?.sharedBy ?? "Anonym",
-    cardCount: (s.resource_data as Record<string, unknown>)?.cardCount ?? 0,
+    sharedBy: s.resource_data?.sharedBy ?? "Anonym",
+    cardCount: s.resource_data?.cardCount ?? 0,
     createdAt: s.created_at,
     isOwn: s.shared_by === user.id,
   }));

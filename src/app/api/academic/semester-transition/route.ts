@@ -6,13 +6,12 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 import { getCurrentSemester, isInTransitionWindow } from "@/lib/semester";
 import type { SemesterType } from "@/lib/semester";
 
 export async function GET() {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -56,7 +55,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -100,7 +99,7 @@ export async function POST(req: NextRequest) {
     .is("hidden_at", null);
 
   if (completedModules && completedModules.length > 0) {
-    const ids = completedModules.map((m) => m.id);
+    const ids = completedModules.map((m: { id: string }) => m.id);
     await supabase
       .from("modules")
       .update({ hidden_at: new Date().toISOString() })
