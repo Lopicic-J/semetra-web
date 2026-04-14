@@ -142,7 +142,7 @@ export default function ResetPasswordPage() {
           </div>
 
           <p className="text-center text-[11px] text-surface-400 mt-6 lg:hidden">
-            &copy; {new Date().getFullYear()} Lopicic Technologies &middot; Semetra Workspace
+            &copy; {new Date().getFullYear()} Lopicic Technologies &middot; Semetra
           </p>
         </div>
       </div>

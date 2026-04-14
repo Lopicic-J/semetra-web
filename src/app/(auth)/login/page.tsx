@@ -132,7 +132,7 @@ export default function LoginPage() {
               <Gem size={28} />
             </div>
             <h1 className="text-2xl font-bold text-surface-900 dark:text-white">Willkommen zurück</h1>
- <p className="text-surface-500 text-sm mt-1">Melde dich bei Semetra Workspace an</p>
+ <p className="text-surface-500 text-sm mt-1">Melde dich bei Semetra an</p>
           </div>
 
  <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-xl shadow-surface-200/50 dark:shadow-black/50 border border-surface-200/60 p-6 sm:p-8">
@@ -240,7 +240,7 @@ export default function LoginPage() {
 
           {/* Footer (mobile) */}
  <p className="text-center text-[11px] text-surface-400 mt-6 lg:hidden">
-            &copy; {new Date().getFullYear()} Lopicic Technologies &middot; Semetra Workspace
+            &copy; {new Date().getFullYear()} Lopicic Technologies &middot; Semetra
           </p>
         </div>
       </div>

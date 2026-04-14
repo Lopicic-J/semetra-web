@@ -6,8 +6,8 @@ import UmamiScript from "@/components/analytics/UmamiScript";
 
 export const metadata: Metadata = {
   title: {
-    default: "Semetra Workspace — Der smarte Studienplaner",
-    template: "Semetra Workspace — %s",
+    default: "Semetra — Der smarte Studienplaner",
+    template: "Semetra — %s",
   },
   description: "Dein Studium organisiert. Module, Aufgaben, Noten, Mathe-Tools und mehr — für FH und Uni.",
   keywords: [
@@ -44,9 +44,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: "de_CH",
     url: "https://app.semetra.ch",
-    title: "Semetra Workspace — Der smarte Studienplaner",
+    title: "Semetra — Der smarte Studienplaner",
     description: "Dein Studium organisiert. Module, Aufgaben, Noten, Mathe-Tools und mehr — für FH und Uni.",
-    siteName: "Semetra Workspace",
+    siteName: "Semetra",
   },
   robots: {
     index: true,
@@ -79,7 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "SoftwareApplication",
-              name: "Semetra Workspace",
+              name: "Semetra",
               applicationCategory: "EducationalApplication",
               operatingSystem: "Web",
               url: "https://app.semetra.ch",
