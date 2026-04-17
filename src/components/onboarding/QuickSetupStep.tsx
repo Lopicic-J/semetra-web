@@ -13,6 +13,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { getGradingSystem, type CountryCode } from "@/lib/grading-systems";
 import {
   BookOpen, Plus, X, Trash2, GraduationCap, Sparkles,
   Check, AlertCircle, Building2, ArrowRight, Clock,
@@ -109,6 +110,10 @@ export default function QuickSetupStep({
   const [importingInstitution, setImportingInstitution] = useState(false);
   const [institutionImported, setInstitutionImported] = useState(false);
 
+  // Grading system (based on student's country)
+  const [gradingCountry, setGradingCountry] = useState<CountryCode>("CH");
+  const gradingSystem = getGradingSystem(gradingCountry);
+
   // Higher semester
   const isHigherSemester = semesterNumber > 1;
 
@@ -120,9 +125,14 @@ export default function QuickSetupStep({
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("institution_id, active_program_id, university, study_program, current_semester")
+        .select("institution_id, active_program_id, university, study_program, current_semester, country")
         .eq("id", user.id)
         .single();
+
+      // Set country for grading system
+      if (profile?.country) {
+        setGradingCountry(profile.country as CountryCode);
+      }
 
       if (profile?.active_program_id) {
         setHasInstitution(true);
@@ -378,8 +388,8 @@ export default function QuickSetupStep({
             </p>
           </div>
           <p className="text-xs text-amber-700 dark:text-amber-300/70">
-            Die Module aus vergangenen Semestern werden als "abgeschlossen" gespeichert.
-            Du kannst optional eine Note eintragen — das verbessert deine Notenprognosen.
+            Die Module aus vergangenen Semestern werden als &ldquo;abgeschlossen&rdquo; gespeichert.
+            Du kannst optional eine Note eintragen ({gradingSystem.scaleLabel}) — das verbessert deine Notenprognosen.
           </p>
         </div>
       )}
@@ -462,13 +472,13 @@ export default function QuickSetupStep({
                 </div>
                 <input
                   type="number"
-                  min="1"
-                  max="6"
-                  step="0.1"
+                  min={gradingSystem.min}
+                  max={gradingSystem.max}
+                  step={gradingSystem.step}
                   value={mod.grade ?? ""}
                   onChange={e => setModuleGrade(mod.id, e.target.value ? parseFloat(e.target.value) : null)}
-                  placeholder="Note"
-                  className="w-16 px-2 py-1 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-xs text-center"
+                  placeholder={gradingSystem.inputPlaceholder || `${gradingSystem.min}–${gradingSystem.max}`}
+                  className="w-20 px-2 py-1 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-xs text-center"
                 />
               </div>
             );
