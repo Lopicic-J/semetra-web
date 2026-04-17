@@ -32,7 +32,12 @@ export type AutomationType =
   | "task_reminder"
   | "knowledge_review"
   | "milestone_reached"
-  | "risk_escalation";
+  | "risk_escalation"
+  | "module_empty"         // Module has no topics/flashcards after creation
+  | "exam_no_prep"         // Exam in 7 days, no prep plan created
+  | "grade_insight"        // Grade trend detected (positive or negative)
+  | "flashcard_stale"      // 50+ flashcards due for 5+ days
+  | "wellness_warning";    // Energy trend declining
 
 export type AutomationPriority = "critical" | "high" | "normal" | "low";
 
@@ -237,6 +242,100 @@ export function evaluateAutomations(
         message: `${state.overview.ectsEarned}/${state.overview.ectsTarget} ECTS — du bist auf gutem Weg.`,
         dismissable: true,
         dedupeKey: `milestone-${percent}-${state.overview.ectsEarned}`,
+      });
+    }
+  }
+
+  // ── Proaktive AI-Automations ──
+
+  // Module ohne Inhalte (nach 3+ Tagen)
+  for (const module of modules) {
+    if (
+      module.status === "active" &&
+      module.knowledge.topicCount === 0 &&
+      module.knowledge.totalFlashcards === 0 &&
+      module.resources.noteCount === 0
+    ) {
+      automations.push({
+        id: `module-empty-${module.moduleId}`,
+        type: "module_empty",
+        priority: "normal",
+        title: `${module.moduleName} hat noch keine Inhalte`,
+        message: `Soll ich Topics und Flashcards für "${module.moduleName}" vorschlagen? Das dauert nur 10 Sekunden.`,
+        moduleId: module.moduleId,
+        dismissable: true,
+        actionLabel: "Topics vorschlagen",
+        actionHref: `/modules`,
+        dedupeKey: `module-empty-${module.moduleId}`,
+      });
+    }
+  }
+
+  // Prüfung ohne Vorbereitungsplan
+  for (const module of modules) {
+    if (
+      module.exams.daysUntilNext !== null &&
+      module.exams.daysUntilNext <= 7 &&
+      module.exams.daysUntilNext > 0
+    ) {
+      automations.push({
+        id: `exam-no-prep-${module.moduleId}`,
+        type: "exam_no_prep",
+        priority: "high",
+        title: `Prüfung in ${module.exams.daysUntilNext} Tagen — kein Vorbereitungsplan`,
+        message: `Erstelle jetzt einen strukturierten Plan für "${module.exams.next?.title}".`,
+        moduleId: module.moduleId,
+        dismissable: true,
+        actionLabel: "Plan erstellen",
+        actionHref: `/exam-prep?examId=${module.exams.next?.id}`,
+        dedupeKey: `exam-no-prep-${module.moduleId}-${module.exams.daysUntilNext}`,
+      });
+    }
+  }
+
+  // Notentrend erkannt
+  for (const module of modules) {
+    if (module.grades.trend === "improving" && module.grades.current !== null) {
+      automations.push({
+        id: `grade-trend-${module.moduleId}`,
+        type: "grade_insight",
+        priority: "low",
+        title: `${module.moduleName}: Noten verbessern sich!`,
+        message: `Dein Trend ist positiv (aktuell ${module.grades.current.toFixed(1)}) — weiter so!`,
+        moduleId: module.moduleId,
+        dismissable: true,
+        dedupeKey: `grade-trend-up-${module.moduleId}-${module.grades.current.toFixed(1)}`,
+      });
+    } else if (module.grades.trend === "declining" && module.grades.current !== null) {
+      automations.push({
+        id: `grade-trend-down-${module.moduleId}`,
+        type: "grade_insight",
+        priority: "normal",
+        title: `${module.moduleName}: Notentrend sinkt`,
+        message: `Aktuell ${module.grades.current.toFixed(1)} — mehr Lernzeit oder Methode anpassen?`,
+        moduleId: module.moduleId,
+        dismissable: true,
+        actionLabel: "Noten analysieren",
+        actionHref: `/noten`,
+        dedupeKey: `grade-trend-down-${module.moduleId}-${module.grades.current.toFixed(1)}`,
+      });
+    }
+  }
+
+  // Viele fällige Flashcards
+  for (const module of modules) {
+    if (module.knowledge.flashcardsDue >= 50) {
+      automations.push({
+        id: `fc-stale-${module.moduleId}`,
+        type: "flashcard_stale",
+        priority: "normal",
+        title: `${module.knowledge.flashcardsDue} fällige Karten in ${module.moduleName}`,
+        message: `Ein 5-Min Quick Review würde schon helfen — Vergessenskurve nicht abflachen lassen!`,
+        moduleId: module.moduleId,
+        dismissable: true,
+        actionLabel: "Jetzt reviewen",
+        actionHref: `/flashcards?module=${module.moduleId}`,
+        dedupeKey: `fc-stale-${module.moduleId}-${module.knowledge.flashcardsDue}`,
       });
     }
   }
