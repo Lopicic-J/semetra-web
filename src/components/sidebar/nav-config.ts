@@ -106,6 +106,7 @@ export const NAV_GROUPS: NavGroup[] = [
           { href: "/patterns", labelKey: "nav.patterns" },
           { href: "/review", labelKey: "nav.weeklyReview" },
           { href: "/reflections", labelKey: "nav.reflections" },
+          { href: "/wellness", labelKey: "nav.wellness" },
         ],
       },
       {

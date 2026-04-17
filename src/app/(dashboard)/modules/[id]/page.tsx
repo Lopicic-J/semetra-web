@@ -38,6 +38,7 @@ const ModuleControlCenter = dynamic(
 
 import ModuleToolsBar from "@/components/modules/ModuleToolsBar";
 import AIModuleSetup from "@/components/modules/AIModuleSetup";
+import QuickExamAdd from "@/components/exams/QuickExamAdd";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -264,6 +265,7 @@ export default function ModuleDetailPage() {
                 hasTopics={false}
                 hasFlashcards={false}
               />
+              <QuickExamAdd modules={module ? [module] : []} />
             </div>
           )}
 
