@@ -60,6 +60,12 @@ export default function MindMapsPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filterModule, setFilterModule] = useState(paramModule ?? "");
 
+  // Filter mindmaps by module if param set
+  const filteredMaps = useMemo(() => {
+    if (!filterModule) return maps;
+    return maps.filter(m => m.module_id === filterModule);
+  }, [maps, filterModule]);
+
   const fetchMaps = useCallback(async () => {
     const { data } = await supabase.from("mindmaps").select("*").order("updated_at", { ascending: false });
     setMaps(data ?? []);

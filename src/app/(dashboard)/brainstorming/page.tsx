@@ -222,6 +222,12 @@ export default function BrainstormingPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filterModule, setFilterModule] = useState(paramModule ?? "");
 
+  // Filter sessions by module if param set
+  const filteredSessions = useMemo(() => {
+    if (!filterModule) return sessions;
+    return sessions.filter(s => s.module_id === filterModule);
+  }, [sessions, filterModule]);
+
   const fetchSessions = useCallback(async () => {
     const { data } = await supabase
       .from("brainstorm_sessions")
