@@ -157,7 +157,7 @@ export async function PATCH(request: Request) {
   // Update module metadata
   const moduleUpdates: Record<string, unknown> = {};
   if (learningRecommendation) moduleUpdates.learning_recommendation = learningRecommendation;
-  if (moduleType) moduleUpdates.module_type = moduleType;
+  if (moduleType) moduleUpdates.learning_type = moduleType;
   if (Object.keys(moduleUpdates).length > 0) {
     await supabase.from("modules").update(moduleUpdates).eq("id", moduleId).eq("user_id", user.id);
   }
