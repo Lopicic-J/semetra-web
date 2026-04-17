@@ -38,7 +38,7 @@ export default function ExamSimulatorPage() {
   const [showExplanation, setShowExplanation] = useState(false);
   const [openAnswer, setOpenAnswer] = useState("");
 
-  const activeModules = modules.filter(m => m.status === "active" || m.status === "completed");
+  const activeModules = modules.filter(m => m.status === "active" || m.status === "planned" || m.status === "completed");
   const currentQuestion = questions[currentIndex];
   const moduleName = modules.find(m => m.id === selectedModule)?.name ?? "";
 
