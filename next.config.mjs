@@ -65,8 +65,14 @@ const nextConfig = {
       // Old hub routes → redirect to their first child (standalone pages now exist)
       { source: "/creative", destination: "/mindmaps", permanent: true },
       { source: "/about", destination: "/settings", permanent: true },
-      // Old leaderboard route
+      // Consolidated routes — reduce duplicate pages
       { source: "/leaderboard", destination: "/bestenliste", permanent: true },
+      { source: "/grades", destination: "/noten", permanent: true },
+      { source: "/achievements", destination: "/erfolge", permanent: true },
+      { source: "/schedule", destination: "/calendar", permanent: true },
+      { source: "/insights", destination: "/review", permanent: true },
+      { source: "/progress", destination: "/overview", permanent: true },
+      { source: "/fortschritt", destination: "/overview", permanent: true },
     ];
   },
 

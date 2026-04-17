@@ -18,6 +18,7 @@ import {
   StickyNote, Save, X, Trash2, Layers, TrendingUp, SlidersHorizontal,
 } from "lucide-react";
 import { events } from "@/lib/analytics/tracker";
+import PostSessionCard from "@/components/timer/PostSessionCard";
 
 // ── Mode Presets ────────────────────────────────────────────────────────────
 
@@ -83,6 +84,7 @@ function TimerPageInner() {
   const [showContext, setShowContext] = useState(false);
   const [customMinutes, setCustomMinutes] = useState("");
   const [showCustom, setShowCustom] = useState(false);
+  const [postSession, setPostSession] = useState<{ visible: boolean; duration: number; moduleName?: string }>({ visible: false, duration: 0 });
 
   // Context data
   const [exams, setExams] = useState<CalendarEvent[]>([]);
@@ -240,10 +242,17 @@ function TimerPageInner() {
   }
 
   function handleStop() {
-    const actualMin = timer.elapsedSeconds ? Math.round(timer.elapsedSeconds / 60) : 0;
+    const actualSec = timer.elapsedSeconds ?? 0;
+    const actualMin = Math.round(actualSec / 60);
+    const modName = modules.find(m => m.id === selectedModule)?.name;
     timer.stop(undefined, note || undefined);
     events.timerCompleted(selectedModule || null, actualMin);
     setNote("");
+
+    // Show post-session card with next action recommendation
+    if (actualSec >= 60) { // Only for sessions > 1 min
+      setPostSession({ visible: true, duration: actualSec, moduleName: modName });
+    }
   }
 
   // ── Current preset ─────────────────────────────────────────────────────
@@ -278,6 +287,14 @@ function TimerPageInner() {
               <span className="text-[10px] text-orange-400">Tage</span>
             </div>
           </div>
+
+          {/* Post-Session: Next Action recommendation */}
+          <PostSessionCard
+            sessionDuration={postSession.duration}
+            moduleName={postSession.moduleName}
+            visible={postSession.visible}
+            onDismiss={() => setPostSession({ visible: false, duration: 0 })}
+          />
 
           {/* Quick Stats — inline row on mobile */}
           <div className="flex gap-2 sm:grid sm:grid-cols-3 sm:gap-3 mb-4 sm:mb-6 overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0">
@@ -515,6 +532,27 @@ function TimerPageInner() {
           ══════════════════════════════════════════════════════════════ */}
  <div className="w-full lg:w-80 xl:w-96 lg:border-l border-surface-200 bg-surface-50/50 lg:overflow-y-auto">
         <div className="p-3 sm:p-4">
+
+          {/* ── Daily Progress (from Decision Engine) ─────────────── */}
+          {streaks.last30Days[today] > 0 && (
+            <div className="mb-4 p-3 rounded-xl bg-brand-50/50 dark:bg-brand-950/10 border border-brand-100 dark:border-brand-800/30">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-medium text-brand-700 dark:text-brand-300">Tagesfortschritt</span>
+                <span className="text-xs text-brand-500">
+                  {formatDuration(streaks.last30Days[today])} gelernt
+                </span>
+              </div>
+              <div className="h-1.5 bg-brand-100 dark:bg-brand-900/30 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-brand-500 rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min(100, (streaks.last30Days[today] / (120 * 60)) * 100)}%` }}
+                />
+              </div>
+              <p className="text-[10px] text-brand-400 mt-1">
+                Ziel: 2h · {Math.round(Math.max(0, 120 - streaks.last30Days[today] / 60))} Min verbleibend
+              </p>
+            </div>
+          )}
 
           {/* ── Today's Planned Blocks ────────────────────────────── */}
           <div className="mb-6">
