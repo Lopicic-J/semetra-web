@@ -87,9 +87,9 @@ export default function StarterGuide() {
         color: "text-violet-500",
         bgColor: "bg-violet-50 dark:bg-violet-500/10",
         title: "Erste Lernsession starten",
-        description: "Starte den Timer und sammle deine ersten Lernminuten.",
-        href: "/timer",
-        cta: "Timer starten",
+        description: "Starte eine geführte Lernsession — Semetra strukturiert die Zeit für dich.",
+        href: "/guided-session",
+        cta: "Lernsession starten",
         check: async () => {
           const { count } = await supabase
             .from("timer_sessions")
@@ -120,7 +120,7 @@ export default function StarterGuide() {
         bgColor: "bg-purple-50 dark:bg-purple-500/10",
         title: "KI-Assistenten ausprobieren",
         description: "Stell dem KI-Assistenten eine Frage zu deinem Studium.",
-        href: "/ai-assistant",
+        href: "/ki",
         cta: "KI fragen",
         check: async () => {
           const { count } = await supabase
