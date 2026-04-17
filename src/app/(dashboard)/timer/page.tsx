@@ -399,6 +399,25 @@ function TimerPageInner() {
             <p className="text-center text-xs text-surface-400 mb-4">{activePreset.description}</p>
           )}
 
+          {/* Learning Goal Badge — shown during session */}
+          {timer.isRunning && learningGoal && learningGoal !== "free" && (
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
+                learningGoal === "weak_topic" ? "bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400" :
+                learningGoal === "exam_prep" ? "bg-violet-50 dark:bg-violet-950/20 text-violet-600 dark:text-violet-400" :
+                learningGoal === "task" ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400" :
+                "bg-brand-50 dark:bg-brand-950/20 text-brand-600 dark:text-brand-400"
+              }`}>
+                {learningGoal === "weak_topic" ? "🎯 Thema vertiefen" :
+                 learningGoal === "exam_prep" ? "🎓 Prüfungsvorbereitung" :
+                 learningGoal === "task" ? "✅ Aufgabe" : "📚 Lernen"}
+                {selectedTopic && topics.find(t => t.id === selectedTopic) && (
+                  <span className="text-[10px] opacity-70">· {topics.find(t => t.id === selectedTopic)?.title}</span>
+                )}
+              </span>
+            </div>
+          )}
+
           {/* ── Timer Ring ─────────────────────────────────────────── */}
           <div className="flex justify-center mb-5 sm:mb-6">
             <div className="relative w-52 h-52 sm:w-72 sm:h-72">
@@ -486,16 +505,19 @@ function TimerPageInner() {
                   <p className="text-xs font-medium text-surface-500 text-center">Was möchtest du lernen?</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                     {([
-                      { id: "weak_topic" as const, label: "Schwaches Thema", icon: "🎯", desc: "Topic vertiefen" },
-                      { id: "flashcards" as const, label: "Flashcards", icon: "⚡", desc: "Karten reviewen" },
-                      { id: "exam_prep" as const, label: "Prüfung", icon: "🎓", desc: "Gezielt vorbereiten" },
-                      { id: "task" as const, label: "Aufgabe", icon: "✅", desc: "Aufgabe erledigen" },
-                      { id: "explore" as const, label: "Erkunden", icon: "📚", desc: "Lernraum öffnen" },
-                      { id: "free" as const, label: "Frei lernen", icon: "⏱️", desc: "Ohne Vorgabe" },
+                      { id: "weak_topic" as const, label: "Schwaches Thema", icon: "🎯", desc: "Topic vertiefen", redirect: null },
+                      { id: "flashcards" as const, label: "Flashcards", icon: "⚡", desc: "Karten reviewen", redirect: `/flashcards?module=${selectedModule}` },
+                      { id: "exam_prep" as const, label: "Prüfung", icon: "🎓", desc: "Gezielt vorbereiten", redirect: null },
+                      { id: "task" as const, label: "Aufgabe", icon: "✅", desc: "Aufgabe erledigen", redirect: null },
+                      { id: "explore" as const, label: "Erkunden", icon: "📚", desc: "Lernraum öffnen", redirect: `/modules/${selectedModule}/learn` },
+                      { id: "free" as const, label: "Frei lernen", icon: "⏱️", desc: "Ohne Vorgabe", redirect: null },
                     ]).map(g => (
                       <button
                         key={g.id}
-                        onClick={() => { setLearningGoal(g.id); if (g.id !== "free") setShowContext(true); }}
+                        onClick={() => {
+                          if (g.redirect) { window.location.href = g.redirect; return; }
+                          setLearningGoal(g.id); if (g.id !== "free") setShowContext(true);
+                        }}
                         className={`p-2 rounded-lg text-left transition-colors ${
                           learningGoal === g.id
                             ? "bg-brand-50 dark:bg-brand-950/20 border border-brand-300 dark:border-brand-700"
