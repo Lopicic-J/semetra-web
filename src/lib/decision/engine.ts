@@ -461,23 +461,50 @@ export function rankModules(
 /**
  * Prognostiziert das wahrscheinliche Ergebnis eines Moduls.
  * Swiss grade system: 1-6, 4.0 = pass, higher = better.
+ *
+ * Verwendet Bayesian Update:
+ * - Prior: Durchschnitt 4.5 (typische Schweizer FH-Note) gewichtet mit (1-confidence)
+ * - Likelihood: Bisherige Noten des Users gewichtet mit confidence
+ * - Confidence steigt mit Anzahl Datenpunkte (0.3 bei 1 Note → 0.9 bei 5+)
+ * - Trend, Lernzeit und Wissensstand als Modifikatoren
  */
 export function predictOutcome(
   module: ModuleIntelligence
 ): OutcomePrediction {
   const { grades } = module;
+  const PRIOR_GRADE = 4.5; // Typische Schweizer FH-Durchschnittsnote
 
-  // Aktuelle Trajektorie basierend auf bisherigen Noten
+  // Aktuelle Trajektorie mit Bayesian Update
   let currentTrajectory: number | null = null;
   if (grades.current !== null) {
-    currentTrajectory = grades.current;
-    // Trend-Anpassung
+    // Konfidenz steigt mit Anzahl Noten: 1→0.3, 2→0.5, 3→0.65, 4→0.75, 5+→0.85-0.95
+    const gradeCount = grades.componentResults.filter((c) => c.grade !== null).length;
+    const confidence = Math.min(0.95, 0.3 + gradeCount * 0.15);
+
+    // Bayesian Update: Prior × (1-conf) + Likelihood × conf
+    let bayesianEstimate = PRIOR_GRADE * (1 - confidence) + grades.current * confidence;
+
+    // Trend-Modifikator (subtiler als vorher)
     if (grades.trend === "declining") {
-      currentTrajectory = Math.max(1, currentTrajectory - 0.3);
+      bayesianEstimate -= 0.15 * confidence; // Stärker gewichtet wenn mehr Daten
     } else if (grades.trend === "improving") {
-      currentTrajectory = Math.min(6, currentTrajectory + 0.2);
+      bayesianEstimate += 0.12 * confidence;
     }
-    currentTrajectory = Math.round(currentTrajectory * 10) / 10;
+
+    // Lernzeit-Modifikator: Viel Lernen = leicht positiv, wenig = leicht negativ
+    if (module.studyTime.averagePerWeek >= 150) {
+      bayesianEstimate += 0.1;
+    } else if (module.studyTime.averagePerWeek < 30 && module.studyTime.totalMinutes > 0) {
+      bayesianEstimate -= 0.1;
+    }
+
+    // Wissens-Modifikator: Hoher Knowledge-Level = positiv
+    if (module.knowledge.topicCount > 0) {
+      if (module.knowledge.averageLevel >= 75) bayesianEstimate += 0.1;
+      else if (module.knowledge.averageLevel < 30) bayesianEstimate -= 0.1;
+    }
+
+    currentTrajectory = Math.round(Math.max(1, Math.min(6, bayesianEstimate)) * 10) / 10;
   }
 
   // Gap zum Ziel
@@ -558,6 +585,9 @@ function calculateRequiredPerformance(
 
 /**
  * Schätzt die Bestehens-Wahrscheinlichkeit (0-100%).
+ *
+ * Verwendet gewichtete Faktoren mit Konfidenz-Skalierung:
+ * Je mehr Datenpunkte vorhanden, desto stärker beeinflussen sie das Ergebnis.
  */
 function estimatePassProbability(module: ModuleIntelligence): number {
   const { grades, studyTime, tasks, knowledge, exams } = module;
@@ -565,18 +595,21 @@ function estimatePassProbability(module: ModuleIntelligence): number {
   // Basiswahrscheinlichkeit
   let probability = 50;
 
-  // Aktuelle Note beeinflusst stark
+  // Konfidenz basierend auf Datenlage
+  const gradeCount = grades.componentResults.filter((c) => c.grade !== null).length;
+  const dataConfidence = Math.min(1, 0.3 + gradeCount * 0.15);
+
+  // Aktuelle Note beeinflusst stark — skaliert mit Konfidenz
   if (grades.current !== null) {
-    if (grades.current >= 5.0) probability += 30;
-    else if (grades.current >= 4.5) probability += 20;
-    else if (grades.current >= 4.0) probability += 10;
-    else if (grades.current >= 3.5) probability -= 10;
-    else probability -= 25;
+    // Distanz zum Bestehen (4.0) als kontinuierlicher Score statt Stufen
+    const distanceToPass = grades.current - 4.0;
+    const gradeImpact = Math.round(distanceToPass * 20 * dataConfidence);
+    probability += Math.max(-30, Math.min(35, gradeImpact));
   }
 
-  // Trend
-  if (grades.trend === "improving") probability += 10;
-  else if (grades.trend === "declining") probability -= 15;
+  // Trend (skaliert mit Konfidenz)
+  if (grades.trend === "improving") probability += Math.round(10 * dataConfidence);
+  else if (grades.trend === "declining") probability -= Math.round(15 * dataConfidence);
 
   // Lernaktivität
   if (studyTime.averagePerWeek >= 120) probability += 10;
@@ -587,12 +620,17 @@ function estimatePassProbability(module: ModuleIntelligence): number {
   else if (tasks.completionRate < 40) probability -= 10;
 
   // Wissenslevel
-  if (knowledge.averageLevel >= 70) probability += 10;
-  else if (knowledge.averageLevel < 40) probability -= 10;
+  if (knowledge.topicCount > 0) {
+    if (knowledge.averageLevel >= 70) probability += 10;
+    else if (knowledge.averageLevel < 40) probability -= 10;
+  }
 
-  // Prüfung bald + wenig vorbereitet = Malus
+  // Prüfung bald + wenig vorbereitet = Malus (stärker bei näherem Termin)
   if (exams.daysUntilNext !== null && exams.daysUntilNext <= 7) {
-    if (studyTime.last7Days < 60) probability -= 15;
+    if (studyTime.last7Days < 60) {
+      const urgencyPenalty = Math.round(15 * (1 - exams.daysUntilNext / 7));
+      probability -= Math.max(5, urgencyPenalty);
+    }
   }
 
   return Math.max(5, Math.min(95, probability));
