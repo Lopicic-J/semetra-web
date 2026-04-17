@@ -24,13 +24,11 @@ import { useStreaks } from "@/lib/hooks/useStreaks";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { useCommandCenter } from "@/lib/hooks/useCommandCenter";
 import { useSmartAutomations } from "@/lib/hooks/useSmartAutomations";
-import { formatDate, ectsWeightedAvg } from "@/lib/utils";
+import { ectsWeightedAvg } from "@/lib/utils";
 import PageBlocks, { type BlockDef } from "@/components/ui/PageBlocks";
 import {
-  BookOpen, CheckSquare, Clock, TrendingUp, AlertCircle, Calendar,
-  GraduationCap, Brain, AlertTriangle, Flame, Target, Zap, Trophy,
-  Timer, ArrowRight, ChevronDown, Paperclip, Link2,
-  RefreshCw, Command,
+  BookOpen, Calendar, Brain, AlertTriangle,
+  Timer, ArrowRight, RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import type { CalendarEvent, Topic } from "@/types/database";
@@ -40,6 +38,9 @@ import StarterGuide from "@/components/dashboard/StarterGuide";
 import { SemesterTransitionBanner } from "@/components/dashboard/SemesterTransitionBanner";
 import { DailyNudgeCard } from "@/components/notifications/DailyNudgeCard";
 import { NudgeBanner } from "@/components/dashboard/NudgeBanner";
+import DashboardStatCards from "@/components/dashboard/DashboardStatCards";
+import DashboardExamList from "@/components/dashboard/DashboardExamList";
+import DashboardTaskList from "@/components/dashboard/DashboardTaskList";
 
 // Command Center sub-components
 import AlertBanner from "@/components/command-center/AlertBanner";
@@ -64,10 +65,6 @@ export default function ClassicDashboard() {
   const { profile } = useProfile();
   const [exams, setExams] = useState<Exam[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
-  const [expandedExam, setExpandedExam] = useState<string | null>(null);
-  const [examAttachments, setExamAttachments] = useState<Record<string, any[]>>({});
-  const [expandedTask, setExpandedTask] = useState<string | null>(null);
-  const [taskAttachments, setTaskAttachments] = useState<Record<string, any[]>>({});
   const supabase = createClient();
 
   // Command Center hooks (wrapped in try-catch via useCommandCenter)
@@ -95,46 +92,6 @@ export default function ClassicDashboard() {
     const { data } = await supabase.from("topics").select("*");
     setTopics(data ?? []);
   }, [supabase]);
-
-  const fetchExamDetails = useCallback(async (examId: string) => {
-    const { data } = await supabase
-      .from("exam_attachments")
-      .select("*")
-      .eq("exam_id", examId)
-      .order("created_at", { ascending: false });
-    setExamAttachments(prev => ({ ...prev, [examId]: data ?? [] }));
-  }, [supabase]);
-
-  const toggleExamExpand = (examId: string) => {
-    if (expandedExam === examId) {
-      setExpandedExam(null);
-    } else {
-      setExpandedExam(examId);
-      if (!examAttachments[examId]) {
-        fetchExamDetails(examId);
-      }
-    }
-  };
-
-  const fetchTaskDetails = useCallback(async (taskId: string) => {
-    const { data } = await supabase
-      .from("task_attachments")
-      .select("*")
-      .eq("task_id", taskId)
-      .order("created_at", { ascending: false });
-    setTaskAttachments(prev => ({ ...prev, [taskId]: data ?? [] }));
-  }, [supabase]);
-
-  const toggleTaskExpand = (taskId: string) => {
-    if (expandedTask === taskId) {
-      setExpandedTask(null);
-    } else {
-      setExpandedTask(taskId);
-      if (!taskAttachments[taskId]) {
-        fetchTaskDetails(taskId);
-      }
-    }
-  };
 
   useEffect(() => { fetchExams(); fetchTopics(); }, [fetchExams, fetchTopics]);
   useEffect(() => { triggerMigration(); }, [triggerMigration]);
@@ -240,100 +197,18 @@ export default function ClassicDashboard() {
       id: "stat-cards",
       label: "KPI-Karten",
       content: (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-        {/* Streak */}
-        <Link href="/timer" className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 rounded-xl border border-orange-100 dark:border-orange-900/30 p-4 hover:shadow-md transition-shadow">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="bg-orange-100 dark:bg-orange-900/40 w-8 h-8 rounded-lg flex items-center justify-center">
-              <Flame className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-surface-900 dark:text-white">{streak.currentStreak}</p>
- <p className="text-xs text-surface-500 mt-0.5">{t("dashboard.streak")}</p>
- <p className="text-[10px] text-surface-400 mt-0.5">
-            {streak.todayDone ? t("dashboard.streakToday") : t("dashboard.streakTodayMissing")}
-          </p>
-        </Link>
-
-        {/* ECTS */}
- <Link href="/overview" className="bg-surface-100/50 rounded-xl border border-surface-200 p-4 hover:shadow-md transition-shadow">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="bg-brand-50 dark:bg-brand-950/30 w-8 h-8 rounded-lg flex items-center justify-center">
-              <Target className="w-4 h-4 text-brand-600 dark:text-brand-400" />
-            </div>
-          </div>
- <p className="text-2xl font-bold text-surface-900 dark:text-white">{earnedEcts}<span className="text-sm text-surface-400">/{totalEcts || 180}</span></p>
- <p className="text-xs text-surface-500 mt-0.5">ECTS</p>
- <div className="w-full h-1.5 bg-surface-200 rounded-full overflow-hidden mt-1.5">
-            <div className="h-full bg-brand-500 rounded-full transition-all duration-500" style={{ width: `${Math.min((earnedEcts / (totalEcts || 180)) * 100, 100)}%` }} />
-          </div>
-        </Link>
-
-        {/* GPA */}
- <div className="bg-surface-100/50 rounded-xl border border-surface-200 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="bg-green-50 dark:bg-green-950/30 w-8 h-8 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-surface-900 dark:text-white">{ectsAvg ? ectsAvg.toFixed(2) : "—"}</p>
- <p className="text-xs text-surface-500 mt-0.5">{t("dashboard.gpa")}</p>
- <p className="text-[10px] text-surface-400 mt-0.5">{modules.length} {t("dashboard.modules")}</p>
-        </div>
-
-        {/* Study Time Today */}
- <div className="bg-surface-100/50 rounded-xl border border-surface-200 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="bg-emerald-50 dark:bg-emerald-950/30 w-8 h-8 rounded-lg flex items-center justify-center">
-              <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-surface-900 dark:text-white">{fmtStudyTime(todaySecs)}</p>
- <p className="text-xs text-surface-500 mt-0.5">{t("dashboard.studyToday") ||"Heute gelernt"}</p>
-        </div>
-
-        {/* Open Tasks */}
-        <div className={`rounded-xl border p-4 ${overdue.length > 0
-          ? "bg-red-50/50 dark:bg-red-950/20 border-red-100 dark:border-red-900/30"
- :"bg-surface-100/50 border-surface-200"
-        }`}>
-          <div className="flex items-center gap-2 mb-2">
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${overdue.length > 0
-              ? "bg-red-100 dark:bg-red-900/40"
-              : "bg-blue-50 dark:bg-blue-950/30"
-            }`}>
-              {overdue.length > 0
-                ? <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
-                : <CheckSquare className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              }
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-surface-900 dark:text-white">{openTasks.length}</p>
- <p className="text-xs text-surface-500 mt-0.5">{t("dashboard.openTasks")}</p>
-          {overdue.length > 0 && (
-            <p className="text-[10px] text-red-600 dark:text-red-400 font-medium mt-0.5">{overdue.length} {t("dashboard.taskOverdue")}</p>
-          )}
-        </div>
-
-        {/* Upcoming Exams */}
-        <Link href="/exams" className={`rounded-xl border p-4 hover:shadow-md transition-shadow ${exams.length > 0 && (exams[0].daysLeft ?? 999) <= 7
-          ? "bg-indigo-50/50 dark:bg-indigo-950/20 border-indigo-100 dark:border-indigo-900/30"
- :"bg-surface-100/50 border-surface-200"
-        }`}>
-          <div className="flex items-center gap-2 mb-2">
-            <div className="bg-indigo-50 dark:bg-indigo-950/30 w-8 h-8 rounded-lg flex items-center justify-center">
-              <GraduationCap className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-surface-900 dark:text-white">{exams.length}</p>
- <p className="text-xs text-surface-500 mt-0.5">{t("dashboard.upcomingExams")}</p>
-          {exams.length > 0 && (
- <p className="text-[10px] text-surface-400 mt-0.5">
-              {t("dashboard.nextIn") || "Nächste in"} {exams[0].daysLeft ?? "?"} {t("dashboard.daysLeft")}
-            </p>
-          )}
-        </Link>
-      </div>
+        <DashboardStatCards
+          streak={{ currentStreak: streak.currentStreak, todayDone: streak.todayDone }}
+          earnedEcts={earnedEcts}
+          totalEcts={totalEcts}
+          ectsAvg={ectsAvg}
+          moduleCount={modules.length}
+          todayStudyTime={fmtStudyTime(todaySecs)}
+          openTaskCount={openTasks.length}
+          overdueCount={overdue.length}
+          examCount={exams.length}
+          nextExamDaysLeft={exams.length > 0 ? (exams[0].daysLeft ?? null) : null}
+        />
       ),
     },
     {
@@ -377,210 +252,9 @@ export default function ClassicDashboard() {
       label: "Prüfungen & Aufgaben",
       content: (
         <div className="grid lg:grid-cols-2 gap-4 mb-6">
-        {/* Upcoming exams */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-surface-900 dark:text-white flex items-center gap-2">
-              <GraduationCap size={16} className="text-brand-500" /> {t("dashboard.upcomingExams")}
-            </h2>
-            <Link href="/exams" className="text-xs text-brand-600 hover:underline">{t("dashboard.showAll")}</Link>
-          </div>
-          {exams.length === 0 ? (
- <p className="text-sm text-surface-400 text-center py-4">{t("dashboard.allDone")}</p>
-          ) : (
-            <div className="space-y-2">
-              {exams.slice(0, 5).map(exam => {
-                const d = exam.daysLeft ?? 999;
-                const isToday = d === 0;
-                const isUrgent = d > 0 && d <= 3;
-                const isSoon = d > 3 && d <= 7;
-                const isExpanded = expandedExam === exam.id;
-                const attachments = examAttachments[exam.id] ?? [];
-                const examTopics = topics.filter(t => t.exam_id === exam.id);
-
-                return (
-                  <div key={exam.id}>
-                    <button
-                      onClick={() => toggleExamExpand(exam.id)}
-                      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${
-                        isToday ? "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800" :
-                        isUrgent ? "bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800" :
-                        isSoon ? "bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-100 dark:border-yellow-900" :
-"bg-surface-50 hover:bg-surface-100 dark:hover:bg-surface-800"
-                      } ${isExpanded ? "rounded-b-none border-b-0" : ""}`}>
-                      <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 text-white"
-                        style={{ background: exam.color ?? "#6d28d9" }}>
-                        <GraduationCap size={16} />
-                      </div>
-                      <div className="flex-1 min-w-0 text-left">
-                        <p className="text-sm font-semibold text-surface-900 dark:text-white truncate">{exam.title}</p>
- <p className="text-xs text-surface-500 mt-0.5">{formatDate(exam.start_dt)}{exam.location ?` · ${exam.location}` :""}</p>
-                      </div>
-                      <div className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold shrink-0 ${
-                        isToday ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300" :
-                        isUrgent ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300" :
-                        isSoon ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300" :
-                        d <= 30 ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" :
-                        "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
-                      }`}>
-                        <Clock size={12} />
-                        {isToday ? t("dashboard.today") : d === 1 ? t("dashboard.tomorrow") : `${d} ${t("dashboard.daysLeft")}`}
-                      </div>
-                    </button>
-                    {isExpanded && (
- <div className="bg-surface-50 border border-surface-200 border-t-0 rounded-b-xl p-3 text-sm space-y-2">
-                        {exam.description && (
-                          <div>
- <p className="text-xs font-medium text-surface-500 mb-1">{t("dashboard.description")}</p>
- <p className="text-xs text-surface-700">{exam.description}</p>
-                          </div>
-                        )}
-                        {examTopics.length > 0 && (
-                          <div>
- <p className="text-xs font-medium text-surface-500 mb-1">{t("dashboard.relatedTopics")}</p>
-                            <div className="space-y-1">
-                              {examTopics.slice(0, 3).map(topic => (
-                                <div key={topic.id} className="flex items-center justify-between text-xs">
- <span className="text-surface-700 truncate">{topic.title}</span>
- <span className="text-surface-400 text-[10px] ml-2 shrink-0">
-                                    {topic.knowledge_level >= 3 ? "✓" : topic.knowledge_level === 2 ? "◐" : "○"}
-                                  </span>
-                                </div>
-                              ))}
-                              {examTopics.length > 3 && (
- <p className="text-[10px] text-surface-400">+{examTopics.length - 3} {t("dashboard.more")}</p>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                        {attachments.length > 0 && (
-                          <div>
- <p className="text-xs font-medium text-surface-500 mb-1">{t("dashboard.attachments")}</p>
-                            <div className="space-y-1">
-                              {attachments.slice(0, 3).map(att => (
- <div key={att.id} className="text-xs text-surface-600 truncate">
-                                  {att.kind === "link" ? "🔗" : att.kind === "note" ? "📝" : "📎"} {att.label || att.url}
-                                </div>
-                              ))}
-                              {attachments.length > 3 && (
- <p className="text-[10px] text-surface-400">+{attachments.length - 3}</p>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                        {attachments.length === 0 && examTopics.length === 0 && !exam.description && (
- <p className="text-xs text-surface-400">{t("dashboard.noDetails")}</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          <DashboardExamList exams={exams} topics={topics} />
+          <DashboardTaskList tasks={tasks} modules={modules} />
         </div>
-
-        {/* Urgent tasks */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-surface-900 dark:text-white flex items-center gap-2">
-              <AlertCircle size={16} className="text-red-500" /> {t("dashboard.urgentTasks")}
-            </h2>
-            <Link href="/tasks" className="text-xs text-brand-600 hover:underline">{t("dashboard.showAll")}</Link>
-          </div>
-          {overdue.length === 0 && openTasks.length === 0 ? (
- <p className="text-sm text-surface-400 text-center py-4">{t("dashboard.allDone")}</p>
-          ) : (
-            <div className="space-y-2">
-              {[...overdue, ...openTasks.filter(t => !overdue.includes(t))].slice(0, 6).map(task => {
-                const isOverdue = task.due_date && new Date(task.due_date) < new Date();
-                const isExpanded = expandedTask === task.id;
-                const attachments = taskAttachments[task.id] ?? [];
-                const mod = modules.find(m => m.id === task.module_id);
-
-                return (
-                  <div key={task.id}>
-                    <button
-                      onClick={() => toggleTaskExpand(task.id)}
-                      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${
-                        isOverdue ? "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800" :
-                        task.priority === "high" ? "bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800" :
-"bg-surface-50 hover:bg-surface-100 dark:hover:bg-surface-800 border border-transparent"
-                      } ${isExpanded ? "rounded-b-none border-b-0" : ""}`}
-                    >
-                      <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                        task.priority === "high" ? "bg-red-500" :
-                        task.priority === "medium" ? "bg-yellow-500" : "bg-surface-300"
-                      }`} />
-                      <div className="flex-1 min-w-0 text-left">
-                        <p className="text-sm font-semibold text-surface-900 dark:text-white truncate">{task.title}</p>
- <p className="text-xs text-surface-500 mt-0.5">
-                          {task.due_date && formatDate(task.due_date)}
-                          {mod ? ` · ${mod.name}` : ""}
-                        </p>
-                      </div>
-                      {isOverdue && (
-                        <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 shrink-0">
-                          {t("dashboard.taskOverdue")}
-                        </span>
-                      )}
- <ChevronDown size={14} className={`text-surface-400 shrink-0 transition-transform ${isExpanded ?"rotate-180" :""}`} />
-                    </button>
-                    {isExpanded && (
-                      <div className={`border border-t-0 rounded-b-xl p-3 text-sm space-y-2 ${
-                        isOverdue ? "bg-red-50/50 dark:bg-red-950/10 border-red-200 dark:border-red-800" :
-                        task.priority === "high" ? "bg-orange-50/50 dark:bg-orange-950/10 border-orange-200 dark:border-orange-800" :
-"bg-surface-50 border-surface-200"
-                      }`}>
-                        {task.description && (
-                          <div>
- <p className="text-xs font-medium text-surface-500 mb-1">{t("dashboard.description")}</p>
- <p className="text-xs text-surface-700 whitespace-pre-line">{task.description}</p>
-                          </div>
-                        )}
-                        {mod && (
-                          <div className="flex items-center gap-2">
- <p className="text-xs font-medium text-surface-500">{t("dashboard.taskModule")}:</p>
- <span className="flex items-center gap-1.5 text-xs text-surface-700">
-                              <span className="w-2.5 h-2.5 rounded-full" style={{ background: mod.color }} />
-                              {mod.name}
-                            </span>
-                          </div>
-                        )}
-                        {attachments.length > 0 && (
-                          <div>
- <p className="text-xs font-medium text-surface-500 mb-1">{t("dashboard.attachments")}</p>
-                            <div className="space-y-1">
-                              {attachments.slice(0, 4).map((att: any) => (
-                                <a key={att.id} href={att.url} target="_blank" rel="noopener noreferrer"
- className="flex items-center gap-2 text-xs text-surface-600 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
-                                  {att.kind === "link" ? <Link2 size={11} /> : <Paperclip size={11} />}
-                                  <span className="truncate">{att.label || att.url}</span>
-                                </a>
-                              ))}
-                              {attachments.length > 4 && (
- <p className="text-[10px] text-surface-400">+{attachments.length - 4} {t("dashboard.more")}</p>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                        {!task.description && !mod && attachments.length === 0 && (
-                          <p className="text-xs text-surface-400">{t("dashboard.noDetails")}</p>
-                        )}
-                        <div className="pt-1">
-                          <Link href="/tasks" className="text-xs text-brand-600 hover:underline font-medium">
-                            {t("dashboard.taskOpenFull")} →
-                          </Link>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </div>
       ),
     },
     {
@@ -664,9 +338,7 @@ export default function ClassicDashboard() {
   ], [
     examKnowledgeWarnings, isDark, t, ccState, ccModules, streak,
     earnedEcts, totalEcts, ectsAvg, modules, todaySecs, overdue, openTasks,
-    exams, expandedExam, examAttachments, topics, toggleExamExpand,
-    expandedTask, taskAttachments, toggleTaskExpand, logs, moduleProgress, ml,
-    fmtStudyTime,
+    exams, topics, tasks, logs, moduleProgress, ml, fmtStudyTime,
   ]);
 
   return (
