@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useRef, useMemo, KeyboardEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
@@ -209,6 +210,8 @@ export default function BrainstormingPage() {
   const supabase = createClient();
   const { modules } = useModules();
   const { isPro } = useProfile();
+  const searchParams = useSearchParams();
+  const paramModule = searchParams.get("module");
   const [sessions, setSessions] = useState<BrainstormSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeSession, setActiveSession] = useState<BrainstormSession | null>(null);
@@ -217,6 +220,7 @@ export default function BrainstormingPage() {
   const [preselectedTech, setPreselectedTech] = useState<BrainstormTechnique | null>(null);
   const [exams, setExams] = useState<CalendarEvent[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [filterModule, setFilterModule] = useState(paramModule ?? "");
 
   const fetchSessions = useCallback(async () => {
     const { data } = await supabase

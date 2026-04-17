@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
@@ -48,6 +49,8 @@ export default function MindMapsPage() {
   const { isPro } = useProfile();
   const { resolvedMode } = useTheme();
   const isDark = resolvedMode === "dark";
+  const searchParams = useSearchParams();
+  const paramModule = searchParams.get("module");
   const [maps, setMaps] = useState<MindMap[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingMap, setEditingMap] = useState<MindMap | null>(null);
@@ -55,6 +58,7 @@ export default function MindMapsPage() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [exams, setExams] = useState<CalendarEvent[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [filterModule, setFilterModule] = useState(paramModule ?? "");
 
   const fetchMaps = useCallback(async () => {
     const { data } = await supabase.from("mindmaps").select("*").order("updated_at", { ascending: false });

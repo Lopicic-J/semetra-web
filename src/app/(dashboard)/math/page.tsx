@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { FREE_LIMITS, mathUsageToday, mathUsageIncrement } from "@/lib/gates";
@@ -457,9 +458,12 @@ export default function MathPage() {
   const { t } = useTranslation();
   const supabase = createClient();
   const { isPro } = useProfile();
+  const searchParams = useSearchParams();
+  const paramModule = searchParams.get("module");
+  const paramTool = searchParams.get("tool");
   const [userId, setUserId] = useState<string | null>(null);
   const [modules, setModules] = useState<Module[]>([]);
-  const [activeTool, setActiveTool] = useState<MathTool>("calculator");
+  const [activeTool, setActiveTool] = useState<MathTool>((paramTool as MathTool) || "calculator");
   const [history, setHistory] = useState<MathHistory[]>([]);
   const [formulas, setFormulas] = useState<MathFormula[]>([]);
   const [showHistory, setShowHistory] = useState(false);
