@@ -50,19 +50,18 @@ export default function ExamSimulatorPage() {
   useEffect(() => {
     if (!selectedModule) { setModuleExams([]); setSelectedExam(""); return; }
     const now = new Date();
+    // Load all exams for this module (including past — for practice)
     supabase
       .from("events")
       .select("id, title, start_dt")
       .eq("module_id", selectedModule)
       .eq("event_type", "exam")
-      .gte("start_dt", now.toISOString())
-      .order("start_dt")
+      .order("start_dt", { ascending: false })
       .then(({ data }) => {
-        const exams = (data ?? []).map(e => ({
-          id: e.id,
-          title: e.title,
-          daysLeft: Math.ceil((new Date(e.start_dt).getTime() - now.getTime()) / 86400000),
-        }));
+        const exams = (data ?? []).map(e => {
+          const daysLeft = Math.ceil((new Date(e.start_dt).getTime() - now.getTime()) / 86400000);
+          return { id: e.id, title: e.title, daysLeft };
+        });
         setModuleExams(exams);
         if (exams.length === 1) setSelectedExam(exams[0].id);
         else setSelectedExam("");
@@ -186,7 +185,7 @@ export default function ExamSimulatorPage() {
                 <option value="">Alle Themen des Moduls</option>
                 {moduleExams.map(e => (
                   <option key={e.id} value={e.id}>
-                    {e.title} — in {e.daysLeft} Tagen
+                    {e.title} — {e.daysLeft > 0 ? `in ${e.daysLeft} Tagen` : e.daysLeft === 0 ? "heute" : "vergangen"}
                   </option>
                 ))}
               </select>
