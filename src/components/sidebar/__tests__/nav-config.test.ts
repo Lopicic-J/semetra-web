@@ -100,4 +100,34 @@ describe("nav-config", () => {
     expect(labelKeys).toContain(""); // Kern (Hauptbereich)
     expect(labelKeys).toContain("navGroup.more"); // Erweiterte Features
   });
+
+  it("Kern-Gruppe enthält die 5 wichtigsten Items", () => {
+    const kernGroup = NAV_GROUPS.find(g => g.labelKey === "");
+    expect(kernGroup).toBeDefined();
+    const hrefs = kernGroup!.items.map(i => i.href);
+    expect(hrefs).toContain("/dashboard");
+    expect(hrefs).toContain("/guided-session");
+    expect(hrefs).toContain("/timer");
+    expect(hrefs).toContain("/tasks");
+    expect(hrefs).toContain("/modules");
+  });
+
+  it("Mehr-Gruppe enthält Flashcards und Prüfungsvorbereitung", () => {
+    const moreGroup = NAV_GROUPS.find(g => g.labelKey === "navGroup.more");
+    expect(moreGroup).toBeDefined();
+    const hrefs = moreGroup!.items.map(i => i.href);
+    expect(hrefs).toContain("/flashcards");
+    expect(hrefs).toContain("/exam-prep");
+    expect(hrefs).toContain("/ki");
+  });
+
+  it("alle Children haben gültige hrefs", () => {
+    const allChildren = NAV_GROUPS.flatMap(g =>
+      g.items.flatMap(i => i.children ?? [])
+    );
+    allChildren.forEach(child => {
+      expect(child.href).toMatch(/^\//);
+      expect(child.labelKey).toBeTruthy();
+    });
+  });
 });
