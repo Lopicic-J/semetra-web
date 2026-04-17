@@ -168,15 +168,26 @@ export function useProfile() {
 
   useEffect(() => { load(); }, [load]);
 
-  // ── Heartbeat: update last_seen_at on load + every 5 min ──
+  // ── Heartbeat: update last_seen_at on visibility change (max 1x per 5 min) ──
   useEffect(() => {
     if (!profile?.id) return;
+    let lastPing = 0;
+    const MIN_INTERVAL = 5 * 60 * 1000; // 5 minutes
+
     const ping = () => {
+      const now = Date.now();
+      if (now - lastPing < MIN_INTERVAL) return;
+      lastPing = now;
       supabase.from("profiles").update({ last_seen_at: new Date().toISOString() }).eq("id", profile.id).then();
     };
-    ping(); // immediate
-    const iv = setInterval(ping, 5 * 60 * 1000);
-    return () => clearInterval(iv);
+
+    ping(); // immediate on mount
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") ping();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [profile?.id, supabase]);
 
   // Pro status: lifetime (never expires), active subscription, or within expiry window
