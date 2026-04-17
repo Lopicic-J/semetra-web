@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { useModules } from "@/lib/hooks/useModules";
+import InlineAIPanel from "@/components/ai/InlineAIPanel";
 import { FREE_LIMITS, withinFreeLimit } from "@/lib/gates";
 import { LimitNudge, LimitCounter, UpgradeModal } from "@/components/ui/ProGate";
 import {
@@ -423,6 +424,15 @@ function StudyMode({
               ))}
             </div>
  <p className="text-center text-xs text-surface-400 mt-3">{t("fc.rateHint")}</p>
+            {/* AI Explain Button */}
+            <div className="mt-3 flex justify-center">
+              <InlineAIPanel
+                mode="explain"
+                moduleId={card.module_id ?? undefined}
+                context={{ concept: card.front, question: card.front, answer: card.back }}
+                compact
+              />
+            </div>
           </div>
         )}
 
