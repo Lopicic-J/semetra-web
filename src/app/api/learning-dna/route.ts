@@ -112,6 +112,120 @@ export async function POST() {
   });
 }
 
+/**
+ * PATCH: Micro-update DNA scores after a timer session completes.
+ * Uses Exponential Moving Average (alpha=0.1) to gradually adjust
+ * only the dimensions affected by the session data.
+ *
+ * Body: { focusRating?: 1-5, energyLevel?: 1-5, durationMinutes?: number, alignment?: string }
+ */
+export async function PATCH(request: Request) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const body = await request.json();
+  const { focusRating, energyLevel, durationMinutes, alignment } = body as {
+    focusRating?: number;
+    energyLevel?: number;
+    durationMinutes?: number;
+    alignment?: string;
+  };
+
+  // Load latest snapshot
+  const { data: snapshotRaw } = await supabase
+    .from("learning_dna_snapshots")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (!snapshotRaw) {
+    return NextResponse.json({ updated: false, reason: "no_snapshot" });
+  }
+
+  const snapshot = snapshotRaw as SnapshotRow;
+  const ALPHA = 0.1; // EMA smoothing factor — slow adaptation
+
+  // Helper: EMA update, maps input (1-5 or raw) to 0-100 score
+  const ema = (oldScore: number, newValue: number) =>
+    Math.round(ALPHA * newValue + (1 - ALPHA) * oldScore);
+
+  let focusScore = snapshot.focus_score;
+  let enduranceScore = snapshot.endurance_score;
+  let planningScore = snapshot.planning_score;
+  let consistencyScore = snapshot.consistency_score;
+
+  // Focus: from focus_rating (1-5 → 0-100)
+  if (focusRating && focusRating >= 1 && focusRating <= 5) {
+    const normalized = (focusRating - 1) * 25; // 1→0, 2→25, 3→50, 4→75, 5→100
+    focusScore = ema(snapshot.focus_score, normalized);
+  }
+
+  // Endurance: from session duration (longer = higher endurance signal)
+  if (durationMinutes && durationMinutes > 0) {
+    // 15min→20, 30min→40, 45min→60, 60min→75, 90min→90, 120+→100
+    const normalized = Math.min(100, Math.round(durationMinutes * 100 / 120));
+    enduranceScore = ema(snapshot.endurance_score, normalized);
+  }
+
+  // Planning: from alignment (within_plan=100, partial_overlap=60, unplanned=20)
+  if (alignment) {
+    const alignmentScores: Record<string, number> = {
+      within_plan: 100,
+      partial_overlap: 60,
+      rescheduled: 40,
+      unplanned: 20,
+    };
+    const normalized = alignmentScores[alignment] ?? 50;
+    planningScore = ema(snapshot.planning_score, normalized);
+  }
+
+  // Consistency: bump slightly for completing a session (studied today = good)
+  consistencyScore = ema(snapshot.consistency_score, Math.min(100, snapshot.consistency_score + 5));
+
+  // Overall: weighted average of all 5 dimensions
+  const adaptabilityScore = snapshot.adaptability_score; // Not affected by single session
+  const overallScore = Math.round(
+    (consistencyScore * 0.2 + focusScore * 0.25 + enduranceScore * 0.2 +
+     adaptabilityScore * 0.15 + planningScore * 0.2)
+  );
+
+  // Determine learner type from updated scores
+  const { getLearnerTypeInfo, classifyLearner } = await import("@/lib/learning-dna/analyzer");
+  const learnerType = classifyLearner({
+    consistencyScore, focusScore, enduranceScore, adaptabilityScore, planningScore, overallScore,
+    learnerType: "",
+  });
+
+  // Update latest snapshot in-place (no new row — micro-updates are incremental)
+  await supabase
+    .from("learning_dna_snapshots")
+    .update({
+      consistency_score: consistencyScore,
+      focus_score: focusScore,
+      endurance_score: enduranceScore,
+      planning_score: planningScore,
+      overall_score: overallScore,
+      learner_type: learnerType,
+    })
+    .eq("id", snapshot.id);
+
+  const typeInfo = getLearnerTypeInfo(learnerType);
+
+  return NextResponse.json({
+    updated: true,
+    profile: {
+      consistencyScore, focusScore, enduranceScore,
+      adaptabilityScore, planningScore, overallScore,
+      learnerType,
+      learnerTypeLabel: typeInfo.de,
+      learnerTypeDescription: typeInfo.description,
+    },
+  });
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

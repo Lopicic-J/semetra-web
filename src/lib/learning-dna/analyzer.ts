@@ -281,7 +281,7 @@ function computePlanning(sessions: SessionData[], blocks: BlockData[], tasks: Ta
 
 // ── Learner Classification ───────────────────────────────────────────────────
 
-function classifyLearner(profile: DnaProfile): string {
+export function classifyLearner(profile: DnaProfile): string {
   const { consistencyScore: c, focusScore: f, enduranceScore: e, adaptabilityScore: a, planningScore: p } = profile;
 
   if (e >= 75 && c >= 70) return "marathonlaeufer";
