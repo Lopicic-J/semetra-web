@@ -78,6 +78,7 @@ export const NAV_GROUPS: NavGroup[] = [
           { href: "/noten", labelKey: "nav.grades" },
           { href: "/intelligence", labelKey: "nav.examIntelligence" },
           { href: "/exam-simulator", labelKey: "nav.examSimulator" },
+          { href: "/exam-prep", labelKey: "nav.examPrep" },
         ],
       },
       {
