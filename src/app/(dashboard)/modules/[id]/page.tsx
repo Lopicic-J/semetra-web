@@ -37,6 +37,7 @@ const ModuleControlCenter = dynamic(
 );
 
 import ModuleToolsBar from "@/components/modules/ModuleToolsBar";
+import AIModuleSetup from "@/components/modules/AIModuleSetup";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -249,11 +250,19 @@ export default function ModuleDetailPage() {
 
           {/* Module Tools — Quick access to learning tools for this module */}
           {module && (
-            <div className="mb-4">
+            <div className="mb-4 space-y-3">
               <ModuleToolsBar
                 moduleId={moduleId}
                 moduleName={module.name}
                 moduleColor={moduleColor}
+              />
+              <AIModuleSetup
+                moduleId={moduleId}
+                moduleName={module.name}
+                moduleType={(module as any).learning_type ?? undefined}
+                ects={module.ects ?? undefined}
+                hasTopics={false}
+                hasFlashcards={false}
               />
             </div>
           )}
