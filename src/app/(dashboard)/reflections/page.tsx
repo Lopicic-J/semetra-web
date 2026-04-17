@@ -98,7 +98,7 @@ export default function ReflectionsPage() {
           className="px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-xs"
         >
           <option value="">{t("reflections.allModules") || "Alle Module"}</option>
-          {modules.filter(m => m.status === "active").map(m => (
+          {modules.filter(m => m.status === "active" || m.status === "planned").map(m => (
             <option key={m.id} value={m.id}>{m.name}</option>
           ))}
         </select>

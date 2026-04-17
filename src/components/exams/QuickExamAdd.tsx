@@ -29,7 +29,7 @@ function QuickExamAdd({ modules, onCreated }: Props) {
   const [time, setTime] = useState("09:00");
   const [location, setLocation] = useState("");
 
-  const activeModules = modules.filter(m => m.status === "active");
+  const activeModules = modules.filter(m => m.status === "active" || m.status === "planned");
 
   const handleSave = async () => {
     if (!moduleId || !title || !date) return;

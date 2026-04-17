@@ -49,7 +49,7 @@ export default function ModuleSetupPage() {
 
     // Check which modules actually have no topics — only show those
     async function checkModules() {
-      const activeModules = modules.filter(m => m.status === "active");
+      const activeModules = modules.filter(m => m.status === "active" || m.status === "planned");
       const setupList: ModuleSetup[] = [];
 
       for (const mod of activeModules) {

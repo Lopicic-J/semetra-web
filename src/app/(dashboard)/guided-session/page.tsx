@@ -62,7 +62,7 @@ export default function GuidedSessionPage() {
   const [confidence, setConfidence] = useState(3);
   const [energy, setEnergy] = useState(3);
 
-  const activeModules = modules.filter(m => m.status === "active");
+  const activeModules = modules.filter(m => m.status === "active" || m.status === "planned");
   const moduleName = modules.find(m => m.id === selectedModule)?.name;
   const moduleColor = modules.find(m => m.id === selectedModule)?.color;
 
