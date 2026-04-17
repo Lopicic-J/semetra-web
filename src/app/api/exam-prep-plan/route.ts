@@ -57,14 +57,15 @@ export async function POST(request: Request) {
 
   if (!examId) return NextResponse.json({ error: "examId required" }, { status: 400 });
 
-  // Get exam details
+  // Get exam details (validate ownership via RLS — events table has user_id)
   const { data: exam } = await supabase
     .from("events")
     .select("id, title, start_dt, module_id")
     .eq("id", examId)
+    .eq("user_id", user.id)
     .single();
 
-  if (!exam) return NextResponse.json({ error: "Exam not found" }, { status: 404 });
+  if (!exam) return NextResponse.json({ error: "Prüfung nicht gefunden" }, { status: 404 });
 
   const examDate = new Date(exam.start_dt);
   const now = new Date();

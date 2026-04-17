@@ -101,6 +101,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "deckName and authorId required" }, { status: 400 });
   }
 
+  // Prevent importing own decks
+  if (authorId === user.id) {
+    return NextResponse.json({ error: "Du kannst deine eigenen Decks nicht importieren" }, { status: 400 });
+  }
+
   // Fetch the source deck cards
   let query = supabase
     .from("flashcards")

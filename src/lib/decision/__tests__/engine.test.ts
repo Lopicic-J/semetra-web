@@ -629,3 +629,75 @@ describe("buildCommandCenterState", () => {
     expect(state.overview.overallGPA).toBeCloseTo(4.67, 1);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════
+// 11. LEARNING TYPE RECOMMENDATIONS
+// ═══════════════════════════════════════════════════════════════
+
+describe("generateActions with learningType", () => {
+  it("recommends exercises for math modules (when no duplicate action exists)", () => {
+    // Module without weak topics to avoid review_weak_topics dedup
+    const module = makeModule({
+      learningType: "math",
+      knowledge: { ...makeModule().knowledge, weakTopics: [], flashcardsDue: 0, reviewDue: 0 },
+    });
+    const risk = assessModuleRisk(module);
+    const actions = generateActions(module, risk);
+    expect(actions.some(a => a.reason.includes("Modultyp"))).toBe(true);
+  });
+
+  it("recommends code practice for programming modules (when no duplicate)", () => {
+    const module = makeModule({
+      learningType: "programming",
+      knowledge: { ...makeModule().knowledge, weakTopics: [], flashcardsDue: 0, reviewDue: 0 },
+    });
+    const risk = assessModuleRisk(module);
+    const actions = generateActions(module, risk);
+    expect(actions.some(a => a.reason.includes("Modultyp"))).toBe(true);
+  });
+
+  it("recommends summaries for theory modules", () => {
+    const module = makeModule({ learningType: "theory" as const });
+    const risk = assessModuleRisk(module);
+    const actions = generateActions(module, risk);
+    expect(actions.some(a => a.reason.includes("theory"))).toBe(true);
+  });
+
+  it("does not add type-specific action for mixed modules", () => {
+    const module = makeModule({ learningType: "mixed" });
+    const risk = assessModuleRisk(module);
+    const actions = generateActions(module, risk);
+    // "mixed" should not add any type-specific recommendation
+    expect(actions.filter(a => a.reason.includes("Modultyp")).length).toBe(0);
+  });
+
+  it("does not add type-specific action when learningType is undefined", () => {
+    const module = makeModule(); // No learningType set
+    const risk = assessModuleRisk(module);
+    const actions = generateActions(module, risk);
+    expect(actions.filter(a => a.reason.includes("Modultyp")).length).toBe(0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// 12. EMPTY MODULE + EXAM PROACTIVE ACTION
+// ═══════════════════════════════════════════════════════════════
+
+describe("generateActions for empty module with exam", () => {
+  it("prioritizes create_material when module has exam but no topics", () => {
+    const module = makeModule({
+      exams: {
+        next: { id: "e1", title: "Klausur", date: "2026-05-01", daysUntil: 10, hasGrade: false },
+        daysUntilNext: 10,
+        all: [{ id: "e1", title: "Klausur", date: "2026-05-01", daysUntil: 10, hasGrade: false }],
+        totalCount: 1, completedCount: 0,
+      },
+      knowledge: { ...makeModule().knowledge, topicCount: 0, totalFlashcards: 0, weakTopics: [], flashcardsDue: 0 },
+    });
+    const risk = assessModuleRisk(module);
+    const actions = generateActions(module, risk);
+    // First action should be create_material (highest urgency)
+    const createAction = actions.find(a => a.type === "create_material" && a.urgency === "now");
+    expect(createAction).toBeDefined();
+  });
+});

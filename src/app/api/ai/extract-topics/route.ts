@@ -33,12 +33,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "AI-Kontingent erschöpft" }, { status: 429 });
   }
 
-  // Get module context
+  // Get module context (validate ownership)
   const { data: mod } = await supabase
     .from("modules")
     .select("name, code")
     .eq("id", moduleId)
+    .eq("user_id", user.id)
     .single();
+
+  if (!mod) return NextResponse.json({ error: "Modul nicht gefunden" }, { status: 404 });
 
   // Get existing topics to avoid duplicates
   const { data: existingTopics } = await supabase

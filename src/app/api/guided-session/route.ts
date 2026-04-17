@@ -17,12 +17,16 @@ export async function GET(request: Request) {
   const recommended = url.searchParams.get("recommended") === "true";
 
   // Get all templates (system + user's custom)
-  const { data: templates } = await supabase
+  const { data: templates, error: templatesError } = await supabase
     .from("guided_session_templates")
     .select("*")
     .or(`user_id.is.null,user_id.eq.${user.id}`)
     .order("is_default", { ascending: false })
     .order("total_minutes");
+
+  if (templatesError) {
+    console.warn("[guided-session] Templates query failed:", templatesError.message);
+  }
 
   if (recommended) {
     // Get user's DNA profile to recommend best template
