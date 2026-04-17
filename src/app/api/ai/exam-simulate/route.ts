@@ -16,8 +16,9 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
-  const { moduleId, questionCount = 10, difficulty = "mixed" } = body as {
+  const { moduleId, examId, questionCount = 10, difficulty = "mixed" } = body as {
     moduleId: string;
+    examId?: string;
     questionCount?: number;
     difficulty?: "easy" | "mixed" | "hard";
   };
@@ -34,10 +35,17 @@ export async function POST(request: Request) {
   // Fetch module context in parallel
   const [moduleRes, topicsRes, flashcardsRes, gradesRes] = await Promise.all([
     supabase.from("modules").select("name, code").eq("id", moduleId).single(),
-    supabase.from("topics").select("title, knowledge_level").eq("module_id", moduleId),
+    supabase.from("topics").select("title, knowledge_level, exam_id").eq("module_id", moduleId),
     supabase.from("flashcards").select("question, answer, deck_name").eq("module_id", moduleId).limit(50),
     supabase.from("grades").select("title, exam_type").eq("module_id", moduleId),
   ]);
+
+  // If specific exam selected, get exam title for context
+  let examTitle = "";
+  if (examId) {
+    const { data: exam } = await supabase.from("events").select("title").eq("id", examId).single();
+    examTitle = exam?.title ?? "";
+  }
 
   const module = moduleRes.data;
   if (!module) return NextResponse.json({ error: "Module not found" }, { status: 404 });
@@ -46,13 +54,18 @@ export async function POST(request: Request) {
   const flashcards = flashcardsRes.data ?? [];
   const grades = gradesRes.data ?? [];
 
+  // Filter topics by exam if specific exam selected
+  const relevantTopics = examId
+    ? topics.filter((t: any) => t.exam_id === examId || !t.exam_id) // Exam-specific + general topics
+    : topics;
+
   // Build context from existing data
-  const topicList = topics.map((t) => `- ${t.title} (Wissensstand: ${t.knowledge_level ?? 0}%)`).join("\n");
+  const topicList = relevantTopics.map((t) => `- ${t.title} (Wissensstand: ${t.knowledge_level ?? 0}%)`).join("\n");
   const flashcardSample = flashcards.slice(0, 20).map((f) => `Q: ${f.question}\nA: ${f.answer}`).join("\n\n");
   const examTypes = [...new Set(grades.map((g) => g.exam_type).filter(Boolean))].join(", ");
 
   // Weak topics should appear more often
-  const weakTopics = topics.filter((t) => (t.knowledge_level ?? 0) < 50).map((t) => t.title);
+  const weakTopics = relevantTopics.filter((t) => (t.knowledge_level ?? 0) < 50).map((t) => t.title);
 
   const difficultyInstruction = {
     easy: "Erstelle hauptsächlich Verständnisfragen und einfache Anwendungsfragen.",
@@ -63,9 +76,10 @@ export async function POST(request: Request) {
   const systemPrompt = `Du bist ein Prüfungsexperte der realistische Mock-Prüfungen für Schweizer FH-Studierende erstellt.
 
 Modul: ${module.name}${module.code ? ` (${module.code})` : ""}
+${examTitle ? `Prüfung: ${examTitle}` : ""}
 ${examTypes ? `Bisherige Prüfungsformate: ${examTypes}` : ""}
 
-Themen im Modul:
+Themen ${examId ? "für diese Prüfung" : "im Modul"}:
 ${topicList || "Keine Themen definiert"}
 
 ${weakTopics.length > 0 ? `Schwache Themen (öfter abfragen): ${weakTopics.join(", ")}` : ""}

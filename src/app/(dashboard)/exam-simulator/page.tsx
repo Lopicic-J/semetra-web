@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
 import { useProfile } from "@/lib/hooks/useProfile";
 import {
@@ -28,8 +29,11 @@ export default function ExamSimulatorPage() {
   const searchParams = useSearchParams();
   const paramModule = searchParams.get("module");
 
+  const supabase = createClient();
   const [phase, setPhase] = useState<Phase>("setup");
   const [selectedModule, setSelectedModule] = useState(paramModule ?? "");
+  const [selectedExam, setSelectedExam] = useState("");
+  const [moduleExams, setModuleExams] = useState<{ id: string; title: string; daysLeft: number }[]>([]);
   const [difficulty, setDifficulty] = useState<"easy" | "mixed" | "hard">("mixed");
   const [questionCount, setQuestionCount] = useState(10);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -42,6 +46,29 @@ export default function ExamSimulatorPage() {
   const currentQuestion = questions[currentIndex];
   const moduleName = modules.find(m => m.id === selectedModule)?.name ?? "";
 
+  // Load exams for selected module
+  useEffect(() => {
+    if (!selectedModule) { setModuleExams([]); setSelectedExam(""); return; }
+    const now = new Date();
+    supabase
+      .from("events")
+      .select("id, title, start_dt")
+      .eq("module_id", selectedModule)
+      .eq("event_type", "exam")
+      .gte("start_dt", now.toISOString())
+      .order("start_dt")
+      .then(({ data }) => {
+        const exams = (data ?? []).map(e => ({
+          id: e.id,
+          title: e.title,
+          daysLeft: Math.ceil((new Date(e.start_dt).getTime() - now.getTime()) / 86400000),
+        }));
+        setModuleExams(exams);
+        if (exams.length === 1) setSelectedExam(exams[0].id);
+        else setSelectedExam("");
+      });
+  }, [selectedModule, supabase]);
+
   const startExam = useCallback(async () => {
     if (!selectedModule) return;
     setPhase("loading");
@@ -50,7 +77,7 @@ export default function ExamSimulatorPage() {
       const res = await fetch("/api/ai/exam-simulate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ moduleId: selectedModule, questionCount, difficulty }),
+        body: JSON.stringify({ moduleId: selectedModule, examId: selectedExam || undefined, questionCount, difficulty }),
       });
 
       if (!res.ok) {
@@ -144,6 +171,27 @@ export default function ExamSimulatorPage() {
               ))}
             </select>
           </div>
+
+          {/* Exam Selection (if module has exams) */}
+          {selectedModule && moduleExams.length > 0 && (
+            <div>
+              <label className="text-sm font-medium text-surface-700 dark:text-surface-300 block mb-2">
+                Prüfung wählen <span className="text-xs text-surface-400 font-normal">(optional — für gezieltere Fragen)</span>
+              </label>
+              <select
+                value={selectedExam}
+                onChange={e => setSelectedExam(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-sm"
+              >
+                <option value="">Alle Themen des Moduls</option>
+                {moduleExams.map(e => (
+                  <option key={e.id} value={e.id}>
+                    {e.title} — in {e.daysLeft} Tagen
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Difficulty */}
           <div>
