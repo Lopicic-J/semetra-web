@@ -176,7 +176,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Build Academic Engine Context ──
-  const { buildEngineContext, formatEngineContextBlock } = await import("@/lib/ai/engine-context");
+  const { buildEngineContext, formatEngineContextBlock, buildCrossModuleContext } = await import("@/lib/ai/engine-context");
   let engineContextBlock = "";
   try {
     const engineCtx = await buildEngineContext(supabase, user.id);
@@ -197,8 +197,22 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     log.warn("Decision context build failed (non-fatal)", err);
   }
-  // Merge both context blocks
-  engineContextBlock = engineContextBlock + decisionContextBlock;
+
+  // ── Build Cross-Module Knowledge Context ──
+  let crossModuleBlock = "";
+  try {
+    crossModuleBlock = await buildCrossModuleContext(
+      supabase,
+      user.id,
+      context?.moduleId ?? null,
+      context?.topicTitle ?? null
+    );
+  } catch (err) {
+    log.warn("Cross-module context build failed (non-fatal)", err);
+  }
+
+  // Merge all context blocks
+  engineContextBlock = engineContextBlock + decisionContextBlock + crossModuleBlock;
 
   // ── Determine action type + token limits ──
   const { classifyChatAction, AI_TOKEN_LIMITS, truncateToTokenLimit } = await import("@/lib/ai-weights");

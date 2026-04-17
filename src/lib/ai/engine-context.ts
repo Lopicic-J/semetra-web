@@ -255,3 +255,63 @@ export function formatEngineContextBlock(ctx: EngineContext): string {
   lines.push("--- End of Academic Profile ---");
   return lines.join("\n");
 }
+
+/**
+ * Builds cross-module knowledge context: finds related topics across
+ * the student's other modules that could help understand the current topic.
+ *
+ * Uses simple keyword matching on topic titles to find connections.
+ */
+export async function buildCrossModuleContext(
+  supabase: SupabaseClient,
+  userId: string,
+  currentModuleId: string | null,
+  currentTopicTitle: string | null
+): Promise<string> {
+  if (!currentModuleId || !currentTopicTitle) return "";
+
+  // Fetch all topics across all modules
+  const { data: allTopics } = await supabase
+    .from("topics")
+    .select("title, knowledge_level, module_id, modules(name)")
+    .eq("user_id", userId)
+    .neq("module_id", currentModuleId);
+
+  if (!allTopics || allTopics.length === 0) return "";
+
+  // Simple keyword matching: split current topic into words, find overlaps
+  const keywords = currentTopicTitle
+    .toLowerCase()
+    .split(/[\s,\-:;/()]+/)
+    .filter(w => w.length > 3); // Ignore short words
+
+  if (keywords.length === 0) return "";
+
+  const relatedTopics = (allTopics as any[])
+    .filter(t => {
+      const titleLower = t.title.toLowerCase();
+      return keywords.some(kw => titleLower.includes(kw));
+    })
+    .slice(0, 8);
+
+  if (relatedTopics.length === 0) return "";
+
+  const lines: string[] = [
+    "\n\n--- Cross-Module Knowledge Connections ---",
+    `Topic: "${currentTopicTitle}" is related to topics in other modules:`,
+  ];
+
+  for (const t of relatedTopics) {
+    const moduleName = t.modules?.name ?? "Unbekannt";
+    const level = t.knowledge_level ?? 0;
+    const levelLabel = level >= 70 ? "gut verstanden" : level >= 40 ? "teilweise verstanden" : "Wissenslücke";
+    lines.push(`  • "${t.title}" in ${moduleName} (${levelLabel}, ${level}%)`);
+  }
+
+  lines.push(
+    "\nHinweis: Nutze dieses Wissen um Querverbindungen herzustellen und dem Studenten zu zeigen, wie Themen zusammenhängen.",
+    "--- End of Cross-Module Connections ---"
+  );
+
+  return lines.join("\n");
+}
