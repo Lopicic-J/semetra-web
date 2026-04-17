@@ -57,7 +57,6 @@ export function useCommandCenter(
 ): UseCommandCenterResult {
   const { modules, loading, refetch, computedAt } = useModuleIntelligence(standalone);
   const supabase = createClient();
-  const refreshCheckRef = useRef<NodeJS.Timeout | null>(null);
   const [dnaProfile, setDnaProfile] = useState<DnaProfile | null>(null);
   const [onboardingProfile, setOnboardingProfile] = useState<OnboardingProfile | null>(null);
   const profilesLoadedRef = useRef(false);
@@ -116,7 +115,8 @@ export function useCommandCenter(
     loadProfiles();
   }, [supabase]);
 
-  // Auto-Refresh: Prüfe periodisch ob ein Decision Engine Refresh nötig ist
+  // Auto-Refresh: Prüfe nach Datenänderungen ob ein Decision Engine Refresh nötig ist
+  // (ersetzt 30s-Polling — reagiert nur auf tatsächliche Änderungen)
   useEffect(() => {
     async function checkRefreshNeeded() {
       try {
@@ -129,9 +129,10 @@ export function useCommandCenter(
       }
     }
 
-    refreshCheckRef.current = setInterval(checkRefreshNeeded, 30_000);
+    const handler = () => checkRefreshNeeded();
+    window.addEventListener("supabase-realtime-update", handler);
     return () => {
-      if (refreshCheckRef.current) clearInterval(refreshCheckRef.current);
+      window.removeEventListener("supabase-realtime-update", handler);
     };
   }, [supabase, refetch]);
 

@@ -4,6 +4,11 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
+  const pathname = request.nextUrl.pathname;
+
+  // API routes pass through without auth check — they handle auth themselves
+  if (pathname.startsWith("/api/")) return supabaseResponse;
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -23,8 +28,6 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  const pathname = request.nextUrl.pathname;
-
   // Public auth pages (no auth required)
   const isAuthPage =
     pathname.startsWith("/login") ||
@@ -34,11 +37,6 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/update-password") ||
     pathname.startsWith("/auth/callback") ||
     pathname.startsWith("/auth/confirm");
-
-  // API routes should pass through
-  const isApiRoute = pathname.startsWith("/api/");
-
-  if (isApiRoute) return supabaseResponse;
 
   if (!user && !isAuthPage) {
     const url = request.nextUrl.clone();
