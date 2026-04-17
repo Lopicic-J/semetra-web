@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Sidebar from "@/components/sidebar/Sidebar";
@@ -8,7 +7,6 @@ import OfflineBanner from "@/components/pwa/OfflineBanner";
 import { VerificationBanner } from "@/components/ui/VerificationBanner";
 import SiblingTabs from "@/components/ui/SiblingTabs";
 import LayoutEditorWrapper from "@/components/providers/LayoutEditorWrapper";
-import { SkeletonDashboard } from "@/components/ui/Skeleton";
 import DashboardOverlays from "@/components/ui/DashboardOverlays";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -50,9 +48,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <VerificationBanner />
             <main id="main-content" className="flex-1 overflow-y-auto">
               <SiblingTabs />
-              <Suspense fallback={<SkeletonDashboard />}>
-                {children}
-              </Suspense>
+              {children}
             </main>
           </div>
         </div>
