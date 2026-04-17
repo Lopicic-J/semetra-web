@@ -121,16 +121,16 @@ export function useModuleIntelligence(): UseModuleIntelligenceResult {
         modulesRes, tasksRes, timeLogsRes, gradesRes, topicsRes,
         flashcardsRes, notesRes, documentsRes, mindmapsRes, eventsRes,
       ] = await Promise.all([
-        supabase.from("modules").select("*").order("created_at", { ascending: false }),
-        supabase.from("tasks").select("*").order("due_date", { ascending: true, nullsFirst: false }),
-        supabase.from("time_logs").select("*").order("started_at", { ascending: false }),
-        supabase.from("grades").select("*").order("date", { ascending: false }),
-        supabase.from("topics").select("*").order("created_at", { ascending: false }),
-        supabase.from("flashcards").select("*").order("next_review", { ascending: true, nullsFirst: false }),
+        supabase.from("modules").select("id, name, code, module_code, ects, ects_equivalent, semester, status, color, target_grade, exam_date, created_at").order("created_at", { ascending: false }),
+        supabase.from("tasks").select("id, module_id, status, due_date").order("due_date", { ascending: true, nullsFirst: false }),
+        supabase.from("time_logs").select("id, module_id, duration_seconds, started_at").order("started_at", { ascending: false }).limit(2000),
+        supabase.from("grades").select("id, module_id, grade, title, exam_type, weight, exam_id, date").order("date", { ascending: false }),
+        supabase.from("topics").select("id, module_id, title, knowledge_level, sr_next_review, exam_id").order("created_at", { ascending: false }),
+        supabase.from("flashcards").select("id, module_id, next_review, deck_name").order("next_review", { ascending: true, nullsFirst: false }),
         supabase.from("notes").select("id, module_id") as unknown as Promise<{ data: IdAndModule[] | null }>,
         supabase.from("documents").select("id, module_id") as unknown as Promise<{ data: IdAndModule[] | null }>,
         supabase.from("mindmaps").select("id, module_id") as unknown as Promise<{ data: IdAndModule[] | null }>,
-        supabase.from("events").select("*").eq("event_type", "exam").order("start_dt", { ascending: true }),
+        supabase.from("events").select("id, title, start_dt, module_id").eq("event_type", "exam").order("start_dt", { ascending: true }),
       ]);
 
       if (!mountedRef.current) return;
