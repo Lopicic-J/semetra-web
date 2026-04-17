@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { events } from "@/lib/analytics/tracker";
 import PostSessionCard from "@/components/timer/PostSessionCard";
+import AmbientSounds from "@/components/timer/AmbientSounds";
 
 // ── Mode Presets ────────────────────────────────────────────────────────────
 
@@ -280,11 +281,15 @@ function TimerPageInner() {
               <h1 className="text-lg sm:text-xl font-bold text-surface-900 dark:text-white">Lernzeit</h1>
               <p className="text-xs text-surface-500 mt-0.5 hidden sm:block">Fokussiert lernen, Fortschritt tracken</p>
             </div>
-            {/* Streak Badge */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-orange-50 dark:bg-orange-950/30">
-              <Flame size={16} className="text-orange-500" />
-              <span className="text-sm font-bold text-orange-600 dark:text-orange-400">{streaks.currentStreak}</span>
-              <span className="text-[10px] text-orange-400">Tage</span>
+            <div className="flex items-center gap-2">
+              {/* Ambient Sounds */}
+              <AmbientSounds isTimerRunning={timer.isRunning} />
+              {/* Streak Badge */}
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-orange-50 dark:bg-orange-950/30">
+                <Flame size={16} className="text-orange-500" />
+                <span className="text-sm font-bold text-orange-600 dark:text-orange-400">{streaks.currentStreak}</span>
+                <span className="text-[10px] text-orange-400">Tage</span>
+              </div>
             </div>
           </div>
 
