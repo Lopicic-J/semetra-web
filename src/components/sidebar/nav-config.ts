@@ -3,6 +3,7 @@ import {
   Brain, TrendingUp, Wrench, Compass, Users, MessageCircle,
   Shield, Settings, UserCircle, Terminal, Puzzle, ClipboardList,
   Dna, Trophy, FileText, Award, Globe2, Timer, CheckSquare, Zap,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRole } from "@/lib/hooks/useProfile";
@@ -33,6 +34,7 @@ export const NAV_GROUPS: NavGroup[] = [
     labelKey: "",
     items: [
       { href: "/dashboard", icon: LayoutDashboard, labelKey: "nav.dashboard", pro: false },
+      { href: "/guided-session", icon: Sparkles, labelKey: "nav.guidedSession", pro: false },
       { href: "/timer", icon: Timer, labelKey: "nav.timer", pro: false },
       { href: "/tasks", icon: CheckSquare, labelKey: "nav.tasks", pro: false },
       { href: "/flashcards", icon: Zap, labelKey: "nav.flashcards", pro: false },
