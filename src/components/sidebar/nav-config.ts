@@ -2,7 +2,7 @@ import {
   LayoutDashboard, BookOpen, Calendar, GraduationCap,
   Brain, TrendingUp, Wrench, Compass, Users, MessageCircle,
   Shield, Settings, UserCircle, Terminal, Puzzle, ClipboardList,
-  Dna, Trophy, FileText, Award, Globe2,
+  Dna, Trophy, FileText, Award, Globe2, Timer, CheckSquare, Zap,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRole } from "@/lib/hooks/useProfile";
@@ -28,12 +28,14 @@ export interface NavGroup {
 }
 
 export const NAV_GROUPS: NavGroup[] = [
-  // ── Hauptbereich ──
+  // ── Hauptbereich — Kernaktionen direkt sichtbar ──
   {
     labelKey: "",
     items: [
       { href: "/dashboard", icon: LayoutDashboard, labelKey: "nav.dashboard", pro: false },
-      { href: "/navigator", icon: Compass, labelKey: "nav.navigator", pro: false },
+      { href: "/timer", icon: Timer, labelKey: "nav.timer", pro: false },
+      { href: "/tasks", icon: CheckSquare, labelKey: "nav.tasks", pro: false },
+      { href: "/flashcards", icon: Zap, labelKey: "nav.flashcards", pro: false },
     ],
   },
 

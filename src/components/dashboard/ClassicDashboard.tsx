@@ -40,6 +40,7 @@ import { DailyNudgeCard } from "@/components/notifications/DailyNudgeCard";
 import { NudgeBanner } from "@/components/dashboard/NudgeBanner";
 import DashboardStatCards from "@/components/dashboard/DashboardStatCards";
 import DashboardExamList from "@/components/dashboard/DashboardExamList";
+import SmartStartCard from "@/components/dashboard/SmartStartCard";
 import DashboardTaskList from "@/components/dashboard/DashboardTaskList";
 
 // Command Center sub-components
@@ -399,6 +400,11 @@ export default function ClassicDashboard() {
             } : undefined}
           />
         </div>
+      )}
+
+      {/* ═══ SMART START (One-Click Learning) ═══ */}
+      {ccState && ccState.today.actions.length > 0 && (
+        <SmartStartCard state={ccState} />
       )}
 
       {/* ═══ SORTABLE BLOCKS ═══ */}

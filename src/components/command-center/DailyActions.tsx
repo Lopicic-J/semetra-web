@@ -5,7 +5,9 @@ import {
   HelpCircle, Layers, Send, Zap,
 } from "lucide-react";
 import type { Action, ActionType, ActionUrgency } from "@/lib/decision/types";
+import { getActionLink } from "@/components/dashboard/SmartStartCard";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 interface DailyActionsProps {
   actions: Action[];
@@ -76,10 +78,12 @@ export default function DailyActions({ actions, totalMinutes, focusModule }: Dai
         {actions.slice(0, 8).map((action) => {
           const Icon = actionIcons[action.type] ?? BookOpen;
           const urgency = urgencyStyles[action.urgency];
+          const link = getActionLink(action);
           return (
-            <div
+            <Link
               key={action.id}
-              className="flex items-start gap-3 p-3 rounded-lg hover:bg-surface-200/50 transition-colors"
+              href={link}
+              className="flex items-start gap-3 p-3 rounded-lg hover:bg-surface-200/50 dark:hover:bg-surface-700/30 transition-colors group no-underline"
             >
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -89,17 +93,20 @@ export default function DailyActions({ actions, totalMinutes, focusModule }: Dai
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-sm font-medium text-surface-900 truncate">{action.title}</p>
+                  <p className="text-sm font-medium text-surface-900 dark:text-surface-100 truncate">{action.title}</p>
                   <span className={`${urgency.badge} text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0`}>
                     {urgency.label}
                   </span>
                 </div>
                 <p className="text-xs text-surface-500 line-clamp-1">{action.reason}</p>
               </div>
-              <span className="text-xs text-surface-400 flex-shrink-0 mt-1">
-                {action.estimatedMinutes}min
-              </span>
-            </div>
+              <div className="flex items-center gap-2 flex-shrink-0 mt-1">
+                <span className="text-xs text-surface-400">
+                  {action.estimatedMinutes}min
+                </span>
+                <ArrowRight size={14} className="text-surface-300 group-hover:text-brand-500 group-hover:translate-x-0.5 transition-all" />
+              </div>
+            </Link>
           );
         })}
         {actions.length === 0 && (
