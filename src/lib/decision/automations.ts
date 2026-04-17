@@ -34,6 +34,7 @@ export type AutomationType =
   | "milestone_reached"
   | "risk_escalation"
   | "module_empty"         // Module has no topics/flashcards after creation
+  | "learning_hub_suggest" // Suggest Lernraum for new modules
   | "exam_no_prep"         // Exam in 7 days, no prep plan created
   | "grade_insight"        // Grade trend detected (positive or negative)
   | "flashcard_stale"      // 50+ flashcards due for 5+ days
@@ -267,6 +268,28 @@ export function evaluateAutomations(
         actionLabel: "Topics vorschlagen",
         actionHref: `/modules`,
         dedupeKey: `module-empty-${module.moduleId}`,
+      });
+    }
+  }
+
+  // Lernraum-Vorschlag für Module mit Topics aber ohne Lernzeit
+  for (const module of modules) {
+    if (
+      (module.status === "active" || module.status === "planned") &&
+      module.knowledge.topicCount > 0 &&
+      module.studyTime.totalMinutes === 0
+    ) {
+      automations.push({
+        id: `learning-hub-${module.moduleId}`,
+        type: "learning_hub_suggest",
+        priority: "low",
+        title: `Lernraum für ${module.moduleName} entdecken`,
+        message: `Verschaffe dir einen Überblick über "${module.moduleName}" — was ist das Fach, was sind die Kernkonzepte?`,
+        moduleId: module.moduleId,
+        dismissable: true,
+        actionLabel: "Lernraum öffnen",
+        actionHref: `/modules/${module.moduleId}/learn`,
+        dedupeKey: `learning-hub-${module.moduleId}`,
       });
     }
   }

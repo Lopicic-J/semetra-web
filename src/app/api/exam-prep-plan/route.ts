@@ -77,7 +77,7 @@ export async function POST(request: Request) {
 
   // Fetch topic and grade data for this module
   const [topicsRes, gradesRes, flashcardsRes] = await Promise.all([
-    supabase.from("topics").select("id, title, knowledge_level")
+    supabase.from("topics").select("id, title, knowledge_level, is_exam_relevant")
       .eq("module_id", moduleId).order("knowledge_level", { ascending: true }),
     supabase.from("grades").select("grade, title, exam_type")
       .eq("module_id", moduleId),
@@ -87,8 +87,13 @@ export async function POST(request: Request) {
 
   const topics = topicsRes.data ?? [];
   const flashcardCount = flashcardsRes.data?.length ?? 0;
-  const weakTopics = topics.filter(t => (t.knowledge_level ?? 0) < 50);
-  const mediumTopics = topics.filter(t => (t.knowledge_level ?? 0) >= 50 && (t.knowledge_level ?? 0) < 80);
+  // Prioritize exam-relevant topics — they should appear first in the plan
+  const examRelevantTopics = topics.filter((t: any) => t.is_exam_relevant);
+  const weakTopics = examRelevantTopics.length > 0
+    ? examRelevantTopics.filter(t => (t.knowledge_level ?? 0) < 50)  // Exam-relevant + weak = highest priority
+    : topics.filter(t => (t.knowledge_level ?? 0) < 50);
+  const mediumTopics = (examRelevantTopics.length > 0 ? examRelevantTopics : topics)
+    .filter(t => (t.knowledge_level ?? 0) >= 50 && (t.knowledge_level ?? 0) < 80);
 
   // Generate day-by-day plan
   const dailyPlan: DayPlan[] = [];
