@@ -180,28 +180,26 @@ export function useModuleIntelligence(): UseModuleIntelligenceResult {
     };
   }, [doFetch]);
 
-  // ─── Realtime subscriptions — debounced ────────────────────
+  // ─── Realtime updates — listens to events from useSupabaseQuery channels
+  // instead of opening duplicate channels for modules/tasks/grades
   useEffect(() => {
-    const channels = [
-      supabase.channel("mi-modules")
-        .on("postgres_changes", { event: "*", schema: "public", table: "modules" }, debouncedFetch)
-        .subscribe(),
-      supabase.channel("mi-tasks")
-        .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, debouncedFetch)
-        .subscribe(),
-      supabase.channel("mi-grades")
-        .on("postgres_changes", { event: "*", schema: "public", table: "grades" }, debouncedFetch)
-        .subscribe(),
-    ];
+    const WATCHED_TABLES = new Set(["modules", "tasks", "grades"]);
+
+    const realtimeHandler = (e: Event) => {
+      const table = (e as CustomEvent).detail?.table;
+      if (WATCHED_TABLES.has(table)) debouncedFetch();
+    };
 
     const timeLogHandler = () => debouncedFetch();
+
+    window.addEventListener("supabase-realtime-update", realtimeHandler);
     window.addEventListener("time-log-updated", timeLogHandler);
 
     return () => {
-      channels.forEach((ch) => supabase.removeChannel(ch));
+      window.removeEventListener("supabase-realtime-update", realtimeHandler);
       window.removeEventListener("time-log-updated", timeLogHandler);
     };
-  }, [supabase, debouncedFetch]);
+  }, [debouncedFetch]);
 
   // ─── Aggregate into ModuleIntelligence ─────────────────────
   const modules = useMemo<ModuleIntelligence[]>(() => {

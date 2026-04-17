@@ -163,6 +163,7 @@ export function useSupabaseQuery<T = any>(
         { event: "*", schema: "public", table },
         () => {
           fetchData();
+          window.dispatchEvent(new CustomEvent("supabase-realtime-update", { detail: { table } }));
         },
       )
       .subscribe();
