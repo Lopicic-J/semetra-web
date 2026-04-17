@@ -39,6 +39,7 @@ const ModuleControlCenter = dynamic(
 import ModuleToolsBar from "@/components/modules/ModuleToolsBar";
 import AIModuleSetup from "@/components/modules/AIModuleSetup";
 import QuickExamAdd from "@/components/exams/QuickExamAdd";
+import ExamRelevancePanel from "@/components/modules/ExamRelevancePanel";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -266,6 +267,7 @@ export default function ModuleDetailPage() {
                 hasFlashcards={false}
               />
               <QuickExamAdd modules={module ? [module] : []} />
+              <ExamRelevancePanel moduleId={moduleId} moduleName={module.name} />
             </div>
           )}
 

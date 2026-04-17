@@ -398,16 +398,33 @@ export function calculateModulePriority(
     });
   }
 
+  // ── Exam-Relevanz Boost ──
+  // Module mit markierten prüfungsrelevanten Topics bekommen +10-20 Bonus
+  let examRelevanceBoost = 0;
+  if (module.knowledge.examRelevantCount > 0 && module.exams.daysUntilNext !== null && module.exams.daysUntilNext <= 30) {
+    // More relevant topics + closer exam = higher boost
+    const relevanceRatio = module.knowledge.topicCount > 0 ? module.knowledge.examRelevantCount / module.knowledge.topicCount : 0;
+    examRelevanceBoost = Math.round(relevanceRatio * 20);
+    if (examRelevanceBoost > 0) {
+      reasons.push({
+        factor: "exam_relevance",
+        weight: 0, // Extra boost, not weighted
+        contribution: examRelevanceBoost,
+        description: `${module.knowledge.examRelevantCount} prüfungsrelevante Themen markiert`,
+      });
+    }
+  }
+
   // ── Gewichteter Gesamtscore ──
   const totalWeight = w.examProximity + w.gradeRisk + w.taskUrgency + w.activityGap + w.knowledgeGap;
-  const weightedScore = Math.round(
+  const weightedScore = Math.min(100, Math.round(
     (examScore * w.examProximity +
       gradeScore * w.gradeRisk +
       taskScore * w.taskUrgency +
       activityScore * w.activityGap +
       knowledgeScore * w.knowledgeGap) /
       totalWeight
-  );
+  ) + examRelevanceBoost);
 
   // ── Lernzeit-Empfehlung ──
   const suggestedMinutes = calculateSuggestedMinutes(module, risk, config);
