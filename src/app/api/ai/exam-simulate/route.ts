@@ -35,7 +35,7 @@ export async function POST(request: Request) {
   // Fetch module context in parallel
   const [moduleRes, topicsRes, flashcardsRes, gradesRes] = await Promise.all([
     supabase.from("modules").select("name, code").eq("id", moduleId).single(),
-    supabase.from("topics").select("title, knowledge_level, exam_id").eq("module_id", moduleId),
+    supabase.from("topics").select("title, knowledge_level, exam_id, is_exam_relevant").eq("module_id", moduleId),
     supabase.from("flashcards").select("question, answer, deck_name").eq("module_id", moduleId).limit(50),
     supabase.from("grades").select("title, exam_type").eq("module_id", moduleId),
   ]);
@@ -59,13 +59,16 @@ export async function POST(request: Request) {
     ? topics.filter((t: any) => t.exam_id === examId || !t.exam_id) // Exam-specific + general topics
     : topics;
 
-  // Build context from existing data
-  const topicList = relevantTopics.map((t) => `- ${t.title} (Wissensstand: ${t.knowledge_level ?? 0}%)`).join("\n");
+  // Build context from existing data — mark exam-relevant topics
+  const topicList = relevantTopics.map((t: any) => {
+    const relevantTag = t.is_exam_relevant ? " ⭐ PRÜFUNGSRELEVANT" : "";
+    return `- ${t.title} (Wissensstand: ${t.knowledge_level ?? 0}%${relevantTag})`;
+  }).join("\n");
   const flashcardSample = flashcards.slice(0, 20).map((f) => `Q: ${f.question}\nA: ${f.answer}`).join("\n\n");
   const examTypes = [...new Set(grades.map((g) => g.exam_type).filter(Boolean))].join(", ");
 
-  // Weak topics should appear more often
-  const weakTopics = relevantTopics.filter((t) => (t.knowledge_level ?? 0) < 50).map((t) => t.title);
+  // Weak + exam-relevant topics should appear more often
+  const weakTopics = relevantTopics.filter((t: any) => (t.knowledge_level ?? 0) < 50 || t.is_exam_relevant).map((t) => t.title);
 
   const difficultyInstruction = {
     easy: "Erstelle hauptsächlich Verständnisfragen und einfache Anwendungsfragen.",
