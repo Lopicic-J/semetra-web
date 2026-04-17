@@ -2,7 +2,7 @@
 
 import { useState, useEffect, memo } from "react";
 import Link from "next/link";
-import { CheckCircle2, ArrowRight, Coffee, Play, Clock } from "lucide-react";
+import { CheckCircle2, ArrowRight, Coffee, Play, Clock, PenLine } from "lucide-react";
 import { getActionLink } from "@/components/dashboard/SmartStartCard";
 import type { Action } from "@/lib/decision/types";
 
@@ -96,10 +96,16 @@ function PostSessionCard({ sessionDuration, moduleName, visible, onDismiss }: Pr
       {/* Actions row */}
       <div className="flex items-center gap-2 mt-4 pt-3 border-t border-emerald-100/50 dark:border-emerald-800/20">
         <Link
+          href="/guided-session"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:bg-white/60 dark:hover:bg-surface-800/40 transition-colors no-underline"
+        >
+          <PenLine size={12} /> Reflexion schreiben
+        </Link>
+        <Link
           href="/dashboard"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-surface-500 hover:bg-white/60 dark:hover:bg-surface-800/40 transition-colors no-underline"
         >
-          <Coffee size={12} /> Pause machen
+          <Coffee size={12} /> Pause
         </Link>
         <button
           onClick={onDismiss}

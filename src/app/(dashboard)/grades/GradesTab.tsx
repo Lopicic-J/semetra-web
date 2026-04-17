@@ -13,6 +13,7 @@ import { FREE_LIMITS } from "@/lib/gates";
 import { UpgradeModal, ProGate } from "@/components/ui/ProGate";
 import { Plus, X, Trash2, Pencil, BarChart2, TrendingUp, AlertTriangle, Award, Target, GraduationCap, RotateCcw } from "lucide-react";
 import { GradeAnalytics } from "@/components/grades/GradeAnalytics";
+import InlineAIPanel from "@/components/ai/InlineAIPanel";
 import { GradeCalculator } from "@/components/grades/GradeCalculator";
 import ComponentGradePanel from "@/components/grades/ComponentGradePanel";
 import type { Grade, Module, CalendarEvent } from "@/types/database";
@@ -214,6 +215,11 @@ export default function GradesTabContent() {
             {ungradedModules.length > 0 && ` · ${t("grades.modulesRemaining", { count: ungradedModules.length })}`}
           </p>
         </div>
+      )}
+
+      {/* AI Grade Analysis */}
+      {grades.length >= 2 && (
+        <InlineAIPanel mode="grade-analysis" />
       )}
 
       {/* ECTS-weighted calculation breakdown */}
