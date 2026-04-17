@@ -259,7 +259,7 @@ export default function ModuleDetailPage() {
               <AIModuleSetup
                 moduleId={moduleId}
                 moduleName={module.name}
-                moduleType={(module as any).learning_type ?? undefined}
+                moduleType={module.learning_type ?? undefined}
                 ects={module.ects ?? undefined}
                 hasTopics={false}
                 hasFlashcards={false}

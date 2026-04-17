@@ -59,6 +59,12 @@ export interface Module {
   source: "institution" | "manual";
   studiengang_id: string | null;
   hidden_at: string | null;
+  // Module intelligence (migration 088)
+  exam_format: string | null;
+  textbook: string | null;
+  lecture_rhythm: string | null;
+  learning_recommendation: string | null;
+  learning_type: "theory" | "math" | "programming" | "language" | "project" | "mixed";
 }
 
 export interface Task {

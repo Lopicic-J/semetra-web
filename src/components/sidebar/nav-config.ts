@@ -63,7 +63,16 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     labelKey: "navGroup.more",
     items: [
-      { href: "/flashcards", icon: Zap, labelKey: "nav.flashcards", pro: false },
+      {
+        href: "/flashcards",
+        icon: Zap,
+        labelKey: "nav.flashcards",
+        pro: false,
+        children: [
+          { href: "/flashcards", labelKey: "nav.flashcards" },
+          { href: "/flashcards/community", labelKey: "community.flashcards" },
+        ],
+      },
       {
         href: "/exam-prep",
         icon: Target,
