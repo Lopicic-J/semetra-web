@@ -341,6 +341,21 @@ export interface DecisionEngineConfig {
   };
 }
 
+// ─── Semester Phase Detection ───────────────────────────────
+export type SemesterPhase = "exam_period" | "ramp_up" | "normal";
+
+/** Context for adaptive daily budget calculation */
+export interface AdaptiveBudgetContext {
+  /** User's preferred max daily study minutes (from schedule preferences) */
+  maxDailyMinutes?: number;
+  /** Day-of-week study pattern: avg minutes per day [Mon=0..Sun=6] */
+  dayPatterns?: { day: number; avgMinutes: number; adherence: number }[];
+  /** Overall adherence ratio (0-1): how much of planned study the user actually does */
+  adherenceRatio?: number;
+  /** Current semester phase */
+  semesterPhase?: SemesterPhase;
+}
+
 export const DEFAULT_ENGINE_CONFIG: DecisionEngineConfig = {
   weights: {
     examProximity: 35,

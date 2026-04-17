@@ -35,6 +35,8 @@ import type {
   OnboardingProfile,
   ExamSnapshot,
   TrendDirection,
+  SemesterPhase,
+  AdaptiveBudgetContext,
 } from "./types";
 import { DEFAULT_ENGINE_CONFIG } from "./types";
 
@@ -890,7 +892,79 @@ function formatDate(isoDate: string): string {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 5. DAILY PLAN
+// 5. SEMESTER PHASE & ADAPTIVE BUDGET
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Erkennt die aktuelle Semester-Phase basierend auf Prüfungsdichte.
+ * - exam_period: >3 Prüfungen in den nächsten 21 Tagen
+ * - ramp_up: Wenige/keine Prüfungen, frühes Semester
+ * - normal: Alles andere
+ */
+export function detectSemesterPhase(modules: ModuleIntelligence[]): SemesterPhase {
+  const allExams = modules.flatMap((m) => m.exams.all);
+  const upcomingExams = allExams.filter((e) => e.daysUntil >= 0 && e.daysUntil <= 21);
+
+  if (upcomingExams.length > 3) return "exam_period";
+
+  // Anlaufphase: Keine Prüfungen in 30 Tagen + wenig Lernaktivität
+  const examsIn30Days = allExams.filter((e) => e.daysUntil >= 0 && e.daysUntil <= 30);
+  const activeModules = modules.filter((m) => m.status === "active");
+  const avgStudyMinutes = activeModules.length > 0
+    ? activeModules.reduce((s, m) => s + m.studyTime.last30Days, 0) / activeModules.length
+    : 0;
+
+  if (examsIn30Days.length === 0 && avgStudyMinutes < 300) return "ramp_up";
+
+  return "normal";
+}
+
+/**
+ * Berechnet das adaptive Tagesbudget basierend auf:
+ * - User-Präferenz (max_daily_study_minutes)
+ * - Wochentag-Pattern (wann lernt der User typisch wie viel)
+ * - Historische Adherence (wie viel vom Plan schafft der User)
+ * - Semester-Phase (Prüfungsphase = mehr, Anlaufphase = weniger)
+ */
+function computeAdaptiveBudget(
+  context?: AdaptiveBudgetContext
+): number {
+  const DEFAULT_BUDGET = 360;
+  if (!context) return DEFAULT_BUDGET;
+
+  let budget = context.maxDailyMinutes ?? DEFAULT_BUDGET;
+
+  // Wochentag-Anpassung: Wenn der User samstags typisch 60 Min lernt, nicht 360 vorschlagen
+  if (context.dayPatterns && context.dayPatterns.length > 0) {
+    const todayDow = (new Date().getDay() + 6) % 7; // Mon=0..Sun=6
+    const todayPattern = context.dayPatterns.find((d) => d.day === todayDow);
+    if (todayPattern && todayPattern.avgMinutes > 0) {
+      // Blend: 60% historisch, 40% Basis-Budget (erlaubt Wachstum)
+      budget = Math.round(todayPattern.avgMinutes * 0.6 + budget * 0.4);
+    }
+  }
+
+  // Adherence-Anpassung: Wenn User nur 50% schafft, Budget realistischer setzen
+  if (context.adherenceRatio !== undefined && context.adherenceRatio > 0 && context.adherenceRatio < 1) {
+    // Formel: Budget × (adherence + (1 - adherence) × 0.3)
+    // Bei 50% Adherence → Budget × 0.65 (nicht zu aggressiv kürzen)
+    const adherenceFactor = context.adherenceRatio + (1 - context.adherenceRatio) * 0.3;
+    budget = Math.round(budget * adherenceFactor);
+  }
+
+  // Semester-Phase-Anpassung
+  if (context.semesterPhase === "exam_period") {
+    budget = Math.round(budget * 1.3); // +30% in der Prüfungsphase
+  } else if (context.semesterPhase === "ramp_up") {
+    budget = Math.round(budget * 0.7); // -30% in der Anlaufphase
+  }
+
+  // Clamp: Minimum 60 Min, Maximum 480 Min (8h)
+  return Math.max(60, Math.min(480, budget));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 6. DAILY PLAN
 // ═══════════════════════════════════════════════════════════════
 
 /**
@@ -899,7 +973,8 @@ function formatDate(isoDate: string): string {
  */
 export function buildDailyPlan(
   modules: ModuleIntelligence[],
-  config: DecisionEngineConfig = DEFAULT_ENGINE_CONFIG
+  config: DecisionEngineConfig = DEFAULT_ENGINE_CONFIG,
+  budgetContext?: AdaptiveBudgetContext
 ): DailyPlan {
   const today = new Date().toISOString().split("T")[0];
 
@@ -930,8 +1005,8 @@ export function buildDailyPlan(
       b.estimatedMinutes - a.estimatedMinutes
   );
 
-  // Budget: max 6 Stunden Lernzeit pro Tag
-  const MAX_DAILY_MINUTES = 360;
+  // Adaptives Budget statt hartem 360-Min-Limit
+  const dailyBudget = computeAdaptiveBudget(budgetContext);
   const todayActions: Action[] = [];
   let totalMinutes = 0;
 
@@ -939,11 +1014,11 @@ export function buildDailyPlan(
     if (action.urgency === "now" || action.urgency === "today") {
       todayActions.push(action);
       totalMinutes += action.estimatedMinutes;
-    } else if (totalMinutes < MAX_DAILY_MINUTES && action.urgency === "this_week") {
+    } else if (totalMinutes < dailyBudget && action.urgency === "this_week") {
       todayActions.push(action);
       totalMinutes += action.estimatedMinutes;
     }
-    if (totalMinutes >= MAX_DAILY_MINUTES) break;
+    if (totalMinutes >= dailyBudget) break;
   }
 
   // Fokus-Modul = höchste Priorität
@@ -966,7 +1041,7 @@ export function buildDailyPlan(
 
   return {
     date: today,
-    totalMinutes: Math.min(totalMinutes, MAX_DAILY_MINUTES),
+    totalMinutes: Math.min(totalMinutes, dailyBudget),
     actions: todayActions,
     focusModule,
     alerts,
@@ -1221,12 +1296,61 @@ export function buildCommandCenterState(
   modules: ModuleIntelligence[],
   config: DecisionEngineConfig = DEFAULT_ENGINE_CONFIG,
   dnaProfile?: DnaProfile | null,
-  onboardingProfile?: OnboardingProfile | null
+  onboardingProfile?: OnboardingProfile | null,
+  budgetContext?: AdaptiveBudgetContext
 ): CommandCenterState {
   // Apply DNA + Onboarding modifiers if available → personalized engine behavior
-  const effectiveConfig = dnaProfile
+  let effectiveConfig = dnaProfile
     ? applyDnaModifiers(config, dnaProfile, onboardingProfile)
-    : config;
+    : { ...config, weights: { ...config.weights }, thresholds: { ...config.thresholds }, estimates: { ...config.estimates } };
+
+  // Semester-Phase erkennen und Thresholds anpassen
+  const semesterPhase = detectSemesterPhase(modules);
+  if (semesterPhase === "exam_period") {
+    // Prüfungsphase: Prüfungsgewicht +20%, minStudyMinutes +30%
+    effectiveConfig = {
+      ...effectiveConfig,
+      weights: {
+        ...effectiveConfig.weights,
+        examProximity: Math.round(effectiveConfig.weights.examProximity * 1.2),
+      },
+      thresholds: {
+        ...effectiveConfig.thresholds,
+        minStudyMinutesPerWeek: Math.round(effectiveConfig.thresholds.minStudyMinutesPerWeek * 1.3),
+      },
+    };
+    // Re-normalize weights
+    const totalW = effectiveConfig.weights.examProximity + effectiveConfig.weights.gradeRisk +
+      effectiveConfig.weights.taskUrgency + effectiveConfig.weights.activityGap + effectiveConfig.weights.knowledgeGap;
+    const baseTotal = config.weights.examProximity + config.weights.gradeRisk +
+      config.weights.taskUrgency + config.weights.activityGap + config.weights.knowledgeGap;
+    if (totalW !== baseTotal) {
+      const scale = baseTotal / totalW;
+      effectiveConfig.weights = {
+        examProximity: Math.round(effectiveConfig.weights.examProximity * scale),
+        gradeRisk: Math.round(effectiveConfig.weights.gradeRisk * scale),
+        taskUrgency: Math.round(effectiveConfig.weights.taskUrgency * scale),
+        activityGap: Math.round(effectiveConfig.weights.activityGap * scale),
+        knowledgeGap: Math.round(effectiveConfig.weights.knowledgeGap * scale),
+      };
+    }
+  } else if (semesterPhase === "ramp_up") {
+    // Anlaufphase: Aktivitätslücke lockerer (+3 Tage)
+    effectiveConfig = {
+      ...effectiveConfig,
+      thresholds: {
+        ...effectiveConfig.thresholds,
+        noActivityDays: effectiveConfig.thresholds.noActivityDays + 3,
+      },
+    };
+  }
+
+  // Enrich budget context with semester phase
+  const enrichedBudgetContext: AdaptiveBudgetContext = {
+    ...budgetContext,
+    semesterPhase,
+  };
+
   const activeModules = modules.filter((m) => m.status === "active");
 
   // 1. Risiko für jedes Modul (uses DNA-adjusted config)
@@ -1257,8 +1381,8 @@ export function buildCommandCenterState(
     predictions.set(module.moduleId, predictOutcome(module));
   }
 
-  // 4. Tagesplan (uses DNA-adjusted config)
-  const today = buildDailyPlan(modules, effectiveConfig);
+  // 4. Tagesplan (uses DNA-adjusted config + adaptive budget)
+  const today = buildDailyPlan(modules, effectiveConfig, enrichedBudgetContext);
 
   // 5. Globale Metriken
   const now = new Date();

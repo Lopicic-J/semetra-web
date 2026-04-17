@@ -31,6 +31,8 @@ export type {
   DecisionEngineConfig,
   DnaProfile,
   OnboardingProfile,
+  SemesterPhase,
+  AdaptiveBudgetContext,
 } from "./types";
 
 export { DEFAULT_ENGINE_CONFIG } from "./types";
@@ -52,6 +54,7 @@ export {
   totalActionMinutes,
   buildDailySummary,
   applyDnaModifiers,
+  detectSemesterPhase,
 } from "./engine";
 
 // Automations
