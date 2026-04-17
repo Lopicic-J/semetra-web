@@ -94,10 +94,10 @@ describe("nav-config", () => {
     expect(developerItem).toBeUndefined(); // /developer is admin-only
   });
 
-  it("getFilteredNavGroups: student sieht alle Basis-Gruppen", () => {
+  it("getFilteredNavGroups: student sieht Kern + Mehr Gruppen", () => {
     const groups = getFilteredNavGroups("student");
     const labelKeys = groups.map(g => g.labelKey);
-    expect(labelKeys).toContain("navGroup.study");
-    expect(labelKeys).toContain("navGroup.learning");
+    expect(labelKeys).toContain(""); // Kern (Hauptbereich)
+    expect(labelKeys).toContain("navGroup.more"); // Erweiterte Features
   });
 });
