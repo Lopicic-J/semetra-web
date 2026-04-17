@@ -87,6 +87,11 @@ function TimerPageInner() {
   const [showCustom, setShowCustom] = useState(false);
   const [postSession, setPostSession] = useState<{ visible: boolean; duration: number; moduleName?: string }>({ visible: false, duration: 0 });
 
+  // Learning Goal — what the student wants to achieve in this session
+  type LearningGoal = "weak_topic" | "flashcards" | "exam_prep" | "task" | "explore" | "free";
+  const [learningGoal, setLearningGoal] = useState<LearningGoal | "">("");
+  const [coachSuggestion, setCoachSuggestion] = useState<{ title: string; reason: string; goal: LearningGoal; topicId?: string; examId?: string; taskId?: string } | null>(null);
+
   // Context data
   const [exams, setExams] = useState<CalendarEvent[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -97,6 +102,7 @@ function TimerPageInner() {
   const paramExam = searchParams.get("exam");
   const paramTopic = searchParams.get("topic");
   const paramModule = searchParams.get("module");
+  const paramGoal = searchParams.get("goal") as LearningGoal | null;
   const prefilledRef = useRef(false);
 
   // ── Session History (recent timer_sessions) ────────────────────────────
@@ -138,20 +144,51 @@ function TimerPageInner() {
       setTopics(loadedTopics);
       setTasks(taskRes.data ?? []);
 
-      // Deep-link prefill
+      // Deep-link prefill (from Smart Start, DailyActions, etc.)
       if (!prefilledRef.current && (paramExam || paramTopic || paramModule)) {
         prefilledRef.current = true;
         const topic = paramTopic ? loadedTopics.find(tp => tp.id === paramTopic) : null;
         const moduleId = paramModule || topic?.module_id || "";
         if (moduleId) setSelectedModule(moduleId);
-        if (paramExam) setSelectedExam(paramExam);
-        if (paramTopic) setSelectedTopic(paramTopic);
+        if (paramExam) { setSelectedExam(paramExam); setLearningGoal("exam_prep"); }
+        if (paramTopic) { setSelectedTopic(paramTopic); setLearningGoal("weak_topic"); }
+        if (paramGoal) setLearningGoal(paramGoal);
         setShowContext(true);
       }
     }
     load();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase]);
+
+  // Load coach suggestion when module is selected
+  useEffect(() => {
+    if (!selectedModule) { setCoachSuggestion(null); return; }
+
+    // Find the best action from Decision Engine for this module
+    fetch("/api/decision")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data?.today?.actions) return;
+        const moduleAction = data.today.actions.find((a: any) => a.moduleId === selectedModule);
+        if (moduleAction) {
+          let goal: LearningGoal = "free";
+          if (moduleAction.type === "review_weak_topics") goal = "weak_topic";
+          else if (moduleAction.type === "review_flashcards") goal = "flashcards";
+          else if (moduleAction.type === "prepare_exam") goal = "exam_prep";
+          else if (moduleAction.type === "complete_task") goal = "task";
+          else if (moduleAction.type === "create_material") goal = "explore";
+
+          setCoachSuggestion({
+            title: moduleAction.title,
+            reason: moduleAction.reason,
+            goal,
+            topicId: moduleAction.relatedEntityType === "topic" ? moduleAction.relatedEntityId : undefined,
+            examId: moduleAction.relatedEntityType === "exam" ? moduleAction.relatedEntityId : undefined,
+          });
+        }
+      })
+      .catch(() => {});
+  }, [selectedModule]);
 
   // Reset sub-selections when module changes
   const moduleChangeCount = useRef(0);
@@ -161,6 +198,7 @@ function TimerPageInner() {
     setSelectedExam("");
     setSelectedTopic("");
     setSelectedTask("");
+    setLearningGoal("");
   }, [selectedModule]);
 
   // ── Today's Blocks from Smart Schedule ─────────────────────────────────
@@ -420,13 +458,66 @@ function TimerPageInner() {
                 />
               </div>
 
+              {/* Coach Suggestion — from Decision Engine */}
+              {coachSuggestion && !learningGoal && selectedModule && (
+                <button
+                  onClick={() => {
+                    setLearningGoal(coachSuggestion.goal);
+                    if (coachSuggestion.topicId) setSelectedTopic(coachSuggestion.topicId);
+                    if (coachSuggestion.examId) setSelectedExam(coachSuggestion.examId);
+                    setShowContext(true);
+                  }}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl bg-brand-50 dark:bg-brand-950/20 border border-brand-200 dark:border-brand-800/40 hover:bg-brand-100 dark:hover:bg-brand-950/30 transition-colors text-left"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center shrink-0">
+                    <Zap size={14} className="text-brand-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-brand-700 dark:text-brand-300">Coach empfiehlt:</p>
+                    <p className="text-sm text-brand-600 dark:text-brand-400 truncate">{coachSuggestion.title}</p>
+                  </div>
+                  <span className="text-xs text-brand-500 shrink-0">Übernehmen</span>
+                </button>
+              )}
+
+              {/* Learning Goal Selection */}
+              {selectedModule && (
+                <div className="space-y-1.5">
+                  <p className="text-xs font-medium text-surface-500 text-center">Was möchtest du lernen?</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                    {([
+                      { id: "weak_topic" as const, label: "Schwaches Thema", icon: "🎯", desc: "Topic vertiefen" },
+                      { id: "flashcards" as const, label: "Flashcards", icon: "⚡", desc: "Karten reviewen" },
+                      { id: "exam_prep" as const, label: "Prüfung", icon: "🎓", desc: "Gezielt vorbereiten" },
+                      { id: "task" as const, label: "Aufgabe", icon: "✅", desc: "Aufgabe erledigen" },
+                      { id: "explore" as const, label: "Erkunden", icon: "📚", desc: "Lernraum öffnen" },
+                      { id: "free" as const, label: "Frei lernen", icon: "⏱️", desc: "Ohne Vorgabe" },
+                    ]).map(g => (
+                      <button
+                        key={g.id}
+                        onClick={() => { setLearningGoal(g.id); if (g.id !== "free") setShowContext(true); }}
+                        className={`p-2 rounded-lg text-left transition-colors ${
+                          learningGoal === g.id
+                            ? "bg-brand-50 dark:bg-brand-950/20 border border-brand-300 dark:border-brand-700"
+                            : "border border-surface-200 dark:border-surface-700 hover:border-surface-300"
+                        }`}
+                      >
+                        <span className="text-base">{g.icon}</span>
+                        <p className="text-[11px] font-medium text-surface-800 dark:text-surface-200 mt-0.5">{g.label}</p>
+                        <p className="text-[9px] text-surface-400">{g.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Toggle extended context */}
               <button
                 onClick={() => setShowContext(!showContext)}
                 className="flex items-center gap-1.5 mx-auto text-xs text-surface-400 hover:text-brand-600 transition-colors"
               >
                 {showContext ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                {showContext ? "Weniger Optionen" : "Prüfung, Thema oder Aufgabe wählen"}
+                {showContext ? "Weniger Optionen" : "Details anpassen"}
               </button>
 
               {showContext && (

@@ -24,6 +24,12 @@ function getActionLink(action: Action): string {
 
   switch (action.type) {
     case "prepare_exam":
+      if (action.relatedEntityId && action.relatedEntityType === "exam") {
+        params.set("exam", action.relatedEntityId);
+      }
+      params.set("goal", "exam_prep");
+      return `/timer?${params.toString()}`;
+
     case "start_studying":
     case "increase_time":
       if (action.relatedEntityId && action.relatedEntityType === "exam") {
@@ -35,6 +41,7 @@ function getActionLink(action: Action): string {
       if (action.relatedEntityId && action.relatedEntityType === "topic") {
         params.set("topic", action.relatedEntityId);
       }
+      params.set("goal", "weak_topic");
       return `/timer?${params.toString()}`;
 
     case "review_flashcards":
