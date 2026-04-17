@@ -251,7 +251,7 @@ export function evaluateAutomations(
   // Module ohne Inhalte (nach 3+ Tagen)
   for (const module of modules) {
     if (
-      module.status === "active" &&
+      (module.status === "active" || module.status === "planned") &&
       module.knowledge.topicCount === 0 &&
       module.knowledge.totalFlashcards === 0 &&
       module.resources.noteCount === 0

@@ -40,6 +40,15 @@ import type {
 } from "./types";
 import { DEFAULT_ENGINE_CONFIG } from "./types";
 
+/**
+ * Determines if a module should be considered "active" by the Decision Engine.
+ * Includes both "active" and "planned" modules — institution-imported modules
+ * start as "planned" but students are actively studying them.
+ */
+function isEngineActive(module: ModuleIntelligence): boolean {
+  return module.status === "active" || module.status === "planned";
+}
+
 // ═══════════════════════════════════════════════════════════════
 // 1. RISK ASSESSMENT
 // ═══════════════════════════════════════════════════════════════
@@ -130,7 +139,7 @@ export function assessModuleRisk(
         detail: `Schwelle: ${config.thresholds.noActivityDays} Tage`,
       });
     }
-  } else if (module.status === "active" && module.studyTime.totalMinutes === 0) {
+  } else if (isEngineActive(module) && module.studyTime.totalMinutes === 0) {
     // Aktives Modul, nie gelernt
     factors.push({
       type: "no_recent_activity",
@@ -173,7 +182,7 @@ export function assessModuleRisk(
   // ── Zu wenig Lernzeit ──
   const weeklyTarget = config.thresholds.minStudyMinutesPerWeek;
   if (
-    module.status === "active" &&
+    isEngineActive(module) &&
     module.studyTime.averagePerWeek < weeklyTarget * 0.5
   ) {
     const deficit = weeklyTarget - module.studyTime.averagePerWeek;
@@ -310,7 +319,7 @@ export function calculateModulePriority(
     if (module.grades.trend === "declining") {
       gradeScore = Math.min(100, gradeScore + 20);
     }
-  } else if (module.status === "active") {
+  } else if (isEngineActive(module)) {
     gradeScore = 30; // Keine Note = unbekanntes Risiko
   }
   if (gradeScore > 0) {
@@ -353,7 +362,7 @@ export function calculateModulePriority(
       100,
       Math.round((days / config.thresholds.noActivityDays) * 50)
     );
-  } else if (module.status === "active") {
+  } else if (isEngineActive(module)) {
     activityScore = 80; // Nie gelernt
   }
   if (activityScore > 0) {
@@ -714,7 +723,7 @@ export function generateActions(
 
   // ── Modul ohne Inhalte → Topics zuerst generieren (vor Prüfungsvorbereitung) ──
   if (
-    module.status === "active" &&
+    isEngineActive(module) &&
     module.knowledge.topicCount === 0 &&
     module.knowledge.totalFlashcards === 0 &&
     module.exams.next &&
@@ -837,7 +846,7 @@ export function generateActions(
 
   // ── Lernen starten (keine Aktivität) ──
   if (
-    module.status === "active" &&
+    isEngineActive(module) &&
     module.studyTime.totalMinutes === 0
   ) {
     actions.push(
@@ -855,7 +864,7 @@ export function generateActions(
 
   // ── Mehr Zeit investieren ──
   if (
-    module.status === "active" &&
+    isEngineActive(module) &&
     module.studyTime.totalMinutes > 0 &&
     module.studyTime.averagePerWeek < config.thresholds.minStudyMinutesPerWeek * 0.5 &&
     risk.overall !== "none" && risk.overall !== "low"
@@ -917,7 +926,7 @@ export function generateActions(
   }
 
   // ── Modultyp-spezifische Lernempfehlung ──
-  if (module.status === "active" && module.learningType && module.learningType !== "mixed") {
+  if (isEngineActive(module) && module.learningType && module.learningType !== "mixed") {
     const typeRecommendations: Record<string, { title: string; description: string; type: ActionType }> = {
       math: {
         title: `Übungsaufgaben lösen — ${module.moduleName}`,
@@ -1131,7 +1140,7 @@ export function detectSemesterPhase(modules: ModuleIntelligence[]): SemesterPhas
 
   // Anlaufphase: Keine Prüfungen in 30 Tagen + wenig Lernaktivität
   const examsIn30Days = allExams.filter((e) => e.daysUntil >= 0 && e.daysUntil <= 30);
-  const activeModules = modules.filter((m) => m.status === "active");
+  const activeModules = modules.filter(isEngineActive);
   const avgStudyMinutes = activeModules.length > 0
     ? activeModules.reduce((s, m) => s + m.studyTime.last30Days, 0) / activeModules.length
     : 0;
@@ -1201,7 +1210,7 @@ export function buildDailyPlan(
   const today = new Date().toISOString().split("T")[0];
 
   // Nur aktive Module
-  const activeModules = modules.filter((m) => m.status === "active");
+  const activeModules = modules.filter(isEngineActive);
 
   // Risiko & Priorität für alle Module
   const risks = activeModules.map((m) => assessModuleRisk(m, config));
@@ -1326,7 +1335,7 @@ function generateAlerts(
 
     // Lange keine Aktivität bei aktivem Modul mit Prüfung
     if (
-      module.status === "active" &&
+      isEngineActive(module) &&
       module.studyTime.daysSinceLastStudy !== null &&
       module.studyTime.daysSinceLastStudy > config.thresholds.noActivityDays * 3 &&
       module.exams.next !== null
@@ -1573,7 +1582,7 @@ export function buildCommandCenterState(
     semesterPhase,
   };
 
-  const activeModules = modules.filter((m) => m.status === "active");
+  const activeModules = modules.filter(isEngineActive);
 
   // 1. Risiko für jedes Modul (uses DNA-adjusted config)
   const allRisks = activeModules.map((m) => assessModuleRisk(m, effectiveConfig));
@@ -1682,7 +1691,7 @@ export function buildCommandCenterState(
 function calculateStudyStreak(modules: ModuleIntelligence[]): number {
   // Finde das früheste "daysSinceLastStudy" über alle aktiven Module
   const activeWithStudy = modules.filter(
-    (m) => m.status === "active" && m.studyTime.daysSinceLastStudy !== null
+    (m) => isEngineActive(m) && m.studyTime.daysSinceLastStudy !== null
   );
   if (activeWithStudy.length === 0) return 0;
 
