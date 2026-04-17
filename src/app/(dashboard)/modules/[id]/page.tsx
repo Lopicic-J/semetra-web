@@ -36,6 +36,8 @@ const ModuleControlCenter = dynamic(
   { ssr: false }
 );
 
+import ModuleToolsBar from "@/components/modules/ModuleToolsBar";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export default function ModuleDetailPage() {
@@ -244,6 +246,17 @@ export default function ModuleDetailPage() {
 
           {/* Decision Engine Module Control Center */}
           <ModuleControlCenter moduleId={moduleId} />
+
+          {/* Module Tools — Quick access to learning tools for this module */}
+          {module && (
+            <div className="mb-4">
+              <ModuleToolsBar
+                moduleId={moduleId}
+                moduleName={module.name}
+                moduleColor={moduleColor}
+              />
+            </div>
+          )}
 
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-4 flex-1">
