@@ -9,6 +9,7 @@ export type {
   RiskLevel,
   ActionUrgency,
   TrendDirection,
+  LearningType,
   ModuleIntelligence,
   ComponentSnapshot,
   ExamSnapshot,

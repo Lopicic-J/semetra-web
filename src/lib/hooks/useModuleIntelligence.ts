@@ -126,7 +126,7 @@ export function useModuleIntelligence(standalone = false): UseModuleIntelligence
         modulesRes, tasksRes, timeLogsRes, gradesRes, topicsRes,
         flashcardsRes, notesRes, documentsRes, mindmapsRes, eventsRes,
       ] = await Promise.all([
-        supabase.from("modules").select("id, name, code, module_code, ects, ects_equivalent, semester, status, color, target_grade, exam_date, created_at").order("created_at", { ascending: false }),
+        supabase.from("modules").select("id, name, code, module_code, ects, ects_equivalent, semester, status, color, target_grade, exam_date, created_at, learning_type").order("created_at", { ascending: false }),
         supabase.from("tasks").select("id, module_id, status, due_date").order("due_date", { ascending: true, nullsFirst: false }),
         supabase.from("time_logs").select("id, module_id, duration_seconds, started_at").order("started_at", { ascending: false }).limit(2000),
         supabase.from("grades").select("id, module_id, grade, title, exam_type, weight, exam_id, date").order("date", { ascending: false }),
@@ -387,6 +387,7 @@ export function useModuleIntelligence(standalone = false): UseModuleIntelligence
         semester: mod.semester ? parseInt(mod.semester, 10) || undefined : undefined,
         status: mapModuleStatus(mod.status),
         color: mod.color ?? undefined,
+        learningType: (mod as any).learning_type ?? undefined,
 
         grades: {
           current: currentGrade,

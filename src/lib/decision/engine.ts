@@ -916,6 +916,52 @@ export function generateActions(
     }
   }
 
+  // ── Modultyp-spezifische Lernempfehlung ──
+  if (module.status === "active" && module.learningType && module.learningType !== "mixed") {
+    const typeRecommendations: Record<string, { title: string; description: string; type: ActionType }> = {
+      math: {
+        title: `Übungsaufgaben lösen — ${module.moduleName}`,
+        description: "Mathe-Module brauchen Praxis: Löse Aufgaben Schritt für Schritt. Formeln verstehen kommt durch Anwenden.",
+        type: "review_weak_topics",
+      },
+      programming: {
+        title: `Code schreiben — ${module.moduleName}`,
+        description: "Programmieren lernt man durch Programmieren. Starte ein kleines Übungsprojekt oder löse Coding-Aufgaben.",
+        type: "review_weak_topics",
+      },
+      language: {
+        title: `Vokabeln & Sprechen — ${module.moduleName}`,
+        description: "Sprachen brauchen tägliche Wiederholung. Flashcards für Vokabeln + laut Sprechen üben.",
+        type: "review_flashcards",
+      },
+      theory: {
+        title: `Zusammenfassung schreiben — ${module.moduleName}`,
+        description: "Theorie-Module: Schreibe die Kernkonzepte in eigenen Worten auf. Das vertieft das Verständnis.",
+        type: "create_material",
+      },
+      project: {
+        title: `Projektfortschritt — ${module.moduleName}`,
+        description: "Projekt-Module: Setze dir ein Tagesziel und dokumentiere deinen Fortschritt.",
+        type: "complete_task",
+      },
+    };
+
+    const rec = typeRecommendations[module.learningType];
+    if (rec && !actions.some(a => a.type === rec.type && a.moduleId === module.moduleId)) {
+      actions.push(
+        makeAction(
+          rec.type,
+          "this_week",
+          rec.title,
+          rec.description,
+          30,
+          `Empfehlung basierend auf Modultyp: ${module.learningType}`,
+          "Die Lernmethode ist auf den Modultyp abgestimmt"
+        )
+      );
+    }
+  }
+
   // Sortieren: dringendste zuerst
   return actions.sort((a, b) => urgencyToNumber(a.urgency) - urgencyToNumber(b.urgency));
 }

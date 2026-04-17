@@ -13,6 +13,8 @@ export type TrendDirection = "improving" | "stable" | "declining" | "unknown";
 
 // ─── Module Intelligence ─────────────────────────────────────
 /** Alles was wir über ein Modul wissen, aggregiert */
+export type LearningType = "theory" | "math" | "programming" | "language" | "project" | "mixed";
+
 export interface ModuleIntelligence {
   moduleId: string;
   moduleName: string;
@@ -21,6 +23,8 @@ export interface ModuleIntelligence {
   semester?: number;
   status: "planned" | "active" | "completed" | "paused";
   color?: string;
+  /** Learning method type — determines which actions the engine recommends */
+  learningType?: LearningType;
 
   // Noten & Leistung
   grades: {
