@@ -930,7 +930,124 @@ function formatDate(isoDate: string): string {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 5. SEMESTER PHASE & ADAPTIVE BUDGET
+// 5. ADAPTIVE WEIGHTS
+// ═══════════════════════════════════════════════════════════════
+
+export interface AdaptiveWeightProfile {
+  examProximity: number;
+  gradeRisk: number;
+  taskUrgency: number;
+  activityGap: number;
+  knowledgeGap: number;
+  confidence: number;
+  modulesAnalyzed: number;
+}
+
+/**
+ * Berechnet adaptive Gewichte basierend auf historischen Korrelationen.
+ *
+ * Für jedes abgeschlossene Modul: Welcher Faktor-Score war am stärksten
+ * korreliert mit einem guten/schlechten Noten-Outcome?
+ *
+ * @param completedModules - Module mit finaler Note (status = completed)
+ * @param config - Basis-Config für Default-Gewichte
+ * @returns Adaptive Gewichte oder null wenn zu wenig Daten
+ */
+export function computeAdaptiveWeights(
+  completedModules: ModuleIntelligence[],
+  config: DecisionEngineConfig = DEFAULT_ENGINE_CONFIG
+): AdaptiveWeightProfile | null {
+  // Brauchen mindestens 3 abgeschlossene Module für sinnvolle Analyse
+  if (completedModules.length < 3) return null;
+
+  const factorNames = ["examProximity", "gradeRisk", "taskUrgency", "activityGap", "knowledgeGap"] as const;
+  const defaultWeights = config.weights;
+
+  // Für jedes Modul: Score pro Faktor berechnen + Note als Outcome
+  const dataPoints = completedModules
+    .filter((m) => m.grades.current !== null)
+    .map((m) => {
+      const grade = m.grades.current!;
+      // Positives Outcome = Note ≥ 4.0 (bestanden) + Bonus für gute Noten
+      const outcome = Math.max(0, (grade - 3.0) / 3.0); // 0-1 Skala, 3.0→0, 6.0→1
+
+      return {
+        outcome,
+        factors: {
+          examProximity: m.exams.daysUntilNext !== null ? Math.max(0, 100 * Math.exp(-m.exams.daysUntilNext / 10)) : 0,
+          gradeRisk: m.grades.passed === false ? 90 : (m.grades.target ? Math.min(80, Math.abs(m.grades.target - grade) * 20) : 30),
+          taskUrgency: Math.min(100, m.tasks.overdue * 25 + m.tasks.dueSoon * 20),
+          activityGap: m.studyTime.daysSinceLastStudy !== null ? Math.min(100, (m.studyTime.daysSinceLastStudy / 5) * 50) : 80,
+          knowledgeGap: m.knowledge.topicCount > 0 ? Math.round((m.knowledge.weakTopics.length / m.knowledge.topicCount) * 100) : 0,
+        },
+      };
+    });
+
+  if (dataPoints.length < 3) return null;
+
+  // Pearson-Korrelation zwischen jedem Faktor und dem Outcome
+  const correlations: Record<string, number> = {};
+
+  for (const factor of factorNames) {
+    const xs = dataPoints.map((d) => d.factors[factor]);
+    const ys = dataPoints.map((d) => d.outcome);
+    correlations[factor] = pearsonCorrelation(xs, ys);
+  }
+
+  // Korrelation in Gewichte umrechnen:
+  // Negative Korrelation (hoher Risiko-Score → schlechte Note) = dieser Faktor ist prädiktiv
+  // → höheres Gewicht (weil wir vor diesem Risiko warnen wollen)
+  const rawWeights: Record<string, number> = {};
+  for (const factor of factorNames) {
+    // Absolute Korrelation nutzen — sowohl stark negative als auch positive Korrelation sind informativ
+    const absCorr = Math.abs(correlations[factor]);
+    // Blend: 70% Default + 30% Korrelations-basiert
+    const defaultW = defaultWeights[factor];
+    rawWeights[factor] = defaultW * 0.7 + defaultW * absCorr * 3 * 0.3;
+    // Minimum 5% pro Faktor
+    rawWeights[factor] = Math.max(5, rawWeights[factor]);
+  }
+
+  // Normalisieren auf Summe = 100
+  const totalRaw = Object.values(rawWeights).reduce((s, w) => s + w, 0);
+  const scale = 100 / totalRaw;
+
+  const result: AdaptiveWeightProfile = {
+    examProximity: Math.round(rawWeights.examProximity * scale),
+    gradeRisk: Math.round(rawWeights.gradeRisk * scale),
+    taskUrgency: Math.round(rawWeights.taskUrgency * scale),
+    activityGap: Math.round(rawWeights.activityGap * scale),
+    knowledgeGap: Math.round(rawWeights.knowledgeGap * scale),
+    confidence: Math.min(1, 0.3 + dataPoints.length * 0.1),
+    modulesAnalyzed: dataPoints.length,
+  };
+
+  return result;
+}
+
+/**
+ * Pearson-Korrelationskoeffizient zwischen zwei Zahlenreihen.
+ * Gibt -1 bis 1 zurück. 0 = keine Korrelation.
+ */
+function pearsonCorrelation(xs: number[], ys: number[]): number {
+  const n = xs.length;
+  if (n < 2) return 0;
+
+  const sumX = xs.reduce((a, b) => a + b, 0);
+  const sumY = ys.reduce((a, b) => a + b, 0);
+  const sumXY = xs.reduce((s, x, i) => s + x * ys[i], 0);
+  const sumX2 = xs.reduce((s, x) => s + x * x, 0);
+  const sumY2 = ys.reduce((s, y) => s + y * y, 0);
+
+  const num = n * sumXY - sumX * sumY;
+  const den = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+
+  if (den === 0) return 0;
+  return num / den;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 6. SEMESTER PHASE & ADAPTIVE BUDGET
 // ═══════════════════════════════════════════════════════════════
 
 /**

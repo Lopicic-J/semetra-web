@@ -55,7 +55,10 @@ export {
   buildDailySummary,
   applyDnaModifiers,
   detectSemesterPhase,
+  computeAdaptiveWeights,
 } from "./engine";
+
+export type { AdaptiveWeightProfile } from "./engine";
 
 // Automations
 export type {
