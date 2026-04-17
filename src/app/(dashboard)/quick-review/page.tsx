@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
 import { Zap, Check, X, ArrowRight, RotateCcw, Clock, Brain } from "lucide-react";
 import Link from "next/link";
+import MobileFlashcardReview from "@/components/flashcards/MobileFlashcardReview";
 
 interface Flashcard {
   id: string;
@@ -124,77 +125,14 @@ export default function QuickReviewPage() {
     );
   }
 
-  // ── REVIEW PHASE ──
+  // ── REVIEW PHASE — Mobile-optimized fullscreen card review ──
   return (
-    <div className="max-w-lg mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <Zap size={20} className="text-violet-500" />
-          <h1 className="text-lg font-bold text-surface-900 dark:text-surface-50">Quick Review</h1>
-        </div>
-        <div className="flex items-center gap-3 text-xs text-surface-400">
-          <span>{currentIndex + 1}/{cards.length}</span>
-          <span className="flex items-center gap-1"><Clock size={11} /> {Math.round(elapsed / 60) || "<1"} Min</span>
-        </div>
-      </div>
-
-      {/* Progress */}
-      <div className="h-1.5 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden mb-6">
-        <div className="h-full bg-violet-500 rounded-full transition-all duration-300" style={{ width: `${((currentIndex + 1) / cards.length) * 100}%` }} />
-      </div>
-
-      {/* Card */}
-      <div className="rounded-2xl border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] overflow-hidden">
-        {/* Module badge */}
-        {moduleName && (
-          <div className="px-4 py-2 border-b border-surface-100 dark:border-surface-800 flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full" style={{ background: moduleColor ?? "#6d28d9" }} />
-            <span className="text-xs text-surface-500">{moduleName}</span>
-          </div>
-        )}
-
-        {/* Question */}
-        <div className="p-6 min-h-[120px] flex items-center justify-center">
-          <p className="text-center text-lg font-medium text-surface-900 dark:text-surface-50">
-            {currentCard?.question}
-          </p>
-        </div>
-
-        {/* Answer (toggle) */}
-        {showAnswer ? (
-          <div className="border-t border-surface-200 dark:border-surface-700 p-6 bg-surface-50 dark:bg-surface-800/50">
-            <p className="text-center text-surface-700 dark:text-surface-300">
-              {currentCard?.answer}
-            </p>
-          </div>
-        ) : (
-          <button
-            onClick={() => setShowAnswer(true)}
-            className="w-full border-t border-surface-200 dark:border-surface-700 py-4 text-sm font-medium text-brand-600 dark:text-brand-400 hover:bg-surface-50 dark:hover:bg-surface-800/50 transition-colors"
-          >
-            Antwort anzeigen
-          </button>
-        )}
-      </div>
-
-      {/* Rating Buttons */}
-      {showAnswer && (
-        <div className="grid grid-cols-2 gap-3 mt-4">
-          <button
-            onClick={() => handleRating(false)}
-            className="flex items-center justify-center gap-2 py-3 rounded-xl border border-red-200 dark:border-red-800/40 text-red-600 dark:text-red-400 font-medium hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
-          >
-            <X size={16} /> Nicht gewusst
-          </button>
-          <button
-            onClick={() => handleRating(true)}
-            className="flex items-center justify-center gap-2 py-3 rounded-xl border border-emerald-200 dark:border-emerald-800/40 text-emerald-600 dark:text-emerald-400 font-medium hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors"
-          >
-            <Check size={16} /> Gewusst
-          </button>
-        </div>
-      )}
-    </div>
+    <MobileFlashcardReview
+      cards={cards}
+      moduleName={moduleName}
+      moduleColor={moduleColor}
+      onComplete={(r) => { setResults(r); setPhase("done"); }}
+      onClose={() => setPhase("done")}
+    />
   );
 }
