@@ -66,17 +66,36 @@ export default function GuidedSessionPage() {
   const moduleName = modules.find(m => m.id === selectedModule)?.name;
   const moduleColor = modules.find(m => m.id === selectedModule)?.color;
 
-  // Load templates
+  // Load templates (with fallback if table doesn't exist yet)
   useEffect(() => {
     fetch("/api/guided-session?recommended=true")
       .then(r => r.ok ? r.json() : null)
       .then(data => {
-        if (data) {
-          setTemplates(data.all ?? []);
+        if (data && data.all && data.all.length > 0) {
+          setTemplates(data.all);
           setRecommended(data.recommended ?? null);
-          setSelectedTemplate(data.recommended ?? data.all?.[0] ?? null);
+          setSelectedTemplate(data.recommended ?? data.all[0] ?? null);
+        } else {
+          // Fallback: hardcoded default template if DB table missing
+          const fallback: Template = {
+            id: "default",
+            name: "Ausgewogen (45 Min)",
+            description: "Balance aus Wiederholung, neuem Stoff, Übung und Reflexion",
+            total_minutes: 45,
+            phases: [
+              { name: "Aufwärmen", type: "review", duration_min: 5, description: "Flashcards wiederholen", icon: "Brain" },
+              { name: "Neuer Stoff", type: "learn", duration_min: 15, description: "Neue Inhalte durcharbeiten", icon: "BookOpen" },
+              { name: "Üben", type: "practice", duration_min: 15, description: "Übungsaufgaben lösen", icon: "Target" },
+              { name: "Selbsttest", type: "test", duration_min: 5, description: "Gelernte in eigenen Worten erklären", icon: "MessageCircle" },
+              { name: "Reflexion", type: "reflect", duration_min: 5, description: "Was habe ich gelernt?", icon: "PenLine" },
+            ],
+            is_default: true,
+          };
+          setTemplates([fallback]);
+          setSelectedTemplate(fallback);
         }
       })
+      .catch(() => setLoading(false))
       .finally(() => setLoading(false));
   }, []);
 

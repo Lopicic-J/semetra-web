@@ -31,12 +31,12 @@ export default function QuickReviewPage() {
   const [startTime] = useState(Date.now());
 
   const loadCards = useCallback(async () => {
-    // Get flashcards due for review, prioritizing modules with upcoming exams
+    // Get flashcards due for review (including those with NULL next_review = never reviewed)
     const { data } = await supabase
       .from("flashcards")
       .select("id, question, answer, module_id, deck_name, next_review")
-      .lte("next_review", new Date().toISOString())
-      .order("next_review", { ascending: true })
+      .or(`next_review.lte.${new Date().toISOString()},next_review.is.null`)
+      .order("next_review", { ascending: true, nullsFirst: true })
       .limit(5);
 
     if (data && data.length > 0) {

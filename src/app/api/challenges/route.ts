@@ -26,10 +26,13 @@ export async function GET(request: Request) {
   const challengeIds = (participations ?? []).map(p => p.challenge_id);
 
   // Get challenge details + all participants for leaderboard
+  const orFilter = challengeIds.length > 0
+    ? `id.in.(${challengeIds.join(",")}),is_public.eq.true`
+    : `is_public.eq.true`;
   const { data: challenges } = await supabase
     .from("challenges")
     .select("*")
-    .or(`id.in.(${challengeIds.join(",")}),is_public.eq.true`)
+    .or(orFilter)
     .eq("status", status)
     .order("ends_at", { ascending: true });
 
@@ -115,6 +118,9 @@ export async function POST(request: Request) {
   const { title, description, moduleId, challengeType, targetValue, durationDays, isPublic } = body;
   if (!title) return NextResponse.json({ error: "title required" }, { status: 400 });
 
+  const VALID_TYPES = ["study_time", "streak", "tasks_completed", "flashcards_reviewed", "topics_mastered"];
+  const validatedType = VALID_TYPES.includes(challengeType) ? challengeType : "study_time";
+
   const endsAt = new Date();
   endsAt.setDate(endsAt.getDate() + (durationDays ?? 7));
 
@@ -125,7 +131,7 @@ export async function POST(request: Request) {
       title,
       description: description ?? null,
       module_id: moduleId ?? null,
-      challenge_type: challengeType ?? "study_time",
+      challenge_type: validatedType,
       target_value: targetValue ?? null,
       ends_at: endsAt.toISOString(),
       is_public: isPublic ?? false,

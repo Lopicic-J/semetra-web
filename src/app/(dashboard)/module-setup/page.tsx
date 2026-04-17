@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { useModules } from "@/lib/hooks/useModules";
 import { useTranslation } from "@/lib/i18n";
 import {
@@ -44,30 +45,40 @@ export default function ModuleSetupPage() {
   useEffect(() => {
     if (modules.length === 0) return;
 
-    const emptyModules = modules.filter(
-      m => m.status === "active" && !(m as any)._hasTopics
-    );
+    const supabaseClient = createClient();
 
-    // We need to check which modules actually have no topics
+    // Check which modules actually have no topics — only show those
     async function checkModules() {
-      const res = await fetch("/api/topic-resources?moduleId=__check__").catch(() => null);
-
-      // For each module, check if it has topics by querying the count
+      const activeModules = modules.filter(m => m.status === "active");
       const setupList: ModuleSetup[] = [];
-      for (const mod of modules.filter(m => m.status === "active")) {
-        setupList.push({
-          moduleId: mod.id,
-          moduleName: mod.name,
-          moduleColor: mod.color ?? undefined,
-          ects: mod.ects ?? 0,
-          status: "pending",
-          topics: [],
-          flashcardCount: 0,
-          resourceCount: 0,
-          learningRecommendation: "",
-          customTopic: "",
-          expanded: false,
-        });
+
+      for (const mod of activeModules) {
+        const { count } = await supabaseClient
+          .from("topics")
+          .select("id", { count: "exact", head: true })
+          .eq("module_id", mod.id);
+
+        // Only include modules with 0 topics
+        if ((count ?? 0) === 0) {
+          setupList.push({
+            moduleId: mod.id,
+            moduleName: mod.name,
+            moduleColor: mod.color ?? undefined,
+            ects: mod.ects ?? 0,
+            status: "pending",
+            topics: [],
+            flashcardCount: 0,
+            resourceCount: 0,
+            learningRecommendation: "",
+            customTopic: "",
+            expanded: false,
+          });
+        }
+      }
+
+      if (setupList.length === 0) {
+        // All modules already have topics
+        setAllDone(true);
       }
 
       setSetups(setupList);
