@@ -36,6 +36,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/timer", icon: Timer, labelKey: "nav.timer", pro: false },
       { href: "/tasks", icon: CheckSquare, labelKey: "nav.tasks", pro: false },
       { href: "/flashcards", icon: Zap, labelKey: "nav.flashcards", pro: false },
+      { href: "/quick-review", icon: Brain, labelKey: "nav.quickReview", pro: false },
     ],
   },
 
@@ -74,6 +75,7 @@ export const NAV_GROUPS: NavGroup[] = [
           { href: "/exams", labelKey: "nav.exams" },
           { href: "/noten", labelKey: "nav.grades" },
           { href: "/intelligence", labelKey: "nav.examIntelligence" },
+          { href: "/exam-simulator", labelKey: "nav.examSimulator" },
         ],
       },
       {
