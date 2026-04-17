@@ -42,6 +42,7 @@ import DashboardStatCards from "@/components/dashboard/DashboardStatCards";
 import DashboardExamList from "@/components/dashboard/DashboardExamList";
 import SmartStartCard from "@/components/dashboard/SmartStartCard";
 import DashboardTaskList from "@/components/dashboard/DashboardTaskList";
+import QuickExamAdd from "@/components/exams/QuickExamAdd";
 
 // Command Center sub-components
 import AlertBanner from "@/components/command-center/AlertBanner";
@@ -365,13 +366,16 @@ export default function ClassicDashboard() {
             })}
           </p>
         </div>
-        <button
-          onClick={ccRefetch}
- className="p-2 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-500 hover:text-surface-700 dark:hover:text-surface-300"
-          title="Dashboard aktualisieren"
-        >
-          <RefreshCw className={`w-4 h-4 ${ccLoading ? "animate-spin" : ""}`} />
-        </button>
+        <div className="flex items-center gap-2">
+          <QuickExamAdd modules={modules} onCreated={fetchExams} />
+          <button
+            onClick={ccRefetch}
+            className="p-2 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-500 hover:text-surface-700 dark:hover:text-surface-300"
+            title="Dashboard aktualisieren"
+          >
+            <RefreshCw className={`w-4 h-4 ${ccLoading ? "animate-spin" : ""}`} />
+          </button>
+        </div>
       </div>
 
       {/* ═══ SEMESTER TRANSITION (auto-reset) ═══ */}
