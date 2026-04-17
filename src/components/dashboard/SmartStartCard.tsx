@@ -120,13 +120,16 @@ function SmartStartCard({ state }: Props) {
           <p className="font-semibold text-surface-900 dark:text-white text-base truncate">
             {primaryAction.title}
           </p>
-          <div className="flex items-center gap-3 mt-1">
+          <p className="text-xs text-surface-500 mt-0.5 line-clamp-1">
+            {primaryAction.impact}
+          </p>
+          <div className="flex items-center gap-3 mt-1.5">
             <span className="flex items-center gap-1 text-xs text-surface-500">
               <Clock size={11} /> {primaryAction.estimatedMinutes} Min
             </span>
-            {primaryAction.relatedEntityType === "exam" && (
-              <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
-                <GraduationCap size={11} /> {primaryAction.reason}
+            {primaryAction.reason && (
+              <span className="flex items-center gap-1 text-xs text-surface-400">
+                {primaryAction.reason}
               </span>
             )}
             <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${

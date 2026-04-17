@@ -28,7 +28,7 @@ import { ectsWeightedAvg } from "@/lib/utils";
 import PageBlocks, { type BlockDef } from "@/components/ui/PageBlocks";
 import {
   BookOpen, Calendar, Brain, AlertTriangle,
-  Timer, ArrowRight, RefreshCw,
+  Timer, ArrowRight, RefreshCw, ChevronDown, ChevronUp,
 } from "lucide-react";
 import Link from "next/link";
 import type { CalendarEvent, Topic } from "@/types/database";
@@ -66,6 +66,12 @@ export default function ClassicDashboard() {
   const { profile } = useProfile();
   const [exams, setExams] = useState<Exam[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
+  const [focusMode, setFocusMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("semetra_dashboard_mode") !== "detail";
+    }
+    return true;
+  });
   const supabase = createClient();
 
   // Command Center hooks (wrapped in try-catch via useCommandCenter)
@@ -407,8 +413,24 @@ export default function ClassicDashboard() {
         <SmartStartCard state={ccState} />
       )}
 
-      {/* ═══ SORTABLE BLOCKS ═══ */}
-      <PageBlocks blocks={dashboardBlocks} />
+      {/* ═══ FOCUS/DETAIL TOGGLE ═══ */}
+      <button
+        onClick={() => {
+          const newMode = !focusMode;
+          setFocusMode(newMode);
+          localStorage.setItem("semetra_dashboard_mode", newMode ? "focus" : "detail");
+        }}
+        className="flex items-center gap-1.5 mx-auto mb-4 px-4 py-1.5 rounded-full text-xs font-medium text-surface-500 hover:text-surface-700 dark:hover:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+      >
+        {focusMode ? (
+          <><ChevronDown size={14} /> Detailansicht anzeigen</>
+        ) : (
+          <><ChevronUp size={14} /> Fokus-Modus</>
+        )}
+      </button>
+
+      {/* ═══ SORTABLE BLOCKS (hidden in focus mode) ═══ */}
+      {!focusMode && <PageBlocks blocks={dashboardBlocks} />}
 
       {/* ═══ COMPUTED AT (fixed) ═══ */}
       {computedAt && (
