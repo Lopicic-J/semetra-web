@@ -1,9 +1,9 @@
 import {
   LayoutDashboard, BookOpen, Calendar, GraduationCap,
-  Brain, TrendingUp, Wrench, Compass, Users, MessageCircle,
+  Brain, TrendingUp, Wrench, Users, MessageCircle,
   Shield, Settings, UserCircle, Terminal, Puzzle, ClipboardList,
-  Dna, Trophy, FileText, Award, Globe2, Timer, CheckSquare, Zap,
-  Sparkles,
+  Dna, Trophy, FileText, Timer, CheckSquare, Zap,
+  Sparkles, Target, BarChart3, FolderOpen,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRole } from "@/lib/hooks/useProfile";
@@ -29,7 +29,10 @@ export interface NavGroup {
 }
 
 export const NAV_GROUPS: NavGroup[] = [
-  // ── Hauptbereich — Kernaktionen direkt sichtbar ──
+  // ══════════════════════════════════════════════════════════
+  // KERN — 5 Hauptaktionen, immer sichtbar, kein Expandable
+  // Das ist alles was ein Student täglich braucht.
+  // ══════════════════════════════════════════════════════════
   {
     labelKey: "",
     items: [
@@ -37,82 +40,42 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/guided-session", icon: Sparkles, labelKey: "nav.guidedSession", pro: false },
       { href: "/timer", icon: Timer, labelKey: "nav.timer", pro: false },
       { href: "/tasks", icon: CheckSquare, labelKey: "nav.tasks", pro: false },
-      { href: "/flashcards", icon: Zap, labelKey: "nav.flashcards", pro: false },
-      { href: "/quick-review", icon: Brain, labelKey: "nav.quickReview", pro: false },
-    ],
-  },
-
-  // ── Studium ──
-  {
-    labelKey: "navGroup.study",
-    items: [
       {
         href: "/modules",
         icon: BookOpen,
-        labelKey: "nav.modulmanager",
-        pro: false,
-        children: [
-          { href: "/modules", labelKey: "nav.modules" },
-          { href: "/tasks", labelKey: "nav.tasks" },
-          { href: "/studienplan", labelKey: "nav.studienplan" },
-        ],
-      },
-      {
-        href: "/calendar",
-        icon: Calendar,
-        labelKey: "nav.schedule",
-        pro: false,
-        children: [
-          { href: "/calendar", labelKey: "nav.calendar" },
-          { href: "/stundenplan", labelKey: "nav.stundenplan" },
-          { href: "/smart", labelKey: "nav.smartSchedule" },
-        ],
-      },
-      {
-        href: "/exams",
-        icon: ClipboardList,
-        labelKey: "nav.pruefungsmanager",
-        pro: false,
-        children: [
-          { href: "/exams", labelKey: "nav.exams" },
-          { href: "/noten", labelKey: "nav.grades" },
-          { href: "/intelligence", labelKey: "nav.examIntelligence" },
-          { href: "/exam-simulator", labelKey: "nav.examSimulator" },
-          { href: "/exam-prep", labelKey: "nav.examPrep" },
-        ],
-      },
-      {
-        href: "/overview",
-        icon: GraduationCap,
         labelKey: "nav.studium",
         pro: false,
         children: [
-          { href: "/overview", labelKey: "nav.overview" },
-          { href: "/transcript", labelKey: "nav.transcript" },
-          { href: "/anrechnungen", labelKey: "nav.recognition" },
-          { href: "/trends", labelKey: "nav.trends" },
+          { href: "/modules", labelKey: "nav.modules" },
+          { href: "/noten", labelKey: "nav.grades" },
+          { href: "/exams", labelKey: "nav.exams" },
+          { href: "/calendar", labelKey: "nav.calendar" },
+          { href: "/stundenplan", labelKey: "nav.stundenplan" },
         ],
       },
     ],
   },
 
-  // ── Lernen ──
+  // ══════════════════════════════════════════════════════════
+  // MEHR — Erweiterte Features, 1 Klick entfernt
+  // Alles was der Student regelmässig aber nicht täglich braucht.
+  // ══════════════════════════════════════════════════════════
   {
-    labelKey: "navGroup.learning",
+    labelKey: "navGroup.more",
     items: [
+      { href: "/flashcards", icon: Zap, labelKey: "nav.flashcards", pro: false },
       {
-        href: "/lernplan",
-        icon: Brain,
-        labelKey: "nav.learning",
+        href: "/exam-prep",
+        icon: Target,
+        labelKey: "nav.examPrep",
         pro: false,
         children: [
-          { href: "/lernplan", labelKey: "nav.lernplan" },
-          { href: "/knowledge", labelKey: "nav.knowledge" },
-          { href: "/timer", labelKey: "nav.timer" },
-          { href: "/flashcards", labelKey: "nav.flashcards" },
-          { href: "/mathe", labelKey: "nav.math" },
+          { href: "/exam-prep", labelKey: "nav.prepPlan" },
+          { href: "/exam-simulator", labelKey: "nav.examSimulator" },
+          { href: "/intelligence", labelKey: "nav.examIntelligence" },
         ],
       },
+      { href: "/ki", icon: Brain, labelKey: "nav.aiAssistant", pro: false },
       {
         href: "/notes",
         icon: FileText,
@@ -121,35 +84,18 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           { href: "/notes", labelKey: "nav.notes" },
           { href: "/documents", labelKey: "nav.documents" },
-        ],
-      },
-      {
-        href: "/ki",
-        icon: Wrench,
-        labelKey: "nav.werkzeuge",
-        pro: false,
-        children: [
-          { href: "/ki", labelKey: "nav.aiAssistant" },
           { href: "/mindmaps", labelKey: "nav.mindmaps" },
-          { href: "/brainstorming", labelKey: "nav.brainstorming" },
         ],
       },
-    ],
-  },
-
-  // ── Persönlichkeit ──
-  {
-    labelKey: "navGroup.personality",
-    items: [
       {
         href: "/dna",
         icon: Dna,
-        labelKey: "nav.dna",
+        labelKey: "nav.lernDna",
         pro: false,
         children: [
-          { href: "/dna", labelKey: "nav.lernDna" },
+          { href: "/dna", labelKey: "nav.dnaProfile" },
           { href: "/patterns", labelKey: "nav.patterns" },
-          { href: "/timeline", labelKey: "nav.timeline" },
+          { href: "/review", labelKey: "nav.weeklyReview" },
         ],
       },
       {
@@ -160,26 +106,40 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           { href: "/erfolge", labelKey: "nav.achievements" },
           { href: "/bestenliste", labelKey: "nav.leaderboard" },
-          { href: "/review", labelKey: "nav.weeklyReview" },
+          { href: "/challenges", labelKey: "nav.challenges" },
+          { href: "/semester-review", labelKey: "nav.semesterReview" },
+        ],
+      },
+      {
+        href: "/groups",
+        icon: Users,
+        labelKey: "nav.soziales",
+        pro: false,
+        children: [
+          { href: "/groups", labelKey: "nav.groups" },
+          { href: "/messages", labelKey: "nav.messages" },
+          { href: "/friends", labelKey: "nav.friends" },
+          { href: "/community", labelKey: "nav.community" },
+        ],
+      },
+      {
+        href: "/overview",
+        icon: BarChart3,
+        labelKey: "nav.fortschritt",
+        pro: false,
+        children: [
+          { href: "/overview", labelKey: "nav.overview" },
+          { href: "/transcript", labelKey: "nav.transcript" },
+          { href: "/trends", labelKey: "nav.trends" },
           { href: "/lernnachweis", labelKey: "nav.lernnachweis" },
         ],
       },
     ],
   },
 
-  // ── Soziales ──
-  {
-    labelKey: "navGroup.social",
-    items: [
-      { href: "/connect", icon: Globe2, labelKey: "nav.connect", pro: false },
-      { href: "/community", icon: Users, labelKey: "nav.community", pro: false },
-      { href: "/friends", icon: Users, labelKey: "nav.friends", pro: false },
-      { href: "/groups", icon: Users, labelKey: "nav.groups", pro: false },
-      { href: "/messages", icon: MessageCircle, labelKey: "nav.messages", pro: false },
-    ],
-  },
-
-  // ── Verwaltung (Admin/Institution) ──
+  // ══════════════════════════════════════════════════════════
+  // VERWALTUNG — Nur für Admins/Institutionen
+  // ══════════════════════════════════════════════════════════
   {
     labelKey: "navGroup.admin",
     requiredRoles: ["admin", "institution"],

@@ -62,10 +62,11 @@ const nextConfig = {
   // Route redirects — only legacy routes that no longer have standalone pages
   async redirects() {
     return [
-      // Old hub routes → redirect to their first child (standalone pages now exist)
+      // Old hub routes
       { source: "/creative", destination: "/mindmaps", permanent: true },
       { source: "/about", destination: "/settings", permanent: true },
-      // Consolidated routes — reduce duplicate pages
+
+      // Consolidated routes — UX transformation
       { source: "/leaderboard", destination: "/bestenliste", permanent: true },
       { source: "/grades", destination: "/noten", permanent: true },
       { source: "/achievements", destination: "/erfolge", permanent: true },
@@ -73,6 +74,17 @@ const nextConfig = {
       { source: "/insights", destination: "/review", permanent: true },
       { source: "/progress", destination: "/overview", permanent: true },
       { source: "/fortschritt", destination: "/overview", permanent: true },
+
+      // Removed standalone pages → integrated into parent features
+      { source: "/navigator", destination: "/dashboard", permanent: true },
+      { source: "/quick-review", destination: "/flashcards", permanent: true },
+      { source: "/smart", destination: "/calendar", permanent: true },
+      { source: "/knowledge", destination: "/guided-session", permanent: true },
+      { source: "/lernplan", destination: "/guided-session", permanent: true },
+      { source: "/brainstorming", destination: "/mindmaps", permanent: true },
+      { source: "/connect", destination: "/groups", permanent: true },
+      { source: "/timeline", destination: "/dna", permanent: true },
+      { source: "/ai-assistant", destination: "/ki", permanent: true },
     ];
   },
 
