@@ -3,7 +3,7 @@
 import { memo } from "react";
 import Link from "next/link";
 import { useTranslation } from "@/lib/i18n";
-import { Lightbulb, GitBranch, Calculator, Zap, Brain, Target, FileText } from "lucide-react";
+import { Lightbulb, GitBranch, Calculator, Zap, Brain, Target, FileText, BookOpen } from "lucide-react";
 
 interface Props {
   moduleId: string;
@@ -21,6 +21,7 @@ function ModuleToolsBar({ moduleId, moduleName, moduleColor, compact }: Props) {
   const { t } = useTranslation();
 
   const tools = [
+    { href: `/modules/${moduleId}/learn`, icon: BookOpen, label: "Lernraum", color: "text-brand-600" },
     { href: `/flashcards?module=${moduleId}`, icon: Zap, label: t("nav.flashcards") || "Karteikarten", color: "text-violet-500" },
     { href: `/guided-session?module=${moduleId}`, icon: Brain, label: t("nav.guidedSession") || "Lernsession", color: "text-brand-500" },
     { href: `/brainstorming?module=${moduleId}`, icon: Lightbulb, label: "Brainstorming", color: "text-amber-500" },

@@ -71,6 +71,7 @@ export interface ModuleIntelligence {
     topicCount: number;
     averageLevel: number; // 0-100
     weakTopics: string[]; // Themen mit level < 40
+    examRelevantCount: number; // Topics marked as exam-relevant
     reviewDue: number; // Themen die Review brauchen
     flashcardsDue: number;
     totalFlashcards: number;

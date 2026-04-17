@@ -235,6 +235,7 @@ async function buildModuleIntelligenceServer(
           topicCount: 0,
           averageLevel: 0,
           weakTopics: [],
+          examRelevantCount: 0,
           reviewDue: 0,
           flashcardsDue: 0,
           totalFlashcards: 0,

@@ -76,6 +76,7 @@ function makeModule(overrides: Partial<ModuleIntelligence> = {}): ModuleIntellig
       topicCount: 10,
       averageLevel: 65,
       weakTopics: ["Regression"],
+      examRelevantCount: 0,
       reviewDue: 2,
       flashcardsDue: 5,
       totalFlashcards: 50,
