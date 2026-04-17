@@ -300,7 +300,7 @@ function EngineContextSection({
 }: {
   snapshot: DnaSnapshot;
 }) {
-  const { state, modules } = useCommandCenter();
+  const { state, modules } = useCommandCenter(undefined, true);
 
   if (!state || modules.length === 0) return null;
 

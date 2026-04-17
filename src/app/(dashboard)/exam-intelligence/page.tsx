@@ -507,7 +507,7 @@ function RecommendationCard({
 
 export default function ExamIntelligencePage() {
   const { data, loading, refreshing, error, refresh, dismissRecommendation } = useExamIntelligence();
-  const { state: engineState, modules: engineModules, loading: engineLoading } = useCommandCenter();
+  const { state: engineState, modules: engineModules, loading: engineLoading } = useCommandCenter(undefined, true);
 
   const [expandedExam, setExpandedExam] = useState<string | null>(null);
   const [simulatingExam, setSimulatingExam] = useState<ExamIntelligenceItem | null>(null);

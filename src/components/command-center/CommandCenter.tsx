@@ -13,7 +13,7 @@ import { Loader2, RefreshCw, Command } from "lucide-react";
 
 export default function CommandCenter() {
   // Single entry point — one useModuleIntelligence instance for everything
-  const { state, modules, loading, refetch, computedAt } = useCommandCenter();
+  const { state, modules, loading, refetch, computedAt } = useCommandCenter(undefined, true);
   const streakData = useStreaks();
 
   // Smart automations (receives state from useCommandCenter, no duplicate hooks)

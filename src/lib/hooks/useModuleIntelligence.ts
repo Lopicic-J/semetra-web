@@ -96,7 +96,12 @@ const EMPTY_RAW: RawData = {
 };
 
 // ─── Main Hook ───────────────────────────────────────────────
-export function useModuleIntelligence(): UseModuleIntelligenceResult {
+/**
+ * @param standalone — When true, opens own realtime channels (for pages
+ *   that don't use useModules/useTasks/useGrades). When false (default),
+ *   listens to custom events dispatched by useSupabaseQuery.
+ */
+export function useModuleIntelligence(standalone = false): UseModuleIntelligenceResult {
   // Stable supabase client — never changes across renders
   const supabaseRef = useRef(createClient());
   const supabase = supabaseRef.current;
@@ -180,26 +185,43 @@ export function useModuleIntelligence(): UseModuleIntelligenceResult {
     };
   }, [doFetch]);
 
-  // ─── Realtime updates — listens to events from useSupabaseQuery channels
-  // instead of opening duplicate channels for modules/tasks/grades
+  // ─── Realtime: event-based (shared pages) or own channels (standalone) ──
   useEffect(() => {
-    const WATCHED_TABLES = new Set(["modules", "tasks", "grades"]);
+    const timeLogHandler = () => debouncedFetch();
+    window.addEventListener("time-log-updated", timeLogHandler);
 
+    if (standalone) {
+      // Standalone mode: open own channels (for pages without useModules/useTasks/useGrades)
+      const channels = [
+        supabase.channel("mi-modules")
+          .on("postgres_changes", { event: "*", schema: "public", table: "modules" }, debouncedFetch)
+          .subscribe(),
+        supabase.channel("mi-tasks")
+          .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, debouncedFetch)
+          .subscribe(),
+        supabase.channel("mi-grades")
+          .on("postgres_changes", { event: "*", schema: "public", table: "grades" }, debouncedFetch)
+          .subscribe(),
+      ];
+      return () => {
+        channels.forEach((ch) => supabase.removeChannel(ch));
+        window.removeEventListener("time-log-updated", timeLogHandler);
+      };
+    }
+
+    // Shared mode: listen to events from useSupabaseQuery channels
+    const WATCHED_TABLES = new Set(["modules", "tasks", "grades"]);
     const realtimeHandler = (e: Event) => {
       const table = (e as CustomEvent).detail?.table;
       if (WATCHED_TABLES.has(table)) debouncedFetch();
     };
-
-    const timeLogHandler = () => debouncedFetch();
-
     window.addEventListener("supabase-realtime-update", realtimeHandler);
-    window.addEventListener("time-log-updated", timeLogHandler);
 
     return () => {
       window.removeEventListener("supabase-realtime-update", realtimeHandler);
       window.removeEventListener("time-log-updated", timeLogHandler);
     };
-  }, [debouncedFetch]);
+  }, [supabase, debouncedFetch, standalone]);
 
   // ─── Aggregate into ModuleIntelligence ─────────────────────
   const modules = useMemo<ModuleIntelligence[]>(() => {

@@ -51,9 +51,11 @@ interface UseCommandCenterResult {
 }
 
 export function useCommandCenter(
-  config: DecisionEngineConfig = DEFAULT_ENGINE_CONFIG
+  config: DecisionEngineConfig = DEFAULT_ENGINE_CONFIG,
+  /** Set true on pages that don't use useModules/useTasks/useGrades */
+  standalone = false,
 ): UseCommandCenterResult {
-  const { modules, loading, refetch, computedAt } = useModuleIntelligence();
+  const { modules, loading, refetch, computedAt } = useModuleIntelligence(standalone);
   const supabase = createClient();
   const refreshCheckRef = useRef<NodeJS.Timeout | null>(null);
   const [dnaProfile, setDnaProfile] = useState<DnaProfile | null>(null);
