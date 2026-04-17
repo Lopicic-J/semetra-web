@@ -271,12 +271,37 @@ export function evaluateAutomations(
     }
   }
 
-  // Prüfung ohne Vorbereitungsplan
+  // Prüfung + leeres Modul → KRITISCH: Topics müssen zuerst generiert werden
+  for (const module of modules) {
+    if (
+      module.exams.daysUntilNext !== null &&
+      module.exams.daysUntilNext <= 21 &&
+      module.exams.daysUntilNext > 0 &&
+      module.knowledge.topicCount === 0 &&
+      module.knowledge.totalFlashcards === 0
+    ) {
+      automations.push({
+        id: `exam-empty-module-${module.moduleId}`,
+        type: "exam_no_prep",
+        priority: "critical",
+        title: `Prüfung "${module.exams.next?.title}" in ${module.exams.daysUntilNext} Tagen — keine Lerninhalte!`,
+        message: `"${module.moduleName}" hat noch keine Topics oder Flashcards. Generiere jetzt Lerninhalte, damit Semetra dich gezielt vorbereiten kann.`,
+        moduleId: module.moduleId,
+        dismissable: false,
+        actionLabel: "Topics generieren",
+        actionHref: `/module-setup`,
+        dedupeKey: `exam-empty-${module.moduleId}`,
+      });
+    }
+  }
+
+  // Prüfung ohne Vorbereitungsplan (nur wenn Modul Topics HAT)
   for (const module of modules) {
     if (
       module.exams.daysUntilNext !== null &&
       module.exams.daysUntilNext <= 7 &&
-      module.exams.daysUntilNext > 0
+      module.exams.daysUntilNext > 0 &&
+      module.knowledge.topicCount > 0 // Nur wenn Topics existieren
     ) {
       automations.push({
         id: `exam-no-prep-${module.moduleId}`,

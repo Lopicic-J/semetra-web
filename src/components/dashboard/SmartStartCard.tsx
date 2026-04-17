@@ -47,7 +47,7 @@ function getActionLink(action: Action): string {
       return `/ki?module=${action.moduleId}`;
 
     case "create_material":
-      return `/notes`;
+      return `/module-setup`;
 
     default:
       return `/timer?${params.toString()}`;

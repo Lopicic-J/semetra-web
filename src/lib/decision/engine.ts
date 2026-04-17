@@ -712,6 +712,27 @@ export function generateActions(
     relatedEntityType,
   });
 
+  // ── Modul ohne Inhalte → Topics zuerst generieren (vor Prüfungsvorbereitung) ──
+  if (
+    module.status === "active" &&
+    module.knowledge.topicCount === 0 &&
+    module.knowledge.totalFlashcards === 0 &&
+    module.exams.next &&
+    (module.exams.daysUntilNext ?? 999) <= 21
+  ) {
+    actions.push(
+      makeAction(
+        "create_material",
+        "now",
+        `Lerninhalte für ${module.moduleName} generieren`,
+        `Dieses Modul hat noch keine Topics oder Flashcards. Generiere jetzt Inhalte, damit Semetra dich gezielt auf die Prüfung vorbereiten kann.`,
+        5, // Only takes a few seconds with AI
+        `Prüfung in ${module.exams.daysUntilNext} Tagen, aber keine Lerninhalte vorhanden`,
+        "Ohne Topics kann Semetra keine Wissenslücken erkennen und keine gezielte Vorbereitung empfehlen"
+      )
+    );
+  }
+
   // ── Prüfungsvorbereitung ──
   if (module.exams.next) {
     const days = module.exams.daysUntilNext ?? 999;
