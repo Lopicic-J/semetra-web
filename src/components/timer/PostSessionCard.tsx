@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import Link from "next/link";
-import { CheckCircle2, ArrowRight, Coffee, Play, Clock, PenLine } from "lucide-react";
+import { CheckCircle2, ArrowRight, Coffee, Play, Clock, PenLine, Send } from "lucide-react";
 import { getActionLink } from "@/components/dashboard/SmartStartCard";
 import type { Action } from "@/lib/decision/types";
 
@@ -25,6 +25,24 @@ interface Props {
 function PostSessionCard({ sessionDuration, moduleName, visible, onDismiss }: Props) {
   const [nextAction, setNextAction] = useState<Action | null>(null);
   const [loading, setLoading] = useState(false);
+  const [quickNote, setQuickNote] = useState("");
+  const [noteSaved, setNoteSaved] = useState(false);
+
+  const saveQuickNote = useCallback(async () => {
+    if (!quickNote.trim()) return;
+    try {
+      await fetch("/api/reflections", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          learned: quickNote,
+          sessionDurationSeconds: sessionDuration,
+          sessionType: "timer",
+        }),
+      });
+      setNoteSaved(true);
+    } catch {}
+  }, [quickNote, sessionDuration]);
 
   useEffect(() => {
     if (!visible) return;
@@ -92,6 +110,29 @@ function PostSessionCard({ sessionDuration, moduleName, visible, onDismiss }: Pr
           </Link>
         </div>
       ) : null}
+
+      {/* Quick reflection note */}
+      {!noteSaved ? (
+        <div className="mt-3 flex gap-2">
+          <input
+            type="text"
+            value={quickNote}
+            onChange={e => setQuickNote(e.target.value)}
+            placeholder="Was habe ich gelernt? (optional)"
+            className="flex-1 px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800/30 bg-white/60 dark:bg-surface-800/40 text-xs placeholder:text-emerald-400"
+            onKeyDown={e => e.key === "Enter" && saveQuickNote()}
+          />
+          {quickNote.trim() && (
+            <button onClick={saveQuickNote} className="px-2 py-1.5 rounded-lg text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/30">
+              <Send size={12} />
+            </button>
+          )}
+        </div>
+      ) : (
+        <p className="mt-3 text-[10px] text-emerald-500 flex items-center gap-1">
+          <CheckCircle2 size={10} /> Notiz gespeichert
+        </p>
+      )}
 
       {/* Actions row */}
       <div className="flex items-center gap-2 mt-4 pt-3 border-t border-emerald-100/50 dark:border-emerald-800/20">
