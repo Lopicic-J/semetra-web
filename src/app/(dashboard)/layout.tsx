@@ -4,15 +4,12 @@ import { createClient } from "@/lib/supabase/server";
 import Sidebar from "@/components/sidebar/Sidebar";
 import MobileHeader from "@/components/sidebar/MobileHeader";
 import I18nWrapper from "@/components/providers/I18nWrapper";
-import InstallPrompt from "@/components/pwa/InstallPrompt";
 import OfflineBanner from "@/components/pwa/OfflineBanner";
-import { AchievementUnlockPortal } from "@/components/achievements/UnlockAnimation";
 import { VerificationBanner } from "@/components/ui/VerificationBanner";
-import WelcomeTour from "@/components/onboarding/WelcomeTour";
-import UnifiedFABWrapper from "@/components/ui/UnifiedFABWrapper";
 import SiblingTabs from "@/components/ui/SiblingTabs";
 import LayoutEditorWrapper from "@/components/providers/LayoutEditorWrapper";
 import { SkeletonDashboard } from "@/components/ui/Skeleton";
+import DashboardOverlays from "@/components/ui/DashboardOverlays";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -59,10 +56,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             </main>
           </div>
         </div>
-        <UnifiedFABWrapper />
-        <InstallPrompt />
-        <AchievementUnlockPortal />
-        <WelcomeTour />
+        <DashboardOverlays />
       </LayoutEditorWrapper>
     </I18nWrapper>
   );
