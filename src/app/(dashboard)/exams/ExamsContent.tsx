@@ -155,7 +155,7 @@ export default function ExamsPage() {
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-2xl font-bold text-surface-900">{t("nav.exams")}</h1>
           <p className="text-surface-500 text-sm mt-0.5">{t("exams.subtitle", { upcoming: upcoming.length, past: past.length })}</p>
@@ -164,6 +164,18 @@ export default function ExamsPage() {
           <Plus size={16} /> {t("exams.addExam")}
         </button>
       </div>
+
+      {/* Quick Actions */}
+      {upcoming.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-6">
+          <Link href="/exam-prep" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950/20 hover:bg-brand-100 dark:hover:bg-brand-950/30 border border-brand-200 dark:border-brand-800/40 no-underline transition-colors">
+            📋 {t("nav.examPrep") || "Vorbereitungsplan"}
+          </Link>
+          <Link href={`/exam-simulator?module=${upcoming[0]?.module_id ?? ""}`} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/20 hover:bg-violet-100 dark:hover:bg-violet-950/30 border border-violet-200 dark:border-violet-800/40 no-underline transition-colors">
+            🎯 {t("nav.examSimulator") || "Prüfungssimulator"}
+          </Link>
+        </div>
+      )}
 
       {loading ? (
         <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-20 bg-surface-100 rounded-xl animate-pulse" />)}</div>
