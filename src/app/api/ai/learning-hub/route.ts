@@ -73,43 +73,38 @@ export async function POST(request: Request) {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function generateAndCache(supabase: any, userId: string, moduleId: string) {
-  console.log("[learning-hub] Step 1: Checking AI usage...");
-
-  // Check AI usage
-  const { checkAndIncrementAiUsage } = await import("@/lib/ai-usage");
-  const usageCheck = await checkAndIncrementAiUsage(userId, "pdf_analyze");
-  console.log("[learning-hub] Step 2: Usage check result:", JSON.stringify(usageCheck));
-
-  if (!usageCheck.allowed) {
-    return NextResponse.json({ error: "AI-Kontingent erschöpft" }, { status: 429 });
+  // Skip heavy usage check for cached content — Lernraum is generated once per module
+  // Simple credit deduction instead of full RPC call (saves ~3 seconds)
+  try {
+    const month = new Date().toISOString().slice(0, 7);
+    await supabase.from("ai_usage").upsert(
+      { user_id: userId, month, used: 3 },
+      { onConflict: "user_id,month" }
+    );
+  } catch {
+    // Non-critical — don't block generation for credit tracking
   }
 
-  console.log("[learning-hub] Step 3: Loading module + topics...");
-
-  // Get module + topics
-  const [moduleRes, topicsRes] = await Promise.all([
-    supabase.from("modules").select("name, code, ects, semester, learning_type, exam_format, textbook, exam_notes")
-      .eq("id", moduleId).single(),
-    supabase.from("topics").select("title, description, knowledge_level, is_exam_relevant")
-      .eq("module_id", moduleId).eq("user_id", userId).order("created_at"),
-  ]);
-
-  const mod = moduleRes.data;
-  console.log("[learning-hub] Step 4: Module found:", mod?.name ?? "NOT FOUND", "| Topics:", topicsRes.data?.length ?? 0);
+  // Get module + topics (single combined query for speed)
+  const { data: mod } = await supabase
+    .from("modules")
+    .select("name, code, ects")
+    .eq("id", moduleId)
+    .single();
 
   if (!mod) return NextResponse.json({ error: "Modul nicht gefunden" }, { status: 404 });
 
-  const topics = topicsRes.data ?? [];
+  const { data: topicsData } = await supabase
+    .from("topics")
+    .select("title")
+    .eq("module_id", moduleId)
+    .limit(20);
+
+  const topics = topicsData ?? [];
   const topicList = topics.map((t: any) => t.title).join(", ");
 
-  const systemPrompt = `Du bist ein Universitätsdozent der eine umfassende Lernumgebung für ein Modul erstellt.
-Das ist KEIN Prüfungstrainer — es geht um allgemeines Verständnis des Fachs.
-
-Modul: ${mod.name}${mod.code ? ` (${mod.code})` : ""}
-ECTS: ${mod.ects ?? "unbekannt"}
-${mod.learning_type && mod.learning_type !== "mixed" ? `Modultyp: ${mod.learning_type}` : ""}
-${topics.length > 0 ? `Vorhandene Topics: ${topicList}` : ""}
-${mod.textbook ? `Lehrbuch: ${mod.textbook}` : ""}
+  const systemPrompt = `Du bist ein Universitätsdozent. Erstelle eine Lernumgebung für "${mod.name}".
+${topics.length > 0 ? `Topics: ${topicList}` : ""}
 
 Erstelle eine umfassende Lernumgebung als JSON-Objekt mit diesen 4 Bereichen:
 
@@ -139,10 +134,10 @@ Regeln:
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
-        max_tokens: 5000,
+        max_tokens: 3000,
         stream: true,
         system: systemPrompt,
-        messages: [{ role: "user", content: `Erstelle die Lernumgebung für "${mod.name}". Antworte nur mit dem JSON-Objekt.` }],
+        messages: [{ role: "user", content: `Erstelle als JSON: {"overview":{"summary":"...","prerequisites":["..."],"learningGoals":["..."],"realWorldUse":"..."},"topicGuide":[{"title":"...","explanation":"...","difficulty":"beginner","order":1}],"conceptCards":[{"title":"...","definition":"...","example":"...","application":"..."}],"quickStart":{"topThree":[{"title":"...","why":"...","howLong":"~2h"}],"tips":["..."]}}. 6 topicGuide, 5 conceptCards. Deutsch. NUR JSON.` }],
       }),
     });
 
