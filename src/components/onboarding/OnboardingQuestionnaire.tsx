@@ -111,7 +111,7 @@ function OptionCard({
         "w-full text-left p-4 sm:p-5 rounded-2xl border-2 transition-all duration-200",
         selected
           ? "border-brand-500 bg-brand-50 dark:bg-brand-500/10 shadow-md shadow-brand-500/10"
- :"border-surface-200 bg-[rgb(var(--card-bg))] hover:border-surface-300 dark:hover:border-surface-600 hover:shadow-sm"
+ :"border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] hover:border-surface-300 dark:hover:border-surface-600 hover:shadow-sm"
       )}
     >
       <div className="flex items-center gap-3">
@@ -124,7 +124,7 @@ function OptionCard({
           </div>
         )}
         <div className="min-w-0">
- <p className={clsx("font-semibold text-sm sm:text-base", selected ?"text-brand-700 dark:text-brand-400" :"text-surface-700")}>{label}</p>
+ <p className={clsx("font-semibold text-sm sm:text-base", selected ?"text-brand-700 dark:text-brand-400" :"text-surface-700 dark:text-surface-200")}>{label}</p>
           {description && <p className="text-xs sm:text-sm text-surface-500 mt-0.5">{description}</p>}
         </div>
         {selected && (
@@ -153,9 +153,9 @@ function EnergySlider({
   const labels = ["Sehr tief", "Tief", "Mittel", "Hoch", "Sehr hoch"];
   const colors = ["bg-red-400", "bg-orange-400", "bg-yellow-400", "bg-lime-400", "bg-green-400"];
   return (
- <div className="p-4 sm:p-5 rounded-2xl bg-[rgb(var(--card-bg))] border border-surface-200">
+ <div className="p-4 sm:p-5 rounded-2xl bg-[rgb(var(--card-bg))] border border-surface-200 dark:border-surface-700">
       <div className="flex items-center justify-between mb-3">
- <span className="text-sm sm:text-base font-semibold text-surface-700">
+ <span className="text-sm sm:text-base font-semibold text-surface-700 dark:text-surface-200">
           {emoji} {label}
         </span>
         <span className={clsx("text-xs font-semibold px-2.5 py-1 rounded-full", colors[value - 1], "text-white")}>{labels[value - 1]}</span>
@@ -166,7 +166,7 @@ function EnergySlider({
         max={5}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
- className="w-full h-2.5 rounded-full appearance-none bg-surface-200 accent-brand-500 cursor-pointer"
+ className="w-full h-2.5 rounded-full appearance-none bg-surface-200 dark:bg-surface-700 accent-brand-500 cursor-pointer"
       />
       <div className="flex justify-between text-xs text-surface-400 mt-1.5 px-0.5">
         {[1, 2, 3, 4, 5].map(n => (
@@ -194,7 +194,7 @@ function ToggleChip({
         "px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border-2",
         active
           ? "bg-brand-500 text-white border-brand-500 shadow-md shadow-brand-500/20"
- :"bg-[rgb(var(--card-bg))] text-surface-600 border-surface-200 hover:border-surface-300"
+ :"bg-[rgb(var(--card-bg))] text-surface-600 dark:text-surface-400 border-surface-200 dark:border-surface-700 hover:border-surface-300"
       )}
     >
       {active && <span className="mr-1">&#10003;</span>}
@@ -325,7 +325,7 @@ export default function OnboardingQuestionnaire() {
   const renderGoalsStep = () => (
     <div className="space-y-6">
       <div>
- <label className="block text-sm sm:text-base font-semibold text-surface-700 mb-3">Was ist dein Hauptziel?</label>
+ <label className="block text-sm sm:text-base font-semibold text-surface-700 dark:text-surface-200 mb-3">Was ist dein Hauptziel?</label>
         <div className="space-y-2.5">
           {GOAL_OPTIONS.map((opt) => (
             <OptionCard key={opt.value} selected={goals.primary_goal === opt.value} onClick={() => setGoals((g) => ({ ...g, primary_goal: opt.value }))} label={opt.label} description={opt.desc} icon={opt.icon} />
@@ -333,14 +333,14 @@ export default function OnboardingQuestionnaire() {
         </div>
       </div>
 
- <div className="p-4 sm:p-5 rounded-2xl bg-[rgb(var(--card-bg))] border border-surface-200">
- <label className="block text-sm sm:text-base font-semibold text-surface-700 mb-3">
+ <div className="p-4 sm:p-5 rounded-2xl bg-[rgb(var(--card-bg))] border border-surface-200 dark:border-surface-700">
+ <label className="block text-sm sm:text-base font-semibold text-surface-700 dark:text-surface-200 mb-3">
           Wie viele Stunden pro Woche möchtest du lernen?
         </label>
         <div className="flex items-center gap-4">
           <input type="range" min={5} max={60} step={5} value={goals.weekly_study_target_hours}
             onChange={(e) => setGoals((g) => ({ ...g, weekly_study_target_hours: Number(e.target.value) }))}
- className="flex-1 h-2.5 rounded-full appearance-none bg-surface-200 accent-brand-500 cursor-pointer" />
+ className="flex-1 h-2.5 rounded-full appearance-none bg-surface-200 dark:bg-surface-700 accent-brand-500 cursor-pointer" />
           <span className="text-2xl font-bold text-brand-600 min-w-[4rem] text-right">{goals.weekly_study_target_hours}h</span>
         </div>
         <div className="flex justify-between text-xs text-surface-400 mt-1"><span>5h</span><span>Wenig</span><span>Mittel</span><span>Viel</span><span>60h</span></div>
@@ -352,32 +352,32 @@ export default function OnboardingQuestionnaire() {
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <div>
- <label className="block text-sm font-semibold text-surface-700 mb-1.5">Aufstehzeit</label>
+ <label className="block text-sm font-semibold text-surface-700 dark:text-surface-200 mb-1.5">Aufstehzeit</label>
           <input type="time" value={schedule.wake_time} onChange={(e) => setSchedule((s) => ({ ...s, wake_time: e.target.value }))}
- className="w-full px-3 py-3 rounded-xl border border-surface-200 bg-[rgb(var(--card-bg))] text-surface-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm sm:text-base" />
+ className="w-full px-3 py-3 rounded-xl border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-surface-800 dark:text-surface-100 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm sm:text-base" />
         </div>
         <div>
- <label className="block text-sm font-semibold text-surface-700 mb-1.5">Schlafenszeit</label>
+ <label className="block text-sm font-semibold text-surface-700 dark:text-surface-200 mb-1.5">Schlafenszeit</label>
           <input type="time" value={schedule.sleep_time} onChange={(e) => setSchedule((s) => ({ ...s, sleep_time: e.target.value }))}
- className="w-full px-3 py-3 rounded-xl border border-surface-200 bg-[rgb(var(--card-bg))] text-surface-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm sm:text-base" />
+ className="w-full px-3 py-3 rounded-xl border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-surface-800 dark:text-surface-100 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm sm:text-base" />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <div>
- <label className="block text-sm font-semibold text-surface-700 mb-1.5">Lernzeit ab</label>
+ <label className="block text-sm font-semibold text-surface-700 dark:text-surface-200 mb-1.5">Lernzeit ab</label>
           <input type="time" value={schedule.available_from} onChange={(e) => setSchedule((s) => ({ ...s, available_from: e.target.value }))}
- className="w-full px-3 py-3 rounded-xl border border-surface-200 bg-[rgb(var(--card-bg))] text-surface-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm sm:text-base" />
+ className="w-full px-3 py-3 rounded-xl border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-surface-800 dark:text-surface-100 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm sm:text-base" />
         </div>
         <div>
- <label className="block text-sm font-semibold text-surface-700 mb-1.5">Lernzeit bis</label>
+ <label className="block text-sm font-semibold text-surface-700 dark:text-surface-200 mb-1.5">Lernzeit bis</label>
           <input type="time" value={schedule.available_until} onChange={(e) => setSchedule((s) => ({ ...s, available_until: e.target.value }))}
- className="w-full px-3 py-3 rounded-xl border border-surface-200 bg-[rgb(var(--card-bg))] text-surface-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm sm:text-base" />
+ className="w-full px-3 py-3 rounded-xl border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-surface-800 dark:text-surface-100 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm sm:text-base" />
         </div>
       </div>
 
       <div>
- <label className="block text-sm font-semibold text-surface-700 mb-3">Beschäftigte Tage</label>
+ <label className="block text-sm font-semibold text-surface-700 dark:text-surface-200 mb-3">Beschäftigte Tage</label>
         <div className="flex flex-wrap gap-2">
           {DAYS.map((day) => (
             <ToggleChip key={day.value} label={day.label} active={schedule.busy_days.includes(day.value)}
@@ -386,19 +386,19 @@ export default function OnboardingQuestionnaire() {
         </div>
       </div>
 
- <div className="p-4 sm:p-5 rounded-2xl bg-[rgb(var(--card-bg))] border border-surface-200">
+ <div className="p-4 sm:p-5 rounded-2xl bg-[rgb(var(--card-bg))] border border-surface-200 dark:border-surface-700">
         <label className="flex items-center gap-3 cursor-pointer">
           <input type="checkbox" checked={schedule.has_job}
             onChange={(e) => setSchedule((s) => ({ ...s, has_job: e.target.checked, job_hours_per_week: e.target.checked ? s.job_hours_per_week : 0 }))}
             className="w-5 h-5 rounded border-surface-300 text-brand-500 focus:ring-brand-500" />
- <span className="text-sm sm:text-base text-surface-700 font-medium">Ich arbeite neben dem Studium</span>
+ <span className="text-sm sm:text-base text-surface-700 dark:text-surface-200 font-medium">Ich arbeite neben dem Studium</span>
         </label>
         {schedule.has_job && (
           <div className="mt-4 ml-8">
- <label className="block text-sm text-surface-600 mb-1.5">Stunden pro Woche</label>
+ <label className="block text-sm text-surface-600 dark:text-surface-400 mb-1.5">Stunden pro Woche</label>
             <input type="number" min={1} max={40} value={schedule.job_hours_per_week}
               onChange={(e) => setSchedule((s) => ({ ...s, job_hours_per_week: Number(e.target.value) }))}
- className="w-28 px-3 py-2.5 rounded-xl border border-surface-200 bg-[rgb(var(--card-bg))] text-surface-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm" />
+ className="w-28 px-3 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-surface-800 dark:text-surface-100 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm" />
           </div>
         )}
       </div>
@@ -411,18 +411,18 @@ export default function OnboardingQuestionnaire() {
       <EnergySlider label="Nachmittags (12–18 Uhr)" emoji="☀️" value={energy.energy_afternoon} onChange={(v) => setEnergy((e) => ({ ...e, energy_afternoon: v }))} />
       <EnergySlider label="Abends (18–24 Uhr)" emoji="🌙" value={energy.energy_evening} onChange={(v) => setEnergy((e) => ({ ...e, energy_evening: v }))} />
 
- <div className="p-4 sm:p-5 rounded-2xl bg-[rgb(var(--card-bg))] border border-surface-200">
- <label className="block text-sm sm:text-base font-semibold text-surface-700 mb-3">Ideale Lerneinheit-Dauer</label>
+ <div className="p-4 sm:p-5 rounded-2xl bg-[rgb(var(--card-bg))] border border-surface-200 dark:border-surface-700">
+ <label className="block text-sm sm:text-base font-semibold text-surface-700 dark:text-surface-200 mb-3">Ideale Lerneinheit-Dauer</label>
         <div className="flex items-center gap-4">
           <input type="range" min={15} max={120} step={5} value={energy.preferred_session_length}
             onChange={(e) => setEnergy((en) => ({ ...en, preferred_session_length: Number(e.target.value) }))}
- className="flex-1 h-2.5 rounded-full appearance-none bg-surface-200 accent-brand-500 cursor-pointer" />
+ className="flex-1 h-2.5 rounded-full appearance-none bg-surface-200 dark:bg-surface-700 accent-brand-500 cursor-pointer" />
           <span className="text-2xl font-bold text-brand-600 min-w-[5rem] text-right">{energy.preferred_session_length} min</span>
         </div>
       </div>
 
       <div>
- <label className="block text-sm sm:text-base font-semibold text-surface-700 mb-3">Konzentrationsfähigkeit</label>
+ <label className="block text-sm sm:text-base font-semibold text-surface-700 dark:text-surface-200 mb-3">Konzentrationsfähigkeit</label>
         <div className="space-y-2.5">
           <OptionCard selected={energy.focus_challenge === "easily_distracted"} onClick={() => setEnergy((e) => ({ ...e, focus_challenge: "easily_distracted" }))} label="Leicht abgelenkt" description="Brauche kurze Sessions und häufige Pausen" />
           <OptionCard selected={energy.focus_challenge === "moderate"} onClick={() => setEnergy((e) => ({ ...e, focus_challenge: "moderate" }))} label="Durchschnittlich" description="Kann mich meistens gut konzentrieren" />
@@ -444,7 +444,7 @@ export default function OnboardingQuestionnaire() {
     return (
       <div className="space-y-6">
         <div>
- <label className="block text-sm sm:text-base font-semibold text-surface-700 mb-3">Wie lernst du am besten?</label>
+ <label className="block text-sm sm:text-base font-semibold text-surface-700 dark:text-surface-200 mb-3">Wie lernst du am besten?</label>
           <div className="space-y-2.5">
             {styles.map((s) => (
               <OptionCard key={s.value} selected={learningStyle.learning_style === s.value}
@@ -455,7 +455,7 @@ export default function OnboardingQuestionnaire() {
         </div>
 
         <div>
- <label className="block text-sm sm:text-base font-semibold text-surface-700 mb-3">Welche Methoden nutzt du?</label>
+ <label className="block text-sm sm:text-base font-semibold text-surface-700 dark:text-surface-200 mb-3">Welche Methoden nutzt du?</label>
           <div className="flex flex-wrap gap-2.5">
             <ToggleChip label="Lerngruppen" active={learningStyle.prefers_group_study} onClick={() => setLearningStyle((ls) => ({ ...ls, prefers_group_study: !ls.prefers_group_study }))} />
             <ToggleChip label="Karteikarten" active={learningStyle.uses_flashcards} onClick={() => setLearningStyle((ls) => ({ ...ls, uses_flashcards: !ls.uses_flashcards }))} />
@@ -469,33 +469,33 @@ export default function OnboardingQuestionnaire() {
 
   const renderSituationStep = () => (
     <div className="space-y-5">
- <div className="p-4 sm:p-5 rounded-2xl bg-[rgb(var(--card-bg))] border border-surface-200">
- <label className="block text-sm sm:text-base font-semibold text-surface-700 mb-3">In welchem Semester bist du?</label>
+ <div className="p-4 sm:p-5 rounded-2xl bg-[rgb(var(--card-bg))] border border-surface-200 dark:border-surface-700">
+ <label className="block text-sm sm:text-base font-semibold text-surface-700 dark:text-surface-200 mb-3">In welchem Semester bist du?</label>
         <div className="flex items-center gap-4">
           <input type="range" min={1} max={14} value={situation.semester_number}
             onChange={(e) => setSituation((s) => ({ ...s, semester_number: Number(e.target.value) }))}
- className="flex-1 h-2.5 rounded-full appearance-none bg-surface-200 accent-brand-500 cursor-pointer" />
+ className="flex-1 h-2.5 rounded-full appearance-none bg-surface-200 dark:bg-surface-700 accent-brand-500 cursor-pointer" />
           <span className="text-2xl font-bold text-brand-600 min-w-[5rem] text-right">{situation.semester_number}. Sem.</span>
         </div>
       </div>
 
- <div className="p-4 sm:p-5 rounded-2xl bg-[rgb(var(--card-bg))] border border-surface-200">
- <label className="block text-sm sm:text-base font-semibold text-surface-700 mb-3">Wie viele Module belegst du?</label>
+ <div className="p-4 sm:p-5 rounded-2xl bg-[rgb(var(--card-bg))] border border-surface-200 dark:border-surface-700">
+ <label className="block text-sm sm:text-base font-semibold text-surface-700 dark:text-surface-200 mb-3">Wie viele Module belegst du?</label>
         <div className="flex items-center gap-4">
           <input type="range" min={1} max={15} value={situation.modules_this_semester}
             onChange={(e) => setSituation((s) => ({ ...s, modules_this_semester: Number(e.target.value) }))}
- className="flex-1 h-2.5 rounded-full appearance-none bg-surface-200 accent-brand-500 cursor-pointer" />
+ className="flex-1 h-2.5 rounded-full appearance-none bg-surface-200 dark:bg-surface-700 accent-brand-500 cursor-pointer" />
           <span className="text-2xl font-bold text-brand-600 min-w-[4rem] text-right">{situation.modules_this_semester}</span>
         </div>
       </div>
 
- <div className="p-4 sm:p-5 rounded-2xl bg-[rgb(var(--card-bg))] border border-surface-200">
- <label className="block text-sm sm:text-base font-semibold text-surface-700 mb-3">Wie stark ist deine Prüfungsangst?</label>
+ <div className="p-4 sm:p-5 rounded-2xl bg-[rgb(var(--card-bg))] border border-surface-200 dark:border-surface-700">
+ <label className="block text-sm sm:text-base font-semibold text-surface-700 dark:text-surface-200 mb-3">Wie stark ist deine Prüfungsangst?</label>
         <div className="flex items-center gap-4">
           <input type="range" min={1} max={5} value={situation.exam_anxiety_level}
             onChange={(e) => setSituation((s) => ({ ...s, exam_anxiety_level: Number(e.target.value) }))}
- className="flex-1 h-2.5 rounded-full appearance-none bg-surface-200 accent-brand-500 cursor-pointer" />
-          <span className="text-sm font-semibold text-surface-600 min-w-[6rem] text-right">
+ className="flex-1 h-2.5 rounded-full appearance-none bg-surface-200 dark:bg-surface-700 accent-brand-500 cursor-pointer" />
+          <span className="text-sm font-semibold text-surface-600 dark:text-surface-300 min-w-[6rem] text-right">
             {["", "Kaum", "Etwas", "Mittel", "Stark", "Sehr stark"][situation.exam_anxiety_level]}
           </span>
         </div>
@@ -569,14 +569,14 @@ export default function OnboardingQuestionnaire() {
       </div>
 
       {/* RIGHT — Form area */}
- <div className="flex-1 flex flex-col bg-surface-50 min-h-screen">
+ <div className="flex-1 flex flex-col bg-surface-50 dark:bg-surface-950 min-h-screen">
         {/* Mobile header */}
         <div className="lg:hidden px-4 pt-6 pb-2">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
               <Gem size={16} className="text-white" />
             </div>
- <span className="text-base font-bold text-surface-800">Semetra Setup</span>
+ <span className="text-base font-bold text-surface-800 dark:text-surface-100">Semetra Setup</span>
           </div>
         </div>
 
@@ -604,7 +604,7 @@ export default function OnboardingQuestionnaire() {
                 <StepIcon size={28} className="text-white" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-surface-800 dark:text-white">{stepConfig.title}</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white">{stepConfig.title}</h1>
                 <p className="text-sm sm:text-base text-surface-500">{stepConfig.subtitle}</p>
               </div>
             </div>
@@ -622,7 +622,7 @@ export default function OnboardingQuestionnaire() {
         </div>
 
         {/* Bottom navigation — fixed on mobile */}
- <div className="sticky bottom-0 bg-surface-50/95 backdrop-blur-lg border-t border-surface-200 px-4 sm:px-8 lg:px-12 py-4">
+ <div className="sticky bottom-0 bg-surface-50/95 dark:bg-surface-950/95 backdrop-blur-lg border-t border-surface-200 dark:border-surface-800 px-4 sm:px-8 lg:px-12 py-4">
           <div className="max-w-2xl mx-auto flex items-center justify-between">
             <button
               type="button"

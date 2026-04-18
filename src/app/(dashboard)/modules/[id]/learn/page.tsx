@@ -189,7 +189,7 @@ export default function ModuleLearningHub() {
             </div>
             Lernraum
           </h1>
-          <p className="text-surface-500 text-sm mt-1">Allgemeines Verständnis — unabhängig von Prüfungen</p>
+          <p className="text-surface-500 dark:text-surface-400 text-sm mt-1">Allgemeines Verständnis — unabhängig von Prüfungen</p>
         </div>
         <button onClick={regenerate} disabled={regenerating}
           className="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-400 disabled:opacity-50">
@@ -206,7 +206,7 @@ export default function ModuleLearningHub() {
             className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
               activeTab === tab.id
                 ? "bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-50 shadow-sm"
-                : "text-surface-500 hover:text-surface-700"
+                : "text-surface-500 hover:text-surface-700 dark:hover:text-surface-300"
             }`}
           >
             <tab.icon size={13} />
@@ -234,7 +234,7 @@ export default function ModuleLearningHub() {
 
           {hub.overview.prerequisites?.length > 0 && (
             <div className="rounded-xl border border-surface-200 dark:border-surface-700 p-4">
-              <p className="text-xs font-medium text-surface-500 mb-2">Voraussetzungen</p>
+              <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-2">Voraussetzungen</p>
               <div className="flex flex-wrap gap-2">
                 {hub.overview.prerequisites.map((p, i) => (
                   <span key={i} className="text-xs px-2.5 py-1 rounded-lg bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400">{p}</span>
@@ -245,7 +245,7 @@ export default function ModuleLearningHub() {
 
           {hub.overview.learningGoals?.length > 0 && (
             <div className="rounded-xl border border-surface-200 dark:border-surface-700 p-4">
-              <p className="text-xs font-medium text-surface-500 mb-2">Lernziele</p>
+              <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-2">Lernziele</p>
               <div className="space-y-1.5">
                 {hub.overview.learningGoals.map((g, i) => (
                   <div key={i} className="flex items-start gap-2">
@@ -274,7 +274,7 @@ export default function ModuleLearningHub() {
                 </span>
               </div>
               <p className="text-sm text-surface-600 dark:text-surface-400 mb-2">{topic.explanation}</p>
-              <p className="text-xs text-surface-400 italic">{topic.relevance}</p>
+              <p className="text-xs text-surface-500 dark:text-surface-400 italic">{topic.relevance}</p>
             </div>
           ))}
         </div>
@@ -309,17 +309,17 @@ export default function ModuleLearningHub() {
                 </div>
 
                 <div>
-                  <p className="text-xs font-medium text-brand-500 uppercase tracking-wider mb-1">Definition</p>
+                  <p className="text-xs font-medium text-brand-500 dark:text-brand-400 uppercase tracking-wider mb-1">Definition</p>
                   <p className="text-sm text-surface-700 dark:text-surface-300">{card.definition}</p>
                 </div>
 
                 <div>
-                  <p className="text-xs font-medium text-emerald-500 uppercase tracking-wider mb-1">Beispiel</p>
+                  <p className="text-xs font-medium text-emerald-500 dark:text-emerald-400 uppercase tracking-wider mb-1">Beispiel</p>
                   <p className="text-sm text-surface-700 dark:text-surface-300">{card.example}</p>
                 </div>
 
                 <div>
-                  <p className="text-xs font-medium text-blue-500 uppercase tracking-wider mb-1">Anwendung</p>
+                  <p className="text-xs font-medium text-blue-500 dark:text-blue-400 uppercase tracking-wider mb-1">Anwendung</p>
                   <p className="text-sm text-surface-700 dark:text-surface-300">{card.application}</p>
                 </div>
 
@@ -354,7 +354,7 @@ export default function ModuleLearningHub() {
               <div className="space-y-3">
                 {hub.quickStart.topThree.map((item, i) => (
                   <div key={i} className="flex items-start gap-3">
-                    <span className="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-xs font-bold text-amber-600 shrink-0">{i + 1}</span>
+                    <span className="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-xs font-bold text-amber-600 dark:text-amber-400 shrink-0">{i + 1}</span>
                     <div>
                       <p className="text-sm font-medium text-surface-900 dark:text-surface-50">{item.title}</p>
                       <p className="text-xs text-surface-500">{item.why} · {item.howLong}</p>
@@ -380,7 +380,7 @@ export default function ModuleLearningHub() {
 
           {hub.quickStart.recommendedOrder?.length > 0 && (
             <div className="rounded-xl border border-surface-200 dark:border-surface-700 p-4">
-              <p className="text-xs font-medium text-surface-500 mb-2">Empfohlene Reihenfolge</p>
+              <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-2">Empfohlene Reihenfolge</p>
               <div className="flex flex-wrap gap-1.5">
                 {hub.quickStart.recommendedOrder.map((topic, i) => (
                   <span key={i} className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400">
