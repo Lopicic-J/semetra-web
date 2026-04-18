@@ -29,7 +29,7 @@ export function useBlockOrder(defaultOrder: string[]) {
         .from("user_layout_preferences")
         .select("block_order, hidden_blocks")
         .eq("user_id", profile.id)
-        .single();
+        .maybeSingle();
 
       if (data?.block_order) {
         const pageOrder = (data.block_order as Record<string, string[]>)[pathname];
@@ -61,7 +61,7 @@ export function useBlockOrder(defaultOrder: string[]) {
         .from("user_layout_preferences")
         .select("block_order")
         .eq("user_id", profile.id)
-        .single();
+        .maybeSingle();
 
       const current = (data?.block_order as Record<string, string[]>) ?? {};
       const updated = { ...current, [pathname]: newOrder };
@@ -87,7 +87,7 @@ export function useBlockOrder(defaultOrder: string[]) {
         .from("user_layout_preferences")
         .select("hidden_blocks")
         .eq("user_id", profile.id)
-        .single();
+        .maybeSingle();
 
       const current = (data?.hidden_blocks as Record<string, string[]>) ?? {};
       const updated = { ...current, [pathname]: Array.from(newHidden) };

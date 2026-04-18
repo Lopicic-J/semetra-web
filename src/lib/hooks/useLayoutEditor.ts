@@ -105,7 +105,7 @@ export function useLayoutEditorState(): LayoutEditorState {
         .from("user_layout_preferences")
         .select("sidebar_order, children_order, tab_order")
         .eq("user_id", profile.id)
-        .single();
+        .maybeSingle();
 
       if (data) {
         const defaults = buildDefaults();

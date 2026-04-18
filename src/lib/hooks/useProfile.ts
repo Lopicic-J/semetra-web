@@ -136,7 +136,7 @@ export function useProfile() {
       .from("profiles")
       .select("*")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     // If profile doesn't exist yet (first login before trigger fires), create it
     let finalProfile: Profile | null = null;
