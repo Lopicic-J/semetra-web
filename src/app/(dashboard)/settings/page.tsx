@@ -537,7 +537,7 @@ function PrivacyTab() {
         .from("profiles")
         .select("community_visible, online_status, connect_visible, connect_contactable, connect_show_institution, connect_show_semester, connect_show_progress, connect_bio")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
       if (data) {
         setCommunityVisible(data.community_visible ?? true);
         setOnlineStatusPref(data.online_status ?? "online");
