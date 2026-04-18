@@ -84,14 +84,28 @@ async function generateAndCache(supabase: any, userId: string, moduleId: string)
   const topics = topicsRes.data ?? [];
   const topicList = topics.map((t: any) => t.title).join(", ");
 
-  const systemPrompt = `Erstelle eine Lernumgebung für das Modul "${mod.name}". Antworte NUR mit einem JSON-Objekt, KEIN Text davor oder danach.
+  const systemPrompt = `Du bist ein Universitätsdozent der eine umfassende Lernumgebung für ein Modul erstellt.
+Das ist KEIN Prüfungstrainer — es geht um allgemeines Verständnis des Fachs.
 
-${topics.length > 0 ? `Topics: ${topicList}` : ""}
+Modul: ${mod.name}${mod.code ? ` (${mod.code})` : ""}
+ECTS: ${mod.ects ?? "unbekannt"}
+${mod.learning_type && mod.learning_type !== "mixed" ? `Modultyp: ${mod.learning_type}` : ""}
+${topics.length > 0 ? `Vorhandene Topics: ${topicList}` : ""}
+${mod.textbook ? `Lehrbuch: ${mod.textbook}` : ""}
 
-JSON-Format:
-{"overview":{"summary":"Was ist das Fach? 2-3 Sätze","prerequisites":["..."],"learningGoals":["..."],"realWorldUse":"Praxisbezug"},"topicGuide":[{"title":"...","explanation":"2 Sätze","relevance":"...","difficulty":"beginner","order":1}],"conceptCards":[{"title":"...","definition":"...","example":"...","application":"..."}],"quickStart":{"topThree":[{"title":"...","why":"...","howLong":"~2h"}],"recommendedOrder":["..."],"tips":["..."]}}
+Erstelle eine Lernumgebung mit diesen 4 Bereichen:
 
-Max 6 topicGuide, max 5 conceptCards. Deutsch. Nur allgemeines Verständnis, kein Prüfungsbezug.`;
+1. overview: summary (3-4 Sätze), prerequisites (Array), learningGoals (Array), realWorldUse (1-2 Sätze)
+2. topicGuide: Array mit 8-10 Einträgen, sortiert nach empfohlener Reihenfolge. Jeder Eintrag: title, explanation (2-3 Sätze), relevance, difficulty (beginner/intermediate/advanced), order (Nummer)
+3. conceptCards: Array mit 6-8 Karten. Jede Karte: title, definition, example (Alltagsbeispiel), application, optional keyFormula
+4. quickStart: topThree (Array mit title/why/howLong), recommendedOrder (Array), tips (Array mit 3 Tipps)
+
+Regeln:
+- Erkläre alles so, dass ein Neuling es versteht
+- Nutze Alltagsbeispiele wo möglich
+- Antworte auf Deutsch
+- KEIN Prüfungsbezug — nur allgemeines Fachverständnis
+- Antworte als JSON-Objekt`;
 
   try {
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -106,9 +120,9 @@ Max 6 topicGuide, max 5 conceptCards. Deutsch. Nur allgemeines Verständnis, kei
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
-        max_tokens: 4000,
+        max_tokens: 5000,
         system: systemPrompt,
-        messages: [{ role: "user", content: `Erstelle die Lernumgebung für "${mod.name}". Halte dich kurz und präzise — max 8 Topic-Guide Einträge und 6 Concept Cards.` }],
+        messages: [{ role: "user", content: `Erstelle die Lernumgebung für "${mod.name}". Antworte nur mit dem JSON-Objekt.` }],
       }),
     });
 
@@ -132,11 +146,29 @@ Max 6 topicGuide, max 5 conceptCards. Deutsch. Nur allgemeines Verständnis, kei
 
     let result;
     try {
-      const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/) || [null, rawText];
-      result = JSON.parse(jsonMatch[1] || rawText);
-    } catch (parseErr) {
-      console.error("[learning-hub] JSON parse failed:", (parseErr as Error).message, rawText.slice(0, 200));
-      return NextResponse.json({ error: "AI-Antwort konnte nicht verarbeitet werden. Versuche 'Neu generieren'." }, { status: 502 });
+      // Strategy 1: Direct JSON parse
+      result = JSON.parse(rawText);
+    } catch {
+      try {
+        // Strategy 2: Extract from markdown code block
+        const codeBlockMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+        if (codeBlockMatch?.[1]) {
+          result = JSON.parse(codeBlockMatch[1]);
+        } else {
+          // Strategy 3: Find first { and last } in the text
+          const firstBrace = rawText.indexOf("{");
+          const lastBrace = rawText.lastIndexOf("}");
+          if (firstBrace !== -1 && lastBrace > firstBrace) {
+            result = JSON.parse(rawText.slice(firstBrace, lastBrace + 1));
+          } else {
+            throw new Error("No JSON found in response");
+          }
+        }
+      } catch (parseErr) {
+        console.error("[learning-hub] All JSON parse strategies failed:", (parseErr as Error).message);
+        console.error("[learning-hub] Raw response preview:", rawText.slice(0, 500));
+        return NextResponse.json({ error: "AI-Antwort konnte nicht verarbeitet werden. Versuche 'Neu generieren'." }, { status: 502 });
+      }
     }
 
     // Cache in database
