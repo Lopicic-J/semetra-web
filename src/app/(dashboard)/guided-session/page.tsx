@@ -45,6 +45,8 @@ export default function GuidedSessionPage() {
   const [recommended, setRecommended] = useState<Template | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [selectedModule, setSelectedModule] = useState(paramModule ?? "");
+  const [selectedExam, setSelectedExam] = useState("");
+  const [moduleExams, setModuleExams] = useState<{ id: string; title: string; daysLeft: number }[]>([]);
   const [phase, setPhase] = useState<SessionPhase>("setup");
   const [loading, setLoading] = useState(true);
 
@@ -87,6 +89,28 @@ export default function GuidedSessionPage() {
   const activeModules = modules.filter(m => m.status === "active" || m.status === "planned");
   const moduleName = modules.find(m => m.id === selectedModule)?.name;
   const moduleColor = modules.find(m => m.id === selectedModule)?.color;
+  const selectedExamTitle = moduleExams.find(e => e.id === selectedExam)?.title;
+
+  // Load exams when module changes
+  useEffect(() => {
+    if (!selectedModule) { setModuleExams([]); setSelectedExam(""); return; }
+    const now = new Date();
+    supabase.from("events")
+      .select("id, title, start_dt")
+      .eq("module_id", selectedModule)
+      .eq("event_type", "exam")
+      .gte("start_dt", now.toISOString())
+      .order("start_dt")
+      .then(({ data }) => {
+        const exams = (data ?? []).map(e => ({
+          id: e.id,
+          title: e.title,
+          daysLeft: Math.ceil((new Date(e.start_dt).getTime() - now.getTime()) / 86400000),
+        }));
+        setModuleExams(exams);
+        setSelectedExam(""); // Reset exam selection
+      });
+  }, [selectedModule, supabase]);
 
   // Load templates (with fallback if table doesn't exist yet)
   useEffect(() => {
@@ -232,19 +256,47 @@ export default function GuidedSessionPage() {
           <p className="text-surface-500 mt-1">Strukturiert lernen in Phasen — Review, Stoff, Übung, Test, Reflexion</p>
         </div>
 
-        {/* Module Selection */}
-        <div className="rounded-xl border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] p-5">
-          <label className="text-sm font-medium text-surface-700 dark:text-surface-300 block mb-2">Modul wählen</label>
-          <select
-            value={selectedModule}
-            onChange={e => setSelectedModule(e.target.value)}
-            className="w-full px-3 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-sm"
-          >
-            <option value="">Modul auswählen...</option>
-            {activeModules.map(m => (
-              <option key={m.id} value={m.id}>{m.name}</option>
-            ))}
-          </select>
+        {/* Module + Exam Selection */}
+        <div className="rounded-xl border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] p-5 space-y-3">
+          <div>
+            <label className="text-sm font-medium text-surface-700 dark:text-surface-300 block mb-2">Modul wählen</label>
+            <select
+              value={selectedModule}
+              onChange={e => setSelectedModule(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-sm"
+            >
+              <option value="">Modul auswählen...</option>
+              {activeModules.map(m => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Exam picker (optional) */}
+          {selectedModule && moduleExams.length > 0 && (
+            <div>
+              <label className="text-sm font-medium text-surface-700 dark:text-surface-300 block mb-2">
+                Prüfung <span className="text-surface-400 font-normal">(optional)</span>
+              </label>
+              <select
+                value={selectedExam}
+                onChange={e => setSelectedExam(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-sm"
+              >
+                <option value="">Allgemein lernen</option>
+                {moduleExams.map(ex => (
+                  <option key={ex.id} value={ex.id}>
+                    {ex.title} {ex.daysLeft <= 7 ? `(${ex.daysLeft}d ⚠️)` : `(${ex.daysLeft}d)`}
+                  </option>
+                ))}
+              </select>
+              {selectedExam && (
+                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5 flex items-center gap-1">
+                  <Target size={10} /> Session wird auf diese Prüfung fokussiert — Flashcards & Simulator prüfungsbezogen
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Template Selection */}
@@ -328,10 +380,15 @@ export default function GuidedSessionPage() {
           ))}
         </div>
 
-        {/* Module Context */}
-        <div className="flex items-center justify-center gap-2">
+        {/* Module + Exam Context */}
+        <div className="flex items-center justify-center gap-2 flex-wrap">
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: moduleColor ?? "#6d28d9" }} />
           <span className="text-sm text-surface-500">{moduleName}</span>
+          {selectedExamTitle && (
+            <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-medium">
+              {selectedExamTitle}
+            </span>
+          )}
           <span className="text-xs text-surface-400">· Phase {currentPhaseIndex + 1}/{selectedTemplate!.phases.length}</span>
         </div>
 
@@ -355,23 +412,38 @@ export default function GuidedSessionPage() {
               onClick={async () => {
                 setFlashcardsLoading(true);
                 const now = new Date().toISOString();
-                const { data } = await supabase.from("flashcards")
-                  .select("id, question, answer, deck_name")
+
+                let query = supabase.from("flashcards")
+                  .select("id, question, answer, deck_name, topic_id")
                   .eq("module_id", selectedModule)
                   .or(`next_review.is.null,next_review.lte.${now}`)
                   .limit(20);
+
+                // If exam selected, filter to exam-relevant topics
+                if (selectedExam) {
+                  const { data: relevantTopics } = await supabase.from("topics")
+                    .select("id")
+                    .eq("module_id", selectedModule)
+                    .or(`is_exam_relevant.eq.true,exam_id.eq.${selectedExam}`);
+                  const topicIds = (relevantTopics ?? []).map(t => t.id);
+                  if (topicIds.length > 0) {
+                    query = query.in("topic_id", topicIds);
+                  }
+                }
+
+                const { data } = await query;
                 setFlashcards(data ?? []);
                 setFlashcardsLoading(false);
                 if (data && data.length > 0) {
                   setShowFlashcards(true);
-                  setIsPaused(true); // Pause timer during flashcard review
+                  setIsPaused(true);
                 }
               }}
               disabled={flashcardsLoading}
               className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors"
             >
               <Zap size={14} />
-              {flashcardsLoading ? "Lade Karten..." : "Flashcards lernen"}
+              {flashcardsLoading ? "Lade Karten..." : selectedExam ? "Prüfungs-Flashcards lernen" : "Flashcards lernen"}
             </button>
           )}
           {currentPhase.type === "review" && flashcards.length === 0 && !flashcardsLoading && !showFlashcards && (
@@ -385,7 +457,12 @@ export default function GuidedSessionPage() {
                   const res = await fetch("/api/ai/exam-simulate", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ moduleId: selectedModule, questionCount: 5, difficulty: "mixed" }),
+                    body: JSON.stringify({
+                      moduleId: selectedModule,
+                      examId: selectedExam || undefined,
+                      questionCount: 5,
+                      difficulty: "mixed",
+                    }),
                   });
                   if (res.ok) {
                     const data = await res.json();
@@ -406,7 +483,7 @@ export default function GuidedSessionPage() {
               className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
             >
               <Target size={14} />
-              {examLoading ? "Generiere Fragen..." : "Übungsfragen starten"}
+              {examLoading ? "Generiere Fragen..." : selectedExam ? "Prüfungsfragen üben" : "Übungsfragen starten"}
             </button>
           )}
           {currentPhase.type === "test" && (
