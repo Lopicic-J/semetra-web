@@ -124,7 +124,8 @@ Regeln:
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) return NextResponse.json({ error: "AI nicht konfiguriert" }, { status: 500 });
 
-    // Use streaming (like the working chat) to avoid timeout issues
+    // Non-streaming call — simpler and more reliable than SSE parsing
+    // Vercel Pro gives 60s timeout, pipeline takes ~30s
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -135,7 +136,6 @@ Regeln:
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
         max_tokens: 3000,
-        stream: true,
         system: systemPrompt,
         messages: [{ role: "user", content: `Erstelle als JSON: {"overview":{"summary":"...","prerequisites":["..."],"learningGoals":["..."],"realWorldUse":"..."},"topicGuide":[{"title":"...","explanation":"...","difficulty":"beginner","order":1}],"conceptCards":[{"title":"...","definition":"...","example":"...","application":"..."}],"quickStart":{"topThree":[{"title":"...","why":"...","howLong":"~2h"}],"tips":["..."]}}. 6 topicGuide, 5 conceptCards. Deutsch. NUR JSON.` }],
       }),
@@ -151,39 +151,11 @@ Regeln:
       }, { status: res.status === 429 ? 429 : 502 });
     }
 
-    // Collect streamed chunks into full text
-    let rawText = "";
-    const reader = res.body?.getReader();
-    if (!reader) {
-      return NextResponse.json({ error: "Streaming nicht verfügbar" }, { status: 502 });
-    }
-
-    const decoder = new TextDecoder();
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split("\n");
-
-      for (const line of lines) {
-        if (line.startsWith("data: ")) {
-          const data = line.slice(6);
-          if (data === "[DONE]") continue;
-          try {
-            const parsed = JSON.parse(data);
-            if (parsed.type === "content_block_delta" && parsed.delta?.text) {
-              rawText += parsed.delta.text;
-            }
-          } catch {
-            // Skip non-JSON lines
-          }
-        }
-      }
-    }
+    const response = await res.json();
+    const rawText = response.content?.[0]?.text ?? "";
 
     if (!rawText) {
-      console.error("[learning-hub] Empty AI response after streaming");
+      console.error("[learning-hub] Empty AI response");
       return NextResponse.json({ error: "AI hat keine Antwort generiert" }, { status: 502 });
     }
 
@@ -208,9 +180,10 @@ Regeln:
           }
         }
       } catch (parseErr) {
-        console.error("[learning-hub] All JSON parse strategies failed:", (parseErr as Error).message);
-        console.error("[learning-hub] Raw response preview:", rawText.slice(0, 500));
-        return NextResponse.json({ error: "AI-Antwort konnte nicht verarbeitet werden. Versuche 'Neu generieren'." }, { status: 502 });
+        console.error("[learning-hub] JSON parse failed:", (parseErr as Error).message, "| length:", rawText.length, "| preview:", rawText.slice(0, 300));
+        return NextResponse.json({
+          error: "AI-Antwort konnte nicht verarbeitet werden. Versuche 'Neu generieren'.",
+        }, { status: 502 });
       }
     }
 
