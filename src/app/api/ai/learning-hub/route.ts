@@ -84,58 +84,14 @@ async function generateAndCache(supabase: any, userId: string, moduleId: string)
   const topics = topicsRes.data ?? [];
   const topicList = topics.map((t: any) => t.title).join(", ");
 
-  const systemPrompt = `Du bist ein Universitätsdozent der eine Lernumgebung für ein Modul erstellt.
-Das ist KEIN Prüfungstrainer — es geht um allgemeines Verständnis des Fachs.
+  const systemPrompt = `Erstelle eine Lernumgebung für das Modul "${mod.name}". Antworte NUR mit einem JSON-Objekt, KEIN Text davor oder danach.
 
-Modul: ${mod.name}${mod.code ? ` (${mod.code})` : ""}
-ECTS: ${mod.ects ?? "unbekannt"}
-${mod.learning_type && mod.learning_type !== "mixed" ? `Typ: ${mod.learning_type}` : ""}
-${topics.length > 0 ? `Vorhandene Topics: ${topicList}` : ""}
-${mod.textbook ? `Lehrbuch: ${mod.textbook}` : ""}
+${topics.length > 0 ? `Topics: ${topicList}` : ""}
 
-Erstelle eine umfassende Lernumgebung als JSON mit diesen 4 Bereichen:
+JSON-Format:
+{"overview":{"summary":"Was ist das Fach? 2-3 Sätze","prerequisites":["..."],"learningGoals":["..."],"realWorldUse":"Praxisbezug"},"topicGuide":[{"title":"...","explanation":"2 Sätze","relevance":"...","difficulty":"beginner","order":1}],"conceptCards":[{"title":"...","definition":"...","example":"...","application":"..."}],"quickStart":{"topThree":[{"title":"...","why":"...","howLong":"~2h"}],"recommendedOrder":["..."],"tips":["..."]}}
 
-{
-  "overview": {
-    "summary": "3-4 Sätze: Was ist dieses Fach? Warum ist es wichtig?",
-    "prerequisites": ["Voraussetzung 1", "Voraussetzung 2"],
-    "learningGoals": ["Lernziel 1", "Lernziel 2", "Lernziel 3"],
-    "realWorldUse": "1-2 Sätze: Wo wird dieses Wissen in der Praxis eingesetzt?"
-  },
-  "topicGuide": [
-    {
-      "title": "Themenname",
-      "explanation": "2-3 Sätze Erklärung — verständlich, ohne Vorwissen",
-      "relevance": "Warum ist dieses Thema wichtig?",
-      "difficulty": "beginner" | "intermediate" | "advanced",
-      "order": 1
-    }
-  ],
-  "conceptCards": [
-    {
-      "title": "Konzeptname",
-      "definition": "Klare, einfache Definition",
-      "example": "Konkretes Beispiel aus dem Alltag oder der Praxis",
-      "application": "Wie/wo wird das angewendet?",
-      "keyFormula": "Wichtige Formel falls relevant (optional)",
-      "difficulty": "beginner" | "intermediate" | "advanced"
-    }
-  ],
-  "quickStart": {
-    "topThree": [
-      {"title": "Erstes Thema", "why": "Warum zuerst?", "howLong": "~2 Stunden"}
-    ],
-    "recommendedOrder": ["Thema 1", "Thema 2", "Thema 3"],
-    "tips": ["Lerntipp 1", "Lerntipp 2", "Lerntipp 3"]
-  }
-}
-
-Regeln:
-- Max 8 Topic-Guide Einträge (sortiert nach Reihenfolge)
-- Max 6 Concept Cards (die wichtigsten)
-- Verständlich für Neulinge, mit Alltagsbeispielen
-- Antworte auf Deutsch, NUR als JSON (kein Markdown)
-- KEIN Prüfungsbezug — nur allgemeines Fachverständnis`;
+Max 6 topicGuide, max 5 conceptCards. Deutsch. Nur allgemeines Verständnis, kein Prüfungsbezug.`;
 
   try {
     const apiKey = process.env.ANTHROPIC_API_KEY;
