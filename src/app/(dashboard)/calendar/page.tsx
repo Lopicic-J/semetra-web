@@ -5,7 +5,7 @@ import { useTranslation } from "@/lib/i18n";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { isHoliday } from "@/lib/holidays";
 import type { HolidayCountry } from "@/lib/holidays";
-import { ChevronLeft, ChevronRight, Plus, X, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, X, Trash2, Pencil } from "lucide-react";
 import type { CalendarEvent } from "@/types/database";
 
 function startOfMonth(y: number, m: number) { return new Date(y, m, 1); }
@@ -24,6 +24,7 @@ export default function CalendarPage() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [selected, setSelected] = useState<string | null>(null); // YYYY-MM-DD
   const [showForm, setShowForm] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const supabase = createClient();
 
   const fetchEvents = useCallback(async () => {
@@ -55,6 +56,8 @@ export default function CalendarPage() {
   }
 
   async function deleteEvent(id: string) {
+    // Delete linked schedule block first (FK cascade should handle this, but be explicit)
+    await supabase.from("schedule_blocks").delete().eq("event_id", id);
     await supabase.from("events").delete().eq("id", id);
     fetchEvents();
   }
@@ -136,7 +139,8 @@ export default function CalendarPage() {
           ) : (
             <ul className="space-y-2">
               {events.filter(e => e.start_dt.startsWith(selected)).map(ev => (
-                <li key={ev.id} className="flex items-start sm:items-center gap-3 p-2.5 sm:p-3 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-800 group transition-colors active:scale-95">
+                <li key={ev.id} className="flex items-start sm:items-center gap-3 p-2.5 sm:p-3 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-800 group transition-colors cursor-pointer active:scale-95"
+                  onClick={() => setEditingEvent(ev)}>
                   <div className="w-3 h-3 rounded-full shrink-0 mt-1 sm:mt-0" style={{ background: ev.color ?? "#6d28d9" }} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-surface-800 dark:text-white truncate">{ev.title}</p>
@@ -145,10 +149,16 @@ export default function CalendarPage() {
                       {ev.end_dt && ` – ${new Date(ev.end_dt).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}`}
                       {ev.location && ` · ${ev.location}`}
                     </p>
+                    {ev.description && <p className="text-xs text-surface-400 mt-0.5 truncate">{ev.description}</p>}
                   </div>
- <button onClick={() => deleteEvent(ev.id)} className="opacity-0 sm:group-hover:opacity-100 sm:opacity-0 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-surface-400 hover:text-red-500 dark:hover:text-red-400 shrink-0 touch-manipulation active:scale-90" aria-label="Delete event">
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button onClick={(e) => { e.stopPropagation(); setEditingEvent(ev); }} className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 touch-manipulation active:scale-90" aria-label="Edit event">
+                      <Pencil size={14} />
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); deleteEvent(ev.id); }} className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-surface-400 hover:text-red-500 dark:hover:text-red-400 touch-manipulation active:scale-90" aria-label="Delete event">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -166,23 +176,48 @@ export default function CalendarPage() {
           onSaved={() => { setShowForm(false); fetchEvents(); }}
         />
       )}
+
+      {editingEvent && (
+        <EventModal
+          defaultDate={editingEvent.start_dt.slice(0, 10)}
+          existingEvent={editingEvent}
+          onClose={() => setEditingEvent(null)}
+          onSaved={() => { setEditingEvent(null); fetchEvents(); }}
+        />
+      )}
     </div>
   );
 }
 
-function EventModal({ defaultDate, onClose, onSaved }: { defaultDate: string; onClose: () => void; onSaved: () => void }) {
+function EventModal({ defaultDate, existingEvent, onClose, onSaved }: {
+  defaultDate: string;
+  existingEvent?: CalendarEvent | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
   const { t } = useTranslation();
   const supabase = createClient();
+  const isEdit = !!existingEvent;
   const COLORS = ["#6d28d9","#2563eb","#dc2626","#059669","#d97706","#db2777"];
-  const [form, setForm] = useState({
-    title: "",
-    date: defaultDate,
-    time_start: "08:00",
-    time_end: "10:00",
-    location: "",
-    description: "",
-    color: COLORS[0],
-    event_type: "general",
+  const [form, setForm] = useState(() => {
+    if (existingEvent) {
+      const startDt = new Date(existingEvent.start_dt);
+      const endDt = existingEvent.end_dt ? new Date(existingEvent.end_dt) : null;
+      return {
+        title: existingEvent.title || "",
+        date: existingEvent.start_dt.slice(0, 10),
+        time_start: `${String(startDt.getHours()).padStart(2, "0")}:${String(startDt.getMinutes()).padStart(2, "0")}`,
+        time_end: endDt ? `${String(endDt.getHours()).padStart(2, "0")}:${String(endDt.getMinutes()).padStart(2, "0")}` : "",
+        location: existingEvent.location || "",
+        description: existingEvent.description || "",
+        color: existingEvent.color || COLORS[0],
+        event_type: existingEvent.event_type || "general",
+      };
+    }
+    return {
+      title: "", date: defaultDate, time_start: "08:00", time_end: "10:00",
+      location: "", description: "", color: COLORS[0], event_type: "general",
+    };
   });
   const [saving, setSaving] = useState(false);
 
@@ -193,8 +228,8 @@ function EventModal({ defaultDate, onClose, onSaved }: { defaultDate: string; on
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setSaving(false); return; }
-    const { error } = await supabase.from("events").insert({
-      user_id: user.id,
+
+    const eventData = {
       title: form.title,
       start_dt: `${form.date}T${form.time_start}:00`,
       end_dt: form.time_end ? `${form.date}T${form.time_end}:00` : null,
@@ -202,25 +237,64 @@ function EventModal({ defaultDate, onClose, onSaved }: { defaultDate: string; on
       description: form.description || null,
       color: form.color,
       event_type: form.event_type,
-    });
-    setSaving(false);
-    onSaved();
+    };
 
-    // Trigger schedule re-plan so the new event blocks its time slot
-    if (!error) {
+    let error;
+    let eventId = existingEvent?.id;
+    if (isEdit) {
+      ({ error } = await supabase.from("events").update(eventData).eq("id", existingEvent!.id));
+    } else {
+      const res = await supabase.from("events").insert({ user_id: user.id, ...eventData }).select("id").single();
+      error = res.error;
+      eventId = res.data?.id;
+    }
+
+    // Also sync to schedule_blocks as Layer 1 (so Smart Schedule sees it)
+    if (!error && eventId) {
+      const blockType = form.event_type === "exam" ? "exam" : form.event_type === "lecture" ? "lecture" : "appointment";
+      const endTime = eventData.end_dt || new Date(new Date(eventData.start_dt).getTime() + 2 * 3600000).toISOString();
+
+      // Upsert: update if linked block exists, create if not
+      const { data: existingBlock } = await supabase.from("schedule_blocks")
+        .select("id").eq("event_id", eventId).maybeSingle();
+
+      if (existingBlock) {
+        await supabase.from("schedule_blocks")
+          .update({ title: form.title, start_time: eventData.start_dt, end_time: endTime, color: form.color, block_type: blockType })
+          .eq("id", existingBlock.id);
+      } else {
+        await supabase.from("schedule_blocks").insert({
+          user_id: user.id,
+          block_type: blockType,
+          layer: 1,
+          title: form.title,
+          start_time: eventData.start_dt,
+          end_time: endTime,
+          color: form.color,
+          source: "calendar_sync",
+          status: "scheduled",
+          priority: form.event_type === "exam" ? "critical" : "medium",
+          event_id: eventId,
+        });
+      }
+
+      // Trigger schedule re-plan so study blocks move around the event
       fetch("/api/schedule", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "auto-plan", date: form.date }),
       }).catch(() => {});
     }
+
+    setSaving(false);
+    onSaved();
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 p-4">
       <div className="bg-white dark:bg-surface-900 rounded-t-2xl sm:rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] sm:max-h-none overflow-y-auto">
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-surface-200 dark:border-surface-700 sticky top-0 bg-white dark:bg-surface-900">
-          <h2 className="font-semibold text-surface-900 dark:text-white">{t("calendar.modal.title")}</h2>
+          <h2 className="font-semibold text-surface-900 dark:text-white">{isEdit ? (t("calendar.modal.editTitle") || "Termin bearbeiten") : t("calendar.modal.title")}</h2>
  <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-700 touch-manipulation active:scale-90" aria-label="Close"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
@@ -268,7 +342,7 @@ function EventModal({ defaultDate, onClose, onSaved }: { defaultDate: string; on
           <div className="flex gap-3 pt-3">
             <button type="button" onClick={onClose} className="btn-secondary flex-1 touch-manipulation active:scale-95">{t("calendar.modal.cancel")}</button>
             <button type="submit" disabled={saving} className="btn-primary flex-1 justify-center touch-manipulation active:scale-95">
-              {saving ? t("calendar.modal.saving") : t("calendar.modal.save")}
+              {saving ? t("calendar.modal.saving") : isEdit ? (t("calendar.modal.update") || "Aktualisieren") : t("calendar.modal.save")}
             </button>
           </div>
         </form>
