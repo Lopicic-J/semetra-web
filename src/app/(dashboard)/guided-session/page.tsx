@@ -194,6 +194,7 @@ export default function GuidedSessionPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             moduleId: selectedModule || null,
+            examId: selectedExam || null,
             learned: learned || null,
             difficult: difficult || null,
             nextSteps: nextSteps || null,
@@ -201,7 +202,7 @@ export default function GuidedSessionPage() {
             confidenceRating: confidence,
             energyAfter: energy,
             sessionDurationSeconds: totalElapsed,
-            sessionType: "guided",
+            sessionType: selectedExam ? "exam_prep" : "guided",
           }),
         }),
         // DNA micro-update

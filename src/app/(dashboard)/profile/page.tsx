@@ -70,7 +70,7 @@ export default function ProfilePage() {
       .select("used, addon_credits")
       .eq("user_id", profile.id)
       .eq("month", month)
-      .single();
+      .maybeSingle();
     if (data) setAiUsage(data);
   }, [supabase, profile?.id]);
 

@@ -39,30 +39,34 @@ export async function POST(request: Request) {
 
   const body = await request.json();
   const {
-    sessionId, moduleId, topicId,
+    sessionId, moduleId, topicId, examId,
     learned, difficult, nextSteps,
     understandingRating, confidenceRating, energyAfter,
     sessionDurationSeconds, sessionType,
   } = body;
 
+  const insertData: Record<string, unknown> = {
+    user_id: user.id,
+    session_id: sessionId ?? null,
+    module_id: moduleId ?? null,
+    topic_id: topicId ?? null,
+    learned: learned ?? null,
+    difficult: difficult ?? null,
+    next_steps: nextSteps ?? null,
+    understanding_rating: understandingRating ?? null,
+    confidence_rating: confidenceRating ?? null,
+    energy_after: energyAfter ?? null,
+    session_duration_seconds: sessionDurationSeconds ?? null,
+    session_type: sessionType ?? null,
+  };
+  // exam_id column may not exist yet — add only if provided
+  if (examId) insertData.exam_id = examId;
+
   const { data, error } = await supabase
     .from("session_reflections")
-    .insert({
-      user_id: user.id,
-      session_id: sessionId ?? null,
-      module_id: moduleId ?? null,
-      topic_id: topicId ?? null,
-      learned: learned ?? null,
-      difficult: difficult ?? null,
-      next_steps: nextSteps ?? null,
-      understanding_rating: understandingRating ?? null,
-      confidence_rating: confidenceRating ?? null,
-      energy_after: energyAfter ?? null,
-      session_duration_seconds: sessionDurationSeconds ?? null,
-      session_type: sessionType ?? null,
-    })
+    .insert(insertData)
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
