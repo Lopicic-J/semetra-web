@@ -490,20 +490,21 @@ export default function LernDnaPage() {
 
   useEffect(() => { loadSnapshot(); }, [loadSnapshot]);
 
-  // Create a new snapshot on demand
+  // Create a new snapshot on demand via API
   const createSnapshot = useCallback(async () => {
     setCreating(true);
     setError(null);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { error: rpcErr } = await supabase.rpc("create_dna_snapshot", {
-        p_user_id: user.id,
-        p_type: "on_demand",
-      });
-
-      if (rpcErr) throw rpcErr;
+      const res = await fetch("/api/learning-dna", { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || data.error || "Analyse fehlgeschlagen");
+      }
+      const data = await res.json();
+      if (!data.profile) {
+        setError("Zu wenig Daten — starte zuerst ein paar Lernsessions!");
+        return;
+      }
       await loadSnapshot();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Snapshot konnte nicht erstellt werden");
