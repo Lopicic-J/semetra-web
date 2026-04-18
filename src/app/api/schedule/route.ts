@@ -576,8 +576,40 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // ── Combine all blocks ───────────────────────────────────────────
-      const allNewBlocks = [...bridgeBlocks, ...supplementaryBlocks];
+      // ── Wellness modulation ──────────────────────────────────────────
+      // If wellness score is low, reduce block durations to prevent burnout
+      let wellnessModifier = 1.0;
+      try {
+        const wellnessUrl = new URL("/api/wellness?days=7", req.url);
+        const wellnessRes = await fetch(wellnessUrl, {
+          headers: { cookie: req.headers.get("cookie") || "" },
+        });
+        if (wellnessRes.ok) {
+          const wellnessData = await wellnessRes.json();
+          const score = wellnessData.analysis?.balanceScore ?? 70;
+          if (score < 30) {
+            wellnessModifier = 0.6; // Recovery mode: 40% less
+            bridgeWarnings.push("⚡ Recovery-Modus: Kürzere Blöcke wegen niedriger Energie");
+          } else if (score < 50) {
+            wellnessModifier = 0.8; // Light mode: 20% less
+            bridgeWarnings.push("💡 Leichterer Tag: Wellness-Score unter 50");
+          }
+        }
+      } catch { /* Non-critical */ }
+
+      // Apply wellness modifier to all blocks
+      const allNewBlocks = [...bridgeBlocks, ...supplementaryBlocks].map(b => {
+        if (wellnessModifier < 1.0 && b.block_type !== "break" && b.estimated_minutes) {
+          const reduced = Math.max(15, Math.round(b.estimated_minutes * wellnessModifier));
+          const startMs = new Date(b.start_time).getTime();
+          return {
+            ...b,
+            estimated_minutes: reduced,
+            end_time: new Date(startMs + reduced * 60000).toISOString(),
+          };
+        }
+        return b;
+      });
 
       // Remove old auto-planned blocks for this day
       await supabase

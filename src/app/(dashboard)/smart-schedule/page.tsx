@@ -1,10 +1,10 @@
 "use client";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Calendar, Clock, Brain, Play, Pause, Square, SkipForward,
   ChevronLeft, ChevronRight, Plus, Zap, Target, Coffee,
   BookOpen, RefreshCw, Layers, GraduationCap, AlertTriangle,
-  TrendingUp, TrendingDown, Minus, Settings, X,
+  TrendingUp, TrendingDown, Minus, Settings, X, Sparkles,
   Timer as TimerIcon, BarChart3,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
@@ -331,7 +331,9 @@ export default function SmartSchedulePage() {
   }, []);
 
   const [showSettings, setShowSettings] = useState(false);
-  const [planResult, setPlanResult] = useState<{ scheduled: number; context?: any } | null>(null);
+  const [planResult, setPlanResult] = useState<{ scheduled: number; context?: any; warnings?: string[] } | null>(null);
+  const [bestHours, setBestHours] = useState<{ hour: number; avgMinutes: number }[]>([]);
+  const [showSuggestPlan, setShowSuggestPlan] = useState(false);
   const day = useScheduleDay(currentDate);
   const week = useScheduleWeek(weekStart);
   const moduleView = useModuleSchedule(weekStart);
@@ -360,6 +362,28 @@ export default function SmartSchedulePage() {
   const handleAutoFill = useCallback(async () => { await actions.autoFillGaps(currentDate); day.refetch(); }, [actions, currentDate, day]);
   const handleAutoRescue = useCallback(async () => { await actions.autoRescue(); day.refetch(); }, [actions, day]);
   const handleExamPlan = useCallback(async () => { await actions.generateExamPlan(); day.refetch(); }, [actions, day]);
+
+  // Load best study hours (pattern insights)
+  useEffect(() => {
+    fetch("/api/schedule/patterns?view=hours")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.bestHours?.length > 0) {
+          setBestHours(data.bestHours.slice(0, 3));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Suggest auto-plan if today has no Layer 2 blocks
+  useEffect(() => {
+    if (currentDate !== today() || day.loading) return;
+    const hasAutoBlocks = (day.blocks || []).some(b => b.layer === 2 && b.source === "decision_engine");
+    const hasAnyL2 = (day.blocks || []).some(b => b.layer === 2);
+    if (!hasAutoBlocks && !hasAnyL2 && (day.blocks || []).length > 0) {
+      setShowSuggestPlan(true);
+    }
+  }, [currentDate, day.blocks, day.loading]);
 
   // Filtered data
   const filteredBlocks = useMemo(() => {
@@ -453,21 +477,61 @@ export default function SmartSchedulePage() {
       {/* Active Timer */}
       <TimerBanner timer={timer} />
 
-      {/* Plan Result Banner */}
-      {planResult && planResult.scheduled > 0 && (
-        <div className="flex items-center gap-2 px-3 py-2.5 mb-2 rounded-lg bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800 text-brand-700 dark:text-brand-300 text-xs">
-          <Zap size={14} className="text-brand-500 shrink-0" />
-          <span className="font-medium">{planResult.scheduled} Blöcke geplant</span>
-          {planResult.context && (
-            <span className="text-brand-500 dark:text-brand-400">
-              {planResult.context.flashcardsDue > 0 && ` · ${planResult.context.flashcardsDue} Karten fällig`}
-              {planResult.context.tasksWithDeadline > 0 && ` · ${planResult.context.tasksWithDeadline} Deadlines`}
-              {planResult.context.upcomingExams > 0 && ` · ${planResult.context.upcomingExams} Prüfungen`}
-            </span>
-          )}
-          <button onClick={() => setPlanResult(null)} className="ml-auto p-0.5 hover:bg-brand-100 dark:hover:bg-brand-900/40 rounded">
+      {/* Suggest Auto-Plan Banner (no L2 blocks today) */}
+      {showSuggestPlan && !planResult && (
+        <div className="flex items-center gap-2 px-3 py-2.5 mb-2 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 text-xs">
+          <Sparkles size={14} className="text-amber-500 shrink-0" />
+          <span>Dein Tag ist noch nicht geplant.</span>
+          <button
+            onClick={() => { setShowSuggestPlan(false); handleAutoPlan(); }}
+            className="ml-1 px-2 py-0.5 rounded bg-amber-600 text-white font-semibold hover:bg-amber-700 transition-colors"
+          >
+            Jetzt planen
+          </button>
+          <button onClick={() => setShowSuggestPlan(false)} className="ml-auto p-0.5 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded">
             <X size={12} />
           </button>
+        </div>
+      )}
+
+      {/* Plan Result Banner */}
+      {planResult && planResult.scheduled > 0 && (
+        <div className="flex flex-col gap-1 px-3 py-2.5 mb-2 rounded-lg bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800 text-brand-700 dark:text-brand-300 text-xs">
+          <div className="flex items-center gap-2">
+            <Zap size={14} className="text-brand-500 shrink-0" />
+            <span className="font-medium">{planResult.scheduled} Blöcke geplant</span>
+            {planResult.context && (
+              <span className="text-brand-500 dark:text-brand-400">
+                {planResult.context.flashcardsDue > 0 && ` · ${planResult.context.flashcardsDue} Karten fällig`}
+                {planResult.context.tasksWithDeadline > 0 && ` · ${planResult.context.tasksWithDeadline} Deadlines`}
+                {planResult.context.upcomingExams > 0 && ` · ${planResult.context.upcomingExams} Prüfungen`}
+              </span>
+            )}
+            <button onClick={() => setPlanResult(null)} className="ml-auto p-0.5 hover:bg-brand-100 dark:hover:bg-brand-900/40 rounded">
+              <X size={12} />
+            </button>
+          </div>
+          {planResult.warnings && planResult.warnings.length > 0 && (
+            <div className="text-[10px] text-brand-500 dark:text-brand-400 pl-5">
+              {planResult.warnings.map((w, i) => <span key={i} className="block">{w}</span>)}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Pattern Insight Tip */}
+      {bestHours.length > 0 && viewMode === "day" && (
+        <div className="flex items-center gap-2 px-3 py-2 mb-2 rounded-lg bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 text-[11px] text-surface-500 dark:text-surface-400">
+          <Brain size={13} className="text-violet-500 shrink-0" />
+          <span>
+            Deine produktivsten Stunden:{" "}
+            {bestHours.map((h, i) => (
+              <span key={h.hour} className="font-semibold text-surface-700 dark:text-surface-200">
+                {i > 0 && ", "}{String(h.hour).padStart(2, "0")}:00
+              </span>
+            ))}
+            <span className="text-surface-400"> · Ø {Math.round(bestHours[0].avgMinutes)} Min</span>
+          </span>
         </div>
       )}
 
