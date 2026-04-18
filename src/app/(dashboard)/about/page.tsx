@@ -192,18 +192,38 @@ export default function AboutPage() {
           </div>
 
           <div className="space-y-6">
-            {/* v2.7 — April 2026 */}
- <div className="card p-3 sm:p-6 border border-surface-200 hover:shadow-md transition-shadow">
+            {/* v3.0 — April 2026 */}
+ <div className="card p-3 sm:p-6 border border-brand-200 dark:border-brand-800/40 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-4">
                 <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-600 text-white text-xs font-semibold">
-                  v2.7
+                  v3.0
                 </span>
-                <span className="text-sm text-surface-500">{t("about.changelogApril2026v2_7")}</span>
+                <span className="text-sm text-surface-500">{t("about.changelogApril2026v3_0")}</span>
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-semibold">NEU</span>
               </div>
               <ul className="space-y-2">
+                {t("about.changelog3_0").split("|").map((item, i) => (
+ <li key={i} className="flex items-start gap-2.5 text-sm text-surface-700 dark:text-surface-300">
+                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-600 flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-bold">✓</span>
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* v2.7 — April 2026 */}
+ <div className="card p-3 sm:p-6 border border-surface-200 dark:border-surface-700">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-xs font-semibold">
+                  v2.7
+                </span>
+                <span className="text-sm text-surface-500">{t("about.changelogApril2026v2_7")}</span>
+              </div>
+              <ul className="space-y-2">
                 {t("about.changelog2_7").split("|").map((item, i) => (
- <li key={i} className="flex items-start gap-2.5 text-sm text-surface-700">
+ <li key={i} className="flex items-start gap-2.5 text-sm text-surface-700 dark:text-surface-300">
                     <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-600 flex-shrink-0 mt-0.5">
                       <span className="text-xs font-bold">✓</span>
                     </span>
@@ -223,7 +243,7 @@ export default function AboutPage() {
               </div>
               <ul className="space-y-2">
                 {t("about.changelog2_6").split("|").map((item, i) => (
- <li key={i} className="flex items-start gap-2.5 text-sm text-surface-700">
+ <li key={i} className="flex items-start gap-2.5 text-sm text-surface-700 dark:text-surface-300">
                     <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-600 flex-shrink-0 mt-0.5">
                       <span className="text-xs font-bold">✓</span>
                     </span>
