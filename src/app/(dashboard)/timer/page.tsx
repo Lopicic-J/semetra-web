@@ -266,18 +266,12 @@ function TimerPageInner() {
 
     const sessionType = focusMode === "deep_work" ? "deep_work" as const : "focus" as const;
 
-    // Include learning goal in session note for tracking
-    const goalNote = learningGoal && learningGoal !== "free"
-      ? `[goal:${learningGoal}]${note ? ` ${note}` : ""}`
-      : note || undefined;
-
     timer.start(sessionType, {
       targetMinutes: targetMin,
       moduleId: selectedModule || undefined,
       taskId: selectedTask || undefined,
       topicId: selectedTopic || undefined,
       examId: selectedExam || undefined,
-      note: goalNote,
     });
     events.timerStarted(selectedModule || null, targetMin ?? 0);
   }
@@ -291,7 +285,11 @@ function TimerPageInner() {
     const actualSec = timer.elapsedSeconds ?? 0;
     const actualMin = Math.round(actualSec / 60);
     const modName = modules.find(m => m.id === selectedModule)?.name;
-    timer.stop(undefined, note || undefined);
+    // Include learning goal in session note for tracking
+    const sessionNote = learningGoal && learningGoal !== "free"
+      ? `[goal:${learningGoal}]${note ? ` ${note}` : ""}`
+      : note || undefined;
+    timer.stop(undefined, sessionNote);
     events.timerCompleted(selectedModule || null, actualMin);
     setNote("");
 
