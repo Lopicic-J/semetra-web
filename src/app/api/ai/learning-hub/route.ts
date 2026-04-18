@@ -135,9 +135,9 @@ Regeln:
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
-        max_tokens: 3000,
+        max_tokens: 4096,
         system: systemPrompt,
-        messages: [{ role: "user", content: `Erstelle als JSON: {"overview":{"summary":"...","prerequisites":["..."],"learningGoals":["..."],"realWorldUse":"..."},"topicGuide":[{"title":"...","explanation":"...","difficulty":"beginner","order":1}],"conceptCards":[{"title":"...","definition":"...","example":"...","application":"..."}],"quickStart":{"topThree":[{"title":"...","why":"...","howLong":"~2h"}],"tips":["..."]}}. 6 topicGuide, 5 conceptCards. Deutsch. NUR JSON.` }],
+        messages: [{ role: "user", content: `Erstelle als JSON: {"overview":{"summary":"...","prerequisites":["..."],"learningGoals":["..."],"realWorldUse":"..."},"topicGuide":[{"title":"...","explanation":"...","difficulty":"beginner","order":1}],"conceptCards":[{"title":"...","definition":"...","example":"...","application":"..."}],"quickStart":{"topThree":[{"title":"...","why":"...","howLong":"~2h"}],"tips":["..."]}}. 6 topicGuide, 5 conceptCards. Deutsch. NUR JSON, keine Erklärungen.` }],
       }),
     });
 
@@ -157,6 +157,11 @@ Regeln:
     if (!rawText) {
       console.error("[learning-hub] Empty AI response");
       return NextResponse.json({ error: "AI hat keine Antwort generiert" }, { status: 502 });
+    }
+
+    // If response was truncated (max_tokens hit), the JSON will be incomplete
+    if (response.stop_reason === "max_tokens") {
+      console.error("[learning-hub] Response truncated at max_tokens, length:", rawText.length);
     }
 
     let result;
