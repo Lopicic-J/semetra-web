@@ -123,9 +123,10 @@
     @apply bg-brand-100 text-brand-900;
   }
 
-  /* ── Dark Mode: override all bg-white globally ── */
+  /* ── Dark Mode: override bg-white globally ── */
+  /* No !important so explicit dark:bg-* overrides can win */
   .dark .bg-white {
-    background-color: rgb(var(--card-bg)) !important;
+    background-color: rgb(var(--card-bg));
   }
 
   /* ── Dark Mode: ensure all inputs/textareas have dark backgrounds ── */
@@ -349,6 +350,9 @@
 :where(.dark) .bg-gray-100, :where(.dark) .bg-slate-100, :where(.dark) .bg-zinc-100 {
   background-color: rgb(var(--sf-100));
 }
+:where(.dark) .bg-gray-200, :where(.dark) .bg-gray-300 {
+  background-color: rgb(var(--sf-200));
+}
 :where(.dark) .bg-gray-800, :where(.dark) .bg-gray-900 {
   background-color: rgb(var(--sf-100));
 }
@@ -388,6 +392,7 @@
 :where(.dark) .text-blue-700 { color: #93c5fd; }
 
 /* Gray/Slate/Zinc text */
+:where(.dark) .text-gray-200, :where(.dark) .text-gray-300 { color: rgb(var(--sf-700)); }
 :where(.dark) .text-gray-400, :where(.dark) .text-gray-500 { color: rgb(var(--sf-400)); }
 :where(.dark) .text-gray-600 { color: rgb(var(--sf-500)); }
 :where(.dark) .text-gray-700, :where(.dark) .text-gray-800, :where(.dark) .text-gray-900 { color: rgb(var(--sf-800)); }
@@ -543,6 +548,8 @@
 :where(.dark) .hover\:bg-surface-50:hover  { background-color: rgb(var(--sf-200) / 0.5); }
 :where(.dark) .hover\:bg-surface-100:hover { background-color: rgb(var(--sf-200) / 0.7); }
 :where(.dark) .hover\:bg-surface-200:hover { background-color: rgb(var(--sf-300) / 0.5); }
+:where(.dark) .hover\:bg-gray-200:hover,
+:where(.dark) .hover\:bg-gray-300:hover    { background-color: rgb(var(--sf-300) / 0.5); }
 
 /* ── 11. SEMANTIC DARK MODE TEXT ─────────────────────────────────── */
 
@@ -555,6 +562,13 @@
 :where(.dark) .border-warning-100 { border-color: rgba(217,119,6,0.25); }
 :where(.dark) .border-danger-100  { border-color: rgba(220,38,38,0.25); }
 :where(.dark) .border-info-100    { border-color: rgba(37,99,235,0.25); }
+
+/* ── 11b. SURFACE-200 STATIC BACKGROUNDS ─────────────────────────── */
+/* In dark mode, surface-200 (#323238) is too close to surface-100 (#202024) cards.
+   Boost it slightly for progress bars, badges, and dividers. */
+:where(.dark) .bg-surface-200 {
+  background-color: rgb(var(--sf-300) / 0.6);
+}
 
 /* ── 12. SIDEBAR & LAYOUT SPECIFICS ─────────────────────────────── */
 
@@ -584,16 +598,19 @@
 
 /* ── 14. TEXT COLOR COMPLETIONS — all gray families ──────────────── */
 /* Slate (same as gray) */
+:where(.dark) .text-slate-200, :where(.dark) .text-slate-300 { color: rgb(var(--sf-700)); }
 :where(.dark) .text-slate-400, :where(.dark) .text-slate-500 { color: rgb(var(--sf-400)); }
 :where(.dark) .text-slate-600 { color: rgb(var(--sf-500)); }
 :where(.dark) .text-slate-700, :where(.dark) .text-slate-800, :where(.dark) .text-slate-900 { color: rgb(var(--sf-800)); }
 
 /* Zinc */
+:where(.dark) .text-zinc-200, :where(.dark) .text-zinc-300 { color: rgb(var(--sf-700)); }
 :where(.dark) .text-zinc-400, :where(.dark) .text-zinc-500 { color: rgb(var(--sf-400)); }
 :where(.dark) .text-zinc-600 { color: rgb(var(--sf-500)); }
 :where(.dark) .text-zinc-700, :where(.dark) .text-zinc-800, :where(.dark) .text-zinc-900 { color: rgb(var(--sf-800)); }
 
 /* Neutral */
+:where(.dark) .text-neutral-200, :where(.dark) .text-neutral-300 { color: rgb(var(--sf-700)); }
 :where(.dark) .text-neutral-400, :where(.dark) .text-neutral-500 { color: rgb(var(--sf-400)); }
 :where(.dark) .text-neutral-600 { color: rgb(var(--sf-500)); }
 :where(.dark) .text-neutral-700, :where(.dark) .text-neutral-800, :where(.dark) .text-neutral-900 { color: rgb(var(--sf-800)); }
