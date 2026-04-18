@@ -167,8 +167,8 @@ export default function LernnachweisPage() {
       </div>
 
       {/* Module Breakdown */}
-      <div className="rounded-2xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-800 overflow-hidden">
- <div className="px-5 py-4 border-b border-surface-100 flex items-center justify-between">
+      <div className="rounded-2xl border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] overflow-hidden">
+ <div className="px-5 py-4 border-b border-surface-200 dark:border-surface-700 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-surface-900 dark:text-white flex items-center gap-2">
             <FileText className="w-4 h-4 text-surface-400" />
             {t("lernnachweis.module_breakdown")}
@@ -183,7 +183,7 @@ export default function LernnachweisPage() {
             {t("lernnachweis.no_data")}
           </div>
         ) : (
- <div className="divide-y divide-surface-50">
+ <div className="divide-y divide-surface-200 dark:divide-surface-700">
             {moduleOutputs.map((mod) => (
               <div key={mod.id} className="px-3 sm:px-5 py-3 flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4 hover:bg-surface-50 dark:hover:bg-surface-800/50 transition-colors">
                 {/* Color dot */}
@@ -223,7 +223,7 @@ export default function LernnachweisPage() {
                   <div className="w-16 hidden sm:block">
                     {mod.tasks.total > 0 ? (
                       <div>
- <div className="h-1.5 bg-surface-100 rounded-full overflow-hidden">
+ <div className="h-1.5 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-brand-500 rounded-full transition-all"
                             style={{ width: `${(mod.tasks.completed / mod.tasks.total) * 100}%` }}
@@ -285,7 +285,7 @@ function KPICard({ icon: Icon, label, value, color, bg }: {
   bg: string;
 }) {
   return (
- <div className={`rounded-2xl ${bg} border border-surface-200/50 p-4`}>
+ <div className={`rounded-2xl ${bg} border border-surface-200/50 dark:border-surface-700/50 p-4`}>
       <Icon className={`w-5 h-5 ${color} mb-2`} />
       <p className="text-2xl font-bold text-surface-900 dark:text-white">{value}</p>
  <p className="text-xs text-surface-500 mt-0.5">{label}</p>
@@ -299,7 +299,7 @@ function MiniStat({ icon: Icon, label, value }: {
   value: string | number;
 }) {
   return (
-    <div className="rounded-xl bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 px-4 py-3 flex items-center gap-3">
+    <div className="rounded-xl bg-[rgb(var(--card-bg))] border border-surface-200 dark:border-surface-700 px-4 py-3 flex items-center gap-3">
       <Icon className="w-4 h-4 text-surface-400 flex-shrink-0" />
       <div>
         <p className="text-lg font-bold text-surface-900 dark:text-white">{value}</p>
