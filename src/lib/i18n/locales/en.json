@@ -391,6 +391,8 @@
   "calendar.modal.colorLabel": "Colour",
   "calendar.modal.cancel": "Cancel",
   "calendar.modal.save": "Save",
+  "calendar.modal.update": "Update",
+  "calendar.modal.editTitle": "Edit Event",
   "calendar.modal.saving": "Saving…",
   "studienplan.title": "Study Plan",
   "studienplan.subtitle": "Your study plan overview",

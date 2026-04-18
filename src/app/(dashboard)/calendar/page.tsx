@@ -70,10 +70,10 @@ export default function CalendarPage() {
  <p className="text-surface-500 text-sm mt-0.5">{monthNames[month]} {year}</p>
         </div>
         <div className="flex gap-2 flex-wrap sm:flex-nowrap">
- <div className="flex bg-surface-100 rounded-xl overflow-hidden">
- <button onClick={prev} className="px-3 py-2 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-700 active:scale-95 touch-manipulation" aria-label="Previous month"><ChevronLeft size={16} /></button>
- <button onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth()); }} className="px-3 py-2 text-sm font-medium hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-700 active:scale-95">{t("calendar.today")}</button>
- <button onClick={next} className="px-3 py-2 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-700 active:scale-95 touch-manipulation" aria-label="Next month"><ChevronRight size={16} /></button>
+ <div className="flex bg-surface-100 dark:bg-surface-800 rounded-xl overflow-hidden">
+ <button onClick={prev} className="px-3 py-2 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-700 dark:text-surface-300 active:scale-95 touch-manipulation" aria-label="Previous month"><ChevronLeft size={16} /></button>
+ <button onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth()); }} className="px-3 py-2 text-sm font-medium hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-700 dark:text-surface-300 active:scale-95">{t("calendar.today")}</button>
+ <button onClick={next} className="px-3 py-2 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-700 dark:text-surface-300 active:scale-95 touch-manipulation" aria-label="Next month"><ChevronRight size={16} /></button>
           </div>
           <button onClick={() => { setSelected(null); setShowForm(true); }} className="btn-primary gap-2 touch-manipulation active:scale-95">
             <Plus size={16} /> <span className="hidden sm:inline">{t("calendar.addEvent")}</span><span className="sm:hidden">{t("calendar.addEvent")}</span>
@@ -83,9 +83,9 @@ export default function CalendarPage() {
 
       <div className="card p-0 overflow-hidden bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700">
         {/* Day headers */}
- <div className="grid grid-cols-7 border-b border-surface-200 bg-surface-50">
+ <div className="grid grid-cols-7 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800">
           {DOW.map(d => (
- <div key={d} className="py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-surface-600">{d}</div>
+ <div key={d} className="py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-surface-600 dark:text-surface-400">{d}</div>
           ))}
         </div>
         {/* Cells */}
@@ -201,13 +201,15 @@ function EventModal({ defaultDate, existingEvent, onClose, onSaved }: {
   const COLORS = ["#6d28d9","#2563eb","#dc2626","#059669","#d97706","#db2777"];
   const [form, setForm] = useState(() => {
     if (existingEvent) {
-      const startDt = new Date(existingEvent.start_dt);
-      const endDt = existingEvent.end_dt ? new Date(existingEvent.end_dt) : null;
+      // Extract time from ISO string directly to avoid UTC→local timezone shift
+      // start_dt format: "2026-04-18T09:00:00" or "2026-04-18T09:00:00+00:00"
+      const startTimeMatch = existingEvent.start_dt.match(/T(\d{2}:\d{2})/);
+      const endTimeMatch = existingEvent.end_dt?.match(/T(\d{2}:\d{2})/);
       return {
         title: existingEvent.title || "",
         date: existingEvent.start_dt.slice(0, 10),
-        time_start: `${String(startDt.getHours()).padStart(2, "0")}:${String(startDt.getMinutes()).padStart(2, "0")}`,
-        time_end: endDt ? `${String(endDt.getHours()).padStart(2, "0")}:${String(endDt.getMinutes()).padStart(2, "0")}` : "",
+        time_start: startTimeMatch?.[1] ?? "08:00",
+        time_end: endTimeMatch?.[1] ?? "",
         location: existingEvent.location || "",
         description: existingEvent.description || "",
         color: existingEvent.color || COLORS[0],
@@ -292,37 +294,37 @@ function EventModal({ defaultDate, existingEvent, onClose, onSaved }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 p-4">
-      <div className="bg-white dark:bg-surface-900 rounded-t-2xl sm:rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] sm:max-h-none overflow-y-auto">
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-surface-200 dark:border-surface-700 sticky top-0 bg-white dark:bg-surface-900">
+      <div className="bg-[rgb(var(--card-bg))] rounded-t-2xl sm:rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] sm:max-h-none overflow-y-auto">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-surface-200 dark:border-surface-700 sticky top-0 bg-[rgb(var(--card-bg))]">
           <h2 className="font-semibold text-surface-900 dark:text-white">{isEdit ? (t("calendar.modal.editTitle") || "Termin bearbeiten") : t("calendar.modal.title")}</h2>
- <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-700 touch-manipulation active:scale-90" aria-label="Close"><X size={16} /></button>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-500 dark:text-surface-400 touch-manipulation active:scale-90" aria-label="Close"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
           <div>
- <label className="block text-sm font-medium text-surface-700 mb-1.5">{t("calendar.modal.titleLabel")} *</label>
- <input className="input dark:text-white" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("calendar.modal.titlePlaceholder")} />
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t("calendar.modal.titleLabel")} *</label>
+            <input className="w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white text-sm" required value={form.title} onChange={e => set("title", e.target.value)} placeholder={t("calendar.modal.titlePlaceholder")} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
- <label className="block text-sm font-medium text-surface-700 mb-1.5">{t("calendar.modal.dateLabel")}</label>
- <input className="input dark:text-white" type="date" value={form.date} onChange={e => set("date", e.target.value)} required />
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t("calendar.modal.dateLabel")}</label>
+              <input className="w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white text-sm" type="date" value={form.date} onChange={e => set("date", e.target.value)} required />
             </div>
             <div>
- <label className="block text-sm font-medium text-surface-700 mb-1.5">{t("calendar.modal.fromLabel")}</label>
- <input className="input dark:text-white" type="time" value={form.time_start} onChange={e => set("time_start", e.target.value)} />
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t("calendar.modal.fromLabel")}</label>
+              <input className="w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white text-sm" type="time" value={form.time_start} onChange={e => set("time_start", e.target.value)} />
             </div>
             <div>
- <label className="block text-sm font-medium text-surface-700 mb-1.5">{t("calendar.modal.toLabel")}</label>
- <input className="input dark:text-white" type="time" value={form.time_end} onChange={e => set("time_end", e.target.value)} />
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t("calendar.modal.toLabel")}</label>
+              <input className="w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white text-sm" type="time" value={form.time_end} onChange={e => set("time_end", e.target.value)} />
             </div>
           </div>
           <div>
- <label className="block text-sm font-medium text-surface-700 mb-1.5">{t("calendar.modal.locationLabel")}</label>
- <input className="input dark:text-white" value={form.location} onChange={e => set("location", e.target.value)} placeholder={t("calendar.modal.locationPlaceholder")} />
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t("calendar.modal.locationLabel")}</label>
+            <input className="w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white text-sm" value={form.location} onChange={e => set("location", e.target.value)} placeholder={t("calendar.modal.locationPlaceholder")} />
           </div>
           <div>
- <label className="block text-sm font-medium text-surface-700 mb-1.5">{t("calendar.modal.typeLabel")}</label>
- <select className="input dark:text-white" value={form.event_type} onChange={e => set("event_type", e.target.value)}>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t("calendar.modal.typeLabel")}</label>
+            <select className="w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white text-sm" value={form.event_type} onChange={e => set("event_type", e.target.value)}>
               <option value="general">{t("calendar.modal.typeGeneral")}</option>
               <option value="exam">{t("calendar.modal.typeExam")}</option>
               <option value="lecture">{t("calendar.modal.typeLecture")}</option>
@@ -330,19 +332,19 @@ function EventModal({ defaultDate, existingEvent, onClose, onSaved }: {
             </select>
           </div>
           <div>
- <label className="block text-sm font-medium text-surface-700 mb-2.5">{t("calendar.modal.colorLabel")}</label>
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2.5">{t("calendar.modal.colorLabel")}</label>
             <div className="flex gap-2 flex-wrap">
               {COLORS.map(c => (
                 <button key={c} type="button" onClick={() => set("color", c)} aria-label={`Color ${c}`}
- className={`w-8 h-8 rounded-full border-2 transition-transform touch-manipulation active:scale-90 ${form.color === c ?"border-surface-900 scale-110" :"border-surface-300"}`}
+                  className={`w-8 h-8 rounded-full border-2 transition-transform touch-manipulation active:scale-90 ${form.color === c ? "border-brand-500 scale-110" : "border-surface-300 dark:border-surface-600"}`}
                   style={{ background: c }} />
               ))}
             </div>
           </div>
           <div className="flex gap-3 pt-3">
-            <button type="button" onClick={onClose} className="btn-secondary flex-1 touch-manipulation active:scale-95">{t("calendar.modal.cancel")}</button>
-            <button type="submit" disabled={saving} className="btn-primary flex-1 justify-center touch-manipulation active:scale-95">
-              {saving ? t("calendar.modal.saving") : isEdit ? (t("calendar.modal.update") || "Aktualisieren") : t("calendar.modal.save")}
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 text-sm font-medium hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors touch-manipulation active:scale-95">{t("calendar.modal.cancel") || "Abbrechen"}</button>
+            <button type="submit" disabled={saving} className="flex-1 px-4 py-2.5 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 disabled:opacity-50 transition-colors touch-manipulation active:scale-95">
+              {saving ? (t("calendar.modal.saving") || "Speichern...") : isEdit ? (t("calendar.modal.update") || "Aktualisieren") : (t("calendar.modal.save") || "Speichern")}
             </button>
           </div>
         </form>

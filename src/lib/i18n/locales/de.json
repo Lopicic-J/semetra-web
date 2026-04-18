@@ -391,6 +391,8 @@
   "calendar.modal.colorLabel": "Farbe",
   "calendar.modal.cancel": "Abbrechen",
   "calendar.modal.save": "Speichern",
+  "calendar.modal.update": "Aktualisieren",
+  "calendar.modal.editTitle": "Termin bearbeiten",
   "calendar.modal.saving": "Speichern…",
   "studienplan.title": "Studienplan",
   "studienplan.subtitle": "Dein Studienplan im Überblick",
