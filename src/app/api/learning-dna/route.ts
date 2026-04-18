@@ -28,16 +28,16 @@ export async function GET() {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  // Try latest snapshot first
-  const { data: snapshotRaw } = await supabase
+  // Try latest 2 snapshots (current + previous for trend comparison)
+  const { data: snapshots } = await supabase
     .from("learning_dna_snapshots")
     .select("*")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
-    .limit(1)
-    .single();
+    .limit(2);
 
-  const snapshot = snapshotRaw as SnapshotRow | null;
+  const snapshot = (snapshots?.[0] ?? null) as SnapshotRow | null;
+  const previousSnapshot = (snapshots?.[1] ?? null) as SnapshotRow | null;
 
   if (snapshot) {
     // Check if stale (> 24h old)
@@ -45,6 +45,16 @@ export async function GET() {
     const isStale = age > 24 * 3600_000;
 
     const typeInfo = getLearnerTypeInfo(snapshot.learner_type);
+
+    // Compute vs_previous deltas
+    const vsPrevious = previousSnapshot ? {
+      consistency: snapshot.consistency_score - previousSnapshot.consistency_score,
+      focus: snapshot.focus_score - previousSnapshot.focus_score,
+      endurance: snapshot.endurance_score - previousSnapshot.endurance_score,
+      adaptability: snapshot.adaptability_score - previousSnapshot.adaptability_score,
+      planning: snapshot.planning_score - previousSnapshot.planning_score,
+      overall: snapshot.overall_score - previousSnapshot.overall_score,
+    } : null;
 
     return NextResponse.json({
       profile: {
@@ -57,6 +67,7 @@ export async function GET() {
         learnerType: snapshot.learner_type,
         learnerTypeLabel: typeInfo.de,
         learnerTypeDescription: typeInfo.description,
+        vsPrevious,
       },
       isStale,
       snapshotAge: Math.round(age / 3600_000),

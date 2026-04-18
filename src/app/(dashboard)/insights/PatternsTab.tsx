@@ -16,6 +16,25 @@ import {
 // Data: Schedule Engine → pattern-analyzer
 // ═══════════════════════════════════════════════════════════════════════════
 
+/** Readable fallback for insight types when i18n key is missing */
+function formatInsightFallback(insight: { type: string; data?: Record<string, any> }): string {
+  const d = insight.data ?? {};
+  switch (insight.type) {
+    case "peak_hours": return `Deine produktivsten Stunden: ${(d.hours ?? []).map((h: number) => `${h}:00`).join(", ")}`;
+    case "weak_hours": return `Schwache Stunden: ${(d.hours ?? []).map((h: number) => `${h}:00`).join(", ")} — vermeide schwere Aufgaben`;
+    case "duration_sweet_spot": return `Deine optimale Session-Dauer: ~${d.preferred ?? 45} Minuten`;
+    case "consistency": return d.score >= 0.7 ? `Starke Konsistenz (${Math.round((d.score ?? 0) * 100)}%) — weiter so!` : `Konsistenz verbessern (${Math.round((d.score ?? 0) * 100)}%)`;
+    case "streak": return `${d.days ?? 0}-Tage Lernsträhne — Rekord: ${d.longest ?? 0} Tage`;
+    case "procrastination": return `Durchschnittlich ${d.avgDelay ?? 0} Min Verzögerung vor Sessionstart`;
+    case "energy_mismatch": return `${Math.round(d.percent ?? 0)}% deiner Sessions sind in Niedrig-Energie-Zeiten`;
+    case "improvement": return `Planeinhaltung verbessert: ${Math.round((d.current ?? 0) * 100)}% (vorher ${Math.round((d.previous ?? 0) * 100)}%)`;
+    case "decline": return `Planeinhaltung gesunken: ${Math.round((d.current ?? 0) * 100)}% (vorher ${Math.round((d.previous ?? 0) * 100)}%)`;
+    case "module_affinity": return `Stärkstes Modul: ${d.moduleName ?? "Unbekannt"} um ${d.bestHour ?? "?"}:00`;
+    case "day_preference": return `Produktivster Wochentag: ${d.bestDay ?? "?"}`;
+    default: return insight.type.replace(/_/g, " ");
+  }
+}
+
 export default function PatternsTab() {
   const { t } = useTranslation();
   const { patterns, insights, loading } = useStudyPatterns(30);
@@ -160,17 +179,31 @@ export default function PatternsTab() {
             <Brain size={16} className="text-purple-500" /> Erkenntnisse
           </h3>
           <div className="space-y-2">
-            {insights.map((insight, i) => (
-              <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-purple-50 dark:bg-purple-950/20">
-                <Target size={14} className="text-purple-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm text-surface-700">{insight.descriptionKey || insight.titleKey}</p>
-                  {insight.data?.recommendation && (
-                    <p className="text-xs text-surface-500 mt-1">{insight.data.recommendation}</p>
-                  )}
+            {insights.map((insight, i) => {
+              const severityColors: Record<string, string> = {
+                positive: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600",
+                warning: "bg-amber-50 dark:bg-amber-950/20 text-amber-600",
+                critical: "bg-red-50 dark:bg-red-950/20 text-red-600",
+                info: "bg-purple-50 dark:bg-purple-950/20 text-purple-600",
+              };
+              const color = severityColors[insight.severity] ?? severityColors.info;
+              // Render translated text, fallback to readable key
+              const title = t(insight.titleKey, insight.data) !== insight.titleKey
+                ? t(insight.titleKey, insight.data)
+                : formatInsightFallback(insight);
+              const desc = t(insight.descriptionKey, insight.data) !== insight.descriptionKey
+                ? t(insight.descriptionKey, insight.data)
+                : null;
+              return (
+                <div key={i} className={`flex items-start gap-3 p-3 rounded-xl ${color.split(" ").slice(0, 2).join(" ")}`}>
+                  <Target size={14} className={`shrink-0 mt-0.5 ${color.split(" ")[2]}`} />
+                  <div>
+                    <p className="text-sm font-medium text-surface-800 dark:text-surface-200">{title}</p>
+                    {desc && <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5">{desc}</p>}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
