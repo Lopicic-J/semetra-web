@@ -5,7 +5,7 @@ import {
   formatTimerDisplay, formatCountdown, getTimerProgress,
 } from "@/lib/schedule";
 import type {
-  TimerState, TimerAction, TimerSideEffect,
+  TimerState, TimerAction, TimerSideEffect, TimerSession,
   SessionType, ScheduleBlock, SchedulePreferences,
 } from "@/lib/schedule";
 import { DEFAULT_PREFERENCES } from "@/lib/schedule";
@@ -37,6 +37,74 @@ export function useTimerSession(preferences?: SchedulePreferences) {
   const prefs = preferences || DEFAULT_PREFERENCES;
   const [state, setState] = useState<TimerState>(INITIAL_TIMER_STATE);
   const serverSessionId = useRef<string | null>(null);
+  const restoredRef = useRef(false);
+
+  // ── Restore active session on mount ──────────────────────────────────
+  // When navigating back to /timer, check if a session is still running
+  // on the server and restore it into the local state machine.
+  useEffect(() => {
+    if (restoredRef.current) return;
+    restoredRef.current = true;
+
+    (async () => {
+      try {
+        const res = await fetch("/api/timer-sessions?active=true");
+        if (!res.ok) return;
+        const data = await res.json();
+        const s = data?.session ?? data;
+        if (!s?.id || !s.started_at) return;
+        if (s.status !== "active" && s.status !== "paused") return;
+
+        // Restore into state machine
+        serverSessionId.current = s.id;
+        const startedAt = new Date(s.started_at).getTime();
+        const now = Date.now();
+        const totalElapsed = Math.floor((now - startedAt) / 1000);
+        const pauseSec = s.total_pause_seconds || 0;
+        const effective = Math.max(0, totalElapsed - pauseSec);
+        const targetSec = s.planned_duration_minutes ? s.planned_duration_minutes * 60 : null;
+
+        const restoredSession: TimerSession = {
+          id: s.id,
+          user_id: s.user_id ?? "",
+          session_type: s.session_type ?? "focus",
+          started_at: s.started_at,
+          ended_at: null,
+          planned_duration_minutes: s.planned_duration_minutes,
+          actual_duration_seconds: totalElapsed,
+          effective_seconds: effective,
+          pause_count: s.pause_count ?? 0,
+          total_pause_seconds: pauseSec,
+          module_id: s.module_id,
+          task_id: s.task_id ?? null,
+          topic_id: s.topic_id ?? null,
+          exam_id: s.exam_id ?? null,
+          schedule_block_id: s.schedule_block_id ?? null,
+          focus_rating: null,
+          energy_level: s.energy_level ?? null,
+          alignment: s.alignment ?? "unplanned",
+          status: s.status,
+          note: s.note ?? null,
+          created_at: s.created_at ?? s.started_at,
+          updated_at: s.updated_at ?? s.started_at,
+        };
+
+        setState({
+          session: restoredSession,
+          isRunning: true,
+          isPaused: s.status === "paused",
+          elapsedSeconds: totalElapsed,
+          effectiveSeconds: effective,
+          currentPauseStart: s.status === "paused" ? now : null,
+          pomodoroCount: 0,
+          pomodorosUntilLongBreak: 4,
+          targetSeconds: targetSec,
+          mode: targetSec ? "countdown" : "stopwatch",
+          linkedBlock: null,
+        });
+      } catch { /* ignore restore errors */ }
+    })();
+  }, []);
 
   // ── Dispatch ──────────────────────────────────────────────────────────
   const dispatch = useCallback((action: TimerAction) => {
@@ -178,14 +246,22 @@ export function useTimerSession(preferences?: SchedulePreferences) {
   // ── localStorage sync for FloatingTimer ────────────────────────────
   // Write timer state to localStorage so the FloatingTimer can read it
   // immediately without waiting for the server session to be created.
+  // Skip the initial render (before restore completes) to avoid clearing
+  // a valid localStorage entry.
+  const mountedRef = useRef(false);
   useEffect(() => {
+    // Skip first render — restore hasn't run yet, state is INITIAL
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
     if (state.isRunning && state.session) {
       try {
         localStorage.setItem("semetra_active_timer", JSON.stringify({
           startedAt: state.session.started_at,
           plannedMinutes: state.targetSeconds ? Math.round(state.targetSeconds / 60) : null,
           status: state.isPaused ? "paused" : "active",
-          moduleName: null, // Not available in hook — server fills this
+          moduleName: null,
           moduleColor: null,
         }));
       } catch { /* ignore */ }
