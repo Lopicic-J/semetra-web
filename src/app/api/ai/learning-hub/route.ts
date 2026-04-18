@@ -14,6 +14,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+// Extend timeout for AI generation (default 10s is too short)
+export const maxDuration = 30;
+
 export async function GET(request: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -128,11 +131,10 @@ Erstelle eine umfassende Lernumgebung als JSON mit diesen 4 Bereichen:
 }
 
 Regeln:
-- 10-15 Topic-Guide Einträge (sortiert nach empfohlener Reihenfolge)
-- 8-12 Concept Cards (die wichtigsten Konzepte)
-- Erkläre alles so, dass ein Neuling es versteht
-- Nutze Alltagsbeispiele wo möglich
-- Antworte auf Deutsch
+- Max 8 Topic-Guide Einträge (sortiert nach Reihenfolge)
+- Max 6 Concept Cards (die wichtigsten)
+- Verständlich für Neulinge, mit Alltagsbeispielen
+- Antworte auf Deutsch, NUR als JSON (kein Markdown)
 - KEIN Prüfungsbezug — nur allgemeines Fachverständnis`;
 
   try {
@@ -148,9 +150,9 @@ Regeln:
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
-        max_tokens: 6000,
+        max_tokens: 4000,
         system: systemPrompt,
-        messages: [{ role: "user", content: `Erstelle die Lernumgebung für "${mod.name}".` }],
+        messages: [{ role: "user", content: `Erstelle die Lernumgebung für "${mod.name}". Halte dich kurz und präzise — max 8 Topic-Guide Einträge und 6 Concept Cards.` }],
       }),
     });
 

@@ -11,6 +11,9 @@
  */
 
 import { NextResponse } from "next/server";
+
+// Extend timeout for AI generation
+export const maxDuration = 30;
 import { createClient } from "@/lib/supabase/server";
 
 const MAX_INPUT_CHARS = 50000; // ~12K tokens
