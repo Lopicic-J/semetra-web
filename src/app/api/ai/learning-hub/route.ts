@@ -73,8 +73,51 @@ export async function POST(request: Request) {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function generateAndCache(supabase: any, userId: string, moduleId: string) {
-  // Skip heavy usage check for cached content — Lernraum is generated once per module
-  // Simple credit deduction instead of full RPC call (saves ~3 seconds)
+  // Check for pre-configured template (institution modules)
+  // Templates are stored per module_code so all students with the same module get identical content
+  const { data: mod } = await supabase
+    .from("modules")
+    .select("name, code, ects")
+    .eq("id", moduleId)
+    .single();
+
+  if (!mod) return NextResponse.json({ error: "Modul nicht gefunden" }, { status: 404 });
+
+  // Look for pre-configured content by module code (shared across all users)
+  if (mod.code) {
+    const { data: template } = await supabase
+      .from("learning_hub_templates")
+      .select("overview, topic_guide, concept_cards, quick_start")
+      .eq("module_code", mod.code)
+      .single();
+
+    if (template && (template.overview || template.topic_guide)) {
+      // Cache the template for this user and return
+      await supabase.from("learning_hub_cache").upsert({
+        user_id: userId,
+        module_id: moduleId,
+        overview: template.overview,
+        topic_guide: template.topic_guide,
+        concept_cards: template.concept_cards,
+        quick_start: template.quick_start,
+        generated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id,module_id" });
+
+      return NextResponse.json({
+        overview: template.overview,
+        topicGuide: template.topic_guide,
+        conceptCards: template.concept_cards,
+        quickStart: template.quick_start,
+        generatedAt: new Date().toISOString(),
+        cached: false,
+        template: true,
+      });
+    }
+  }
+
+  // No template found — generate via AI
+  // Simple credit deduction (saves ~3 seconds vs full RPC)
   try {
     const month = new Date().toISOString().slice(0, 7);
     await supabase.from("ai_usage").upsert(
@@ -84,15 +127,6 @@ async function generateAndCache(supabase: any, userId: string, moduleId: string)
   } catch {
     // Non-critical — don't block generation for credit tracking
   }
-
-  // Get module + topics (single combined query for speed)
-  const { data: mod } = await supabase
-    .from("modules")
-    .select("name, code, ects")
-    .eq("id", moduleId)
-    .single();
-
-  if (!mod) return NextResponse.json({ error: "Modul nicht gefunden" }, { status: 404 });
 
   const { data: topicsData } = await supabase
     .from("topics")

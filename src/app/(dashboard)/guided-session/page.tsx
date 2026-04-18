@@ -430,6 +430,44 @@ export default function GuidedSessionPage() {
   }
 
   // ── DONE ──
+  const [savedRecurring, setSavedRecurring] = useState(false);
+  const [savingRecurring, setSavingRecurring] = useState(false);
+
+  const saveAsRecurring = async () => {
+    if (!selectedTemplate || !selectedModule) return;
+    setSavingRecurring(true);
+    try {
+      // Get current day of week for scheduling
+      const now = new Date();
+      const dayOfWeek = now.getDay(); // 0=Sun
+      // Schedule same time next week
+      const nextWeek = new Date(now);
+      nextWeek.setDate(now.getDate() + (7 - dayOfWeek) + dayOfWeek); // Same day next week
+      const startHour = sessionStartRef.current?.getHours() ?? now.getHours();
+      nextWeek.setHours(startHour, 0, 0, 0);
+      const endTime = new Date(nextWeek.getTime() + (selectedTemplate.total_minutes || 45) * 60000);
+
+      await fetch("/api/schedule", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          block_type: "deep_work",
+          start_time: nextWeek.toISOString(),
+          end_time: endTime.toISOString(),
+          title: `${selectedTemplate.name} · ${moduleName}`,
+          module_id: selectedModule,
+          recurrence: "weekly",
+          priority: "medium",
+          source: "manual",
+          estimated_minutes: selectedTemplate.total_minutes,
+          description: `Wiederkehrende Guided Session: ${selectedTemplate.description}`,
+        }),
+      });
+      setSavedRecurring(true);
+    } catch { /* ignore */ }
+    setSavingRecurring(false);
+  };
+
   return (
     <div className="max-w-lg mx-auto px-4 py-16 text-center space-y-6">
       <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto">
@@ -441,8 +479,26 @@ export default function GuidedSessionPage() {
           {Math.round(totalElapsed / 60)} Min · {selectedTemplate?.phases.length} Phasen · {moduleName}
         </p>
       </div>
+
+      {/* Recurring block suggestion */}
+      {selectedModule && !savedRecurring && (
+        <button
+          onClick={saveAsRecurring}
+          disabled={savingRecurring}
+          className="flex items-center gap-2 mx-auto px-4 py-2.5 rounded-xl border border-brand-200 dark:border-brand-800 bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 text-sm font-medium hover:bg-brand-100 dark:hover:bg-brand-900/40 disabled:opacity-50 transition-colors"
+        >
+          <Clock size={14} />
+          {savingRecurring ? "Speichere..." : "Wöchentlich wiederholen"}
+        </button>
+      )}
+      {savedRecurring && (
+        <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 justify-center">
+          <CheckCircle2 size={12} /> Wöchentlicher Block erstellt — sichtbar im Smart Schedule
+        </p>
+      )}
+
       <div className="flex gap-3 justify-center">
-        <button onClick={() => { setPhase("setup"); setCurrentPhaseIndex(0); setTotalElapsed(0); setLearned(""); setDifficult(""); setNextSteps(""); }}
+        <button onClick={() => { setPhase("setup"); setCurrentPhaseIndex(0); setTotalElapsed(0); setLearned(""); setDifficult(""); setNextSteps(""); setSavedRecurring(false); }}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 text-sm font-medium hover:bg-surface-50 dark:hover:bg-surface-800">
           Neue Session
         </button>

@@ -293,8 +293,9 @@ function TimerPageInner() {
     events.timerCompleted(selectedModule || null, actualMin);
     setNote("");
 
-    // DNA Micro-Update with learning goal context
+    // DNA Micro-Update + Pattern Refresh after meaningful sessions
     if (actualSec >= 60) {
+      // DNA update
       fetch("/api/learning-dna", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -302,6 +303,13 @@ function TimerPageInner() {
           durationMinutes: actualMin,
           alignment: learningGoal && learningGoal !== "free" ? "within_plan" : "unplanned",
         }),
+      }).catch(() => {});
+
+      // Pattern refresh — so next auto-plan uses fresh data
+      fetch("/api/schedule/patterns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "refresh" }),
       }).catch(() => {});
     }
 
