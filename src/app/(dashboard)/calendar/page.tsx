@@ -67,7 +67,7 @@ export default function CalendarPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white">{t("nav.calendar")}</h1>
- <p className="text-surface-500 text-sm mt-0.5">{monthNames[month]} {year}</p>
+ <p className="text-surface-500 dark:text-surface-400 text-sm mt-0.5">{monthNames[month]} {year}</p>
         </div>
         <div className="flex gap-2 flex-wrap sm:flex-nowrap">
  <div className="flex bg-surface-100 dark:bg-surface-800 rounded-xl overflow-hidden">
@@ -81,7 +81,7 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      <div className="card p-0 overflow-hidden bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700">
+      <div className="card p-0 overflow-hidden bg-[rgb(var(--card-bg))] border border-surface-200 dark:border-surface-700">
         {/* Day headers */}
  <div className="grid grid-cols-7 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800">
           {DOW.map(d => (
@@ -98,10 +98,10 @@ export default function CalendarPage() {
             return (
               <div key={i}
                 onClick={() => day && setSelected(selected === dateStr(day) ? null : dateStr(day))}
-                className={`min-h-[64px] sm:min-h-[90px] p-1.5 sm:p-2.5 border-b border-r border-surface-200 dark:border-surface-700 cursor-pointer transition-colors text-xs sm:text-sm active:scale-95 ${day ? `hover:bg-brand-50 dark:hover:bg-surface-800 ${isSelected ? "bg-brand-50 dark:bg-surface-700" : holiday ? "bg-amber-50/60 dark:bg-amber-900/20" : "bg-white dark:bg-surface-900"}` : "bg-surface-50 dark:bg-surface-800"}`}>
+                className={`min-h-[64px] sm:min-h-[90px] p-1.5 sm:p-2.5 border-b border-r border-surface-200 dark:border-surface-700 cursor-pointer transition-colors text-xs sm:text-sm active:scale-95 ${day ? `hover:bg-brand-50 dark:hover:bg-surface-800 ${isSelected ? "bg-brand-50 dark:bg-surface-700" : holiday ? "bg-amber-50/60 dark:bg-amber-900/20" : "bg-[rgb(var(--card-bg))]"}` : "bg-surface-50 dark:bg-surface-800"}`}>
                 {day && (
                   <>
- <div className={`w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full text-xs sm:text-sm font-medium mb-1 ${isToday ? "bg-brand-600 text-white" : holiday ? "text-amber-700 dark:text-amber-400" : "text-surface-700"}`}>{day}</div>
+ <div className={`w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full text-xs sm:text-sm font-medium mb-1 ${isToday ? "bg-brand-600 text-white" : holiday ? "text-amber-700 dark:text-amber-400" : "text-surface-700 dark:text-surface-300"}`}>{day}</div>
                     {holiday && (
                       <div className="text-[10px] sm:text-xs px-1 py-0.5 rounded truncate text-amber-700 dark:text-amber-400 font-medium leading-none bg-amber-100/80 dark:bg-amber-900/40 mb-0.5">
                         {holiday.name}
@@ -126,7 +126,7 @@ export default function CalendarPage() {
 
       {/* Selected day events */}
       {selected && (
-        <div className="mt-4 card bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700">
+        <div className="mt-4 card bg-[rgb(var(--card-bg))] border border-surface-200 dark:border-surface-700">
           <h3 className="font-semibold text-surface-900 dark:text-white mb-3">
             {(() => {
               const d = new Date(selected);
@@ -231,10 +231,17 @@ function EventModal({ defaultDate, existingEvent, onClose, onSaved }: {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setSaving(false); return; }
 
+    // Build timestamps with local timezone offset so Supabase stores
+    // the correct absolute time (e.g., 21:00 CEST = 19:00 UTC)
+    const toLocalISO = (date: string, time: string) => {
+      const dt = new Date(`${date}T${time}:00`);
+      return dt.toISOString(); // Converts local → UTC automatically
+    };
+
     const eventData = {
       title: form.title,
-      start_dt: `${form.date}T${form.time_start}:00`,
-      end_dt: form.time_end ? `${form.date}T${form.time_end}:00` : null,
+      start_dt: toLocalISO(form.date, form.time_start),
+      end_dt: form.time_end ? toLocalISO(form.date, form.time_end) : null,
       location: form.location || null,
       description: form.description || null,
       color: form.color,
