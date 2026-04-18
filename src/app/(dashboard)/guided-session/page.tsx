@@ -149,33 +149,42 @@ export default function GuidedSessionPage() {
   };
 
   const submitReflection = async () => {
-    await fetch("/api/reflections", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        moduleId: selectedModule || null,
-        learned: learned || null,
-        difficult: difficult || null,
-        nextSteps: nextSteps || null,
-        understandingRating: understanding,
-        confidenceRating: confidence,
-        energyAfter: energy,
-        sessionDurationSeconds: totalElapsed,
-        sessionType: "guided",
-      }),
-    });
-
-    // Also trigger DNA micro-update
-    await fetch("/api/learning-dna", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        focusRating: understanding,
-        energyLevel: energy,
-        durationMinutes: Math.round(totalElapsed / 60),
-        alignment: "within_plan",
-      }),
-    });
+    try {
+      await Promise.all([
+        fetch("/api/reflections", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            moduleId: selectedModule || null,
+            learned: learned || null,
+            difficult: difficult || null,
+            nextSteps: nextSteps || null,
+            understandingRating: understanding,
+            confidenceRating: confidence,
+            energyAfter: energy,
+            sessionDurationSeconds: totalElapsed,
+            sessionType: "guided",
+          }),
+        }),
+        // DNA micro-update
+        fetch("/api/learning-dna", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            focusRating: understanding,
+            energyLevel: energy,
+            durationMinutes: Math.round(totalElapsed / 60),
+            alignment: "within_plan",
+          }),
+        }),
+        // Pattern refresh so next auto-plan is informed
+        fetch("/api/schedule/patterns", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "refresh" }),
+        }),
+      ]);
+    } catch { /* Non-critical — session data is saved locally */ }
 
     setPhase("done");
   };

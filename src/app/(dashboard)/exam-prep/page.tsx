@@ -98,19 +98,34 @@ export default function ExamPrepPage() {
         await loadData();
 
         // Sync plan activities into Smart Schedule as exam_prep blocks
+        // Uses free-slot detection to avoid conflicts with existing schedule
         if (plan?.daily_plan?.length > 0) {
           const exam = exams.find(e => e.id === selectedExam);
           for (const day of plan.daily_plan) {
             if (!day.date || !day.activities?.length) continue;
-            // Create one exam_prep block per day covering all activities
             const totalMin = day.activities.reduce((s: number, a: Activity) => s + (a.duration_min || 30), 0);
+
+            // Find a free slot for this day
+            let startTime = `${day.date}T09:00:00`;
+            try {
+              const slotRes = await fetch(`/api/schedule?view=free-slots&date=${day.date}`);
+              if (slotRes.ok) {
+                const slots = await slotRes.json();
+                const freeSlots = Array.isArray(slots) ? slots : slots?.slots ?? [];
+                const fit = freeSlots.find((s: any) => s.duration_minutes >= totalMin);
+                if (fit) startTime = fit.slot_start;
+              }
+            } catch { /* fallback to 09:00 */ }
+
+            const endTime = new Date(new Date(startTime).getTime() + totalMin * 60000).toISOString();
+
             fetch("/api/schedule", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 block_type: "exam_prep",
-                start_time: `${day.date}T09:00:00`,
-                end_time: new Date(new Date(`${day.date}T09:00:00`).getTime() + totalMin * 60000).toISOString(),
+                start_time: startTime,
+                end_time: endTime,
                 title: `Prüfungsvorbereitung · ${exam?.title || "Prüfung"}`,
                 module_id: exam?.module_id || null,
                 exam_id: selectedExam,

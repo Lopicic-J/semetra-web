@@ -5,11 +5,18 @@ import { Zap, CalendarClock, GraduationCap, ArrowRight, Clock } from "lucide-rea
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
+interface BlockInfo {
+  title: string;
+  startTime: string;
+  moduleColor: string;
+}
+
 interface GlanceData {
   flashcardsDue: number;
-  nextBlock: { title: string; startTime: string; moduleColor: string } | null;
+  nextBlock: BlockInfo | null;
   nextExam: { title: string; daysLeft: number } | null;
   scheduledBlocks: number;
+  upcomingBlocks: BlockInfo[];
 }
 
 /**
@@ -53,12 +60,13 @@ export default function TodayAtGlance() {
           .limit(1),
       ]);
 
+      // Error-safe data extraction
       const blocks = blockRes.data || [];
-      const nextBlock = blocks[0] ? {
-        title: blocks[0].title,
-        startTime: blocks[0].start_time,
-        moduleColor: (blocks[0].module as any)?.color || blocks[0].color || "#6d28d9",
-      } : null;
+      const upcomingBlocks = blocks.slice(0, 3).map(b => ({
+        title: b.title,
+        startTime: b.start_time,
+        moduleColor: (b.module as any)?.color || b.color || "#6d28d9",
+      }));
 
       const exam = (examRes.data || [])[0];
       const nextExam = exam ? {
@@ -68,9 +76,10 @@ export default function TodayAtGlance() {
 
       setData({
         flashcardsDue: fcRes.count ?? 0,
-        nextBlock,
+        nextBlock: upcomingBlocks[0] ?? null,
         nextExam,
         scheduledBlocks: blocks.length,
+        upcomingBlocks,
       });
     }
     load();
@@ -94,32 +103,27 @@ export default function TodayAtGlance() {
         </Link>
       )}
 
-      {/* Next Block */}
-      {data.nextBlock && (
+      {/* Mini-Timeline: next 3 blocks */}
+      {data.upcomingBlocks.length > 0 && (
         <Link
           href="/smart-schedule"
           className="flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-50 dark:bg-brand-950/20 border border-brand-200 dark:border-brand-800/40 text-brand-700 dark:text-brand-300 text-xs font-medium hover:bg-brand-100 dark:hover:bg-brand-950/30 transition-colors no-underline"
         >
-          <CalendarClock size={14} className="text-brand-500" />
-          <span
-            className="w-2 h-2 rounded-full shrink-0"
-            style={{ backgroundColor: data.nextBlock.moduleColor }}
-          />
-          <span className="truncate max-w-[140px]">{data.nextBlock.title}</span>
-          <span className="text-brand-500 dark:text-brand-400">
-            {new Date(data.nextBlock.startTime).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}
-          </span>
-        </Link>
-      )}
-
-      {/* Scheduled blocks count */}
-      {data.scheduledBlocks > 1 && (
-        <Link
-          href="/smart-schedule"
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-100 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 text-surface-600 dark:text-surface-400 text-xs font-medium hover:bg-surface-200 dark:hover:bg-surface-800 transition-colors no-underline"
-        >
-          <Clock size={12} />
-          +{data.scheduledBlocks - 1} weitere Blöcke
+          <CalendarClock size={14} className="text-brand-500 shrink-0" />
+          <div className="flex items-center gap-1.5 overflow-hidden">
+            {data.upcomingBlocks.map((b, i) => (
+              <span key={i} className="flex items-center gap-1 shrink-0">
+                {i > 0 && <span className="text-brand-300 dark:text-brand-600">→</span>}
+                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: b.moduleColor }} />
+                <span className="tabular-nums text-brand-500 dark:text-brand-400">
+                  {new Date(b.startTime).toLocaleTimeString("de-CH", { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </span>
+            ))}
+            {data.scheduledBlocks > 3 && (
+              <span className="text-brand-400 dark:text-brand-500 shrink-0">+{data.scheduledBlocks - 3}</span>
+            )}
+          </div>
         </Link>
       )}
 
