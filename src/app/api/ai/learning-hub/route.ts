@@ -93,19 +93,14 @@ ${mod.learning_type && mod.learning_type !== "mixed" ? `Modultyp: ${mod.learning
 ${topics.length > 0 ? `Vorhandene Topics: ${topicList}` : ""}
 ${mod.textbook ? `Lehrbuch: ${mod.textbook}` : ""}
 
-Erstelle eine Lernumgebung mit diesen 4 Bereichen:
+Erstelle eine KOMPAKTE Lernumgebung als JSON mit:
 
-1. overview: summary (3-4 Sätze), prerequisites (Array), learningGoals (Array), realWorldUse (1-2 Sätze)
-2. topicGuide: Array mit 8-10 Einträgen, sortiert nach empfohlener Reihenfolge. Jeder Eintrag: title, explanation (2-3 Sätze), relevance, difficulty (beginner/intermediate/advanced), order (Nummer)
-3. conceptCards: Array mit 6-8 Karten. Jede Karte: title, definition, example (Alltagsbeispiel), application, optional keyFormula
-4. quickStart: topThree (Array mit title/why/howLong), recommendedOrder (Array), tips (Array mit 3 Tipps)
+1. overview: summary (2 Sätze), prerequisites (2-3 Stück), learningGoals (3 Stück), realWorldUse (1 Satz)
+2. topicGuide: 5 Einträge mit title, explanation (1 Satz), difficulty, order
+3. conceptCards: 4 Karten mit title, definition (1 Satz), example (1 Satz)
+4. quickStart: topThree (3 Stück), tips (2 Tipps)
 
-Regeln:
-- Erkläre alles so, dass ein Neuling es versteht
-- Nutze Alltagsbeispiele wo möglich
-- Antworte auf Deutsch
-- KEIN Prüfungsbezug — nur allgemeines Fachverständnis
-- Antworte als JSON-Objekt`;
+Kurz und präzise. Deutsch. Kein Prüfungsbezug. NUR JSON.`;
 
   try {
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -120,7 +115,7 @@ Regeln:
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
-        max_tokens: 5000,
+        max_tokens: 2500,
         system: systemPrompt,
         messages: [{ role: "user", content: `Erstelle die Lernumgebung für "${mod.name}". Antworte nur mit dem JSON-Objekt.` }],
       }),
@@ -128,11 +123,11 @@ Regeln:
 
     if (!res.ok) {
       const errBody = await res.text().catch(() => "");
-      console.error("[learning-hub] API error:", res.status, errBody.slice(0, 200));
+      console.error("[learning-hub] API error:", res.status, errBody);
       return NextResponse.json({
         error: res.status === 429
           ? "AI-Rate-Limit erreicht. Versuche es in einer Minute erneut."
-          : "AI-Generierung fehlgeschlagen. Versuche es erneut.",
+          : `API-Fehler ${res.status}: ${errBody.slice(0, 150)}`,
       }, { status: res.status === 429 ? 429 : 502 });
     }
 
@@ -193,6 +188,7 @@ Regeln:
     });
   } catch (err) {
     console.error("[learning-hub] Error:", err);
-    return NextResponse.json({ error: "Generierung fehlgeschlagen" }, { status: 500 });
+    const message = err instanceof Error ? err.message : "Unbekannter Fehler";
+    return NextResponse.json({ error: `Generierung fehlgeschlagen: ${message}` }, { status: 500 });
   }
 }
