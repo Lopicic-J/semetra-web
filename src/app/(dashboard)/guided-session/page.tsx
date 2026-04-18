@@ -8,7 +8,7 @@ import MobileFlashcardReview from "@/components/flashcards/MobileFlashcardReview
 import {
   Brain, BookOpen, Target, MessageCircle, PenLine, Coffee,
   Play, Pause, SkipForward, CheckCircle2, Clock, AlertTriangle,
-  GraduationCap, ArrowRight, Search, Zap,
+  GraduationCap, ArrowRight, Search, Zap, Trophy, X,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -68,6 +68,16 @@ export default function GuidedSessionPage() {
   const [showFlashcards, setShowFlashcards] = useState(false);
   const [flashcards, setFlashcards] = useState<{ id: string; question: string; answer: string; deck_name?: string }[]>([]);
   const [flashcardsLoading, setFlashcardsLoading] = useState(false);
+
+  // Inline exam simulator state
+  const [showExamSim, setShowExamSim] = useState(false);
+  const [examQuestions, setExamQuestions] = useState<{ question: string; type: string; options?: string[]; correctAnswer: string; explanation: string; difficulty: string }[]>([]);
+  const [examLoading, setExamLoading] = useState(false);
+  const [examIndex, setExamIndex] = useState(0);
+  const [examAnswer, setExamAnswer] = useState("");
+  const [examRevealed, setExamRevealed] = useState(false);
+  const [examScore, setExamScore] = useState({ correct: 0, wrong: 0 });
+
   const supabase = createClient();
 
   const activeModules = modules.filter(m => m.status === "active" || m.status === "planned");
@@ -363,10 +373,37 @@ export default function GuidedSessionPage() {
           {currentPhase.type === "review" && flashcards.length === 0 && !flashcardsLoading && !showFlashcards && (
             <p className="text-xs opacity-60 mt-1">Keine fälligen Karten für dieses Modul</p>
           )}
-          {currentPhase.type === "practice" && (
-            <Link href={`/exam-simulator?module=${selectedModule}`} target="_blank" className="inline-flex items-center gap-2 text-sm underline opacity-70 hover:opacity-100 no-underline">
-              <Target size={14} /> Prüfungssimulator öffnen
-            </Link>
+          {currentPhase.type === "practice" && !showExamSim && (
+            <button
+              onClick={async () => {
+                setExamLoading(true);
+                try {
+                  const res = await fetch("/api/ai/exam-simulate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ moduleId: selectedModule, questionCount: 5, difficulty: "mixed" }),
+                  });
+                  if (res.ok) {
+                    const data = await res.json();
+                    if (data.questions?.length > 0) {
+                      setExamQuestions(data.questions);
+                      setExamIndex(0);
+                      setExamAnswer("");
+                      setExamRevealed(false);
+                      setExamScore({ correct: 0, wrong: 0 });
+                      setShowExamSim(true);
+                      setIsPaused(true);
+                    }
+                  }
+                } catch { /* ignore */ }
+                setExamLoading(false);
+              }}
+              disabled={examLoading}
+              className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
+            >
+              <Target size={14} />
+              {examLoading ? "Generiere Fragen..." : "Übungsfragen starten"}
+            </button>
           )}
           {currentPhase.type === "test" && (
             <p className="text-xs opacity-60">Erkläre das Gelernte laut oder schriftlich — ohne Hilfsmittel</p>
@@ -395,6 +432,101 @@ export default function GuidedSessionPage() {
             />
           </div>
         )}
+
+        {/* Inline Exam Simulator */}
+        {showExamSim && examQuestions.length > 0 && (() => {
+          const q = examQuestions[examIndex];
+          const isDone = examIndex >= examQuestions.length;
+          if (!q && !isDone) return null;
+
+          if (isDone) {
+            return (
+              <div className="rounded-2xl border border-amber-200 dark:border-amber-800/40 bg-[rgb(var(--card-bg))] p-6 text-center space-y-3">
+                <Trophy size={32} className="mx-auto text-amber-500" />
+                <p className="font-bold text-surface-900 dark:text-surface-50">{examScore.correct}/{examScore.correct + examScore.wrong} richtig</p>
+                <button onClick={() => { setShowExamSim(false); setIsPaused(false); setLearned(prev => prev ? `${prev}\nÜbung: ${examScore.correct}/${examScore.correct + examScore.wrong} richtig` : `Übung: ${examScore.correct}/${examScore.correct + examScore.wrong} richtig`); }}
+                  className="px-4 py-2 rounded-xl bg-brand-600 text-white text-sm font-medium hover:bg-brand-700">
+                  Weiter zur Session
+                </button>
+              </div>
+            );
+          }
+
+          return (
+            <div className="rounded-2xl border border-amber-200 dark:border-amber-800/40 bg-[rgb(var(--card-bg))] p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-surface-400">Frage {examIndex + 1}/{examQuestions.length}</span>
+                <button onClick={() => { setShowExamSim(false); setIsPaused(false); }} className="text-surface-400 hover:text-surface-600 dark:hover:text-surface-300">
+                  <X size={14} />
+                </button>
+              </div>
+              <p className="text-sm font-medium text-surface-900 dark:text-surface-50">{q.question}</p>
+
+              {/* Multiple Choice */}
+              {q.type === "multiple_choice" && q.options && (
+                <div className="space-y-2">
+                  {q.options.map((opt, i) => (
+                    <button key={i}
+                      onClick={() => { if (!examRevealed) setExamAnswer(opt); }}
+                      disabled={examRevealed}
+                      className={`w-full text-left px-3 py-2.5 rounded-xl border text-sm transition-colors ${
+                        examRevealed && opt === q.correctAnswer ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300" :
+                        examRevealed && opt === examAnswer && opt !== q.correctAnswer ? "border-red-500 bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-300" :
+                        examAnswer === opt ? "border-brand-500 bg-brand-50 dark:bg-brand-950/20" :
+                        "border-surface-200 dark:border-surface-700 hover:border-surface-300"
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Open Question */}
+              {q.type === "open" && !examRevealed && (
+                <textarea value={examAnswer} onChange={e => setExamAnswer(e.target.value)}
+                  placeholder="Deine Antwort..."
+                  className="w-full p-3 rounded-xl border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-sm min-h-[60px] resize-none" />
+              )}
+
+              {/* Reveal / Next */}
+              {!examRevealed ? (
+                <button onClick={() => {
+                  setExamRevealed(true);
+                  const isCorrect = q.type === "multiple_choice" ? examAnswer === q.correctAnswer : true; // Open = self-evaluate
+                  setExamScore(prev => ({ correct: prev.correct + (isCorrect ? 1 : 0), wrong: prev.wrong + (isCorrect ? 0 : 1) }));
+                }}
+                  disabled={!examAnswer}
+                  className="w-full py-2.5 rounded-xl bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 disabled:opacity-50 transition-colors">
+                  Antwort prüfen
+                </button>
+              ) : (
+                <div className="space-y-3">
+                  <div className="p-3 rounded-xl bg-surface-50 dark:bg-surface-800 text-xs text-surface-600 dark:text-surface-400">
+                    <p className="font-medium text-surface-700 dark:text-surface-300 mb-1">Erklärung:</p>
+                    {q.explanation}
+                  </div>
+                  {q.type === "open" && (
+                    <div className="flex gap-2">
+                      <button onClick={() => setExamScore(prev => ({ ...prev, correct: prev.correct + 1, wrong: prev.wrong - 1 }))}
+                        className="flex-1 py-2 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs font-medium">Richtig ✓</button>
+                      <button onClick={() => {}}
+                        className="flex-1 py-2 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-medium">Falsch ✗</button>
+                    </div>
+                  )}
+                  <button onClick={() => {
+                    setExamRevealed(false);
+                    setExamAnswer("");
+                    setExamIndex(prev => prev + 1);
+                  }}
+                    className="w-full py-2.5 rounded-xl bg-surface-900 dark:bg-surface-100 text-white dark:text-surface-900 text-sm font-medium hover:opacity-90 transition-opacity">
+                    {examIndex < examQuestions.length - 1 ? "Nächste Frage →" : "Ergebnis anzeigen"}
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Controls */}
         <div className="flex items-center justify-center gap-4">
