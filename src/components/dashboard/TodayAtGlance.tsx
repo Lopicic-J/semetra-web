@@ -45,11 +45,11 @@ export default function TodayAtGlance() {
           .limit(5),
         // Next exam
         supabase.from("events")
-          .select("title, date")
+          .select("title, start_dt")
           .eq("user_id", user.id)
-          .eq("type", "exam")
-          .gte("date", today)
-          .order("date")
+          .eq("event_type", "exam")
+          .gte("start_dt", today)
+          .order("start_dt")
           .limit(1),
       ]);
 
@@ -63,7 +63,7 @@ export default function TodayAtGlance() {
       const exam = (examRes.data || [])[0];
       const nextExam = exam ? {
         title: exam.title,
-        daysLeft: Math.max(0, Math.ceil((new Date(exam.date).getTime() - now.getTime()) / 86400000)),
+        daysLeft: Math.max(0, Math.ceil((new Date(exam.start_dt).getTime() - now.getTime()) / 86400000)),
       } : null;
 
       setData({

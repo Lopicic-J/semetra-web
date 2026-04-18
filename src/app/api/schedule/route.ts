@@ -424,12 +424,12 @@ export async function POST(req: NextRequest) {
           .order("due_date", { ascending: true }),
         // 7. Upcoming exams (next 14 days)
         supabase.from("events")
-          .select("id, title, date, module_id, modules(name, color)")
+          .select("id, title, start_dt, module_id, modules(name, color)")
           .eq("user_id", user.id)
-          .eq("type", "exam")
-          .gte("date", date)
-          .lte("date", new Date(now.getTime() + 14 * 86400000).toISOString().slice(0, 10))
-          .order("date", { ascending: true }),
+          .eq("event_type", "exam")
+          .gte("start_dt", date)
+          .lte("start_dt", new Date(now.getTime() + 14 * 86400000).toISOString().slice(0, 10))
+          .order("start_dt", { ascending: true }),
       ]);
 
       // Process Decision Engine
