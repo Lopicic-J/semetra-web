@@ -3,7 +3,7 @@ import {
   Brain, TrendingUp, Wrench, Users, MessageCircle,
   Shield, Settings, UserCircle, Terminal, Puzzle, ClipboardList,
   Dna, Trophy, FileText, Timer, CheckSquare, Zap,
-  Sparkles, Target, BarChart3, FolderOpen,
+  Sparkles, Target, BarChart3, FolderOpen, CalendarClock,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRole } from "@/lib/hooks/useProfile";
@@ -37,6 +37,7 @@ export const NAV_GROUPS: NavGroup[] = [
     labelKey: "",
     items: [
       { href: "/dashboard", icon: LayoutDashboard, labelKey: "nav.dashboard", pro: false },
+      { href: "/smart-schedule", icon: CalendarClock, labelKey: "nav.smartSchedule", pro: false },
       { href: "/guided-session", icon: Sparkles, labelKey: "nav.guidedSession", pro: false },
       { href: "/timer", icon: Timer, labelKey: "nav.timer", pro: false },
       { href: "/tasks", icon: CheckSquare, labelKey: "nav.tasks", pro: false },
@@ -70,6 +71,7 @@ export const NAV_GROUPS: NavGroup[] = [
         pro: false,
         children: [
           { href: "/flashcards", labelKey: "nav.flashcards" },
+          { href: "/quick-review", labelKey: "nav.quickReview" },
           { href: "/flashcards/community", labelKey: "community.flashcards" },
         ],
       },
@@ -104,9 +106,10 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           { href: "/dna", labelKey: "nav.dnaProfile" },
           { href: "/patterns", labelKey: "nav.patterns" },
-          { href: "/review", labelKey: "nav.weeklyReview" },
+          { href: "/weekly-review", labelKey: "nav.weeklyReview" },
           { href: "/reflections", labelKey: "nav.reflections" },
           { href: "/wellness", labelKey: "nav.wellness" },
+          { href: "/knowledge", labelKey: "nav.knowledge" },
         ],
       },
       {
