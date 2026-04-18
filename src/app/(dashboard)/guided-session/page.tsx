@@ -69,6 +69,10 @@ export default function GuidedSessionPage() {
   const [flashcards, setFlashcards] = useState<{ id: string; question: string; answer: string; deck_name?: string }[]>([]);
   const [flashcardsLoading, setFlashcardsLoading] = useState(false);
 
+  // Done state (must be declared here, not conditionally)
+  const [savedRecurring, setSavedRecurring] = useState(false);
+  const [savingRecurring, setSavingRecurring] = useState(false);
+
   // Inline exam simulator state
   const [showExamSim, setShowExamSim] = useState(false);
   const [examQuestions, setExamQuestions] = useState<{ question: string; type: string; options?: string[]; correctAnswer: string; explanation: string; difficulty: string }[]>([]);
@@ -624,9 +628,6 @@ export default function GuidedSessionPage() {
   }
 
   // ── DONE ──
-  const [savedRecurring, setSavedRecurring] = useState(false);
-  const [savingRecurring, setSavingRecurring] = useState(false);
-
   const saveAsRecurring = async () => {
     if (!selectedTemplate || !selectedModule) return;
     setSavingRecurring(true);
