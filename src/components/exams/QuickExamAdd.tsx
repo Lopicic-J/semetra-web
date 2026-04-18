@@ -81,100 +81,98 @@ function QuickExamAdd({ modules, onCreated }: Props) {
     }
   };
 
-  if (!open) {
-    return (
+  return (
+    <div className="relative">
+      {/* Trigger button */}
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => setOpen(!open)}
         className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-950/30 border border-red-200 dark:border-red-800/40 transition-colors"
       >
         <GraduationCap size={13} />
-        {t("exams.quickAdd") || "Prüfung eintragen"}
+        {saved ? (
+          <><Check size={11} className="text-emerald-500" /> {t("exams.created") || "Eingetragen!"}</>
+        ) : (
+          t("exams.quickAdd") || "Prüfung eintragen"
+        )}
       </button>
-    );
-  }
 
-  if (saved) {
-    return (
-      <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40">
-        <Check size={13} /> {t("exams.created") || "Prüfung eingetragen!"}
-      </div>
-    );
-  }
+      {/* Dropdown form */}
+      {open && !saved && (
+        <div className="absolute top-full right-0 mt-2 w-80 z-50 rounded-xl border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] p-4 space-y-3 shadow-lg">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-surface-700 dark:text-surface-300 flex items-center gap-2">
+              <GraduationCap size={14} className="text-red-500" />
+              {t("exams.quickAddTitle") || "Prüfung schnell eintragen"}
+            </p>
+            <button onClick={() => setOpen(false)} className="text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 p-0.5">
+              <X size={14} />
+            </button>
+          </div>
 
-  return (
-    <div className="rounded-xl border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-surface-700 dark:text-surface-300 flex items-center gap-2">
-          <GraduationCap size={14} className="text-red-500" />
-          {t("exams.quickAddTitle") || "Prüfung schnell eintragen"}
-        </p>
-        <button onClick={() => setOpen(false)} className="text-surface-400 hover:text-surface-600 p-0.5">
-          <X size={14} />
-        </button>
-      </div>
+          {/* Module */}
+          <select
+            value={moduleId}
+            onChange={e => handleModuleChange(e.target.value)}
+            className="w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-sm"
+          >
+            <option value="">{t("exams.selectModule") || "Modul wählen..."}</option>
+            {activeModules.map(m => (
+              <option key={m.id} value={m.id}>{m.name}</option>
+            ))}
+          </select>
 
-      {/* Module */}
-      <select
-        value={moduleId}
-        onChange={e => handleModuleChange(e.target.value)}
-        className="w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-sm"
-      >
-        <option value="">{t("exams.selectModule") || "Modul wählen..."}</option>
-        {activeModules.map(m => (
-          <option key={m.id} value={m.id}>{m.name}</option>
-        ))}
-      </select>
-
-      {/* Title */}
-      <input
-        type="text"
-        value={title}
-        onChange={e => setTitle(e.target.value)}
-        placeholder={t("exams.titlePlaceholder") || "Prüfungstitel"}
-        className="w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-sm"
-      />
-
-      {/* Date + Time */}
-      <div className="grid grid-cols-2 gap-2">
-        <div className="relative">
-          <Calendar size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+          {/* Title */}
           <input
-            type="date"
-            value={date}
-            onChange={e => setDate(e.target.value)}
-            min={new Date().toISOString().split("T")[0]}
-            className="w-full pl-8 pr-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-sm"
+            type="text"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            placeholder={t("exams.titlePlaceholder") || "Prüfungstitel"}
+            className="w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-sm"
           />
-        </div>
-        <div className="relative">
-          <Clock size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+
+          {/* Date + Time */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="relative">
+              <Calendar size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+              <input
+                type="date"
+                value={date}
+                onChange={e => setDate(e.target.value)}
+                min={new Date().toISOString().split("T")[0]}
+                className="w-full pl-8 pr-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-sm"
+              />
+            </div>
+            <div className="relative">
+              <Clock size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
+              <input
+                type="time"
+                value={time}
+                onChange={e => setTime(e.target.value)}
+                className="w-full pl-8 pr-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Location (optional) */}
           <input
-            type="time"
-            value={time}
-            onChange={e => setTime(e.target.value)}
-            className="w-full pl-8 pr-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-sm"
+            type="text"
+            value={location}
+            onChange={e => setLocation(e.target.value)}
+            placeholder={t("exams.locationPlaceholder") || "Ort (optional)"}
+            className="w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-sm"
           />
+
+          {/* Save */}
+          <button
+            onClick={handleSave}
+            disabled={saving || !moduleId || !title || !date}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
+          >
+            {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+            {saving ? (t("exams.saving") || "Wird gespeichert...") : (t("exams.save") || "Prüfung eintragen")}
+          </button>
         </div>
-      </div>
-
-      {/* Location (optional) */}
-      <input
-        type="text"
-        value={location}
-        onChange={e => setLocation(e.target.value)}
-        placeholder={t("exams.locationPlaceholder") || "Ort (optional)"}
-        className="w-full px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-sm"
-      />
-
-      {/* Save */}
-      <button
-        onClick={handleSave}
-        disabled={saving || !moduleId || !title || !date}
-        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
-      >
-        {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-        {saving ? (t("exams.saving") || "Wird gespeichert...") : (t("exams.save") || "Prüfung eintragen")}
-      </button>
+      )}
     </div>
   );
 }
