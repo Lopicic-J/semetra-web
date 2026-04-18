@@ -115,9 +115,9 @@ export default function QuickReviewPage() {
           score >= 50 ? "bg-amber-100 dark:bg-amber-900/30" :
           "bg-red-100 dark:bg-red-900/30"
         }`}>
-          {score >= 80 ? <Check size={32} className="text-emerald-600" /> :
-           score >= 50 ? <Brain size={32} className="text-amber-600" /> :
-           <RotateCcw size={32} className="text-red-600" />}
+          {score >= 80 ? <Check size={32} className="text-emerald-600 dark:text-emerald-400" /> :
+           score >= 50 ? <Brain size={32} className="text-amber-600 dark:text-amber-400" /> :
+           <RotateCcw size={32} className="text-red-600 dark:text-red-400" />}
         </div>
 
         <div>

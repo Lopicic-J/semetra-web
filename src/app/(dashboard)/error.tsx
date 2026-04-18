@@ -20,7 +20,7 @@ export default function DashboardError({
         <div className="card bg-[rgb(var(--card-bg))] rounded-2xl shadow-lg border border-red-100">
           {/* Error Icon */}
           <div className="flex justify-center mb-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 text-red-600 text-3xl">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-3xl">
               ⚠️
             </div>
           </div>
@@ -37,8 +37,8 @@ export default function DashboardError({
 
           {/* Error Message (Development Only) */}
           {process.env.NODE_ENV === "development" && error.message && (
-            <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-700 font-mono break-words">
+            <div className="mb-6 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/40 rounded-lg">
+              <p className="text-sm text-red-700 dark:text-red-300 font-mono break-words">
                 {error.message}
               </p>
             </div>

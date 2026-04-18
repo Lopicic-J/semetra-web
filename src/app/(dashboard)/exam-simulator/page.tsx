@@ -262,7 +262,7 @@ export default function ExamSimulatorPage() {
   // ── EXAM PHASE ──
   if (phase === "exam" && currentQuestion) {
     const answered = answers[currentIndex];
-    const diffColors = { easy: "text-emerald-600 bg-emerald-50", medium: "text-amber-600 bg-amber-50", hard: "text-red-600 bg-red-50" };
+    const diffColors = { easy: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20", medium: "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20", hard: "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20" };
 
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
@@ -384,9 +384,9 @@ export default function ExamSimulatorPage() {
             score >= 50 ? "bg-amber-100 dark:bg-amber-900/30" :
             "bg-red-100 dark:bg-red-900/30"
           }`}>
-            {score >= 70 ? <Trophy size={36} className="text-emerald-600" /> :
-             score >= 50 ? <Target size={36} className="text-amber-600" /> :
-             <AlertTriangle size={36} className="text-red-600" />}
+            {score >= 70 ? <Trophy size={36} className="text-emerald-600 dark:text-emerald-400" /> :
+             score >= 50 ? <Target size={36} className="text-amber-600 dark:text-amber-400" /> :
+             <AlertTriangle size={36} className="text-red-600 dark:text-red-400" />}
           </div>
           <p className="text-3xl font-bold text-surface-900 dark:text-surface-50">{score}%</p>
           <p className="text-surface-500 mt-1">{moduleName}</p>
@@ -395,7 +395,7 @@ export default function ExamSimulatorPage() {
           </p>
           <div className="mt-3 inline-block px-4 py-1.5 rounded-lg bg-surface-100 dark:bg-surface-800">
             <span className="text-sm text-surface-600">Geschätzte Note: </span>
-            <span className={`text-lg font-bold ${estimatedGrade >= 4.0 ? "text-emerald-600" : "text-red-600"}`}>
+            <span className={`text-lg font-bold ${estimatedGrade >= 4.0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
               {estimatedGrade.toFixed(1)}
             </span>
           </div>

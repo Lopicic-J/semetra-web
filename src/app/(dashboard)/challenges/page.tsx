@@ -172,7 +172,7 @@ export default function ChallengesPage() {
                 {/* Challenge Header */}
                 <div className="p-4 flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center shrink-0">
-                    <Icon size={20} className="text-amber-600" />
+                    <Icon size={20} className="text-amber-600 dark:text-amber-400" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-surface-900 dark:text-surface-50 truncate">{ch.title}</h3>
@@ -182,7 +182,7 @@ export default function ChallengesPage() {
                   </div>
                   <div className="text-right shrink-0">
                     {ch.isJoined && ch.userRank && (
-                      <p className="text-lg font-bold text-amber-600">#{ch.userRank}</p>
+                      <p className="text-lg font-bold text-amber-600 dark:text-amber-400">#{ch.userRank}</p>
                     )}
                     {ch.isJoined && ch.userProgress !== null && (
                       <p className="text-xs text-surface-500">{ch.userProgress} {typeInfo.unit}</p>

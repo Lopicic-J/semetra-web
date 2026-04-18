@@ -123,7 +123,7 @@ function PostSessionCard({ sessionDuration, moduleName, visible, onDismiss }: Pr
             onKeyDown={e => e.key === "Enter" && saveQuickNote()}
           />
           {quickNote.trim() && (
-            <button onClick={saveQuickNote} className="px-2 py-1.5 rounded-lg text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/30">
+            <button onClick={saveQuickNote} className="px-2 py-1.5 rounded-lg text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30">
               <Send size={12} />
             </button>
           )}

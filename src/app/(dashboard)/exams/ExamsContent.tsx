@@ -530,10 +530,10 @@ function ExamCard({ exam, modules, onEdit, onDelete, isExpanded, onToggleExpand 
         {/* Readiness mini-badge */}
         {exam.readinessLevel !== "none" && (exam.daysLeft ?? -1) >= 0 && (
           <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold ${
-            exam.readinessLevel === "good" ? "bg-green-100 text-green-700" :
-            exam.readinessLevel === "ok" ? "bg-blue-100 text-blue-700" :
-            exam.readinessLevel === "warning" ? "bg-orange-100 text-orange-700" :
-            "bg-red-100 text-red-700"
+            exam.readinessLevel === "good" ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400" :
+            exam.readinessLevel === "ok" ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400" :
+            exam.readinessLevel === "warning" ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400" :
+            "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
           }`} title={`${t("exams.readiness")}: ${exam.readinessPercent}%`}>
             {exam.readinessPercent}
           </div>
@@ -545,10 +545,10 @@ function ExamCard({ exam, modules, onEdit, onDelete, isExpanded, onToggleExpand 
         </button>
         {exam.daysLeft !== undefined && exam.daysLeft >= 0 && (
           <div className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold ${
-            exam.daysLeft === 0 ? "bg-red-100 text-red-700" :
-            exam.daysLeft <= 7 ? "bg-orange-100 text-orange-700" :
-            exam.daysLeft <= 30 ? "bg-yellow-100 text-yellow-700" :
-            "bg-green-100 text-green-700"
+            exam.daysLeft === 0 ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400" :
+            exam.daysLeft <= 7 ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400" :
+            exam.daysLeft <= 30 ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400" :
+            "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
           }`}>
             <Clock size={12} />
             {exam.daysLeft === 0 ? t("exams.todayExam") : `${exam.daysLeft}d`}

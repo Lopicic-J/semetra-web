@@ -90,7 +90,7 @@ export function LimitNudge({ current, max, isPro, label }: LimitNudgeProps) {
 
   return (
     <div className="flex items-center gap-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200/60 dark:border-amber-800/60 rounded-xl px-4 py-3 mb-4">
-      <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+      <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
         <Sparkles size={16} className="text-amber-600 dark:text-amber-400" />
       </div>
       <div className="flex-1 min-w-0">
@@ -223,7 +223,7 @@ export function UpgradeModal({ feature, onClose }: { feature?: ProFeature; onClo
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold text-surface-900 dark:text-white">{tier.label}</span>
                     {tier.popular && (
-                      <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold flex items-center gap-0.5">
+                      <span className="text-[10px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded-full font-bold flex items-center gap-0.5">
                         <Star size={8} /> {t("progate.modal.yearlyPopular")}
                       </span>
                     )}

@@ -48,9 +48,9 @@ function SessionContextPanel({
               </div>
               {topicKnowledgeLevel !== undefined && (
                 <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                  topicKnowledgeLevel >= 70 ? "bg-emerald-100 text-emerald-600" :
-                  topicKnowledgeLevel >= 40 ? "bg-amber-100 text-amber-600" :
-                  "bg-red-100 text-red-600"
+                  topicKnowledgeLevel >= 70 ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" :
+                  topicKnowledgeLevel >= 40 ? "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400" :
+                  "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
                 }`}>{topicKnowledgeLevel}%</span>
               )}
             </div>
@@ -78,9 +78,9 @@ function SessionContextPanel({
               </div>
               {examDaysLeft !== undefined && (
                 <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                  examDaysLeft <= 3 ? "bg-red-100 text-red-600" :
-                  examDaysLeft <= 7 ? "bg-amber-100 text-amber-600" :
-                  "bg-blue-100 text-blue-600"
+                  examDaysLeft <= 3 ? "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" :
+                  examDaysLeft <= 7 ? "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400" :
+                  "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
                 }`}>{examDaysLeft === 0 ? "Heute" : `${examDaysLeft}d`}</span>
               )}
             </div>

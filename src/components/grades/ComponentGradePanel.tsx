@@ -429,8 +429,8 @@ export default function ComponentGradePanel({
             <p
               className={`text-xs px-2 py-1.5 rounded-lg ${
                 msg.type === "success"
-                  ? "bg-green-50 text-green-600"
-                  : "bg-red-50 text-red-500"
+                  ? "bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400"
+                  : "bg-red-50 dark:bg-red-950/20 text-red-500 dark:text-red-400"
               }`}
             >
               {msg.text}

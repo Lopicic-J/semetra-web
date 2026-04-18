@@ -324,8 +324,8 @@ export function GradeAnalytics({ grades, modules, gs }: GradeAnalyticsProps) {
           </p>
           <div className={`mt-2 p-3 rounded-lg text-sm ${
             targetCalc.achievable
-              ? "bg-green-50 text-green-800"
-              : "bg-amber-50 text-amber-800"
+              ? "bg-green-50 dark:bg-green-950/20 text-green-800 dark:text-green-300"
+              : "bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300"
           }`}>
             {targetCalc.achievable ? (
               <>{t("grades.analytics.needAvg", { grade: targetCalc.needed.toFixed(1), target: targetCalc.targetAvg.toFixed(1) })}</>
@@ -357,17 +357,17 @@ export function GradeAnalytics({ grades, modules, gs }: GradeAnalyticsProps) {
                 <div className="flex gap-2 flex-wrap">
                   {mp.prognosis.map(p => {
                     if (p.alreadyMet) return (
-                      <span key={p.target} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-50 text-green-700 text-[10px] font-medium">
+                      <span key={p.target} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 text-[10px] font-medium">
                         ✓ ⌀ {p.target.toFixed(1)}
                       </span>
                     );
                     if (!p.achievable) return (
-                      <span key={p.target} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-50 text-red-600 text-[10px] font-medium">
+                      <span key={p.target} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 text-[10px] font-medium">
                         ✗ ⌀ {p.target.toFixed(1)}
                       </span>
                     );
                     return (
-                      <span key={p.target} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-50 text-amber-700 text-[10px] font-medium">
+                      <span key={p.target} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 text-[10px] font-medium">
                         → {t("grades.analytics.need")} <strong>{p.needed.toFixed(1)}</strong> {t("grades.analytics.forAvg")} {p.target.toFixed(1)}
                       </span>
                     );

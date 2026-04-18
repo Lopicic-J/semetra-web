@@ -215,7 +215,7 @@ export default function ModuleSetupPage() {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center space-y-6">
         <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto">
-          <Check size={32} className="text-emerald-600" />
+          <Check size={32} className="text-emerald-600 dark:text-emerald-400" />
         </div>
         <div>
           <h1 className="text-2xl font-bold text-surface-900 dark:text-surface-50">
@@ -357,9 +357,9 @@ export default function ModuleSetupPage() {
                         )}
                       </div>
                       <span className={`text-[9px] px-1.5 py-0.5 rounded-full shrink-0 mt-0.5 ${
-                        topic.difficulty === "easy" ? "bg-emerald-100 text-emerald-600" :
-                        topic.difficulty === "hard" ? "bg-red-100 text-red-600" :
-                        "bg-amber-100 text-amber-600"
+                        topic.difficulty === "easy" ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" :
+                        topic.difficulty === "hard" ? "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" :
+                        "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400"
                       }`}>
                         {topic.difficulty === "easy" ? "Leicht" : topic.difficulty === "hard" ? "Schwer" : "Mittel"}
                       </span>

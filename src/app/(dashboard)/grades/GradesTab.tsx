@@ -312,7 +312,7 @@ export default function GradesTabContent() {
           </div>
           <div className="flex flex-wrap gap-2">
             {failedModules.map(m => (
-              <span key={m.id} className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-lg">
+              <span key={m.id} className="text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-2 py-1 rounded-lg">
                 {m.name} ({bestGradeForModule(m.id, grades)?.toFixed(1)})
               </span>
             ))}
@@ -383,7 +383,7 @@ export default function GradesTabContent() {
                   </div>
                   <div className="flex items-center gap-3">
                     {m.ects && (
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${passed ? "bg-green-100 text-green-700" : bestGrade !== null ? "bg-red-100 text-red-700" : "bg-surface-100 text-surface-500"}`}>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${passed ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400" : bestGrade !== null ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400" : "bg-surface-100 text-surface-500"}`}>
                         {passed ? `${m.ects} ${gs.creditLabel} ✓` : bestGrade !== null ? `${m.ects} ${gs.creditLabel} ✗` : `${m.ects} ${gs.creditLabel}`}
                       </span>
                     )}

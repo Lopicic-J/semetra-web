@@ -46,9 +46,9 @@ export function StudyStreak({ items }: StudyStreakProps) {
   const getStreakColor = (count: number) => {
     if (count === 0) return { bg: "bg-surface-100", text: "text-surface-400" };
     if (count <= 2) return { bg: "bg-surface-100", text: "text-surface-600", flame: "text-surface-400" };
-    if (count <= 6) return { bg: "bg-amber-50", text: "text-amber-700", flame: "text-amber-500" };
-    if (count <= 13) return { bg: "bg-orange-50", text: "text-orange-700", flame: "text-orange-500" };
-    return { bg: "bg-red-50", text: "text-red-700", flame: "text-red-500" };
+    if (count <= 6) return { bg: "bg-amber-50 dark:bg-amber-950/20", text: "text-amber-700 dark:text-amber-400", flame: "text-amber-500" };
+    if (count <= 13) return { bg: "bg-orange-50 dark:bg-orange-950/20", text: "text-orange-700 dark:text-orange-400", flame: "text-orange-500" };
+    return { bg: "bg-red-50 dark:bg-red-950/20", text: "text-red-700 dark:text-red-400", flame: "text-red-500" };
   };
 
   const colors = getStreakColor(streak);

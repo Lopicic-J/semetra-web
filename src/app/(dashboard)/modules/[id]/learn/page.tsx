@@ -128,9 +128,9 @@ export default function ModuleLearningHub() {
   const difficultyLabel = (d: string) =>
     d === "beginner" ? "Einsteiger" : d === "intermediate" ? "Fortgeschritten" : "Experte";
   const difficultyColor = (d: string) =>
-    d === "beginner" ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20" :
-    d === "intermediate" ? "text-amber-600 bg-amber-50 dark:bg-amber-950/20" :
-    "text-red-600 bg-red-50 dark:bg-red-950/20";
+    d === "beginner" ? "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20" :
+    d === "intermediate" ? "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20" :
+    "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20";
 
   if (loading) {
     return (

@@ -433,7 +433,7 @@ export default function GuidedSessionPage() {
   return (
     <div className="max-w-lg mx-auto px-4 py-16 text-center space-y-6">
       <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto">
-        <CheckCircle2 size={36} className="text-emerald-600" />
+        <CheckCircle2 size={36} className="text-emerald-600 dark:text-emerald-400" />
       </div>
       <div>
         <h2 className="text-xl font-bold text-surface-900 dark:text-surface-50">Session abgeschlossen!</h2>

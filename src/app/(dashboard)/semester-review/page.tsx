@@ -133,7 +133,7 @@ export default function SemesterReviewPage() {
             {data.grades.bestModules.map((m, i) => (
               <div key={i} className="flex items-center justify-between">
                 <span className="text-sm text-surface-700 dark:text-surface-300">{m.name}</span>
-                <span className="text-sm font-semibold text-emerald-600">{m.grade?.toFixed(1)}</span>
+                <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{m.grade?.toFixed(1)}</span>
               </div>
             ))}
             {data.grades.bestModules.length === 0 && (
@@ -152,7 +152,7 @@ export default function SemesterReviewPage() {
             {data.studyTime.mostStudied.map((m, i) => (
               <div key={i} className="flex items-center justify-between">
                 <span className="text-sm text-surface-700 dark:text-surface-300">{m.name}</span>
-                <span className="text-sm font-semibold text-violet-600">{m.hours}h</span>
+                <span className="text-sm font-semibold text-violet-600 dark:text-violet-400">{m.hours}h</span>
               </div>
             ))}
           </div>

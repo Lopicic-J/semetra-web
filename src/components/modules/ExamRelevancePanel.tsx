@@ -149,9 +149,9 @@ function ExamRelevancePanel({ moduleId, moduleName }: Props) {
                 </span>
                 {topic.knowledge_level !== null && (
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                    topic.knowledge_level >= 70 ? "bg-emerald-100 text-emerald-600" :
-                    topic.knowledge_level >= 40 ? "bg-amber-100 text-amber-600" :
-                    "bg-red-100 text-red-600"
+                    topic.knowledge_level >= 70 ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" :
+                    topic.knowledge_level >= 40 ? "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400" :
+                    "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
                   }`}>
                     {topic.knowledge_level}%
                   </span>
