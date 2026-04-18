@@ -136,7 +136,7 @@ async function buildPrediction(
 ): Promise<PredictionResult | null> {
   // Fetch module, grades, exams, and DNA in parallel
   const [moduleRes, gradesRes, examsRes, dnaRes] = await Promise.all([
-    supabase.from("modules").select("id, name, ects, target_grade, grading_system").eq("id", moduleId).eq("user_id", userId).single(),
+    supabase.from("modules").select("id, name, ects, target_grade, grading_system").eq("id", moduleId).eq("user_id", userId).maybeSingle(),
     supabase.from("grades").select("id, grade, weight, date, component_type").eq("module_id", moduleId).eq("user_id", userId).order("date", { ascending: true }),
     supabase.from("exams").select("id, title, date, weight, grade").eq("module_id", moduleId).eq("user_id", userId).order("date", { ascending: true }),
     supabase.from("learning_dna_snapshots").select("consistency_score, focus_score, planning_score, overall_score").eq("user_id", userId).order("created_at", { ascending: false }).limit(1).maybeSingle(),

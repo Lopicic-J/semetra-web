@@ -48,7 +48,7 @@ export async function POST(request: Request) {
 
   let moduleContext = "";
   if (moduleId) {
-    const { data: mod } = await supabase.from("modules").select("name").eq("id", moduleId).single();
+    const { data: mod } = await supabase.from("modules").select("name").eq("id", moduleId).maybeSingle();
     if (mod) moduleContext = `Modul: ${mod.name}\n`;
   }
 

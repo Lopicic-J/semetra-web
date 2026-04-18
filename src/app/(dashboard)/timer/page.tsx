@@ -136,8 +136,8 @@ function TimerPageInner() {
       const [examRes, topicRes, taskRes] = await Promise.all([
         supabase.from("events").select("*").eq("event_type", "exam")
           .gte("start_dt", new Date().toISOString()).order("start_dt"),
-        supabase.from("topics").select("*").order("title"),
-        supabase.from("tasks").select("*").neq("status", "done").order("due_date"),
+        supabase.from("topics").select("*").order("title").limit(100),
+        supabase.from("tasks").select("*").neq("status", "done").order("due_date").limit(50),
       ]);
       const loadedExams = examRes.data ?? [];
       const loadedTopics = topicRes.data ?? [];

@@ -84,7 +84,7 @@ export default function AIAssistantPage() {
     async function fetchData() {
       const [examRes, topicRes] = await Promise.all([
         supabase.from("events").select("*").eq("event_type", "exam").order("start_dt", { ascending: true }),
-        supabase.from("topics").select("*").order("title", { ascending: true }),
+        supabase.from("topics").select("*").order("title", { ascending: true }).limit(200),
       ]);
       setExams(examRes.data ?? []);
       setTopics(topicRes.data ?? []);

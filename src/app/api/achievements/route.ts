@@ -15,7 +15,7 @@ export async function GET() {
     const [defsRes, userRes, profileRes] = await Promise.all([
       supabase.from("achievement_definitions").select("*").order("sort_order"),
       supabase.from("user_achievements").select("*").eq("user_id", user.id),
-      supabase.from("profiles").select("xp_total, level").eq("id", user.id).single(),
+      supabase.from("profiles").select("xp_total, level").eq("id", user.id).maybeSingle(),
     ]);
 
     const definitions = defsRes.data ?? [];

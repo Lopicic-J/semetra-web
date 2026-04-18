@@ -180,6 +180,8 @@ describe("POST /api/plugins", () => {
   });
 
   it("sollte Plugin installieren", async () => {
+    mockSupabase._setTableData("plugins", [{ id: "plugin-1", pricing_type: "free" }]);
+
     const req = createTestRequest("/api/plugins", {
       method: "POST",
       body: { pluginId: "plugin-1", action: "install" },
@@ -191,6 +193,8 @@ describe("POST /api/plugins", () => {
   });
 
   it("sollte Plugin mit enabled: true installieren", async () => {
+    mockSupabase._setTableData("plugins", [{ id: "plugin-1", pricing_type: "free" }]);
+
     const req = createTestRequest("/api/plugins", {
       method: "POST",
       body: { pluginId: "plugin-1", action: "install" },
@@ -234,6 +238,8 @@ describe("POST /api/plugins", () => {
   });
 
   it("sollte Standardaction als install verwenden", async () => {
+    mockSupabase._setTableData("plugins", [{ id: "plugin-1", pricing_type: "free" }]);
+
     const req = createTestRequest("/api/plugins", {
       method: "POST",
       body: { pluginId: "plugin-1" },

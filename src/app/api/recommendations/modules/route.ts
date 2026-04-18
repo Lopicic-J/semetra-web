@@ -18,7 +18,7 @@ export async function GET() {
 
   // Get user's profile and modules
   const [profileRes, modulesRes] = await Promise.all([
-    supabase.from("profiles").select("institution_id, active_program_id, current_semester").eq("id", user.id).single(),
+    supabase.from("profiles").select("institution_id, active_program_id, current_semester").eq("id", user.id).maybeSingle(),
     supabase.from("modules").select("id, name, code, ects, semester, status").order("semester"),
   ]);
 

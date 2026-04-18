@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
   // Fetch module context in parallel
   const [moduleRes, topicsRes, flashcardsRes, gradesRes] = await Promise.all([
-    supabase.from("modules").select("name, code").eq("id", moduleId).single(),
+    supabase.from("modules").select("name, code").eq("id", moduleId).maybeSingle(),
     supabase.from("topics").select("title, knowledge_level, exam_id, is_exam_relevant").eq("module_id", moduleId),
     supabase.from("flashcards").select("question, answer, deck_name").eq("module_id", moduleId).limit(50),
     supabase.from("grades").select("title, exam_type").eq("module_id", moduleId),
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
   // If specific exam selected, get exam title for context
   let examTitle = "";
   if (examId) {
-    const { data: exam } = await supabase.from("events").select("title").eq("id", examId).single();
+    const { data: exam } = await supabase.from("events").select("title").eq("id", examId).maybeSingle();
     examTitle = exam?.title ?? "";
   }
 

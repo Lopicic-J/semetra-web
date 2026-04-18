@@ -18,7 +18,7 @@ export async function GET() {
       .from("profiles")
       .select("plan, institution_id")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     const isPro = profile?.plan === "pro";
     const hasInstitution = !!profile?.institution_id;
@@ -91,15 +91,19 @@ export async function POST(req: NextRequest) {
         .from("plugins")
         .select("pricing_type")
         .eq("id", pluginId)
-        .single();
+        .maybeSingle();
 
-      if (plugin?.pricing_type === "premium") {
+      if (!plugin) {
+        return NextResponse.json({ error: "Plugin nicht gefunden" }, { status: 404 });
+      }
+
+      if (plugin.pricing_type === "premium") {
         // Check if user has access (purchased or institution)
         const { data: profile } = await supabase
           .from("profiles")
           .select("plan, institution_id")
           .eq("id", user.id)
-          .single();
+          .maybeSingle();
 
         const isPro = profile?.plan === "pro";
         if (!isPro) {
@@ -115,7 +119,7 @@ export async function POST(req: NextRequest) {
             .eq("user_id", user.id)
             .eq("plugin_id", pluginId)
             .eq("status", "completed")
-            .single();
+            .maybeSingle();
 
           if (!purchase) {
             return NextResponse.json(
@@ -134,7 +138,7 @@ export async function POST(req: NextRequest) {
       await supabase.from("user_plugins").delete().eq("user_id", user.id).eq("plugin_id", pluginId);
     } else if (action === "toggle") {
       const { data: existing } = await supabase
-        .from("user_plugins").select("enabled").eq("user_id", user.id).eq("plugin_id", pluginId).single();
+        .from("user_plugins").select("enabled").eq("user_id", user.id).eq("plugin_id", pluginId).maybeSingle();
       if (existing) {
         await supabase.from("user_plugins")
           .update({ enabled: !existing.enabled })

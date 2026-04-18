@@ -80,7 +80,7 @@ export default function KnowledgePage() {
 
   const fetchTopics = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from("topics").select("*").order("created_at", { ascending: true });
+    const { data } = await supabase.from("topics").select("*").order("created_at", { ascending: true }).limit(500);
     setTopics(data ?? []);
     setLoading(false);
   }, [supabase]);

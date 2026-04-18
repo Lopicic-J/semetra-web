@@ -22,13 +22,13 @@ export async function GET(
       .select("role")
       .eq("group_id", id)
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
 
     if (!membership) return NextResponse.json({ error: "Kein Zugang" }, { status: 403 });
 
     // Fetch group, members, and shared resources in parallel
     const [groupRes, membersRes, sharesRes] = await Promise.all([
-      supabase.from("study_groups").select("*").eq("id", id).single(),
+      supabase.from("study_groups").select("*").eq("id", id).maybeSingle(),
       supabase
         .from("study_group_members")
         .select("*, profiles(username, full_name, avatar_url)")
@@ -40,6 +40,10 @@ export async function GET(
         .eq("group_id", id)
         .order("created_at", { ascending: false }),
     ]);
+
+    if (!groupRes.data) {
+      return NextResponse.json({ error: "Gruppe nicht gefunden" }, { status: 404 });
+    }
 
     return NextResponse.json({
       group: groupRes.data,
@@ -74,7 +78,7 @@ export async function PATCH(
       .select("role")
       .eq("group_id", id)
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
 
     if (!membership || !["owner", "admin"].includes(membership.role)) {
       return NextResponse.json({ error: "Nur Owner und Admins dürfen die Gruppe bearbeiten" }, { status: 403 });
@@ -123,7 +127,7 @@ export async function DELETE(
       .select("id")
       .eq("id", id)
       .eq("owner_id", user.id)
-      .single();
+      .maybeSingle();
 
     if (!group) {
       return NextResponse.json({ error: "Gruppe nicht gefunden oder keine Berechtigung" }, { status: 404 });
