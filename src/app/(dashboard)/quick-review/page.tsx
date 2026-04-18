@@ -32,7 +32,22 @@ export default function QuickReviewPage() {
   const [startTime] = useState(Date.now());
 
   const loadCards = useCallback(async () => {
-    // Get flashcards due for review (including those with NULL next_review = never reviewed)
+    // First try: exam-relevant flashcards due for review
+    const { data: examRelevantCards } = await supabase
+      .from("flashcards")
+      .select("id, question, answer, module_id, deck_name, next_review, topics!inner(is_exam_relevant)")
+      .eq("topics.is_exam_relevant", true)
+      .or(`next_review.lte.${new Date().toISOString()},next_review.is.null`)
+      .order("next_review", { ascending: true, nullsFirst: true })
+      .limit(5);
+
+    if (examRelevantCards && examRelevantCards.length >= 3) {
+      setCards(examRelevantCards);
+      setPhase("review");
+      return;
+    }
+
+    // Fallback: all due flashcards (including those with NULL next_review)
     const { data } = await supabase
       .from("flashcards")
       .select("id, question, answer, module_id, deck_name, next_review")
@@ -44,7 +59,7 @@ export default function QuickReviewPage() {
       setCards(data);
       setPhase("review");
     } else {
-      // Fallback: get any 5 random flashcards
+      // Last fallback: get any 5 recent flashcards
       const { data: fallback } = await supabase
         .from("flashcards")
         .select("id, question, answer, module_id, deck_name")

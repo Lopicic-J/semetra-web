@@ -43,6 +43,7 @@ import DashboardExamList from "@/components/dashboard/DashboardExamList";
 import SmartStartCard from "@/components/dashboard/SmartStartCard";
 import DashboardTaskList from "@/components/dashboard/DashboardTaskList";
 import QuickExamAdd from "@/components/exams/QuickExamAdd";
+import WeeklyGoalBadge from "@/components/dashboard/WeeklyGoalBadge";
 
 // Command Center sub-components
 import AlertBanner from "@/components/command-center/AlertBanner";
@@ -367,6 +368,7 @@ export default function ClassicDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <WeeklyGoalBadge />
           <QuickExamAdd modules={modules} onCreated={fetchExams} />
           <button
             onClick={ccRefetch}
