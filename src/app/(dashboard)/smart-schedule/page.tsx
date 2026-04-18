@@ -331,6 +331,7 @@ export default function SmartSchedulePage() {
   }, []);
 
   const [showSettings, setShowSettings] = useState(false);
+  const [planResult, setPlanResult] = useState<{ scheduled: number; context?: any } | null>(null);
   const day = useScheduleDay(currentDate);
   const week = useScheduleWeek(weekStart);
   const moduleView = useModuleSchedule(weekStart);
@@ -348,7 +349,13 @@ export default function SmartSchedulePage() {
     await actions.createBlock({ block_type: "study", start_time: s, end_time: e, title: "Lernsession", priority: "medium" } as Partial<ScheduleBlock>);
     day.refetch();
   }, [actions, day]);
-  const handleAutoPlan = useCallback(async () => { await actions.autoPlan(currentDate); day.refetch(); }, [actions, currentDate, day]);
+  const handleAutoPlan = useCallback(async () => {
+    const result = await actions.autoPlan(currentDate);
+    if (result) setPlanResult(result);
+    day.refetch();
+    // Auto-dismiss after 5s
+    setTimeout(() => setPlanResult(null), 5000);
+  }, [actions, currentDate, day]);
   const handleResync = useCallback(async () => { await actions.syncStundenplan(); day.refetch(); }, [actions, day]);
   const handleAutoFill = useCallback(async () => { await actions.autoFillGaps(currentDate); day.refetch(); }, [actions, currentDate, day]);
   const handleAutoRescue = useCallback(async () => { await actions.autoRescue(); day.refetch(); }, [actions, day]);
@@ -445,6 +452,24 @@ export default function SmartSchedulePage() {
 
       {/* Active Timer */}
       <TimerBanner timer={timer} />
+
+      {/* Plan Result Banner */}
+      {planResult && planResult.scheduled > 0 && (
+        <div className="flex items-center gap-2 px-3 py-2.5 mb-2 rounded-lg bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800 text-brand-700 dark:text-brand-300 text-xs">
+          <Zap size={14} className="text-brand-500 shrink-0" />
+          <span className="font-medium">{planResult.scheduled} Blöcke geplant</span>
+          {planResult.context && (
+            <span className="text-brand-500 dark:text-brand-400">
+              {planResult.context.flashcardsDue > 0 && ` · ${planResult.context.flashcardsDue} Karten fällig`}
+              {planResult.context.tasksWithDeadline > 0 && ` · ${planResult.context.tasksWithDeadline} Deadlines`}
+              {planResult.context.upcomingExams > 0 && ` · ${planResult.context.upcomingExams} Prüfungen`}
+            </span>
+          )}
+          <button onClick={() => setPlanResult(null)} className="ml-auto p-0.5 hover:bg-brand-100 dark:hover:bg-brand-900/40 rounded">
+            <X size={12} />
+          </button>
+        </div>
+      )}
 
       {/* ━━ DAY VIEW ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       {viewMode === "day" && (

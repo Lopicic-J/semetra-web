@@ -377,50 +377,207 @@ export async function POST(req: NextRequest) {
       return successResponse(data || { exams_planned: 0, blocks_created: 0 });
     }
 
-    // ── Auto-plan from Decision Engine ──────────────────────────────────
+    // ── Auto-plan: Intelligent Daily Planning ─────────────────────────
+    // Combines: Decision Engine + Flashcard Reviews + Task Deadlines
     if (action === "auto-plan") {
       const date = (body.date as string) || new Date().toISOString().slice(0, 10);
+      const now = new Date();
 
-      // Get Decision Engine state
-      const decisionUrl = new URL("/api/decision", req.url);
-      const decisionRes = await fetch(decisionUrl, {
-        headers: { cookie: req.headers.get("cookie") || "" },
-      });
+      // Parallel data fetching for speed
+      const [
+        decisionRes,
+        preferences,
+        blocksRes,
+        sessionsRes,
+        flashcardsRes,
+        tasksRes,
+        examsRes,
+      ] = await Promise.all([
+        // 1. Decision Engine state
+        fetch(new URL("/api/decision", req.url), {
+          headers: { cookie: req.headers.get("cookie") || "" },
+        }),
+        // 2. User preferences
+        getPreferences(supabase, user.id),
+        // 3. Existing blocks for the day
+        supabase.from("schedule_blocks").select("*")
+          .eq("user_id", user.id)
+          .gte("start_time", `${date}T00:00:00`)
+          .lte("start_time", `${date}T23:59:59`),
+        // 4. Existing sessions for the day
+        supabase.from("timer_sessions").select("*")
+          .eq("user_id", user.id)
+          .gte("started_at", `${date}T00:00:00`)
+          .lte("started_at", `${date}T23:59:59`),
+        // 5. Due flashcards grouped by module
+        supabase.from("flashcards")
+          .select("id, module_id, modules!inner(name, color)")
+          .eq("user_id", user.id)
+          .or(`next_review.is.null,next_review.lte.${now.toISOString()}`),
+        // 6. Tasks with upcoming deadlines (next 3 days)
+        supabase.from("tasks")
+          .select("id, title, due_date, priority, estimated_minutes, module_id, modules(name, color)")
+          .eq("user_id", user.id)
+          .in("status", ["todo", "in_progress"])
+          .not("due_date", "is", null)
+          .lte("due_date", new Date(now.getTime() + 3 * 86400000).toISOString().slice(0, 10))
+          .order("due_date", { ascending: true }),
+        // 7. Upcoming exams (next 14 days)
+        supabase.from("events")
+          .select("id, title, date, module_id, modules(name, color)")
+          .eq("user_id", user.id)
+          .eq("type", "exam")
+          .gte("date", date)
+          .lte("date", new Date(now.getTime() + 14 * 86400000).toISOString().slice(0, 10))
+          .order("date", { ascending: true }),
+      ]);
 
-      if (!decisionRes.ok) {
-        return errorResponse("Decision Engine nicht verfügbar", 500);
-      }
+      // Process Decision Engine
+      let bridgeBlocks: any[] = [];
+      let bridgeWarnings: string[] = [];
+      let bridgeUnscheduled = 0;
 
-      const decisionState = await decisionRes.json();
-
-      // Get current blocks and preferences
-      const preferences = await getPreferences(supabase, user.id);
-      const { data: existingBlocks } = await supabase
-        .from("schedule_blocks")
-        .select("*")
-        .eq("user_id", user.id)
-        .gte("start_time", `${date}T00:00:00`)
-        .lte("start_time", `${date}T23:59:59`);
-
-      const { data: existingSessions } = await supabase
-        .from("timer_sessions")
-        .select("*")
-        .eq("user_id", user.id)
-        .gte("started_at", `${date}T00:00:00`)
-        .lte("started_at", `${date}T23:59:59`);
+      const existingBlocks = blocksRes.data || [];
+      const existingSessions = sessionsRes.data || [];
 
       const freeSlots = findFreeSlots(
-        existingBlocks || [], existingSessions || [], preferences, date,
+        existingBlocks, existingSessions, preferences, date,
       );
 
-      // Bridge Decision Engine → Schedule blocks
-      const { bridgeDecisionToSchedule } = await import("@/lib/schedule/decision-bridge");
-      const result = bridgeDecisionToSchedule(
-        decisionState.today,
-        decisionState.moduleRankings || [],
-        freeSlots,
-        preferences,
-      );
+      if (decisionRes.ok) {
+        const decisionState = await decisionRes.json();
+        if (decisionState.today?.actions?.length > 0) {
+          const { bridgeDecisionToSchedule } = await import("@/lib/schedule/decision-bridge");
+          const result = bridgeDecisionToSchedule(
+            decisionState.today,
+            decisionState.moduleRankings || [],
+            freeSlots,
+            preferences,
+          );
+          bridgeBlocks = result.blocks;
+          bridgeWarnings = result.warnings;
+          bridgeUnscheduled = result.unscheduled.length;
+        }
+      }
+
+      // ── Supplementary blocks (fill remaining gaps) ──────────────────
+
+      // Recalculate free slots after bridge blocks
+      const allBlocks = [...existingBlocks, ...bridgeBlocks.map(b => ({
+        ...b, id: "temp-" + Math.random(), user_id: user.id,
+      }))];
+      const remainingSlots = findFreeSlots(allBlocks, existingSessions, preferences, date);
+
+      const supplementaryBlocks: any[] = [];
+
+      // ── Flashcard review blocks ──────────────────────────────────────
+      const dueCards = flashcardsRes.data || [];
+      if (dueCards.length > 0 && remainingSlots.length > 0) {
+        // Group by module
+        const moduleCards = new Map<string, { count: number; name: string; color: string }>();
+        for (const card of dueCards) {
+          const mid = card.module_id;
+          if (!mid) continue;
+          const existing = moduleCards.get(mid);
+          const mod = card.modules as any;
+          if (existing) {
+            existing.count++;
+          } else {
+            moduleCards.set(mid, { count: 1, name: mod?.name || "Flashcards", color: mod?.color || "#6d28d9" });
+          }
+        }
+
+        // Create one flashcard block per module (max 3, ~2min per card, min 10min)
+        let fcBlocksCreated = 0;
+        for (const [moduleId, info] of moduleCards) {
+          if (fcBlocksCreated >= 3) break;
+          const estimatedMinutes = Math.max(10, Math.min(30, Math.round(info.count * 1.5)));
+
+          // Find a slot
+          const slot = remainingSlots.find(s => s.duration_minutes >= estimatedMinutes + 5);
+          if (!slot) continue;
+
+          const blockStart = new Date(new Date(slot.slot_start).getTime() + 5 * 60000);
+          const blockEnd = new Date(blockStart.getTime() + estimatedMinutes * 60000);
+
+          supplementaryBlocks.push({
+            block_type: "flashcards",
+            layer: 2,
+            start_time: blockStart.toISOString(),
+            end_time: blockEnd.toISOString(),
+            module_id: moduleId,
+            title: `${info.count} Karten fällig · ${info.name}`,
+            description: `${info.count} Flashcards zur Wiederholung fällig (Spaced Repetition)`,
+            color: info.color,
+            priority: info.count >= 20 ? "high" : "medium",
+            status: "scheduled",
+            estimated_minutes: estimatedMinutes,
+            source: "decision_engine",
+            is_locked: false,
+            recurrence: null, recurrence_end: null,
+            task_id: null, topic_id: null, exam_id: null,
+            study_plan_id: null, stundenplan_id: null, event_id: null,
+            study_plan_item_id: null, original_block_id: null,
+            reschedule_reason: null, completion_percent: 0,
+            icon: "zap",
+          });
+
+          // Consume slot capacity
+          slot.slot_start = blockEnd.toISOString();
+          slot.duration_minutes -= (estimatedMinutes + 5);
+          fcBlocksCreated++;
+        }
+      }
+
+      // ── Task deadline blocks ─────────────────────────────────────────
+      const dueTasks = tasksRes.data || [];
+      if (dueTasks.length > 0) {
+        const updatedSlots = remainingSlots.filter(s => s.duration_minutes >= 30);
+        let taskBlocksCreated = 0;
+
+        for (const task of dueTasks) {
+          if (taskBlocksCreated >= 3) break;
+          const dueDate = new Date(task.due_date);
+          const daysLeft = Math.max(0, Math.ceil((dueDate.getTime() - now.getTime()) / 86400000));
+          const estimatedMinutes = task.estimated_minutes || (daysLeft <= 1 ? 60 : 45);
+
+          const slot = updatedSlots.find(s => s.duration_minutes >= estimatedMinutes + 5);
+          if (!slot) continue;
+
+          const blockStart = new Date(new Date(slot.slot_start).getTime() + 5 * 60000);
+          const blockEnd = new Date(blockStart.getTime() + estimatedMinutes * 60000);
+          const mod = task.modules as any;
+
+          supplementaryBlocks.push({
+            block_type: "study",
+            layer: 2,
+            start_time: blockStart.toISOString(),
+            end_time: blockEnd.toISOString(),
+            module_id: task.module_id,
+            task_id: task.id,
+            title: `📋 ${task.title}${daysLeft <= 1 ? " ⚠️" : ""}`,
+            description: `Deadline: ${dueDate.toLocaleDateString("de-CH")} (${daysLeft === 0 ? "Heute!" : daysLeft === 1 ? "Morgen" : `in ${daysLeft} Tagen`})`,
+            color: mod?.color || "#ef4444",
+            priority: daysLeft <= 1 ? "critical" : daysLeft <= 2 ? "high" : "medium",
+            status: "scheduled",
+            estimated_minutes: estimatedMinutes,
+            source: "decision_engine",
+            is_locked: false,
+            recurrence: null, recurrence_end: null,
+            topic_id: null, exam_id: null,
+            study_plan_id: null, stundenplan_id: null, event_id: null,
+            study_plan_item_id: null, original_block_id: null,
+            reschedule_reason: null, completion_percent: 0,
+          });
+
+          slot.slot_start = blockEnd.toISOString();
+          slot.duration_minutes -= (estimatedMinutes + 5);
+          taskBlocksCreated++;
+        }
+      }
+
+      // ── Combine all blocks ───────────────────────────────────────────
+      const allNewBlocks = [...bridgeBlocks, ...supplementaryBlocks];
 
       // Remove old auto-planned blocks for this day
       await supabase
@@ -431,9 +588,9 @@ export async function POST(req: NextRequest) {
         .gte("start_time", `${date}T00:00:00`)
         .lte("start_time", `${date}T23:59:59`);
 
-      // Insert new blocks
-      if (result.blocks.length > 0) {
-        const blocksToInsert = result.blocks.map(b => ({
+      // Insert all new blocks
+      if (allNewBlocks.length > 0) {
+        const blocksToInsert = allNewBlocks.map(b => ({
           ...b,
           user_id: user.id,
         }));
@@ -448,11 +605,24 @@ export async function POST(req: NextRequest) {
         }
       }
 
+      const totalMinutes = allNewBlocks.reduce((sum, b) => sum + (b.estimated_minutes || 0), 0);
+      const dueCardCount = (flashcardsRes.data || []).length;
+      const taskCount = dueTasks.length;
+      const examCount = (examsRes.data || []).length;
+
       return successResponse({
-        scheduled: result.blocks.length,
-        totalMinutes: result.totalMinutesScheduled,
-        unscheduled: result.unscheduled.length,
-        warnings: result.warnings,
+        scheduled: allNewBlocks.length,
+        totalMinutes,
+        unscheduled: bridgeUnscheduled,
+        warnings: bridgeWarnings,
+        context: {
+          flashcardsDue: dueCardCount,
+          tasksWithDeadline: taskCount,
+          upcomingExams: examCount,
+          bridgeBlocks: bridgeBlocks.length,
+          flashcardBlocks: supplementaryBlocks.filter(b => b.block_type === "flashcards").length,
+          taskBlocks: supplementaryBlocks.filter(b => b.task_id).length,
+        },
       }, 201);
     }
 
