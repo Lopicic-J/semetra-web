@@ -14,8 +14,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// Extend timeout for AI generation (default 10s is too short)
-export const maxDuration = 30;
+// Vercel Pro: 60s timeout for AI generation
+export const maxDuration = 60;
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -93,14 +93,19 @@ ${mod.learning_type && mod.learning_type !== "mixed" ? `Modultyp: ${mod.learning
 ${topics.length > 0 ? `Vorhandene Topics: ${topicList}` : ""}
 ${mod.textbook ? `Lehrbuch: ${mod.textbook}` : ""}
 
-Erstelle eine KOMPAKTE Lernumgebung als JSON mit:
+Erstelle eine umfassende Lernumgebung als JSON-Objekt mit diesen 4 Bereichen:
 
-1. overview: summary (2 Sätze), prerequisites (2-3 Stück), learningGoals (3 Stück), realWorldUse (1 Satz)
-2. topicGuide: 5 Einträge mit title, explanation (1 Satz), difficulty, order
-3. conceptCards: 4 Karten mit title, definition (1 Satz), example (1 Satz)
-4. quickStart: topThree (3 Stück), tips (2 Tipps)
+1. overview: summary (3-4 Sätze was das Fach ist und warum es wichtig ist), prerequisites (Array mit 3-4 Voraussetzungen), learningGoals (Array mit 4-5 Lernzielen), realWorldUse (2 Sätze Praxisbezug)
+2. topicGuide: Array mit 8-10 Einträgen sortiert nach empfohlener Lernreihenfolge. Jeder Eintrag hat: title, explanation (2-3 Sätze verständliche Erklärung), relevance (warum wichtig), difficulty ("beginner" oder "intermediate" oder "advanced"), order (Nummer)
+3. conceptCards: Array mit 6-8 Karten für die wichtigsten Konzepte. Jede Karte hat: title, definition (klare Definition), example (konkretes Alltagsbeispiel), application (wo angewendet), optional keyFormula (wichtige Formel)
+4. quickStart: topThree (Array mit 3 Einträgen: title/why/howLong), recommendedOrder (Array mit Topic-Reihenfolge), tips (Array mit 3 konkreten Lerntipps)
 
-Kurz und präzise. Deutsch. Kein Prüfungsbezug. NUR JSON.`;
+Regeln:
+- Erkläre alles so, dass ein Neuling es versteht
+- Nutze Alltagsbeispiele und Analogien
+- Antworte auf Deutsch
+- KEIN Prüfungsbezug — nur allgemeines Fachverständnis
+- Antworte NUR mit dem JSON-Objekt`;
 
   try {
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -115,7 +120,7 @@ Kurz und präzise. Deutsch. Kein Prüfungsbezug. NUR JSON.`;
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
-        max_tokens: 2500,
+        max_tokens: 5000,
         system: systemPrompt,
         messages: [{ role: "user", content: `Erstelle die Lernumgebung für "${mod.name}". Antworte nur mit dem JSON-Objekt.` }],
       }),
@@ -127,7 +132,7 @@ Kurz und präzise. Deutsch. Kein Prüfungsbezug. NUR JSON.`;
       return NextResponse.json({
         error: res.status === 429
           ? "AI-Rate-Limit erreicht. Versuche es in einer Minute erneut."
-          : `API-Fehler ${res.status}: ${errBody.slice(0, 150)}`,
+          : "AI-Generierung fehlgeschlagen. Versuche es erneut.",
       }, { status: res.status === 429 ? 429 : 502 });
     }
 
@@ -189,6 +194,6 @@ Kurz und präzise. Deutsch. Kein Prüfungsbezug. NUR JSON.`;
   } catch (err) {
     console.error("[learning-hub] Error:", err);
     const message = err instanceof Error ? err.message : "Unbekannter Fehler";
-    return NextResponse.json({ error: `Generierung fehlgeschlagen: ${message}` }, { status: 500 });
+    return NextResponse.json({ error: "Generierung fehlgeschlagen. Versuche es erneut." }, { status: 500 });
   }
 }

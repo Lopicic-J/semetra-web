@@ -11,7 +11,7 @@
 import { NextResponse } from "next/server";
 
 // Extend timeout for AI generation
-export const maxDuration = 30;
+export const maxDuration = 60;
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
