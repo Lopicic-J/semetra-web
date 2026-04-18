@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Calendar, Clock, Brain, Play, Pause, Square, SkipForward,
   ChevronLeft, ChevronRight, Plus, Zap, Target, Coffee,
@@ -319,9 +320,11 @@ function ModuleCard({ stat }: { stat: { moduleId: string; moduleName: string; mo
 
 // ── Main Page ───────────────────────────────────────────────────────────────
 
-export default function SmartSchedulePage() {
+function SmartScheduleInner() {
   const { t } = useTranslation();
-  const [viewMode, setViewMode] = useState<ScheduleViewMode>("day");
+  const searchParams = useSearchParams();
+  const moduleParam = searchParams.get("module");
+  const [viewMode, setViewMode] = useState<ScheduleViewMode>(moduleParam ? "module" : "day");
   const [currentDate, setCurrentDate] = useState(today());
   const weekStart = useMemo(() => monday(currentDate), [currentDate]);
 
@@ -688,5 +691,13 @@ export default function SmartSchedulePage() {
         onSave={async (updates) => { await updatePreferences(updates); day.refetch(); }}
       />
     </div>
+  );
+}
+
+export default function SmartSchedulePage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-16"><div className="w-7 h-7 border-[3px] border-brand-200 border-t-brand-600 rounded-full animate-spin" /></div>}>
+      <SmartScheduleInner />
+    </Suspense>
   );
 }
