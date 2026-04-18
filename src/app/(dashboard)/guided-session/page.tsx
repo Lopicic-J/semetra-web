@@ -3,10 +3,12 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useModules } from "@/lib/hooks/useModules";
+import { createClient } from "@/lib/supabase/client";
+import MobileFlashcardReview from "@/components/flashcards/MobileFlashcardReview";
 import {
   Brain, BookOpen, Target, MessageCircle, PenLine, Coffee,
   Play, Pause, SkipForward, CheckCircle2, Clock, AlertTriangle,
-  GraduationCap, ArrowRight, Search,
+  GraduationCap, ArrowRight, Search, Zap,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -61,6 +63,12 @@ export default function GuidedSessionPage() {
   const [understanding, setUnderstanding] = useState(3);
   const [confidence, setConfidence] = useState(3);
   const [energy, setEnergy] = useState(3);
+
+  // Inline flashcard review state
+  const [showFlashcards, setShowFlashcards] = useState(false);
+  const [flashcards, setFlashcards] = useState<{ id: string; question: string; answer: string; deck_name?: string }[]>([]);
+  const [flashcardsLoading, setFlashcardsLoading] = useState(false);
+  const supabase = createClient();
 
   const activeModules = modules.filter(m => m.status === "active" || m.status === "planned");
   const moduleName = modules.find(m => m.id === selectedModule)?.name;
@@ -319,13 +327,35 @@ export default function GuidedSessionPage() {
           </div>
 
           {/* Phase-specific suggestions */}
-          {currentPhase.type === "review" && (
-            <Link href={`/flashcards?module=${selectedModule}`} className="inline-flex items-center gap-2 text-sm underline opacity-70 hover:opacity-100 no-underline">
-              <Brain size={14} /> Flashcards öffnen
-            </Link>
+          {currentPhase.type === "review" && !showFlashcards && (
+            <button
+              onClick={async () => {
+                setFlashcardsLoading(true);
+                const now = new Date().toISOString();
+                const { data } = await supabase.from("flashcards")
+                  .select("id, question, answer, deck_name")
+                  .eq("module_id", selectedModule)
+                  .or(`next_review.is.null,next_review.lte.${now}`)
+                  .limit(20);
+                setFlashcards(data ?? []);
+                setFlashcardsLoading(false);
+                if (data && data.length > 0) {
+                  setShowFlashcards(true);
+                  setIsPaused(true); // Pause timer during flashcard review
+                }
+              }}
+              disabled={flashcardsLoading}
+              className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors"
+            >
+              <Zap size={14} />
+              {flashcardsLoading ? "Lade Karten..." : "Flashcards lernen"}
+            </button>
+          )}
+          {currentPhase.type === "review" && flashcards.length === 0 && !flashcardsLoading && !showFlashcards && (
+            <p className="text-xs opacity-60 mt-1">Keine fälligen Karten für dieses Modul</p>
           )}
           {currentPhase.type === "practice" && (
-            <Link href={`/exam-simulator?module=${selectedModule}`} className="inline-flex items-center gap-2 text-sm underline opacity-70 hover:opacity-100 no-underline">
+            <Link href={`/exam-simulator?module=${selectedModule}`} target="_blank" className="inline-flex items-center gap-2 text-sm underline opacity-70 hover:opacity-100 no-underline">
               <Target size={14} /> Prüfungssimulator öffnen
             </Link>
           )}
@@ -333,6 +363,29 @@ export default function GuidedSessionPage() {
             <p className="text-xs opacity-60">Erkläre das Gelernte laut oder schriftlich — ohne Hilfsmittel</p>
           )}
         </div>
+
+        {/* Inline Flashcard Review */}
+        {showFlashcards && flashcards.length > 0 && (
+          <div className="rounded-2xl border border-violet-200 dark:border-violet-800/40 bg-[rgb(var(--card-bg))] overflow-hidden">
+            <MobileFlashcardReview
+              cards={flashcards}
+              moduleName={moduleName}
+              moduleColor={moduleColor}
+              onComplete={(results) => {
+                setShowFlashcards(false);
+                setIsPaused(false); // Resume timer
+                // Add to learned notes
+                if (results.correct > 0 || results.wrong > 0) {
+                  setLearned(prev => prev ? `${prev}\n${results.correct}/${results.correct + results.wrong} Flashcards richtig` : `${results.correct}/${results.correct + results.wrong} Flashcards richtig`);
+                }
+              }}
+              onClose={() => {
+                setShowFlashcards(false);
+                setIsPaused(false); // Resume timer
+              }}
+            />
+          </div>
+        )}
 
         {/* Controls */}
         <div className="flex items-center justify-center gap-4">
