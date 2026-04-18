@@ -107,7 +107,7 @@ export default function FloatingTimer() {
   return (
     <button
       onClick={() => router.push("/timer")}
-      className="fixed z-50 bottom-24 right-6 group"
+      className="fixed z-50 bottom-[104px] right-6 group"
       title="Zum Timer"
     >
       <div className={`relative w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all ${
