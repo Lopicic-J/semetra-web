@@ -19,12 +19,12 @@ export type AiActionType =
 
 /* ─── Gewichtung: Wie viele Credits kostet ein Request? ─── */
 export const AI_WEIGHTS: Record<AiActionType, number> = {
-  chat_short:          1,
-  chat_explain:        2,
-  math_solve:          1,
-  flashcards_generate: 3,
-  notes_summarize:     3,
-  pdf_analyze:         5,
+  chat_short:          1,   // Einfache Frage → kurze Antwort
+  chat_explain:        2,   // Ausführliche Erklärung
+  math_solve:          1,   // Gleichung lösen
+  flashcards_generate: 2,   // Karteikarten generieren (reduziert von 3)
+  notes_summarize:     2,   // Zusammenfassung bewerten (reduziert von 3)
+  pdf_analyze:         3,   // Dokument/Lernraum analysieren (reduziert von 5)
 } as const;
 
 /* ─── Token-Limits pro Aktion ─── */

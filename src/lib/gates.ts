@@ -18,15 +18,15 @@ export type PlanTier = "basic" | "full";
 /* ─── AI Pool Constants ─── */
 export const AI_POOL = {
   /** Free: monthly limit (soft, via localStorage) */
-  freeMonthlyLimit: 3,
-  /** Pro Basic: monthly pool included */
-  proBasicMonthlyPool: 10,
-  /** Pro Full: monthly pool included */
-  proFullMonthlyPool: 100,
+  freeMonthlyLimit: 10,
+  /** Pro Basic (CHF 9.90/mo): monthly pool included */
+  proBasicMonthlyPool: 150,
+  /** Pro Full (CHF 14.90/mo): monthly pool included */
+  proFullMonthlyPool: 500,
   /** Lifetime Full: monthly pool included */
-  lifetimeFullMonthlyPool: 20,
-  /** Lifetime Basic: no pool */
-  lifetimeBasicMonthlyPool: 0,
+  lifetimeFullMonthlyPool: 100,
+  /** Lifetime Basic: small pool */
+  lifetimeBasicMonthlyPool: 30,
   /** Add-on: extra credits per purchase (monthly, expires!) */
   addonCredits: 200,
   /** Add-on price in CHF */
@@ -54,8 +54,8 @@ export const FREE_LIMITS = {
   // Mathe-Raum — Tageslimit (zählt zum KI-Pool bei Pro)
   mathDailyCalculations: 3,
 
-  // KI — Free: 3/Monat (localStorage), Pro: aus Pool
-  aiMonthlyFree: 3,
+  // KI — Free: 10/Monat (localStorage), Pro: aus Pool
+  aiMonthlyFree: 10,
 
   // Analyse — Pro-Upsell
   gradeExport: false,
@@ -76,9 +76,18 @@ export const PRO_FEATURES = {
   gradeExport:         "Semester-Report Export",
   desktopSync:         "Desktop ↔ Web Sync",
   fhImportAll:         "Alle Studiengang-Module importieren",
-  spacedRepetition:    "Smart Spaced Repetition",
+  spacedRepetition:    "Smart Spaced Repetition (FSRS)",
   studyPlanGenerator:  "Lernplan-Generator",
-  aiAssistant:         "KI-Lernassistent",
+  aiAssistant:         "KI-Lernassistent (150 Credits/Monat)",
+  aiLearningHub:       "KI-Lernraum pro Modul",
+  aiExamSimulator:     "Prüfungssimulator (unbegrenzt)",
+  aiDocumentAnalysis:  "Dokumenten-KI (Zusammenfassungen + Flashcards)",
+  aiFeynmanMode:       "Erklär-Modus (Feynman-Technik)",
+  guidedSessions:      "Geführte Lernsessions",
+  examPrepPlans:       "Prüfungsvorbereitungs-Pläne",
+  wellnessTracking:    "Wellness & Balance-Tracking",
+  challenges:          "Challenges & Wettbewerbe",
+  communityDecks:      "Community Flashcard-Decks",
   themes:              "Benutzerdefinierte Themes",
   prioritySupport:     "Prioritäts-Support",
 } as const;
