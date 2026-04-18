@@ -912,6 +912,13 @@ function StundenplanModal({ modules, currentKw, currentSemester, prefilledEntry,
         };
       });
       await supabase.from("schedule_blocks").insert(scheduleRows);
+
+      // Trigger sync to detect and reschedule conflicting Layer 2 blocks
+      fetch("/api/schedule", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "sync-stundenplan" }),
+      }).catch(() => {});
     }
     setSaving(false);
     onSaved();

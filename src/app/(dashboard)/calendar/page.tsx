@@ -193,7 +193,7 @@ function EventModal({ defaultDate, onClose, onSaved }: { defaultDate: string; on
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setSaving(false); return; }
-    await supabase.from("events").insert({
+    const { error } = await supabase.from("events").insert({
       user_id: user.id,
       title: form.title,
       start_dt: `${form.date}T${form.time_start}:00`,
@@ -205,6 +205,15 @@ function EventModal({ defaultDate, onClose, onSaved }: { defaultDate: string; on
     });
     setSaving(false);
     onSaved();
+
+    // Trigger schedule re-plan so the new event blocks its time slot
+    if (!error) {
+      fetch("/api/schedule", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "auto-plan", date: form.date }),
+      }).catch(() => {});
+    }
   }
 
   return (

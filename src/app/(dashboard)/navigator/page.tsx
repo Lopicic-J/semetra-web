@@ -157,20 +157,25 @@ export default function NavigatorPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Due tasks (not done)
-    const { count: taskCount } = await supabase
-      .from("tasks").select("*", { count: "exact", head: true })
-      .eq("user_id", user.id).neq("status", "done");
-    setDueTasks(taskCount ?? 0);
-
-    // Upcoming exams (next 90 days)
     const now = new Date();
     const in90 = new Date(); in90.setDate(in90.getDate() + 90);
-    const { data: exams } = await supabase
-      .from("events").select("start_dt, title")
-      .eq("event_type", "exam")
-      .gte("start_dt", now.toISOString()).lte("start_dt", in90.toISOString())
-      .order("start_dt");
+
+    // Parallel fetch for speed
+    const [taskRes, examRes, fcRes] = await Promise.all([
+      supabase.from("tasks").select("*", { count: "exact", head: true })
+        .eq("user_id", user.id).neq("status", "done"),
+      supabase.from("events").select("start_dt, title")
+        .eq("event_type", "exam")
+        .gte("start_dt", now.toISOString()).lte("start_dt", in90.toISOString())
+        .order("start_dt"),
+      supabase.from("flashcards").select("*", { count: "exact", head: true })
+        .eq("user_id", user.id).or(`next_review.is.null,next_review.lte.${now.toISOString()}`),
+    ]);
+
+    setDueTasks(taskRes.count ?? 0);
+    setDueFlashcards(fcRes.count ?? 0);
+
+    const exams = examRes.data;
     setUpcomingExams(exams?.length ?? 0);
     if (exams && exams.length > 0) {
       const nearest = exams[0];
@@ -178,12 +183,6 @@ export default function NavigatorPage() {
       setNextExamDays(daysUntil);
       setNextExamTitle(nearest.title);
     }
-
-    // Due flashcards
-    const { count: fcCount } = await supabase
-      .from("flashcards").select("*", { count: "exact", head: true })
-      .eq("user_id", user.id).or(`next_review.is.null,next_review.lte.${now.toISOString()}`);
-    setDueFlashcards(fcCount ?? 0);
   }, [supabase]);
 
   useEffect(() => { fetchLiveData(); }, [fetchLiveData]);
