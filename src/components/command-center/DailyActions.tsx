@@ -1,18 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import {
   BookOpen, CheckSquare, Brain, FileText, Play, Clock, TrendingUp,
-  HelpCircle, Layers, Send, Zap,
+  HelpCircle, Layers, Send, Zap, ArrowRight, Calendar,
 } from "lucide-react";
 import type { Action, ActionType, ActionUrgency } from "@/lib/decision/types";
 import { getActionLink } from "@/components/dashboard/SmartStartCard";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 
 interface DailyActionsProps {
   actions: Action[];
   totalMinutes: number;
   focusModule: { id: string; name: string; color?: string; reason: string } | null;
+  /** If true, show "Plan my day" button at the top */
+  showPlanButton?: boolean;
 }
 
 const actionIcons: Record<ActionType, typeof BookOpen> = {
@@ -36,22 +38,62 @@ const urgencyStyles: Record<ActionUrgency, { badge: string; label: string }> = {
   later: { badge: "bg-surface-200 text-surface-600", label: "Später" },
 };
 
-export default function DailyActions({ actions, totalMinutes, focusModule }: DailyActionsProps) {
+export default function DailyActions({ actions, totalMinutes, focusModule, showPlanButton = true }: DailyActionsProps) {
   const hours = Math.floor(totalMinutes / 60);
   const mins = totalMinutes % 60;
+  const [planning, setPlanning] = useState(false);
+  const [planResult, setPlanResult] = useState<string | null>(null);
+
+  const handlePlanDay = async () => {
+    setPlanning(true);
+    setPlanResult(null);
+    try {
+      const res = await fetch("/api/schedule", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "auto-plan" }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPlanResult(`${data.scheduled} Blöcke eingeplant`);
+        setTimeout(() => setPlanResult(null), 4000);
+      }
+    } catch { /* ignore */ }
+    setPlanning(false);
+  };
 
   return (
-    <div className="bg-surface-100/50 rounded-xl border border-surface-200 p-5">
+    <div className="bg-surface-100/50 dark:bg-surface-800/30 rounded-xl border border-surface-200 dark:border-surface-700 p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Zap className="w-5 h-5 text-brand-500" />
-          <h3 className="font-semibold text-surface-900">Tagesplan</h3>
+          <h3 className="font-semibold text-surface-900 dark:text-surface-50">Tagesplan</h3>
         </div>
-        <span className="text-xs font-medium text-surface-500">
-          {hours > 0 ? `~${hours}h ${mins > 0 ? `${mins}min` : ""}` : `~${mins}min`} geplant
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-surface-500">
+            {hours > 0 ? `~${hours}h ${mins > 0 ? `${mins}min` : ""}` : `~${mins}min`} geplant
+          </span>
+          {showPlanButton && actions.length > 0 && (
+            <button
+              onClick={handlePlanDay}
+              disabled={planning}
+              className="flex items-center gap-1 px-2.5 py-1 text-[10px] font-semibold rounded-md bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50 transition-colors"
+            >
+              <Calendar size={10} />
+              {planning ? "Plane..." : "Tag planen"}
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* Plan result */}
+      {planResult && (
+        <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800 text-xs text-brand-700 dark:text-brand-300">
+          <Zap size={12} className="text-brand-500" />
+          {planResult} — <Link href="/smart-schedule" className="font-semibold underline">Anzeigen</Link>
+        </div>
+      )}
 
       {/* Focus Module */}
       {focusModule && (
@@ -93,7 +135,7 @@ export default function DailyActions({ actions, totalMinutes, focusModule }: Dai
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-sm font-medium text-surface-900 dark:text-surface-100 truncate">{action.title}</p>
+                  <p className="text-sm font-medium text-surface-900 dark:text-surface-50 truncate">{action.title}</p>
                   <span className={`${urgency.badge} text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0`}>
                     {urgency.label}
                   </span>
