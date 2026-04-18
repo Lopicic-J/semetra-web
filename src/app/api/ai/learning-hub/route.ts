@@ -46,7 +46,12 @@ export async function GET(request: Request) {
   }
 
   // Not cached — generate fresh
-  return generateAndCache(supabase, user.id, moduleId);
+  try {
+    return await generateAndCache(supabase, user.id, moduleId);
+  } catch (err) {
+    console.error("[learning-hub] Uncaught error in generateAndCache:", err);
+    return NextResponse.json({ error: `Interner Fehler: ${err instanceof Error ? err.message : "Unbekannt"}` }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
@@ -58,17 +63,28 @@ export async function POST(request: Request) {
   const { moduleId } = body;
   if (!moduleId) return NextResponse.json({ error: "moduleId required" }, { status: 400 });
 
-  return generateAndCache(supabase, user.id, moduleId);
+  try {
+    return await generateAndCache(supabase, user.id, moduleId);
+  } catch (err) {
+    console.error("[learning-hub] Uncaught error in generateAndCache:", err);
+    return NextResponse.json({ error: `Interner Fehler: ${err instanceof Error ? err.message : "Unbekannt"}` }, { status: 500 });
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function generateAndCache(supabase: any, userId: string, moduleId: string) {
+  console.log("[learning-hub] Step 1: Checking AI usage...");
+
   // Check AI usage
   const { checkAndIncrementAiUsage } = await import("@/lib/ai-usage");
-  const usageCheck = await checkAndIncrementAiUsage(userId, "pdf_analyze"); // Weight 5 — comprehensive generation
+  const usageCheck = await checkAndIncrementAiUsage(userId, "pdf_analyze");
+  console.log("[learning-hub] Step 2: Usage check result:", JSON.stringify(usageCheck));
+
   if (!usageCheck.allowed) {
     return NextResponse.json({ error: "AI-Kontingent erschöpft" }, { status: 429 });
   }
+
+  console.log("[learning-hub] Step 3: Loading module + topics...");
 
   // Get module + topics
   const [moduleRes, topicsRes] = await Promise.all([
@@ -79,6 +95,8 @@ async function generateAndCache(supabase: any, userId: string, moduleId: string)
   ]);
 
   const mod = moduleRes.data;
+  console.log("[learning-hub] Step 4: Module found:", mod?.name ?? "NOT FOUND", "| Topics:", topicsRes.data?.length ?? 0);
+
   if (!mod) return NextResponse.json({ error: "Modul nicht gefunden" }, { status: 404 });
 
   const topics = topicsRes.data ?? [];
