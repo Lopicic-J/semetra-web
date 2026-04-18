@@ -58,6 +58,7 @@ export default function ModuleLearningHub() {
 
   const [hub, setHub] = useState<LearningHub | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [moduleName, setModuleName] = useState("");
   const [moduleColor, setModuleColor] = useState("#6d28d9");
   const [activeTab, setActiveTab] = useState<"overview" | "topics" | "cards" | "start">("overview");
@@ -76,9 +77,24 @@ export default function ModuleLearningHub() {
   // Load learning hub
   const loadHub = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(`/api/ai/learning-hub?moduleId=${moduleId}`);
-      if (res.ok) setHub(await res.json());
+      if (res.ok) {
+        const data = await res.json();
+        if (data.overview || data.topicGuide || data.conceptCards) {
+          setHub(data);
+        } else {
+          setError("Lernraum hat keinen Inhalt. Versuche es mit 'Neu generieren'.");
+        }
+      } else if (res.status === 429) {
+        setError("AI-Kontingent erschöpft. Versuche es später erneut.");
+      } else {
+        const err = await res.json().catch(() => ({}));
+        setError(err.error ?? "Lernraum konnte nicht generiert werden.");
+      }
+    } catch {
+      setError("Netzwerkfehler — bitte prüfe deine Verbindung.");
     } finally {
       setLoading(false);
     }
@@ -88,13 +104,22 @@ export default function ModuleLearningHub() {
 
   const regenerate = async () => {
     setRegenerating(true);
+    setError(null);
     try {
       const res = await fetch("/api/ai/learning-hub", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ moduleId }),
       });
-      if (res.ok) setHub(await res.json());
+      if (res.ok) {
+        setHub(await res.json());
+      } else if (res.status === 429) {
+        setError("AI-Kontingent erschöpft.");
+      } else {
+        setError("Generierung fehlgeschlagen. Versuche es erneut.");
+      }
+    } catch {
+      setError("Netzwerkfehler.");
     } finally {
       setRegenerating(false);
     }
@@ -118,12 +143,27 @@ export default function ModuleLearningHub() {
 
   if (!hub) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-16 text-center">
+      <div className="max-w-3xl mx-auto px-4 py-16 text-center space-y-4">
         <BookOpen size={40} className="mx-auto mb-3 text-surface-300" />
-        <p className="text-surface-500 mb-4">Lernraum konnte nicht geladen werden</p>
-        <button onClick={loadHub} className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium">
-          Erneut versuchen
-        </button>
+        <p className="text-surface-900 dark:text-surface-50 font-semibold">
+          {error ? "Lernraum nicht verfügbar" : "Lernraum wird erstellt..."}
+        </p>
+        {error && (
+          <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 rounded-lg p-3 max-w-md mx-auto">
+            {error}
+          </p>
+        )}
+        <div className="flex gap-3 justify-center">
+          <button onClick={loadHub} className="px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700">
+            {error ? "Erneut versuchen" : "Generieren"}
+          </button>
+          <Link href={`/modules/${moduleId}`} className="px-4 py-2 rounded-lg border border-surface-200 dark:border-surface-700 text-sm text-surface-600 hover:bg-surface-50 dark:hover:bg-surface-800 no-underline">
+            Zurück zum Modul
+          </Link>
+        </div>
+        {!error && (
+          <p className="text-xs text-surface-400">Die erste Generierung kann 10-15 Sekunden dauern.</p>
+        )}
       </div>
     );
   }

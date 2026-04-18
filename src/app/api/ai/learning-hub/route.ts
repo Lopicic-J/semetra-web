@@ -154,17 +154,31 @@ Regeln:
       }),
     });
 
-    if (!res.ok) return NextResponse.json({ error: "AI-Generierung fehlgeschlagen" }, { status: 502 });
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => "");
+      console.error("[learning-hub] API error:", res.status, errBody.slice(0, 200));
+      return NextResponse.json({
+        error: res.status === 429
+          ? "AI-Rate-Limit erreicht. Versuche es in einer Minute erneut."
+          : "AI-Generierung fehlgeschlagen. Versuche es erneut.",
+      }, { status: res.status === 429 ? 429 : 502 });
+    }
 
     const response = await res.json();
     const rawText = response.content?.[0]?.text ?? "";
+
+    if (!rawText) {
+      console.error("[learning-hub] Empty AI response");
+      return NextResponse.json({ error: "AI hat keine Antwort generiert" }, { status: 502 });
+    }
 
     let result;
     try {
       const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/) || [null, rawText];
       result = JSON.parse(jsonMatch[1] || rawText);
-    } catch {
-      return NextResponse.json({ error: "AI-Antwort konnte nicht verarbeitet werden" }, { status: 502 });
+    } catch (parseErr) {
+      console.error("[learning-hub] JSON parse failed:", (parseErr as Error).message, rawText.slice(0, 200));
+      return NextResponse.json({ error: "AI-Antwort konnte nicht verarbeitet werden. Versuche 'Neu generieren'." }, { status: 502 });
     }
 
     // Cache in database
