@@ -44,6 +44,7 @@ import SmartStartCard from "@/components/dashboard/SmartStartCard";
 import DashboardTaskList from "@/components/dashboard/DashboardTaskList";
 import QuickExamAdd from "@/components/exams/QuickExamAdd";
 import WeeklyGoalBadge from "@/components/dashboard/WeeklyGoalBadge";
+import TodayAtGlance from "@/components/dashboard/TodayAtGlance";
 
 // Command Center sub-components
 import AlertBanner from "@/components/command-center/AlertBanner";
@@ -418,6 +419,9 @@ export default function ClassicDashboard() {
       {ccState && ccState.today.actions.length > 0 && (
         <SmartStartCard state={ccState} />
       )}
+
+      {/* ═══ TODAY AT A GLANCE (Flashcards + Schedule + Exams) ═══ */}
+      <TodayAtGlance />
 
       {/* ═══ FOCUS/DETAIL TOGGLE ═══ */}
       <button
