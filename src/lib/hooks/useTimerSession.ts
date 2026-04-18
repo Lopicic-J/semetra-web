@@ -175,6 +175,25 @@ export function useTimerSession(preferences?: SchedulePreferences) {
 
   // ── Public API ────────────────────────────────────────────────────────
 
+  // ── localStorage sync for FloatingTimer ────────────────────────────
+  // Write timer state to localStorage so the FloatingTimer can read it
+  // immediately without waiting for the server session to be created.
+  useEffect(() => {
+    if (state.isRunning && state.session) {
+      try {
+        localStorage.setItem("semetra_active_timer", JSON.stringify({
+          startedAt: state.session.started_at,
+          plannedMinutes: state.targetSeconds ? Math.round(state.targetSeconds / 60) : null,
+          status: state.isPaused ? "paused" : "active",
+          moduleName: null, // Not available in hook — server fills this
+          moduleColor: null,
+        }));
+      } catch { /* ignore */ }
+    } else if (!state.isRunning) {
+      try { localStorage.removeItem("semetra_active_timer"); } catch { /* ignore */ }
+    }
+  }, [state.isRunning, state.isPaused, state.session, state.targetSeconds]);
+
   const start = useCallback((
     sessionType: SessionType,
     options?: {
