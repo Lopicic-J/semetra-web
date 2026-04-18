@@ -43,12 +43,24 @@ const FIXED_EVENT_BUFFER = 5; // minutes
  * - Active timer sessions
  * - Minimum slot duration
  */
+/**
+ * Calendar event shape (minimal, from `events` table).
+ * Used to block time slots for exams, appointments, etc.
+ */
+export interface CalendarEventSlot {
+  start_dt: string;
+  end_dt: string | null;
+  event_type?: string;
+}
+
 export function findFreeSlots(
   blocks: ScheduleBlock[],
   sessions: TimerSession[],
   preferences: SchedulePreferences,
   date: string, // YYYY-MM-DD
   minDurationMinutes: number = 15,
+  /** Calendar events to treat as occupied (exams, appointments) */
+  calendarEvents?: CalendarEventSlot[],
 ): FreeSlot[] {
   const prefs = preferences || DEFAULT_PREFERENCES;
   // Use available_from/until if set, otherwise fall back to wake/sleep
@@ -77,6 +89,23 @@ export function findFreeSlots(
       });
     } else {
       occupied.push({ start, end });
+    }
+  }
+
+  // Calendar events (exams, appointments, etc.) — treated as fixed with buffer
+  if (calendarEvents) {
+    for (const evt of calendarEvents) {
+      const evtDate = evt.start_dt.slice(0, 10);
+      if (evtDate !== date) continue;
+
+      const start = new Date(evt.start_dt).getTime();
+      const end = evt.end_dt
+        ? new Date(evt.end_dt).getTime()
+        : start + 2 * 60 * MINUTE_MS; // Default 2h if no end time
+      occupied.push({
+        start: start - FIXED_EVENT_BUFFER * MINUTE_MS,
+        end: end + FIXED_EVENT_BUFFER * MINUTE_MS,
+      });
     }
   }
 

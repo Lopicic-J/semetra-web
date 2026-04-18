@@ -320,9 +320,46 @@ export async function POST(req: NextRequest) {
         }
       }
 
+      // Auto-reschedule conflicting Layer 2 blocks
+      // When a new stundenplan (Layer 1) block overlaps an existing study (Layer 2) block,
+      // mark it as rescheduled so the next auto-plan places it in a free slot.
+      let rescheduled = 0;
+      if (created > 0 || updated > 0) {
+        const { data: allL1Blocks } = await supabase
+          .from("schedule_blocks")
+          .select("start_time, end_time")
+          .eq("user_id", user.id)
+          .eq("layer", 1);
+
+        const { data: l2Blocks } = await supabase
+          .from("schedule_blocks")
+          .select("id, start_time, end_time")
+          .eq("user_id", user.id)
+          .eq("layer", 2)
+          .in("status", ["scheduled", "in_progress"]);
+
+        for (const l2 of (l2Blocks || [])) {
+          const l2Start = new Date(l2.start_time).getTime();
+          const l2End = new Date(l2.end_time).getTime();
+
+          const hasConflict = (allL1Blocks || []).some(l1 => {
+            const l1Start = new Date(l1.start_time).getTime();
+            const l1End = new Date(l1.end_time).getTime();
+            return l1Start < l2End && l1End > l2Start; // overlap
+          });
+
+          if (hasConflict) {
+            await supabase.from("schedule_blocks")
+              .update({ status: "rescheduled", reschedule_reason: "Stundenplan-Konflikt" })
+              .eq("id", l2.id);
+            rescheduled++;
+          }
+        }
+      }
+
       return successResponse({
-        created, updated, deleted,
-        message: `Sync: ${created} erstellt, ${updated} aktualisiert, ${deleted} entfernt`,
+        created, updated, deleted, rescheduled,
+        message: `Sync: ${created} erstellt, ${updated} aktualisiert, ${deleted} entfernt${rescheduled > 0 ? `, ${rescheduled} Lernblöcke umgeplant` : ""}`,
       });
     }
 
@@ -392,6 +429,7 @@ export async function POST(req: NextRequest) {
         flashcardsRes,
         tasksRes,
         examsRes,
+        dayEventsRes,
       ] = await Promise.all([
         // 1. Decision Engine state
         fetch(new URL("/api/decision", req.url), {
@@ -430,6 +468,12 @@ export async function POST(req: NextRequest) {
           .gte("start_dt", date)
           .lte("start_dt", new Date(now.getTime() + 14 * 86400000).toISOString().slice(0, 10))
           .order("start_dt", { ascending: true }),
+        // 8. All calendar events for this day (block time slots)
+        supabase.from("events")
+          .select("start_dt, end_dt, event_type")
+          .eq("user_id", user.id)
+          .gte("start_dt", `${date}T00:00:00`)
+          .lte("start_dt", `${date}T23:59:59`),
       ]);
 
       // Process Decision Engine
@@ -439,9 +483,13 @@ export async function POST(req: NextRequest) {
 
       const existingBlocks = blocksRes.data || [];
       const existingSessions = sessionsRes.data || [];
+      // Calendar events as occupied time (exams, appointments, etc.)
+      const calendarEvents = (dayEventsRes.data || []) as { start_dt: string; end_dt: string | null; event_type?: string }[];
 
       const freeSlots = findFreeSlots(
         existingBlocks, existingSessions, preferences, date,
+        15, // minDurationMinutes
+        calendarEvents, // calendar events block time
       );
 
       if (decisionRes.ok) {

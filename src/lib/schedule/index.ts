@@ -43,6 +43,7 @@ export type {
   ScheduleConflict,
   DailyBudget,
   HourHeat,
+  CalendarEventSlot,
 } from "./engine";
 
 // Timer Engine (state machine)
