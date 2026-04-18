@@ -135,12 +135,23 @@ export default function StundenplanPage() {
 
     setDeleteDialog(null);
     await fetchEntries();
+    // Sync schedule to update conflict detection
+    fetch("/api/schedule", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "sync-stundenplan" }),
+    }).catch(() => {});
   }
 
   async function deleteEntry(id: string) {
     await supabase.from("schedule_blocks").delete().eq("stundenplan_id", id).eq("layer", 1);
     await supabase.from("stundenplan").delete().eq("id", id);
     await fetchEntries();
+    fetch("/api/schedule", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "sync-stundenplan" }),
+    }).catch(() => {});
   }
 
   function timeToMinutes(t: string) {
@@ -291,6 +302,12 @@ export default function StundenplanPage() {
     }
 
     setMoveDialog(null);
+    // Sync schedule to update conflict detection
+    fetch("/api/schedule", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "sync-stundenplan" }),
+    }).catch(() => {});
   }
 
   async function copyToKw(targetKw: number) {
@@ -1045,16 +1062,23 @@ function StundenplanEditModal({ modules, entry, onClose, onSaved }: {
       })
       .eq("id", entry.id);
 
+    // Sync schedule blocks to reflect the change
+    fetch("/api/schedule", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "sync-stundenplan" }),
+    }).catch(() => {});
+
     setSaving(false);
     onSaved();
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-surface-100 rounded-2xl shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between p-5 border-b border-surface-100">
-          <h2 className="font-semibold text-surface-900">{t("stundenplan.modal.editTitle") || "Edit Entry"}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-100 hover:bg-surface-200"><X size={16} /></button>
+      <div className="bg-[rgb(var(--card-bg))] rounded-2xl shadow-xl w-full max-w-md">
+        <div className="flex items-center justify-between p-5 border-b border-surface-200 dark:border-surface-700">
+          <h2 className="font-semibold text-surface-900 dark:text-white">{t("stundenplan.modal.editTitle") || "Eintrag bearbeiten"}</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-500"><X size={16} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
