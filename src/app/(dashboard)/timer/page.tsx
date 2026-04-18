@@ -20,6 +20,7 @@ import {
 import { events } from "@/lib/analytics/tracker";
 import PostSessionCard from "@/components/timer/PostSessionCard";
 import AmbientSounds from "@/components/timer/AmbientSounds";
+import SessionContextPanel from "@/components/timer/SessionContextPanel";
 
 // ── Mode Presets ────────────────────────────────────────────────────────────
 
@@ -650,6 +651,26 @@ function TimerPageInner() {
           ══════════════════════════════════════════════════════════════ */}
  <div className="w-full lg:w-80 xl:w-96 lg:border-l border-surface-200 bg-surface-50/50 lg:overflow-y-auto">
         <div className="p-3 sm:p-4">
+
+          {/* ── Session Context Panel (learning goal content) ──────── */}
+          {timer.isRunning && selectedModule && (
+            <SessionContextPanel
+              learningGoal={learningGoal}
+              moduleId={selectedModule}
+              moduleName={modules.find(m => m.id === selectedModule)?.name ?? ""}
+              moduleColor={modules.find(m => m.id === selectedModule)?.color}
+              topicTitle={selectedTopic ? topics.find(t => t.id === selectedTopic)?.title : undefined}
+              topicKnowledgeLevel={selectedTopic ? (topics.find(t => t.id === selectedTopic)?.knowledge_level ?? undefined) : undefined}
+              examTitle={selectedExam ? exams.find(e => e.id === selectedExam)?.title : undefined}
+              examDaysLeft={selectedExam ? (() => {
+                const exam = exams.find(e => e.id === selectedExam);
+                return exam ? Math.ceil((new Date(exam.start_dt).getTime() - Date.now()) / 86400000) : undefined;
+              })() : undefined}
+              taskTitle={selectedTask ? tasks.find(t => t.id === selectedTask)?.title : undefined}
+              weakTopicCount={topics.filter(t => t.module_id === selectedModule && (t.knowledge_level ?? 0) < 50).length}
+              flashcardsDue={0}
+            />
+          )}
 
           {/* ── Daily Progress (from Decision Engine) ─────────────── */}
           {streaks.last30Days[today] > 0 && (
