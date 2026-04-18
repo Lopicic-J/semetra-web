@@ -93,7 +93,36 @@ export default function ExamPrepPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ examId: selectedExam, prepDays: 5 }),
       });
-      if (res.ok) await loadData();
+      if (res.ok) {
+        const plan = await res.json();
+        await loadData();
+
+        // Sync plan activities into Smart Schedule as exam_prep blocks
+        if (plan?.daily_plan?.length > 0) {
+          const exam = exams.find(e => e.id === selectedExam);
+          for (const day of plan.daily_plan) {
+            if (!day.date || !day.activities?.length) continue;
+            // Create one exam_prep block per day covering all activities
+            const totalMin = day.activities.reduce((s: number, a: Activity) => s + (a.duration_min || 30), 0);
+            fetch("/api/schedule", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                block_type: "exam_prep",
+                start_time: `${day.date}T09:00:00`,
+                end_time: new Date(new Date(`${day.date}T09:00:00`).getTime() + totalMin * 60000).toISOString(),
+                title: `Prüfungsvorbereitung · ${exam?.title || "Prüfung"}`,
+                module_id: exam?.module_id || null,
+                exam_id: selectedExam,
+                priority: "high",
+                estimated_minutes: totalMin,
+                source: "decision_engine",
+                description: day.activities.map((a: Activity) => `${a.title} (${a.duration_min}min)`).join("\n"),
+              }),
+            }).catch(() => {});
+          }
+        }
+      }
     } finally {
       setGenerating(false);
     }
