@@ -266,12 +266,18 @@ function TimerPageInner() {
 
     const sessionType = focusMode === "deep_work" ? "deep_work" as const : "focus" as const;
 
+    // Include learning goal in session note for tracking
+    const goalNote = learningGoal && learningGoal !== "free"
+      ? `[goal:${learningGoal}]${note ? ` ${note}` : ""}`
+      : note || undefined;
+
     timer.start(sessionType, {
       targetMinutes: targetMin,
       moduleId: selectedModule || undefined,
       taskId: selectedTask || undefined,
       topicId: selectedTopic || undefined,
       examId: selectedExam || undefined,
+      note: goalNote,
     });
     events.timerStarted(selectedModule || null, targetMin ?? 0);
   }
@@ -289,8 +295,20 @@ function TimerPageInner() {
     events.timerCompleted(selectedModule || null, actualMin);
     setNote("");
 
+    // DNA Micro-Update with learning goal context
+    if (actualSec >= 60) {
+      fetch("/api/learning-dna", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          durationMinutes: actualMin,
+          alignment: learningGoal && learningGoal !== "free" ? "within_plan" : "unplanned",
+        }),
+      }).catch(() => {});
+    }
+
     // Show post-session card with next action recommendation
-    if (actualSec >= 60) { // Only for sessions > 1 min
+    if (actualSec >= 60) {
       setPostSession({ visible: true, duration: actualSec, moduleName: modName });
     }
   }
