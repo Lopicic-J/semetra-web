@@ -235,7 +235,7 @@ export async function generateModuleCertificatePDF(
   });
 
   // Semetra brand
-  const brandFooter = "Generiert von Semetra Study Organizer";
+  const brandFooter = "Generiert von Semetra Study System";
   const brandW = helvetica.widthOfTextAtSize(brandFooter, 7);
   page.drawText(brandFooter, {
     x: (PAGE_W - brandW) / 2,
@@ -247,7 +247,7 @@ export async function generateModuleCertificatePDF(
 
   // ── Metadata ──
   doc.setTitle(`Semetra Zertifikat — ${data.moduleName}`);
-  doc.setAuthor("Semetra Study Organizer");
+  doc.setAuthor("Semetra Study System");
   doc.setSubject(`Modul-Zertifikat: ${data.moduleName}`);
   doc.setCreator("Semetra (app.semetra.ch)");
 

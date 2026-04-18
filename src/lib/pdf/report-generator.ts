@@ -162,7 +162,7 @@ export async function generateSemesterReportPDF(data: SemesterReportData): Promi
 
   // Metadata
   doc.setTitle(`Semetra Semester-Report — ${data.profile.name}`);
-  doc.setAuthor("Semetra Study Organizer");
+  doc.setAuthor("Semetra Study System");
   doc.setSubject(`Leistungsnachweis ${data.profile.semester || ""}`);
   doc.setCreator("Semetra (app.semetra.ch)");
   doc.setProducer("pdf-lib");
@@ -192,7 +192,7 @@ function drawHeader(page: PDFPage, bold: PDFFont, regular: PDFFont, y: number): 
     color: BRAND,
   });
 
-  page.drawText("Study Organizer", {
+  page.drawText("Study System", {
     x: MARGIN + 115,
     y: y - 5,
     size: 10,
@@ -624,7 +624,7 @@ export function generateSemesterReportCSV(data: SemesterReportData): string {
 export function generateSemesterReportJSON(data: SemesterReportData): string {
   return JSON.stringify({
     meta: {
-      generator: "Semetra Study Organizer",
+      generator: "Semetra Study System",
       version: "1.0",
       generatedAt: data.generatedAt || new Date().toISOString(),
       reportType: "semester-report",

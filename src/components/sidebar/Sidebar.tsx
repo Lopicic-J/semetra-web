@@ -234,7 +234,7 @@ export default function Sidebar() {
         </div>
         <div className="min-w-0">
           <p className="font-bold text-surface-900 dark:text-white text-sm leading-tight tracking-tight">Semetra</p>
-          <p className="text-[10px] text-surface-400 leading-tight">Study Organizer</p>
+          <p className="text-[10px] text-surface-400 leading-tight">Study System</p>
         </div>
         <div className="ml-auto flex items-center gap-1 shrink-0">
           <NotificationBell />
