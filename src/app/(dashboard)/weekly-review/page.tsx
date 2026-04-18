@@ -3,8 +3,6 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "@/lib/i18n";
 import { useWeeklyReview, useReviewList } from "@/lib/hooks/useWeeklyReview";
-import { useStudyPatterns } from "@/lib/hooks/useStudyPatterns";
-import { useAutoReschedule } from "@/lib/hooks/useAutoReschedule";
 import {
   BarChart3, TrendingUp, TrendingDown, Minus, Clock, Target,
   Calendar, Star, Zap, Brain, AlertTriangle, CheckCircle2,
@@ -16,10 +14,11 @@ export default function WeeklyReviewPage() {
   const { t } = useTranslation();
   const [selectedWeek, setSelectedWeek] = useState<string>(getMonday(new Date().toISOString().slice(0, 10)));
 
-  const { review, loading, error, generateReview } = useWeeklyReview(selectedWeek);
+  const { review: rawReview, loading, error, generateReview } = useWeeklyReview(selectedWeek);
   const { reviews: reviewList } = useReviewList();
-  const { patterns, insights: patternInsights } = useStudyPatterns(30);
-  const { missedBlocks, detectMissed, autoReschedule } = useAutoReschedule();
+
+  // Validate review structure — prevent render crashes from missing nested fields
+  const review = rawReview?.metrics ? rawReview : null;
 
   const weekLabel = useMemo(() => {
     const start = new Date(selectedWeek);

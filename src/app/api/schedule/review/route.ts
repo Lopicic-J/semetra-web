@@ -59,7 +59,9 @@ export async function GET(req: NextRequest) {
     .single();
 
   if (saved) {
-    return successResponse(saved);
+    // Map flat DB row back to WeeklyReview structure for the frontend
+    const mapped = mapSavedReview(saved);
+    return successResponse(mapped);
   }
 
   // Generate on-the-fly
@@ -262,4 +264,36 @@ function addDays(date: string, days: number): string {
   const d = new Date(date);
   d.setDate(d.getDate() + days);
   return d.toISOString().slice(0, 10);
+}
+
+/** Map a saved DB row back to WeeklyReview structure */
+function mapSavedReview(row: any) {
+  return {
+    weekStart: row.week_start,
+    weekEnd: row.week_end,
+    metrics: {
+      totalPlannedMinutes: row.total_planned_minutes ?? 0,
+      totalActualMinutes: row.total_actual_minutes ?? 0,
+      totalEffectiveMinutes: row.total_effective_minutes ?? 0,
+      overallAdherence: row.overall_adherence ?? 0,
+      sessionsCompleted: row.sessions_completed ?? 0,
+      blocksCompleted: row.blocks_completed ?? 0,
+      blocksSkipped: row.blocks_skipped ?? 0,
+      blocksRescheduled: row.blocks_rescheduled ?? 0,
+      bestDay: row.best_day ?? null,
+      bestHour: row.best_hour ?? null,
+      avgSessionMinutes: row.avg_session_minutes ?? null,
+      avgFocusRating: row.avg_focus_rating ?? null,
+      avgEnergyLevel: row.avg_energy_level ?? null,
+      studyDays: row.study_days ?? 0,
+      focusEfficiency: row.focus_efficiency ?? 0,
+    },
+    moduleStats: row.module_stats ?? [],
+    vsPrevWeek: row.vs_prev_week ?? { plannedDelta: 0, actualDelta: 0, adherenceDelta: 0, trendDirection: "stable" },
+    vs4WeekAvg: row.vs_4_week_avg ?? { plannedDelta: 0, actualDelta: 0, adherenceDelta: 0, trendDirection: "stable" },
+    insights: row.insights ?? [],
+    recommendations: row.recommendations ?? [],
+    goals: row.goals ?? [],
+    highlights: row.highlights ?? [],
+  };
 }
