@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { useGradingSystem } from "@/lib/hooks/useGradingSystem";
@@ -9,7 +8,6 @@ import { ProGate } from "@/components/ui/ProGate";
 import type { Studiengang, StudiengangModuleTemplate } from "@/types/database";
 import { useTranslation } from "@/lib/i18n";
 import { useTheme } from "@/components/providers/ThemeProvider";
-import { INSTITUTIONAL_FEATURES } from "@/lib/feature-flags";
 
 const MODULE_COLORS = [
   "#6d28d9","#2563eb","#dc2626","#059669","#d97706","#db2777","#0891b2","#65a30d"
@@ -66,21 +64,13 @@ const COUNTRY_TABS: { code: string; flag: string; label: string }[] = [
 ];
 
 export default function StudiengaengePage() {
-  const router = useRouter();
   const { t } = useTranslation();
   const supabase = createClient();
-  const { isPro } = useProfile();
+  const { isPro, loading: profileLoading } = useProfile();
   const gs = useGradingSystem();
   const { resolvedMode } = useTheme();
   const isDark = resolvedMode === "dark";
 
-  // Consumer-mode: institution-scoped module catalogs are behind the institutional
-  // feature flag. Send users back to the dashboard until the purchasable
-  // "Modul-Vorlagen" product line is live.
-  useEffect(() => {
-    if (!INSTITUTIONAL_FEATURES) router.replace("/dashboard");
-  }, [router]);
-  if (!INSTITUTIONAL_FEATURES) return null;
   const [programmes, setProgrammes] = useState<Studiengang[]>([]);
   const [selected, setSelected] = useState<Studiengang | null>(null);
   const [importing, setImporting] = useState(false);
@@ -195,6 +185,32 @@ export default function StudiengaengePage() {
         <ProGate feature="fhImportAll" isPro={false}>
           <div />
         </ProGate>
+      </div>
+    );
+  }
+
+  // Modul-Katalog ist Pro-Feature. Free-User sehen einen Upgrade-Hinweis.
+  if (!profileLoading && !isPro) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center p-4">
+        <div className="max-w-md text-center bg-[rgb(var(--card-bg))] rounded-2xl border border-surface-200 dark:border-surface-700 p-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white mb-4">
+            <Lock size={22} />
+          </div>
+          <h1 className="text-xl font-bold text-surface-900 dark:text-white mb-2">
+            Modul-Katalog
+          </h1>
+          <p className="text-sm text-surface-500 dark:text-surface-400 mb-6">
+            Mit Pro wählst du deinen Studiengang aus dem Katalog — wir laden automatisch alle
+            Module (Name, Kürzel, ECTS, Semester) für dich ein. Spart dir Stunden manueller Arbeit.
+          </p>
+          <a
+            href="/upgrade"
+            className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 text-white font-semibold text-sm transition"
+          >
+            Upgrade zu Pro
+          </a>
+        </div>
       </div>
     );
   }

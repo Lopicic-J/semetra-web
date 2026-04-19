@@ -6,6 +6,8 @@ import { useTranslation, LOCALE_LABELS, LOCALE_FLAGS, type Locale } from "@/lib/
 import { COUNTRY_LIST, type CountryCode } from "@/lib/grading-systems";
 import Link from "next/link";
 import StudyProgramCard from "@/components/settings/StudyProgramCard";
+import StudyInfoCard from "@/components/profile/StudyInfoCard";
+import { INSTITUTIONAL_FEATURES } from "@/lib/feature-flags";
 import {
   User,
   Mail,
@@ -394,39 +396,16 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Study Info — read-only for students, editable for others */}
+      {/* Study Info — manual free-text for all users. Pro users additionally get the
+          "Aus Katalog wählen" link that jumps to /studiengaenge to auto-import modules. */}
       <div className="mb-4">
-        {userRole === "student" ? (
-          <div className="bg-surface-100 rounded-2xl border border-surface-200 p-3 sm:p-5">
-            <div className="flex items-center gap-2 mb-1">
-              <GraduationCap size={18} className="text-brand-600 dark:text-brand-400" />
-              <h2 className="font-semibold text-surface-900 dark:text-white">
-                {t("settings.studyTitle") || "Mein Studium"}
-              </h2>
-            </div>
- <p className="text-xs text-surface-400 mb-4">
-              Deine Hochschule und dein Studiengang werden durch deine Registrierung festgelegt.
-            </p>
-            <div className="space-y-3">
-              <DetailRow
-                icon={<Building2 size={14} />}
-                label={t("settings.studyInstitution") || "Hochschule"}
-                value={profile?.university || "—"}
-              />
-              <DetailRow
-                icon={<BookOpen size={14} />}
-                label={t("settings.studyProgram") || "Studiengang"}
-                value={profile?.study_program || "—"}
-              />
-            </div>
- <p className="text-[10px] text-surface-400 mt-3 flex items-center gap-1">
-              <Shield size={10} />
-              Studiengang kann jederzeit in den Einstellungen geändert werden. Bei Fragen:{" "}
-              <a href="mailto:support@semetra.ch" className="text-brand-500 hover:text-brand-600 underline">support@semetra.ch</a>
-            </p>
-          </div>
+        {INSTITUTIONAL_FEATURES ? (
+          // Institutional mode: use the old structured enrollment card
+          userRole === "student"
+            ? <StudyProgramCard country={profile?.country || "CH"} onEnrolled={refetch} />
+            : <StudyProgramCard country={profile?.country || "CH"} onEnrolled={refetch} />
         ) : (
-          <StudyProgramCard country={profile?.country || "CH"} onEnrolled={refetch} />
+          <StudyInfoCard profile={profile} isPro={isPro} onUpdate={refetch} />
         )}
       </div>
 
