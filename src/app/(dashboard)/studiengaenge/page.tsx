@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { useGradingSystem } from "@/lib/hooks/useGradingSystem";
@@ -8,6 +9,7 @@ import { ProGate } from "@/components/ui/ProGate";
 import type { Studiengang, StudiengangModuleTemplate } from "@/types/database";
 import { useTranslation } from "@/lib/i18n";
 import { useTheme } from "@/components/providers/ThemeProvider";
+import { INSTITUTIONAL_FEATURES } from "@/lib/feature-flags";
 
 const MODULE_COLORS = [
   "#6d28d9","#2563eb","#dc2626","#059669","#d97706","#db2777","#0891b2","#65a30d"
@@ -64,12 +66,21 @@ const COUNTRY_TABS: { code: string; flag: string; label: string }[] = [
 ];
 
 export default function StudiengaengePage() {
+  const router = useRouter();
   const { t } = useTranslation();
   const supabase = createClient();
   const { isPro } = useProfile();
   const gs = useGradingSystem();
   const { resolvedMode } = useTheme();
   const isDark = resolvedMode === "dark";
+
+  // Consumer-mode: institution-scoped module catalogs are behind the institutional
+  // feature flag. Send users back to the dashboard until the purchasable
+  // "Modul-Vorlagen" product line is live.
+  useEffect(() => {
+    if (!INSTITUTIONAL_FEATURES) router.replace("/dashboard");
+  }, [router]);
+  if (!INSTITUTIONAL_FEATURES) return null;
   const [programmes, setProgrammes] = useState<Studiengang[]>([]);
   const [selected, setSelected] = useState<Studiengang | null>(null);
   const [importing, setImporting] = useState(false);

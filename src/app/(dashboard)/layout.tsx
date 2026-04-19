@@ -14,13 +14,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // Check onboarding status — redirect new users to onboarding
+  // Check role + onboarding — redirect new users through the funnel
   const { data: profile } = await supabase
     .from("profiles")
-    .select("onboarding_completed")
+    .select("role_confirmed, onboarding_completed")
     .eq("id", user.id)
     .maybeSingle();
 
+  if (profile && profile.role_confirmed === false) {
+    redirect("/role-select");
+  }
   if (profile && profile.onboarding_completed === false) {
     redirect("/onboarding");
   }

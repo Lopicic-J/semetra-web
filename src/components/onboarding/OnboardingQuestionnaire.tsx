@@ -622,7 +622,7 @@ export default function OnboardingQuestionnaire() {
         </div>
 
         {/* Bottom navigation — fixed on mobile */}
- <div className="sticky bottom-0 bg-surface-50/95 dark:bg-surface-950/95 backdrop-blur-lg border-t border-surface-200 dark:border-surface-800 px-4 sm:px-8 lg:px-12 py-4">
+ <div className="sticky bottom-0 z-20 bg-surface-50/95 dark:bg-surface-950/95 backdrop-blur-lg border-t border-surface-200 dark:border-surface-800 px-4 sm:px-8 lg:px-12 py-4">
           <div className="max-w-2xl mx-auto flex items-center justify-between">
             <button
               type="button"
@@ -636,11 +636,33 @@ export default function OnboardingQuestionnaire() {
 
             <button
               type="button"
-              onClick={() => {
-                events.onboardingSkipped(currentStep);
-                router.push("/dashboard");
+              disabled={saving}
+              onClick={async () => {
+                setSaving(true);
+                setError("");
+                try {
+                  const res = await fetch("/api/onboarding", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      data: buildFlatData(),
+                      step: currentStep + 1,
+                      finalize: true,
+                      skipped: true,
+                    }),
+                  });
+                  if (!res.ok) {
+                    const json = await res.json();
+                    throw new Error(json.error || "Überspringen fehlgeschlagen");
+                  }
+                  events.onboardingSkipped(currentStep);
+                  router.push("/dashboard");
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : "Unbekannter Fehler");
+                  setSaving(false);
+                }
               }}
-              className="text-xs text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition px-3 py-2"
+              className="text-xs text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition px-3 py-2 disabled:opacity-40"
             >
               Überspringen
             </button>

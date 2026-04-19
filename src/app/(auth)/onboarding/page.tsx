@@ -13,13 +13,16 @@ export default async function OnboardingPage() {
 
   if (!user) redirect("/login");
 
-  // Check if already completed
+  // Check role + onboarding — route through role picker first
   const { data: profile } = await supabase
     .from("profiles")
-    .select("onboarding_completed")
+    .select("role_confirmed, onboarding_completed")
     .eq("id", user.id)
     .single();
 
+  if (profile && !profile.role_confirmed) {
+    redirect("/role-select");
+  }
   if (profile?.onboarding_completed) {
     redirect("/dashboard");
   }

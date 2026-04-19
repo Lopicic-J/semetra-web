@@ -11,6 +11,7 @@ import { COUNTRY_LIST, GRADING_SYSTEMS, type CountryCode } from "@/lib/grading-s
 import { useTranslation, LOCALES, LOCALE_LABELS, LOCALE_FLAGS, type Locale } from "@/lib/i18n";
 import Link from "next/link";
 import StudyProgramCard from "@/components/settings/StudyProgramCard";
+import { INSTITUTIONAL_FEATURES } from "@/lib/feature-flags";
 
 export default function SettingsPage() {
   const { t } = useTranslation();
@@ -177,8 +178,8 @@ function AccountTab({ user, profile, refetch }: { user: { email?: string; create
         )}
       </div>
 
-      {/* Mein Studium — structured enrollment */}
-      <StudyProgramCard country={selectedCountry} onEnrolled={refetch} />
+      {/* Mein Studium — structured enrollment (institutional feature) */}
+      {INSTITUTIONAL_FEATURES && <StudyProgramCard country={selectedCountry} onEnrolled={refetch} />}
 
       {/* Language */}
       <LanguageCard />

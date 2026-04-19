@@ -11,6 +11,7 @@ import { useProfile } from "@/lib/hooks/useProfile";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import UserProfileModal from "@/components/community/UserProfileModal";
+import { COMMUNITY_INSTITUTION_SCOPED } from "@/lib/feature-flags";
 
 interface CommunityMember {
   id: string;
@@ -178,7 +179,8 @@ export default function CommunityPage() {
     return country ? <span className="text-xs" title={country}>{flags[country] || "🌐"}</span> : null;
   };
 
-  if (!profile?.institution_id) {
+  // Institution-scoped mode: block users without institution
+  if (COMMUNITY_INSTITUTION_SCOPED && !profile?.institution_id) {
     return (
       <div className="px-2 sm:px-4 py-6 max-w-4xl mx-auto">
         <div className="card text-center py-12">

@@ -91,8 +91,8 @@ export async function POST(req: NextRequest) {
     if (!data || typeof data !== "object") {
       return errorResponse("data Objekt ist erforderlich", 400);
     }
-    if (!step || step < 1 || step > 5) {
-      return errorResponse("step muss zwischen 1 und 5 sein", 400);
+    if (!step || step < 1 || step > 6) {
+      return errorResponse("step muss zwischen 1 und 6 sein", 400);
     }
 
     // Filter to allowed fields only

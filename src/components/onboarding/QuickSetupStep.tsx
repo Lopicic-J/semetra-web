@@ -134,7 +134,10 @@ export default function QuickSetupStep({
         setGradingCountry(profile.country as CountryCode);
       }
 
-      if (profile?.active_program_id) {
+      // Institution auto-import gated behind feature flag (consumer-mode default)
+      const { ONBOARDING_INSTITUTION_AUTO_IMPORT } = await import("@/lib/feature-flags");
+
+      if (ONBOARDING_INSTITUTION_AUTO_IMPORT && profile?.active_program_id) {
         setHasInstitution(true);
         setInstitutionName(profile.university ?? "");
         setProgramName(profile.study_program ?? "");
