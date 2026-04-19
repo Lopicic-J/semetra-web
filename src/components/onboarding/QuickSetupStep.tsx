@@ -82,6 +82,94 @@ const PROGRAM_TEMPLATES: Record<string, Array<{ name: string; code: string; ects
     { name: "CAD", code: "CAD", ects: 6 },
     { name: "Thermodynamik", code: "TD", ects: 6 },
   ],
+  elektrotechnik: [
+    { name: "Mathematik 1", code: "MAT1", ects: 6 },
+    { name: "Physik 1", code: "PHY1", ects: 6 },
+    { name: "Grundlagen Elektrotechnik", code: "GET", ects: 6 },
+    { name: "Digitaltechnik", code: "DIG", ects: 3 },
+    { name: "Signalverarbeitung", code: "SIG", ects: 6 },
+    { name: "Elektronik 1", code: "ELK1", ects: 6 },
+  ],
+  bauingenieurwesen: [
+    { name: "Mathematik 1", code: "MAT1", ects: 6 },
+    { name: "Baustatik", code: "STA", ects: 6 },
+    { name: "Baustoffkunde", code: "BSK", ects: 3 },
+    { name: "Geotechnik", code: "GEO", ects: 6 },
+    { name: "Konstruktiver Ingenieurbau", code: "KIB", ects: 6 },
+    { name: "CAD & Vermessung", code: "VM", ects: 6 },
+  ],
+  architektur: [
+    { name: "Entwurf 1", code: "ENT1", ects: 9 },
+    { name: "Baukonstruktion", code: "BK", ects: 6 },
+    { name: "Darstellungstechnik", code: "DT", ects: 3 },
+    { name: "Architekturgeschichte", code: "AG", ects: 3 },
+    { name: "Bauphysik", code: "BP", ects: 3 },
+    { name: "Tragwerkslehre", code: "TL", ects: 6 },
+  ],
+  psychologie: [
+    { name: "Allgemeine Psychologie", code: "APSY", ects: 6 },
+    { name: "Sozialpsychologie", code: "SPSY", ects: 6 },
+    { name: "Entwicklungspsychologie", code: "EPSY", ects: 6 },
+    { name: "Statistik für Psycholog:innen", code: "STAT", ects: 6 },
+    { name: "Empirisches Arbeiten", code: "EMP", ects: 6 },
+    { name: "Neuropsychologie", code: "NPSY", ects: 3 },
+  ],
+  soziale_arbeit: [
+    { name: "Grundlagen Sozialer Arbeit", code: "GSA", ects: 6 },
+    { name: "Soziologie", code: "SOZ", ects: 6 },
+    { name: "Sozialpsychologie", code: "SPSY", ects: 6 },
+    { name: "Recht für Soziale Arbeit", code: "RSA", ects: 6 },
+    { name: "Methoden Sozialer Arbeit", code: "MSA", ects: 6 },
+    { name: "Sozialpolitik", code: "SP", ects: 3 },
+  ],
+  pflege: [
+    { name: "Pflegewissenschaft", code: "PW", ects: 6 },
+    { name: "Anatomie & Physiologie", code: "AP", ects: 6 },
+    { name: "Krankheitslehre", code: "KL", ects: 6 },
+    { name: "Pharmakologie", code: "PHA", ects: 3 },
+    { name: "Klinisches Praktikum", code: "PR", ects: 6 },
+    { name: "Ethik & Recht", code: "ER", ects: 3 },
+  ],
+  gesundheit: [
+    { name: "Anatomie", code: "ANA", ects: 6 },
+    { name: "Physiologie", code: "PHY", ects: 6 },
+    { name: "Ernährungslehre", code: "EL", ects: 3 },
+    { name: "Gesundheitsförderung", code: "GF", ects: 6 },
+    { name: "Public Health", code: "PH", ects: 6 },
+    { name: "Statistik & Epidemiologie", code: "EPI", ects: 6 },
+  ],
+  design: [
+    { name: "Gestaltungsgrundlagen", code: "GG", ects: 6 },
+    { name: "Typografie", code: "TYP", ects: 3 },
+    { name: "Visuelle Kommunikation", code: "VK", ects: 6 },
+    { name: "Design-Geschichte", code: "DG", ects: 3 },
+    { name: "Digital Tools", code: "DT", ects: 6 },
+    { name: "Projektarbeit", code: "PA", ects: 6 },
+  ],
+  recht: [
+    { name: "Einführung in das Recht", code: "ER", ects: 6 },
+    { name: "Staatsrecht", code: "STR", ects: 6 },
+    { name: "Privatrecht 1", code: "PR1", ects: 6 },
+    { name: "Strafrecht", code: "SR", ects: 6 },
+    { name: "Verwaltungsrecht", code: "VR", ects: 6 },
+    { name: "Rechtsgeschichte", code: "RG", ects: 3 },
+  ],
+  kommunikation: [
+    { name: "Kommunikationstheorie", code: "KT", ects: 6 },
+    { name: "Medienwissenschaft", code: "MW", ects: 6 },
+    { name: "Journalistisches Schreiben", code: "JS", ects: 3 },
+    { name: "Medienethik", code: "ME", ects: 3 },
+    { name: "PR & Corporate Communications", code: "PR", ects: 6 },
+    { name: "Digitale Medien", code: "DM", ects: 6 },
+  ],
+  paedagogik: [
+    { name: "Einführung Pädagogik", code: "EP", ects: 6 },
+    { name: "Entwicklungspsychologie", code: "EPSY", ects: 6 },
+    { name: "Didaktik", code: "DID", ects: 6 },
+    { name: "Bildungssoziologie", code: "BS", ects: 6 },
+    { name: "Empirische Forschungsmethoden", code: "EFM", ects: 6 },
+    { name: "Bildungsrecht", code: "BR", ects: 3 },
+  ],
 };
 
 // ── Main Component ──────────────────────────────────────────────────────────
@@ -481,7 +569,7 @@ export default function QuickSetupStep({
                   value={mod.grade ?? ""}
                   onChange={e => setModuleGrade(mod.id, e.target.value ? parseFloat(e.target.value) : null)}
                   placeholder={gradingSystem.inputPlaceholder || `${gradingSystem.min}–${gradingSystem.max}`}
-                  className="w-20 px-2 py-1 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-xs text-center"
+                  className="w-20 px-2 py-1 rounded-lg border border-surface-200 dark:border-surface-700 bg-[rgb(var(--card-bg))] text-xs text-center text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500"
                 />
               </div>
             );
@@ -491,25 +579,26 @@ export default function QuickSetupStep({
 
       {/* ── ADD MODULE FORM ── */}
       {!saved && (
-        <div className="p-4 rounded-2xl bg-[rgb(var(--card-bg))] border border-surface-200 space-y-3">
-          <p className="text-sm font-semibold text-surface-700 flex items-center gap-2">
+        <div className="p-4 rounded-2xl bg-[rgb(var(--card-bg))] border border-surface-200 dark:border-surface-700 space-y-3 overflow-hidden">
+          <p className="text-sm font-semibold text-surface-700 dark:text-white flex items-center gap-2">
             <Plus size={14} /> Modul hinzufügen
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <input type="text" value={newName} onChange={e => setNewName(e.target.value)}
               placeholder="Modulname *"
-              className="col-span-1 sm:col-span-2 px-3 py-2.5 rounded-xl border border-surface-200 bg-transparent text-sm placeholder:text-surface-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+              className="col-span-1 sm:col-span-2 min-w-0 px-3 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 bg-transparent text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none"
               onKeyDown={e => e.key === "Enter" && addModule()} />
-            <div className="flex gap-2">
+            <div className="flex gap-2 min-w-0">
               <input type="text" value={newCode} onChange={e => setNewCode(e.target.value)}
-                placeholder="Kürzel" className="flex-1 px-3 py-2.5 rounded-xl border border-surface-200 bg-transparent text-sm placeholder:text-surface-400" />
+                placeholder="Kürzel"
+                className="flex-1 min-w-0 px-3 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 bg-transparent text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 focus:outline-none" />
               <input type="number" value={newEcts} onChange={e => setNewEcts(Number(e.target.value))}
                 placeholder="ECTS" min={1} max={30}
-                className="w-20 px-3 py-2.5 rounded-xl border border-surface-200 bg-transparent text-sm placeholder:text-surface-400" />
+                className="w-20 shrink-0 px-3 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 bg-transparent text-sm text-surface-900 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500 focus:border-brand-500 focus:outline-none" />
             </div>
           </div>
           <button onClick={addModule} disabled={!newName.trim()}
-            className="w-full py-2.5 rounded-xl border-2 border-dashed border-surface-300 text-sm font-medium text-surface-500 hover:border-brand-400 hover:text-brand-600 transition-colors disabled:opacity-40">
+            className="w-full py-2.5 rounded-xl border-2 border-dashed border-surface-300 dark:border-surface-600 text-sm font-medium text-surface-500 dark:text-surface-300 hover:border-brand-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors disabled:opacity-40">
             + Hinzufügen
           </button>
         </div>

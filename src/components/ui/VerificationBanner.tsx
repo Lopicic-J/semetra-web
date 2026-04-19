@@ -3,6 +3,7 @@
 import { useProfile } from "@/lib/hooks/useProfile";
 import { AlertTriangle, Clock, XCircle, Mail } from "lucide-react";
 import Link from "next/link";
+import { INSTITUTIONAL_FEATURES } from "@/lib/feature-flags";
 
 /**
  * Banner shown to users who need verification.
@@ -16,6 +17,9 @@ import Link from "next/link";
  */
 export function VerificationBanner() {
   const { profile, loading, userRole, verificationStatus } = useProfile();
+
+  // Consumer mode: no institutional verification concept — hide banner entirely.
+  if (!INSTITUTIONAL_FEATURES) return null;
 
   if (loading || !profile) return null;
 
