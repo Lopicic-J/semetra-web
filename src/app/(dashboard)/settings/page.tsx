@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Settings, User, Bell, Palette, Shield, LogOut, Zap, CreditCard, CheckCircle, Monitor, ExternalLink, Download, Loader2, FileJson, HardDrive, Database, Globe, Languages, Info, AlertTriangle, Trash2, Mail } from "lucide-react";
+import { Settings, User, Bell, Palette, Shield, LogOut, Zap, CreditCard, CheckCircle, Monitor, ExternalLink, Download, Loader2, FileJson, HardDrive, Database, Globe, Languages, Info, AlertTriangle, Trash2 } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const AboutPage = dynamic(() => import("@/app/(dashboard)/about/page"), { loading: () => <div className="flex items-center gap-2 text-surface-400 py-8"><Loader2 size={16} className="animate-spin" /> Laden…</div> });
@@ -1044,14 +1044,11 @@ function LanguageCard() {
 
 /* ─── Delete Account Section ─── */
 function DeleteAccountSection({ t }: { t: (key: string) => string }) {
-  const { userRole } = useProfile();
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
   const [confirmation, setConfirmation] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
-
-  const isStudent = userRole === "student";
 
   async function handleDelete() {
     if (confirmation !== "KONTO LÖSCHEN") {
@@ -1087,33 +1084,13 @@ function DeleteAccountSection({ t }: { t: (key: string) => string }) {
         <h2 className="font-semibold text-red-700 dark:text-red-400 mb-2">{t("settings.dangerZone")}</h2>
  <p className="text-sm text-surface-500 mb-3">{t("settings.deleteAccountWarning")}</p>
 
-        {isStudent ? (
-          /* Students cannot delete directly — must contact support */
-          <div className="space-y-3">
-            <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl">
-              <AlertTriangle size={16} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-800 dark:text-amber-300">
-                Als Student kannst du dein Konto nicht selbst löschen. Bitte kontaktiere den Support oder deine Institution.
-              </p>
-            </div>
-            <a
-              href="mailto:support@semetra.ch?subject=Kontolöschung%20beantragen&body=Ich%20möchte%20mein%20Semetra-Konto%20löschen.%0A%0ABenutzername%3A%20%0AE-Mail%3A%20"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
-            >
-              <Mail size={14} />
-              Löschung bei Support beantragen
-            </a>
-          </div>
-        ) : (
-          /* Non-students can delete directly */
-          <button
-            onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
-          >
-            <Trash2 size={14} />
-            {t("settings.deleteAccount")}
-          </button>
-        )}
+        <button
+          onClick={() => setShowModal(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
+        >
+          <Trash2 size={14} />
+          {t("settings.deleteAccount")}
+        </button>
       </div>
 
       {/* Confirmation Modal */}

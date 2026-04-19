@@ -27,7 +27,7 @@ export const OAUTH_PROVIDERS: OAuthProvider[] = [
     icon: GoogleIcon,
     bg: "bg-white dark:bg-surface-800 hover:bg-surface-50 border border-surface-200",
     text: "text-surface-800",
-    enabled: false, // → Enable when Google OAuth is configured in Supabase
+    enabled: true,
   },
   {
     id: "azure",
